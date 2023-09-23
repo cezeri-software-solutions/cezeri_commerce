@@ -1,0 +1,17 @@
+import 'package:cezeri_commerce/core/firebase_failures.dart';
+import 'package:dartz/dartz.dart';
+
+import '../../entities/marketplace.dart';
+import '../../entities/product/product.dart';
+
+abstract class ProductRepository {
+  Future<Either<FirebaseFailure, Unit>> createProduct(Product product);
+  Future<Either<FirebaseFailure, Unit>> updateProduct(Product product);
+  Future<Either<FirebaseFailure, Unit>> deleteProduct(String id);
+  Future<Either<FirebaseFailure, Unit>> deleteListOfProducts(List<String> productsIds);
+  Future<Either<FirebaseFailure, Unit>> activateMarketplaceInSelectedProducts(List<Product> selectedProducts, Marketplace marketplace);
+  Future<Either<FirebaseFailure, Product>> getProduct(String id);
+  Future<Either<FirebaseFailure, List<Product>>> getListOfProducts();
+
+  Future<Either<FirebaseFailure, Product>> updateQuantityOfProduct(Product product, int newQuantity);
+}

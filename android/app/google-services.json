@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "606341394358",
+    "project_id": "cezeri-commerce",
+    "storage_bucket": "cezeri-commerce.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:606341394358:android:301e7de9df63bbfa07db17",
+        "android_client_info": {
+          "package_name": "com.cezerisoftwaresolutions.cezeri_commerce"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDdS7njrq4PO1jmDIJ7iH1fM8y9f2Go0vQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,76 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
+part of 'main_settings.dart';
+
+// **************************************************************************
+// JsonSerializableGenerator
+// **************************************************************************
+
+MainSettings _$MainSettingsFromJson(Map<String, dynamic> json) => MainSettings(
+      settingsId: json['settingsId'] as String,
+      logoUrl: json['logoUrl'] as String,
+      offerPraefix: json['offerPraefix'] as String,
+      appointmentPraefix: json['appointmentPraefix'] as String,
+      invoicePraefix: json['invoicePraefix'] as String,
+      creditPraefix: json['creditPraefix'] as String,
+      currency: json['currency'] as String,
+      smsMessage: json['smsMessage'] as String,
+      offerDocumentText: json['offerDocumentText'] as String,
+      appointmentDocumentText: json['appointmentDocumentText'] as String,
+      invoiceDocumentText: json['invoiceDocumentText'] as String,
+      creditDocumentText: json['creditDocumentText'] as String,
+      taxes: (json['taxes'] as List<dynamic>)
+          .map((e) => Tax.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      nextOfferNumber: json['nextOfferNumber'] as int,
+      nextAppointmentNumber: json['nextAppointmentNumber'] as int,
+      nextInvoiceNumber: json['nextInvoiceNumber'] as int,
+      nextBranchNumber: json['nextBranchNumber'] as int,
+      nextCustomerNumber: json['nextCustomerNumber'] as int,
+      termOfPayment: json['termOfPayment'] as int,
+      countEmployees: json['countEmployees'] as int,
+      countBranches: json['countBranches'] as int,
+      limitationNumberOfEmployees: json['limitationNumberOfEmployees'] as int,
+      limitationNumberOfBranches: json['limitationNumberOfBranches'] as int,
+      isSmallBusiness: json['isSmallBusiness'] as bool,
+      isMainSettings: json['isMainSettings'] as bool,
+      paymentMethods: (json['paymentMethods'] as List<dynamic>)
+          .map((e) => e as String)
+          .toList(),
+      bankDetails:
+          BankDetails.fromJson(json['bankDetails'] as Map<String, dynamic>),
+      openingTimes:
+          OpeningTimes.fromJson(json['openingTimes'] as Map<String, dynamic>),
+    );
+
+Map<String, dynamic> _$MainSettingsToJson(MainSettings instance) =>
+    <String, dynamic>{
+      'settingsId': instance.settingsId,
+      'logoUrl': instance.logoUrl,
+      'offerPraefix': instance.offerPraefix,
+      'appointmentPraefix': instance.appointmentPraefix,
+      'invoicePraefix': instance.invoicePraefix,
+      'creditPraefix': instance.creditPraefix,
+      'currency': instance.currency,
+      'smsMessage': instance.smsMessage,
+      'offerDocumentText': instance.offerDocumentText,
+      'appointmentDocumentText': instance.appointmentDocumentText,
+      'invoiceDocumentText': instance.invoiceDocumentText,
+      'creditDocumentText': instance.creditDocumentText,
+      'taxes': instance.taxes.map((e) => e.toJson()).toList(),
+      'nextOfferNumber': instance.nextOfferNumber,
+      'nextAppointmentNumber': instance.nextAppointmentNumber,
+      'nextInvoiceNumber': instance.nextInvoiceNumber,
+      'nextBranchNumber': instance.nextBranchNumber,
+      'nextCustomerNumber': instance.nextCustomerNumber,
+      'termOfPayment': instance.termOfPayment,
+      'countEmployees': instance.countEmployees,
+      'countBranches': instance.countBranches,
+      'limitationNumberOfEmployees': instance.limitationNumberOfEmployees,
+      'limitationNumberOfBranches': instance.limitationNumberOfBranches,
+      'isSmallBusiness': instance.isSmallBusiness,
+      'isMainSettings': instance.isMainSettings,
+      'paymentMethods': instance.paymentMethods,
+      'bankDetails': instance.bankDetails.toJson(),
+      'openingTimes': instance.openingTimes.toJson(),
+    };

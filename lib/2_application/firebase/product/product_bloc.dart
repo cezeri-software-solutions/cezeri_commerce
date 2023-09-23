@@ -1,0 +1,234 @@
+import 'package:bloc/bloc.dart';
+import 'package:cezeri_commerce/3_domain/repositories/prestashop/product/product_edit_repository.dart';
+import 'package:cezeri_commerce/core/firebase_failures.dart';
+import 'package:cezeri_commerce/core/presta_failure.dart';
+import 'package:dartz/dartz.dart';
+import 'package:meta/meta.dart';
+
+import '../../../3_domain/entities/marketplace.dart';
+import '../../../3_domain/entities/product/product.dart';
+import '../../../3_domain/repositories/firebase/product_repository.dart';
+
+part 'product_event.dart';
+part 'product_state.dart';
+
+class ProductBloc extends Bloc<ProductEvent, ProductState> {
+  final ProductRepository productRepository;
+  final ProductEditRepository productEditRepository;
+
+  ProductBloc({required this.productRepository, required this.productEditRepository}) : super(ProductState.initial()) {
+//? #########################################################################
+
+    on<SetProductStateToInitialEvent>((event, emit) {
+      emit(ProductState.initial());
+    });
+
+//? #########################################################################
+
+    on<GetAllProductsEvent>((event, emit) async {
+      emit(state.copyWith(isLoadingProductsOnObserve: true));
+
+      final failureOrSuccess = await productRepository.getListOfProducts();
+      failureOrSuccess.fold(
+        (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
+        (listOfProduct) {
+          emit(state.copyWith(listOfAllProducts: listOfProduct, selectedProducts: [], firebaseFailure: null, isAnyFailure: false));
+          add(OnSearchFieldSubmittedEvent());
+        },
+      );
+
+      add(OnSearchFieldSubmittedEvent());
+
+      emit(state.copyWith(
+        isLoadingProductsOnObserve: false,
+        fosProductsOnObserveOption: optionOf(failureOrSuccess),
+      ));
+    });
+
+//? #########################################################################
+
+    on<GetProductEvent>((event, emit) async {
+      emit(state.copyWith(isLoadingProductOnObserve: true));
+
+      final failureOrSuccess = await productRepository.getProduct(event.id);
+      failureOrSuccess.fold(
+        (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
+        (product) => emit(state.copyWith(product: product, firebaseFailure: null, isAnyFailure: false)),
+      );
+
+      emit(state.copyWith(
+        isLoadingProductOnObserve: false,
+        fosProductOnObserveOption: optionOf(failureOrSuccess),
+      ));
+      emit(state.copyWith(fosProductOnObserveOption: none()));
+    });
+
+//? #########################################################################
+
+    on<CreateProductEvent>((event, emit) async {
+      emit(state.copyWith(isLoadingProductOnCreate: true));
+
+      final failureOrSuccess = await productRepository.createProduct(event.product);
+      failureOrSuccess.fold(
+        (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
+        (unit) => emit(state.copyWith(firebaseFailure: null, isAnyFailure: false)),
+      );
+
+      emit(state.copyWith(
+        isLoadingProductOnCreate: false,
+        fosProductOnCreateOption: optionOf(failureOrSuccess),
+      ));
+      emit(state.copyWith(fosProductOnCreateOption: none()));
+    });
+
+//? #########################################################################
+
+    on<UpdateProductEvent>((event, emit) async {
+      emit(state.copyWith(isLoadingProductOnUpdate: true));
+
+      final failureOrSuccess = await productRepository.updateProduct(event.product);
+      failureOrSuccess.fold(
+        (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
+        (unit) => emit(state.copyWith(firebaseFailure: null, isAnyFailure: false)),
+      );
+
+      emit(state.copyWith(
+        isLoadingProductOnUpdate: false,
+        fosProductOnUpdateOption: optionOf(failureOrSuccess),
+      ));
+      emit(state.copyWith(fosProductOnUpdateOption: none()));
+    });
+
+//? #########################################################################
+
+    on<UpdateQuantityOfProductEvent>((event, emit) async {
+      emit(state.copyWith(isLoadingProductOnUpdate: true));
+
+      final failureOrSuccess = await productRepository.updateQuantityOfProduct(event.product, event.newQuantity);
+      failureOrSuccess.fold(
+        (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
+        (product) {
+          List<Product> updatedProducts = state.listOfAllProducts!;
+          final index = updatedProducts.indexWhere((element) => element.id == product.id);
+          updatedProducts[index] = product;
+
+          emit(state.copyWith(listOfAllProducts: updatedProducts, firebaseFailure: null, isAnyFailure: false));
+
+          add(OnEditQuantityInMarketplacesEvent(product: event.product, newQuantity: event.newQuantity));
+        },
+      );
+
+      emit(state.copyWith(
+        isLoadingProductOnUpdate: false,
+        fosProductOnUpdateQuantityOption: optionOf(failureOrSuccess),
+      ));
+      emit(state.copyWith(fosProductOnUpdateOption: none()));
+    });
+
+//? #########################################################################
+
+    on<DeleteSelectedProductsEvent>((event, emit) async {
+      emit(state.copyWith(isLoadingProductOnDelete: true));
+
+      final failureOrSuccess = await productRepository.deleteListOfProducts(event.selectedProducts.map((e) => e.id).toList());
+      failureOrSuccess.fold(
+        (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
+        (unit) {
+          List<Product> products = List.from(state.listOfFilteredProducts!);
+          for (final product in event.selectedProducts) {
+            products.removeWhere((element) => element.id == product.id);
+          }
+          emit(state.copyWith(listOfFilteredProducts: products, selectedProducts: [], firebaseFailure: null, isAnyFailure: false));
+        },
+      );
+
+      emit(state.copyWith(
+        isLoadingProductOnDelete: false,
+        fosProductOnDeleteOption: optionOf(failureOrSuccess),
+      ));
+      emit(state.copyWith(fosProductOnDeleteOption: none()));
+    });
+
+//? #########################################################################
+
+    on<SetSearchFieldTextEvent>((event, emit) async {
+      emit(state.copyWith(productSearchText: event.searchText));
+    });
+
+    on<OnSearchFieldSubmittedEvent>((event, emit) async {
+      final listOfProducts = switch (state.productSearchText) {
+        '' => state.listOfAllProducts,
+        (_) => state.listOfAllProducts!
+            .where((element) =>
+                element.name.toLowerCase().contains(state.productSearchText.toLowerCase()) ||
+                element.articleNumber.toLowerCase().contains(state.productSearchText.toLowerCase()))
+            .toList()
+      };
+      emit(state.copyWith(listOfFilteredProducts: listOfProducts));
+    });
+
+//? #########################################################################
+
+    on<OnProductSelectedEvent>((event, emit) async {
+      List<Product> products = List.from(state.selectedProducts);
+      if (products.any((element) => element.id == event.product.id)) {
+        print(products.any((element) => element.id == event.product.id));
+        products.removeWhere((element) => element.id == event.product.id);
+      } else {
+        products.add(event.product);
+      }
+      emit(state.copyWith(selectedProducts: products));
+    });
+
+//? #########################################################################
+
+    on<MassEditActivateProductMarketplaceEvent>((event, emit) async {
+      emit(state.copyWith(isLoadingOnMassEditActivateProductMarketplace: true));
+
+      final failureOrSuccess = await productRepository.activateMarketplaceInSelectedProducts(state.selectedProducts, event.marketplace);
+      failureOrSuccess.fold(
+        (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
+        (unit) => emit(state.copyWith(firebaseFailure: null, isAnyFailure: false)),
+      );
+
+      emit(state.copyWith(
+        isLoadingOnMassEditActivateProductMarketplace: false,
+        fosMassEditActivateProductMarketplaceOption: optionOf(failureOrSuccess),
+      ));
+      emit(state.copyWith(fosProductOnUpdateOption: none()));
+    });
+
+//? #########################################################################
+// *#################################################################
+// * Prestashop events
+//? #########################################################################
+
+    on<OnEditQuantityInMarketplacesEvent>((event, emit) async {
+      // TODO: add isLoading
+      final failureOrSuccess = await productEditRepository.setProdcutPrestaQuantity(event.product, event.newQuantity);
+      failureOrSuccess.fold(
+        (failure) => emit(state.copyWith()), // TODO: handle Presta Failure
+        (unit) => emit(state.copyWith(firebaseFailure: null, isAnyFailure: false)),
+      );
+
+      emit(state.copyWith(
+        fosProductOnEditQuantityPrestaOption: optionOf(failureOrSuccess),
+      ));
+      emit(state.copyWith(fosProductOnEditQuantityPrestaOption: none()));
+    });
+
+    on<OnEditProductInPresta>((event, emit) async {
+      // TODO: add isLoading
+      final failureOrSuccess = await productEditRepository.editProdcutPresta(event.product);
+      failureOrSuccess.fold(
+        (failure) => emit(state.copyWith()), // TODO: handle Presta Failure
+        (unit) => emit(state.copyWith(firebaseFailure: null, isAnyFailure: false)),
+      );
+
+      emit(state.copyWith(
+        fosProductOnEditQuantityPrestaOption: optionOf(failureOrSuccess),
+      ));
+      emit(state.copyWith(fosProductOnEditQuantityPrestaOption: none()));
+    });
+  }
+}
