@@ -45,41 +45,37 @@ class ProductRepositoryImpl implements ProductRepository {
 
   @override
   Future<Either<FirebaseFailure, List<Product>>> getListOfProducts() async {
+    final isConnected = await checkInternetConnection();
+    if (!isConnected) return left(NoConnectionFailure());
+
     final currentUserUid = firebaseAuth.currentUser!.uid;
     final docRef = db.collection(currentUserUid).doc(currentUserUid).collection('Products');
 
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) {
-      return left(NoConnectionFailure());
-    } else {
-      try {
-        final listOfProducts = await docRef.get().then(
-              (value) => value.docs.map((querySnapshot) => Product.fromJson(querySnapshot.data())).toList(),
-            );
+    try {
+      final listOfProducts = await docRef.get().then(
+            (value) => value.docs.map((querySnapshot) => Product.fromJson(querySnapshot.data())).toList(),
+          );
 
-        if (listOfProducts.isEmpty) return left(EmptyFailure());
-        return right(listOfProducts);
-      } on FirebaseException {
-        return left(GeneralFailure());
-      }
+      if (listOfProducts.isEmpty) return left(EmptyFailure());
+      return right(listOfProducts);
+    } on FirebaseException {
+      return left(GeneralFailure());
     }
   }
 
   @override
   Future<Either<FirebaseFailure, Product>> getProduct(String id) async {
+    final isConnected = await checkInternetConnection();
+    if (!isConnected) return left(NoConnectionFailure());
+
     final currentUserUid = firebaseAuth.currentUser!.uid;
     final docRef = db.collection(currentUserUid).doc(currentUserUid).collection('Products').doc(id);
 
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) {
-      return left(NoConnectionFailure());
-    } else {
-      try {
-        final product = await docRef.get();
-        return right(Product.fromJson(product.data()!));
-      } on FirebaseException {
-        return left(GeneralFailure());
-      }
+    try {
+      final product = await docRef.get();
+      return right(Product.fromJson(product.data()!));
+    } on FirebaseException {
+      return left(GeneralFailure());
     }
   }
 

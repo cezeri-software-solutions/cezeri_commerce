@@ -13,7 +13,7 @@ class HomeScreen extends StatelessWidget {
       appBar: AppBar(title: const Text('Startseite')),
       drawer: const AppDrawer(),
       body: const Center(
-        child: Text('Herzlich Willkommen'),
+        child: SelectableText('Herzlich Willkommen'),
       ),
     );
   }
