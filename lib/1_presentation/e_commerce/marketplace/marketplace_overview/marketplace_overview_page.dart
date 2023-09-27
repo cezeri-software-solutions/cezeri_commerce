@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../2_application/firebase/marketplace/marketplace_bloc.dart';
-import '../../../../3_domain/entities/marketplace.dart';
+import '../../../../3_domain/entities/marketplace/marketplace.dart';
 import '../../../app_drawer.dart';
 import '../../../core/widgets/my_circular_avatar.dart';
 import 'functions/add_edit_marktplace_pressed.dart';
@@ -98,7 +98,14 @@ class _MarktplaceItem extends StatelessWidget {
             padding: const EdgeInsets.all(18.0),
             child: Column(
               children: [
-                const MyAvatar(name: 'P S'),
+                 Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const SizedBox(width: 20),
+                    const MyAvatar(name: 'P S'),
+                    Badge(backgroundColor: marketplace.isActive ? Colors.green : Colors.grey, smallSize: 20),
+                  ],
+                ),
                 Text(marketplace.name),
               ],
             ),

@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:cezeri_commerce/3_domain/entities/marketplace.dart';
 import 'package:cezeri_commerce/3_domain/entities/product/product.dart';
 import 'package:cezeri_commerce/core/presta_failure.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -10,6 +9,7 @@ import 'package:http/http.dart' as http;
 import 'package:xml/xml.dart';
 
 import '../../../../1_presentation/core/functions/check_internet_connection.dart';
+import '../../../../3_domain/entities/marketplace/marketplace.dart';
 import '../../../../3_domain/entities/prestashop_error.dart';
 import '../../../../3_domain/entities/product/product_marketplace.dart';
 import '../../../../3_domain/repositories/prestashop/product/product_edit_repository.dart';

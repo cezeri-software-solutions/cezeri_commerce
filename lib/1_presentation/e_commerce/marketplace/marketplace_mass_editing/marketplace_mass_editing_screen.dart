@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../2_application/firebase/product/product_bloc.dart';
-import '../../../../3_domain/entities/marketplace.dart';
+import '../../../../3_domain/entities/marketplace/marketplace.dart';
 import '../../../../injection.dart';
 import '../../../core/functions/my_scaffold_messanger.dart';
 

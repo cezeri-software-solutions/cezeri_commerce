@@ -3,11 +3,15 @@ import 'package:cezeri_commerce/1_presentation/core/widgets/my_delete_dialog.dar
 import 'package:cezeri_commerce/1_presentation/core/widgets/my_text_form_field.dart';
 import 'package:cezeri_commerce/1_presentation/settings/settings/widgets/my_settings_list_tile.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../2_application/firebase/main_settings/main_settings_bloc.dart';
 import '../../../3_domain/entities/settings/main_settings.dart';
 import '../../../constants.dart';
+import '../../app_drawer.dart';
+import '../../core/functions/my_scaffold_messanger.dart';
 import '../../core/widgets/my_form_field_container.dart';
+import '../../core/widgets/my_outlined_button.dart';
 import 'widgets/add_payment_method.dart';
 
 class MainSettingsPage extends StatefulWidget {
@@ -78,253 +82,285 @@ class _MainSettingsPageState extends State<MainSettingsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: 600,
-      child: Padding(
-        padding: const EdgeInsets.all(18),
-        child: ListView(
-          children: [
-            MyFormFieldContainer(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Text('Allgemein', style: TextStyles.h3BoldPrimary),
-                  const Divider(),
-                  MySettingsListTile(
-                    title: 'Zahlungsziel in Tagen',
-                    trailing: TextField(controller: _termOfPaymentController),
-                  ),
-                  // TODO: Implement UI for selecting default USt.
-                  MySettingsListTile(
-                    title: 'USt.',
-                    trailing: TextField(controller: _termOfPaymentController),
-                  ),
-                  MySettingsListTile(
-                    title: 'Kleinunternehmerregelung',
-                    trailing: Switch.adaptive(value: _isSmallBusiness, onChanged: (value) => setState(() => _isSmallBusiness = value)),
-                  ),
-                  MySettingsListTile(
-                    title: 'Währung',
-                    divider: false,
-                    trailing: DropdownButtonHideUnderline(
-                      child: DropdownButton<String>(
-                        value: _selectedCurrencyItem,
-                        items: currencyItems.map((currencyItem) => DropdownMenuItem<String>(value: currencyItem, child: Text(currencyItem))).toList(),
-                        onChanged: (currencyItem) => setState(() => _selectedCurrencyItem = currencyItem!),
-                      ),
-                    ),
-                    trailingWidth: 100,
-                  ),
-                ],
-              ),
-            ),
-            Gaps.h24,
-            MyFormFieldContainer(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Text('Dokumente', style: TextStyles.h3BoldPrimary),
-                  const Divider(),
-                  MySettingsListTile(
-                    title: 'Präfix Angebot.',
-                    trailing: TextField(
-                      controller: _offerPraefixController,
-                      textCapitalization: TextCapitalization.characters,
-                    ),
-                    trailingWidth: 80,
-                  ),
-                  MySettingsListTile(
-                    title: 'Präfix Auftrag.',
-                    trailing: TextField(
-                      controller: _appointmentPraefixController,
-                      textCapitalization: TextCapitalization.characters,
-                    ),
-                    trailingWidth: 80,
-                  ),
-                  MySettingsListTile(
-                    title: 'Präfix Rechnung.',
-                    trailing: TextField(
-                      controller: _invoicePraefixController,
-                      textCapitalization: TextCapitalization.characters,
-                    ),
-                    trailingWidth: 80,
-                  ),
-                  MySettingsListTile(
-                    title: 'Präfix Rechnungskorrektur.',
-                    trailing: TextField(
-                      controller: _creditPraefixController,
-                      textCapitalization: TextCapitalization.characters,
-                    ),
-                    trailingWidth: 80,
-                  ),
-                  MySettingsListTile(
-                    title: 'Nächste Angebotsnummer.',
-                    trailing: TextField(
-                      controller: _nextOfferNumberController,
-                      keyboardType: TextInputType.number,
-                    ),
-                    trailingWidth: 80,
-                  ),
-                  MySettingsListTile(
-                    title: 'Nächste Auftragsnummer.',
-                    trailing: TextField(
-                      controller: _nextAppointmentNumberController,
-                      keyboardType: TextInputType.number,
-                    ),
-                    trailingWidth: 80,
-                  ),
-                  MySettingsListTile(
-                    title: 'Nächste Rechnungsnummer.',
-                    trailing: TextField(
-                      controller: _nextInvoiceNumberController,
-                      keyboardType: TextInputType.number,
-                    ),
-                    trailingWidth: 80,
-                  ),
-                  MySettingsListTile(
-                    title: 'Nächste Kundennummer.',
-                    divider: false,
-                    trailing: TextField(
-                      controller: _nextCustomerNumberController,
-                      keyboardType: TextInputType.number,
-                    ),
-                    trailingWidth: 80,
-                  ),
-                ],
-              ),
-            ),
-            Gaps.h24,
-            MyFormFieldContainer(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const SizedBox(),
-                      const Text('Zahlungsarten', style: TextStyles.h3BoldPrimary),
-                      IconButton(
-                        onPressed: () => showModalBottomSheet(
-                            context: context, isScrollControlled: true, builder: (_) => AddPaymentMethode(addToPaymentMethods: _addToPaymentMethods)),
-                        icon: const Icon(Icons.add, color: Colors.green),
-                      ),
-                    ],
-                  ),
-                  const Divider(),
-                  if (_paymentMethods.isEmpty)
-                    const SizedBox(
-                      height: 100,
-                      child: Center(
-                        child: Text('Keine Zahlungsarten vorhanden'),
-                      ),
-                    ),
-                  ListView.builder(
-                    physics: const NeverScrollableScrollPhysics(),
-                    padding: EdgeInsets.zero,
-                    shrinkWrap: true,
-                    itemCount: _paymentMethods.length,
-                    itemBuilder: (context, index) {
-                      return MySettingsListTile(
-                        title: _paymentMethods[index],
-                        divider: index != _paymentMethods.length - 1,
-                        onPressed: () {},
-                        trailing: IconButton(
-                          icon: const Icon(Icons.delete),
-                          color: Colors.red,
-                          onPressed: () {
-                            showDialog(
-                              context: context,
-                              builder: (_) => MyDeleteDialog(
-                                onConfirm: () {
-                                  _removeFromPaymentMethods(index);
-                                  context.router.pop();
-                                },
-                                content: 'Bist du sicher, dass du diese Zahlungsmethode löschen willst?',
-                              ),
-                            );
-                          },
-                        ),
-                      );
-                    },
-                  ),
-                ],
-              ),
-            ),
-            Gaps.h24,
-            MyFormFieldContainer(
-              child: Column(
-                children: [
-                  const Text('Bankdaten', style: TextStyles.h3BoldPrimary),
-                  const Divider(),
-                  Gaps.h10,
-                  MyTextFormField(
-                    controller: _bankNameController,
-                    labelText: 'Bankname',
-                    textCapitalization: TextCapitalization.sentences,
-                  ),
-                  Gaps.h16,
-                  MyTextFormField(
-                    controller: _bankIbanController,
-                    labelText: 'IBAN',
-                    textCapitalization: TextCapitalization.sentences,
-                  ),
-                  Gaps.h16,
-                  MyTextFormField(
-                    controller: _bankBicController,
-                    labelText: 'BIC',
-                    textCapitalization: TextCapitalization.sentences,
-                  ),
-                  Gaps.h16,
-                  MyTextFormField(
-                    controller: _paypalEmailController,
-                    labelText: 'PayPal E-Mail',
-                    textCapitalization: TextCapitalization.none,
-                  ),
-                ],
-              ),
-            ),
-            Gaps.h24,
-            MyFormFieldContainer(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
-              child: Column(
-                children: [
-                  const Text('Dokumenttexte', style: TextStyles.h3BoldPrimary),
-                  const Divider(),
-                  Gaps.h10,
-                  MyTextFormField(
-                    controller: _offerDocumentTextController,
-                    labelText: 'Angebotstext',
-                    maxLines: 3,
-                    textCapitalization: TextCapitalization.sentences,
-                  ),
-                  const SizedBox(height: 20),
-                  MyTextFormField(
-                    controller: _appointmentDocumentTextController,
-                    labelText: 'Auftragstext',
-                    maxLines: 3,
-                    textCapitalization: TextCapitalization.sentences,
-                  ),
-                  const SizedBox(height: 20),
-                  MyTextFormField(
-                    controller: _invoiceDocumentTextController,
-                    labelText: 'Rechnungstext',
-                    maxLines: 3,
-                    textCapitalization: TextCapitalization.sentences,
-                  ),
-                  const SizedBox(height: 20),
-                  MyTextFormField(
-                    controller: _creditDocumentTextController,
-                    labelText: 'Rechnungskorrekturtext',
-                    maxLines: 3,
-                    textCapitalization: TextCapitalization.sentences,
-                  ),
-                ],
-              ),
-            ),
-            Gaps.h54,
+    return BlocBuilder<MainSettingsBloc, MainSettingsState>(
+      builder: (context, state) {
+        final appBar = AppBar(
+          title: const Text('Einstellungen'),
+          actions: [
+            IconButton(onPressed: () => context.read<MainSettingsBloc>().add(GetMainSettingsEvent()), icon: const Icon(Icons.refresh)),
+            MyOutlinedButton(buttonText: 'Speichern', onPressed: () => _onSaveSettings(), isLoading: state.isLoadingMainSettingsOnUpdate),
+            Gaps.w16,
           ],
-        ),
-      ),
+        );
+
+        const drawer = AppDrawer();
+
+        if ((state.mainSettings == null && state.firebaseFailure == null) || state.isLoadingMainSettingsOnObserve) {
+          return Scaffold(appBar: appBar, drawer: drawer, body: const Center(child: CircularProgressIndicator()));
+        }
+
+        if (state.firebaseFailure != null && state.isAnyFailure) {
+          return Scaffold(appBar: appBar, drawer: drawer, body: Center(child: Text(mapFirebaseFailureMessage(state.firebaseFailure!))));
+        }
+        return Scaffold(
+          appBar: appBar,
+          drawer: drawer,
+          body: SafeArea(
+            child: SizedBox(
+              width: 600,
+              child: Padding(
+                padding: const EdgeInsets.all(18),
+                child: ListView(
+                  children: [
+                    MyFormFieldContainer(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Text('Allgemein', style: TextStyles.h3BoldPrimary),
+                          const Divider(),
+                          MySettingsListTile(
+                            title: 'Zahlungsziel in Tagen',
+                            trailing: TextField(controller: _termOfPaymentController),
+                          ),
+                          // TODO: Implement UI for selecting default USt.
+                          MySettingsListTile(
+                            title: 'USt.',
+                            trailing: TextField(controller: _termOfPaymentController),
+                          ),
+                          MySettingsListTile(
+                            title: 'Kleinunternehmerregelung',
+                            trailing: Switch.adaptive(value: _isSmallBusiness, onChanged: (value) => setState(() => _isSmallBusiness = value)),
+                          ),
+                          MySettingsListTile(
+                            title: 'Währung',
+                            divider: false,
+                            trailing: DropdownButtonHideUnderline(
+                              child: DropdownButton<String>(
+                                value: _selectedCurrencyItem,
+                                items: currencyItems
+                                    .map((currencyItem) => DropdownMenuItem<String>(value: currencyItem, child: Text(currencyItem)))
+                                    .toList(),
+                                onChanged: (currencyItem) => setState(() => _selectedCurrencyItem = currencyItem!),
+                              ),
+                            ),
+                            trailingWidth: 100,
+                          ),
+                        ],
+                      ),
+                    ),
+                    Gaps.h24,
+                    MyFormFieldContainer(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Text('Dokumente', style: TextStyles.h3BoldPrimary),
+                          const Divider(),
+                          MySettingsListTile(
+                            title: 'Präfix Angebot.',
+                            trailing: TextField(
+                              controller: _offerPraefixController,
+                              textCapitalization: TextCapitalization.characters,
+                            ),
+                            trailingWidth: 80,
+                          ),
+                          MySettingsListTile(
+                            title: 'Präfix Auftrag.',
+                            trailing: TextField(
+                              controller: _appointmentPraefixController,
+                              textCapitalization: TextCapitalization.characters,
+                            ),
+                            trailingWidth: 80,
+                          ),
+                          MySettingsListTile(
+                            title: 'Präfix Rechnung.',
+                            trailing: TextField(
+                              controller: _invoicePraefixController,
+                              textCapitalization: TextCapitalization.characters,
+                            ),
+                            trailingWidth: 80,
+                          ),
+                          MySettingsListTile(
+                            title: 'Präfix Rechnungskorrektur.',
+                            trailing: TextField(
+                              controller: _creditPraefixController,
+                              textCapitalization: TextCapitalization.characters,
+                            ),
+                            trailingWidth: 80,
+                          ),
+                          MySettingsListTile(
+                            title: 'Nächste Angebotsnummer.',
+                            trailing: TextField(
+                              controller: _nextOfferNumberController,
+                              keyboardType: TextInputType.number,
+                            ),
+                            trailingWidth: 80,
+                          ),
+                          MySettingsListTile(
+                            title: 'Nächste Auftragsnummer.',
+                            trailing: TextField(
+                              controller: _nextAppointmentNumberController,
+                              keyboardType: TextInputType.number,
+                            ),
+                            trailingWidth: 80,
+                          ),
+                          MySettingsListTile(
+                            title: 'Nächste Rechnungsnummer.',
+                            trailing: TextField(
+                              controller: _nextInvoiceNumberController,
+                              keyboardType: TextInputType.number,
+                            ),
+                            trailingWidth: 80,
+                          ),
+                          MySettingsListTile(
+                            title: 'Nächste Kundennummer.',
+                            divider: false,
+                            trailing: TextField(
+                              controller: _nextCustomerNumberController,
+                              keyboardType: TextInputType.number,
+                            ),
+                            trailingWidth: 80,
+                          ),
+                        ],
+                      ),
+                    ),
+                    Gaps.h24,
+                    MyFormFieldContainer(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const SizedBox(),
+                              const Text('Zahlungsarten', style: TextStyles.h3BoldPrimary),
+                              IconButton(
+                                onPressed: () => showModalBottomSheet(
+                                    context: context,
+                                    isScrollControlled: true,
+                                    builder: (_) => AddPaymentMethode(addToPaymentMethods: _addToPaymentMethods)),
+                                icon: const Icon(Icons.add, color: Colors.green),
+                              ),
+                            ],
+                          ),
+                          const Divider(),
+                          if (_paymentMethods.isEmpty)
+                            const SizedBox(
+                              height: 100,
+                              child: Center(
+                                child: Text('Keine Zahlungsarten vorhanden'),
+                              ),
+                            ),
+                          ListView.builder(
+                            physics: const NeverScrollableScrollPhysics(),
+                            padding: EdgeInsets.zero,
+                            shrinkWrap: true,
+                            itemCount: _paymentMethods.length,
+                            itemBuilder: (context, index) {
+                              return MySettingsListTile(
+                                title: _paymentMethods[index],
+                                divider: index != _paymentMethods.length - 1,
+                                onPressed: () {},
+                                trailing: IconButton(
+                                  icon: const Icon(Icons.delete),
+                                  color: Colors.red,
+                                  onPressed: () {
+                                    showDialog(
+                                      context: context,
+                                      builder: (_) => MyDeleteDialog(
+                                        onConfirm: () {
+                                          _removeFromPaymentMethods(index);
+                                          context.router.pop();
+                                        },
+                                        content: 'Bist du sicher, dass du diese Zahlungsmethode löschen willst?',
+                                      ),
+                                    );
+                                  },
+                                ),
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                    Gaps.h24,
+                    MyFormFieldContainer(
+                      child: Column(
+                        children: [
+                          const Text('Bankdaten', style: TextStyles.h3BoldPrimary),
+                          const Divider(),
+                          Gaps.h10,
+                          MyTextFormField(
+                            controller: _bankNameController,
+                            labelText: 'Bankname',
+                            textCapitalization: TextCapitalization.sentences,
+                          ),
+                          Gaps.h16,
+                          MyTextFormField(
+                            controller: _bankIbanController,
+                            labelText: 'IBAN',
+                            textCapitalization: TextCapitalization.sentences,
+                          ),
+                          Gaps.h16,
+                          MyTextFormField(
+                            controller: _bankBicController,
+                            labelText: 'BIC',
+                            textCapitalization: TextCapitalization.sentences,
+                          ),
+                          Gaps.h16,
+                          MyTextFormField(
+                            controller: _paypalEmailController,
+                            labelText: 'PayPal E-Mail',
+                            textCapitalization: TextCapitalization.none,
+                          ),
+                        ],
+                      ),
+                    ),
+                    Gaps.h24,
+                    MyFormFieldContainer(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+                      child: Column(
+                        children: [
+                          const Text('Dokumenttexte', style: TextStyles.h3BoldPrimary),
+                          const Divider(),
+                          Gaps.h10,
+                          MyTextFormField(
+                            controller: _offerDocumentTextController,
+                            labelText: 'Angebotstext',
+                            maxLines: 3,
+                            textCapitalization: TextCapitalization.sentences,
+                          ),
+                          const SizedBox(height: 20),
+                          MyTextFormField(
+                            controller: _appointmentDocumentTextController,
+                            labelText: 'Auftragstext',
+                            maxLines: 3,
+                            textCapitalization: TextCapitalization.sentences,
+                          ),
+                          const SizedBox(height: 20),
+                          MyTextFormField(
+                            controller: _invoiceDocumentTextController,
+                            labelText: 'Rechnungstext',
+                            maxLines: 3,
+                            textCapitalization: TextCapitalization.sentences,
+                          ),
+                          const SizedBox(height: 20),
+                          MyTextFormField(
+                            controller: _creditDocumentTextController,
+                            labelText: 'Rechnungskorrekturtext',
+                            maxLines: 3,
+                            textCapitalization: TextCapitalization.sentences,
+                          ),
+                        ],
+                      ),
+                    ),
+                    Gaps.h54,
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -335,5 +371,32 @@ class _MainSettingsPageState extends State<MainSettingsPage> {
 
   void _removeFromPaymentMethods(int index) {
     setState(() => _paymentMethods.removeAt(index));
+  }
+
+  void _onSaveSettings() {
+    final updatedMainSettings = widget.mSettings.copyWith(
+      offerPraefix: _offerPraefixController.text,
+      appointmentPraefix: _appointmentPraefixController.text,
+      invoicePraefix: _invoicePraefixController.text,
+      creditPraefix: _creditPraefixController.text,
+      currency: _selectedCurrencyItem,
+      offerDocumentText: _offerDocumentTextController.text,
+      appointmentDocumentText: _appointmentDocumentTextController.text,
+      invoiceDocumentText: _invoiceDocumentTextController.text,
+      creditDocumentText: _creditDocumentTextController.text,
+      nextOfferNumber: int.parse(_nextOfferNumberController.text),
+      nextAppointmentNumber: int.parse(_nextAppointmentNumberController.text),
+      nextInvoiceNumber: int.parse(_nextInvoiceNumberController.text),
+      termOfPayment: int.parse(_termOfPaymentController.text),
+      isSmallBusiness: _isSmallBusiness,
+      paymentMethods: _paymentMethods,
+      bankDetails: widget.mSettings.bankDetails.copyWith(
+        bankName: _bankNameController.text,
+        bankIban: _bankIbanController.text,
+        bankBic: _bankBicController.text,
+        paypalEmail: _paypalEmailController.text,
+      ),
+    );
+    widget.mainSettingsBloc.add(UpdateMainSettingsEvent(mainSettings: updatedMainSettings));
   }
 }

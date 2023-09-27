@@ -1,10 +1,10 @@
-import 'package:cezeri_commerce/3_domain/entities/marketplace.dart';
 import 'package:cezeri_commerce/3_domain/entities_presta/product_presta.dart';
 import 'package:cezeri_commerce/4_infrastructur/repositories/prestashop/presta_api_helper.dart';
 import 'package:dartz/dartz.dart';
 import 'package:http/http.dart' as http;
 import 'package:xml/xml.dart';
 
+import '../../../../3_domain/entities/marketplace/marketplace.dart';
 import '../../../../3_domain/repositories/prestashop/product/product_import_repository.dart';
 import '../../../../core/presta_failure.dart';
 

@@ -2,7 +2,7 @@ import 'package:cezeri_commerce/3_domain/entities/product/product_language.dart'
 import 'package:json_annotation/json_annotation.dart';
 
 import '../../entities_presta/product_presta.dart';
-import '../marketplace.dart';
+import '../marketplace/marketplace.dart';
 import 'product_marketplace.dart';
 
 part 'product.g.dart';

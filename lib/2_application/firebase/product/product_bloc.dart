@@ -5,7 +5,7 @@ import 'package:cezeri_commerce/core/presta_failure.dart';
 import 'package:dartz/dartz.dart';
 import 'package:meta/meta.dart';
 
-import '../../../3_domain/entities/marketplace.dart';
+import '../../../3_domain/entities/marketplace/marketplace.dart';
 import '../../../3_domain/entities/product/product.dart';
 import '../../../3_domain/repositories/firebase/product_repository.dart';
 

@@ -15,6 +15,15 @@ double calculatePercentage(double amount, double percentage) {
   return newAmount;
 }
 
+//* Ausgabe: Die Prozent, der den Rabatt ausmacht
+//* z.B. 100 & 80 = 20%
+double calcPercentageOfTwoDoubles(double amount, double amountWithDiscount) {
+  if (amount == 0) return 0;
+  double newAmount;
+  newAmount = amount * (1 - (amountWithDiscount / amount) * 100);
+  return newAmount;
+}
+
 //* Ausgabe: Berechnet den prozentualen Anteil aus zwei Durations
 //* z.B. 3h = 30% von 10h
 double calculatePercentagePortion(Duration totalDuration, Duration duration) {
@@ -33,7 +42,23 @@ double calculatePercentageDifferenceAmount(double amount, double percentage) {
 
 //* Macht aus einer UsSt. eine rechenbare UsSt.
 //* zb. 20% = 1,2
-double vatToCalc(int vat) => vat / 100 + 1;
+double taxToCalc(int vat) => vat / 100 + 1;
+
+//* Berechnet die Vorsteuer in Prozent.
+//* zb. 20% | Brutto: 100 / Netto: 83,3333 = 20%
+//* zb. 19% | Brutto: 100 / Netto: 84,03 = 19%
+int calcTaxPercent(double grossAmount, double netAmount) {
+  double taxAmount = grossAmount - netAmount;
+  double taxPercentage = (taxAmount / netAmount) * 100;
+
+  return taxPercentage.round();
+}
+
+bool stringToBool(String str) {
+  final trueValues = ['true', 'True', 'TRUE', '1'];
+  if (trueValues.contains(str)) return true;
+  return false;
+}
 
 Future<bool> checkInternetConnection() async {
   bool isConnected = false;

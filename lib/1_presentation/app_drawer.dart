@@ -44,6 +44,17 @@ class AppDrawer extends StatelessWidget {
                         }
                       },
                     ),
+                    ListTile(
+                      leading: const Icon(Icons.receipt),
+                      title: const Text('Aufträge'),
+                      onTap: () {
+                        if (context.router.current.name == AppointmentsOverviewRoute.name) {
+                          context.router.pop();
+                        } else {
+                          context.router.replaceAll([const AppointmentsOverviewRoute()]);
+                        }
+                      },
+                    ),
                     ExpansionTile(
                       leading: const Icon(FontAwesomeIcons.cartShopping),
                       title: const Text('E-Commerce'),

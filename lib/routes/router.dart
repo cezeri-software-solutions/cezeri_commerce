@@ -19,5 +19,6 @@ class AppRouter extends $AppRouter {
         AutoRoute(page: MarketplaceOverviewRoute.page, path: '/marketplace_overview'),
         AutoRoute(page: MarketplaceMassEditingRoute.page, path: '/marketplace_mass_editing'),
         AutoRoute(page: MainSettingsRoute.page, path: '/main_settings'),
+        AutoRoute(page: AppointmentsOverviewRoute.page, path: '/appointments_overview'),
       ];
 }

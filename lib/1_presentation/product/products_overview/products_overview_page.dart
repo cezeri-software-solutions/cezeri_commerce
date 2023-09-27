@@ -63,7 +63,6 @@ class _ProductContainer extends StatelessWidget {
     final screenWidth = MediaQuery.sizeOf(context).width;
     final responsiveness = screenWidth > 700 ? Responsiveness.isTablet : Responsiveness.isMobil;
     return BlocBuilder<ProductBloc, ProductState>(
-      // bloc: productBloc,
       builder: (context, state) {
         return Container(
           color: Colors.white,

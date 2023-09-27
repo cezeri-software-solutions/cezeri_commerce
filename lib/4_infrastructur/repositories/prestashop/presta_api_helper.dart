@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:xml/xml.dart';
 
 import '../../../3_domain/entities/language.dart';
-import '../../../3_domain/entities/marketplace.dart';
+import '../../../3_domain/entities/marketplace/marketplace.dart';
 import '../../../core/presta_failure.dart';
 
 enum PrestaApiResource {

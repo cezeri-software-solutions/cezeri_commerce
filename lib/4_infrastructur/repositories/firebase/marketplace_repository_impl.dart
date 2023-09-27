@@ -1,10 +1,10 @@
-import 'package:cezeri_commerce/3_domain/entities/marketplace.dart';
 import 'package:cezeri_commerce/core/firebase_failures.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../../1_presentation/core/functions/check_internet_connection.dart';
+import '../../../3_domain/entities/marketplace/marketplace.dart';
 import '../../../3_domain/repositories/firebase/marketplace_repository.dart';
 
 class MarketplaceRepositoryImpl implements MarketplaceRepository {
@@ -45,6 +45,13 @@ class MarketplaceRepositoryImpl implements MarketplaceRepository {
       final listOfMarketplaces = await docRef.get().then(
             (value) => value.docs.map((querySnapshot) => Marketplace.fromJson(querySnapshot.data())).toList(),
           );
+      
+      //* Zum hinzufügen von neuen Attributen.
+      // for (final marketplace in listOfMarketplaces) {
+      //   final docRefMp = db.collection(currentUserUid).doc(currentUserUid).collection('Marketetplaces').doc(marketplace.id);
+      //   final updatedMp = marketplace.copyWith(marketplaceSettings: MarketplaceSettings.empty());
+      //   await docRefMp.update(updatedMp.toJson());
+      // }
 
       if (listOfMarketplaces.isEmpty) return left(EmptyFailure());
       return right(listOfMarketplaces);

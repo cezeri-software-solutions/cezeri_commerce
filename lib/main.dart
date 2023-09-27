@@ -2,6 +2,7 @@ import 'package:cezeri_commerce/injection.dart' as di;
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 import '2_application/firebase/auth/auth_bloc/auth_bloc.dart';
 import 'firebase_options.dart';
@@ -30,7 +31,13 @@ class MyApp extends StatelessWidget {
         title: 'Flutter Demo',
         theme: AppTheme.lightTheme,
         //home: const MyHomePage(title: 'Flutter Demo Home Page'),
-        locale: const Locale('de', 'AT'),
+        localizationsDelegates: const [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        //locale: const Locale('de', 'AT'),
+        supportedLocales: const [Locale('de', 'DE')],
       ),
     );
   }

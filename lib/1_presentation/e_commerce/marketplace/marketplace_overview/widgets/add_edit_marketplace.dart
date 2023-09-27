@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../../2_application/firebase/marketplace/marketplace_bloc.dart';
-import '../../../../../3_domain/entities/marketplace.dart';
+import '../../../../../3_domain/entities/marketplace/marketplace.dart';
 import '../../../../../constants.dart';
 import '../../../../core/widgets/my_modal_scrollable.dart';
 
@@ -19,6 +19,8 @@ class AddEditMarketplace extends StatefulWidget {
 }
 
 class _AddEditMarketplaceState extends State<AddEditMarketplace> {
+  bool _isActive = false;
+
   late TextEditingController _nameController;
   late TextEditingController _shortNameController;
   late TextEditingController _keyController;
@@ -26,24 +28,30 @@ class _AddEditMarketplaceState extends State<AddEditMarketplace> {
   late TextEditingController _urlController;
   late TextEditingController _shopSuffixController;
 
+  late TextEditingController _nextIdToImportController;
+
   @override
   void initState() {
     super.initState();
 
     if (widget.marketplace != null) {
+      _isActive = widget.marketplace!.isActive;
       _nameController = TextEditingController(text: widget.marketplace!.name);
       _shortNameController = TextEditingController(text: widget.marketplace!.shortName);
       _keyController = TextEditingController(text: widget.marketplace!.key);
       _endpointUrlController = TextEditingController(text: widget.marketplace!.endpointUrl);
       _urlController = TextEditingController(text: widget.marketplace!.url);
       _shopSuffixController = TextEditingController(text: widget.marketplace!.shopSuffix);
+      _nextIdToImportController = TextEditingController(text: widget.marketplace!.marketplaceSettings.nextIdToImport.toString());
     } else {
+      _isActive = false;
       _nameController = TextEditingController();
       _shortNameController = TextEditingController();
       _keyController = TextEditingController();
       _endpointUrlController = TextEditingController(text: 'https://');
       _urlController = TextEditingController();
       _shopSuffixController = TextEditingController(text: 'api/');
+      _nextIdToImportController = TextEditingController();
     }
   }
 
@@ -59,7 +67,13 @@ class _AddEditMarketplaceState extends State<AddEditMarketplace> {
               child: Column(
                 children: [
                   Gaps.h10,
-                  const Text('Prestashop', style: TextStyles.h2),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text('Prestashop', style: TextStyles.h2),
+                      Switch.adaptive(value: _isActive, onChanged: (value) => setState(() => _isActive = value)),
+                    ],
+                  ),
                   Gaps.h16,
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -105,6 +119,13 @@ class _AddEditMarketplaceState extends State<AddEditMarketplace> {
                         controller: _shopSuffixController,
                         labelText: 'API Suffix:',
                       ),
+                      Gaps.h10,
+                      const Text('Nächste Auftrags-Id zum Importieren:', style: TextStyles.infoOnTextField),
+                      Gaps.h10,
+                      MyTextFormField(
+                        controller: _nextIdToImportController,
+                        labelText: 'Auftrags-Id:',
+                      ),
                     ],
                   ),
                   Gaps.h24,
@@ -117,11 +138,14 @@ class _AddEditMarketplaceState extends State<AddEditMarketplace> {
                           name: _nameController.text,
                           shortName: _shortNameController.text,
                           key: _keyController.text,
+                          isActive: _isActive,
                           endpointUrl: _endpointUrlController.text,
                           url: _urlController.text,
                           shopSuffix: _shopSuffixController.text,
                           fullUrl: _endpointUrlController.text + _urlController.text + _shopSuffixController.text,
                           lastEditingDate: DateTime.now(),
+                          marketplaceSettings: widget.marketplace!.marketplaceSettings
+                              .copyWith(nextIdToImport: int.parse(_nextIdToImportController.text)),
                         );
                         context.read<MarketplaceBloc>().add(UpdateMarketplaceEvent(marketplace: updatedMarketplace));
                       } else {
@@ -129,6 +153,7 @@ class _AddEditMarketplaceState extends State<AddEditMarketplace> {
                           name: _nameController.text,
                           shortName: _shortNameController.text,
                           key: _keyController.text,
+                          isActive: _isActive,
                           endpointUrl: _endpointUrlController.text,
                           url: _urlController.text,
                           shopSuffix: _shopSuffixController.text,

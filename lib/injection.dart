@@ -1,3 +1,6 @@
+import 'package:cezeri_commerce/2_application/firebase/appointment/appointment_bloc.dart';
+import 'package:cezeri_commerce/3_domain/repositories/firebase/receipt_respository.dart';
+import 'package:cezeri_commerce/4_infrastructur/repositories/firebase/receipt_respository_impl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get_it/get_it.dart';
@@ -37,6 +40,7 @@ Future<void> init() async {
   sl.registerFactory(() => ClientBloc(clientRepository: sl()));
   sl.registerFactory(() => MarketplaceBloc(marketplaceRepository: sl()));
   sl.registerFactory(() => MainSettingsBloc(mainSettingsRepository: sl()));
+  sl.registerFactory(() => AppointmentBloc(receiptRepository: sl()));
 
   //! repositories Firebase
   sl.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl(firebaseAuth: sl()));
@@ -44,6 +48,7 @@ Future<void> init() async {
   sl.registerLazySingleton<ProductRepository>(() => ProductRepositoryImpl(db: sl(), firebaseAuth: sl()));
   sl.registerLazySingleton<MarketplaceRepository>(() => MarketplaceRepositoryImpl(db: sl(), firebaseAuth: sl()));
   sl.registerLazySingleton<MainSettingsRepository>(() => MainSettingsRepositoryImpl(db: sl(), firebaseAuth: sl()));
+  sl.registerLazySingleton<ReceiptRepository>(() => ReceiptRespositoryImpl(db: sl(), firebaseAuth: sl(), productRepository: sl(), productImportRepository: sl()));
 
   //! repositories Prestashop
   sl.registerLazySingleton<ProductImportRepository>(() => ProductImportRepositoryImpl());

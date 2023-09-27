@@ -2,7 +2,7 @@ import 'package:bloc/bloc.dart';
 import 'package:dartz/dartz.dart';
 import 'package:meta/meta.dart';
 
-import '../../../3_domain/entities/marketplace.dart';
+import '../../../3_domain/entities/marketplace/marketplace.dart';
 import '../../../3_domain/repositories/firebase/marketplace_repository.dart';
 import '../../../core/firebase_failures.dart';
 

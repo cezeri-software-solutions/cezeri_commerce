@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart';
 
 import '../../../core/firebase_failures.dart';
-import '../../entities/marketplace.dart';
+import '../../entities/marketplace/marketplace.dart';
 
 abstract class MarketplaceRepository {
   Future<Either<FirebaseFailure, Unit>> createMarketplace(Marketplace marketplace);

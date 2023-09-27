@@ -9,13 +9,13 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../../../2_application/firebase/marketplace/marketplace_bloc.dart';
 import '../../../2_application/firebase/product/product_bloc.dart';
-import '../../../3_domain/entities/marketplace.dart';
+import '../../../3_domain/entities/marketplace/marketplace.dart';
 import '../../../constants.dart';
 import '../../../injection.dart';
 import '../../core/functions/my_scaffold_messanger.dart';
 import '../../core/widgets/my_delete_dialog.dart';
 import '../../core/widgets/my_outlined_button.dart';
-import 'product_overview_page.dart';
+import 'products_overview_page.dart';
 
 @RoutePage()
 class ProductsOverviewScreen extends StatelessWidget {

@@ -10,6 +10,7 @@ Marketplace _$MarketplaceFromJson(Map<String, dynamic> json) => Marketplace(
       id: json['id'] as String,
       name: json['name'] as String,
       shortName: json['shortName'] as String,
+      logoUrl: json['logoUrl'] as String,
       marketplaceType: json['marketplaceType'] as String,
       endpointUrl: json['endpointUrl'] as String,
       url: json['url'] as String,
@@ -26,6 +27,8 @@ Marketplace _$MarketplaceFromJson(Map<String, dynamic> json) => Marketplace(
       warehouseForProductImport: json['warehouseForProductImport'] as String,
       createMissingProductOnOrderImport:
           json['createMissingProductOnOrderImport'] as bool,
+      marketplaceSettings: MarketplaceSettings.fromJson(
+          json['marketplaceSettings'] as Map<String, dynamic>),
       lastEditingDate: DateTime.parse(json['lastEditingDate'] as String),
       createnDate: DateTime.parse(json['createnDate'] as String),
     );
@@ -35,6 +38,7 @@ Map<String, dynamic> _$MarketplaceToJson(Marketplace instance) =>
       'id': instance.id,
       'name': instance.name,
       'shortName': instance.shortName,
+      'logoUrl': instance.logoUrl,
       'marketplaceType': instance.marketplaceType,
       'endpointUrl': instance.endpointUrl,
       'url': instance.url,
@@ -48,6 +52,7 @@ Map<String, dynamic> _$MarketplaceToJson(Marketplace instance) =>
       'warehouseForProductImport': instance.warehouseForProductImport,
       'createMissingProductOnOrderImport':
           instance.createMissingProductOnOrderImport,
+      'marketplaceSettings': instance.marketplaceSettings.toJson(),
       'lastEditingDate': instance.lastEditingDate.toIso8601String(),
       'createnDate': instance.createnDate.toIso8601String(),
     };

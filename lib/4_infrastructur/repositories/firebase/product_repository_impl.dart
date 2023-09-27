@@ -8,7 +8,7 @@ import 'package:http/http.dart' as http;
 import 'package:xml/xml.dart';
 
 import '../../../1_presentation/core/functions/check_internet_connection.dart';
-import '../../../3_domain/entities/marketplace.dart';
+import '../../../3_domain/entities/marketplace/marketplace.dart';
 import '../../../3_domain/entities/product/product.dart';
 import '../../../3_domain/entities/product/product_marketplace.dart';
 import '../../../3_domain/entities_presta/product_presta.dart';
@@ -22,24 +22,22 @@ class ProductRepositoryImpl implements ProductRepository {
   const ProductRepositoryImpl({required this.db, required this.firebaseAuth});
 
   @override
-  Future<Either<FirebaseFailure, Unit>> createProduct(Product product) async {
+  Future<Either<FirebaseFailure, Product>> createProduct(Product product) async {
+    final isConnected = await checkInternetConnection();
+    if (!isConnected) return left(NoConnectionFailure());
+
     final currentUserUid = firebaseAuth.currentUser!.uid;
 
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) {
-      return left(NoConnectionFailure());
-    } else {
-      try {
-        final docRef = db.collection(currentUserUid).doc(currentUserUid).collection('Products').doc();
+    try {
+      final docRef = db.collection(currentUserUid).doc(currentUserUid).collection('Products').doc();
 
-        final toCreateProduct = product.copyWith(id: docRef.id);
+      final toCreateProduct = product.copyWith(id: docRef.id);
 
-        await docRef.set(toCreateProduct.toJson());
+      await docRef.set(toCreateProduct.toJson());
 
-        return right(unit);
-      } on FirebaseException {
-        return left(GeneralFailure());
-      }
+      return right(toCreateProduct);
+    } on FirebaseException {
+      return left(GeneralFailure());
     }
   }
 
@@ -80,22 +78,37 @@ class ProductRepositoryImpl implements ProductRepository {
   }
 
   @override
+  Future<Either<FirebaseFailure, Product>> getProductByArticleNumber(String articleNumber) async {
+    final isConnected = await checkInternetConnection();
+    if (!isConnected) return left(NoConnectionFailure());
+
+    final currentUserUid = firebaseAuth.currentUser!.uid;
+    final docRef = db.collection(currentUserUid).doc(currentUserUid).collection('Products').where('articleNumber', isEqualTo: articleNumber);
+
+    try {
+      final product = await docRef.get().then((value) => value.docs.map((docSs) => Product.fromJson(docSs.data())).toList().firstOrNull);
+      if (product == null) return left(EmptyFailure());
+      return right(product);
+    } on FirebaseException {
+      return left(GeneralFailure());
+    }
+  }
+
+  @override
   Future<Either<FirebaseFailure, Unit>> updateProduct(Product product) async {
+    final isConnected = await checkInternetConnection();
+    if (!isConnected) return left(NoConnectionFailure());
+
     final currentUserUid = firebaseAuth.currentUser!.uid;
 
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) {
-      return left(NoConnectionFailure());
-    } else {
-      try {
-        final docRef = db.collection(currentUserUid).doc(currentUserUid).collection('Products').doc(product.id);
+    try {
+      final docRef = db.collection(currentUserUid).doc(currentUserUid).collection('Products').doc(product.id);
 
-        await docRef.update(product.toJson());
+      await docRef.update(product.toJson());
 
-        return right(unit);
-      } on FirebaseException {
-        return left(GeneralFailure());
-      }
+      return right(unit);
+    } on FirebaseException {
+      return left(GeneralFailure());
     }
   }
 

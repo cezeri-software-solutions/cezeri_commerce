@@ -30,6 +30,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+#  cezeri_helpers:
+#    git:
+#      url: https://github.com/cezeri-software-solutions/cezeri_helpers.git
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -52,6 +55,9 @@ dependencies:
   html: ^0.15.4
   http: ^1.1.0
   json_annotation: ^4.8.1
+  logger: ^2.0.2+1
+  loggy: ^2.0.3
+  quiver: ^3.2.1
   responsive_framework: ^1.1.1
   uuid: ^4.0.0
   xml: ^6.3.0

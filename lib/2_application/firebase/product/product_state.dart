@@ -15,7 +15,7 @@ class ProductState {
   final bool isLoadingProductOnDelete;
   final Option<Either<FirebaseFailure, Product>> fosProductOnObserveOption;
   final Option<Either<FirebaseFailure, List<Product>>> fosProductsOnObserveOption;
-  final Option<Either<FirebaseFailure, Unit>> fosProductOnCreateOption;
+  final Option<Either<FirebaseFailure, Product>> fosProductOnCreateOption;
   final Option<Either<FirebaseFailure, Unit>> fosProductOnUpdateOption;
   final Option<Either<FirebaseFailure, Unit>> fosProductOnDeleteOption;
 
@@ -92,7 +92,7 @@ class ProductState {
     bool? isLoadingProductOnDelete,
     Option<Either<FirebaseFailure, Product>>? fosProductOnObserveOption,
     Option<Either<FirebaseFailure, List<Product>>>? fosProductsOnObserveOption,
-    Option<Either<FirebaseFailure, Unit>>? fosProductOnCreateOption,
+    Option<Either<FirebaseFailure, Product>>? fosProductOnCreateOption,
     Option<Either<FirebaseFailure, Unit>>? fosProductOnUpdateOption,
     Option<Either<FirebaseFailure, Unit>>? fosProductOnDeleteOption,
     bool? isLoadingOnMassEditActivateProductMarketplace,

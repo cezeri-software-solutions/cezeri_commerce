@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart';
 
 import '../../../../core/presta_failure.dart';
-import '../../../entities/marketplace.dart';
+import '../../../entities/marketplace/marketplace.dart';
 import '../../../entities_presta/product_presta.dart';
 
 abstract class ProductImportRepository {
