@@ -3,9 +3,9 @@ import 'package:cezeri_commerce/routes/router.gr.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../2_application/firebase/marketplace/marketplace_bloc.dart';
-import '../../../../injection.dart';
-import '../../../core/functions/my_scaffold_messanger.dart';
+import '../../../2_application/firebase/marketplace/marketplace_bloc.dart';
+import '../../../injection.dart';
+import '../../core/functions/my_scaffold_messanger.dart';
 import 'marketplace_overview_page.dart';
 
 @RoutePage()

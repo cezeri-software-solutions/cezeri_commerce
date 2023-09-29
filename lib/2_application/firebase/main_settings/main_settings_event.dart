@@ -19,4 +19,17 @@ class CreateMainSettingsEvent extends MainSettingsEvent {
   CreateMainSettingsEvent({required this.mainSettings});
 }
 
+//? ################################################################
+//? ########################## Tax Rules ###########################
 
+class AddTaxRulesEvent extends MainSettingsEvent {
+  final Tax taxRules;
+
+  AddTaxRulesEvent({required this.taxRules});
+}
+
+class UpdateTaxRulesEvent extends MainSettingsEvent {
+  final Tax taxRules;
+
+  UpdateTaxRulesEvent({required this.taxRules});
+}

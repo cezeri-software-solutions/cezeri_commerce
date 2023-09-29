@@ -3,6 +3,7 @@ import 'package:dartz/dartz.dart';
 import 'package:meta/meta.dart';
 
 import '../../../3_domain/entities/settings/main_settings.dart';
+import '../../../3_domain/entities/settings/tax.dart';
 import '../../../3_domain/repositories/firebase/main_settings_respository.dart';
 import '../../../core/firebase_failures.dart';
 
@@ -71,6 +72,35 @@ class MainSettingsBloc extends Bloc<MainSettingsEvent, MainSettingsState> {
         fosMainSettingsOnUpdateOption: optionOf(failureOrSuccess),
       ));
       emit(state.copyWith(fosMainSettingsOnUpdateOption: none()));
+    });
+
+//? #########################################################################
+//? ########################## Tax Rules ####################################
+
+    on<AddTaxRulesEvent>((event, emit) async {
+      final List<Tax> taxRules = List.from(state.mainSettings!.taxes);
+      final isDefaultSet = taxRules.any((e) => e.isDefault);
+
+      if (isDefaultSet && event.taxRules.isDefault) return;
+
+      taxRules.add(event.taxRules);
+
+      MainSettings updatedMainSettings = state.mainSettings!.copyWith(taxes: taxRules);
+
+      add(UpdateMainSettingsEvent(mainSettings: updatedMainSettings));
+    });
+
+//? #########################################################################
+
+    on<UpdateTaxRulesEvent>((event, emit) async {
+      List<Tax> taxRules = List.from(state.mainSettings!.taxes);
+      final index = taxRules.indexWhere((e) => e.taxId == event.taxRules.taxId);
+
+      taxRules[index] = event.taxRules;
+
+      MainSettings updatedMainSettings = state.mainSettings!.copyWith(taxes: taxRules);
+
+      add(UpdateMainSettingsEvent(mainSettings: updatedMainSettings));
     });
 
 //? #########################################################################

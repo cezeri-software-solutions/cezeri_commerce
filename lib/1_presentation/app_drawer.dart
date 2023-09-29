@@ -80,28 +80,35 @@ class AppDrawer extends StatelessWidget {
                             }
                           },
                         ),
-                        // ListTile(
-                        //   leading: const Icon(FontAwesomeIcons.diagramProject),
-                        //   title: const Text('Massenbearbeitung'),
-                        //   onTap: () {
-                        //     context.router.push(const HomeRoute());
-                        //     context.router.replaceAll(
-                        //       [MarketplaceOverviewRoute(comeFromToMarketplaceOverview: ComeFromToMarketplaceOverview.marketplaceMassEditing)],
-                        //     );
-                        //   },
-                        // ),
                       ],
                     ),
-                    ListTile(
+                    ExpansionTile(
                       leading: const Icon(Icons.settings),
                       title: const Text('Einstellungen'),
-                      onTap: () {
-                        if (context.router.current.name == MainSettingsRoute.name) {
-                          context.router.pop();
-                        } else {
-                          context.router.replaceAll([const MainSettingsRoute()]);
-                        }
-                      },
+                      children: [
+                        ListTile(
+                          leading: const Icon(Icons.percent),
+                          title: const Text('Steuerregeln'),
+                          onTap: () {
+                            if (context.router.current.name == TaxRulesRoute.name) {
+                              context.router.pop();
+                            } else {
+                              context.router.replaceAll([const TaxRulesRoute()]);
+                            }
+                          },
+                        ),
+                        ListTile(
+                          leading: const Icon(Icons.settings),
+                          title: const Text('Grundeinstellungen'),
+                          onTap: () {
+                            if (context.router.current.name == MainSettingsRoute.name) {
+                              context.router.pop();
+                            } else {
+                              context.router.replaceAll([const MainSettingsRoute()]);
+                            }
+                          },
+                        ),
+                      ],
                     ),
                   ],
                 ),

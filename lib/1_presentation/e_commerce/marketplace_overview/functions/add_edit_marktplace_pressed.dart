@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../../2_application/firebase/marketplace/marketplace_bloc.dart';
-import '../../../../../3_domain/entities/marketplace/marketplace.dart';
+import '../../../../2_application/firebase/marketplace/marketplace_bloc.dart';
+import '../../../../3_domain/entities/marketplace/marketplace.dart';
 import '../widgets/add_edit_marketplace.dart';
 
 void addEditMarketplacepressed({required BuildContext context, required MarketplaceBloc marketplaceBloc, Marketplace? marketplace}) =>

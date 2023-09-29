@@ -3,10 +3,10 @@ import 'package:cezeri_commerce/1_presentation/core/widgets/my_text_form_field.d
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../../2_application/firebase/marketplace/marketplace_bloc.dart';
-import '../../../../../3_domain/entities/marketplace/marketplace.dart';
-import '../../../../../constants.dart';
-import '../../../../core/widgets/my_modal_scrollable.dart';
+import '../../../../2_application/firebase/marketplace/marketplace_bloc.dart';
+import '../../../../3_domain/entities/marketplace/marketplace.dart';
+import '../../../../constants.dart';
+import '../../../core/widgets/my_modal_scrollable.dart';
 
 class AddEditMarketplace extends StatefulWidget {
   final MarketplaceBloc marketplaceBloc;

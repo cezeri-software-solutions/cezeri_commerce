@@ -2,10 +2,10 @@ import 'package:cezeri_commerce/1_presentation/core/functions/my_scaffold_messan
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../2_application/firebase/marketplace/marketplace_bloc.dart';
-import '../../../../3_domain/entities/marketplace/marketplace.dart';
-import '../../../app_drawer.dart';
-import '../../../core/widgets/my_circular_avatar.dart';
+import '../../../2_application/firebase/marketplace/marketplace_bloc.dart';
+import '../../../3_domain/entities/marketplace/marketplace.dart';
+import '../../app_drawer.dart';
+import '../../core/widgets/my_circular_avatar.dart';
 import 'functions/add_edit_marktplace_pressed.dart';
 
 class MarketplaceOverviewPage extends StatelessWidget {
