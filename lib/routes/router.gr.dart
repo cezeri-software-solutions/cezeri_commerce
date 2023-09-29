@@ -73,13 +73,9 @@ abstract class $AppRouter extends _i14.RootStackRouter {
       );
     },
     MarketplaceOverviewRoute.name: (routeData) {
-      final args = routeData.argsAs<MarketplaceOverviewRouteArgs>();
       return _i14.AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: _i5.MarketplaceOverviewScreen(
-          key: args.key,
-          comeFromToMarketplaceOverview: args.comeFromToMarketplaceOverview,
-        ),
+        child: const _i5.MarketplaceOverviewScreen(),
       );
     },
     ProductDetailRoute.name: (routeData) {
@@ -226,41 +222,16 @@ class MarketplaceMassEditingRouteArgs {
 
 /// generated route for
 /// [_i5.MarketplaceOverviewScreen]
-class MarketplaceOverviewRoute
-    extends _i14.PageRouteInfo<MarketplaceOverviewRouteArgs> {
-  MarketplaceOverviewRoute({
-    _i15.Key? key,
-    required _i5.ComeFromToMarketplaceOverview comeFromToMarketplaceOverview,
-    List<_i14.PageRouteInfo>? children,
-  }) : super(
+class MarketplaceOverviewRoute extends _i14.PageRouteInfo<void> {
+  const MarketplaceOverviewRoute({List<_i14.PageRouteInfo>? children})
+      : super(
           MarketplaceOverviewRoute.name,
-          args: MarketplaceOverviewRouteArgs(
-            key: key,
-            comeFromToMarketplaceOverview: comeFromToMarketplaceOverview,
-          ),
           initialChildren: children,
         );
 
   static const String name = 'MarketplaceOverviewRoute';
 
-  static const _i14.PageInfo<MarketplaceOverviewRouteArgs> page =
-      _i14.PageInfo<MarketplaceOverviewRouteArgs>(name);
-}
-
-class MarketplaceOverviewRouteArgs {
-  const MarketplaceOverviewRouteArgs({
-    this.key,
-    required this.comeFromToMarketplaceOverview,
-  });
-
-  final _i15.Key? key;
-
-  final _i5.ComeFromToMarketplaceOverview comeFromToMarketplaceOverview;
-
-  @override
-  String toString() {
-    return 'MarketplaceOverviewRouteArgs{key: $key, comeFromToMarketplaceOverview: $comeFromToMarketplaceOverview}';
-  }
+  static const _i14.PageInfo<void> page = _i14.PageInfo<void>(name);
 }
 
 /// generated route for

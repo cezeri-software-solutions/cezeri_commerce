@@ -34,6 +34,7 @@ class ClientRepositoryImpl implements ClientRepository {
     final docRef = db.collection(currentUserUid).doc(currentUserUid);
     try {
       final client = await docRef.get();
+      if (client.data() == null) return left(EmptyFailure());
       return right(Client.fromJson(client.data()!));
     } on FirebaseException {
       return left(GeneralFailure());

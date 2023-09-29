@@ -1,4 +1,3 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:cezeri_commerce/3_domain/entities/id.dart';
 import 'package:json_annotation/json_annotation.dart';
 
@@ -49,7 +48,8 @@ class Receipt {
   final String invoiceNumberAsString;
   final int creditId;
   final String creditNumberAsString;
-  final String receiptMarketplaceNumber;
+  final int receiptMarketplaceId;
+  final String receiptMarketplaceReference;
   final String paymentMethod;
   final String commentInternal;
   final String commentGlobal;
@@ -89,7 +89,8 @@ class Receipt {
   final BankDetails bankDetails;
   final List<Payment> listOfPayments;
   final List<ReceiptProduct> listOfReceiptProduct;
-  final DateTime creationDate;
+  final DateTime creationDateMarektplace;
+  final DateTime creationDate; // Wenn importiert: DateTime import // Wenn dirkt angelegt: Datum Erstellung
   final int creationDateInt;
   final DateTime lastEditingDate;
 
@@ -103,7 +104,8 @@ class Receipt {
     required this.invoiceNumberAsString,
     required this.creditId,
     required this.creditNumberAsString,
-    required this.receiptMarketplaceNumber,
+    required this.receiptMarketplaceId,
+    required this.receiptMarketplaceReference,
     required this.paymentMethod,
     required this.commentInternal,
     required this.commentGlobal,
@@ -143,6 +145,7 @@ class Receipt {
     required this.bankDetails,
     required this.listOfPayments,
     required this.listOfReceiptProduct,
+    required this.creationDateMarektplace,
     required this.creationDate,
     required this.creationDateInt,
     required this.lastEditingDate,
@@ -280,7 +283,8 @@ class Receipt {
       invoiceNumberAsString: '',
       creditId: 0,
       creditNumberAsString: '',
-      receiptMarketplaceNumber: marketplace.id,
+      receiptMarketplaceId: orderPresta.id,
+      receiptMarketplaceReference: orderPresta.reference,
       paymentMethod: orderPresta.payment,
       commentInternal: '',
       commentGlobal: '',
@@ -323,7 +327,8 @@ class Receipt {
           ? [Payment(double.parse(orderPresta.totalPaidTaxExcl), orderPresta.payment, DateTime.parse(orderPresta.dateAdd))]
           : [],
       listOfReceiptProduct: listOfReceiptproduct,
-      creationDate: DateTime.parse(orderPresta.dateAdd),
+      creationDateMarektplace: DateTime.parse(orderPresta.dateAdd),
+      creationDate: DateTime.now(),
       creationDateInt: DateTime.parse(orderPresta.dateAdd).microsecondsSinceEpoch,
       lastEditingDate: DateTime.parse(orderPresta.dateAdd),
     );
@@ -340,7 +345,8 @@ class Receipt {
       invoiceNumberAsString: '',
       creditId: 0,
       creditNumberAsString: '',
-      receiptMarketplaceNumber: '',
+      receiptMarketplaceId: 0,
+      receiptMarketplaceReference: '',
       paymentMethod: '',
       commentInternal: '',
       commentGlobal: '',
@@ -380,6 +386,7 @@ class Receipt {
       bankDetails: BankDetails.empty(),
       listOfPayments: [],
       listOfReceiptProduct: [],
+      creationDateMarektplace: DateTime.now(),
       creationDate: DateTime.now(),
       creationDateInt: 0,
       lastEditingDate: DateTime.now(),
@@ -396,7 +403,8 @@ class Receipt {
     String? invoiceNumberAsString,
     int? creditId,
     String? creditNumberAsString,
-    String? receiptMarketplaceNumber,
+    int? receiptMarketplaceId,
+    String? receiptMarketplaceReference,
     String? paymentMethod,
     String? commentInternal,
     String? commentGlobal,
@@ -436,6 +444,7 @@ class Receipt {
     BankDetails? bankDetails,
     List<Payment>? listOfPayments,
     List<ReceiptProduct>? listOfReceiptProduct,
+    DateTime? creationDateMarektplace,
     DateTime? creationDate,
     int? creationDateInt,
     DateTime? lastEditingDate,
@@ -450,7 +459,8 @@ class Receipt {
       invoiceNumberAsString: invoiceNumberAsString ?? this.invoiceNumberAsString,
       creditId: creditId ?? this.creditId,
       creditNumberAsString: creditNumberAsString ?? this.creditNumberAsString,
-      receiptMarketplaceNumber: receiptMarketplaceNumber ?? this.receiptMarketplaceNumber,
+      receiptMarketplaceId: receiptMarketplaceId ?? this.receiptMarketplaceId,
+      receiptMarketplaceReference: receiptMarketplaceReference ?? this.receiptMarketplaceReference,
       paymentMethod: paymentMethod ?? this.paymentMethod,
       commentInternal: commentInternal ?? this.commentInternal,
       commentGlobal: commentGlobal ?? this.commentGlobal,
@@ -490,6 +500,7 @@ class Receipt {
       bankDetails: bankDetails ?? this.bankDetails,
       listOfPayments: listOfPayments ?? this.listOfPayments,
       listOfReceiptProduct: listOfReceiptProduct ?? this.listOfReceiptProduct,
+      creationDateMarektplace: creationDateMarektplace ?? this.creationDateMarektplace,
       creationDate: creationDate ?? this.creationDate,
       creationDateInt: creationDateInt ?? this.creationDateInt,
       lastEditingDate: lastEditingDate ?? this.lastEditingDate,
@@ -498,6 +509,6 @@ class Receipt {
 
   @override
   String toString() {
-    return 'Receipt(receiptId: $receiptId, offerId: $offerId, offerNumberAsString: $offerNumberAsString, appointmentId: $appointmentId, appointmentNumberAsString: $appointmentNumberAsString, invoiceId: $invoiceId, invoiceNumberAsString: $invoiceNumberAsString, creditId: $creditId, creditNumberAsString: $creditNumberAsString, receiptMarketplaceNumber: $receiptMarketplaceNumber, paymentMethod: $paymentMethod, commentInternal: $commentInternal, commentGlobal: $commentGlobal, currency: $currency, receiptDocumentText: $receiptDocumentText, uidNumber: $uidNumber, searchField: $searchField, customer: $customer, receiptTyp: $receiptTyp, offerStatus: $offerStatus, receiptStatus: $receiptStatus, paymentStatus: $paymentStatus, tax: $tax, termOfPayment: $termOfPayment, totalGross: $totalGross, totalNet: $totalNet, totalTax: $totalTax, subTotalNet: $subTotalNet, subTotalTax: $subTotalTax, subTotalGross: $subTotalGross, totalPaidGross: $totalPaidGross, totalPaidNet: $totalPaidNet, totalPaidTax: $totalPaidTax, totalShippingGross: $totalShippingGross, totalShippingNet: $totalShippingNet, totalShippingTax: $totalShippingTax, totalWrappingGross: $totalWrappingGross, totalWrappingNet: $totalWrappingNet, totalWrappingTax: $totalWrappingTax, discountGross: $discountGross, discountNet: $discountNet, discountPercent: $discountPercent, profit: $profit, profitExclShipping: $profitExclShipping, profitExclWrapping: $profitExclWrapping, profitExclShippingAndWrapping: $profitExclShippingAndWrapping, bankDetails: $bankDetails, listOfPayments: $listOfPayments, listOfReceiptProduct: $listOfReceiptProduct, creationDate: $creationDate, creationDateInt: $creationDateInt, lastEditingDate: $lastEditingDate)';
+    return 'Receipt(receiptId: $receiptId, offerId: $offerId, offerNumberAsString: $offerNumberAsString, appointmentId: $appointmentId, appointmentNumberAsString: $appointmentNumberAsString, invoiceId: $invoiceId, invoiceNumberAsString: $invoiceNumberAsString, creditId: $creditId, creditNumberAsString: $creditNumberAsString, receiptMarketplaceId: $receiptMarketplaceId, receiptMarketplaceReference: $receiptMarketplaceReference, paymentMethod: $paymentMethod, commentInternal: $commentInternal, commentGlobal: $commentGlobal, currency: $currency, receiptDocumentText: $receiptDocumentText, uidNumber: $uidNumber, searchField: $searchField, customer: $customer, receiptTyp: $receiptTyp, offerStatus: $offerStatus, receiptStatus: $receiptStatus, paymentStatus: $paymentStatus, tax: $tax, termOfPayment: $termOfPayment, totalGross: $totalGross, totalNet: $totalNet, totalTax: $totalTax, subTotalNet: $subTotalNet, subTotalTax: $subTotalTax, subTotalGross: $subTotalGross, totalPaidGross: $totalPaidGross, totalPaidNet: $totalPaidNet, totalPaidTax: $totalPaidTax, totalShippingGross: $totalShippingGross, totalShippingNet: $totalShippingNet, totalShippingTax: $totalShippingTax, totalWrappingGross: $totalWrappingGross, totalWrappingNet: $totalWrappingNet, totalWrappingTax: $totalWrappingTax, discountGross: $discountGross, discountNet: $discountNet, discountPercent: $discountPercent, profit: $profit, profitExclShipping: $profitExclShipping, profitExclWrapping: $profitExclWrapping, profitExclShippingAndWrapping: $profitExclShippingAndWrapping, bankDetails: $bankDetails, listOfPayments: $listOfPayments, listOfReceiptProduct: $listOfReceiptProduct, creationDateMarektplace: $creationDateMarektplace, creationDate: $creationDate, creationDateInt: $creationDateInt, lastEditingDate: $lastEditingDate)';
   }
 }

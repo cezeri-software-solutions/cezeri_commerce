@@ -27,7 +27,15 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
       final failureOrSuccess = await receiptRepository.getListOfAppointments();
       failureOrSuccess.fold(
         (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
-        (listOfAppointments) => emit(state.copyWith(listOfAppointment: listOfAppointments, firebaseFailure: null, isAnyFailure: false)),
+        (listOfAppointments) {
+          listOfAppointments.sort((a, b) => b.appointmentId.compareTo(a.appointmentId));
+          emit(state.copyWith(
+            listOfAppointment: listOfAppointments,
+            isExpanded: List<bool>.filled(listOfAppointments.length, false),
+            firebaseFailure: null,
+            isAnyFailure: false,
+          ));
+        },
       );
 
       emit(state.copyWith(
@@ -47,8 +55,10 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
         (listOfAppointments) {
           List<Receipt> listWithNewAppointments = List.from(state.listOfAppointment ?? []);
           listWithNewAppointments.addAll(listOfAppointments);
+          listWithNewAppointments.sort((a, b) => b.appointmentId.compareTo(a.appointmentId));
           emit(state.copyWith(
             listOfAppointment: listWithNewAppointments,
+            isExpanded: List<bool>.filled(listWithNewAppointments.length, false),
             firebaseFailure: null,
             isAnyFailure: false,
           ));
@@ -59,6 +69,14 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
         isLoadingAppointmentsFromPrestaOnObserve: false,
         fosAppointmentsOnObserveFromPrestaOption: optionOf(failureOrSuccess),
       ));
+    });
+
+//? #########################################################################
+
+    on<SetAppointmentIsExpandedEvent>((event, emit) async {
+      List<bool> isExpanded = List.from(state.isExpanded);
+      isExpanded[event.index] = !isExpanded[event.index];
+      emit(state.copyWith(isExpanded: isExpanded));
     });
 
 //? #########################################################################

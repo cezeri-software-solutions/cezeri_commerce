@@ -8,13 +8,9 @@ import '../../../../injection.dart';
 import '../../../core/functions/my_scaffold_messanger.dart';
 import 'marketplace_overview_page.dart';
 
-enum ComeFromToMarketplaceOverview { marketplaceOverview, marketplaceMassEditing }
-
 @RoutePage()
 class MarketplaceOverviewScreen extends StatelessWidget {
-  final ComeFromToMarketplaceOverview comeFromToMarketplaceOverview;
-
-  const MarketplaceOverviewScreen({super.key, required this.comeFromToMarketplaceOverview});
+  const MarketplaceOverviewScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -87,7 +83,7 @@ class MarketplaceOverviewScreen extends StatelessWidget {
         ],
         child: BlocBuilder<MarketplaceBloc, MarketplaceState>(
           builder: (context, state) {
-            return MarketplaceOverviewPage(comeFromToMarketplaceOverview: comeFromToMarketplaceOverview, marketplaceBloc: marketplaceBloc);
+            return MarketplaceOverviewPage(marketplaceBloc: marketplaceBloc);
           },
         ),
       ),

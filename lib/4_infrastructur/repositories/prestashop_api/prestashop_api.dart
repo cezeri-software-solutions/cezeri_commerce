@@ -3,13 +3,18 @@ import 'dart:convert';
 import 'package:http/http.dart';
 import 'package:loggy/loggy.dart';
 import 'package:quiver/core.dart';
+import 'package:xml/xml.dart';
 
+import '../../../3_domain/entities/product/product.dart';
+import '../../../3_domain/entities/product/product_marketplace.dart';
 import '../../../3_domain/entities_presta/address_presta.dart';
 import '../../../3_domain/entities_presta/country_presta.dart';
 import '../../../3_domain/entities_presta/currency_presta.dart';
 import '../../../3_domain/entities_presta/customer_presta.dart';
+import '../../../3_domain/entities_presta/language_presta.dart';
 import '../../../3_domain/entities_presta/order_id_presta.dart';
 import '../../../3_domain/entities_presta/order_presta.dart';
+import 'patch_builders.dart';
 
 class PrestashopApiConfig {
   final String apiKey;
@@ -27,8 +32,52 @@ class PrestashopApi with UiLoggy {
 
   void close() => _http.close();
 
+  //* Addresses */
+  Future<Optional<AddressPresta>> getAddress(final int id) async {
+    final payload = await _doGet(
+      '${_conf.webserviceUrl}addresses/$id?ws_key=${_conf.apiKey}&output_format=JSON&display=full',
+      single: true,
+    );
+    return payload == null ? const Optional.absent() : Optional.of(AddressesPresta.fromJson(payload).items.single);
+  }
+
+  //* Countries */
+  Future<Optional<CountryPresta>> getCountry(final int id) async {
+    final payload = await _doGet(
+      '${_conf.webserviceUrl}countries/$id?ws_key=${_conf.apiKey}&output_format=JSON&display=full',
+      single: true,
+    );
+    return payload == null ? const Optional.absent() : Optional.of(CountriesPresta.fromJson(payload).items.single);
+  }
+
+  //* Currencies */
+  Future<Optional<CurrencyPresta>> getCurrency(final int id) async {
+    final payload = await _doGet(
+      '${_conf.webserviceUrl}currencies/$id?ws_key=${_conf.apiKey}&output_format=JSON&display=full',
+      single: true,
+    );
+    return payload == null ? const Optional.absent() : Optional.of(CurrenciesPresta.fromJson(payload).items.single);
+  }
+
+  //* Customers */
+  Future<Optional<CustomerPresta>> getCustomer(final int id) async {
+    final payload = await _doGet(
+      '${_conf.webserviceUrl}customers/$id?ws_key=${_conf.apiKey}&output_format=JSON&display=full',
+      single: true,
+    );
+    return payload == null ? const Optional.absent() : Optional.of(CustomersPresta.fromJson(payload).items.single);
+  }
+
+  //* Languages */
+  Future<List<LanguagePresta>> getLanguages() async {
+    final payload = await _doGet(
+      '${_conf.webserviceUrl}languages?ws_key=${_conf.apiKey}&output_format=JSON&display=full',
+    );
+    return LanguagesPresta.fromJson(payload).items;
+  }
+
   //* Orders */
-  Future<List<OrderIdPresta>> orderIds() async {
+  Future<List<OrderIdPresta>> getOrderIds() async {
     final payload = await _doGet(
       '${_conf.webserviceUrl}orders?ws_key=${_conf.apiKey}&output_format=JSON',
     );
@@ -36,7 +85,7 @@ class PrestashopApi with UiLoggy {
     return OrdersIdPresta.fromJson(payload).items;
   }
 
-  Future<List<OrderPresta>> ordersFilterIdInterval(int idFrom, int idTo) async {
+  Future<List<OrderPresta>> getOrdersFilterIdInterval(int idFrom, int idTo) async {
     final payload = await _doGet(
       '${_conf.webserviceUrl}orders?ws_key=${_conf.apiKey}&filter[id]=[$idFrom,$idTo]&output_format=JSON&display=full',
     );
@@ -45,7 +94,7 @@ class PrestashopApi with UiLoggy {
     return OrdersPresta.fromJson(payload).items;
   }
 
-  Future<Optional<OrderPresta>> order(final int id) async {
+  Future<Optional<OrderPresta>> getOrder(final int id) async {
     final payload = await _doGet(
       '${_conf.webserviceUrl}orders/$id?ws_key=${_conf.apiKey}&output_format=JSON&display=full',
       single: true,
@@ -53,41 +102,32 @@ class PrestashopApi with UiLoggy {
     return payload == null ? const Optional.absent() : Optional.of(OrdersPresta.fromJson(payload).items.single);
   }
 
-  //* Currencies */
-  Future<Optional<CurrencyPresta>> currency(final int id) async {
-    final payload = await _doGet(
-      '${_conf.webserviceUrl}currencies/$id?ws_key=${_conf.apiKey}&output_format=JSON&display=full',
-      single: true,
+//? ################################## GET ENDE #################################
+//? #############################################################################
+//? ################################## PATCH START ##############################
+
+  Future<bool> patchProductQuantity(final int id, int quantity) async {
+    final builder = productQuantityBuilder(id, quantity);
+    final payload = await _doPatch(
+      '${_conf.webserviceUrl}stock_availables/$id',
+      builder,
     );
-    return payload == null ? const Optional.absent() : Optional.of(CurrenciesPresta.fromJson(payload).items.single);
+    return payload == false ? false : true;
   }
 
-  //* Countries */
-  Future<Optional<CountryPresta>> country(final int id) async {
-    final payload = await _doGet(
-      '${_conf.webserviceUrl}countries/$id?ws_key=${_conf.apiKey}&output_format=JSON&display=full',
-      single: true,
+  Future<bool> patchProduct(final int id, Product product, ProductMarketplace productMarketplace) async {
+    final languages = await getLanguages();
+    final builder = productBuilder(id, product, productMarketplace, languages);
+    final payload = await _doPatch(
+      '${_conf.webserviceUrl}products/$id',
+      builder,
     );
-    return payload == null ? const Optional.absent() : Optional.of(CountriesPresta.fromJson(payload).items.single);
+    final payloadQuantity = await patchProductQuantity(productMarketplace.stockAvailables!.first.id!, product.availableStock);
+    return payload && payloadQuantity == true ? true : false; 
   }
 
-  //* Addresses */
-  Future<Optional<AddressPresta>> address(final int id) async {
-    final payload = await _doGet(
-      '${_conf.webserviceUrl}addresses/$id?ws_key=${_conf.apiKey}&output_format=JSON&display=full',
-      single: true,
-    );
-    return payload == null ? const Optional.absent() : Optional.of(AddressesPresta.fromJson(payload).items.single);
-  }
-
-  //* Customers */
-  Future<Optional<CustomerPresta>> customer(final int id) async {
-    final payload = await _doGet(
-      '${_conf.webserviceUrl}customers/$id?ws_key=${_conf.apiKey}&output_format=JSON&display=full',
-      single: true,
-    );
-    return payload == null ? const Optional.absent() : Optional.of(CustomersPresta.fromJson(payload).items.single);
-  }
+//? ################################## PATCH ENDE ###############################
+//? #############################################################################
 
   //* Utility methods */
   Future<dynamic> _doGet(String uri, {bool single = false}) async {
@@ -100,6 +140,27 @@ class PrestashopApi with UiLoggy {
     }
     if (response.statusCode == 200) {
       return jsonDecode(utf8.decode(response.bodyBytes));
+    }
+    loggy.error(response);
+    throw PrestashopApiException(response);
+  }
+
+  Future<bool> _doPatch(String uri, XmlBuilder builder) async {
+    loggy.debug('Fetching $uri');
+    final document = builder.buildDocument();
+    final response = await _http.patch(
+      Uri.parse(uri),
+      headers: {
+        'Authorization': 'Basic ${base64Encode(utf8.encode('${_conf.apiKey}:'))}',
+        'Content-Type': 'application/xml',
+      },
+      body: document.toXmlString(),
+    );
+
+    print(response.body);
+
+    if (response.statusCode == 200) {
+      return true;
     }
     loggy.error(response);
     throw PrestashopApiException(response);

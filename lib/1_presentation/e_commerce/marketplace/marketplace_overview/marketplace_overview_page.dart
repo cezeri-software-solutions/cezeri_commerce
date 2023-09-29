@@ -1,6 +1,4 @@
-import 'package:auto_route/auto_route.dart';
 import 'package:cezeri_commerce/1_presentation/core/functions/my_scaffold_messanger.dart';
-import 'package:cezeri_commerce/routes/router.gr.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -9,13 +7,11 @@ import '../../../../3_domain/entities/marketplace/marketplace.dart';
 import '../../../app_drawer.dart';
 import '../../../core/widgets/my_circular_avatar.dart';
 import 'functions/add_edit_marktplace_pressed.dart';
-import 'marketplace_overview_screen.dart';
 
 class MarketplaceOverviewPage extends StatelessWidget {
-  final ComeFromToMarketplaceOverview comeFromToMarketplaceOverview;
   final MarketplaceBloc marketplaceBloc;
 
-  const MarketplaceOverviewPage({super.key, required this.comeFromToMarketplaceOverview, required this.marketplaceBloc});
+  const MarketplaceOverviewPage({super.key, required this.marketplaceBloc});
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +46,6 @@ class MarketplaceOverviewPage extends StatelessWidget {
             _MarktplaceItem mpItem = _MarktplaceItem(
               marketplace: mp,
               marketplaceBloc: marketplaceBloc,
-              comeFromToMarketplaceOverview: comeFromToMarketplaceOverview,
             );
             markedplaceItems.add(mpItem);
           }
@@ -78,9 +73,8 @@ class MarketplaceOverviewPage extends StatelessWidget {
 class _MarktplaceItem extends StatelessWidget {
   final Marketplace marketplace;
   final MarketplaceBloc marketplaceBloc;
-  final ComeFromToMarketplaceOverview comeFromToMarketplaceOverview;
 
-  const _MarktplaceItem({required this.marketplace, required this.marketplaceBloc, required this.comeFromToMarketplaceOverview});
+  const _MarktplaceItem({required this.marketplace, required this.marketplaceBloc});
 
   @override
   Widget build(BuildContext context) {
@@ -88,17 +82,13 @@ class _MarktplaceItem extends StatelessWidget {
     return SizedBox(
       width: screenWidth > 500 ? 500 : screenWidth,
       child: InkWell(
-        onTap: () => switch (comeFromToMarketplaceOverview) {
-          ComeFromToMarketplaceOverview.marketplaceOverview =>
-            addEditMarketplacepressed(context: context, marketplaceBloc: marketplaceBloc, marketplace: marketplace),
-          ComeFromToMarketplaceOverview.marketplaceMassEditing => context.router.push(MarketplaceMassEditingRoute(marketplace: marketplace)),
-        },
+        onTap: () => addEditMarketplacepressed(context: context, marketplaceBloc: marketplaceBloc, marketplace: marketplace),
         child: Card(
           child: Padding(
             padding: const EdgeInsets.all(18.0),
             child: Column(
               children: [
-                 Row(
+                Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const SizedBox(width: 20),

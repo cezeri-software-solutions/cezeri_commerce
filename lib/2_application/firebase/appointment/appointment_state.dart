@@ -1,4 +1,3 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 part of 'appointment_bloc.dart';
 
 @immutable
@@ -20,6 +19,9 @@ class AppointmentState {
   final Option<Either<FirebaseFailure, Receipt>> fosAppointmentOnUpdateOption;
   final Option<Either<FirebaseFailure, Unit>> fosAppointmentOnDeleteOption;
 
+  //* --- helper --- *//
+  final List<bool> isExpanded;
+
   const AppointmentState({
     this.appointment,
     required this.listOfAppointment,
@@ -37,6 +39,7 @@ class AppointmentState {
     required this.fosAppointmentOnCreateOption,
     required this.fosAppointmentOnUpdateOption,
     required this.fosAppointmentOnDeleteOption,
+    required this.isExpanded,
   });
 
   factory AppointmentState.initial() => AppointmentState(
@@ -56,6 +59,7 @@ class AppointmentState {
         fosAppointmentOnCreateOption: none(),
         fosAppointmentOnUpdateOption: none(),
         fosAppointmentOnDeleteOption: none(),
+        isExpanded: const [],
       );
 
   AppointmentState copyWith({
@@ -75,6 +79,7 @@ class AppointmentState {
     Option<Either<FirebaseFailure, Receipt>>? fosAppointmentOnCreateOption,
     Option<Either<FirebaseFailure, Receipt>>? fosAppointmentOnUpdateOption,
     Option<Either<FirebaseFailure, Unit>>? fosAppointmentOnDeleteOption,
+    List<bool>? isExpanded,
   }) {
     return AppointmentState(
       appointment: appointment ?? this.appointment,
@@ -93,6 +98,7 @@ class AppointmentState {
       fosAppointmentOnCreateOption: fosAppointmentOnCreateOption ?? this.fosAppointmentOnCreateOption,
       fosAppointmentOnUpdateOption: fosAppointmentOnUpdateOption ?? this.fosAppointmentOnUpdateOption,
       fosAppointmentOnDeleteOption: fosAppointmentOnDeleteOption ?? this.fosAppointmentOnDeleteOption,
+      isExpanded: isExpanded ?? this.isExpanded,
     );
   }
 }

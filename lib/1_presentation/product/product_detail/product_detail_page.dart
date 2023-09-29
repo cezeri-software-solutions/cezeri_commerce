@@ -97,7 +97,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
             if (widget.product != null)
               IconButton(
                 onPressed: () => widget.productBloc.add(GetProductEvent(id: widget.product!.id)),
-                icon: const Icon(Icons.update, size: 30),
+                icon: const Icon(Icons.refresh, size: 30),
               ),
             responsiveness == Responsiveness.isTablet ? Gaps.w32 : Gaps.w8,
             MyOutlinedButton(

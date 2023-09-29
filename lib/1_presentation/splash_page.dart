@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../2_application/firebase/auth/auth_bloc/auth_bloc.dart';
 import '../2_application/firebase/client/client_bloc.dart';
 import '../3_domain/entities/client.dart';
+import '../core/firebase_failures.dart';
 import '../injection.dart';
 
 enum ComeFromToSplashPage { appDrawer }
@@ -53,7 +54,9 @@ class _SplashPageState extends State<SplashPage> {
               state.fosClientOnObserveOption.fold(
                 () => null,
                 (a) => a.fold(
-                  (failure) => null, // TODO: Speichere den Fehler in Firebase und kontaktiere den User
+                  (failure) => failure.runtimeType == EmptyFailure
+                      ? context.router.replaceAll([const RegisterUserDataRoute()])
+                      : null, // TODO: Speichere den Fehler in Firebase und kontaktiere den User
                   (client) {
                     if (client.companyName != Client.empty().companyName && client.name != Client.empty().name) {
                       context.router.replaceAll([const HomeRoute()]);

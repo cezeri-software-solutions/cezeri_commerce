@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<prestashop xmlns:xlink="http://www.w3.org/1999/xlink">
+    <stock_available>
+        <id><![CDATA[8350]]></id>
+        <id_product xlink:href="https://ccf-autopflege.at/api/products/32"><![CDATA[32]]></id_product>
+        <id_product_attribute><![CDATA[0]]></id_product_attribute>
+        <id_shop xlink:href="https://ccf-autopflege.at/api/shops/1"><![CDATA[1]]></id_shop>
+        <id_shop_group><![CDATA[0]]></id_shop_group>
+        <quantity><![CDATA[7]]></quantity>
+        <depends_on_stock><![CDATA[0]]></depends_on_stock>
+        <out_of_stock><![CDATA[2]]></out_of_stock>
+        <location><![CDATA[]]></location>
+    </stock_available>
+</prestashop>
+
+<?xml version="1.0" encoding="UTF-8"?>
+<prestashop xmlns:xlink="http://www.w3.org/1999/xlink">
+    <stock_available>
+        <id><![CDATA[8350]]></id>
+        <id_product xlink:href="https://ccf-autopflege.at/api/products/32">
+            <![CDATA[32]]>
+        </id_product>
+        <id_product_attribute>
+            <![CDATA[0]]>
+        </id_product_attribute>
+        <id_shop xlink:href="https://ccf-autopflege.at/api/shops/1">
+            <![CDATA[1]]>
+        </id_shop>
+        <id_shop_group>
+            <![CDATA[0]]>
+        </id_shop_group>
+        <quantity>
+            <![CDATA[7]]>
+        </quantity>
+        <depends_on_stock>
+            <![CDATA[0]]>
+        </depends_on_stock>
+        <out_of_stock>
+            <![CDATA[2]]>
+        </out_of_stock>
+        <location>
+            <![CDATA[]]>
+        </location>
+    </stock_available>
+</prestashop>
+
+<?xml version="1.0" encoding="UTF-8"?>
+<prestashop xmlns:xlink="http://www.w3.org/1999/xlink">
+    <stock_available>
+        <id>8350</id>
+        <id_product xlink:href="https://ccf-autopflege.at/api/products/32">32</id_product>
+        <id_product_attribute>0</id_product_attribute>
+        <id_shop xlink:href="https://ccf-autopflege.at/api/shops/1">1</id_shop>
+        <id_shop_group>0</id_shop_group>
+        <quantity>7</quantity>
+        <depends_on_stock>0</depends_on_stock>
+        <out_of_stock>2</out_of_stock>
+        <location></location>
+    </stock_available>
+</prestashop>
+
+<?xml version="1.0" encoding="UTF-8"?>
+<prestashop xmlns:xlink="http://www.w3.org/1999/xlink">
+    <stock_available>
+        <id>&lt;![CDATA[8350]]&gt;</id>
+        <id_product xlink:href="https://ccf-autopflege.at/api/products/32">&lt;![CDATA[32]]&gt;</id_product>
+        <id_product_attribute>&lt;![CDATA[0]]&gt;</id_product_attribute>
+        <id_shop xlink:href="https://ccf-autopflege.at/api/shops/1">&lt;![CDATA[1]]&gt;</id_shop>
+        <id_shop_group>&lt;![CDATA[0]]&gt;</id_shop_group>
+        <quantity>&lt;![CDATA[7]]&gt;</quantity>
+        <depends_on_stock>&lt;![CDATA[0]]&gt;</depends_on_stock>
+        <out_of_stock>&lt;![CDATA[2]]&gt;</out_of_stock>
+        <location>&lt;![CDATA[]]&gt;</location>
+    </stock_available>
+</prestashop>
+
+
+<?xml version="1.0" encoding="UTF-8"?>
+<prestashop xmlns:http://www.w3.org/1999/xlink="xlink">
+    <stock_available>
+        <id>8350</id>
+        <id_product xlink:href="https://ccf-autopflege.at/api/products/32">32</id_product>
+        <id_product_attribute>0</id_product_attribute>
+        <id_shop xlink:href="https://ccf-autopflege.at/api/shops/1">1</id_shop>
+        <id_shop_group>0</id_shop_group>
+        <quantity>7</quantity>
+        <depends_on_stock>0</depends_on_stock>
+        <out_of_stock>2</out_of_stock>
+        <location></location>
+    </stock_available>
+</prestashop>
+
+
+
+<?xml version="1.0" encoding="UTF-8"?>
+<prestashop xmlns:xlink="http://www.w3.org/1999/xlink">
+    <stock_available>
+        <id>8350</id>
+        <quantity>5</quantity>
+    </stock_available>
+</prestashop>

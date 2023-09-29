@@ -52,11 +52,11 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
         final api = PrestashopApi(Client(), PrestashopApiConfig(apiKey: marketplace.key, webserviceUrl: marketplace.fullUrl));
         if (!marketplace.isActive) continue;
 
-        final orderIdsPresta = await api.orderIds();
+        final orderIdsPresta = await api.getOrderIds();
         final allOrderIds = orderIdsPresta.map((e) => e.id).toList();
         allOrderIds.sort((a, b) => a.compareTo(b));
 
-        listOfOrderPresta = await api.ordersFilterIdInterval(marketplace.marketplaceSettings.nextIdToImport, allOrderIds.last);
+        listOfOrderPresta = await api.getOrdersFilterIdInterval(marketplace.marketplaceSettings.nextIdToImport, allOrderIds.last);
         for (final orderPresta in listOfOrderPresta) {
           await db.runTransaction((transaction) async {
             final dsMainSettings = await transaction.get(docRefMainSettings);
@@ -125,17 +125,17 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
               );
             }
 
-            final optionalCurrency = await api.currency(int.parse(orderPresta.idCurrency));
+            final optionalCurrency = await api.getCurrency(int.parse(orderPresta.idCurrency));
             final currency = optionalCurrency.value;
-            final optionalCustomer = await api.customer(int.parse(orderPresta.idCustomer));
+            final optionalCustomer = await api.getCustomer(int.parse(orderPresta.idCustomer));
             final customer = optionalCustomer.value;
-            final optionalAddressInvoice = await api.address(int.parse(orderPresta.idAddressInvoice));
+            final optionalAddressInvoice = await api.getAddress(int.parse(orderPresta.idAddressInvoice));
             final addressInvoice = optionalAddressInvoice.value;
-            final optionalAddressDelivery = await api.address(int.parse(orderPresta.idAddressDelivery));
+            final optionalAddressDelivery = await api.getAddress(int.parse(orderPresta.idAddressDelivery));
             final addressDelivery = optionalAddressDelivery.value;
-            final optionalCountryInvoice = await api.country(int.parse(addressInvoice.idCountry));
+            final optionalCountryInvoice = await api.getCountry(int.parse(addressInvoice.idCountry));
             final countryInvoice = optionalCountryInvoice.value;
-            final optionalCountryDelivery = await api.country(int.parse(addressDelivery.idCountry));
+            final optionalCountryDelivery = await api.getCountry(int.parse(addressDelivery.idCountry));
             final countryDelivery = optionalCountryDelivery.value;
 
             final phAppointment = Receipt.fromOrderPresta(

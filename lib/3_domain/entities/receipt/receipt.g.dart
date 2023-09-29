@@ -16,7 +16,9 @@ Receipt _$ReceiptFromJson(Map<String, dynamic> json) => Receipt(
       invoiceNumberAsString: json['invoiceNumberAsString'] as String,
       creditId: json['creditId'] as int,
       creditNumberAsString: json['creditNumberAsString'] as String,
-      receiptMarketplaceNumber: json['receiptMarketplaceNumber'] as String,
+      receiptMarketplaceId: json['receiptMarketplaceId'] as int,
+      receiptMarketplaceReference:
+          json['receiptMarketplaceReference'] as String,
       paymentMethod: json['paymentMethod'] as String,
       commentInternal: json['commentInternal'] as String,
       commentGlobal: json['commentGlobal'] as String,
@@ -62,6 +64,8 @@ Receipt _$ReceiptFromJson(Map<String, dynamic> json) => Receipt(
       listOfReceiptProduct: (json['listOfReceiptProduct'] as List<dynamic>)
           .map((e) => ReceiptProduct.fromJson(e as Map<String, dynamic>))
           .toList(),
+      creationDateMarektplace:
+          DateTime.parse(json['creationDateMarektplace'] as String),
       creationDate: DateTime.parse(json['creationDate'] as String),
       creationDateInt: json['creationDateInt'] as int,
       lastEditingDate: DateTime.parse(json['lastEditingDate'] as String),
@@ -77,7 +81,8 @@ Map<String, dynamic> _$ReceiptToJson(Receipt instance) => <String, dynamic>{
       'invoiceNumberAsString': instance.invoiceNumberAsString,
       'creditId': instance.creditId,
       'creditNumberAsString': instance.creditNumberAsString,
-      'receiptMarketplaceNumber': instance.receiptMarketplaceNumber,
+      'receiptMarketplaceId': instance.receiptMarketplaceId,
+      'receiptMarketplaceReference': instance.receiptMarketplaceReference,
       'paymentMethod': instance.paymentMethod,
       'commentInternal': instance.commentInternal,
       'commentGlobal': instance.commentGlobal,
@@ -118,6 +123,8 @@ Map<String, dynamic> _$ReceiptToJson(Receipt instance) => <String, dynamic>{
       'listOfPayments': instance.listOfPayments.map((e) => e.toJson()).toList(),
       'listOfReceiptProduct':
           instance.listOfReceiptProduct.map((e) => e.toJson()).toList(),
+      'creationDateMarektplace':
+          instance.creationDateMarektplace.toIso8601String(),
       'creationDate': instance.creationDate.toIso8601String(),
       'creationDateInt': instance.creationDateInt,
       'lastEditingDate': instance.lastEditingDate.toIso8601String(),
