@@ -71,7 +71,7 @@ class _TaxRulesPageState extends State<TaxRulesPage> {
                 if (state.mainSettings!.taxes.isNotEmpty)
                   ListTile(
                     trailing: const Icon(Icons.star_rate),
-                    title: Text(state.mainSettings!.taxes.where((e) => e.isDefault == true).first.country),
+                    title: Text(state.mainSettings!.taxes.where((e) => e.isDefault == true).first.country.name),
                   ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -109,7 +109,7 @@ class _TaxRulesPageState extends State<TaxRulesPage> {
         isScrollControlled: true,
         builder: (_) => BlocProvider.value(
           value: mainSettingsBloc,
-          child: AddEditTaxRules(taxRule: taxRule, isDefault: isDefault),
+          child: AddEditTaxRules(taxRule: taxRule, isDefault: isDefault, mainSettingsBloc: mainSettingsBloc),
         ),
       );
 }

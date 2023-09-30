@@ -1,4 +1,5 @@
 import 'package:cezeri_commerce/3_domain/entities/id.dart';
+import 'package:cezeri_helpers/cezeri_helpers.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 import '../../../1_presentation/core/functions/mixed_functions.dart';
@@ -8,7 +9,6 @@ import '../../entities_presta/currency_presta.dart';
 import '../../entities_presta/customer_presta.dart';
 import '../../entities_presta/order_presta.dart';
 import '../address.dart';
-import '../country.dart';
 import '../customer/customer.dart';
 import '../customer/customer_marketplace.dart';
 import '../marketplace/marketplace.dart';
@@ -196,11 +196,7 @@ class Receipt {
       street2: addressInvoicePresta.address2,
       postcode: addressInvoicePresta.postcode,
       city: addressInvoicePresta.city,
-      country: Country.empty().copyWith(
-        id: UniqueID().value,
-        isoCode: countryInvoicePresta.isoCode,
-        name: countryInvoicePresta.name,
-      ),
+      country: Country.countryList.where((e) => e.isoCode.toUpperCase() == countryInvoicePresta.isoCode.toUpperCase()).first,
       phone: addressInvoicePresta.phone,
       phoneMobile: addressInvoicePresta.phoneMobile,
       addressType: AddressType.invoice,

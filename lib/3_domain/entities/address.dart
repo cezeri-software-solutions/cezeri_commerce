@@ -1,6 +1,5 @@
+import 'package:cezeri_helpers/cezeri_helpers.dart';
 import 'package:json_annotation/json_annotation.dart';
-
-import 'country.dart';
 
 part 'address.g.dart';
 

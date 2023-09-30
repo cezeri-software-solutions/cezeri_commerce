@@ -10,8 +10,7 @@ Tax _$TaxFromJson(Map<String, dynamic> json) => Tax(
       taxId: json['taxId'] as String,
       taxName: json['taxName'] as String,
       taxRate: json['taxRate'] as int,
-      country: json['country'] as String,
-      countryIsoCode: json['countryIsoCode'] as String,
+      country: Country.fromJson(json['country'] as Map<String, dynamic>),
       isDefault: json['isDefault'] as bool,
     );
 
@@ -19,7 +18,6 @@ Map<String, dynamic> _$TaxToJson(Tax instance) => <String, dynamic>{
       'taxId': instance.taxId,
       'taxName': instance.taxName,
       'taxRate': instance.taxRate,
-      'country': instance.country,
-      'countryIsoCode': instance.countryIsoCode,
+      'country': instance.country.toJson(),
       'isDefault': instance.isDefault,
     };

@@ -1,9 +1,12 @@
+import 'package:auto_route/auto_route.dart';
+import 'package:cezeri_commerce/3_domain/entities/id.dart';
+import 'package:cezeri_helpers/cezeri_helpers.dart';
 import 'package:flutter/material.dart';
 
+import '../../../../2_application/firebase/main_settings/main_settings_bloc.dart';
 import '../../../../3_domain/entities/settings/tax.dart';
 import '../../../../constants.dart';
-import '../../../core/classes/list_of_countries.dart';
-import '../../../core/widgets/my_dropdown_button_form_field.dart';
+import '../../../core/widgets/my_dialog_countries.dart';
 import '../../../core/widgets/my_modal_scrollable.dart';
 import '../../../core/widgets/my_outlined_button.dart';
 import '../../../core/widgets/my_text_form_field.dart';
@@ -11,20 +14,19 @@ import '../../../core/widgets/my_text_form_field.dart';
 class AddEditTaxRules extends StatefulWidget {
   final Tax? taxRule;
   final bool isDefault;
+  final MainSettingsBloc mainSettingsBloc;
 
-  const AddEditTaxRules({super.key, required this.taxRule, required this.isDefault});
+  const AddEditTaxRules({super.key, required this.taxRule, required this.isDefault, required this.mainSettingsBloc});
 
   @override
   State<AddEditTaxRules> createState() => _AddEditTaxRulesState();
 }
 
 class _AddEditTaxRulesState extends State<AddEditTaxRules> {
-  final _listOfCountries = Countries.listOfCountries;
-
   late TextEditingController _taxNameController;
   late TextEditingController _taxRateController;
 
-  String _selectedCountry = Countries.listOfCountries[0];
+  Country _selectedCountry = Country.countryList.where((e) => e.isoCode.toUpperCase() == ('AT').toUpperCase()).first;
 
   @override
   void initState() {
@@ -36,14 +38,12 @@ class _AddEditTaxRulesState extends State<AddEditTaxRules> {
     } else {
       _taxNameController = TextEditingController();
       _taxRateController = TextEditingController();
-      _selectedCountry = Countries.listOfCountries[0];
+      _selectedCountry = _selectedCountry;
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final screenHeight = MediaQuery.sizeOf(context).height;
-
     return MyModalScrollable(
       title: widget.isDefault ? 'Steuerregel Inland' : 'Steuerregel',
       keyboardDismiss: KeyboardDissmiss.onTab,
@@ -61,13 +61,7 @@ class _AddEditTaxRulesState extends State<AddEditTaxRules> {
           controller: _taxRateController,
         ),
         Gaps.h16,
-        MyDropdownButtonFormField(
-          labelText: 'Land',
-          menuMaxHeight: screenHeight / 2,
-          value: _selectedCountry,
-          onChanged: (country) => setState(() => _selectedCountry = country.toString()),
-          items: _listOfCountries,
-        ),
+        MyDialogSelectCountry(labelText: 'Land', selectedCountry: _selectedCountry.name, onSelectCountry: (country) => _selectedCountry = country),
         Gaps.h16,
         MyOutlinedButton(buttonText: 'Speichern', onPressed: () => _saveTaxRulePressed()),
         Gaps.h54,
@@ -75,5 +69,25 @@ class _AddEditTaxRulesState extends State<AddEditTaxRules> {
     );
   }
 
-  void _saveTaxRulePressed() {}
+  void _saveTaxRulePressed() {
+    if (widget.taxRule == null) {
+      final taxRule = Tax(
+        taxId: UniqueID().value,
+        taxName: _taxNameController.text,
+        taxRate: int.parse(_taxRateController.text),
+        country: _selectedCountry,
+        isDefault: widget.isDefault,
+      );
+      widget.mainSettingsBloc.add(AddTaxRulesEvent(taxRules: taxRule));
+      context.router.pop();
+    } else {
+      final taxRule = widget.taxRule!.copyWith(
+        taxName: _taxNameController.text,
+        taxRate: int.parse(_taxRateController.text),
+        country: _selectedCountry,
+      );
+      widget.mainSettingsBloc.add(UpdateTaxRulesEvent(taxRules: taxRule));
+      context.router.pop();
+    }
+  }
 }
