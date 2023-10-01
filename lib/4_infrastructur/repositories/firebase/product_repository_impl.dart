@@ -113,7 +113,7 @@ class ProductRepositoryImpl implements ProductRepository {
   }
 
   @override
-  Future<Either<FirebaseFailure, Product>> updateQuantityOfProduct(Product product, int newQuantity) async {
+  Future<Either<FirebaseFailure, Product>> updateQuantityOfProduct(Product product, int newQuantityIncremental) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
 
@@ -122,8 +122,28 @@ class ProductRepositoryImpl implements ProductRepository {
 
     try {
       final updatedProduct = product.copyWith(
-        availableStock: product.availableStock - (product.availableStock - newQuantity),
-        warehouseStock: product.warehouseStock - (product.warehouseStock - newQuantity),
+        availableStock: product.availableStock - (product.availableStock - newQuantityIncremental),
+        warehouseStock: product.warehouseStock - (product.warehouseStock - newQuantityIncremental),
+      );
+      await docRefProduct.update(updatedProduct.toJson());
+
+      return right(updatedProduct);
+    } on FirebaseException {
+      return left(GeneralFailure());
+    }
+  }
+
+  @override
+  Future<Either<FirebaseFailure, Product>> updateAvailableQuantityOfProduct(Product product, int newQuantityIncremental) async {
+    final isConnected = await checkInternetConnection();
+    if (!isConnected) return left(NoConnectionFailure());
+
+    final currentUserUid = firebaseAuth.currentUser!.uid;
+    final docRefProduct = db.collection(currentUserUid).doc(currentUserUid).collection('Products').doc(product.id);
+
+    try {
+      final updatedProduct = product.copyWith(
+        availableStock: product.availableStock - (product.availableStock - newQuantityIncremental),
       );
       await docRefProduct.update(updatedProduct.toJson());
 

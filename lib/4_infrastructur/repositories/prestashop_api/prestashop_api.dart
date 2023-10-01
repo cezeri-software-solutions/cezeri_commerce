@@ -34,7 +34,7 @@ class PrestashopApi with UiLoggy {
 
   //* Addresses */
   Future<Optional<AddressPresta>> getAddress(final int id) async {
-    final payload = await _doGet(
+    final payload = await _doGetJson(
       '${_conf.webserviceUrl}addresses/$id?ws_key=${_conf.apiKey}&output_format=JSON&display=full',
       single: true,
     );
@@ -43,7 +43,7 @@ class PrestashopApi with UiLoggy {
 
   //* Countries */
   Future<Optional<CountryPresta>> getCountry(final int id) async {
-    final payload = await _doGet(
+    final payload = await _doGetJson(
       '${_conf.webserviceUrl}countries/$id?ws_key=${_conf.apiKey}&output_format=JSON&display=full',
       single: true,
     );
@@ -52,7 +52,7 @@ class PrestashopApi with UiLoggy {
 
   //* Currencies */
   Future<Optional<CurrencyPresta>> getCurrency(final int id) async {
-    final payload = await _doGet(
+    final payload = await _doGetJson(
       '${_conf.webserviceUrl}currencies/$id?ws_key=${_conf.apiKey}&output_format=JSON&display=full',
       single: true,
     );
@@ -61,7 +61,7 @@ class PrestashopApi with UiLoggy {
 
   //* Customers */
   Future<Optional<CustomerPresta>> getCustomer(final int id) async {
-    final payload = await _doGet(
+    final payload = await _doGetJson(
       '${_conf.webserviceUrl}customers/$id?ws_key=${_conf.apiKey}&output_format=JSON&display=full',
       single: true,
     );
@@ -70,7 +70,7 @@ class PrestashopApi with UiLoggy {
 
   //* Languages */
   Future<List<LanguagePresta>> getLanguages() async {
-    final payload = await _doGet(
+    final payload = await _doGetJson(
       '${_conf.webserviceUrl}languages?ws_key=${_conf.apiKey}&output_format=JSON&display=full',
     );
     return LanguagesPresta.fromJson(payload).items;
@@ -78,7 +78,7 @@ class PrestashopApi with UiLoggy {
 
   //* Orders */
   Future<List<OrderIdPresta>> getOrderIds() async {
-    final payload = await _doGet(
+    final payload = await _doGetJson(
       '${_conf.webserviceUrl}orders?ws_key=${_conf.apiKey}&output_format=JSON',
     );
 
@@ -86,7 +86,7 @@ class PrestashopApi with UiLoggy {
   }
 
   Future<List<OrderPresta>> getOrdersFilterIdInterval(int idFrom, int idTo) async {
-    final payload = await _doGet(
+    final payload = await _doGetJson(
       '${_conf.webserviceUrl}orders?ws_key=${_conf.apiKey}&filter[id]=[$idFrom,$idTo]&output_format=JSON&display=full',
     );
     loggy.debug(payload);
@@ -95,11 +95,20 @@ class PrestashopApi with UiLoggy {
   }
 
   Future<Optional<OrderPresta>> getOrder(final int id) async {
-    final payload = await _doGet(
+    final payload = await _doGetJson(
       '${_conf.webserviceUrl}orders/$id?ws_key=${_conf.apiKey}&output_format=JSON&display=full',
       single: true,
     );
     return payload == null ? const Optional.absent() : Optional.of(OrdersPresta.fromJson(payload).items.single);
+  }
+
+  //* Products */
+  Future<Optional<OrderPresta>> getProduct(final int id) async {
+    final payloadProduct = await _doGetXml(
+      '${_conf.webserviceUrl}products/$id?ws_key=${_conf.apiKey}&display=full',
+      single: true,
+    );
+    return payloadProduct == null ? const Optional.absent() : Optional.of(OrdersPresta.fromJson(payloadProduct).items.single);
   }
 
 //? ################################## GET ENDE #################################
@@ -123,14 +132,14 @@ class PrestashopApi with UiLoggy {
       builder,
     );
     final payloadQuantity = await patchProductQuantity(productMarketplace.stockAvailables!.first.id!, product.availableStock);
-    return payload && payloadQuantity == true ? true : false; 
+    return payload && payloadQuantity == true ? true : false;
   }
 
 //? ################################## PATCH ENDE ###############################
 //? #############################################################################
 
   //* Utility methods */
-  Future<dynamic> _doGet(String uri, {bool single = false}) async {
+  Future<dynamic> _doGetJson(String uri, {bool single = false}) async {
     loggy.debug('Fetching $uri');
     final response = await _http.get(Uri.parse(uri));
     loggy.debug('Received response with code ${response.statusCode}');
@@ -140,6 +149,21 @@ class PrestashopApi with UiLoggy {
     }
     if (response.statusCode == 200) {
       return jsonDecode(utf8.decode(response.bodyBytes));
+    }
+    loggy.error(response);
+    throw PrestashopApiException(response);
+  }
+
+  Future<dynamic> _doGetXml(String uri, {bool single = false}) async {
+    loggy.debug('Fetching $uri');
+    final response = await _http.get(Uri.parse(uri));
+    loggy.debug('Received response with code ${response.statusCode}');
+
+    if (single && response.statusCode != 200) {
+      return null;
+    }
+    if (response.statusCode == 200) {
+      return XmlDocument.parse(response.body);
     }
     loggy.error(response);
     throw PrestashopApiException(response);

@@ -38,10 +38,13 @@ class TaxRulesScreen extends StatelessWidget {
             listener: (context, state) {
               state.fosMainSettingsOnUpdateOption.fold(
                 () => null,
-                (a) => a.fold((failure) => myScaffoldMessenger(context, failure, null, null, null), (unit) {
-                  myScaffoldMessenger(context, null, null, 'Einstellungen erfolgreich aktualisiert', null);
-                  mainSettingsBloc.add(GetMainSettingsEvent());
-                }),
+                (a) => a.fold(
+                  (failure) => myScaffoldMessenger(context, failure, null, null, null),
+                  (unit) {
+                    myScaffoldMessenger(context, null, null, 'Einstellungen erfolgreich aktualisiert', null);
+                    mainSettingsBloc.add(GetMainSettingsEvent());
+                  },
+                ),
               );
             },
           ),

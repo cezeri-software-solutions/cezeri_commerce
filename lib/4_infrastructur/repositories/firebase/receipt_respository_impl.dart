@@ -70,7 +70,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
               final oooooooooooooooo = orderProductPresta; // TODO: delete
               fosProduct.fold(
                 (failure) async {
-                  logger.e('Artikel ${orderProductPresta.productName} nicht in der Datenbank');
+                  logger.e('Artikel ${orderProductPresta.productName} nicht in der Firestore Datenbank');
                   if (failure.runtimeType == EmptyFailure) {
                     Either<FirebaseFailure, Product>? fosProduct;
                     // TODO: get full productPresta from PrestashopApi
@@ -95,8 +95,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
                     );
                   }
                 },
-                (product) {
-                  // TODO: set availableStock of loaded product from firebase direkt to the correct one
+                (product) async {
                   final quantity = int.parse(orderProductPresta.productQuantity);
                   final tax = calcTaxPercent(double.parse(orderProductPresta.unitPriceTaxIncl), double.parse(orderProductPresta.unitPriceTaxExcl));
                   final receiptProduct = ReceiptProduct(
@@ -121,6 +120,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
                     profit: (double.parse(orderProductPresta.unitPriceTaxExcl) - product.wholesalePrice) * quantity,
                   );
                   listOfReceiptproduct.add(receiptProduct);
+                  await productRepository.updateAvailableQuantityOfProduct(product, quantity);
                 },
               );
             }

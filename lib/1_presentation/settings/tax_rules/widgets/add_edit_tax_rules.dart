@@ -44,6 +44,7 @@ class _AddEditTaxRulesState extends State<AddEditTaxRules> {
 
   @override
   Widget build(BuildContext context) {
+    print(_selectedCountry.name);
     return MyModalScrollable(
       title: widget.isDefault ? 'Steuerregel Inland' : 'Steuerregel',
       keyboardDismiss: KeyboardDissmiss.onTab,
@@ -61,7 +62,11 @@ class _AddEditTaxRulesState extends State<AddEditTaxRules> {
           controller: _taxRateController,
         ),
         Gaps.h16,
-        MyDialogSelectCountry(labelText: 'Land', selectedCountry: _selectedCountry.name, onSelectCountry: (country) => _selectedCountry = country),
+        MyDialogSelectCountry(
+          labelText: 'Land',
+          selectedCountry: _selectedCountry.name,
+          onSelectCountry: (country) => setState(() => _selectedCountry = country),
+        ),
         Gaps.h16,
         MyOutlinedButton(buttonText: 'Speichern', onPressed: () => _saveTaxRulePressed()),
         Gaps.h54,

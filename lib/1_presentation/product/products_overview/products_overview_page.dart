@@ -10,7 +10,7 @@ import '../../../2_application/firebase/product/product_bloc.dart';
 import '../../../3_domain/entities/product/product.dart';
 import '../../../3_domain/enums/enums.dart';
 import '../../../routes/router.gr.dart';
-import '../../core/widgets/my_circular_avatar.dart';
+import '../../core/widgets/my_avatar.dart';
 import '../product_detail/product_detail_screen.dart';
 
 class ProductOverviewPage extends StatelessWidget {

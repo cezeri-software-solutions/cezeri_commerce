@@ -8,7 +8,8 @@ import '../../../3_domain/entities/receipt/receipt.dart';
 import '../../../3_domain/enums/enums.dart';
 import '../../../constants.dart';
 import '../../../core/firebase_failures.dart';
-import '../../core/widgets/my_circular_avatar.dart';
+import '../../core/widgets/my_avatar.dart';
+import '../../core/widgets/my_country_flag.dart';
 
 class AppointmentsOverviewPage extends StatefulWidget {
   final AppointmentBloc appointmentBloc;
@@ -74,6 +75,7 @@ class __AppointmentContainerState extends State<_AppointmentContainer> {
     final screenWidth = MediaQuery.sizeOf(context).width;
     final responsiveness = screenWidth > 700 ? Responsiveness.isTablet : Responsiveness.isMobil;
     final deliveryAddress = widget.appointment.customer.listOfAddress.where((e) => e.addressType == AddressType.delivery && e.isDefault).first;
+    final invoiceAddress = widget.appointment.customer.listOfAddress.where((e) => e.addressType == AddressType.invoice && e.isDefault).first;
     return BlocBuilder<AppointmentBloc, AppointmentState>(
       builder: (context, state) {
         return Container(
@@ -129,7 +131,13 @@ class __AppointmentContainerState extends State<_AppointmentContainer> {
                             ],
                           ),
                         ),
-                        Text(deliveryAddress.country.name),
+                        Row(
+                          children: [
+                            Text(deliveryAddress.country.name),
+                            Gaps.w8,
+                            MyCountryFlag(country: deliveryAddress.country, size: 12),
+                          ],
+                        ),
                       ],
                     ),
                   ),
@@ -148,18 +156,18 @@ class __AppointmentContainerState extends State<_AppointmentContainer> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        if (widget.appointment.customer.company != null) Text(widget.appointment.customer.company!),
-                        Text(deliveryAddress.name),
-                        Text(deliveryAddress.street),
+                        if (invoiceAddress.companyName != '') Text(invoiceAddress.companyName),
+                        Text(widget.appointment.customer.name),
+                        Text(invoiceAddress.street),
                         Text.rich(
                           TextSpan(
                             children: [
-                              TextSpan(text: deliveryAddress.postcode),
-                              TextSpan(text: deliveryAddress.city),
+                              TextSpan(text: invoiceAddress.postcode),
+                              TextSpan(text: invoiceAddress.city),
                             ],
                           ),
                         ),
-                        Text(deliveryAddress.country.name),
+                        Text(invoiceAddress.country.name),
                       ],
                     ),
                   ),

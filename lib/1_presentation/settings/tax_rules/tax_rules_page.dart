@@ -1,3 +1,4 @@
+import 'package:cezeri_commerce/1_presentation/core/widgets/my_country_flag.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -49,6 +50,8 @@ class _TaxRulesPageState extends State<TaxRulesPage> {
           return Scaffold(appBar: appBar, drawer: drawer, body: Center(child: Text(mapFirebaseFailureMessage(state.firebaseFailure!))));
         }
 
+        final taxRuleDefault = state.mainSettings!.taxes.where((e) => e.isDefault == true).first;
+        final taxRulesRest = state.mainSettings!.taxes.where((e) => e.isDefault == false).toList();
         return Scaffold(
           appBar: appBar,
           drawer: drawer,
@@ -63,15 +66,16 @@ class _TaxRulesPageState extends State<TaxRulesPage> {
                     const Text('Steuerregel Inland', style: TextStyles.h2),
                     if (state.mainSettings!.taxes.isEmpty)
                       IconButton(
-                        onPressed: () => _addEditTaxRulesPressed(context: context, mainSettingsBloc: widget.mainSettingsBloc, isDefault: true),
+                        onPressed: () => _addEditTaxRulesPressed(isDefault: true),
                         icon: const Icon(Icons.add, color: Colors.green),
                       ),
                   ],
                 ),
                 if (state.mainSettings!.taxes.isNotEmpty)
-                  ListTile(
-                    trailing: const Icon(Icons.star_rate),
-                    title: Text(state.mainSettings!.taxes.where((e) => e.isDefault == true).first.country.name),
+                  _TaxRuleListTile(
+                    taxRule: taxRuleDefault,
+                    isDefault: true,
+                    addEditTaxRulesPressed: _addEditTaxRulesPressed,
                   ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -79,19 +83,21 @@ class _TaxRulesPageState extends State<TaxRulesPage> {
                     const Text('Restliche Steuerregeln', style: TextStyles.h2),
                     if (state.mainSettings!.taxes.isNotEmpty)
                       IconButton(
-                        onPressed: () => _addEditTaxRulesPressed(context: context, mainSettingsBloc: widget.mainSettingsBloc, isDefault: false),
+                        onPressed: () => _addEditTaxRulesPressed(isDefault: false),
                         icon: const Icon(Icons.add, color: Colors.green),
                       ),
                   ],
                 ),
                 if (state.mainSettings!.taxes.where((e) => e.isDefault == false).isNotEmpty)
-                  ListView.builder(
+                  ListView.separated(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    itemCount: state.mainSettings!.taxes.where((e) => e.isDefault == false).length,
+                    itemCount: taxRulesRest.length,
                     itemBuilder: (context, index) {
-                      return Container();
+                      final taxRule = taxRulesRest[index];
+                      return _TaxRuleListTile(taxRule: taxRule, isDefault: false, addEditTaxRulesPressed: _addEditTaxRulesPressed);
                     },
+                    separatorBuilder: (context, index) => const Divider(height: 0),
                   ),
               ],
             ),
@@ -103,13 +109,41 @@ class _TaxRulesPageState extends State<TaxRulesPage> {
 
   void _onSaveSettings() {}
 
-  void _addEditTaxRulesPressed({required BuildContext context, required MainSettingsBloc mainSettingsBloc, Tax? taxRule, required bool isDefault}) =>
-      showModalBottomSheet(
+  void _addEditTaxRulesPressed({Tax? taxRule, required bool isDefault}) => showModalBottomSheet(
         context: context,
         isScrollControlled: true,
         builder: (_) => BlocProvider.value(
-          value: mainSettingsBloc,
-          child: AddEditTaxRules(taxRule: taxRule, isDefault: isDefault, mainSettingsBloc: mainSettingsBloc),
+          value: widget.mainSettingsBloc,
+          child: AddEditTaxRules(taxRule: taxRule, isDefault: isDefault, mainSettingsBloc: widget.mainSettingsBloc),
         ),
       );
+}
+
+class _TaxRuleListTile extends StatelessWidget {
+  final Tax taxRule;
+  final bool isDefault;
+  final void Function({required Tax taxRule, required bool isDefault}) addEditTaxRulesPressed;
+
+  const _TaxRuleListTile({required this.taxRule, required this.isDefault, required this.addEditTaxRulesPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: Colors.white,
+      child: ListTile(
+        leading: MyCountryFlag(country: taxRule.country),
+        title: Row(
+          children: [
+            Text(taxRule.country.name),
+            Text(' / ${taxRule.taxRate.toString()}%'),
+          ],
+        ),
+        subtitle: Text(taxRule.taxName),
+        trailing: IconButton(
+          onPressed: () => addEditTaxRulesPressed(taxRule: taxRule, isDefault: true),
+          icon: const Icon(Icons.edit, color: CustomColors.primaryColor),
+        ),
+      ),
+    );
+  }
 }

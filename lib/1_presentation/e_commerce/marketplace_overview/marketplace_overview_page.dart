@@ -5,7 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../2_application/firebase/marketplace/marketplace_bloc.dart';
 import '../../../3_domain/entities/marketplace/marketplace.dart';
 import '../../app_drawer.dart';
-import '../../core/widgets/my_circular_avatar.dart';
+import '../../core/widgets/my_avatar.dart';
 import 'functions/add_edit_marktplace_pressed.dart';
 
 class MarketplaceOverviewPage extends StatelessWidget {

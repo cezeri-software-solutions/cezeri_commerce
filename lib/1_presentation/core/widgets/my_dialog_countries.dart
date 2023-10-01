@@ -1,10 +1,11 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:cezeri_commerce/1_presentation/core/widgets/my_country_flag.dart';
 import 'package:cezeri_helpers/cezeri_helpers.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../../../constants.dart';
-import 'my_circular_avatar.dart';
+import 'my_avatar.dart';
 
 class MyDialogSelectCountry extends StatefulWidget {
   final String labelText;
@@ -71,8 +72,7 @@ class _MyDialogSelectCountryState extends State<MyDialogSelectCountry> {
         ),
         child: Row(
           children: [
-            MyAvatar(
-                name: selectedCountry.name, imageUrl: Country.countryList.where((e) => e.name == selectedCountry.name).first.flagUrl, radius: 10),
+            MyCountryFlag(country: selectedCountry),
             const SizedBox(width: 15),
             Text(selectedCountry.name, style: TextStyles.h3),
           ],
@@ -81,7 +81,10 @@ class _MyDialogSelectCountryState extends State<MyDialogSelectCountry> {
     );
   }
 
-  void _selectVehicleBrand(Country country) => setState(() => selectedCountry = country);
+  void _selectVehicleBrand(Country country) => setState(() {
+        selectedCountry = country;
+        widget.onSelectCountry(country);
+      });
 }
 
 class SelectVehicleDialog extends StatefulWidget {
