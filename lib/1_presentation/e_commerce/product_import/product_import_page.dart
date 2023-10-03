@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../2_application/firebase/main_settings/main_settings_bloc.dart';
 import '../../../2_application/prestashop/product_import/product_import_bloc.dart';
 import '../../../3_domain/entities/marketplace/marketplace.dart';
 import '../../../3_domain/entities/product/product.dart';
@@ -40,7 +41,12 @@ class ProductImportPage extends StatelessWidget {
                   subtitle: Text(state.productPresta!.quantity!.toString()),
                   trailing: TextButton(
                     onPressed: () {
-                      final product = Product.fromProductPresta(productPresta: state.productPresta!, marketplace: marketplace);
+                      final mainSettings = context.read<MainSettingsBloc>().state.mainSettings!;
+                      final product = Product.fromProductPresta(
+                        productPresta: state.productPresta!,
+                        marketplace: marketplace,
+                        mainSettings: mainSettings,
+                      );
                       context.read<ProductBloc>().add(CreateProductEvent(product: product));
                     },
                     child: const Text('Speichern'),

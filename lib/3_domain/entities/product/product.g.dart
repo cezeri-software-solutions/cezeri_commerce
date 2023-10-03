@@ -18,7 +18,7 @@ Product _$ProductFromJson(Map<String, dynamic> json) => Product(
       listOfName: (json['listOfName'] as List<dynamic>)
           .map((e) => ProductLanguage.fromJson(e as Map<String, dynamic>))
           .toList(),
-      vatDomestic: json['vatDomestic'] as int,
+      tax: Tax.fromJson(json['tax'] as Map<String, dynamic>),
       haveImages: json['haveImages'] as bool,
       mainImageUrl: json['mainImageUrl'] as String,
       mainImageId: json['mainImageId'] as int,
@@ -68,7 +68,7 @@ Map<String, dynamic> _$ProductToJson(Product instance) => <String, dynamic>{
       'ean': instance.ean,
       'name': instance.name,
       'listOfName': instance.listOfName.map((e) => e.toJson()).toList(),
-      'vatDomestic': instance.vatDomestic,
+      'tax': instance.tax.toJson(),
       'haveImages': instance.haveImages,
       'mainImageUrl': instance.mainImageUrl,
       'mainImageId': instance.mainImageId,

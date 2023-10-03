@@ -90,8 +90,11 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
                       },
                       (productPresta) async {
                         logger.i('${orderProductPresta.productName} wurde erfolgreich von Prestashp geladen');
-                        final fosProduct =
-                            await productRepository.createProduct(Product.fromProductPresta(productPresta: productPresta, marketplace: marketplace));
+                        final fosProduct = await productRepository.createProduct(Product.fromProductPresta(
+                          productPresta: productPresta,
+                          marketplace: marketplace,
+                          mainSettings: mainSettings,
+                        ));
 
                         fosProduct.fold(
                           (failure) => logger.e(
@@ -101,9 +104,11 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
                             final quantity = int.parse(orderProductPresta.productQuantity);
                             final tax =
                                 calcTaxPercent(double.parse(orderProductPresta.unitPriceTaxIncl), double.parse(orderProductPresta.unitPriceTaxExcl));
+
                             final receiptProduct = generateReceiptProduct(
                               product: product,
                               orderProductPresta: orderProductPresta,
+                              mainSettings: mainSettings,
                               quantity: quantity,
                               tax: tax,
                             );
@@ -121,6 +126,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
                   final receiptProduct = generateReceiptProduct(
                     product: product,
                     orderProductPresta: orderProductPresta,
+                    mainSettings: mainSettings,
                     quantity: quantity,
                     tax: tax,
                   );
@@ -248,6 +254,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
 ReceiptProduct generateReceiptProduct({
   required Product product,
   required OrderProductPresta orderProductPresta,
+  required MainSettings mainSettings,
   required int quantity,
   required int tax,
 }) {
@@ -263,7 +270,7 @@ ReceiptProduct generateReceiptProduct({
     unitPriceGross: double.parse(orderProductPresta.unitPriceTaxIncl),
     unitPriceNet: double.parse(orderProductPresta.unitPriceTaxExcl),
     customization: int.parse(orderProductPresta.idCustomization),
-    tax: tax,
+    tax: mainSettings.taxes.where((e) => e.taxRate == tax).firstOrNull ?? mainSettings.taxes.where((e) => e.isDefault).first,
     wholesalePrice: product.wholesalePrice,
     discountGrossUnit: product.grossPrice - double.parse(orderProductPresta.unitPriceTaxIncl),
     discountNetUnit: product.netPrice - double.parse(orderProductPresta.unitPriceTaxExcl),

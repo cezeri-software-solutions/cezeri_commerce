@@ -3,6 +3,8 @@ import 'package:json_annotation/json_annotation.dart';
 
 import '../../entities_presta/product_presta.dart';
 import '../marketplace/marketplace.dart';
+import '../settings/main_settings.dart';
+import '../settings/tax.dart';
 import 'product_marketplace.dart';
 
 part 'product.g.dart';
@@ -18,7 +20,7 @@ class Product {
   final String ean;
   final String name;
   final List<ProductLanguage> listOfName;
-  final int vatDomestic; // Steuer Inland
+  final Tax tax; // Steuer Inland
   final bool haveImages;
   final String mainImageUrl;
   final int mainImageId;
@@ -59,7 +61,7 @@ class Product {
     required this.ean,
     required this.name,
     required this.listOfName,
-    required this.vatDomestic,
+    required this.tax,
     required this.haveImages,
     required this.mainImageUrl,
     required this.mainImageId,
@@ -102,7 +104,7 @@ class Product {
       ean: '',
       name: '',
       listOfName: [],
-      vatDomestic: 20,
+      tax: Tax.empty(),
       haveImages: false,
       mainImageUrl: '',
       mainImageId: 0,
@@ -135,7 +137,11 @@ class Product {
     );
   }
 
-  factory Product.fromProductPresta({required ProductPresta productPresta, required Marketplace marketplace}) {
+  factory Product.fromProductPresta({
+    required ProductPresta productPresta,
+    required Marketplace marketplace,
+    required MainSettings mainSettings,
+  }) {
     final productMarketplaces = [ProductMarketplace.fromProductPresta(productPresta, marketplace)];
 
     return Product.empty().copyWith(
@@ -148,7 +154,7 @@ class Product {
       ean: productPresta.ean13 ?? Product.empty().ean,
       name: productPresta.name ?? Product.empty().name,
       listOfName: productPresta.listOfName ?? Product.empty().listOfName,
-      // vatDomestic:
+      tax: mainSettings.taxes.where((e) => e.isDefault).first,
       haveImages: productPresta.imageIds != null
           ? productPresta.imageIds!.isNotEmpty
               ? true
@@ -168,9 +174,9 @@ class Product {
       weight: productPresta.weight ?? Product.empty().weight,
       netPrice: productPresta.price ?? Product.empty().netPrice,
       // TODO: Hole die MwSt. von Settings
-      grossPrice: productPresta.price! * (Product.empty().vatDomestic / 100 + 1),
+      grossPrice: productPresta.price! * (Product.empty().tax.taxRate / 100 + 1),
       wholesalePrice: productPresta.wholesalePrice ?? Product.empty().wholesalePrice,
-      recommendedRetailPrice: Product.empty().netPrice * (Product.empty().vatDomestic / 100 + 1),
+      recommendedRetailPrice: Product.empty().netPrice * (Product.empty().tax.taxRate / 100 + 1),
       // TODO: nachschauen woher ich die Varianten bekomme
       haveVariants: Product.empty().haveVariants,
       // TODO: Wenn SetArtikel, alle Artikel aus dem Set mit importieren, anlegen und den Bestand davon berechnen
@@ -209,7 +215,7 @@ class Product {
     String? ean,
     String? name,
     List<ProductLanguage>? listOfName,
-    int? vatDomestic,
+    Tax? tax,
     bool? haveImages,
     String? mainImageUrl,
     int? mainImageId,
@@ -250,7 +256,7 @@ class Product {
       ean: ean ?? this.ean,
       name: name ?? this.name,
       listOfName: listOfName ?? this.listOfName,
-      vatDomestic: vatDomestic ?? this.vatDomestic,
+      tax: tax ?? this.tax,
       haveImages: haveImages ?? this.haveImages,
       mainImageUrl: mainImageUrl ?? this.mainImageUrl,
       mainImageId: mainImageId ?? this.mainImageId,
@@ -285,6 +291,6 @@ class Product {
 
   @override
   String toString() {
-    return 'Product(id: $id, articleNumber: $articleNumber, supplierArticleNumber: $supplierArticleNumber, supplier: $supplier, sku: $sku, ean: $ean, name: $name, listOfName: $listOfName, vatDomestic: $vatDomestic, haveImages: $haveImages, mainImageUrl: $mainImageUrl, mainImageId: $mainImageId, imageUrls: $imageUrls, isActive: $isActive, ordered: $ordered, brandName: $brandName, unity: $unity, unitPrice: $unitPrice, width: $width, height: $height, depth: $depth, weight: $weight, netPrice: $netPrice, grossPrice: $grossPrice, wholesalePrice: $wholesalePrice, recommendedRetailPrice: $recommendedRetailPrice, haveVariants: $haveVariants, isSetArticle: $isSetArticle, manufacturerNumber: $manufacturerNumber, manufacturer: $manufacturer, warehouseStock: $warehouseStock, availableStock: $availableStock, description: $description, listOfDescription: $listOfDescription, descriptionShort: $descriptionShort, listOfDescriptionShort: $listOfDescriptionShort, volume: $volume, productMarketplaces: $productMarketplaces)';
+    return 'Product(id: $id, articleNumber: $articleNumber, supplierArticleNumber: $supplierArticleNumber, supplierNumber: $supplierNumber, supplier: $supplier, sku: $sku, ean: $ean, name: $name, listOfName: $listOfName, tax: $tax, haveImages: $haveImages, mainImageUrl: $mainImageUrl, mainImageId: $mainImageId, imageUrls: $imageUrls, isActive: $isActive, ordered: $ordered, brandName: $brandName, unity: $unity, unitPrice: $unitPrice, width: $width, height: $height, depth: $depth, weight: $weight, netPrice: $netPrice, grossPrice: $grossPrice, wholesalePrice: $wholesalePrice, recommendedRetailPrice: $recommendedRetailPrice, haveVariants: $haveVariants, isSetArticle: $isSetArticle, manufacturerNumber: $manufacturerNumber, manufacturer: $manufacturer, warehouseStock: $warehouseStock, availableStock: $availableStock, description: $description, listOfDescription: $listOfDescription, descriptionShort: $descriptionShort, listOfDescriptionShort: $listOfDescriptionShort, volume: $volume, productMarketplaces: $productMarketplaces)';
   }
 }

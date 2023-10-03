@@ -1,8 +1,10 @@
 import 'package:json_annotation/json_annotation.dart';
 
+import '../settings/tax.dart';
+
 part 'receipt_product.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class ReceiptProduct {
   final String productId; // Id des Artikels in Firebase
   final int productAttributeId; // Feld aus Presta
@@ -15,7 +17,7 @@ class ReceiptProduct {
   final double unitPriceGross;
   final double unitPriceNet;
   final int customization; // Feld aus Presta
-  final int tax;
+  final Tax tax;
   final double wholesalePrice;
   final double discountGrossUnit;
   final double discountNetUnit;
@@ -53,7 +55,7 @@ class ReceiptProduct {
   Map<String, dynamic> toJson() => _$ReceiptProductToJson(this);
 
   factory ReceiptProduct.empty() {
-    return const ReceiptProduct(
+    return ReceiptProduct(
       productId: '',
       productAttributeId: 0,
       quantity: 0,
@@ -65,7 +67,7 @@ class ReceiptProduct {
       unitPriceGross: 0,
       unitPriceNet: 0,
       customization: 0,
-      tax: 0,
+      tax: Tax.empty(),
       wholesalePrice: 0,
       discountGrossUnit: 0,
       discountNetUnit: 0,
@@ -89,7 +91,7 @@ class ReceiptProduct {
     double? unitPriceGross,
     double? unitPriceNet,
     int? customization,
-    int? tax,
+    Tax? tax,
     double? wholesalePrice,
     double? discountGrossUnit,
     double? discountNetUnit,
