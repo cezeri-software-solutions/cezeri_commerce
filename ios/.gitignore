@@ -11,6 +11,8 @@
 **/DerivedData/
 Icon?
 **/Pods/
+!ios/Pods/Target Support Files/Pods-Runner/Pods-Runner-frameworks-Release-input-files.xcfilelist
+!ios/Pods/Target Support Files/Pods-Runner/Pods-Runner-frameworks-Release-output-files.xcfilelist
 **/.symlinks/
 profile
 xcuserdata

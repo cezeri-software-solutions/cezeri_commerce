@@ -10,9 +10,7 @@ import '../../core/functions/my_scaffold_messanger.dart';
 import 'widgets/add_edit_tax_rules.dart';
 
 class TaxRulesPage extends StatefulWidget {
-  final MainSettingsBloc mainSettingsBloc;
-
-  const TaxRulesPage({super.key, required this.mainSettingsBloc});
+  const TaxRulesPage({super.key});
 
   @override
   State<TaxRulesPage> createState() => _TaxRulesPageState();
@@ -98,10 +96,7 @@ class _TaxRulesPageState extends State<TaxRulesPage> {
   void _addEditTaxRulesPressed({Tax? taxRule, required bool isDefault}) => showModalBottomSheet(
         context: context,
         isScrollControlled: true,
-        builder: (_) => BlocProvider.value(
-          value: widget.mainSettingsBloc,
-          child: AddEditTaxRules(taxRule: taxRule, isDefault: isDefault, mainSettingsBloc: widget.mainSettingsBloc),
-        ),
+        builder: (_) => AddEditTaxRules(taxRule: taxRule, isDefault: isDefault),
       );
 }
 

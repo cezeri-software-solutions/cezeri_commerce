@@ -2,6 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:cezeri_commerce/3_domain/entities/id.dart';
 import 'package:cezeri_helpers/cezeri_helpers.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../2_application/firebase/main_settings/main_settings_bloc.dart';
 import '../../../../3_domain/entities/settings/tax.dart';
@@ -14,9 +15,8 @@ import '../../../core/widgets/my_text_form_field.dart';
 class AddEditTaxRules extends StatefulWidget {
   final Tax? taxRule;
   final bool isDefault;
-  final MainSettingsBloc mainSettingsBloc;
 
-  const AddEditTaxRules({super.key, required this.taxRule, required this.isDefault, required this.mainSettingsBloc});
+  const AddEditTaxRules({super.key, required this.taxRule, required this.isDefault});
 
   @override
   State<AddEditTaxRules> createState() => _AddEditTaxRulesState();
@@ -83,7 +83,7 @@ class _AddEditTaxRulesState extends State<AddEditTaxRules> {
         country: _selectedCountry,
         isDefault: widget.isDefault,
       );
-      widget.mainSettingsBloc.add(AddTaxRulesEvent(taxRules: taxRule));
+      context.read<MainSettingsBloc>().add(AddTaxRulesEvent(taxRules: taxRule));
       context.router.pop();
     } else {
       final taxRule = widget.taxRule!.copyWith(
@@ -91,7 +91,7 @@ class _AddEditTaxRulesState extends State<AddEditTaxRules> {
         taxRate: int.parse(_taxRateController.text),
         country: _selectedCountry,
       );
-      widget.mainSettingsBloc.add(UpdateTaxRulesEvent(taxRules: taxRule));
+      context.read<MainSettingsBloc>().add(UpdateTaxRulesEvent(taxRules: taxRule));
       context.router.pop();
     }
   }

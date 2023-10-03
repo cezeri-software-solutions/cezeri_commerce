@@ -9,9 +9,7 @@ import '../../app_drawer.dart';
 import '../../core/functions/my_scaffold_messanger.dart';
 
 class PaymentMethodPage extends StatefulWidget {
-  final MainSettingsBloc mainSettingsBloc;
-
-  const PaymentMethodPage({super.key, required this.mainSettingsBloc});
+  const PaymentMethodPage({super.key});
 
   @override
   State<PaymentMethodPage> createState() => _PaymentMethodPageState();
@@ -64,11 +62,7 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
                     itemCount: state.mainSettings!.paymentMethods.length,
                     itemBuilder: (context, index) {
                       final paymentMethod = state.mainSettings!.paymentMethods[index];
-                      return _PaymentMethodListTile(
-                        paymentMethod: paymentMethod,
-                        mainSettings: state.mainSettings!,
-                        mainSettingsBloc: widget.mainSettingsBloc,
-                      );
+                      return _PaymentMethodListTile(paymentMethod: paymentMethod, mainSettings: state.mainSettings!);
                     },
                   ),
                   Gaps.h42,
@@ -80,11 +74,7 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
                     itemCount: unusedPaymentMethods.length,
                     itemBuilder: (context, index) {
                       final paymentMethod = unusedPaymentMethods[index];
-                      return _PaymentMethodListTile(
-                        paymentMethod: paymentMethod,
-                        mainSettings: state.mainSettings!,
-                        mainSettingsBloc: widget.mainSettingsBloc,
-                      );
+                      return _PaymentMethodListTile(paymentMethod: paymentMethod, mainSettings: state.mainSettings!);
                     },
                   ),
                 ],
@@ -100,9 +90,8 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
 class _PaymentMethodListTile extends StatelessWidget {
   final PaymentMethod paymentMethod;
   final MainSettings mainSettings;
-  final MainSettingsBloc mainSettingsBloc;
 
-  const _PaymentMethodListTile({required this.paymentMethod, required this.mainSettings, required this.mainSettingsBloc});
+  const _PaymentMethodListTile({required this.paymentMethod, required this.mainSettings});
 
   @override
   Widget build(BuildContext context) {
@@ -116,9 +105,8 @@ class _PaymentMethodListTile extends StatelessWidget {
             title: Text(paymentMethod.name),
             trailing: Switch.adaptive(
               value: mainSettings.paymentMethods.any((e) => e.name == paymentMethod.name),
-              onChanged: (value) => mainSettingsBloc.add(
-                EnableOrDesablePaymentMethodEvent(value: value, paymentMethod: paymentMethod),
-              ),
+              onChanged: (value) =>
+                  context.read<MainSettingsBloc>().add(EnableOrDesablePaymentMethodEvent(value: value, paymentMethod: paymentMethod)),
             ),
           ),
         ),

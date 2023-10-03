@@ -16,10 +16,9 @@ import '../../core/widgets/my_outlined_button.dart';
 import 'widgets/add_payment_method.dart';
 
 class MainSettingsPage extends StatefulWidget {
-  final MainSettingsBloc mainSettingsBloc;
   final MainSettings mSettings;
 
-  const MainSettingsPage({super.key, required this.mainSettingsBloc, required this.mSettings});
+  const MainSettingsPage({super.key, required this.mSettings});
 
   @override
   State<MainSettingsPage> createState() => _MainSettingsPageState();
@@ -398,6 +397,6 @@ class _MainSettingsPageState extends State<MainSettingsPage> {
         paypalEmail: _paypalEmailController.text,
       ),
     );
-    widget.mainSettingsBloc.add(UpdateMainSettingsEvent(mainSettings: updatedMainSettings));
+    context.read<MainSettingsBloc>().add(UpdateMainSettingsEvent(mainSettings: updatedMainSettings));
   }
 }
