@@ -90,11 +90,14 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
                       },
                       (productPresta) async {
                         logger.i('${orderProductPresta.productName} wurde erfolgreich von Prestashp geladen');
-                        final fosProduct = await productRepository.createProduct(Product.fromProductPresta(
-                          productPresta: productPresta,
-                          marketplace: marketplace,
-                          mainSettings: mainSettings,
-                        ));
+                        final fosProduct = await productRepository.createProduct(
+                          Product.fromProductPresta(
+                            productPresta: productPresta,
+                            marketplace: marketplace,
+                            mainSettings: mainSettings,
+                          ),
+                          productPresta,
+                        );
 
                         fosProduct.fold(
                           (failure) => logger.e(

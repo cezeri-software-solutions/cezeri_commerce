@@ -5,6 +5,7 @@ import '../../entities_presta/product_presta.dart';
 import '../marketplace/marketplace.dart';
 import '../settings/main_settings.dart';
 import '../settings/tax.dart';
+import 'product_image.dart';
 import 'product_marketplace.dart';
 
 part 'product.g.dart';
@@ -49,6 +50,7 @@ class Product {
   final String descriptionShort;
   final List<ProductLanguage> listOfDescriptionShort;
   final double volume; // Volumen in cm3
+  final List<ProductImage> listOfProductImages;
   final List<ProductMarketplace> productMarketplaces;
 
   Product({
@@ -90,6 +92,7 @@ class Product {
     required this.descriptionShort,
     required this.listOfDescriptionShort,
     required this.volume,
+    required this.listOfProductImages,
     required this.productMarketplaces,
   });
 
@@ -133,6 +136,7 @@ class Product {
       descriptionShort: '',
       listOfDescriptionShort: [],
       volume: 0,
+      listOfProductImages: [],
       productMarketplaces: [],
     );
   }
@@ -244,6 +248,7 @@ class Product {
     String? descriptionShort,
     List<ProductLanguage>? listOfDescriptionShort,
     double? volume,
+    List<ProductImage>? listOfProductImages,
     List<ProductMarketplace>? productMarketplaces,
   }) {
     return Product(
@@ -285,12 +290,13 @@ class Product {
       descriptionShort: descriptionShort ?? this.descriptionShort,
       listOfDescriptionShort: listOfDescriptionShort ?? this.listOfDescriptionShort,
       volume: volume ?? this.volume,
+      listOfProductImages: listOfProductImages ?? this.listOfProductImages,
       productMarketplaces: productMarketplaces ?? this.productMarketplaces,
     );
   }
 
   @override
   String toString() {
-    return 'Product(id: $id, articleNumber: $articleNumber, supplierArticleNumber: $supplierArticleNumber, supplierNumber: $supplierNumber, supplier: $supplier, sku: $sku, ean: $ean, name: $name, listOfName: $listOfName, tax: $tax, haveImages: $haveImages, mainImageUrl: $mainImageUrl, mainImageId: $mainImageId, imageUrls: $imageUrls, isActive: $isActive, ordered: $ordered, brandName: $brandName, unity: $unity, unitPrice: $unitPrice, width: $width, height: $height, depth: $depth, weight: $weight, netPrice: $netPrice, grossPrice: $grossPrice, wholesalePrice: $wholesalePrice, recommendedRetailPrice: $recommendedRetailPrice, haveVariants: $haveVariants, isSetArticle: $isSetArticle, manufacturerNumber: $manufacturerNumber, manufacturer: $manufacturer, warehouseStock: $warehouseStock, availableStock: $availableStock, description: $description, listOfDescription: $listOfDescription, descriptionShort: $descriptionShort, listOfDescriptionShort: $listOfDescriptionShort, volume: $volume, productMarketplaces: $productMarketplaces)';
+    return 'Product(id: $id, articleNumber: $articleNumber, supplierArticleNumber: $supplierArticleNumber, supplierNumber: $supplierNumber, supplier: $supplier, sku: $sku, ean: $ean, name: $name, listOfName: $listOfName, tax: $tax, haveImages: $haveImages, mainImageUrl: $mainImageUrl, mainImageId: $mainImageId, imageUrls: $imageUrls, isActive: $isActive, ordered: $ordered, brandName: $brandName, unity: $unity, unitPrice: $unitPrice, width: $width, height: $height, depth: $depth, weight: $weight, netPrice: $netPrice, grossPrice: $grossPrice, wholesalePrice: $wholesalePrice, recommendedRetailPrice: $recommendedRetailPrice, haveVariants: $haveVariants, isSetArticle: $isSetArticle, manufacturerNumber: $manufacturerNumber, manufacturer: $manufacturer, warehouseStock: $warehouseStock, availableStock: $availableStock, description: $description, listOfDescription: $listOfDescription, descriptionShort: $descriptionShort, listOfDescriptionShort: $listOfDescriptionShort, volume: $volume, listOfProductImages: $listOfProductImages, productMarketplaces: $productMarketplaces)';
   }
 }

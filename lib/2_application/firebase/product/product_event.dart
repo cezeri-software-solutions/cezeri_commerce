@@ -15,8 +15,9 @@ class GetProductEvent extends ProductEvent {
 
 class CreateProductEvent extends ProductEvent {
   final Product product;
+  final ProductPresta? productPresta;
 
-  CreateProductEvent({required this.product});
+  CreateProductEvent({required this.product, this.productPresta});
 }
 
 class UpdateProductEvent extends ProductEvent {

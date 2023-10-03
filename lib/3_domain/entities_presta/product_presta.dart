@@ -6,6 +6,7 @@ import '../entities/product/product_associations_product_bundle.dart';
 import '../entities/product/product_associations_product_features.dart';
 import '../entities/product/product_associations_stock_availables.dart';
 import '../entities/product/product_language.dart';
+import 'product_presta_image.dart';
 
 class ProductPresta {
   int id;
@@ -87,6 +88,7 @@ class ProductPresta {
   String? availableLater;
   List<int?>? categoryIds;
   List<int?>? imageIds;
+  List<ProductPrestaImage?>? imageFiles;
   List<ProductAssociations>? categories;
   List<ProductAssociations>? images;
   List<ProductAssociations>? combinations;
@@ -94,8 +96,8 @@ class ProductPresta {
   List<ProductAssociationsProductFeatures>? productFeatures;
   List<ProductAssociations>? tags;
   List<ProductAssociationsStockAvailables>? stockAvailables;
-  List<String>? accessories;
-  List<ProductAssociationsProductBundle>? productBundle;
+  List<String>? accessories; // ids as String der ähnlichen Produkte in Prestashop, die unten aufgeführt werden.
+  List<ProductAssociationsProductBundle>? productBundle; // Wenn Produktbündel
 
   ProductPresta({
     required this.id,
@@ -177,6 +179,7 @@ class ProductPresta {
     this.availableLater,
     this.categoryIds,
     this.imageIds,
+    this.imageFiles,
     this.categories,
     this.images,
     this.combinations,
@@ -513,6 +516,7 @@ class ProductPresta {
     String? availableLater,
     List<int?>? categoryIds,
     List<int?>? imageIds,
+    List<ProductPrestaImage?>? imageFiles,
     List<ProductAssociations>? categories,
     List<ProductAssociations>? images,
     List<ProductAssociations>? combinations,
@@ -603,6 +607,7 @@ class ProductPresta {
       availableLater: availableLater ?? this.availableLater,
       categoryIds: categoryIds ?? this.categoryIds,
       imageIds: imageIds ?? this.imageIds,
+      imageFiles: imageFiles ?? this.imageFiles,
       categories: categories ?? this.categories,
       images: images ?? this.images,
       combinations: combinations ?? this.combinations,
@@ -617,6 +622,6 @@ class ProductPresta {
 
   @override
   String toString() {
-    return 'ProductPresta(id: $id, idManufacturer: $idManufacturer, idSupplier: $idSupplier, idCategoryDefault: $idCategoryDefault, isNew: $isNew, cacheDefaultAttribute: $cacheDefaultAttribute, idDefaultImage: $idDefaultImage, idDefaultCombination: $idDefaultCombination, idTaxRulesGroup: $idTaxRulesGroup, positionInCategory: $positionInCategory, manufacturerName: $manufacturerName, quantity: $quantity, type: $type, idShopDefault: $idShopDefault, reference: $reference, supplierReference: $supplierReference, location: $location, width: $width, height: $height, depth: $depth, weight: $weight, quantityDiscount: $quantityDiscount, ean13: $ean13, isbn: $isbn, upc: $upc, mpn: $mpn, cacheIsPack: $cacheIsPack, cacheHasAttachments: $cacheHasAttachments, isVirtual: $isVirtual, state: $state, additionalDeliveryTimes: $additionalDeliveryTimes, deliveryInStock: $deliveryInStock, deliveryOutStock: $deliveryOutStock, onSale: $onSale, onlineOnly: $onlineOnly, ecotax: $ecotax, minimalQuantity: $minimalQuantity, lowStockThreshold: $lowStockThreshold, lowStockAlert: $lowStockAlert, price: $price, wholesalePrice: $wholesalePrice, unity: $unity, unitPriceRatio: $unitPriceRatio, additionalShippingCost: $additionalShippingCost, customizable: $customizable, textFields: $textFields, uploadableFiles: $uploadableFiles, active: $active, redirectType: $redirectType, idTypeRedirected: $idTypeRedirected, availableForOrder: $availableForOrder, availableDate: $availableDate, showCondition: $showCondition, condition: $condition, showPrice: $showPrice, indexed: $indexed, visibility: $visibility, advancedStockManagement: $advancedStockManagement, dateAdd: $dateAdd, dateUpd: $dateUpd, packStockType: $packStockType, metaDescription: $metaDescription, listOfMetaDescription: $listOfMetaDescription, metaKeywords: $metaKeywords, listOfMetaKeywords: $listOfMetaKeywords, metaTitle: $metaTitle, listOfMetaTitle: $listOfMetaTitle, linkRewrite: $linkRewrite, listOfLinkRewrite: $listOfLinkRewrite, name: $name, listOfName: $listOfName, description: $description, listOfDescription: $listOfDescription, descriptionShort: $descriptionShort, listOfDescriptionShort: $listOfDescriptionShort, availableNow: $availableNow, availableLater: $availableLater, categoryIds: $categoryIds, imageIds: $imageIds, categories: $categories, images: $images, combinations: $combinations, productOptionValues: $productOptionValues, productFeatures: $productFeatures, tags: $tags, stockAvailables: $stockAvailables, accessories: $accessories, productBundle: $productBundle)';
+    return 'ProductPresta(id: $id, idManufacturer: $idManufacturer, idSupplier: $idSupplier, idCategoryDefault: $idCategoryDefault, isNew: $isNew, cacheDefaultAttribute: $cacheDefaultAttribute, idDefaultImage: $idDefaultImage, idDefaultCombination: $idDefaultCombination, idTaxRulesGroup: $idTaxRulesGroup, positionInCategory: $positionInCategory, manufacturerName: $manufacturerName, quantity: $quantity, type: $type, idShopDefault: $idShopDefault, reference: $reference, supplierReference: $supplierReference, location: $location, width: $width, height: $height, depth: $depth, weight: $weight, quantityDiscount: $quantityDiscount, ean13: $ean13, isbn: $isbn, upc: $upc, mpn: $mpn, cacheIsPack: $cacheIsPack, cacheHasAttachments: $cacheHasAttachments, isVirtual: $isVirtual, state: $state, additionalDeliveryTimes: $additionalDeliveryTimes, deliveryInStock: $deliveryInStock, deliveryOutStock: $deliveryOutStock, onSale: $onSale, onlineOnly: $onlineOnly, ecotax: $ecotax, minimalQuantity: $minimalQuantity, lowStockThreshold: $lowStockThreshold, lowStockAlert: $lowStockAlert, price: $price, wholesalePrice: $wholesalePrice, unity: $unity, unitPriceRatio: $unitPriceRatio, additionalShippingCost: $additionalShippingCost, customizable: $customizable, textFields: $textFields, uploadableFiles: $uploadableFiles, active: $active, redirectType: $redirectType, idTypeRedirected: $idTypeRedirected, availableForOrder: $availableForOrder, availableDate: $availableDate, showCondition: $showCondition, condition: $condition, showPrice: $showPrice, indexed: $indexed, visibility: $visibility, advancedStockManagement: $advancedStockManagement, dateAdd: $dateAdd, dateUpd: $dateUpd, packStockType: $packStockType, metaDescription: $metaDescription, listOfMetaDescription: $listOfMetaDescription, metaKeywords: $metaKeywords, listOfMetaKeywords: $listOfMetaKeywords, metaTitle: $metaTitle, listOfMetaTitle: $listOfMetaTitle, linkRewrite: $linkRewrite, listOfLinkRewrite: $listOfLinkRewrite, name: $name, listOfName: $listOfName, description: $description, listOfDescription: $listOfDescription, descriptionShort: $descriptionShort, listOfDescriptionShort: $listOfDescriptionShort, availableNow: $availableNow, availableLater: $availableLater, categoryIds: $categoryIds, imageIds: $imageIds, imageFiles: $imageFiles, categories: $categories, images: $images, combinations: $combinations, productOptionValues: $productOptionValues, productFeatures: $productFeatures, tags: $tags, stockAvailables: $stockAvailables, accessories: $accessories, productBundle: $productBundle)';
   }
 }

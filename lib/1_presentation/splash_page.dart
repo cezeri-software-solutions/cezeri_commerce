@@ -5,9 +5,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../2_application/firebase/auth/auth_bloc/auth_bloc.dart';
 import '../2_application/firebase/client/client_bloc.dart';
+import '../2_application/firebase/main_settings/main_settings_bloc.dart';
 import '../3_domain/entities/client.dart';
 import '../core/firebase_failures.dart';
 import '../injection.dart';
+import 'core/functions/my_scaffold_messanger.dart';
 
 enum ComeFromToSplashPage { appDrawer }
 
@@ -61,9 +63,21 @@ class _SplashPageState extends State<SplashPage> {
                     if (client.companyName != Client.empty().companyName && client.name != Client.empty().name) {
                       context.router.replaceAll([const HomeRoute()]);
                     } else {
-                      context.router.replaceAll([const RegisterUserDataRoute()]);
+                      context.read<MainSettingsBloc>().add(GetMainSettingsEvent());
                     }
                   },
+                ),
+              );
+            },
+          ),
+          BlocListener<MainSettingsBloc, MainSettingsState>(
+            listenWhen: (p, c) => p.fosMainSettingsOnObserveOption != c.fosMainSettingsOnObserveOption,
+            listener: (context, state) {
+              state.fosMainSettingsOnObserveOption.fold(
+                () => null,
+                (a) => a.fold(
+                  (failure) => myScaffoldMessenger(context, failure, null, null, null),
+                  (mainSettings) => context.router.replaceAll([const RegisterUserDataRoute()]),
                 ),
               );
             },

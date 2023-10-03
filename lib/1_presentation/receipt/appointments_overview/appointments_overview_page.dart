@@ -137,6 +137,7 @@ class __AppointmentContainerState extends State<_AppointmentContainer> {
                           TextSpan(
                             children: [
                               TextSpan(text: deliveryAddress.postcode),
+                              const TextSpan(text: ' '),
                               TextSpan(text: deliveryAddress.city),
                             ],
                           ),
@@ -166,13 +167,14 @@ class __AppointmentContainerState extends State<_AppointmentContainer> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        if (invoiceAddress.companyName != '') Text(invoiceAddress.companyName),
+                        if (widget.appointment.customer.company != null) Text(widget.appointment.customer.company!),
                         Text(widget.appointment.customer.name),
                         Text(invoiceAddress.street),
                         Text.rich(
                           TextSpan(
                             children: [
                               TextSpan(text: invoiceAddress.postcode),
+                              const TextSpan(text: ' '),
                               TextSpan(text: invoiceAddress.city),
                             ],
                           ),

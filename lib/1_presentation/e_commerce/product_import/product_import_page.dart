@@ -1,3 +1,4 @@
+import 'package:cezeri_commerce/1_presentation/core/widgets/my_avatar.dart';
 import 'package:cezeri_commerce/2_application/firebase/product/product_bloc.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -47,7 +48,7 @@ class ProductImportPage extends StatelessWidget {
                         marketplace: marketplace,
                         mainSettings: mainSettings,
                       );
-                      context.read<ProductBloc>().add(CreateProductEvent(product: product));
+                      context.read<ProductBloc>().add(CreateProductEvent(product: product, productPresta: state.productPresta));
                     },
                     child: const Text('Speichern'),
                   ),
@@ -128,9 +129,9 @@ class ProductImportPage extends StatelessWidget {
                 Text('availableNow: ------- ${state.productPresta!.availableNow}'),
                 Text('availableLater: ------- ${state.productPresta!.availableLater}'),
                 Text('categoryIds original: ------- ${state.productPresta!.categoryIds}'),
-                Text('categoryIds original: ------- ${state.productPresta!.imageIds}'),
+                Text('imageIds original: ------- ${state.productPresta!.imageIds}'),
                 Text('categoryIds original: ------- ${state.productPresta!.categories}'),
-                Text('categoryIds original: ------- ${state.productPresta!.images}'),
+                Text('images original: ------- ${state.productPresta!.images}'),
                 Text('categoryIds original: ------- ${state.productPresta!.combinations}'),
                 Text('categoryIds original: ------- ${state.productPresta!.productOptionValues}'),
                 Text('categoryIds original: ------- ${state.productPresta!.productFeatures}'),
@@ -138,6 +139,7 @@ class ProductImportPage extends StatelessWidget {
                 Text('categoryIds original: ------- ${state.productPresta!.stockAvailables}'),
                 Text('categoryIds original: ------- ${state.productPresta!.accessories}'),
                 Text('categoryIds original: ------- ${state.productPresta!.productBundle}'),
+                MyAvatar(name: 'name', file: state.productPresta!.imageFiles!.first!.imageFile),
               ],
               Column(
                 mainAxisAlignment: MainAxisAlignment.center,

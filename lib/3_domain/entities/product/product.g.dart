@@ -53,6 +53,9 @@ Product _$ProductFromJson(Map<String, dynamic> json) => Product(
           .map((e) => ProductLanguage.fromJson(e as Map<String, dynamic>))
           .toList(),
       volume: (json['volume'] as num).toDouble(),
+      listOfProductImages: (json['listOfProductImages'] as List<dynamic>)
+          .map((e) => ProductImage.fromJson(e as Map<String, dynamic>))
+          .toList(),
       productMarketplaces: (json['productMarketplaces'] as List<dynamic>)
           .map((e) => ProductMarketplace.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -99,6 +102,8 @@ Map<String, dynamic> _$ProductToJson(Product instance) => <String, dynamic>{
       'listOfDescriptionShort':
           instance.listOfDescriptionShort.map((e) => e.toJson()).toList(),
       'volume': instance.volume,
+      'listOfProductImages':
+          instance.listOfProductImages.map((e) => e.toJson()).toList(),
       'productMarketplaces':
           instance.productMarketplaces.map((e) => e.toJson()).toList(),
     };

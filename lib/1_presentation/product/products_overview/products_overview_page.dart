@@ -74,10 +74,15 @@ class _ProductContainer extends StatelessWidget {
                 onChanged: (_) => productBloc.add(OnProductSelectedEvent(product: product)),
               ),
               MyAvatar(
-                  name: product.name,
-                  imageUrl: product.imageUrls.isNotEmpty ? product.imageUrls[0] : null,
-                  radius: responsiveness == Responsiveness.isTablet ? 35 : 30,
-                  fontSize: responsiveness == Responsiveness.isTablet ? 25 : 20),
+                name: product.name,
+                imageUrl: product.listOfProductImages.isNotEmpty ? product.listOfProductImages.where((e) => e.isDefault).first.fileUrl : null,
+                radius: responsiveness == Responsiveness.isTablet ? 35 : 30,
+                fontSize: responsiveness == Responsiveness.isTablet ? 25 : 20,
+                onTap: product.listOfProductImages.isNotEmpty
+                    ? () => context.router.push(MyFullscreenImageRoute(
+                        imagePaths: product.listOfProductImages.map((e) => e.fileUrl).toList(), initialIndex: 0, isNetworkImage: true))
+                    : null,
+              ),
               responsiveness == Responsiveness.isTablet ? Gaps.w16 : Gaps.w8,
               Expanded(
                 //width: screenWidth / 2,

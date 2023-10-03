@@ -21,5 +21,7 @@ class AppRouter extends $AppRouter {
         AutoRoute(page: TaxRulesRoute.page, path: '/main_settings/tax_rules'),
         AutoRoute(page: PaymentMethodRoute.page, path: '/main_settings/payment_method'),
         AutoRoute(page: AppointmentsOverviewRoute.page, path: '/appointments_overview'),
+        //
+        AutoRoute(page: MyFullscreenImageRoute.page, path: '/fullscreen_image'),
       ];
 }

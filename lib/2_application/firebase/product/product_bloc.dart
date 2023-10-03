@@ -7,6 +7,7 @@ import 'package:meta/meta.dart';
 
 import '../../../3_domain/entities/marketplace/marketplace.dart';
 import '../../../3_domain/entities/product/product.dart';
+import '../../../3_domain/entities_presta/product_presta.dart';
 import '../../../3_domain/repositories/firebase/product_repository.dart';
 
 part 'product_event.dart';
@@ -68,7 +69,7 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
     on<CreateProductEvent>((event, emit) async {
       emit(state.copyWith(isLoadingProductOnCreate: true));
 
-      final failureOrSuccess = await productRepository.createProduct(event.product);
+      final failureOrSuccess = await productRepository.createProduct(event.product, event.productPresta);
       failureOrSuccess.fold(
         (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
         (unit) => emit(state.copyWith(firebaseFailure: null, isAnyFailure: false)),
@@ -130,7 +131,7 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
     on<DeleteSelectedProductsEvent>((event, emit) async {
       emit(state.copyWith(isLoadingProductOnDelete: true));
 
-      final failureOrSuccess = await productRepository.deleteListOfProducts(event.selectedProducts.map((e) => e.id).toList());
+      final failureOrSuccess = await productRepository.deleteListOfProducts(event.selectedProducts);
       failureOrSuccess.fold(
         (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
         (unit) {

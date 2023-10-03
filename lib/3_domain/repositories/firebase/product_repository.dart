@@ -3,12 +3,13 @@ import 'package:dartz/dartz.dart';
 
 import '../../entities/marketplace/marketplace.dart';
 import '../../entities/product/product.dart';
+import '../../entities_presta/product_presta.dart';
 
 abstract class ProductRepository {
-  Future<Either<FirebaseFailure, Product>> createProduct(Product product);
+  Future<Either<FirebaseFailure, Product>> createProduct(Product product, ProductPresta? productPresta);
   Future<Either<FirebaseFailure, Unit>> updateProduct(Product product);
   Future<Either<FirebaseFailure, Unit>> deleteProduct(String id);
-  Future<Either<FirebaseFailure, Unit>> deleteListOfProducts(List<String> productsIds);
+  Future<Either<FirebaseFailure, Unit>> deleteListOfProducts(List<Product> products);
   Future<Either<FirebaseFailure, Unit>> activateMarketplaceInSelectedProducts(List<Product> selectedProducts, Marketplace marketplace);
   Future<Either<FirebaseFailure, Product>> getProduct(String id);
   Future<Either<FirebaseFailure, Product>> getProductByArticleNumber(String articleNumber);

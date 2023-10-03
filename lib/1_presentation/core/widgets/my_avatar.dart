@@ -1,9 +1,11 @@
 import 'dart:io';
 
+import 'package:auto_route/auto_route.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../../../constants.dart';
+import '../../../routes/router.gr.dart';
 import 'my_circular_progress_indicator.dart';
 
 class MyAvatar extends StatelessWidget {
@@ -55,7 +57,7 @@ class MyAvatar extends StatelessWidget {
     }
 
     return InkWell(
-      onTap: onTap,
+      onTap: onTap ?? () => context.router.push(MyFullscreenImageRoute(imagePaths: [imageUrl!], initialIndex: 0, isNetworkImage: true)),
       onDoubleTap: onDoubleTap,
       onLongPress: onLongPress,
       child: CachedNetworkImage(
@@ -71,10 +73,6 @@ class MyAvatar extends StatelessWidget {
           child: const Center(child: MyCircularProgressIndicator()),
         ),
         errorWidget: (context, url, error) {
-          print('--------------------------------');
-          print(url);
-          print(error);
-          print('--------------------------------');
           return _MyCircularAvatarInitials(
             name: name,
             radius: radius!,
