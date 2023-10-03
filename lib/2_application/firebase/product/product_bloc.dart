@@ -104,7 +104,7 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
     on<UpdateQuantityOfProductEvent>((event, emit) async {
       emit(state.copyWith(isLoadingProductOnUpdate: true));
 
-      final failureOrSuccess = await productRepository.updateQuantityOfProduct(event.product, event.newQuantity);
+      final failureOrSuccess = await productRepository.updateQuantityOfProductAbsolut(event.product, event.newQuantity);
       failureOrSuccess.fold(
         (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
         (product) {
@@ -164,6 +164,7 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
                 element.articleNumber.toLowerCase().contains(state.productSearchText.toLowerCase()))
             .toList()
       };
+      if (listOfProducts != null && listOfProducts.isNotEmpty) listOfProducts.sort((a, b) => a.name.compareTo(b.name));
       emit(state.copyWith(listOfFilteredProducts: listOfProducts));
     });
 

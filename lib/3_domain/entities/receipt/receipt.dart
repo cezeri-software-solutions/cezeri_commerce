@@ -14,6 +14,7 @@ import '../customer/customer_marketplace.dart';
 import '../marketplace/marketplace.dart';
 import '../settings/bank_details.dart';
 import '../settings/main_settings.dart';
+import '../settings/payment_method.dart';
 import 'payment.dart';
 import 'receipt_product.dart';
 
@@ -50,7 +51,7 @@ class Receipt {
   final String creditNumberAsString;
   final int receiptMarketplaceId;
   final String receiptMarketplaceReference;
-  final String paymentMethod;
+  final PaymentMethod paymentMethod;
   final String commentInternal;
   final String commentGlobal;
   final String currency;
@@ -179,10 +180,24 @@ class Receipt {
         double.parse(orderPresta.totalWrappingTaxIncl) -
         double.parse(orderPresta.totalDiscountsTaxIncl);
 
+    PaymentMethod getPaymentMethod() {
+      // TODO: sobald PaymentMethod in AddEditMarketplace gemappt werden kann, muss payment Methods darüber aufegrufen werden
+      // TODO:  marketplace.paymentMethods.where((e) => e.nameInMarketplace == orderPresta.payment).firstOrNull;
+      final paymentMethod = mainSettings.paymentMethods.where((e) => e.nameInMarketplace == orderPresta.payment).firstOrNull;
+      if (paymentMethod != null) return paymentMethod;
+      return PaymentMethod.empty().copyWith(
+        name: orderPresta.payment,
+        nameInMarketplace: orderPresta.payment,
+        isPaidAutomatically: false,
+        logoPath: 'assets/payment_methods/unknown_payment.png',
+      );
+    }
+
     PaymentStatus getPaymentStatus() {
-      final totalNet = getTotalNet();
-      if (double.parse(orderPresta.totalPaidTaxExcl) >= totalNet) return PaymentStatus.paid;
-      if (double.parse(orderPresta.totalPaidTaxExcl) > 0 && double.parse(orderPresta.totalPaidTaxExcl) < totalNet) return PaymentStatus.partiallyPaid;
+      final totalGross = getTotalGross();
+      if (getPaymentMethod().isPaidAutomatically) return PaymentStatus.paid;
+      if (double.parse(orderPresta.totalPaidReal).roundToDouble() >= totalGross.round()) return PaymentStatus.paid;
+      if (double.parse(orderPresta.totalPaidReal) > 0 && double.parse(orderPresta.totalPaidReal) < totalGross) return PaymentStatus.partiallyPaid;
       return PaymentStatus.open;
     }
 
@@ -281,7 +296,7 @@ class Receipt {
       creditNumberAsString: '',
       receiptMarketplaceId: orderPresta.id,
       receiptMarketplaceReference: orderPresta.reference,
-      paymentMethod: orderPresta.payment,
+      paymentMethod: getPaymentMethod(),
       commentInternal: '',
       commentGlobal: '',
       currency: currencyPresta.symbol,
@@ -320,7 +335,7 @@ class Receipt {
       profitExclShippingAndWrapping: profitExclShippingAndWrapping,
       bankDetails: mainSettings.bankDetails,
       listOfPayments: getPaymentStatus() != PaymentStatus.open
-          ? [Payment(double.parse(orderPresta.totalPaidTaxExcl), orderPresta.payment, DateTime.parse(orderPresta.dateAdd))]
+          ? [Payment(double.parse(orderPresta.totalPaidReal), orderPresta.payment, DateTime.parse(orderPresta.dateAdd))]
           : [],
       listOfReceiptProduct: listOfReceiptproduct,
       creationDateMarektplace: DateTime.parse(orderPresta.dateAdd),
@@ -343,7 +358,7 @@ class Receipt {
       creditNumberAsString: '',
       receiptMarketplaceId: 0,
       receiptMarketplaceReference: '',
-      paymentMethod: '',
+      paymentMethod: PaymentMethod.empty(),
       commentInternal: '',
       commentGlobal: '',
       currency: '',
@@ -401,7 +416,7 @@ class Receipt {
     String? creditNumberAsString,
     int? receiptMarketplaceId,
     String? receiptMarketplaceReference,
-    String? paymentMethod,
+    PaymentMethod? paymentMethod,
     String? commentInternal,
     String? commentGlobal,
     String? currency,

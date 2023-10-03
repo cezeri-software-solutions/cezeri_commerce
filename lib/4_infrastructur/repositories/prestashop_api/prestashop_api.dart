@@ -69,6 +69,13 @@ class PrestashopApi with UiLoggy {
   }
 
   //* Languages */
+  Future<Optional<LanguagePresta>> getLanguage(final int id) async {
+    final payload = await _doGetJson(
+      '${_conf.webserviceUrl}languages/$id?ws_key=${_conf.apiKey}&output_format=JSON&display=full',
+    );
+    return payload == null ? const Optional.absent() : Optional.of(LanguagesPresta.fromJson(payload).items.single);
+  }
+
   Future<List<LanguagePresta>> getLanguages() async {
     final payload = await _doGetJson(
       '${_conf.webserviceUrl}languages?ws_key=${_conf.apiKey}&output_format=JSON&display=full',

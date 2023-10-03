@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:cezeri_commerce/3_domain/entities/settings/payment_method.dart';
 import 'package:dartz/dartz.dart';
 import 'package:meta/meta.dart';
 
@@ -99,6 +100,25 @@ class MainSettingsBloc extends Bloc<MainSettingsEvent, MainSettingsState> {
       taxRules[index] = event.taxRules;
 
       MainSettings updatedMainSettings = state.mainSettings!.copyWith(taxes: taxRules);
+
+      add(UpdateMainSettingsEvent(mainSettings: updatedMainSettings));
+    });
+
+//? ################################################################
+//? ########################## Payment Methods #####################
+
+    on<EnableOrDesablePaymentMethodEvent>((event, emit) async {
+      List<PaymentMethod> paymentMethods = List.from(state.mainSettings!.paymentMethods);
+
+      if (event.value) {
+        final isAlreadyActive = paymentMethods.any((e) => e.name == event.paymentMethod.name);
+        if (!isAlreadyActive) paymentMethods.add(event.paymentMethod);
+      } else {
+        final index = paymentMethods.indexWhere((e) => e.name == event.paymentMethod.name);
+        if (index >= 0) paymentMethods.removeAt(index);
+      }
+
+      MainSettings updatedMainSettings = state.mainSettings!.copyWith(paymentMethods: paymentMethods);
 
       add(UpdateMainSettingsEvent(mainSettings: updatedMainSettings));
     });

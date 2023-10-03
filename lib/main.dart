@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import '2_application/firebase/auth/auth_bloc/auth_bloc.dart';
+import '2_application/firebase/main_settings/main_settings_bloc.dart';
 import 'firebase_options.dart';
 import 'injection.dart';
 import 'routes/router.dart';
@@ -23,8 +24,11 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => sl<AuthBloc>()..add(AuthCheckRequestedEvent()),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (context) => sl<AuthBloc>()..add(AuthCheckRequestedEvent())),
+        BlocProvider(create: (context) => sl<MainSettingsBloc>()..add(GetMainSettingsEvent())),
+      ],
       child: MaterialApp.router(
         routerConfig: _appRouter.config(),
         debugShowCheckedModeBanner: false,

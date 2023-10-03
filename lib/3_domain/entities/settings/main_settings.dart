@@ -2,6 +2,7 @@ import 'package:json_annotation/json_annotation.dart';
 
 import 'bank_details.dart';
 import 'opening_times.dart';
+import 'payment_method.dart';
 import 'tax.dart';
 
 part 'main_settings.g.dart';
@@ -33,7 +34,7 @@ class MainSettings {
   final int limitationNumberOfBranches;
   final bool isSmallBusiness;
   final bool isMainSettings;
-  final List<String> paymentMethods;
+  final List<PaymentMethod> paymentMethods;
   final BankDetails bankDetails;
   final OpeningTimes openingTimes;
 
@@ -131,7 +132,7 @@ class MainSettings {
     int? limitationNumberOfBranches,
     bool? isSmallBusiness,
     bool? isMainSettings,
-    List<String>? paymentMethods,
+    List<PaymentMethod>? paymentMethods,
     BankDetails? bankDetails,
     OpeningTimes? openingTimes,
   }) {

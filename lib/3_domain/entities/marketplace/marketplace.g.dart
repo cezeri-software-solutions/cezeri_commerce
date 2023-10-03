@@ -29,6 +29,9 @@ Marketplace _$MarketplaceFromJson(Map<String, dynamic> json) => Marketplace(
           json['createMissingProductOnOrderImport'] as bool,
       marketplaceSettings: MarketplaceSettings.fromJson(
           json['marketplaceSettings'] as Map<String, dynamic>),
+      paymentMethods: (json['paymentMethods'] as List<dynamic>)
+          .map((e) => PaymentMethod.fromJson(e as Map<String, dynamic>))
+          .toList(),
       lastEditingDate: DateTime.parse(json['lastEditingDate'] as String),
       createnDate: DateTime.parse(json['createnDate'] as String),
     );
@@ -53,6 +56,7 @@ Map<String, dynamic> _$MarketplaceToJson(Marketplace instance) =>
       'createMissingProductOnOrderImport':
           instance.createMissingProductOnOrderImport,
       'marketplaceSettings': instance.marketplaceSettings.toJson(),
+      'paymentMethods': instance.paymentMethods.map((e) => e.toJson()).toList(),
       'lastEditingDate': instance.lastEditingDate.toIso8601String(),
       'createnDate': instance.createnDate.toIso8601String(),
     };

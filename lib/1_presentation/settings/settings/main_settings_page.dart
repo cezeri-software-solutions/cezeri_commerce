@@ -7,6 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../2_application/firebase/main_settings/main_settings_bloc.dart';
 import '../../../3_domain/entities/settings/main_settings.dart';
+import '../../../3_domain/entities/settings/payment_method.dart';
 import '../../../constants.dart';
 import '../../app_drawer.dart';
 import '../../core/functions/my_scaffold_messanger.dart';
@@ -29,7 +30,7 @@ const currencyItems = ['€', 'Fr', '\$'];
 class _MainSettingsPageState extends State<MainSettingsPage> {
   bool _isSmallBusiness = false;
   String _selectedCurrencyItem = '€';
-  List<String> _paymentMethods = [];
+  List<PaymentMethod> _paymentMethods = [];
 
   late TextEditingController _offerDocumentTextController = TextEditingController();
   late TextEditingController _appointmentDocumentTextController = TextEditingController();
@@ -257,7 +258,7 @@ class _MainSettingsPageState extends State<MainSettingsPage> {
                             itemCount: _paymentMethods.length,
                             itemBuilder: (context, index) {
                               return MySettingsListTile(
-                                title: _paymentMethods[index],
+                                title: _paymentMethods[index].name,
                                 divider: index != _paymentMethods.length - 1,
                                 onPressed: () {},
                                 trailing: IconButton(
@@ -365,8 +366,8 @@ class _MainSettingsPageState extends State<MainSettingsPage> {
   }
 
   void _addToPaymentMethods(String paymentMethod) {
-    if (_paymentMethods.any((e) => e == paymentMethod)) return;
-    setState(() => _paymentMethods.add(paymentMethod));
+    // if (_paymentMethods.any((e) => e == paymentMethod)) return;
+    // setState(() => _paymentMethods.add(paymentMethod));
   }
 
   void _removeFromPaymentMethods(int index) {

@@ -1,3 +1,4 @@
+import 'package:cezeri_commerce/3_domain/entities/settings/payment_method.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 import 'marketplace_settings.dart';
@@ -23,6 +24,7 @@ class Marketplace {
   final String warehouseForProductImport; //* Wird nicht genutzt (Lager für Import)
   final bool createMissingProductOnOrderImport; //* Wird nicht genutzt (Sollen beim Bestellimport fehlende Artikel angelegt werden)
   final MarketplaceSettings marketplaceSettings;
+  final List<PaymentMethod> paymentMethods;
   final DateTime lastEditingDate;
   final DateTime createnDate;
 
@@ -44,6 +46,7 @@ class Marketplace {
     required this.warehouseForProductImport,
     required this.createMissingProductOnOrderImport,
     required this.marketplaceSettings,
+    required this.paymentMethods,
     required this.lastEditingDate,
     required this.createnDate,
   });
@@ -71,6 +74,7 @@ class Marketplace {
       warehouseForProductImport: '',
       createMissingProductOnOrderImport: true,
       marketplaceSettings: MarketplaceSettings.empty(),
+      paymentMethods: [],
       lastEditingDate: DateTime.now(),
       createnDate: DateTime.now(),
     );
@@ -81,7 +85,7 @@ class Marketplace {
     String? name,
     String? shortName,
     String? logoUrl,
-    String? marketplaceName,
+    String? marketplaceType,
     String? endpointUrl,
     String? url,
     String? shopSuffix,
@@ -94,6 +98,7 @@ class Marketplace {
     String? warehouseForProductImport,
     bool? createMissingProductOnOrderImport,
     MarketplaceSettings? marketplaceSettings,
+    List<PaymentMethod>? paymentMethods,
     DateTime? lastEditingDate,
     DateTime? createnDate,
   }) {
@@ -102,7 +107,7 @@ class Marketplace {
       name: name ?? this.name,
       shortName: shortName ?? this.shortName,
       logoUrl: logoUrl ?? this.logoUrl,
-      marketplaceType: marketplaceName ?? marketplaceType,
+      marketplaceType: marketplaceType ?? this.marketplaceType,
       endpointUrl: endpointUrl ?? this.endpointUrl,
       url: url ?? this.url,
       shopSuffix: shopSuffix ?? this.shopSuffix,
@@ -115,8 +120,14 @@ class Marketplace {
       warehouseForProductImport: warehouseForProductImport ?? this.warehouseForProductImport,
       createMissingProductOnOrderImport: createMissingProductOnOrderImport ?? this.createMissingProductOnOrderImport,
       marketplaceSettings: marketplaceSettings ?? this.marketplaceSettings,
+      paymentMethods: paymentMethods ?? this.paymentMethods,
       lastEditingDate: lastEditingDate ?? this.lastEditingDate,
       createnDate: createnDate ?? this.createnDate,
     );
+  }
+
+  @override
+  String toString() {
+    return 'Marketplace(id: $id, name: $name, shortName: $shortName, logoUrl: $logoUrl, marketplaceType: $marketplaceType, endpointUrl: $endpointUrl, url: $url, shopSuffix: $shopSuffix, fullUrl: $fullUrl, key: $key, isActive: $isActive, orderStatusIdList: $orderStatusIdList, orderStatusOnSuccessImport: $orderStatusOnSuccessImport, orderStatusOnSuccessShipping: $orderStatusOnSuccessShipping, warehouseForProductImport: $warehouseForProductImport, createMissingProductOnOrderImport: $createMissingProductOnOrderImport, marketplaceSettings: $marketplaceSettings, paymentMethods: $paymentMethods, lastEditingDate: $lastEditingDate, createnDate: $createnDate)';
   }
 }

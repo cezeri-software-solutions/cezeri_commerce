@@ -33,3 +33,13 @@ class UpdateTaxRulesEvent extends MainSettingsEvent {
 
   UpdateTaxRulesEvent({required this.taxRules});
 }
+
+//? ################################################################
+//? ########################## Payment Methods #####################
+
+class EnableOrDesablePaymentMethodEvent extends MainSettingsEvent {
+  final bool value;
+  final PaymentMethod paymentMethod;
+
+  EnableOrDesablePaymentMethodEvent({required this.value, required this.paymentMethod});
+}

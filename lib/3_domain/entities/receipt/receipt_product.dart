@@ -7,6 +7,7 @@ class ReceiptProduct {
   final String productId; // Id des Artikels in Firebase
   final int productAttributeId; // Feld aus Presta
   final int quantity;
+  final int shippedQuantity;
   final String name;
   final String articleNumber;
   final String ean;
@@ -28,6 +29,7 @@ class ReceiptProduct {
     required this.productId,
     required this.productAttributeId,
     required this.quantity,
+    required this.shippedQuantity,
     required this.name,
     required this.articleNumber,
     required this.ean,
@@ -55,6 +57,7 @@ class ReceiptProduct {
       productId: '',
       productAttributeId: 0,
       quantity: 0,
+      shippedQuantity: 0,
       name: '',
       articleNumber: '',
       ean: '',
@@ -78,6 +81,7 @@ class ReceiptProduct {
     String? productId,
     int? productAttributeId,
     int? quantity,
+    int? shippedQuantity,
     String? name,
     String? articleNumber,
     String? ean,
@@ -99,6 +103,7 @@ class ReceiptProduct {
       productId: productId ?? this.productId,
       productAttributeId: productAttributeId ?? this.productAttributeId,
       quantity: quantity ?? this.quantity,
+      shippedQuantity: shippedQuantity ?? this.shippedQuantity,
       name: name ?? this.name,
       articleNumber: articleNumber ?? this.articleNumber,
       ean: ean ?? this.ean,
@@ -120,6 +125,6 @@ class ReceiptProduct {
 
   @override
   String toString() {
-    return 'ReceiptProduct(productId: $productId, productAttributeId: $productAttributeId, quantity: $quantity, name: $name, articleNumber: $articleNumber, ean: $ean, price: $price, unitPriceGross: $unitPriceGross, unitPriceNet: $unitPriceNet, customization: $customization, tax: $tax, wholesalePrice: $wholesalePrice, discountGrossUnit: $discountGrossUnit, discountNetUnit: $discountNetUnit, discountGross: $discountGross, discountNet: $discountNet, discountPercent: $discountPercent, profitUnit: $profitUnit, profit: $profit)';
+    return 'ReceiptProduct(productId: $productId, productAttributeId: $productAttributeId, quantity: $quantity, shippedQuantity: $shippedQuantity, name: $name, articleNumber: $articleNumber, ean: $ean, price: $price, unitPriceGross: $unitPriceGross, unitPriceNet: $unitPriceNet, customization: $customization, tax: $tax, wholesalePrice: $wholesalePrice, discountGrossUnit: $discountGrossUnit, discountNetUnit: $discountNetUnit, discountGross: $discountGross, discountNet: $discountNet, discountPercent: $discountPercent, profitUnit: $profitUnit, profit: $profit)';
   }
 }

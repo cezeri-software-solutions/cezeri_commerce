@@ -40,7 +40,8 @@ XmlBuilder productBuilder(int id, Product product, ProductMarketplace productMar
       builder.element('name', nest: () {
         for (final name in product.listOfName) {
           final id = languages.where((e) => e.isoCode == name.isoCode).first.id;
-          builder.element('language', attributes: {'id': id.toString()}, nest: name.description);
+          builder.element('language', attributes: {'id': id.toString()}, nest: name.description
+          );
         }
       });
     });

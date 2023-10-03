@@ -3,19 +3,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../2_application/firebase/main_settings/main_settings_bloc.dart';
-import '../../../3_domain/entities/settings/main_settings.dart';
 import '../../../3_domain/entities/settings/tax.dart';
 import '../../../constants.dart';
 import '../../app_drawer.dart';
 import '../../core/functions/my_scaffold_messanger.dart';
-import '../../core/widgets/my_outlined_button.dart';
 import 'widgets/add_edit_tax_rules.dart';
 
 class TaxRulesPage extends StatefulWidget {
   final MainSettingsBloc mainSettingsBloc;
-  final MainSettings mSettings;
 
-  const TaxRulesPage({super.key, required this.mainSettingsBloc, required this.mSettings});
+  const TaxRulesPage({super.key, required this.mainSettingsBloc});
 
   @override
   State<TaxRulesPage> createState() => _TaxRulesPageState();
@@ -28,16 +25,7 @@ class _TaxRulesPageState extends State<TaxRulesPage> {
       builder: (context, state) {
         final appBar = AppBar(
           title: const Text('Steuerregeln'),
-          actions: [
-            IconButton(onPressed: () => context.read<MainSettingsBloc>().add(GetMainSettingsEvent()), icon: const Icon(Icons.refresh)),
-            MyOutlinedButton(
-              buttonText: 'Speichern',
-              buttonBackgroundColor: Colors.green,
-              onPressed: () => _onSaveSettings(),
-              isLoading: state.isLoadingMainSettingsOnUpdate,
-            ),
-            Gaps.w16,
-          ],
+          actions: [IconButton(onPressed: () => context.read<MainSettingsBloc>().add(GetMainSettingsEvent()), icon: const Icon(Icons.refresh))],
         );
 
         const drawer = AppDrawer();
@@ -106,8 +94,6 @@ class _TaxRulesPageState extends State<TaxRulesPage> {
       },
     );
   }
-
-  void _onSaveSettings() {}
 
   void _addEditTaxRulesPressed({Tax? taxRule, required bool isDefault}) => showModalBottomSheet(
         context: context,

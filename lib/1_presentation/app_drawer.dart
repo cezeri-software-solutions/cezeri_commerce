@@ -98,6 +98,17 @@ class AppDrawer extends StatelessWidget {
                           },
                         ),
                         ListTile(
+                          leading: const Icon(Icons.payment),
+                          title: const Text('Zahlungsarten'),
+                          onTap: () {
+                            if (context.router.current.name == PaymentMethodRoute.name) {
+                              context.router.pop();
+                            } else {
+                              context.router.replaceAll([const PaymentMethodRoute()]);
+                            }
+                          },
+                        ),
+                        ListTile(
                           leading: const Icon(Icons.settings),
                           title: const Text('Grundeinstellungen'),
                           onTap: () {

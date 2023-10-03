@@ -8,6 +8,8 @@ import '../../../../3_domain/entities/marketplace/marketplace.dart';
 import '../../../../constants.dart';
 import '../../../core/widgets/my_modal_scrollable.dart';
 
+// TODO: PaymentMethod muss von hier aus gemappt werden können.
+
 class AddEditMarketplace extends StatefulWidget {
   final MarketplaceBloc marketplaceBloc;
   final Marketplace? marketplace;

@@ -70,7 +70,7 @@ class _ProductContainer extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Checkbox(
-                value: state.selectedProducts.any((element) => element.id == product.id),
+                value: state.selectedProducts.any((e) => e.id == product.id),
                 onChanged: (_) => productBloc.add(OnProductSelectedEvent(product: product)),
               ),
               MyAvatar(

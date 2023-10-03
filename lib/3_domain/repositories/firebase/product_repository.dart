@@ -14,6 +14,7 @@ abstract class ProductRepository {
   Future<Either<FirebaseFailure, Product>> getProductByArticleNumber(String articleNumber);
   Future<Either<FirebaseFailure, List<Product>>> getListOfProducts();
 
-  Future<Either<FirebaseFailure, Product>> updateQuantityOfProduct(Product product, int newQuantity);
-  Future<Either<FirebaseFailure, Product>> updateAvailableQuantityOfProduct(Product product, int newQuantity);
+  Future<Either<FirebaseFailure, Product>> updateQuantityOfProductAbsolut(Product product, int newQuantityIncremental);
+  Future<Either<FirebaseFailure, Product>> updateAvailableQuantityOfProductInremental(Product product, int newQuantityIncremental);
+  Future<Either<FirebaseFailure, Product>> updateWarehouseQuantityOfProductIncremental(Product product, int newQuantityIncremental);
 }

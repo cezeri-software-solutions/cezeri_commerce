@@ -1,3 +1,4 @@
+import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -5,6 +6,7 @@ import 'package:intl/intl.dart';
 import '../../../2_application/firebase/appointment/appointment_bloc.dart';
 import '../../../3_domain/entities/address.dart';
 import '../../../3_domain/entities/receipt/receipt.dart';
+import '../../../3_domain/entities/receipt/receipt_product.dart';
 import '../../../3_domain/enums/enums.dart';
 import '../../../constants.dart';
 import '../../../core/firebase_failures.dart';
@@ -35,11 +37,15 @@ class _AppointmentsOverviewPageState extends State<AppointmentsOverviewPage> {
           };
         }
 
+        if (state.listOfAllAppointments == null || state.listOfFilteredAppointments == null) {
+          return const Expanded(child: Center(child: CircularProgressIndicator()));
+        }
+
         return Expanded(
           child: ListView.separated(
-            itemCount: state.listOfAppointment!.length,
+            itemCount: state.listOfFilteredAppointments!.length,
             itemBuilder: (context, index) {
-              final curAppointment = state.listOfAppointment![index];
+              final curAppointment = state.listOfFilteredAppointments![index];
               return _AppointmentContainer(
                 appointment: curAppointment,
                 index: index,
@@ -85,7 +91,10 @@ class __AppointmentContainerState extends State<_AppointmentContainer> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Checkbox(value: false, onChanged: (value) {}),
+                  Checkbox(
+                    value: state.selectedAppointments.any((e) => e.receiptId == widget.appointment.receiptId),
+                    onChanged: (_) => widget.appointmentBloc.add(OnAppointmentSelectedEvent(appointment: widget.appointment)),
+                  ),
                   Column(
                     children: [
                       widget.appointment.listOfReceiptProduct.length > 1
@@ -112,6 +121,7 @@ class __AppointmentContainerState extends State<_AppointmentContainer> {
                       children: [
                         TextButton(onPressed: () {}, child: Text('Auftrag ${widget.appointment.appointmentId}')),
                         Text(DateFormat('dd.MM.yyy', 'de').format(widget.appointment.creationDate)),
+                        Text('${widget.appointment.totalGross.toMyCurrency()} €', style: TextStyles.defaultBold)
                       ],
                     ),
                   ),
@@ -171,44 +181,127 @@ class __AppointmentContainerState extends State<_AppointmentContainer> {
                       ],
                     ),
                   ),
-                  Column(
-                    children: [
-                      Container(
-                        height: 30,
-                        decoration: BoxDecoration(
-                          color: switch (widget.appointment.paymentStatus) {
-                            PaymentStatus.open => CustomColors.backgroundLightGrey,
-                            PaymentStatus.partiallyPaid => CustomColors.backgroundLightOrange,
-                            PaymentStatus.paid => CustomColors.backgroundLightGreen,
-                          },
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                          child: Center(
-                            child: switch (widget.appointment.paymentStatus) {
-                              PaymentStatus.open => const Text('Offen'),
-                              PaymentStatus.partiallyPaid => const Text('Teilweise bezahlt'),
-                              PaymentStatus.paid => const Text('Komplett bezahlt'),
-                            },
+                  SizedBox(
+                    width: 140,
+                    child: Column(
+                      children: [
+                        Tooltip(
+                          message: 'Bezahlter Betrag: ${widget.appointment.totalPaidGross} €',
+                          child: Container(
+                            height: 30,
+                            decoration: BoxDecoration(
+                              color: switch (widget.appointment.paymentStatus) {
+                                PaymentStatus.open => CustomColors.backgroundLightGrey,
+                                PaymentStatus.partiallyPaid => CustomColors.backgroundLightOrange,
+                                PaymentStatus.paid => CustomColors.backgroundLightGreen,
+                              },
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                              child: Center(
+                                child: switch (widget.appointment.paymentStatus) {
+                                  PaymentStatus.open => const Text('Offen'),
+                                  PaymentStatus.partiallyPaid => const Text('Teilweise bezahlt'),
+                                  PaymentStatus.paid => const Text('Komplett bezahlt'),
+                                },
+                              ),
+                            ),
                           ),
                         ),
-                      ),
-                    ],
+                        Gaps.h2,
+                        Image.asset(widget.appointment.paymentMethod.logoPath, height: 25, width: 65, fit: BoxFit.scaleDown),
+                      ],
+                    ),
                   ),
                   const SizedBox(),
                 ],
               ),
               if (state.isExpanded[widget.index])
-                Container(
-                  height: 100,
-                  width: double.infinity,
-                  color: Colors.green,
+                Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Column(
+                        children: [
+                          const Row(
+                            children: [
+                              Expanded(flex: RowWidths.pos, child: Text('Pos', style: TextStyles.defaultBold)),
+                              Spacer(),
+                              Expanded(flex: RowWidths.articleNumber, child: Text('Artikelnummer', style: TextStyles.defaultBold)),
+                              Spacer(),
+                              Expanded(flex: RowWidths.ean, child: Text('EAN', style: TextStyles.defaultBold)),
+                              Spacer(),
+                              Expanded(flex: RowWidths.articleName, child: Text('Name', style: TextStyles.defaultBold)),
+                              Spacer(),
+                              Expanded(flex: RowWidths.openQuantity, child: Text('Offen', style: TextStyles.defaultBold)),
+                              Spacer(),
+                              Expanded(flex: RowWidths.quantity, child: Text('Anzahl', style: TextStyles.defaultBold)),
+                            ],
+                          ),
+                          const Divider(),
+                          ListView.separated(
+                            physics: const NeverScrollableScrollPhysics(),
+                            shrinkWrap: true,
+                            itemCount: widget.appointment.listOfReceiptProduct.length,
+                            itemBuilder: (context, index) {
+                              return _AppointmentProdcutsContainer(appointmentProduct: widget.appointment.listOfReceiptProduct[index], index: index);
+                            },
+                            separatorBuilder: (context, index) => const Divider(),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                 )
             ],
           ),
         );
       },
+    );
+  }
+}
+
+class _AppointmentProdcutsContainer extends StatelessWidget {
+  final ReceiptProduct appointmentProduct;
+  final int index;
+
+  const _AppointmentProdcutsContainer({required this.appointmentProduct, required this.index});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        Expanded(flex: RowWidths.pos, child: Text((index + 1).toString(), style: TextStyles.defaultBold)),
+        const Spacer(),
+        Expanded(flex: RowWidths.articleNumber, child: Text(appointmentProduct.articleNumber, overflow: TextOverflow.ellipsis)),
+        const Spacer(),
+        Expanded(flex: RowWidths.ean, child: Text(appointmentProduct.ean)),
+        const Spacer(),
+        Expanded(flex: RowWidths.articleName, child: Text(appointmentProduct.name, overflow: TextOverflow.ellipsis)),
+        const Spacer(),
+        Expanded(
+            flex: RowWidths.openQuantity,
+            child: Center(
+                child: switch (appointmentProduct.quantity - appointmentProduct.shippedQuantity) {
+              0 => Text(
+                  (appointmentProduct.quantity - appointmentProduct.shippedQuantity).toString(),
+                  style: TextStyles.defaultBold.copyWith(
+                    color: Colors.green,
+                  ),
+                ),
+              (_) => Text(
+                  (appointmentProduct.quantity - appointmentProduct.shippedQuantity).toString(),
+                  style: const TextStyle(
+                    color: Colors.red,
+                  ),
+                ),
+            })),
+        const Spacer(),
+        Expanded(flex: RowWidths.quantity, child: Center(child: Text(appointmentProduct.quantity.toString()))),
+      ],
     );
   }
 }

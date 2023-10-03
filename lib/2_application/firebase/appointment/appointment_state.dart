@@ -3,7 +3,9 @@ part of 'appointment_bloc.dart';
 @immutable
 class AppointmentState {
   final Receipt? appointment;
-  final List<Receipt>? listOfAppointment;
+  final List<Receipt>? listOfAllAppointments;
+  final List<Receipt>? listOfFilteredAppointments; // Der State, der im presentation layer ausgegeben wird, egal ob Suchfeld leer oder nicht
+  final List<Receipt> selectedAppointments; // Ausgewählte Aufträge zum löschen oder für Massenbearbeitung
   final FirebaseFailure? firebaseFailure;
   final bool isAnyFailure;
   final bool isLoadingAppointmentOnObserve;
@@ -21,10 +23,13 @@ class AppointmentState {
 
   //* --- helper --- *//
   final List<bool> isExpanded;
+  final String appointmentSearchText;
 
   const AppointmentState({
     this.appointment,
-    required this.listOfAppointment,
+    required this.listOfAllAppointments,
+    required this.listOfFilteredAppointments,
+    required this.selectedAppointments,
     required this.firebaseFailure,
     required this.isAnyFailure,
     required this.isLoadingAppointmentOnObserve,
@@ -40,11 +45,14 @@ class AppointmentState {
     required this.fosAppointmentOnUpdateOption,
     required this.fosAppointmentOnDeleteOption,
     required this.isExpanded,
+    required this.appointmentSearchText,
   });
 
   factory AppointmentState.initial() => AppointmentState(
         appointment: null,
-        listOfAppointment: null,
+        listOfAllAppointments: null,
+        listOfFilteredAppointments: null,
+        selectedAppointments: const [],
         firebaseFailure: null,
         isAnyFailure: false,
         isLoadingAppointmentOnObserve: false,
@@ -60,11 +68,14 @@ class AppointmentState {
         fosAppointmentOnUpdateOption: none(),
         fosAppointmentOnDeleteOption: none(),
         isExpanded: const [],
+        appointmentSearchText: '',
       );
 
   AppointmentState copyWith({
     Receipt? appointment,
-    List<Receipt>? listOfAppointment,
+    List<Receipt>? listOfAllAppointments,
+    List<Receipt>? listOfFilteredAppointments,
+    List<Receipt>? selectedAppointments,
     FirebaseFailure? firebaseFailure,
     bool? isAnyFailure,
     bool? isLoadingAppointmentOnObserve,
@@ -80,10 +91,13 @@ class AppointmentState {
     Option<Either<FirebaseFailure, Receipt>>? fosAppointmentOnUpdateOption,
     Option<Either<FirebaseFailure, Unit>>? fosAppointmentOnDeleteOption,
     List<bool>? isExpanded,
+    String? appointmentSearchText,
   }) {
     return AppointmentState(
       appointment: appointment ?? this.appointment,
-      listOfAppointment: listOfAppointment ?? this.listOfAppointment,
+      listOfAllAppointments: listOfAllAppointments ?? this.listOfAllAppointments,
+      listOfFilteredAppointments: listOfFilteredAppointments ?? this.listOfFilteredAppointments,
+      selectedAppointments: selectedAppointments ?? this.selectedAppointments,
       firebaseFailure: firebaseFailure ?? this.firebaseFailure,
       isAnyFailure: isAnyFailure ?? this.isAnyFailure,
       isLoadingAppointmentOnObserve: isLoadingAppointmentOnObserve ?? this.isLoadingAppointmentOnObserve,
@@ -99,6 +113,7 @@ class AppointmentState {
       fosAppointmentOnUpdateOption: fosAppointmentOnUpdateOption ?? this.fosAppointmentOnUpdateOption,
       fosAppointmentOnDeleteOption: fosAppointmentOnDeleteOption ?? this.fosAppointmentOnDeleteOption,
       isExpanded: isExpanded ?? this.isExpanded,
+      appointmentSearchText: appointmentSearchText ?? this.appointmentSearchText,
     );
   }
 }

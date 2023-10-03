@@ -85,6 +85,17 @@ class Gaps {
   static const SizedBox w32 = SizedBox(width: 32);
 }
 
+class RowWidths {
+  RowWidths._();
+
+  static const int pos = 30;
+  static const int articleNumber = 160;
+  static const int ean = 140;
+  static const int articleName = 600;
+  static const int openQuantity = 50;
+  static const int quantity = 50;
+}
+
 class HeaderSpace {
   HeaderSpace._();
 

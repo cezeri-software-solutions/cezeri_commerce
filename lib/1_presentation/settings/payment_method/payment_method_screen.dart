@@ -5,11 +5,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../2_application/firebase/main_settings/main_settings_bloc.dart';
 import '../../../injection.dart';
 import '../../core/functions/my_scaffold_messanger.dart';
-import 'tax_rules_page.dart';
+import 'payment_method_page.dart';
 
 @RoutePage()
-class TaxRulesScreen extends StatelessWidget {
-  const TaxRulesScreen({super.key});
+class PaymentMethodScreen extends StatelessWidget {
+  const PaymentMethodScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +48,7 @@ class TaxRulesScreen extends StatelessWidget {
             },
           ),
         ],
-        child: TaxRulesPage(mainSettingsBloc: mainSettingsBloc),
+        child: PaymentMethodPage(mainSettingsBloc: mainSettingsBloc),
       ),
     );
   }
