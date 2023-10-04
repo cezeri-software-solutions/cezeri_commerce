@@ -14,6 +14,7 @@ import '../../../3_domain/entities/marketplace/marketplace.dart';
 import '../../../3_domain/entities/product/product.dart';
 import '../../../3_domain/entities/settings/main_settings.dart';
 import '../../../3_domain/entities_presta/order_presta.dart';
+import '../../../3_domain/entities_presta/product_presta.dart';
 import '../../../3_domain/repositories/firebase/product_repository.dart';
 import '../../../3_domain/repositories/prestashop/product/product_import_repository.dart';
 import '../prestashop_api/prestashop_api.dart';
@@ -35,7 +36,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
   Future<Either<FirebaseFailure, List<Receipt>>> loadNewAppointments() async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
-    var logger = Logger();
+    final logger = Logger();
 
     final currentUserUid = firebaseAuth.currentUser!.uid;
     final docRefMainSettings = db.collection(currentUserUid).doc(currentUserUid).collection('Settings').doc(currentUserUid);
@@ -58,6 +59,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
         allOrderIds.sort((a, b) => a.compareTo(b));
 
         listOfOrderPresta = await api.getOrdersFilterIdInterval(marketplace.marketplaceSettings.nextIdToImport, allOrderIds.last);
+        
         for (final orderPresta in listOfOrderPresta) {
           final docRefReceipt = db.collection(currentUserUid).doc(currentUserUid).collection('Appointments').where(
                 'receiptMarketplaceId',
@@ -67,113 +69,85 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
               await docRefReceipt.get().then((value) => value.docs.map((querySnapshot) => Receipt.fromJson(querySnapshot.data())).toList());
           if (productListFirestore.isNotEmpty) continue;
 
-          await db.runTransaction((transaction) async {
-            final dsMainSettings = await transaction.get(docRefMainSettings);
-            final mainSettings = MainSettings.fromJson(dsMainSettings.data()!);
+          final dsMainSettings = await docRefMainSettings.get();
+          final mainSettings = MainSettings.fromJson(dsMainSettings.data()!);
 
-            List<ReceiptProduct> listOfReceiptproduct = [];
+          List<ReceiptProduct> listOfReceiptproduct = [];
 
-            for (final orderProductPresta in orderPresta.associations!.orderRows) {
-              final fosProduct = await productRepository.getProductByArticleNumber(orderProductPresta.productReference);
-              fosProduct.fold(
-                (failure) async {
-                  logger.i('Artikel ${orderProductPresta.productName} nicht in der Firestore Datenbank');
-                  if (failure.runtimeType == EmptyFailure) {
-                    // TODO: get full productPresta from PrestashopApi
-                    // TODO: make these steps with new PrestashopApi
-                    //productRepository.createProduct(Product.fromProductPresta(productPresta: productPresta, marketplace: marketplace))
-                    final fosProductPresta =
-                        await productImportRepository.getProductByIdFromPrestashop(int.parse(orderProductPresta.productId), marketplace);
-                    fosProductPresta.fold(
-                      (prestaFailure) {
-                        logger.e('${orderProductPresta.productName} konnte nicht von Prestashop geladen werden');
-                      },
-                      (productPresta) async {
-                        logger.i('${orderProductPresta.productName} wurde erfolgreich von Prestashp geladen');
-                        final fosProduct = await productRepository.createProduct(
-                          Product.fromProductPresta(
-                            productPresta: productPresta,
-                            marketplace: marketplace,
-                            mainSettings: mainSettings,
-                          ),
-                          productPresta,
-                        );
+          for (final orderProductPresta in orderPresta.associations!.orderRows) {
+            Product? appointmentProduct;
+            final quantity = int.parse(orderProductPresta.productQuantity);
+            final tax = calcTaxPercent(double.parse(orderProductPresta.unitPriceTaxIncl), double.parse(orderProductPresta.unitPriceTaxExcl));
 
-                        fosProduct.fold(
-                          (failure) => logger.e(
-                            'Artikel: ${orderProductPresta.productName} konte nicht in der Firestore Datenbank angelegt werden. \n Error: $failure',
-                          ),
-                          (product) async {
-                            final quantity = int.parse(orderProductPresta.productQuantity);
-                            final tax =
-                                calcTaxPercent(double.parse(orderProductPresta.unitPriceTaxIncl), double.parse(orderProductPresta.unitPriceTaxExcl));
+            final productFirestore = await getProductByArticleNumber(orderProductPresta.productReference, marketplace, mainSettings);
+            if (productFirestore == null) {
+              final productPresta = await getProductByIdFromPrestashop(int.parse(orderProductPresta.productId), marketplace);
+              if (productPresta == null) return left(GeneralFailure as FirebaseFailure);
 
-                            final receiptProduct = generateReceiptProduct(
-                              product: product,
-                              orderProductPresta: orderProductPresta,
-                              mainSettings: mainSettings,
-                              quantity: quantity,
-                              tax: tax,
-                            );
-                            listOfReceiptproduct.add(receiptProduct);
-                            await productRepository.updateWarehouseQuantityOfProductIncremental(product, quantity);
-                          },
-                        );
-                      },
-                    );
-                  }
-                },
-                (product) async {
-                  final quantity = int.parse(orderProductPresta.productQuantity);
-                  final tax = calcTaxPercent(double.parse(orderProductPresta.unitPriceTaxIncl), double.parse(orderProductPresta.unitPriceTaxExcl));
-                  final receiptProduct = generateReceiptProduct(
-                    product: product,
-                    orderProductPresta: orderProductPresta,
-                    mainSettings: mainSettings,
-                    quantity: quantity,
-                    tax: tax,
-                  );
-                  listOfReceiptproduct.add(receiptProduct);
-                  await productRepository.updateAvailableQuantityOfProductInremental(product, quantity * -1);
-                },
+              final createdProductFirestore = await createProductInFirestore(
+                Product.fromProductPresta(
+                  productPresta: productPresta,
+                  marketplace: marketplace,
+                  mainSettings: mainSettings,
+                ),
+                productPresta,
+                marketplace,
+                mainSettings,
               );
+              if (createdProductFirestore == null) return left(GeneralFailure as FirebaseFailure);
+              appointmentProduct = createdProductFirestore;
+              await productRepository.updateWarehouseQuantityOfProductIncremental(createdProductFirestore, quantity);
+            } else {
+              appointmentProduct = productFirestore;
+              await productRepository.updateAvailableQuantityOfProductInremental(productFirestore, quantity * -1);
             }
 
-            final optionalCurrency = await api.getCurrency(int.parse(orderPresta.idCurrency));
-            final currency = optionalCurrency.value;
-            final optionalCustomer = await api.getCustomer(int.parse(orderPresta.idCustomer));
-            final customer = optionalCustomer.value;
-            final optionalAddressInvoice = await api.getAddress(int.parse(orderPresta.idAddressInvoice));
-            final addressInvoice = optionalAddressInvoice.value;
-            final optionalAddressDelivery = await api.getAddress(int.parse(orderPresta.idAddressDelivery));
-            final addressDelivery = optionalAddressDelivery.value;
-            final optionalCountryInvoice = await api.getCountry(int.parse(addressInvoice.idCountry));
-            final countryInvoice = optionalCountryInvoice.value;
-            final optionalCountryDelivery = await api.getCountry(int.parse(addressDelivery.idCountry));
-            final countryDelivery = optionalCountryDelivery.value;
-
-            final phAppointment = Receipt.fromOrderPresta(
-              marketplace: marketplace,
+            final receiptProduct = generateReceiptProduct(
+              product: appointmentProduct,
+              orderProductPresta: orderProductPresta,
               mainSettings: mainSettings,
-              listOfReceiptproduct: listOfReceiptproduct,
-              orderPresta: orderPresta,
-              currencyPresta: currency,
-              customerPresta: customer,
-              addressInvoicePresta: addressInvoice,
-              addressDeliveryPresta: addressDelivery,
-              countryInvoicePresta: countryInvoice,
-              countryDeliveryPresta: countryDelivery,
+              quantity: quantity,
+              tax: tax,
             );
+            listOfReceiptproduct.add(receiptProduct);
 
-            final docRefAppointment = db.collection(currentUserUid).doc(currentUserUid).collection('Appointments').doc();
-            final appointment = phAppointment.copyWith(receiptId: docRefAppointment.id);
-            transaction.set(docRefAppointment, appointment.toJson());
-            listOfReceiptToReturn.add(appointment);
+            // #################################################################
+          }
 
-            final nextAppointmentNumber = mainSettings.nextAppointmentNumber + 1;
-            final updatedMainSettings = mainSettings.copyWith(nextAppointmentNumber: nextAppointmentNumber);
-            transaction.set(docRefMainSettings, updatedMainSettings.toJson());
-          });
+          final optionalCurrency = await api.getCurrency(int.parse(orderPresta.idCurrency));
+          final currency = optionalCurrency.value;
+          final optionalCustomer = await api.getCustomer(int.parse(orderPresta.idCustomer));
+          final customer = optionalCustomer.value;
+          final optionalAddressInvoice = await api.getAddress(int.parse(orderPresta.idAddressInvoice));
+          final addressInvoice = optionalAddressInvoice.value;
+          final optionalAddressDelivery = await api.getAddress(int.parse(orderPresta.idAddressDelivery));
+          final addressDelivery = optionalAddressDelivery.value;
+          final optionalCountryInvoice = await api.getCountry(int.parse(addressInvoice.idCountry));
+          final countryInvoice = optionalCountryInvoice.value;
+          final optionalCountryDelivery = await api.getCountry(int.parse(addressDelivery.idCountry));
+          final countryDelivery = optionalCountryDelivery.value;
+
+          final phAppointment = Receipt.fromOrderPresta(
+            marketplace: marketplace,
+            mainSettings: mainSettings,
+            listOfReceiptproduct: listOfReceiptproduct,
+            orderPresta: orderPresta,
+            currencyPresta: currency,
+            customerPresta: customer,
+            addressInvoicePresta: addressInvoice,
+            addressDeliveryPresta: addressDelivery,
+            countryInvoicePresta: countryInvoice,
+            countryDeliveryPresta: countryDelivery,
+          );
+
+          final docRefAppointment = db.collection(currentUserUid).doc(currentUserUid).collection('Appointments').doc();
+          final appointment = phAppointment.copyWith(receiptId: docRefAppointment.id);
+          docRefAppointment.set(appointment.toJson());
+          listOfReceiptToReturn.add(appointment);
+
+          final nextAppointmentNumber = mainSettings.nextAppointmentNumber + 1;
+          final updatedMainSettings = mainSettings.copyWith(nextAppointmentNumber: nextAppointmentNumber);
+          docRefMainSettings.set(updatedMainSettings.toJson());
         }
         final updatedMarketplace = marketplace.copyWith(
           marketplaceSettings: marketplace.marketplaceSettings.copyWith(nextIdToImport: allOrderIds.last + 1),
@@ -251,6 +225,51 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
     } on FirebaseException {
       return left(GeneralFailure());
     }
+  }
+
+  Future<Product?> getProductByArticleNumber(String articleNumber, Marketplace marketplace, MainSettings mainSettings) async {
+    final logger = Logger();
+    Product? product;
+    final fosProduct = await productRepository.getProductByArticleNumber(articleNumber);
+    fosProduct.fold(
+      (failure) => logger.i('Artikel $articleNumber nicht in der Firestore Datenbank'),
+      (productFirestore) => product = productFirestore,
+    );
+
+    return product;
+  }
+
+  Future<ProductPresta?> getProductByIdFromPrestashop(int id, Marketplace marketplace) async {
+    final logger = Logger();
+    ProductPresta? productPresta;
+    final fosProductPresta = await productImportRepository.getProductByIdFromPrestashop(id, marketplace);
+    fosProductPresta.fold(
+      (failure) {
+        logger.e('$id konnte nicht von Prestashop geladen werden');
+      },
+      (product) => productPresta = product,
+    );
+
+    return productPresta;
+  }
+
+  Future<Product?> createProductInFirestore(Product product, ProductPresta? productPresta, Marketplace marketplace, MainSettings mainSettings) async {
+    final logger = Logger();
+    Product? createdProduct;
+    final fosProduct = await productRepository.createProduct(
+      Product.fromProductPresta(
+        productPresta: productPresta!,
+        marketplace: marketplace,
+        mainSettings: mainSettings,
+      ),
+      productPresta,
+    );
+    fosProduct.fold(
+      (failure) => logger.e('Artikel: ${product.name} konte nicht in der Firestore Datenbank angelegt werden. \n Error: $failure'),
+      (productFirestore) => createdProduct = productFirestore,
+    );
+
+    return createdProduct;
   }
 }
 

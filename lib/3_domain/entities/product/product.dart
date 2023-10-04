@@ -1,6 +1,7 @@
 import 'package:cezeri_commerce/3_domain/entities/product/product_language.dart';
 import 'package:json_annotation/json_annotation.dart';
 
+import '../../../1_presentation/core/functions/mixed_functions.dart';
 import '../../entities_presta/product_presta.dart';
 import '../marketplace/marketplace.dart';
 import '../settings/main_settings.dart';
@@ -147,6 +148,7 @@ class Product {
     required MainSettings mainSettings,
   }) {
     final productMarketplaces = [ProductMarketplace.fromProductPresta(productPresta, marketplace)];
+    final taxRule = mainSettings.taxes.where((e) => e.isDefault).first;
 
     return Product.empty().copyWith(
       articleNumber: productPresta.reference ?? Product.empty().articleNumber,
@@ -158,7 +160,7 @@ class Product {
       ean: productPresta.ean13 ?? Product.empty().ean,
       name: productPresta.name ?? Product.empty().name,
       listOfName: productPresta.listOfName ?? Product.empty().listOfName,
-      tax: mainSettings.taxes.where((e) => e.isDefault).first,
+      tax: taxRule,
       haveImages: productPresta.imageIds != null
           ? productPresta.imageIds!.isNotEmpty
               ? true
@@ -177,10 +179,9 @@ class Product {
       depth: productPresta.depth ?? Product.empty().depth,
       weight: productPresta.weight ?? Product.empty().weight,
       netPrice: productPresta.price ?? Product.empty().netPrice,
-      // TODO: Hole die MwSt. von Settings
-      grossPrice: productPresta.price! * (Product.empty().tax.taxRate / 100 + 1),
+      grossPrice: productPresta.price != null ? productPresta.price! * taxToCalc(taxRule.taxRate) : Product.empty().grossPrice,
       wholesalePrice: productPresta.wholesalePrice ?? Product.empty().wholesalePrice,
-      recommendedRetailPrice: Product.empty().netPrice * (Product.empty().tax.taxRate / 100 + 1),
+      recommendedRetailPrice: productPresta.price != null ? productPresta.price! * taxToCalc(taxRule.taxRate) : Product.empty().grossPrice,
       // TODO: nachschauen woher ich die Varianten bekomme
       haveVariants: Product.empty().haveVariants,
       // TODO: Wenn SetArtikel, alle Artikel aus dem Set mit importieren, anlegen und den Bestand davon berechnen
