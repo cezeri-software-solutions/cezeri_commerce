@@ -211,6 +211,21 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
       //   await docRefMp.update(updatedMp.toJson());
       // }
 
+      // List<Receipt> phAppointments = [];
+      // for (final app in listOfAppointments) {
+      //   const ccfId = '9dP9VFfOmw0b3tSdmw71';
+      //   const cccId = 'kTKz7pH6HvcyTolKTQbm';
+      //   if (app.receiptMarketplaceReference.startsWith('CCF_')) {
+      //     final docRefNew = db.collection(currentUserUid).doc(currentUserUid).collection('Appointments').doc(app.receiptId);
+      //     final phApp = app.copyWith(marketplaceId: ccfId);
+      //     await docRefNew.update(phApp.toJson());
+      //   } else {
+      //     final docRefNew = db.collection(currentUserUid).doc(currentUserUid).collection('Appointments').doc(app.receiptId);
+      //     final phApp = app.copyWith(marketplaceId: cccId);
+      //     await docRefNew.update(phApp.toJson());
+      //   }
+      // }
+
       if (listOfAppointments.isEmpty) return left(EmptyFailure());
       return right(listOfAppointments);
     } on FirebaseException {

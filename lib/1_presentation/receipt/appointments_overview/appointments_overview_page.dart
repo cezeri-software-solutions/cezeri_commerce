@@ -4,9 +4,12 @@ import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.da
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:logger/logger.dart';
 
 import '../../../2_application/firebase/appointment/appointment_bloc.dart';
+import '../../../2_application/firebase/marketplace/marketplace_bloc.dart';
 import '../../../3_domain/entities/address.dart';
+import '../../../3_domain/entities/marketplace/marketplace.dart';
 import '../../../3_domain/entities/receipt/receipt.dart';
 import '../../../3_domain/entities/receipt/receipt_product.dart';
 import '../../../3_domain/enums/enums.dart';
@@ -17,8 +20,9 @@ import '../../core/widgets/my_country_flag.dart';
 
 class AppointmentsOverviewPage extends StatefulWidget {
   final AppointmentBloc appointmentBloc;
+  final MarketplaceBloc marketplaceBloc;
 
-  const AppointmentsOverviewPage({super.key, required this.appointmentBloc});
+  const AppointmentsOverviewPage({super.key, required this.appointmentBloc, required this.marketplaceBloc});
 
   @override
   State<AppointmentsOverviewPage> createState() => _AppointmentsOverviewPageState();
@@ -29,52 +33,65 @@ class _AppointmentsOverviewPageState extends State<AppointmentsOverviewPage> {
   Widget build(BuildContext context) {
     return BlocBuilder<AppointmentBloc, AppointmentState>(
       builder: (context, state) {
-        if (state.isLoadingAppointmentsOnObserve) {
-          return const Expanded(child: Center(child: CircularProgressIndicator()));
-        }
-        if (state.firebaseFailure != null && state.isAnyFailure) {
-          return switch (state.firebaseFailure.runtimeType) {
-            EmptyFailure => const Expanded(child: Center(child: Text('Du hast noch keine Aufträge angelegt oder importiert!'))),
-            (_) => const Expanded(child: Center(child: Text('Ein Fehler ist aufgetreten!'))),
-          };
-        }
+        return BlocBuilder<MarketplaceBloc, MarketplaceState>(
+          builder: (context, stateMarketplace) {
+            if (state.isLoadingAppointmentsOnObserve || stateMarketplace.isLoadingMarketplacesOnObserve) {
+              return const Expanded(child: Center(child: CircularProgressIndicator()));
+            }
+            if (state.firebaseFailure != null && state.isAnyFailure) {
+              return switch (state.firebaseFailure.runtimeType) {
+                EmptyFailure => const Expanded(child: Center(child: Text('Du hast noch keine Aufträge angelegt oder importiert!'))),
+                (_) => const Expanded(child: Center(child: Text('Ein Fehler beim Laden der Artikel ist aufgetreten!'))),
+              };
+            }
 
-        if (state.listOfAllAppointments == null || state.listOfFilteredAppointments == null) {
-          return const Expanded(child: Center(child: CircularProgressIndicator()));
-        }
+            if (stateMarketplace.firebaseFailure != null && stateMarketplace.isAnyFailure) {
+              return switch (stateMarketplace.firebaseFailure.runtimeType) {
+                EmptyFailure => const Expanded(child: Center(child: Text('Du hast noch keine Marktplätze angelegt!'))),
+                (_) => const Expanded(child: Center(child: Text('Ein Fehler beim Laden der Marktplätze ist aufgetreten!'))),
+              };
+            }
 
-        return Expanded(
-          child: ListView.separated(
-            itemCount: state.listOfFilteredAppointments!.length,
-            itemBuilder: (context, index) {
-              final curAppointment = state.listOfFilteredAppointments![index];
-              if (index == 0) {
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Checkbox.adaptive(
-                      value: state.selectAllAppointments,
-                      onChanged: (value) => widget.appointmentBloc.add(
-                        OnAllAppointmentSelectedEvent(isSelected: value!),
-                      ),
-                    ),
-                    const Divider(),
-                    _AppointmentContainer(
-                      appointment: curAppointment,
-                      index: index,
-                      appointmentBloc: widget.appointmentBloc,
-                    ),
-                  ],
-                );
-              }
-              return _AppointmentContainer(
-                appointment: curAppointment,
-                index: index,
-                appointmentBloc: widget.appointmentBloc,
-              );
-            },
-            separatorBuilder: (context, index) => const Divider(),
-          ),
+            if (state.listOfAllAppointments == null || state.listOfFilteredAppointments == null || stateMarketplace.listOfMarketplace == null) {
+              return const Expanded(child: Center(child: CircularProgressIndicator()));
+            }
+
+            return Expanded(
+              child: ListView.separated(
+                itemCount: state.listOfFilteredAppointments!.length,
+                itemBuilder: (context, index) {
+                  final curAppointment = state.listOfFilteredAppointments![index];
+                  if (index == 0) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Checkbox.adaptive(
+                          value: state.selectAllAppointments,
+                          onChanged: (value) => widget.appointmentBloc.add(
+                            OnAllAppointmentSelectedEvent(isSelected: value!),
+                          ),
+                        ),
+                        const Divider(),
+                        _AppointmentContainer(
+                          appointment: curAppointment,
+                          index: index,
+                          appointmentBloc: widget.appointmentBloc,
+                          listOfMarketplaces: stateMarketplace.listOfMarketplace!,
+                        ),
+                      ],
+                    );
+                  }
+                  return _AppointmentContainer(
+                    appointment: curAppointment,
+                    index: index,
+                    appointmentBloc: widget.appointmentBloc,
+                    listOfMarketplaces: stateMarketplace.listOfMarketplace!,
+                  );
+                },
+                separatorBuilder: (context, index) => const Divider(),
+              ),
+            );
+          },
         );
       },
     );
@@ -85,11 +102,13 @@ class _AppointmentContainer extends StatefulWidget {
   final Receipt appointment;
   final int index;
   final AppointmentBloc appointmentBloc;
+  final List<Marketplace> listOfMarketplaces;
 
   const _AppointmentContainer({
     required this.appointment,
     required this.index,
     required this.appointmentBloc,
+    required this.listOfMarketplaces,
   });
 
   @override
@@ -97,12 +116,17 @@ class _AppointmentContainer extends StatefulWidget {
 }
 
 class __AppointmentContainerState extends State<_AppointmentContainer> {
+  final logger = Logger();
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.sizeOf(context).width;
     final responsiveness = screenWidth > 700 ? Responsiveness.isTablet : Responsiveness.isMobil;
+    final marketplace = widget.listOfMarketplaces.where((e) => e.id == widget.appointment.marketplaceId).first;
     final deliveryAddress = widget.appointment.customer.listOfAddress.where((e) => e.addressType == AddressType.delivery && e.isDefault).first;
     final invoiceAddress = widget.appointment.customer.listOfAddress.where((e) => e.addressType == AddressType.invoice && e.isDefault).first;
+    logger.i(widget.appointment.receiptMarketplaceId);
+    logger.i(widget.appointment.receiptMarketplaceReference);
+    logger.i(widget.appointment.creationDateMarektplace);
     return BlocBuilder<AppointmentBloc, AppointmentState>(
       builder: (context, state) {
         return Container(
@@ -194,7 +218,15 @@ class __AppointmentContainerState extends State<_AppointmentContainer> {
                     width: 120,
                     child: Column(
                       children: [
-                        const MyAvatar(name: 'PS', radius: 15, fontSize: 12), // TODO: Marketplace mit an dieses widget übergeben
+                        MyAvatar(
+                          name: marketplace.shortName,
+                          radius: 12,
+                          fontSize: 12,
+                          imageUrl: marketplace.logoUrl,
+                          shape: BoxShape.rectangle,
+                          fit: BoxFit.scaleDown,
+                        ),
+                        Text(marketplace.name),
                         Text(DateFormat('dd.MM.yyy', 'de').format(widget.appointment.creationDateMarektplace)),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,

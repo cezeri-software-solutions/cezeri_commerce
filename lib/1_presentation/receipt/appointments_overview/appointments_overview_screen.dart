@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../2_application/firebase/appointment/appointment_bloc.dart';
+import '../../../2_application/firebase/marketplace/marketplace_bloc.dart';
 import '../../../3_domain/entities/receipt/receipt.dart';
 import '../../../constants.dart';
 import '../../../injection.dart';
@@ -22,11 +23,19 @@ class AppointmentsOverviewScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final appointmentBloc = sl<AppointmentBloc>()..add(GetAllAppointmentsEvent());
+    final marketplaceBloc = sl<MarketplaceBloc>()..add(GetAllMarketplacesEvent());
 
     final searchController = TextEditingController();
 
-    return BlocProvider<AppointmentBloc>(
-      create: (context) => appointmentBloc,
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<AppointmentBloc>(
+          create: (context) => appointmentBloc,
+        ),
+        BlocProvider<MarketplaceBloc>(
+          create: (context) => marketplaceBloc,
+        ),
+      ],
       child: MultiBlocListener(
         listeners: [
           BlocListener<AppointmentBloc, AppointmentState>(
@@ -155,7 +164,7 @@ class AppointmentsOverviewScreen extends StatelessWidget {
                       onTap: (value) => value == 0 ? appointmentBloc.add(GetOpenAppointmentsEvent()) : appointmentBloc.add(GetAllAppointmentsEvent()),
                     ),
                   ),
-                  AppointmentsOverviewPage(appointmentBloc: appointmentBloc),
+                  AppointmentsOverviewPage(appointmentBloc: appointmentBloc, marketplaceBloc: marketplaceBloc),
                 ],
               ),
             );

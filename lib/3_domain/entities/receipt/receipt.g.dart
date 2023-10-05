@@ -16,6 +16,7 @@ Receipt _$ReceiptFromJson(Map<String, dynamic> json) => Receipt(
       invoiceNumberAsString: json['invoiceNumberAsString'] as String,
       creditId: json['creditId'] as int,
       creditNumberAsString: json['creditNumberAsString'] as String,
+      marketplaceId: json['marketplaceId'] as String,
       receiptMarketplaceId: json['receiptMarketplaceId'] as int,
       receiptMarketplaceReference:
           json['receiptMarketplaceReference'] as String,
@@ -82,6 +83,7 @@ Map<String, dynamic> _$ReceiptToJson(Receipt instance) => <String, dynamic>{
       'invoiceNumberAsString': instance.invoiceNumberAsString,
       'creditId': instance.creditId,
       'creditNumberAsString': instance.creditNumberAsString,
+      'marketplaceId': instance.marketplaceId,
       'receiptMarketplaceId': instance.receiptMarketplaceId,
       'receiptMarketplaceReference': instance.receiptMarketplaceReference,
       'paymentMethod': instance.paymentMethod.toJson(),

@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:cezeri_commerce/3_domain/entities/id.dart';
 import 'package:cezeri_helpers/cezeri_helpers.dart';
 import 'package:json_annotation/json_annotation.dart';
@@ -49,6 +50,7 @@ class Receipt {
   final String invoiceNumberAsString;
   final int creditId;
   final String creditNumberAsString;
+  final String marketplaceId; // Id des Marketplace aus der dieses Dokument importiert bzw. erstellt wurde.
   final int receiptMarketplaceId;
   final String receiptMarketplaceReference;
   final PaymentMethod paymentMethod;
@@ -105,6 +107,7 @@ class Receipt {
     required this.invoiceNumberAsString,
     required this.creditId,
     required this.creditNumberAsString,
+    required this.marketplaceId,
     required this.receiptMarketplaceId,
     required this.receiptMarketplaceReference,
     required this.paymentMethod,
@@ -294,6 +297,7 @@ class Receipt {
       invoiceNumberAsString: '',
       creditId: 0,
       creditNumberAsString: '',
+      marketplaceId: marketplace.id,
       receiptMarketplaceId: orderPresta.id,
       receiptMarketplaceReference: orderPresta.reference,
       paymentMethod: getPaymentMethod(),
@@ -356,6 +360,7 @@ class Receipt {
       invoiceNumberAsString: '',
       creditId: 0,
       creditNumberAsString: '',
+      marketplaceId: '',
       receiptMarketplaceId: 0,
       receiptMarketplaceReference: '',
       paymentMethod: PaymentMethod.empty(),
@@ -414,6 +419,7 @@ class Receipt {
     String? invoiceNumberAsString,
     int? creditId,
     String? creditNumberAsString,
+    String? marketplaceId,
     int? receiptMarketplaceId,
     String? receiptMarketplaceReference,
     PaymentMethod? paymentMethod,
@@ -470,6 +476,7 @@ class Receipt {
       invoiceNumberAsString: invoiceNumberAsString ?? this.invoiceNumberAsString,
       creditId: creditId ?? this.creditId,
       creditNumberAsString: creditNumberAsString ?? this.creditNumberAsString,
+      marketplaceId: marketplaceId ?? this.marketplaceId,
       receiptMarketplaceId: receiptMarketplaceId ?? this.receiptMarketplaceId,
       receiptMarketplaceReference: receiptMarketplaceReference ?? this.receiptMarketplaceReference,
       paymentMethod: paymentMethod ?? this.paymentMethod,
@@ -520,6 +527,6 @@ class Receipt {
 
   @override
   String toString() {
-    return 'Receipt(receiptId: $receiptId, offerId: $offerId, offerNumberAsString: $offerNumberAsString, appointmentId: $appointmentId, appointmentNumberAsString: $appointmentNumberAsString, invoiceId: $invoiceId, invoiceNumberAsString: $invoiceNumberAsString, creditId: $creditId, creditNumberAsString: $creditNumberAsString, receiptMarketplaceId: $receiptMarketplaceId, receiptMarketplaceReference: $receiptMarketplaceReference, paymentMethod: $paymentMethod, commentInternal: $commentInternal, commentGlobal: $commentGlobal, currency: $currency, receiptDocumentText: $receiptDocumentText, uidNumber: $uidNumber, searchField: $searchField, customer: $customer, receiptTyp: $receiptTyp, offerStatus: $offerStatus, receiptStatus: $receiptStatus, paymentStatus: $paymentStatus, tax: $tax, termOfPayment: $termOfPayment, totalGross: $totalGross, totalNet: $totalNet, totalTax: $totalTax, subTotalNet: $subTotalNet, subTotalTax: $subTotalTax, subTotalGross: $subTotalGross, totalPaidGross: $totalPaidGross, totalPaidNet: $totalPaidNet, totalPaidTax: $totalPaidTax, totalShippingGross: $totalShippingGross, totalShippingNet: $totalShippingNet, totalShippingTax: $totalShippingTax, totalWrappingGross: $totalWrappingGross, totalWrappingNet: $totalWrappingNet, totalWrappingTax: $totalWrappingTax, discountGross: $discountGross, discountNet: $discountNet, discountPercent: $discountPercent, profit: $profit, profitExclShipping: $profitExclShipping, profitExclWrapping: $profitExclWrapping, profitExclShippingAndWrapping: $profitExclShippingAndWrapping, bankDetails: $bankDetails, listOfPayments: $listOfPayments, listOfReceiptProduct: $listOfReceiptProduct, creationDateMarektplace: $creationDateMarektplace, creationDate: $creationDate, creationDateInt: $creationDateInt, lastEditingDate: $lastEditingDate)';
+    return 'Receipt(receiptId: $receiptId, offerId: $offerId, offerNumberAsString: $offerNumberAsString, appointmentId: $appointmentId, appointmentNumberAsString: $appointmentNumberAsString, invoiceId: $invoiceId, invoiceNumberAsString: $invoiceNumberAsString, creditId: $creditId, creditNumberAsString: $creditNumberAsString, marketplaceId: $marketplaceId, receiptMarketplaceId: $receiptMarketplaceId, receiptMarketplaceReference: $receiptMarketplaceReference, paymentMethod: $paymentMethod, commentInternal: $commentInternal, commentGlobal: $commentGlobal, currency: $currency, receiptDocumentText: $receiptDocumentText, uidNumber: $uidNumber, searchField: $searchField, customer: $customer, receiptTyp: $receiptTyp, offerStatus: $offerStatus, receiptStatus: $receiptStatus, paymentStatus: $paymentStatus, tax: $tax, termOfPayment: $termOfPayment, totalGross: $totalGross, totalNet: $totalNet, totalTax: $totalTax, subTotalNet: $subTotalNet, subTotalTax: $subTotalTax, subTotalGross: $subTotalGross, totalPaidGross: $totalPaidGross, totalPaidNet: $totalPaidNet, totalPaidTax: $totalPaidTax, totalShippingGross: $totalShippingGross, totalShippingNet: $totalShippingNet, totalShippingTax: $totalShippingTax, totalWrappingGross: $totalWrappingGross, totalWrappingNet: $totalWrappingNet, totalWrappingTax: $totalWrappingTax, discountGross: $discountGross, discountNet: $discountNet, discountPercent: $discountPercent, profit: $profit, profitExclShipping: $profitExclShipping, profitExclWrapping: $profitExclWrapping, profitExclShippingAndWrapping: $profitExclShippingAndWrapping, bankDetails: $bankDetails, listOfPayments: $listOfPayments, listOfReceiptProduct: $listOfReceiptProduct, creationDateMarektplace: $creationDateMarektplace, creationDate: $creationDate, creationDateInt: $creationDateInt, lastEditingDate: $lastEditingDate)';
   }
 }
