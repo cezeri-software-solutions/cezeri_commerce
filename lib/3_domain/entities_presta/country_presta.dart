@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:cezeri_helpers/cezeri_helpers.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'country_presta.g.dart';
@@ -46,6 +47,7 @@ class CountryPresta {
   final String zipCodeFormat;
   @JsonKey(name: 'display_tax_label')
   final String displayTaxLabel;
+  @JsonKey(fromJson: _nameFromJson)
   final String name;
 
   const CountryPresta({
@@ -62,6 +64,16 @@ class CountryPresta {
     required this.displayTaxLabel,
     required this.name,
   });
+
+  static String _nameFromJson(dynamic name) {
+    if (name is List) {
+      final List<String> values = name.map((e) => e['value'] as String).toList();
+      final countries = Country.countryList.map((e) => e.name).toList();
+      final toReturnValue = values.firstWhere((e) => countries.contains(e), orElse: () => '');
+      return toReturnValue;
+    }
+    return name as String;
+  }
 
   factory CountryPresta.fromJson(Map<String, dynamic> json) => _$CountryPrestaFromJson(json);
   Map<String, dynamic> toJson() => _$CountryPrestaToJson(this);

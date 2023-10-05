@@ -59,7 +59,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
         allOrderIds.sort((a, b) => a.compareTo(b));
 
         listOfOrderPresta = await api.getOrdersFilterIdInterval(marketplace.marketplaceSettings.nextIdToImport, allOrderIds.last);
-        
+
         for (final orderPresta in listOfOrderPresta) {
           final docRefReceipt = db.collection(currentUserUid).doc(currentUserUid).collection('Appointments').where(
                 'receiptMarketplaceId',
@@ -164,7 +164,35 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
   }
 
   @override
-  Future<Either<FirebaseFailure, List<Receipt>>> getListOfAppointments() async {
+  Future<Either<FirebaseFailure, List<Receipt>>> getListOfOpenAppointments() async {
+    final isConnected = await checkInternetConnection();
+    if (!isConnected) return left(NoConnectionFailure());
+
+    final currentUserUid = firebaseAuth.currentUser!.uid;
+    final docRef =
+        db.collection(currentUserUid).doc(currentUserUid).collection('Appointments').where('receiptStatus', isEqualTo: ReceiptStatus.open.name);
+
+    try {
+      final listOfAppointments = await docRef.get().then(
+            (value) => value.docs.map((querySnapshot) => Receipt.fromJson(querySnapshot.data())).toList(),
+          );
+
+      //* Zum hinzufügen von neuen Attributen.
+      // for (final marketplace in listOfAppointments) {
+      //   final docRefMp = db.collection(currentUserUid).doc(currentUserUid).collection('Marketetplaces').doc(marketplace.id);
+      //   final updatedMp = marketplace.copyWith(marketplaceSettings: AppointmentSettings.empty());
+      //   await docRefMp.update(updatedMp.toJson());
+      // }
+
+      if (listOfAppointments.isEmpty) return left(EmptyFailure());
+      return right(listOfAppointments);
+    } on FirebaseException {
+      return left(GeneralFailure());
+    }
+  }
+
+  @override
+  Future<Either<FirebaseFailure, List<Receipt>>> getListOfAllAppointments() async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
 

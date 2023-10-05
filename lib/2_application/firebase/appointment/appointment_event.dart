@@ -7,6 +7,8 @@ class SetAppointmentStateToInitialEvent extends AppointmentEvent {}
 
 class GetAllAppointmentsEvent extends AppointmentEvent {}
 
+class GetOpenAppointmentsEvent extends AppointmentEvent {}
+
 class GetNewAppointmentsFromPrestaEvent extends AppointmentEvent {}
 
 class DeleteSelectedAppointmentsEvent extends AppointmentEvent {
@@ -28,6 +30,12 @@ class SetAppointmentIsExpandedEvent extends AppointmentEvent {
   final int index;
 
   SetAppointmentIsExpandedEvent({required this.index});
+}
+
+class OnAllAppointmentSelectedEvent extends AppointmentEvent {
+  final bool isSelected;
+
+  OnAllAppointmentSelectedEvent({required this.isSelected});
 }
 
 class OnAppointmentSelectedEvent extends AppointmentEvent {

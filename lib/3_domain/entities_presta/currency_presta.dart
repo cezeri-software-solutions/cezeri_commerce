@@ -27,8 +27,10 @@ class CurrencyPresta {
   static const _encoder = JsonEncoder.withIndent('  ');
 
   final int id;
+  @JsonKey(fromJson: _namesFromJson)
   final String names;
   final String name;
+  @JsonKey(fromJson: _symbolFromJson)
   final String symbol;
   @JsonKey(name: 'iso_code')
   final String isoCode;
@@ -41,6 +43,7 @@ class CurrencyPresta {
   final String active;
   final String unofficial;
   final String modified;
+  @JsonKey(fromJson: _patternFromJson)
   final String pattern;
 
   const CurrencyPresta({
@@ -58,6 +61,27 @@ class CurrencyPresta {
     required this.modified,
     required this.pattern,
   });
+
+  static String _namesFromJson(dynamic names) {
+    if (names is List) {
+      return (names).map((e) => e['value']).toList().first as String;
+    }
+    return names as String;
+  }
+
+  static String _symbolFromJson(dynamic symbol) {
+    if (symbol is List) {
+      return (symbol).map((e) => e['value']).toList().first as String;
+    }
+    return symbol as String;
+  }
+
+  static String _patternFromJson(dynamic pattern) {
+    if (pattern is List) {
+      return (pattern).map((e) => e['value']).toList().first as String;
+    }
+    return pattern as String;
+  }
 
   factory CurrencyPresta.fromJson(Map<String, dynamic> json) => _$CurrencyPrestaFromJson(json);
   Map<String, dynamic> toJson() => _$CurrencyPrestaToJson(this);

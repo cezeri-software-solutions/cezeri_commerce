@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -46,6 +48,25 @@ class _AppointmentsOverviewPageState extends State<AppointmentsOverviewPage> {
             itemCount: state.listOfFilteredAppointments!.length,
             itemBuilder: (context, index) {
               final curAppointment = state.listOfFilteredAppointments![index];
+              if (index == 0) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Checkbox.adaptive(
+                      value: state.selectAllAppointments,
+                      onChanged: (value) => widget.appointmentBloc.add(
+                        OnAllAppointmentSelectedEvent(isSelected: value!),
+                      ),
+                    ),
+                    const Divider(),
+                    _AppointmentContainer(
+                      appointment: curAppointment,
+                      index: index,
+                      appointmentBloc: widget.appointmentBloc,
+                    ),
+                  ],
+                );
+              }
               return _AppointmentContainer(
                 appointment: curAppointment,
                 index: index,
@@ -91,29 +112,38 @@ class __AppointmentContainerState extends State<_AppointmentContainer> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Checkbox(
+                  Checkbox.adaptive(
                     value: state.selectedAppointments.any((e) => e.receiptId == widget.appointment.receiptId),
                     onChanged: (_) => widget.appointmentBloc.add(OnAppointmentSelectedEvent(appointment: widget.appointment)),
                   ),
-                  Column(
-                    children: [
-                      widget.appointment.listOfReceiptProduct.length > 1
-                          ? Container(
-                              height: 20,
-                              width: 20,
-                              decoration: const BoxDecoration(
-                                color: CustomColors.backgroundLightGreen,
-                                borderRadius: BorderRadius.all(Radius.circular(20)),
+                  SizedBox(
+                    width: 60,
+                    child: Column(
+                      children: [
+                        widget.appointment.listOfReceiptProduct.length > 1
+                            ? Container(
+                                height: 20,
+                                width: 20,
+                                decoration: const BoxDecoration(
+                                  color: CustomColors.backgroundLightGreen,
+                                  borderRadius: BorderRadius.all(Radius.circular(20)),
+                                ),
+                                child: Center(child: Text(widget.appointment.listOfReceiptProduct.length.toString())),
+                              )
+                            : const SizedBox(),
+                        Gaps.h10,
+                        IconButton(
+                          onPressed: () => widget.appointmentBloc.add(SetAppointmentIsExpandedEvent(index: widget.index)),
+                          icon: switch (state.isExpanded[widget.index]) {
+                            true => const Icon(Icons.arrow_drop_down_circle, size: 30, color: CustomColors.primaryColor),
+                            false => Transform.rotate(
+                                angle: -pi / 2,
+                                child: const Icon(Icons.arrow_drop_down_circle, size: 30, color: Colors.grey, grade: 25),
                               ),
-                              child: Center(child: Text(widget.appointment.listOfReceiptProduct.length.toString())),
-                            )
-                          : const SizedBox(),
-                      Gaps.h10,
-                      IconButton(
-                        onPressed: () => widget.appointmentBloc.add(SetAppointmentIsExpandedEvent(index: widget.index)),
-                        icon: const Icon(Icons.arrow_drop_down_circle, size: 30, color: Colors.grey),
-                      ),
-                    ],
+                          },
+                        ),
+                      ],
+                    ),
                   ),
                   SizedBox(
                     width: 150,
@@ -121,6 +151,14 @@ class __AppointmentContainerState extends State<_AppointmentContainer> {
                       children: [
                         TextButton(onPressed: () {}, child: Text('Auftrag ${widget.appointment.appointmentId}')),
                         Text(DateFormat('dd.MM.yyy', 'de').format(widget.appointment.creationDate)),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(Icons.watch_later_outlined, size: 16),
+                            const Text(' '),
+                            Text(DateFormat('Hm', 'de').format(widget.appointment.creationDate)),
+                          ],
+                        ),
                         Text('${widget.appointment.totalGross.toMyCurrency()} €', style: TextStyles.defaultBold)
                       ],
                     ),
@@ -156,8 +194,16 @@ class __AppointmentContainerState extends State<_AppointmentContainer> {
                     width: 120,
                     child: Column(
                       children: [
-                        const MyAvatar(name: 'P S', radius: 15, fontSize: 12), // TODO: Marketplace mit an dieses widget übergeben
+                        const MyAvatar(name: 'PS', radius: 15, fontSize: 12), // TODO: Marketplace mit an dieses widget übergeben
                         Text(DateFormat('dd.MM.yyy', 'de').format(widget.appointment.creationDateMarektplace)),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(Icons.watch_later_outlined, size: 16),
+                            const Text(' '),
+                            Text(DateFormat('Hm', 'de').format(widget.appointment.creationDateMarektplace)),
+                          ],
+                        ),
                         Text(widget.appointment.receiptMarketplaceReference),
                       ],
                     ),
@@ -280,7 +326,7 @@ class _AppointmentProdcutsContainer extends StatelessWidget {
         const Spacer(),
         Expanded(flex: RowWidths.articleNumber, child: Text(appointmentProduct.articleNumber, overflow: TextOverflow.ellipsis)),
         const Spacer(),
-        Expanded(flex: RowWidths.ean, child: Text(appointmentProduct.ean)),
+        Expanded(flex: RowWidths.ean, child: Text(appointmentProduct.ean, overflow: TextOverflow.ellipsis)),
         const Spacer(),
         Expanded(flex: RowWidths.articleName, child: Text(appointmentProduct.name, overflow: TextOverflow.ellipsis)),
         const Spacer(),

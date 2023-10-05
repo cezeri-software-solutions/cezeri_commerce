@@ -31,7 +31,7 @@ CountryPresta _$CountryPrestaFromJson(Map<String, dynamic> json) =>
       needZipCode: json['need_zip_code'] as String,
       zipCodeFormat: json['zip_code_format'] as String,
       displayTaxLabel: json['display_tax_label'] as String,
-      name: json['name'] as String,
+      name: CountryPresta._nameFromJson(json['name']),
     );
 
 Map<String, dynamic> _$CountryPrestaToJson(CountryPresta instance) =>

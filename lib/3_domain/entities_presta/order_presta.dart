@@ -113,9 +113,9 @@ class OrderPresta {
   final String conversionRate;
   final String reference;
   @JsonKey(name: 'crn_invoice_number')
-  final String crnInvoiceNumber;
+  final String? crnInvoiceNumber;
   @JsonKey(name: 'crn_delivery_number')
-  final String crnDeliveryNumber;
+  final String? crnDeliveryNumber;
   final Associations? associations;
 
   OrderPresta({
@@ -166,8 +166,8 @@ class OrderPresta {
     required this.roundType,
     required this.conversionRate,
     required this.reference,
-    required this.crnInvoiceNumber,
-    required this.crnDeliveryNumber,
+    this.crnInvoiceNumber,
+    this.crnDeliveryNumber,
     this.associations,
   });
 

@@ -22,6 +22,7 @@ class AppointmentState {
   final Option<Either<FirebaseFailure, Unit>> fosAppointmentOnDeleteOption;
 
   //* --- helper --- *//
+  final bool selectAllAppointments;
   final List<bool> isExpanded;
   final String appointmentSearchText;
 
@@ -44,6 +45,7 @@ class AppointmentState {
     required this.fosAppointmentOnCreateOption,
     required this.fosAppointmentOnUpdateOption,
     required this.fosAppointmentOnDeleteOption,
+    required this.selectAllAppointments,
     required this.isExpanded,
     required this.appointmentSearchText,
   });
@@ -67,6 +69,7 @@ class AppointmentState {
         fosAppointmentOnCreateOption: none(),
         fosAppointmentOnUpdateOption: none(),
         fosAppointmentOnDeleteOption: none(),
+        selectAllAppointments: false,
         isExpanded: const [],
         appointmentSearchText: '',
       );
@@ -90,6 +93,7 @@ class AppointmentState {
     Option<Either<FirebaseFailure, Receipt>>? fosAppointmentOnCreateOption,
     Option<Either<FirebaseFailure, Receipt>>? fosAppointmentOnUpdateOption,
     Option<Either<FirebaseFailure, Unit>>? fosAppointmentOnDeleteOption,
+    bool? selectAllAppointments,
     List<bool>? isExpanded,
     String? appointmentSearchText,
   }) {
@@ -112,6 +116,7 @@ class AppointmentState {
       fosAppointmentOnCreateOption: fosAppointmentOnCreateOption ?? this.fosAppointmentOnCreateOption,
       fosAppointmentOnUpdateOption: fosAppointmentOnUpdateOption ?? this.fosAppointmentOnUpdateOption,
       fosAppointmentOnDeleteOption: fosAppointmentOnDeleteOption ?? this.fosAppointmentOnDeleteOption,
+      selectAllAppointments: selectAllAppointments ?? this.selectAllAppointments,
       isExpanded: isExpanded ?? this.isExpanded,
       appointmentSearchText: appointmentSearchText ?? this.appointmentSearchText,
     );

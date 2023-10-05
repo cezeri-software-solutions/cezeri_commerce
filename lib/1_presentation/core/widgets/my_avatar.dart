@@ -114,7 +114,7 @@ class _MyCircularAvatarInitials extends StatelessWidget {
         radius: radius,
         backgroundColor: CustomColors.avatarBackgroundColor,
         child: Text(
-          getInitials(name),
+          name.length > 3 ? getInitials(name) : name,
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: fontSize, color: Colors.white),
         ),
       ),

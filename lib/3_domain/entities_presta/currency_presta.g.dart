@@ -21,9 +21,9 @@ Map<String, dynamic> _$CurrenciesPrestaToJson(CurrenciesPresta instance) =>
 CurrencyPresta _$CurrencyPrestaFromJson(Map<String, dynamic> json) =>
     CurrencyPresta(
       id: json['id'] as int,
-      names: json['names'] as String,
+      names: CurrencyPresta._namesFromJson(json['names']),
       name: json['name'] as String,
-      symbol: json['symbol'] as String,
+      symbol: CurrencyPresta._symbolFromJson(json['symbol']),
       isoCode: json['iso_code'] as String,
       numericIsoCode: json['numeric_iso_code'] as String,
       precision: json['precision'] as String,
@@ -32,7 +32,7 @@ CurrencyPresta _$CurrencyPrestaFromJson(Map<String, dynamic> json) =>
       active: json['active'] as String,
       unofficial: json['unofficial'] as String,
       modified: json['modified'] as String,
-      pattern: json['pattern'] as String,
+      pattern: CurrencyPresta._patternFromJson(json['pattern']),
     );
 
 Map<String, dynamic> _$CurrencyPrestaToJson(CurrencyPresta instance) =>

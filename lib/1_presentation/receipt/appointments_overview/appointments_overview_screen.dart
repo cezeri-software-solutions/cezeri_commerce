@@ -130,6 +130,15 @@ class AppointmentsOverviewScreen extends StatelessWidget {
                       },
                     ),
                   ),
+                  DefaultTabController(
+                    length: 2,
+                    child: TabBar(
+                      tabs: const [Tab(text: 'Offen'), Tab(text: 'Alle')],
+                      labelStyle: const TextStyle(fontWeight: FontWeight.bold),
+                      unselectedLabelStyle: const TextStyle(),
+                      onTap: (value) => value == 0 ? appointmentBloc.add(GetOpenAppointmentsEvent()) : appointmentBloc.add(GetAllAppointmentsEvent()),
+                    ),
+                  ),
                   AppointmentsOverviewPage(appointmentBloc: appointmentBloc),
                 ],
               ),

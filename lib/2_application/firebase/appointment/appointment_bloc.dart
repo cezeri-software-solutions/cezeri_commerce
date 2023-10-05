@@ -24,7 +24,34 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
     on<GetAllAppointmentsEvent>((event, emit) async {
       emit(state.copyWith(isLoadingAppointmentsOnObserve: true));
 
-      final failureOrSuccess = await receiptRepository.getListOfAppointments();
+      final failureOrSuccess = await receiptRepository.getListOfAllAppointments();
+      failureOrSuccess.fold(
+        (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
+        (listOfAppointments) {
+          listOfAppointments.sort((a, b) => b.appointmentId.compareTo(a.appointmentId));
+          emit(state.copyWith(
+            listOfAllAppointments: listOfAppointments,
+            isExpanded: List<bool>.filled(listOfAppointments.length, false),
+            firebaseFailure: null,
+            isAnyFailure: false,
+          ));
+        },
+      );
+
+      add(OnSearchFieldSubmittedAppointmentsEvent());
+
+      emit(state.copyWith(
+        isLoadingAppointmentsOnObserve: false,
+        fosAppointmentsOnObserveOption: optionOf(failureOrSuccess),
+      ));
+    });
+
+//? #########################################################################
+
+    on<GetOpenAppointmentsEvent>((event, emit) async {
+      emit(state.copyWith(isLoadingAppointmentsOnObserve: true));
+
+      final failureOrSuccess = await receiptRepository.getListOfOpenAppointments();
       failureOrSuccess.fold(
         (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
         (listOfAppointments) {
@@ -123,6 +150,18 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
             .toList()
       };
       emit(state.copyWith(listOfFilteredAppointments: listOfAppointments));
+    });
+
+//? #########################################################################
+
+    on<OnAllAppointmentSelectedEvent>((event, emit) async {
+      List<Receipt> appointments = [];
+      bool isSelectedAll = false;
+      if (event.isSelected) {
+        isSelectedAll = true;
+        appointments = List.from(state.listOfFilteredAppointments!);
+      }
+      emit(state.copyWith(selectAllAppointments: isSelectedAll, selectedAppointments: appointments));
     });
 
 //? #########################################################################

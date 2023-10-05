@@ -65,8 +65,8 @@ OrderPresta _$OrderPrestaFromJson(Map<String, dynamic> json) => OrderPresta(
       roundType: json['round_type'] as String,
       conversionRate: json['conversion_rate'] as String,
       reference: json['reference'] as String,
-      crnInvoiceNumber: json['crn_invoice_number'] as String,
-      crnDeliveryNumber: json['crn_delivery_number'] as String,
+      crnInvoiceNumber: json['crn_invoice_number'] as String?,
+      crnDeliveryNumber: json['crn_delivery_number'] as String?,
       associations: json['associations'] == null
           ? null
           : Associations.fromJson(json['associations'] as Map<String, dynamic>),
