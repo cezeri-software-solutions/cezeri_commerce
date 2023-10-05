@@ -1,7 +1,14 @@
+import 'dart:io';
+
+import 'package:cezeri_commerce/1_presentation/core/widgets/my_avatar.dart';
 import 'package:cezeri_commerce/1_presentation/core/widgets/my_outlined_button.dart';
 import 'package:cezeri_commerce/1_presentation/core/widgets/my_text_form_field.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:logger/logger.dart';
 
 import '../../../../2_application/firebase/marketplace/marketplace_bloc.dart';
 import '../../../../3_domain/entities/marketplace/marketplace.dart';
@@ -22,6 +29,7 @@ class AddEditMarketplace extends StatefulWidget {
 
 class _AddEditMarketplaceState extends State<AddEditMarketplace> {
   bool _isActive = false;
+  File? _imageFile;
 
   late TextEditingController _nameController;
   late TextEditingController _shortNameController;
@@ -69,6 +77,19 @@ class _AddEditMarketplaceState extends State<AddEditMarketplace> {
               child: Column(
                 children: [
                   Gaps.h10,
+                  SizedBox(
+                    height: 200,
+                    child: MyAvatar(
+                      name: _shortNameController.text,
+                      file: _imageFile,
+                      radius: 100,
+                      shape: BoxShape.rectangle,
+                      fit: BoxFit.scaleDown,
+                      fontSize: 60,
+                      imageUrl: widget.marketplace?.logoUrl,
+                      onTap: () async => await _pickFile(ImageSource.gallery),
+                    ),
+                  ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -146,10 +167,10 @@ class _AddEditMarketplaceState extends State<AddEditMarketplace> {
                           shopSuffix: _shopSuffixController.text,
                           fullUrl: _endpointUrlController.text + _urlController.text + _shopSuffixController.text,
                           lastEditingDate: DateTime.now(),
-                          marketplaceSettings: widget.marketplace!.marketplaceSettings
-                              .copyWith(nextIdToImport: int.parse(_nextIdToImportController.text)),
+                          marketplaceSettings:
+                              widget.marketplace!.marketplaceSettings.copyWith(nextIdToImport: int.parse(_nextIdToImportController.text)),
                         );
-                        context.read<MarketplaceBloc>().add(UpdateMarketplaceEvent(marketplace: updatedMarketplace));
+                        context.read<MarketplaceBloc>().add(UpdateMarketplaceEvent(marketplace: updatedMarketplace, imageFile: _imageFile));
                       } else {
                         final newMarketplace = Marketplace.empty().copyWith(
                           name: _nameController.text,
@@ -163,7 +184,7 @@ class _AddEditMarketplaceState extends State<AddEditMarketplace> {
                           lastEditingDate: DateTime.now(),
                           createnDate: DateTime.now(),
                         );
-                        context.read<MarketplaceBloc>().add(CreateMarketplaceEvent(marketplace: newMarketplace));
+                        context.read<MarketplaceBloc>().add(CreateMarketplaceEvent(marketplace: newMarketplace, imageFile: _imageFile));
                       }
                     },
                   ),
@@ -185,5 +206,17 @@ class _AddEditMarketplaceState extends State<AddEditMarketplace> {
         );
       },
     );
+  }
+
+  Future<void> _pickFile(ImageSource imageSource) async {
+    final logger = Logger();
+    try {
+      final FilePickerResult? result = await FilePicker.platform.pickFiles();
+      if (result == null) return;
+
+      setState(() => _imageFile = File(result.files.single.path!));
+    } on PlatformException catch (e) {
+      logger.e('Fehler: $e');
+    }
   }
 }

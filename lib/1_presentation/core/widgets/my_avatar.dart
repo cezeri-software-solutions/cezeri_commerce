@@ -63,7 +63,7 @@ class MyAvatar extends StatelessWidget {
       child: CachedNetworkImage(
         imageUrl: imageUrl!,
         imageBuilder: (context, imageProvider) => Container(
-          width: radius! * 2,
+          width: shape == BoxShape.rectangle ? null : radius! * 2,
           height: radius! * 2,
           decoration: BoxDecoration(shape: shape!, image: DecorationImage(image: imageProvider, fit: fit)),
         ),

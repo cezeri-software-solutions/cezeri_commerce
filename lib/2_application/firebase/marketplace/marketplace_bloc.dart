@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:bloc/bloc.dart';
 import 'package:dartz/dartz.dart';
 import 'package:meta/meta.dart';
@@ -59,7 +61,7 @@ class MarketplaceBloc extends Bloc<MarketplaceEvent, MarketplaceState> {
     on<CreateMarketplaceEvent>((event, emit) async {
       emit(state.copyWith(isLoadingMarketplaceOnCreate: true));
 
-      final failureOrSuccess = await marketplaceRepository.createMarketplace(event.marketplace);
+      final failureOrSuccess = await marketplaceRepository.createMarketplace(event.marketplace, event.imageFile);
       failureOrSuccess.fold(
         (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
         (marketplace) => emit(state.copyWith(firebaseFailure: null, isAnyFailure: false)),
@@ -77,7 +79,7 @@ class MarketplaceBloc extends Bloc<MarketplaceEvent, MarketplaceState> {
     on<UpdateMarketplaceEvent>((event, emit) async {
       emit(state.copyWith(isLoadingMarketplaceOnUpdate: true));
 
-      final failureOrSuccess = await marketplaceRepository.updateMarketplace(event.marketplace);
+      final failureOrSuccess = await marketplaceRepository.updateMarketplace(event.marketplace, event.imageFile);
       failureOrSuccess.fold(
         (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
         (unit) => emit(state.copyWith(firebaseFailure: null, isAnyFailure: false)),

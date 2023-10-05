@@ -92,7 +92,16 @@ class _MarktplaceItem extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const SizedBox(width: 20),
-                    const MyAvatar(name: 'P S'),
+                    SizedBox(
+                      width: 120,
+                      child: MyAvatar(
+                        name: marketplace.shortName,
+                        fit: BoxFit.scaleDown,
+                        shape: BoxShape.rectangle,
+                        imageUrl: marketplace.logoUrl,
+                        radius: 60,
+                      ),
+                    ),
                     Badge(backgroundColor: marketplace.isActive ? Colors.green : Colors.grey, smallSize: 20),
                   ],
                 ),
