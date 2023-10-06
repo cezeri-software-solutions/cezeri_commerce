@@ -21,6 +21,25 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
 
 //? #########################################################################
 
+    on<GetAppointmentEvent>((event, emit) async {
+      emit(state.copyWith(isLoadingAppointmentOnObserve: true));
+
+      final failureOrSuccess = await receiptRepository.getAppointment(event.appointment);
+      failureOrSuccess.fold(
+        (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
+        (loadedAppointment) => emit(state.copyWith(appointment: loadedAppointment, firebaseFailure: null, isAnyFailure: false)),
+      );
+
+      add(OnSearchFieldSubmittedAppointmentsEvent());
+
+      emit(state.copyWith(
+        isLoadingAppointmentOnObserve: false,
+        fosAppointmentOnObserveOption: optionOf(failureOrSuccess),
+      ));
+    });
+
+//? #########################################################################
+
     on<GetAllAppointmentsEvent>((event, emit) async {
       emit(state.copyWith(isLoadingAppointmentsOnObserve: true));
 
@@ -101,6 +120,23 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
         fosAppointmentsOnObserveFromPrestaOption: optionOf(failureOrSuccess),
       ));
       emit(state.copyWith(fosAppointmentsOnObserveFromPrestaOption: none()));
+    });
+
+//? #########################################################################
+
+    on<UpdateAppointmentEvent>((event, emit) async {
+      emit(state.copyWith(isLoadingAppointmentOnUpdate: true));
+
+      final failureOrSuccess = await receiptRepository.updateAppointment(event.appointment);
+      failureOrSuccess.fold(
+        (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
+        (unit) => emit(state.copyWith(appointment: event.appointment, firebaseFailure: null, isAnyFailure: false)),
+      );
+
+      emit(state.copyWith(
+        isLoadingAppointmentOnUpdate: false,
+        fosAppointmentOnUpdateOption: optionOf(failureOrSuccess),
+      ));
     });
 
 //? #########################################################################

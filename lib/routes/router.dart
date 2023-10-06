@@ -15,12 +15,13 @@ class AppRouter extends $AppRouter {
         AutoRoute(page: HomeRoute.page, path: '/home'),
         AutoRoute(page: ProductImportRoute.page, path: '/product_import'),
         AutoRoute(page: ProductsOverviewRoute.page, path: '/products_overview'),
-        AutoRoute(page: ProductDetailRoute.page, path: '/products_detail'),
+        AutoRoute(page: ProductDetailRoute.page, path: '/products_overview/products_detail'),
         AutoRoute(page: MarketplaceOverviewRoute.page, path: '/marketplace_overview'),
         AutoRoute(page: MainSettingsRoute.page, path: '/main_settings'),
         AutoRoute(page: TaxRulesRoute.page, path: '/main_settings/tax_rules'),
         AutoRoute(page: PaymentMethodRoute.page, path: '/main_settings/payment_method'),
         AutoRoute(page: AppointmentsOverviewRoute.page, path: '/appointments_overview'),
+        AutoRoute(page: AppointmentDetailRoute.page, path: '/appointments_overview/appointment_detail'),
         //
         AutoRoute(page: MyFullscreenImageRoute.page, path: '/fullscreen_image'),
       ];

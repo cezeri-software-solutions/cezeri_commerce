@@ -1,10 +1,10 @@
 import 'dart:math';
 
+import 'package:auto_route/auto_route.dart';
 import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import 'package:logger/logger.dart';
 
 import '../../../2_application/firebase/appointment/appointment_bloc.dart';
 import '../../../2_application/firebase/marketplace/marketplace_bloc.dart';
@@ -15,8 +15,10 @@ import '../../../3_domain/entities/receipt/receipt_product.dart';
 import '../../../3_domain/enums/enums.dart';
 import '../../../constants.dart';
 import '../../../core/firebase_failures.dart';
+import '../../../routes/router.gr.dart';
 import '../../core/widgets/my_avatar.dart';
 import '../../core/widgets/my_country_flag.dart';
+import '../appointment_detail/appointment_detail_screen.dart';
 
 class AppointmentsOverviewPage extends StatefulWidget {
   final AppointmentBloc appointmentBloc;
@@ -116,7 +118,6 @@ class _AppointmentContainer extends StatefulWidget {
 }
 
 class __AppointmentContainerState extends State<_AppointmentContainer> {
-  final logger = Logger();
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.sizeOf(context).width;
@@ -124,9 +125,6 @@ class __AppointmentContainerState extends State<_AppointmentContainer> {
     final marketplace = widget.listOfMarketplaces.where((e) => e.id == widget.appointment.marketplaceId).first;
     final deliveryAddress = widget.appointment.customer.listOfAddress.where((e) => e.addressType == AddressType.delivery && e.isDefault).first;
     final invoiceAddress = widget.appointment.customer.listOfAddress.where((e) => e.addressType == AddressType.invoice && e.isDefault).first;
-    logger.i(widget.appointment.receiptMarketplaceId);
-    logger.i(widget.appointment.receiptMarketplaceReference);
-    logger.i(widget.appointment.creationDateMarektplace);
     return BlocBuilder<AppointmentBloc, AppointmentState>(
       builder: (context, state) {
         return Container(
@@ -173,7 +171,19 @@ class __AppointmentContainerState extends State<_AppointmentContainer> {
                     width: 150,
                     child: Column(
                       children: [
-                        TextButton(onPressed: () {}, child: Text('Auftrag ${widget.appointment.appointmentId}')),
+                        TextButton(
+                          onPressed: () {
+                            context.read<AppointmentBloc>().add(GetAppointmentEvent(appointment: widget.appointment));
+                            context.router.push(
+                              AppointmentDetailRoute(
+                                appointmentBloc: widget.appointmentBloc,
+                                listOfMarketplaces: widget.listOfMarketplaces,
+                                receiptCreateOrEdit: ReceiptCreateOrEdit.edit,
+                              ),
+                            );
+                          },
+                          child: Text('Auftrag ${widget.appointment.appointmentId}'),
+                        ),
                         Text(DateFormat('dd.MM.yyy', 'de').format(widget.appointment.creationDate)),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,

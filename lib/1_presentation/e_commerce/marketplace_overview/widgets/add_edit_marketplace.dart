@@ -167,8 +167,9 @@ class _AddEditMarketplaceState extends State<AddEditMarketplace> {
                           shopSuffix: _shopSuffixController.text,
                           fullUrl: _endpointUrlController.text + _urlController.text + _shopSuffixController.text,
                           lastEditingDate: DateTime.now(),
-                          marketplaceSettings:
-                              widget.marketplace!.marketplaceSettings.copyWith(nextIdToImport: int.parse(_nextIdToImportController.text)),
+                          marketplaceSettings: widget.marketplace!.marketplaceSettings.copyWith(
+                            nextIdToImport: int.parse(_nextIdToImportController.text),
+                          ),
                         );
                         context.read<MarketplaceBloc>().add(UpdateMarketplaceEvent(marketplace: updatedMarketplace, imageFile: _imageFile));
                       } else {
@@ -183,6 +184,9 @@ class _AddEditMarketplaceState extends State<AddEditMarketplace> {
                           fullUrl: _endpointUrlController.text + _urlController.text + _shopSuffixController.text,
                           lastEditingDate: DateTime.now(),
                           createnDate: DateTime.now(),
+                          marketplaceSettings: widget.marketplace!.marketplaceSettings.copyWith(
+                            nextIdToImport: int.parse(_nextIdToImportController.text),
+                          ),
                         );
                         context.read<MarketplaceBloc>().add(CreateMarketplaceEvent(marketplace: newMarketplace, imageFile: _imageFile));
                       }

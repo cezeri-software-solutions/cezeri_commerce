@@ -33,6 +33,38 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
   });
 
   @override
+  Future<Either<FirebaseFailure, Receipt>> getAppointment(Receipt appointment) async {
+    final isConnected = await checkInternetConnection();
+    if (!isConnected) return left(NoConnectionFailure());
+
+    final currentUserUid = firebaseAuth.currentUser!.uid;
+    final docRef = db.collection(currentUserUid).doc(currentUserUid).collection('Appointments').doc(appointment.receiptId);
+
+    try {
+      final loadedAppointment = await docRef.get();
+      return right(Receipt.fromJson(loadedAppointment.data()!));
+    } on FirebaseException {
+      return left(GeneralFailure());
+    }
+  }
+
+  @override
+  Future<Either<FirebaseFailure, Unit>> updateAppointment(Receipt appointment) async {
+    final isConnected = await checkInternetConnection();
+    if (!isConnected) return left(NoConnectionFailure());
+
+    final currentUserUid = firebaseAuth.currentUser!.uid;
+    final docRef = db.collection(currentUserUid).doc(currentUserUid).collection('Appointments').doc(appointment.receiptId);
+
+    try {
+      await docRef.update(appointment.toJson());
+      return right(unit);
+    } on FirebaseException {
+      return left(GeneralFailure());
+    }
+  }
+
+  @override
   Future<Either<FirebaseFailure, List<Receipt>>> loadNewAppointments() async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
@@ -57,6 +89,9 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
         final orderIdsPresta = await api.getOrderIds();
         final allOrderIds = orderIdsPresta.map((e) => e.id).toList();
         allOrderIds.sort((a, b) => a.compareTo(b));
+        logger.i(allOrderIds);
+        logger.i('nextIdToImport: ${marketplace.marketplaceSettings.nextIdToImport}');
+        logger.i('allOrderIds: ${allOrderIds.last}');
 
         listOfOrderPresta = await api.getOrdersFilterIdInterval(marketplace.marketplaceSettings.nextIdToImport, allOrderIds.last);
 
@@ -65,9 +100,9 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
                 'receiptMarketplaceId',
                 isEqualTo: orderPresta.id,
               );
-          final productListFirestore =
+          final appointmentListFirestore =
               await docRefReceipt.get().then((value) => value.docs.map((querySnapshot) => Receipt.fromJson(querySnapshot.data())).toList());
-          if (productListFirestore.isNotEmpty) continue;
+          if (appointmentListFirestore.isNotEmpty) continue;
 
           final dsMainSettings = await docRefMainSettings.get();
           final mainSettings = MainSettings.fromJson(dsMainSettings.data()!);

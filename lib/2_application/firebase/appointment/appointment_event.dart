@@ -5,11 +5,23 @@ abstract class AppointmentEvent {}
 
 class SetAppointmentStateToInitialEvent extends AppointmentEvent {}
 
+class GetAppointmentEvent extends AppointmentEvent {
+  final Receipt appointment;
+
+  GetAppointmentEvent({required this.appointment});
+}
+
 class GetAllAppointmentsEvent extends AppointmentEvent {}
 
 class GetOpenAppointmentsEvent extends AppointmentEvent {}
 
 class GetNewAppointmentsFromPrestaEvent extends AppointmentEvent {}
+
+class UpdateAppointmentEvent extends AppointmentEvent {
+  final Receipt appointment;
+
+  UpdateAppointmentEvent({required this.appointment});
+}
 
 class DeleteSelectedAppointmentsEvent extends AppointmentEvent {
   final List<Receipt> selectedAppointments;

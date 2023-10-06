@@ -18,7 +18,7 @@ class AppointmentState {
   final Option<Either<FirebaseFailure, List<Receipt>>> fosAppointmentsOnObserveOption;
   final Option<Either<FirebaseFailure, List<Receipt>>> fosAppointmentsOnObserveFromPrestaOption;
   final Option<Either<FirebaseFailure, Receipt>> fosAppointmentOnCreateOption;
-  final Option<Either<FirebaseFailure, Receipt>> fosAppointmentOnUpdateOption;
+  final Option<Either<FirebaseFailure, Unit>> fosAppointmentOnUpdateOption;
   final Option<Either<FirebaseFailure, Unit>> fosAppointmentOnDeleteOption;
 
   //* --- helper --- *//
@@ -91,7 +91,7 @@ class AppointmentState {
     Option<Either<FirebaseFailure, List<Receipt>>>? fosAppointmentsOnObserveOption,
     Option<Either<FirebaseFailure, List<Receipt>>>? fosAppointmentsOnObserveFromPrestaOption,
     Option<Either<FirebaseFailure, Receipt>>? fosAppointmentOnCreateOption,
-    Option<Either<FirebaseFailure, Receipt>>? fosAppointmentOnUpdateOption,
+    Option<Either<FirebaseFailure, Unit>>? fosAppointmentOnUpdateOption,
     Option<Either<FirebaseFailure, Unit>>? fosAppointmentOnDeleteOption,
     bool? selectAllAppointments,
     List<bool>? isExpanded,
