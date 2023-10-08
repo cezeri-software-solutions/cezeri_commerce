@@ -89,9 +89,6 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
         final orderIdsPresta = await api.getOrderIds();
         final allOrderIds = orderIdsPresta.map((e) => e.id).toList();
         allOrderIds.sort((a, b) => a.compareTo(b));
-        logger.i(allOrderIds);
-        logger.i('nextIdToImport: ${marketplace.marketplaceSettings.nextIdToImport}');
-        logger.i('allOrderIds: ${allOrderIds.last}');
 
         listOfOrderPresta = await api.getOrdersFilterIdInterval(marketplace.marketplaceSettings.nextIdToImport, allOrderIds.last);
 
