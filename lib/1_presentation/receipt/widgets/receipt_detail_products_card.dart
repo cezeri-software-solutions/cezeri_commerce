@@ -1,0 +1,353 @@
+import 'package:auto_route/auto_route.dart';
+import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.dart';
+import 'package:cezeri_commerce/3_domain/entities/receipt/receipt_product.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../../../2_application/firebase/appointment/appointment_bloc.dart';
+import '../../../2_application/firebase/product/product_bloc.dart';
+import '../../../2_application/firebase/receipt_detail/receipt_detail_bloc.dart';
+import '../../../3_domain/entities/product/product.dart';
+import '../../../constants.dart';
+import '../../../injection.dart';
+import '../../core/widgets/my_avatar.dart';
+
+class ReceiptDetailProductsCard extends StatefulWidget {
+  final AppointmentBloc appointmentBloc;
+  final ReceiptDetailBloc receiptDetailBloc;
+
+  const ReceiptDetailProductsCard({super.key, required this.appointmentBloc, required this.receiptDetailBloc});
+
+  @override
+  State<ReceiptDetailProductsCard> createState() => _ReceiptDetailProductsCardState();
+}
+
+class _ReceiptDetailProductsCardState extends State<ReceiptDetailProductsCard> {
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<ReceiptDetailBloc, ReceiptDetailState>(
+      bloc: widget.receiptDetailBloc,
+      builder: (context, state) {
+        return Card(
+          child: Padding(
+            padding: const EdgeInsets.all(8),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    const Expanded(
+                      flex: RowWidthsRDP.articleNumber,
+                      child: Text('Artikelnr.', style: TextStyles.s12Bold),
+                    ),
+                    Gaps.w8,
+                    const Expanded(
+                      flex: RowWidthsRDP.articleName,
+                      child: Text('Name', style: TextStyles.s12Bold),
+                    ),
+                    Gaps.w8,
+                    const Expanded(
+                      flex: RowWidthsRDP.tax,
+                      child: Text('Steuer', style: TextStyles.s12Bold),
+                    ),
+                    Gaps.w8,
+                    const Expanded(
+                      flex: RowWidthsRDP.quantity,
+                      child: Text('Menge', style: TextStyles.s12Bold),
+                    ),
+                    Gaps.w8,
+                    const Expanded(
+                      flex: RowWidthsRDP.unitPriceNet,
+                      child: Text('Netto Stk.', style: TextStyles.s12Bold),
+                    ),
+                    Gaps.w8,
+                    const Expanded(
+                      flex: RowWidthsRDP.discountGrossUnit,
+                      child: Text('Rabatt %', style: TextStyles.s12Bold),
+                    ),
+                    Gaps.w8,
+                    const Expanded(
+                      flex: RowWidthsRDP.unitPriceGross,
+                      child: Text('Brutto Stk.', style: TextStyles.s12Bold),
+                    ),
+                    Gaps.w8,
+                    const Expanded(
+                      flex: RowWidthsRDP.totalPriceGross,
+                      child: Text('Gesamt Brutto', style: TextStyles.s12Bold),
+                    ),
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(maxHeight: 28),
+                      child: const IconButton(
+                        onPressed: null,
+                        padding: EdgeInsets.zero,
+                        splashRadius: 0.0001,
+                        constraints: BoxConstraints(),
+                        icon: Icon(Icons.delete, color: Colors.transparent),
+                      ),
+                    ),
+                  ],
+                ),
+                Gaps.h8,
+                ListView.builder(
+                  physics: const NeverScrollableScrollPhysics(),
+                  shrinkWrap: true,
+                  itemCount: state.listOfReceiptProducts.length,
+                  itemBuilder: (context, index) {
+                    final receiptProduct = state.listOfReceiptProducts[index];
+                    return Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              flex: RowWidthsRDP.articleNumber,
+                              child: ConstrainedBox(
+                                constraints: const BoxConstraints(maxHeight: 28),
+                                child: CupertinoTextField(
+                                  readOnly: !state.isEditable[index],
+                                  placeholder: receiptProduct.articleNumber,
+                                  placeholderStyle: TextStyles.s12,
+                                  controller: state.articleNumberControllers[index],
+                                  style: TextStyles.s12,
+                                ),
+                              ),
+                            ),
+                            Gaps.w8,
+                            Expanded(
+                              flex: RowWidthsRDP.articleName,
+                              child: ConstrainedBox(
+                                constraints: const BoxConstraints(maxHeight: 28),
+                                child: CupertinoTextField(
+                                  readOnly: !state.isEditable[index],
+                                  controller: state.articleNameControllers[index],
+                                  style: TextStyles.s12,
+                                ),
+                              ),
+                            ),
+                            Gaps.w8,
+                            Expanded(
+                              flex: RowWidthsRDP.tax,
+                              child: ConstrainedBox(
+                                constraints: const BoxConstraints(maxHeight: 28),
+                                child: CupertinoTextField(
+                                  readOnly: true,
+                                  placeholder: state.listOfReceiptProducts[index].tax.taxName,
+                                  placeholderStyle: TextStyles.s12,
+                                ),
+                              ),
+                            ),
+                            Gaps.w8,
+                            Expanded(
+                              flex: RowWidthsRDP.quantity,
+                              child: ConstrainedBox(
+                                constraints: const BoxConstraints(maxHeight: 28),
+                                child: CupertinoTextField(
+                                    controller: state.quantityControllers[index],
+                                    style: TextStyles.s12,
+                                    onChanged: (value) => widget.receiptDetailBloc.add(SetQuantityControllerEvent(index: index)),
+                                    onTapOutside: (_) {
+                                      widget.receiptDetailBloc.add(SetAllControllersEvent());
+                                      FocusScope.of(context).unfocus();
+                                    }),
+                              ),
+                            ),
+                            Gaps.w8,
+                            Expanded(
+                              flex: RowWidthsRDP.unitPriceNet,
+                              child: ConstrainedBox(
+                                constraints: const BoxConstraints(maxHeight: 28),
+                                child: CupertinoTextField(
+                                  controller: state.unitPriceNetControllers[index],
+                                  style: TextStyles.s12,
+                                  onChanged: (value) => widget.receiptDetailBloc.add(SetUnitPriceNetControllerEvent(index: index)),
+                                  onTapOutside: (_) => FocusScope.of(context).unfocus(),
+                                ),
+                              ),
+                            ),
+                            Gaps.w8,
+                            Expanded(
+                              flex: RowWidthsRDP.discountGrossUnit,
+                              child: ConstrainedBox(
+                                constraints: const BoxConstraints(maxHeight: 28),
+                                child: CupertinoTextField(
+                                  controller: state.posDiscountPercentControllers[index],
+                                  style: TextStyles.s12,
+                                  onChanged: (value) => widget.receiptDetailBloc.add(SetPosDiscountPercentControllerEvent(index: index)),
+                                  onTapOutside: (_) => FocusScope.of(context).unfocus(),
+                                  suffix: const Text('% '),
+                                ),
+                              ),
+                            ),
+                            Gaps.w8,
+                            Expanded(
+                              flex: RowWidthsRDP.unitPriceGross,
+                              child: ConstrainedBox(
+                                constraints: const BoxConstraints(maxHeight: 28),
+                                child: CupertinoTextField(
+                                  controller: state.unitPriceGrossControllers[index],
+                                  style: TextStyles.s12,
+                                  onChanged: (value) => widget.receiptDetailBloc.add(SetUnitPriceGrossControllerEvent(index: index)),
+                                  onTapOutside: (_) => FocusScope.of(context).unfocus(),
+                                ),
+                              ),
+                            ),
+                            Gaps.w8,
+                            Expanded(
+                              flex: RowWidthsRDP.totalPriceGross,
+                              child: ConstrainedBox(
+                                constraints: const BoxConstraints(maxHeight: 28),
+                                child: CupertinoTextField(
+                                  readOnly: true,
+                                  placeholder: (receiptProduct.unitPriceGross * receiptProduct.quantity).toMyCurrency(),
+                                  placeholderStyle: TextStyles.s12,
+                                ),
+                              ),
+                            ),
+                            ConstrainedBox(
+                              constraints: const BoxConstraints(maxHeight: 28),
+                              child: IconButton(
+                                onPressed: () => widget.receiptDetailBloc.add(RemoveProductFromReceiptProductsEvent(index: index)),
+                                padding: EdgeInsets.zero,
+                                splashRadius: 0.0001,
+                                constraints: const BoxConstraints(),
+                                icon: const Icon(Icons.delete, color: Colors.red),
+                              ),
+                            ),
+                          ],
+                        ),
+                        Gaps.h8,
+                      ],
+                    );
+                  },
+                ),
+                Gaps.h8,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    TextButton.icon(
+                      onPressed: () => showDialog(
+                        context: context,
+                        builder: (context) {
+                          final screenHeight = MediaQuery.sizeOf(context).height;
+                          final screenWidth = MediaQuery.sizeOf(context).width;
+                          return _SelectProductDialog(
+                              receiptDetailBloc: widget.receiptDetailBloc, screenHeight: screenHeight, screenWidth: screenWidth);
+                        },
+                      ),
+                      icon: const Icon(Icons.add, color: Colors.green),
+                      label: const Text('Aus Artikelliste'),
+                    ),
+                    TextButton.icon(
+                      onPressed: () => widget.receiptDetailBloc.add(AddProductToReceiptProductsEvent(receiptProduct: ReceiptProduct.empty())),
+                      icon: const Icon(Icons.add, color: Colors.green),
+                      label: const Text('Leeres Feld'),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _SelectProductDialog extends StatefulWidget {
+  final ReceiptDetailBloc receiptDetailBloc;
+  final double screenHeight;
+  final double screenWidth;
+
+  const _SelectProductDialog({required this.receiptDetailBloc, required this.screenHeight, required this.screenWidth});
+
+  @override
+  State<_SelectProductDialog> createState() => __SelectProductDialogState();
+}
+
+class __SelectProductDialogState extends State<_SelectProductDialog> {
+  final productBloc = sl<ProductBloc>()..add(GetAllProductsEvent());
+
+  final _controller = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => productBloc,
+      child: BlocBuilder<ProductBloc, ProductState>(
+        builder: (context, state) {
+          if (state.firebaseFailure != null && state.isAnyFailure) {
+            return Dialog(child: SizedBox(width: 600, height: 1200, child: Center(child: Text(state.firebaseFailure.toString()))));
+          }
+          if (state.isLoadingProductsOnObserve || state.listOfAllProducts == null) {
+            return const Dialog(child: SizedBox(width: 600, height: 1200, child: Center(child: CircularProgressIndicator())));
+          }
+
+          List<Product> productList = state.listOfAllProducts!;
+          if (_controller.text.isNotEmpty) {
+            productList = productList
+                .where((e) =>
+                    e.name.toLowerCase().contains(_controller.text.toLowerCase()) ||
+                    e.articleNumber.toLowerCase().contains(_controller.text.toLowerCase()) ||
+                    e.ean.toLowerCase().contains(_controller.text.toLowerCase()))
+                .toList();
+          }
+
+          return Dialog(
+            child: SizedBox(
+              height: widget.screenHeight > 1200 ? 1200 : widget.screenHeight,
+              width: widget.screenWidth > 600 ? 600 : widget.screenWidth,
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    CupertinoSearchTextField(
+                      controller: _controller,
+                      onChanged: (value) => setState(() {}),
+                      onSuffixTap: () => setState(() => _controller.clear()),
+                    ),
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: productList.length,
+                        itemBuilder: ((context, index) {
+                          final product = productList[index];
+                          return Column(
+                            children: [
+                              if (index == 0) Gaps.h10,
+                              ListTile(
+                                leading: SizedBox(
+                                  width: 40,
+                                  child: MyAvatar(
+                                    name: product.name,
+                                    imageUrl: product.listOfProductImages.isNotEmpty
+                                        ? product.listOfProductImages.where((e) => e.isDefault).first.fileUrl
+                                        : null,
+                                    radius: 20,
+                                    fontSize: 16,
+                                    //fit: BoxFit.scaleDown,
+                                  ),
+                                ),
+                                title: Text(product.name),
+                                onTap: () {
+                                  _controller.clear();
+                                  widget.receiptDetailBloc.add(AddProductToReceiptProductsEvent(receiptProduct: ReceiptProduct.fromProduct(product)));
+                                  context.router.pop();
+                                },
+                              ),
+                              const Divider(height: 0),
+                            ],
+                          );
+                        }),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}

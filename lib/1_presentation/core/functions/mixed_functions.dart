@@ -5,12 +5,10 @@ durationToStringFormatter(Duration d) => d.toString().split('.').first.padLeft(8
 
 String getInitials(String name) => name.split(' ').where((str) => str.isNotEmpty).take(2).map((str) => str[0].toUpperCase()).join(' ');
 
-//* Ausgabe: Der Betrag, der nach Abzug der eingegebenen Prozente ausmacht
-//* z.B. 100 - 20% = 80
-double calculatePercentage(double amount, double percentage) {
-  double newAmount;
-  newAmount = amount * ((100 - percentage) / 100);
-  return newAmount;
+//* Ausgabe: Der Betrag, der die eingegebenen Prozente ausmacht
+//* z.B. 20% von 100 = 20
+double calcPercentageAmount(double amount, double percentage) {
+  return amount * (percentage / 100);
 }
 
 //* Ausgabe: Die Prozent, der den Rabatt ausmacht
@@ -22,20 +20,21 @@ double calcPercentageOfTwoDoubles(double amount, double amountWithDiscount) {
   return newAmount;
 }
 
+//* Ausgabe: Die Prozent, der den Rabatt ausmacht
+//* z.B. 100 & 20 = 20%
+double calcDiscountPercentage(double amount, double amountDiscount) {
+  if (amount == 0) return 0;
+  double newAmount;
+  newAmount = (amountDiscount / amount) * 100;
+  return newAmount;
+}
+
 //* Ausgabe: Berechnet den prozentualen Anteil aus zwei Durations
 //* z.B. 3h = 30% von 10h
 double calculatePercentagePortion(Duration totalDuration, Duration duration) {
   double percentage;
   percentage = (double.parse(duration.inMilliseconds.toString()) * 100) / double.parse(totalDuration.inMilliseconds.toString());
   return percentage;
-}
-
-//* Ausgabe: Der Betrag, der die eingegebenen Prozente ausmacht
-//* z.B. 20% von 100 = 20
-double calculatePercentageDifferenceAmount(double amount, double percentage) {
-  double newAmount;
-  newAmount = amount - (amount * ((100 - percentage) / 100));
-  return newAmount < 0 ? newAmount * -1 : newAmount;
 }
 
 //* Macht aus einer UsSt. eine rechenbare UsSt.
@@ -50,6 +49,13 @@ int calcTaxPercent(double grossAmount, double netAmount) {
   double taxPercentage = (taxAmount / netAmount) * 100;
 
   return taxPercentage.round();
+}
+
+//* Berechnet die Vorsteuer in Zahl.
+//* zb. 20% | Brutto: 100 / Steuer: 20 = 83,3333%
+//* zb. 19% | Brutto: 100 / Netto: 19% = 84,03%
+double calcTaxAmount(double grossAmount, int tax) {
+  return grossAmount - (grossAmount / taxToCalc(tax));
 }
 
 bool stringToBool(String str) {

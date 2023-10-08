@@ -2,18 +2,30 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../2_application/firebase/appointment/appointment_bloc.dart';
+import '../../../2_application/firebase/receipt_detail/receipt_detail_bloc.dart';
 import '../../../3_domain/entities/marketplace/marketplace.dart';
 import '../../../3_domain/enums/enums.dart';
 import '../../../constants.dart';
 import '../../core/widgets/my_outlined_button.dart';
+import '../widgets/receipt_detail_address_card.dart';
+import '../widgets/receipt_detail_general_card.dart';
+import '../widgets/receipt_detail_products_card.dart';
+import '../widgets/receipt_detail_products_total_card.dart';
 import 'appointment_detail_screen.dart';
 
 class AppointmentDetailPage extends StatefulWidget {
   final AppointmentBloc appointmentBloc;
+  final ReceiptDetailBloc receiptDetailBloc;
   final List<Marketplace> listOfMarketplaces;
   final ReceiptCreateOrEdit receiptCreateOrEdit;
 
-  const AppointmentDetailPage({super.key, required this.appointmentBloc, required this.listOfMarketplaces, required this.receiptCreateOrEdit});
+  const AppointmentDetailPage({
+    super.key,
+    required this.appointmentBloc,
+    required this.receiptDetailBloc,
+    required this.listOfMarketplaces,
+    required this.receiptCreateOrEdit,
+  });
 
   @override
   State<AppointmentDetailPage> createState() => _AppointmentDetailPageState();
@@ -58,42 +70,52 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
         return Scaffold(
           appBar: appBar,
           body: SafeArea(
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(18),
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: Card(
-                            child: Padding(
-                              padding: const EdgeInsets.all(8),
-                              child: Column(
-                                children: [
-                                  Text(state.appointment!.customer.name, style: TextStyles.h3BoldPrimary),
-                                  const Divider(height: 30),
-                                  DefaultTabController(
-                                    length: 3,
-                                    child: TabBar(
-                                        tabs: const [Tab(text: 'Kunde'), Tab(text: 'Lieferadr.'), Tab(text: 'Rechnungsadr.')],
-                                        labelStyle: const TextStyle(fontWeight: FontWeight.bold),
-                                        unselectedLabelStyle: const TextStyle(),
-                                        onTap: (value) {}),
-                                  ),
-                                ],
-                              ),
-                            ),
+            child: responsiveness == Responsiveness.isTablet
+                ? SingleChildScrollView(
+                    child: Padding(
+                      padding: const EdgeInsets.all(18),
+                      child: Column(
+                        children: [
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(child: ReceiptDetailAddressCard(receipt: state.appointment!)),
+                              Gaps.w16,
+                              Expanded(child: ReceiptDetailGeneralCard(receipt: state.appointment!, listOfMarketplaces: widget.listOfMarketplaces)),
+                            ],
                           ),
-                        ),
+                          Gaps.h16,
+                          ReceiptDetailProductsCard(appointmentBloc: widget.appointmentBloc, receiptDetailBloc: widget.receiptDetailBloc),
+                          Gaps.h16,
+                          Row(
+                            children: [
+                              const Expanded(child: SizedBox()),
+                              Expanded(
+                                child: ReceiptDetailProductsTotalCard(
+                                  appointmentBloc: widget.appointmentBloc,
+                                  receiptDetailBloc: widget.receiptDetailBloc,
+                                ),
+                              ),
+                            ],
+                          )
+                        ],
+                      ),
+                    ),
+                  )
+                : Padding(
+                    padding: const EdgeInsets.all(8),
+                    child: ListView(
+                      children: [
+                        ReceiptDetailAddressCard(receipt: state.appointment!),
+                        Gaps.h16,
+                        ReceiptDetailGeneralCard(receipt: state.appointment!, listOfMarketplaces: widget.listOfMarketplaces),
+                        Gaps.h16,
+                        ReceiptDetailProductsCard(appointmentBloc: widget.appointmentBloc, receiptDetailBloc: widget.receiptDetailBloc),
+                        Gaps.h16,
                       ],
-                    )
-                  ],
-                ),
-              ),
-            ),
+                    ),
+                  ),
           ),
         );
       },

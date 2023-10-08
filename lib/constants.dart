@@ -14,11 +14,17 @@ class TextStyles {
   static const TextStyle h3 = TextStyle(fontSize: 16);
   static const TextStyle h3Bold = TextStyle(fontSize: 16, fontWeight: FontWeight.bold);
   static const TextStyle h3BoldPrimary = TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: CustomColors.primaryColor);
+  static const TextStyle defaultt = TextStyle(fontSize: 14);
   static const TextStyle defaultBold = TextStyle(fontSize: 14, fontWeight: FontWeight.bold);
   static const TextStyle buttonText = TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white);
   static const TextStyle textButtonText = TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF006399));
   static const TextStyle listTile = TextStyle(fontSize: 14, fontWeight: FontWeight.bold);
   static const TextStyle dateTime = TextStyle(fontSize: 11, color: Color(0xFF42474E));
+
+  static const TextStyle s8 = TextStyle(fontSize: 8);
+  static const TextStyle s10 = TextStyle(fontSize: 10);
+  static const TextStyle s12 = TextStyle(fontSize: 12);
+  static const TextStyle s12Bold = TextStyle(fontSize: 12, fontWeight: FontWeight.bold);
 
   static const TextStyle modalHeadTitle = TextStyle(fontSize: 30);
 
@@ -85,8 +91,9 @@ class Gaps {
   static const SizedBox w32 = SizedBox(width: 32);
 }
 
-class RowWidths {
-  RowWidths._();
+//* AppointmentsOverviewPage
+class RowWidthsROP {
+  RowWidthsROP._();
 
   static const int pos = 30;
   static const int articleNumber = 160;
@@ -94,6 +101,19 @@ class RowWidths {
   static const int articleName = 600;
   static const int openQuantity = 50;
   static const int quantity = 50;
+}
+
+class RowWidthsRDP {
+  RowWidthsRDP._();
+
+  static const int articleNumber = 100;
+  static const int articleName = 400;
+  static const int tax = 120;
+  static const int quantity = 50;
+  static const int unitPriceNet = 80;
+  static const int discountGrossUnit = 80;
+  static const int unitPriceGross = 80;
+  static const int totalPriceGross = 80;
 }
 
 class HeaderSpace {

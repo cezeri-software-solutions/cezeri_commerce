@@ -1,5 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
 
+import '../product/product.dart';
 import '../settings/tax.dart';
 
 part 'receipt_product.g.dart';
@@ -26,6 +27,7 @@ class ReceiptProduct {
   final double discountPercent;
   final double profitUnit;
   final double profit;
+  final bool isFromMarketplace;
 
   const ReceiptProduct({
     required this.productId,
@@ -48,6 +50,7 @@ class ReceiptProduct {
     required this.discountPercent,
     required this.profitUnit,
     required this.profit,
+    required this.isFromMarketplace,
   });
 
   factory ReceiptProduct.fromJson(Map<String, dynamic> json) => _$ReceiptProductFromJson(json);
@@ -58,7 +61,7 @@ class ReceiptProduct {
     return ReceiptProduct(
       productId: '',
       productAttributeId: 0,
-      quantity: 0,
+      quantity: 1,
       shippedQuantity: 0,
       name: '',
       articleNumber: '',
@@ -76,6 +79,33 @@ class ReceiptProduct {
       discountPercent: 0,
       profitUnit: 0,
       profit: 0,
+      isFromMarketplace: false,
+    );
+  }
+
+  factory ReceiptProduct.fromProduct(Product product) {
+    return ReceiptProduct(
+      productId: product.id,
+      productAttributeId: 0,
+      quantity: 1,
+      shippedQuantity: 0,
+      name: product.name,
+      articleNumber: product.articleNumber,
+      ean: product.ean,
+      price: product.netPrice,
+      unitPriceGross: product.grossPrice,
+      unitPriceNet: product.netPrice,
+      customization: 0,
+      tax: product.tax,
+      wholesalePrice: product.wholesalePrice,
+      discountGrossUnit: 0,
+      discountNetUnit: 0,
+      discountGross: 0,
+      discountNet: 0,
+      discountPercent: 0,
+      profitUnit: 0,
+      profit: 0,
+      isFromMarketplace: true,
     );
   }
 
@@ -100,6 +130,7 @@ class ReceiptProduct {
     double? discountPercent,
     double? profitUnit,
     double? profit,
+    bool? isFromMarketplace,
   }) {
     return ReceiptProduct(
       productId: productId ?? this.productId,
@@ -122,11 +153,12 @@ class ReceiptProduct {
       discountPercent: discountPercent ?? this.discountPercent,
       profitUnit: profitUnit ?? this.profitUnit,
       profit: profit ?? this.profit,
+      isFromMarketplace: isFromMarketplace ?? this.isFromMarketplace,
     );
   }
 
   @override
   String toString() {
-    return 'ReceiptProduct(productId: $productId, productAttributeId: $productAttributeId, quantity: $quantity, shippedQuantity: $shippedQuantity, name: $name, articleNumber: $articleNumber, ean: $ean, price: $price, unitPriceGross: $unitPriceGross, unitPriceNet: $unitPriceNet, customization: $customization, tax: $tax, wholesalePrice: $wholesalePrice, discountGrossUnit: $discountGrossUnit, discountNetUnit: $discountNetUnit, discountGross: $discountGross, discountNet: $discountNet, discountPercent: $discountPercent, profitUnit: $profitUnit, profit: $profit)';
+    return 'ReceiptProduct(productId: $productId, productAttributeId: $productAttributeId, quantity: $quantity, shippedQuantity: $shippedQuantity, name: $name, articleNumber: $articleNumber, ean: $ean, price: $price, unitPriceGross: $unitPriceGross, unitPriceNet: $unitPriceNet, customization: $customization, tax: $tax, wholesalePrice: $wholesalePrice, discountGrossUnit: $discountGrossUnit, discountNetUnit: $discountNetUnit, discountGross: $discountGross, discountNet: $discountNet, discountPercent: $discountPercent, profitUnit: $profitUnit, profit: $profit, ifFromMarketplace: $isFromMarketplace)';
   }
 }

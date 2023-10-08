@@ -16,6 +16,7 @@ import '../../../3_domain/enums/enums.dart';
 import '../../../constants.dart';
 import '../../../core/firebase_failures.dart';
 import '../../../routes/router.gr.dart';
+import '../../core/functions/mixed_functions.dart';
 import '../../core/widgets/my_avatar.dart';
 import '../../core/widgets/my_country_flag.dart';
 import '../appointment_detail/appointment_detail_screen.dart';
@@ -301,6 +302,9 @@ class __AppointmentContainerState extends State<_AppointmentContainer> {
                         ),
                         Gaps.h2,
                         Image.asset(widget.appointment.paymentMethod.logoPath, height: 25, width: 65, fit: BoxFit.scaleDown),
+                        Gaps.h2,
+                        Text('${widget.appointment.profit.toMyCurrency()} ${widget.appointment.currency}'),
+                        Text('${calcDiscountPercentage(widget.appointment.totalNet, widget.appointment.profit).toMyCurrency()} %'),
                       ],
                     ),
                   ),
@@ -317,17 +321,17 @@ class __AppointmentContainerState extends State<_AppointmentContainer> {
                         children: [
                           const Row(
                             children: [
-                              Expanded(flex: RowWidths.pos, child: Text('Pos', style: TextStyles.defaultBold)),
+                              Expanded(flex: RowWidthsROP.pos, child: Text('Pos', style: TextStyles.defaultBold)),
                               Spacer(),
-                              Expanded(flex: RowWidths.articleNumber, child: Text('Artikelnummer', style: TextStyles.defaultBold)),
+                              Expanded(flex: RowWidthsROP.articleNumber, child: Text('Artikelnummer', style: TextStyles.defaultBold)),
                               Spacer(),
-                              Expanded(flex: RowWidths.ean, child: Text('EAN', style: TextStyles.defaultBold)),
+                              Expanded(flex: RowWidthsROP.ean, child: Text('EAN', style: TextStyles.defaultBold)),
                               Spacer(),
-                              Expanded(flex: RowWidths.articleName, child: Text('Name', style: TextStyles.defaultBold)),
+                              Expanded(flex: RowWidthsROP.articleName, child: Text('Name', style: TextStyles.defaultBold)),
                               Spacer(),
-                              Expanded(flex: RowWidths.openQuantity, child: Text('Offen', style: TextStyles.defaultBold)),
+                              Expanded(flex: RowWidthsROP.openQuantity, child: Text('Offen', style: TextStyles.defaultBold)),
                               Spacer(),
-                              Expanded(flex: RowWidths.quantity, child: Text('Anzahl', style: TextStyles.defaultBold)),
+                              Expanded(flex: RowWidthsROP.quantity, child: Text('Anzahl', style: TextStyles.defaultBold)),
                             ],
                           ),
                           const Divider(),
@@ -364,16 +368,16 @@ class _AppointmentProdcutsContainer extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        Expanded(flex: RowWidths.pos, child: Text((index + 1).toString(), style: TextStyles.defaultBold)),
+        Expanded(flex: RowWidthsROP.pos, child: Text((index + 1).toString(), style: TextStyles.defaultBold)),
         const Spacer(),
-        Expanded(flex: RowWidths.articleNumber, child: Text(appointmentProduct.articleNumber, overflow: TextOverflow.ellipsis)),
+        Expanded(flex: RowWidthsROP.articleNumber, child: Text(appointmentProduct.articleNumber, overflow: TextOverflow.ellipsis)),
         const Spacer(),
-        Expanded(flex: RowWidths.ean, child: Text(appointmentProduct.ean, overflow: TextOverflow.ellipsis)),
+        Expanded(flex: RowWidthsROP.ean, child: Text(appointmentProduct.ean, overflow: TextOverflow.ellipsis)),
         const Spacer(),
-        Expanded(flex: RowWidths.articleName, child: Text(appointmentProduct.name, overflow: TextOverflow.ellipsis)),
+        Expanded(flex: RowWidthsROP.articleName, child: Text(appointmentProduct.name, overflow: TextOverflow.ellipsis)),
         const Spacer(),
         Expanded(
-            flex: RowWidths.openQuantity,
+            flex: RowWidthsROP.openQuantity,
             child: Center(
                 child: switch (appointmentProduct.quantity - appointmentProduct.shippedQuantity) {
               0 => Text(
@@ -390,7 +394,7 @@ class _AppointmentProdcutsContainer extends StatelessWidget {
                 ),
             })),
         const Spacer(),
-        Expanded(flex: RowWidths.quantity, child: Center(child: Text(appointmentProduct.quantity.toString()))),
+        Expanded(flex: RowWidthsROP.quantity, child: Center(child: Text(appointmentProduct.quantity.toString()))),
       ],
     );
   }

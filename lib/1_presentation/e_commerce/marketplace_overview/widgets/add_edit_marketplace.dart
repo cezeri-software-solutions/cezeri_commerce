@@ -12,6 +12,7 @@ import 'package:logger/logger.dart';
 
 import '../../../../2_application/firebase/marketplace/marketplace_bloc.dart';
 import '../../../../3_domain/entities/marketplace/marketplace.dart';
+import '../../../../3_domain/entities/marketplace/marketplace_settings.dart';
 import '../../../../constants.dart';
 import '../../../core/widgets/my_modal_scrollable.dart';
 
@@ -184,7 +185,7 @@ class _AddEditMarketplaceState extends State<AddEditMarketplace> {
                           fullUrl: _endpointUrlController.text + _urlController.text + _shopSuffixController.text,
                           lastEditingDate: DateTime.now(),
                           createnDate: DateTime.now(),
-                          marketplaceSettings: widget.marketplace!.marketplaceSettings.copyWith(
+                          marketplaceSettings: MarketplaceSettings.empty().copyWith(
                             nextIdToImport: int.parse(_nextIdToImportController.text),
                           ),
                         );

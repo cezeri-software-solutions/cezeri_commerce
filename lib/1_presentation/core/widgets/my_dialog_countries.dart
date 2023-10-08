@@ -130,13 +130,16 @@ class _SelectVehicleDialogState extends State<SelectVehicleDialog> {
                       children: [
                         if (index == 0) Gaps.h10,
                         ListTile(
-                          leading: MyAvatar(
-                            name: country.isoCode,
-                            imageUrl: country.flagUrl,
-                            radius: 18,
-                            fontSize: 14,
-                            fit: BoxFit.scaleDown,
-                            shape: BoxShape.rectangle,
+                          leading: SizedBox(
+                            width: 40,
+                            child: MyAvatar(
+                              name: country.isoCode,
+                              imageUrl: country.flagUrl,
+                              radius: 18,
+                              fontSize: 14,
+                              fit: BoxFit.scaleDown,
+                              shape: BoxShape.rectangle,
+                            ),
                           ),
                           title: Text(country.name),
                           onTap: () {

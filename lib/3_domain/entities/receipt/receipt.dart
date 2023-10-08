@@ -280,6 +280,7 @@ class Receipt {
     for (final receiptProduct in listOfReceiptproduct) {
       profit += receiptProduct.profit;
     }
+    profit = profit - double.parse(orderPresta.totalDiscountsTaxExcl);
     final profitExclShipping = profit - double.parse(orderPresta.totalShippingTaxExcl);
     final profitExclWrapping = profit - double.parse(orderPresta.totalWrappingTaxExcl);
     final profitExclShippingAndWrapping = profit - double.parse(orderPresta.totalShippingTaxExcl) - double.parse(orderPresta.totalWrappingTaxExcl);
@@ -317,10 +318,9 @@ class Receipt {
       totalGross: getTotalGross(),
       totalNet: getTotalNet(),
       totalTax: getTotalGross() - getTotalNet(),
-      subTotalNet: getTotalNet() - double.parse(orderPresta.totalDiscountsTaxExcl),
-      subTotalTax:
-          (getTotalGross() - double.parse(orderPresta.totalDiscountsTaxIncl) - (getTotalNet() - double.parse(orderPresta.totalDiscountsTaxExcl))),
-      subTotalGross: getTotalGross() - double.parse(orderPresta.totalDiscountsTaxIncl),
+      subTotalNet: double.parse(orderPresta.totalProducts),
+      subTotalTax: double.parse(orderPresta.totalProductsWt) - double.parse(orderPresta.totalProducts),
+      subTotalGross: double.parse(orderPresta.totalProductsWt),
       totalPaidGross: double.parse(orderPresta.totalPaidTaxIncl),
       totalPaidNet: double.parse(orderPresta.totalPaidTaxExcl),
       totalPaidTax: (double.parse(orderPresta.totalPaidTaxIncl)) - (double.parse(orderPresta.totalPaidTaxExcl)),
@@ -332,7 +332,8 @@ class Receipt {
       totalWrappingTax: double.parse(orderPresta.totalWrappingTaxIncl) - double.parse(orderPresta.totalWrappingTaxExcl),
       discountGross: double.parse(orderPresta.totalDiscountsTaxIncl),
       discountNet: double.parse(orderPresta.totalDiscountsTaxExcl),
-      discountPercent: calcPercentageOfTwoDoubles(getTotalNet(), double.parse(orderPresta.totalDiscountsTaxExcl)),
+      // Von Prestashop kommen sowohl normale Rabatte als auch Prozenrabatte als normales Rabatt
+      discountPercent: 0,//calcDiscountPercentage(double.parse(orderPresta.totalProducts), double.parse(orderPresta.totalDiscountsTaxExcl)),
       profit: profit,
       profitExclShipping: profitExclShipping,
       profitExclWrapping: profitExclWrapping,

@@ -12,6 +12,7 @@ import '2_application/firebase/client/client_bloc.dart';
 import '2_application/firebase/main_settings/main_settings_bloc.dart';
 import '2_application/firebase/marketplace/marketplace_bloc.dart';
 import '2_application/firebase/product/product_bloc.dart';
+import '2_application/firebase/receipt_detail/receipt_detail_bloc.dart';
 import '2_application/prestashop/product_import/product_import_bloc.dart';
 import '3_domain/repositories/firebase/auth_repository.dart';
 import '3_domain/repositories/firebase/client_repository.dart';
@@ -41,6 +42,7 @@ Future<void> init() async {
   sl.registerFactory(() => MarketplaceBloc(marketplaceRepository: sl()));
   sl.registerFactory(() => MainSettingsBloc(mainSettingsRepository: sl()));
   sl.registerFactory(() => AppointmentBloc(receiptRepository: sl()));
+  sl.registerFactory(() => ReceiptDetailBloc());
 
   //! repositories Firebase
   sl.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl(firebaseAuth: sl()));

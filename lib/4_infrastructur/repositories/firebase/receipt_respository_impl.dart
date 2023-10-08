@@ -372,12 +372,13 @@ ReceiptProduct generateReceiptProduct({
     customization: int.parse(orderProductPresta.idCustomization),
     tax: mainSettings.taxes.where((e) => e.taxRate == tax).firstOrNull ?? mainSettings.taxes.where((e) => e.isDefault).first,
     wholesalePrice: product.wholesalePrice,
-    discountGrossUnit: product.grossPrice - double.parse(orderProductPresta.unitPriceTaxIncl),
-    discountNetUnit: product.netPrice - double.parse(orderProductPresta.unitPriceTaxExcl),
-    discountGross: product.grossPrice - double.parse(orderProductPresta.unitPriceTaxIncl) * quantity,
-    discountNet: product.netPrice - (double.parse(orderProductPresta.unitPriceTaxExcl)) * quantity,
-    discountPercent: calcPercentageOfTwoDoubles(product.netPrice, double.parse(orderProductPresta.unitPriceTaxExcl)),
+    discountGrossUnit: 0, //product.grossPrice - double.parse(orderProductPresta.unitPriceTaxIncl),
+    discountNetUnit: 0, //product.netPrice - double.parse(orderProductPresta.unitPriceTaxExcl),
+    discountGross: 0, //product.grossPrice - double.parse(orderProductPresta.unitPriceTaxIncl) * quantity,
+    discountNet: 0, //product.netPrice - (double.parse(orderProductPresta.unitPriceTaxExcl)) * quantity,
+    discountPercent: 0, //calcPercentageOfTwoDoubles(product.netPrice, double.parse(orderProductPresta.unitPriceTaxExcl)),
     profitUnit: double.parse(orderProductPresta.unitPriceTaxExcl) - (product.wholesalePrice),
     profit: (double.parse(orderProductPresta.unitPriceTaxExcl) - product.wholesalePrice) * quantity,
+    isFromMarketplace: true,
   );
 }
