@@ -28,7 +28,40 @@ class RemoveProductFromReceiptProductsEvent extends ReceiptDetailEvent {
   RemoveProductFromReceiptProductsEvent({required this.index});
 }
 
-//? ################## Contollers #################################
+class SetIsInScanModeEvent extends ReceiptDetailEvent {
+  final bool isInScanMode;
+
+  SetIsInScanModeEvent({required this.isInScanMode});
+}
+
+class SetTotalDiscountPercentControllerEvent extends ReceiptDetailEvent {
+  final double value;
+
+  SetTotalDiscountPercentControllerEvent({required this.value});
+}
+
+class SetTotalDiscountAmountGrossControllerEvent extends ReceiptDetailEvent {
+  final double value;
+
+  SetTotalDiscountAmountGrossControllerEvent({required this.value});
+}
+
+class SetShippingAmountGrossControllerEvent extends ReceiptDetailEvent {
+  final double value;
+
+  SetShippingAmountGrossControllerEvent({required this.value});
+}
+
+class SetAdditionalAmountGrossControllerEvent extends ReceiptDetailEvent {
+  final double value;
+
+  SetAdditionalAmountGrossControllerEvent({required this.value});
+}
+
+//? #################################################################################################
+//? ################## Contollers ###################################################################
+
+class OnBarcodeScannedEvent extends ReceiptDetailEvent {}
 
 class SetAllControllersEvent extends ReceiptDetailEvent {
   final List<ReceiptProduct>? listOfReceiptProducts;

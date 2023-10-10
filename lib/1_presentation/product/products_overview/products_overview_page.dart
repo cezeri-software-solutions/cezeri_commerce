@@ -109,10 +109,10 @@ class _ProductContainer extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('EK: ${product.wholesalePrice.toMyCurrency()}'),
-                      Text('VK-Netto: ${product.netPrice.toMyCurrency()}'),
-                      Text('VK-Brutto: ${product.grossPrice.toMyCurrency()}'),
-                      Text((product.netPrice - product.wholesalePrice).toMyCurrency(), style: TextStyles.defaultBold.copyWith(color: Colors.green))
+                      Text('EK: ${product.wholesalePrice.toMyCurrencyStringToShow()}'),
+                      Text('VK-Netto: ${product.netPrice.toMyCurrencyStringToShow()}'),
+                      Text('VK-Brutto: ${product.grossPrice.toMyCurrencyStringToShow()}'),
+                      Text((product.netPrice - product.wholesalePrice).toMyCurrencyStringToShow(), style: TextStyles.defaultBold.copyWith(color: Colors.green))
                     ],
                   ),
                 ),

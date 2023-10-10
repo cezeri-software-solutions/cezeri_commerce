@@ -13,6 +13,12 @@ class GetProductEvent extends ProductEvent {
   GetProductEvent({required this.id});
 }
 
+class GetProductByEanEvent extends ProductEvent {
+  final String ean;
+
+  GetProductByEanEvent({required this.ean});
+}
+
 class CreateProductEvent extends ProductEvent {
   final Product product;
   final ProductPresta? productPresta;

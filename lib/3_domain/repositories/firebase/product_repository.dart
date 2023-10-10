@@ -13,6 +13,7 @@ abstract class ProductRepository {
   Future<Either<FirebaseFailure, Unit>> activateMarketplaceInSelectedProducts(List<Product> selectedProducts, Marketplace marketplace);
   Future<Either<FirebaseFailure, Product>> getProduct(String id);
   Future<Either<FirebaseFailure, Product>> getProductByArticleNumber(String articleNumber);
+  Future<Either<FirebaseFailure, Product>> getProductByEan(String ean);
   Future<Either<FirebaseFailure, List<Product>>> getListOfProducts();
 
   Future<Either<FirebaseFailure, Product>> updateQuantityOfProductAbsolut(Product product, int newQuantityIncremental);

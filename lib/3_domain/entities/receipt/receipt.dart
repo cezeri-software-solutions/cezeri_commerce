@@ -1,4 +1,5 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.dart';
 import 'package:cezeri_commerce/3_domain/entities/id.dart';
 import 'package:cezeri_helpers/cezeri_helpers.dart';
 import 'package:json_annotation/json_annotation.dart';
@@ -172,16 +173,16 @@ class Receipt {
     required CountryPresta countryDeliveryPresta,
   }) {
     double getTotalNet() =>
-        double.parse(orderPresta.totalProducts) +
-        double.parse(orderPresta.totalShippingTaxExcl) +
-        double.parse(orderPresta.totalWrappingTaxExcl) -
-        double.parse(orderPresta.totalDiscountsTaxExcl);
+        (orderPresta.totalProducts).toMyDouble() +
+        (orderPresta.totalShippingTaxExcl).toMyDouble() +
+        (orderPresta.totalWrappingTaxExcl).toMyDouble() -
+        (orderPresta.totalDiscountsTaxExcl).toMyDouble();
 
     double getTotalGross() =>
-        double.parse(orderPresta.totalProductsWt) +
-        double.parse(orderPresta.totalShippingTaxIncl) +
-        double.parse(orderPresta.totalWrappingTaxIncl) -
-        double.parse(orderPresta.totalDiscountsTaxIncl);
+        (orderPresta.totalProductsWt).toMyDouble() +
+        (orderPresta.totalShippingTaxIncl).toMyDouble() +
+        (orderPresta.totalWrappingTaxIncl).toMyDouble() -
+        (orderPresta.totalDiscountsTaxIncl).toMyDouble();
 
     PaymentMethod getPaymentMethod() {
       // TODO: sobald PaymentMethod in AddEditMarketplace gemappt werden kann, muss payment Methods darüber aufegrufen werden
@@ -199,8 +200,8 @@ class Receipt {
     PaymentStatus getPaymentStatus() {
       final totalGross = getTotalGross();
       if (getPaymentMethod().isPaidAutomatically) return PaymentStatus.paid;
-      if (double.parse(orderPresta.totalPaidReal).roundToDouble() >= totalGross.round()) return PaymentStatus.paid;
-      if (double.parse(orderPresta.totalPaidReal) > 0 && double.parse(orderPresta.totalPaidReal) < totalGross) return PaymentStatus.partiallyPaid;
+      if ((orderPresta.totalPaidReal).toMyDouble().roundToDouble() >= totalGross.round()) return PaymentStatus.paid;
+      if ((orderPresta.totalPaidReal).toMyDouble() > 0 && (orderPresta.totalPaidReal).toMyDouble() < totalGross) return PaymentStatus.partiallyPaid;
       return PaymentStatus.open;
     }
 
@@ -280,10 +281,10 @@ class Receipt {
     for (final receiptProduct in listOfReceiptproduct) {
       profit += receiptProduct.profit;
     }
-    profit = profit - double.parse(orderPresta.totalDiscountsTaxExcl);
-    final profitExclShipping = profit - double.parse(orderPresta.totalShippingTaxExcl);
-    final profitExclWrapping = profit - double.parse(orderPresta.totalWrappingTaxExcl);
-    final profitExclShippingAndWrapping = profit - double.parse(orderPresta.totalShippingTaxExcl) - double.parse(orderPresta.totalWrappingTaxExcl);
+    profit = profit - (orderPresta.totalDiscountsTaxExcl).toMyDouble() + (orderPresta.totalShippingTaxExcl).toMyDouble();
+    final profitExclShipping = profit - (orderPresta.totalShippingTaxExcl).toMyDouble();
+    final profitExclWrapping = profit - (orderPresta.totalWrappingTaxExcl).toMyDouble();
+    final profitExclShippingAndWrapping = profit - (orderPresta.totalShippingTaxExcl).toMyDouble() - (orderPresta.totalWrappingTaxExcl).toMyDouble();
 
     // TODO: Look if needed or just solve in bloc
     //final searchField = '${customer.name} / ${customer.company} / ${customer.name} / ';
@@ -318,29 +319,29 @@ class Receipt {
       totalGross: getTotalGross(),
       totalNet: getTotalNet(),
       totalTax: getTotalGross() - getTotalNet(),
-      subTotalNet: double.parse(orderPresta.totalProducts),
-      subTotalTax: double.parse(orderPresta.totalProductsWt) - double.parse(orderPresta.totalProducts),
-      subTotalGross: double.parse(orderPresta.totalProductsWt),
-      totalPaidGross: double.parse(orderPresta.totalPaidTaxIncl),
-      totalPaidNet: double.parse(orderPresta.totalPaidTaxExcl),
-      totalPaidTax: (double.parse(orderPresta.totalPaidTaxIncl)) - (double.parse(orderPresta.totalPaidTaxExcl)),
-      totalShippingGross: double.parse(orderPresta.totalShippingTaxIncl),
-      totalShippingNet: double.parse(orderPresta.totalShippingTaxExcl),
-      totalShippingTax: double.parse(orderPresta.totalShippingTaxIncl) - double.parse(orderPresta.totalShippingTaxExcl),
-      totalWrappingGross: double.parse(orderPresta.totalWrappingTaxIncl),
-      totalWrappingNet: double.parse(orderPresta.totalWrappingTaxExcl),
-      totalWrappingTax: double.parse(orderPresta.totalWrappingTaxIncl) - double.parse(orderPresta.totalWrappingTaxExcl),
-      discountGross: double.parse(orderPresta.totalDiscountsTaxIncl),
-      discountNet: double.parse(orderPresta.totalDiscountsTaxExcl),
+      subTotalNet: (orderPresta.totalProducts).toMyDouble(),
+      subTotalTax: (orderPresta.totalProductsWt).toMyDouble() - (orderPresta.totalProducts).toMyDouble(),
+      subTotalGross: (orderPresta.totalProductsWt).toMyDouble(),
+      totalPaidGross: (orderPresta.totalPaidTaxIncl).toMyDouble(),
+      totalPaidNet: (orderPresta.totalPaidTaxExcl).toMyDouble(),
+      totalPaidTax: ((orderPresta.totalPaidTaxIncl).toMyDouble()) - ((orderPresta.totalPaidTaxExcl).toMyDouble()),
+      totalShippingGross: (orderPresta.totalShippingTaxIncl).toMyDouble(),
+      totalShippingNet: (orderPresta.totalShippingTaxExcl).toMyDouble(),
+      totalShippingTax: (orderPresta.totalShippingTaxIncl).toMyDouble() - (orderPresta.totalShippingTaxExcl).toMyDouble(),
+      totalWrappingGross: (orderPresta.totalWrappingTaxIncl).toMyDouble(),
+      totalWrappingNet: (orderPresta.totalWrappingTaxExcl).toMyDouble(),
+      totalWrappingTax: (orderPresta.totalWrappingTaxIncl).toMyDouble() - (orderPresta.totalWrappingTaxExcl).toMyDouble(),
+      discountGross: (orderPresta.totalDiscountsTaxIncl).toMyDouble(),
+      discountNet: (orderPresta.totalDiscountsTaxExcl).toMyDouble(),
       // Von Prestashop kommen sowohl normale Rabatte als auch Prozenrabatte als normales Rabatt
-      discountPercent: 0,//calcDiscountPercentage(double.parse(orderPresta.totalProducts), double.parse(orderPresta.totalDiscountsTaxExcl)),
+      discountPercent: 0, //calcDiscountPercentage((orderPresta.totalProducts).toMyDouble(), (orderPresta.totalDiscountsTaxExcl).toMyDouble()),
       profit: profit,
       profitExclShipping: profitExclShipping,
       profitExclWrapping: profitExclWrapping,
       profitExclShippingAndWrapping: profitExclShippingAndWrapping,
       bankDetails: mainSettings.bankDetails,
       listOfPayments: getPaymentStatus() != PaymentStatus.open
-          ? [Payment(double.parse(orderPresta.totalPaidReal), orderPresta.payment, DateTime.parse(orderPresta.dateAdd))]
+          ? [Payment((orderPresta.totalPaidReal).toMyDouble(), orderPresta.payment, DateTime.parse(orderPresta.dateAdd))]
           : [],
       listOfReceiptProduct: listOfReceiptproduct,
       creationDateMarektplace: DateTime.parse(orderPresta.dateAdd),

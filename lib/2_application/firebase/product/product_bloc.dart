@@ -66,6 +66,24 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
 
 //? #########################################################################
 
+    on<GetProductByEanEvent>((event, emit) async {
+      emit(state.copyWith(isLoadingProductOnObserve: true));
+
+      final failureOrSuccess = await productRepository.getProductByEan(event.ean);
+      failureOrSuccess.fold(
+        (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
+        (product) => emit(state.copyWith(product: product, firebaseFailure: null, isAnyFailure: false)),
+      );
+
+      emit(state.copyWith(
+        isLoadingProductOnObserve: false,
+        fosProductOnObserveOption: optionOf(failureOrSuccess),
+      ));
+      emit(state.copyWith(fosProductOnObserveOption: none()));
+    });
+
+//? #########################################################################
+
     on<CreateProductEvent>((event, emit) async {
       emit(state.copyWith(isLoadingProductOnCreate: true));
 

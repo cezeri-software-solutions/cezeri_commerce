@@ -1,3 +1,4 @@
+import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.dart';
 import 'package:cezeri_commerce/3_domain/entities/receipt/receipt.dart';
 import 'package:cezeri_commerce/3_domain/entities/receipt/receipt_product.dart';
 import 'package:cezeri_commerce/3_domain/repositories/firebase/receipt_respository.dart';
@@ -109,7 +110,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
           for (final orderProductPresta in orderPresta.associations!.orderRows) {
             Product? appointmentProduct;
             final quantity = int.parse(orderProductPresta.productQuantity);
-            final tax = calcTaxPercent(double.parse(orderProductPresta.unitPriceTaxIncl), double.parse(orderProductPresta.unitPriceTaxExcl));
+            final tax = calcTaxPercent((orderProductPresta.unitPriceTaxIncl).toMyDouble(), (orderProductPresta.unitPriceTaxExcl).toMyDouble());
 
             final productFirestore = await getProductByArticleNumber(orderProductPresta.productReference, marketplace, mainSettings);
             if (productFirestore == null) {
@@ -363,19 +364,19 @@ ReceiptProduct generateReceiptProduct({
     name: orderProductPresta.productName,
     articleNumber: orderProductPresta.productReference,
     ean: orderProductPresta.productEan13,
-    price: double.parse(orderProductPresta.productPrice),
-    unitPriceGross: double.parse(orderProductPresta.unitPriceTaxIncl),
-    unitPriceNet: double.parse(orderProductPresta.unitPriceTaxExcl),
+    price: (orderProductPresta.productPrice).toMyDouble(),
+    unitPriceGross: (orderProductPresta.unitPriceTaxIncl).toMyDouble(),
+    unitPriceNet: (orderProductPresta.unitPriceTaxExcl).toMyDouble(),
     customization: int.parse(orderProductPresta.idCustomization),
     tax: mainSettings.taxes.where((e) => e.taxRate == tax).firstOrNull ?? mainSettings.taxes.where((e) => e.isDefault).first,
     wholesalePrice: product.wholesalePrice,
-    discountGrossUnit: 0, //product.grossPrice - double.parse(orderProductPresta.unitPriceTaxIncl),
-    discountNetUnit: 0, //product.netPrice - double.parse(orderProductPresta.unitPriceTaxExcl),
-    discountGross: 0, //product.grossPrice - double.parse(orderProductPresta.unitPriceTaxIncl) * quantity,
-    discountNet: 0, //product.netPrice - (double.parse(orderProductPresta.unitPriceTaxExcl)) * quantity,
-    discountPercent: 0, //calcPercentageOfTwoDoubles(product.netPrice, double.parse(orderProductPresta.unitPriceTaxExcl)),
-    profitUnit: double.parse(orderProductPresta.unitPriceTaxExcl) - (product.wholesalePrice),
-    profit: (double.parse(orderProductPresta.unitPriceTaxExcl) - product.wholesalePrice) * quantity,
+    discountGrossUnit: 0, //product.grossPrice - (orderProductPresta.unitPriceTaxIncl).toMyDouble(),
+    discountNetUnit: 0, //product.netPrice - (orderProductPresta.unitPriceTaxExcl).toMyDouble(),
+    discountGross: 0, //product.grossPrice - (orderProductPresta.unitPriceTaxIncl).toMyDouble() * quantity,
+    discountNet: 0, //product.netPrice - ((orderProductPresta.unitPriceTaxExcl).toMyDouble()) * quantity,
+    discountPercent: 0, //calcPercentageOfTwoDoubles(product.netPrice, (orderProductPresta.unitPriceTaxExcl).toMyDouble()),
+    profitUnit: (orderProductPresta.unitPriceTaxExcl).toMyDouble() - (product.wholesalePrice),
+    profit: ((orderProductPresta.unitPriceTaxExcl).toMyDouble() - product.wholesalePrice) * quantity,
     isFromMarketplace: true,
   );
 }

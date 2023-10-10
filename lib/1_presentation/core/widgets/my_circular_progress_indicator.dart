@@ -1,6 +1,7 @@
 import 'dart:io' show Platform;
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class MyCircularProgressIndicator extends StatelessWidget {
@@ -9,6 +10,7 @@ class MyCircularProgressIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (kIsWeb) return CircularProgressIndicator(color: color);
     if (Platform.isIOS) return CupertinoActivityIndicator(color: color);
     if (Platform.isAndroid) return CircularProgressIndicator(color: color);
 

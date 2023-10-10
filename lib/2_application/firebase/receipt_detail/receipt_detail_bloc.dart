@@ -1,6 +1,6 @@
 import 'package:bloc/bloc.dart';
-import 'package:cezeri_commerce/1_presentation/core/extensions/string_to_double.dart';
 import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.dart';
+import 'package:cezeri_helpers/cezeri_helpers.dart';
 import 'package:flutter/material.dart';
 
 import '../../../1_presentation/core/functions/mixed_functions.dart';
@@ -20,9 +20,13 @@ class ReceiptDetailBloc extends Bloc<ReceiptDetailEvent, ReceiptDetailState> {
         receipt: event.receipt,
         listOfReceiptProducts: event.receipt.listOfReceiptProduct,
         discountPercentage: event.receipt.discountPercent,
+        discountPercentageController: TextEditingController(text: event.receipt.discountPercent.toMyCurrencyString()),
         discountAmountGross: event.receipt.discountGross,
+        discountAmountGrossController: TextEditingController(text: event.receipt.discountGross.toMyCurrencyString()),
         shippingAmountGross: event.receipt.totalShippingGross,
-        additionalAmountGross: 0,
+        shippingAmountGrossController: TextEditingController(text: event.receipt.totalShippingGross.toMyCurrencyString()),
+        additionalAmountGross: 0.0,
+        additionalAmountGrossController: TextEditingController(text: 0.0.toMyCurrencyString()),
         taxRulesListFromSettings: event.listOfTaxRules,
       ));
 
@@ -38,11 +42,33 @@ class ReceiptDetailBloc extends Bloc<ReceiptDetailEvent, ReceiptDetailState> {
 //? #########################################################################
 
     on<AddProductToReceiptProductsEvent>((event, emit) {
-      List<ReceiptProduct> listOfReceiptProducts = List.from(state.listOfReceiptProducts);
-      ReceiptProduct newReceiptProduct = event.receiptProduct.copyWith(tax: listOfReceiptProducts.last.tax);
-      listOfReceiptProducts.add(newReceiptProduct);
+      state.barcodeScannerController.clear();
+      int? index;
+      for (int i = 0; i < state.listOfReceiptProducts.length; i++) {
+        if (event.receiptProduct.productId == state.listOfReceiptProducts[i].productId &&
+            event.receiptProduct.articleNumber == state.listOfReceiptProducts[i].articleNumber) {
+          index = i;
+          break;
+        }
+      }
+      if (index != null) {
+        List<TextEditingController> listOfQuantityControllers = List.from(state.quantityControllers);
+        listOfQuantityControllers[index] = TextEditingController(text: (int.parse(listOfQuantityControllers[index].text) + 1).toString());
+        emit(state.copyWith(quantityControllers: listOfQuantityControllers));
+        add(SetQuantityControllerEvent(index: index));
+        add(SetAllControllersEvent());
+      } else {
+        List<ReceiptProduct> listOfReceiptProducts = List.from(state.listOfReceiptProducts);
+        Tax? tax = state.taxRulesListFromSettings.where((e) => e.taxRate == state.receipt.tax).firstOrNull;
+        tax ??= Tax(taxId: '', taxName: 'Vorsteuer ${state.receipt.tax}%', taxRate: state.receipt.tax, country: Country.empty(), isDefault: false);
+        ReceiptProduct newReceiptProduct = event.receiptProduct.copyWith(
+          tax: tax,
+          unitPriceGross: event.receiptProduct.unitPriceNet * taxToCalc(tax.taxRate),
+        );
+        listOfReceiptProducts.add(newReceiptProduct);
 
-      add(SetAllControllersEvent(listOfReceiptProducts: listOfReceiptProducts));
+        add(SetAllControllersEvent(listOfReceiptProducts: listOfReceiptProducts));
+      }
     });
 
 //? #########################################################################
@@ -57,8 +83,40 @@ class ReceiptDetailBloc extends Bloc<ReceiptDetailEvent, ReceiptDetailState> {
     });
 
 //? #########################################################################
+
+    on<SetIsInScanModeEvent>((event, emit) {
+      emit(state.copyWith(isInScanMode: event.isInScanMode));
+    });
+
+//? #########################################################################
+
+    on<SetTotalDiscountPercentControllerEvent>((event, emit) {
+      emit(state.copyWith(discountPercentage: event.value));
+    });
+
+//? #########################################################################
+
+    on<SetTotalDiscountAmountGrossControllerEvent>((event, emit) {
+      emit(state.copyWith(discountAmountGross: event.value));
+    });
+
+//? #########################################################################
+
+    on<SetShippingAmountGrossControllerEvent>((event, emit) {
+      emit(state.copyWith(shippingAmountGross: event.value));
+    });
+
+//? #########################################################################
+
+    on<SetAdditionalAmountGrossControllerEvent>((event, emit) {
+      emit(state.copyWith(additionalAmountGross: event.value));
+    });
+
+//? #########################################################################
 //? #########################################################################
 //? ############################ Controllers ################################
+//? #########################################################################
+//? #########################################################################
 
     on<SetAllControllersEvent>((event, emit) {
       List<bool> isEditable = [];
@@ -84,9 +142,9 @@ class ReceiptDetailBloc extends Bloc<ReceiptDetailEvent, ReceiptDetailState> {
           taxRulesList.add(state.taxRulesListFromSettings.where((e) => e.isDefault).first);
         }
         quantityControllers.add(TextEditingController(text: product.quantity.toString()));
-        unitPriceNetControllers.add(TextEditingController(text: product.unitPriceNet.toMyCurrency()));
+        unitPriceNetControllers.add(TextEditingController(text: product.unitPriceNet.toMyCurrencyStringToShow()));
         posDiscountPercentControllers.add(TextEditingController(text: product.discountPercent.toString()));
-        unitPriceGrossControllers.add(TextEditingController(text: product.unitPriceGross.toMyCurrency()));
+        unitPriceGrossControllers.add(TextEditingController(text: product.unitPriceGross.toMyCurrencyStringToShow()));
       }
       emit(state.copyWith(
         isEditable: isEditable,
@@ -118,11 +176,11 @@ class ReceiptDetailBloc extends Bloc<ReceiptDetailEvent, ReceiptDetailState> {
       List<TextEditingController> listOfUnitPriceGrossControllers = List.from(state.unitPriceGrossControllers);
       List<ReceiptProduct> listOfReceiptProducts = List.from(state.listOfReceiptProducts);
       listOfReceiptProducts[event.index] = listOfReceiptProducts[event.index].copyWith(
-          unitPriceNet: listOfUnitPriceNetControllers[event.index].text.toDouble(),
-          unitPriceGross: listOfUnitPriceNetControllers[event.index].text.toDouble() * taxToCalc(listOfReceiptProducts[event.index].tax.taxRate));
+          unitPriceNet: listOfUnitPriceNetControllers[event.index].text.toMyDouble(),
+          unitPriceGross: listOfUnitPriceNetControllers[event.index].text.toMyDouble() * taxToCalc(listOfReceiptProducts[event.index].tax.taxRate));
       listOfUnitPriceGrossControllers[event.index] = TextEditingController(
-          text: (listOfUnitPriceNetControllers[event.index].text.toDouble() * taxToCalc(listOfReceiptProducts[event.index].tax.taxRate))
-              .toMyCurrency());
+          text: (listOfUnitPriceNetControllers[event.index].text.toMyDouble() * taxToCalc(listOfReceiptProducts[event.index].tax.taxRate))
+              .toMyCurrencyStringToShow());
       emit(state.copyWith(
         listOfReceiptProducts: listOfReceiptProducts,
         unitPriceGrossControllers: listOfUnitPriceGrossControllers,
@@ -135,10 +193,10 @@ class ReceiptDetailBloc extends Bloc<ReceiptDetailEvent, ReceiptDetailState> {
       List<TextEditingController> listOfPosDiscountPercentControllers = List.from(state.posDiscountPercentControllers);
       List<ReceiptProduct> listOfReceiptProducts = List.from(state.listOfReceiptProducts);
       listOfReceiptProducts[event.index] = listOfReceiptProducts[event.index].copyWith(
-        discountPercent: listOfPosDiscountPercentControllers[event.index].text.toDouble(),
+        discountPercent: listOfPosDiscountPercentControllers[event.index].text.toMyDouble(),
       );
       emit(state.copyWith(
-        posDiscountPercent: listOfPosDiscountPercentControllers[event.index].text.toDouble(),
+        posDiscountPercent: listOfPosDiscountPercentControllers[event.index].text.toMyDouble(),
         listOfReceiptProducts: listOfReceiptProducts,
       ));
     });
@@ -150,11 +208,11 @@ class ReceiptDetailBloc extends Bloc<ReceiptDetailEvent, ReceiptDetailState> {
       List<TextEditingController> listOfUnitPriceNetControllers = List.from(state.unitPriceNetControllers);
       List<ReceiptProduct> listOfReceiptProducts = List.from(state.listOfReceiptProducts);
       listOfReceiptProducts[event.index] = listOfReceiptProducts[event.index].copyWith(
-          unitPriceGross: listOfUnitPriceGrossControllers[event.index].text.toDouble(),
-          unitPriceNet: listOfUnitPriceGrossControllers[event.index].text.toDouble() / taxToCalc(listOfReceiptProducts[event.index].tax.taxRate));
+          unitPriceGross: listOfUnitPriceGrossControllers[event.index].text.toMyDouble(),
+          unitPriceNet: listOfUnitPriceGrossControllers[event.index].text.toMyDouble() / taxToCalc(listOfReceiptProducts[event.index].tax.taxRate));
       listOfUnitPriceNetControllers[event.index] = TextEditingController(
-          text: (listOfUnitPriceGrossControllers[event.index].text.toDouble() / taxToCalc(listOfReceiptProducts[event.index].tax.taxRate))
-              .toMyCurrency());
+          text: (listOfUnitPriceGrossControllers[event.index].text.toMyDouble() / taxToCalc(listOfReceiptProducts[event.index].tax.taxRate))
+              .toMyCurrencyStringToShow());
       emit(state.copyWith(
         listOfReceiptProducts: listOfReceiptProducts,
         unitPriceNetControllers: listOfUnitPriceNetControllers,

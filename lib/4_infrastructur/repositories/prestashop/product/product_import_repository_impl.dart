@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.dart';
 import 'package:cezeri_commerce/3_domain/entities_presta/product_presta.dart';
 import 'package:cezeri_commerce/4_infrastructur/repositories/prestashop/presta_api_helper.dart';
 import 'package:dartz/dartz.dart';
@@ -50,7 +51,7 @@ class ProductImportRepositoryImpl implements ProductImportRepository {
       final document = XmlDocument.parse(response.body);
       final id = int.parse(document.findAllElements('id').first.text);
       final productName = document.findAllElements('name').first.text;
-      final productPrice = double.parse(document.findAllElements('price').first.text);
+      final productPrice = (document.findAllElements('price').first.text).toMyDouble();
       final productDescription = document.findAllElements('description').first.text;
       final quantity = int.parse(document.findAllElements('quantity').first.text);
       // Fügen Sie hier weitere Felder hinzu, je nachdem, welche Informationen Sie benötigen

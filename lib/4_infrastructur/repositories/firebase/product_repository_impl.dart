@@ -112,6 +112,23 @@ class ProductRepositoryImpl implements ProductRepository {
   }
 
   @override
+  Future<Either<FirebaseFailure, Product>> getProductByEan(String ean) async {
+    final isConnected = await checkInternetConnection();
+    if (!isConnected) return left(NoConnectionFailure());
+
+    final currentUserUid = firebaseAuth.currentUser!.uid;
+    final docRef = db.collection(currentUserUid).doc(currentUserUid).collection('Products').where('ean', isEqualTo: ean);
+
+    try {
+      final product = await docRef.get().then((value) => value.docs.map((docSs) => Product.fromJson(docSs.data())).toList().firstOrNull);
+      if (product == null) return left(EmptyFailure());
+      return right(product);
+    } on FirebaseException {
+      return left(GeneralFailure());
+    }
+  }
+
+  @override
   Future<Either<FirebaseFailure, Unit>> updateProduct(Product product) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());

@@ -194,7 +194,7 @@ class __AppointmentContainerState extends State<_AppointmentContainer> {
                             Text(DateFormat('Hm', 'de').format(widget.appointment.creationDate)),
                           ],
                         ),
-                        Text('${widget.appointment.totalGross.toMyCurrency()} €', style: TextStyles.defaultBold)
+                        Text('${widget.appointment.totalGross.toMyCurrencyStringToShow()} €', style: TextStyles.defaultBold)
                       ],
                     ),
                   ),
@@ -303,8 +303,8 @@ class __AppointmentContainerState extends State<_AppointmentContainer> {
                         Gaps.h2,
                         Image.asset(widget.appointment.paymentMethod.logoPath, height: 25, width: 65, fit: BoxFit.scaleDown),
                         Gaps.h2,
-                        Text('${widget.appointment.profit.toMyCurrency()} ${widget.appointment.currency}'),
-                        Text('${calcDiscountPercentage(widget.appointment.totalNet, widget.appointment.profit).toMyCurrency()} %'),
+                        Text('${widget.appointment.profit.toMyCurrencyStringToShow()} ${widget.appointment.currency}'),
+                        Text('${calcDiscountPercentage(widget.appointment.totalNet, widget.appointment.profit).toMyCurrencyStringToShow()} %'),
                       ],
                     ),
                   ),

@@ -15,12 +15,19 @@ class ReceiptDetailState {
   final double additionalAmountGross;
   final double taxAmount;
   final double totalGross;
+  //* Controller ProductsTotal
+  final TextEditingController discountPercentageController;
+  final TextEditingController discountAmountGrossController;
+  final TextEditingController shippingAmountGrossController;
+  final TextEditingController additionalAmountGrossController;
   //* Helper Products
+  final bool isInScanMode;
   final double posDiscountPercent;
   final double posDiscountPercentAmount;
   final List<bool> isEditable;
   final List<Tax> taxRulesList;
-  //* Controller
+  //* Controller Products
+  final TextEditingController barcodeScannerController;
   final List<TextEditingController> articleNumberControllers;
   final List<TextEditingController> articleNameControllers;
   final List<TextEditingController> quantityControllers;
@@ -36,9 +43,15 @@ class ReceiptDetailState {
     required this.discountAmountGross,
     required this.shippingAmountGross,
     required this.additionalAmountGross,
+    required this.discountPercentageController,
+    required this.discountAmountGrossController,
+    required this.shippingAmountGrossController,
+    required this.additionalAmountGrossController,
+    required this.isInScanMode,
     required this.posDiscountPercent,
     required this.isEditable,
     required this.taxRulesList,
+    required this.barcodeScannerController,
     required this.articleNumberControllers,
     required this.articleNameControllers,
     required this.quantityControllers,
@@ -67,14 +80,10 @@ class ReceiptDetailState {
             additionalAmountGross;
 
   static double _calcProductsTotalNet(List<ReceiptProduct> receiptProducts) {
-    // TODO: aktuell wird ReceiptProduct falsch aus Prestashop importiert.
-    // TODO: danach (e.unitPriceNet - discountNetUnit) * e.quantity
     return receiptProducts.map((e) => e.unitPriceNet * e.quantity).toList().reduce((value, element) => value + element);
   }
 
   static double _calcProductsTotalGross(List<ReceiptProduct> receiptProducts) {
-    // TODO: aktuell wird ReceiptProduct falsch aus Prestashop importiert.
-    // TODO: danach (e.unitPriceNet - discountNetUnit) * e.quantity
     return receiptProducts.map((e) => e.unitPriceGross * e.quantity).toList().reduce((value, element) => value + element);
   }
 
@@ -116,9 +125,15 @@ class ReceiptDetailState {
         discountAmountGross: 0,
         shippingAmountGross: 0,
         additionalAmountGross: 0,
+        discountPercentageController: TextEditingController(text: '0'),
+        discountAmountGrossController: TextEditingController(text: '0'),
+        shippingAmountGrossController: TextEditingController(text: '0'),
+        additionalAmountGrossController: TextEditingController(text: '0'),
+        isInScanMode: false,
         posDiscountPercent: 0,
         isEditable: const [],
         taxRulesList: const [],
+        barcodeScannerController: TextEditingController(),
         articleNumberControllers: const [],
         articleNameControllers: const [],
         quantityControllers: const [],
@@ -140,9 +155,15 @@ class ReceiptDetailState {
     double? additionalAmountGross,
     double? taxAmount,
     double? totalGross,
+    TextEditingController? discountPercentageController,
+    TextEditingController? discountAmountGrossController,
+    TextEditingController? shippingAmountGrossController,
+    TextEditingController? additionalAmountGrossController,
+    bool? isInScanMode,
     double? posDiscountPercent,
     List<bool>? isEditable,
     List<Tax>? taxRulesList,
+    TextEditingController? barcodeScannerController,
     List<TextEditingController>? articleNumberControllers,
     List<TextEditingController>? articleNameControllers,
     List<TextEditingController>? quantityControllers,
@@ -158,9 +179,15 @@ class ReceiptDetailState {
       discountAmountGross: discountAmountGross ?? this.discountAmountGross,
       shippingAmountGross: shippingAmountGross ?? this.shippingAmountGross,
       additionalAmountGross: additionalAmountGross ?? this.additionalAmountGross,
+      discountPercentageController: discountPercentageController ?? this.discountPercentageController,
+      discountAmountGrossController: discountAmountGrossController ?? this.discountAmountGrossController,
+      shippingAmountGrossController: shippingAmountGrossController ?? this.shippingAmountGrossController,
+      additionalAmountGrossController: additionalAmountGrossController ?? this.additionalAmountGrossController,
+      isInScanMode: isInScanMode ?? this.isInScanMode,
       posDiscountPercent: posDiscountPercent ?? this.posDiscountPercent,
       isEditable: isEditable ?? this.isEditable,
       taxRulesList: taxRulesList ?? this.taxRulesList,
+      barcodeScannerController: barcodeScannerController ?? this.barcodeScannerController,
       articleNumberControllers: articleNumberControllers ?? this.articleNumberControllers,
       articleNameControllers: articleNameControllers ?? this.articleNameControllers,
       quantityControllers: quantityControllers ?? this.quantityControllers,
