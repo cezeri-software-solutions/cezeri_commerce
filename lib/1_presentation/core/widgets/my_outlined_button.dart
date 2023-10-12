@@ -1,3 +1,4 @@
+import 'package:cezeri_commerce/1_presentation/core/widgets/my_circular_progress_indicator.dart';
 import 'package:flutter/material.dart';
 
 import '../../../constants.dart';
@@ -29,7 +30,7 @@ class MyOutlinedButton extends StatelessWidget {
         backgroundColor: buttonBackgroundColor,
         foregroundColor: textColor,
       ),
-      child: isLoading ? const CircularProgressIndicator(color: Colors.white) : Text(buttonText),
+      child: isLoading ? const MyCircularProgressIndicator(color: Colors.white) : Text(buttonText),
     );
   }
 }

@@ -14,6 +14,7 @@ import '../../../3_domain/entities/product/product.dart';
 import '../../../constants.dart';
 import '../../../injection.dart';
 import '../../core/widgets/my_avatar.dart';
+import '../../core/widgets/my_delete_dialog.dart';
 
 class ReceiptDetailProductsCard extends StatefulWidget {
   final AppointmentBloc appointmentBloc;
@@ -169,6 +170,8 @@ class _ReceiptDetailProductsCardState extends State<ReceiptDetailProductsCard> {
                                           placeholderStyle: TextStyles.s12,
                                           controller: state.articleNumberControllers[index],
                                           style: TextStyles.s12,
+                                          onChanged: (_) => widget.receiptDetailBloc.add(SetArticleNumberControllerEvent(index: index)),
+                                          onTapOutside: (_) => FocusScope.of(context).unfocus(),
                                         ),
                                       ),
                                     ),
@@ -181,6 +184,8 @@ class _ReceiptDetailProductsCardState extends State<ReceiptDetailProductsCard> {
                                           readOnly: !state.isEditable[index],
                                           controller: state.articleNameControllers[index],
                                           style: TextStyles.s12,
+                                          onChanged: (_) => widget.receiptDetailBloc.add(SetArticleNameControllerEvent(index: index)),
+                                          onTapOutside: (_) => FocusScope.of(context).unfocus(),
                                         ),
                                       ),
                                     ),
@@ -219,7 +224,7 @@ class _ReceiptDetailProductsCardState extends State<ReceiptDetailProductsCard> {
                                         child: CupertinoTextField(
                                           controller: state.unitPriceNetControllers[index],
                                           style: TextStyles.s12,
-                                          onChanged: (value) => widget.receiptDetailBloc.add(SetUnitPriceNetControllerEvent(index: index)),
+                                          onChanged: (_) => widget.receiptDetailBloc.add(SetUnitPriceNetControllerEvent(index: index)),
                                           onTapOutside: (_) => FocusScope.of(context).unfocus(),
                                         ),
                                       ),
@@ -232,7 +237,7 @@ class _ReceiptDetailProductsCardState extends State<ReceiptDetailProductsCard> {
                                         child: CupertinoTextField(
                                           controller: state.posDiscountPercentControllers[index],
                                           style: TextStyles.s12,
-                                          onChanged: (value) => widget.receiptDetailBloc.add(SetPosDiscountPercentControllerEvent(index: index)),
+                                          onChanged: (_) => widget.receiptDetailBloc.add(SetPosDiscountPercentControllerEvent(index: index)),
                                           onTapOutside: (_) => FocusScope.of(context).unfocus(),
                                           suffix: const Text('% '),
                                         ),
@@ -246,7 +251,7 @@ class _ReceiptDetailProductsCardState extends State<ReceiptDetailProductsCard> {
                                         child: CupertinoTextField(
                                           controller: state.unitPriceGrossControllers[index],
                                           style: TextStyles.s12,
-                                          onChanged: (value) => widget.receiptDetailBloc.add(SetUnitPriceGrossControllerEvent(index: index)),
+                                          onChanged: (_) => widget.receiptDetailBloc.add(SetUnitPriceGrossControllerEvent(index: index)),
                                           onTapOutside: (_) => FocusScope.of(context).unfocus(),
                                         ),
                                       ),
@@ -266,7 +271,17 @@ class _ReceiptDetailProductsCardState extends State<ReceiptDetailProductsCard> {
                                     ConstrainedBox(
                                       constraints: const BoxConstraints(maxHeight: 28),
                                       child: IconButton(
-                                        onPressed: () => widget.receiptDetailBloc.add(RemoveProductFromReceiptProductsEvent(index: index)),
+                                        onPressed: () => showDialog(
+                                          context: context,
+                                          builder: (context) => MyDeleteDialog(
+                                            content:
+                                                'Bist du sicher, dass du den Artikel "${state.listOfReceiptProducts[index].name}" unwiederruflich löschen willst?',
+                                            onConfirm: () {
+                                              widget.receiptDetailBloc.add(RemoveProductFromReceiptProductsEvent(index: index));
+                                              context.router.pop();
+                                            },
+                                          ),
+                                        ),
                                         padding: EdgeInsets.zero,
                                         splashRadius: 0.0001,
                                         constraints: const BoxConstraints(),

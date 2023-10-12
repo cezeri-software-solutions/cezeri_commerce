@@ -50,18 +50,31 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
                 icon: const Icon(Icons.refresh, size: 30),
               ),
             responsiveness == Responsiveness.isTablet ? Gaps.w32 : Gaps.w8,
-            MyOutlinedButton(
-              buttonText: 'Speichern',
-              onPressed: () {
-                if (state.appointment != null) {
-                  // TODO: updated appointment
-                  // widget.appointmentBloc.add(UpdateAppointmentEvent(appointment: ));
-                } else {
-                  // TODO: Handle create new product
-                }
+            BlocBuilder<ReceiptDetailBloc, ReceiptDetailState>(
+              bloc: widget.receiptDetailBloc,
+              builder: (context, stateReceiptDetail) {
+                return MyOutlinedButton(
+                  buttonText: 'Speichern',
+                  onPressed: () {
+                    if (state.appointment != null) {
+                      final updatedAppointment = state.appointment!.copyWith(
+                        discountPercent: stateReceiptDetail.discountPercentage,
+                        discountGross: stateReceiptDetail.discountAmountGross,
+                        totalShippingGross: stateReceiptDetail.shippingAmountGross,
+                      );
+                      widget.appointmentBloc.add(UpdateAppointmentEvent(
+                        appointment: updatedAppointment,
+                        oldListOfReceiptProducts: state.appointment!.listOfReceiptProduct,
+                        newListOfReceiptProducts: stateReceiptDetail.listOfReceiptProducts,
+                      ));
+                    } else {
+                      // TODO: Handle create new product
+                    }
+                  },
+                  isLoading: state.isLoadingAppointmentOnUpdate,
+                  buttonBackgroundColor: Colors.green,
+                );
               },
-              isLoading: state.isLoadingAppointmentOnUpdate,
-              buttonBackgroundColor: Colors.green,
             ),
             responsiveness == Responsiveness.isTablet ? Gaps.w32 : Gaps.w8,
           ],

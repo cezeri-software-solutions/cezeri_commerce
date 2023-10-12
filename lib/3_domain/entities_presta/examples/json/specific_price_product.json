@@ -1,0 +1,44 @@
+{
+  "specific_prices": [
+    {
+      "id": 16151,
+      "id_shop_group": "0",
+      "id_shop": "1",
+      "id_cart": "0",
+      "id_product": "864",
+      "id_product_attribute": "0",
+      "id_currency": "0",
+      "id_country": "0",
+      "id_group": "0",
+      "id_customer": "0",
+      "id_specific_price_rule": "0",
+      "price": "-1.000000",
+      "from_quantity": "1",
+      "reduction": "0.100000",
+      "reduction_tax": "1",
+      "reduction_type": "percentage",
+      "from": "0000-00-00 00:00:00",
+      "to": "0000-00-00 00:00:00"
+    },
+    {
+      "id": 16153,
+      "id_shop_group": "0",
+      "id_shop": "1",
+      "id_cart": "0",
+      "id_product": "864",
+      "id_product_attribute": "0",
+      "id_currency": "0",
+      "id_country": "0",
+      "id_group": "4",
+      "id_customer": "0",
+      "id_specific_price_rule": "1",
+      "price": "-1.000000",
+      "from_quantity": "1",
+      "reduction": "0.100000",
+      "reduction_tax": "0",
+      "reduction_type": "percentage",
+      "from": "0000-00-00 00:00:00",
+      "to": "0000-00-00 00:00:00"
+    }
+  ]
+}

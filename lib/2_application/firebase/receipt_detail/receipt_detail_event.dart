@@ -76,6 +76,18 @@ class SetTaxRuleEvent extends ReceiptDetailEvent {
   SetTaxRuleEvent({required this.taxRule, required this.index});
 }
 
+class SetArticleNumberControllerEvent extends ReceiptDetailEvent {
+  final int index;
+
+  SetArticleNumberControllerEvent({required this.index});
+}
+
+class SetArticleNameControllerEvent extends ReceiptDetailEvent {
+  final int index;
+
+  SetArticleNameControllerEvent({required this.index});
+}
+
 class SetQuantityControllerEvent extends ReceiptDetailEvent {
   final int index;
 

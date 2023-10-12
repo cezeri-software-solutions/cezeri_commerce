@@ -52,8 +52,10 @@ class AppointmentDetailScreen extends StatelessWidget {
               state.fosAppointmentOnUpdateOption.fold(
                 () => null,
                 (a) => a.fold(
-                  (prestaFailure) => context.router.popUntilRouteWithName(AppointmentDetailRoute.name),
-                  (unit) => context.router.popUntilRouteWithName(AppointmentDetailRoute.name),
+                  (prestaFailure) => null,
+                  (unit) {
+                    myScaffoldMessenger(context, null, null, 'Dokument erfolgreich aktualisiert', null);
+                  },
                 ),
               );
             },

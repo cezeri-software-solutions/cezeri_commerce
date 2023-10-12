@@ -161,6 +161,27 @@ class ReceiptDetailBloc extends Bloc<ReceiptDetailEvent, ReceiptDetailState> {
 
 //? #########################################################################
 
+    on<SetArticleNumberControllerEvent>((event, emit) {
+      List<TextEditingController> listOfArticleNumberControllers = List.from(state.articleNumberControllers);
+      List<ReceiptProduct> listOfReceiptProducts = List.from(state.listOfReceiptProducts);
+      listOfReceiptProducts[event.index] =
+          listOfReceiptProducts[event.index].copyWith(articleNumber: listOfArticleNumberControllers[event.index].text);
+
+      emit(state.copyWith(listOfReceiptProducts: listOfReceiptProducts));
+    });
+
+//? #########################################################################
+
+    on<SetArticleNameControllerEvent>((event, emit) {
+      List<TextEditingController> listOfArticleNameControllers = List.from(state.articleNameControllers);
+      List<ReceiptProduct> listOfReceiptProducts = List.from(state.listOfReceiptProducts);
+      listOfReceiptProducts[event.index] = listOfReceiptProducts[event.index].copyWith(name: listOfArticleNameControllers[event.index].text);
+
+      emit(state.copyWith(listOfReceiptProducts: listOfReceiptProducts));
+    });
+
+//? #########################################################################
+
     on<SetQuantityControllerEvent>((event, emit) {
       List<TextEditingController> listOfQuantityControllers = List.from(state.quantityControllers);
       List<ReceiptProduct> listOfReceiptProducts = List.from(state.listOfReceiptProducts);

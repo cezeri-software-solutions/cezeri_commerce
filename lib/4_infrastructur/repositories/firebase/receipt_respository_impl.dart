@@ -50,7 +50,11 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
   }
 
   @override
-  Future<Either<FirebaseFailure, Unit>> updateAppointment(Receipt appointment) async {
+  Future<Either<FirebaseFailure, Unit>> updateAppointment(
+    Receipt appointment,
+    List<ReceiptProduct> toAddQuantityProducts,
+    List<ReceiptProduct> toSubtractQuantityProducts,
+  ) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
 
@@ -285,16 +289,31 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
   }
 
   @override
-  Future<Either<FirebaseFailure, Unit>> deleteListOfAppointments(List<String> listOfIds) async {
+  Future<Either<FirebaseFailure, Unit>> deleteListOfAppointments(List<Receipt> listOfReceipts) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
 
     final currentUserUid = firebaseAuth.currentUser!.uid;
 
     try {
-      for (final id in listOfIds) {
-        final docRef = db.collection(currentUserUid).doc(currentUserUid).collection('Appointments').doc(id);
-        await docRef.delete();
+      for (final receipt in listOfReceipts) {
+        final listOfProducts = await getListOfProducts(db: db, receipt: receipt, currentUserUid: currentUserUid);
+        if (listOfProducts == null) continue;
+
+        await db.runTransaction((transaction) async {
+          for (final product in listOfProducts) {
+            await updateProductWarehouseQuantityIncremental(
+              transaction: transaction,
+              db: db,
+              currentUserUid: currentUserUid,
+              product: product,
+              newQuantityIncremental: receipt.listOfReceiptProduct.where((e) => e.productId == product.id).first.quantity,
+            );
+          }
+          // TODO: update quantity in marketplaces triggern
+          final docRef = db.collection(currentUserUid).doc(currentUserUid).collection('Appointments').doc(receipt.receiptId);
+          transaction.delete(docRef);
+        });
       }
 
       return right(unit);
@@ -379,4 +398,46 @@ ReceiptProduct generateReceiptProduct({
     profit: ((orderProductPresta.unitPriceTaxExcl).toMyDouble() - product.wholesalePrice) * quantity,
     isFromMarketplace: true,
   );
+}
+
+Future<List<Product>?> getListOfProducts({
+  required FirebaseFirestore db,
+  required Receipt receipt,
+  required String currentUserUid,
+}) async {
+  final logger = Logger();
+  try {
+    final listOfProductsInDatabase = receipt.listOfReceiptProduct.where((e) => e.isFromMarketplace).toList();
+    logger.i(listOfProductsInDatabase.map((e) => e.productId));
+    final docRefProducts = db
+        .collection(currentUserUid)
+        .doc(currentUserUid)
+        .collection('Products')
+        .where('id', whereIn: listOfProductsInDatabase.map((e) => e.productId).toList());
+    final listOfProducts = await docRefProducts
+        .get()
+        .then((value) => value.docs.map((queryDocuemntSnapshot) => Product.fromJson(queryDocuemntSnapshot.data())).toList());
+    return listOfProducts;
+  } catch (error) {
+    logger.e("Error fetching list of products: $error");
+    return null;
+  }
+}
+
+Future<void> updateProductWarehouseQuantityIncremental({
+  required Transaction transaction,
+  required FirebaseFirestore db,
+  required String currentUserUid,
+  required Product product,
+  required int newQuantityIncremental,
+}) async {
+  final logger = Logger();
+  final docRefProduct = db.collection(currentUserUid).doc(currentUserUid).collection('Products').doc(product.id);
+
+  try {
+    final updatedProduct = product.copyWith(availableStock: product.availableStock + newQuantityIncremental);
+    transaction.update(docRefProduct, updatedProduct.toJson());
+  } catch (error) {
+    logger.e('Error on updating product quantity in firebase: $error');
+  }
 }

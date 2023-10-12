@@ -63,18 +63,6 @@ class AppointmentsOverviewScreen extends StatelessWidget {
             },
           ),
           BlocListener<AppointmentBloc, AppointmentState>(
-            listenWhen: (p, c) => p.fosAppointmentOnUpdateOption != c.fosAppointmentOnUpdateOption,
-            listener: (context, state) {
-              state.fosAppointmentOnUpdateOption.fold(
-                () => null,
-                (a) => a.fold(
-                  (prestaFailure) => context.router.popUntilRouteWithName(AppointmentsOverviewRoute.name),
-                  (unit) => context.router.popUntilRouteWithName(AppointmentsOverviewRoute.name),
-                ),
-              );
-            },
-          ),
-          BlocListener<AppointmentBloc, AppointmentState>(
             listenWhen: (p, c) => p.fosAppointmentOnDeleteOption != c.fosAppointmentOnDeleteOption,
             listener: (context, state) {
               state.fosAppointmentOnDeleteOption.fold(

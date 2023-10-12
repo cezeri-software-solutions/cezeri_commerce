@@ -3,6 +3,7 @@ import 'package:dartz/dartz.dart';
 import 'package:meta/meta.dart';
 
 import '../../../3_domain/entities/receipt/receipt.dart';
+import '../../../3_domain/entities/receipt/receipt_product.dart';
 import '../../../3_domain/repositories/firebase/receipt_respository.dart';
 import '../../../core/firebase_failures.dart';
 
@@ -127,7 +128,9 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
     on<UpdateAppointmentEvent>((event, emit) async {
       emit(state.copyWith(isLoadingAppointmentOnUpdate: true));
 
-      final failureOrSuccess = await receiptRepository.updateAppointment(event.appointment);
+      final newAppointment = event.appointment.copyWith(listOfReceiptProduct: event.newListOfReceiptProducts);
+
+      final failureOrSuccess = await receiptRepository.updateAppointment(newAppointment, [], []);
       failureOrSuccess.fold(
         (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
         (unit) => emit(state.copyWith(appointment: event.appointment, firebaseFailure: null, isAnyFailure: false)),
@@ -137,6 +140,7 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
         isLoadingAppointmentOnUpdate: false,
         fosAppointmentOnUpdateOption: optionOf(failureOrSuccess),
       ));
+      emit(state.copyWith(fosAppointmentOnUpdateOption: none()));
     });
 
 //? #########################################################################
@@ -144,7 +148,7 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
     on<DeleteSelectedAppointmentsEvent>((event, emit) async {
       emit(state.copyWith(isLoadingAppointmentOnDelete: true));
 
-      final failureOrSuccess = await receiptRepository.deleteListOfAppointments(event.selectedAppointments.map((e) => e.receiptId).toList());
+      final failureOrSuccess = await receiptRepository.deleteListOfAppointments(event.selectedAppointments);
       failureOrSuccess.fold(
         (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
         (unit) {

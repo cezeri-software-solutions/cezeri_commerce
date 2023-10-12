@@ -19,8 +19,10 @@ class GetNewAppointmentsFromPrestaEvent extends AppointmentEvent {}
 
 class UpdateAppointmentEvent extends AppointmentEvent {
   final Receipt appointment;
+  final List<ReceiptProduct> oldListOfReceiptProducts;
+  final List<ReceiptProduct> newListOfReceiptProducts;
 
-  UpdateAppointmentEvent({required this.appointment});
+  UpdateAppointmentEvent({required this.appointment, required this.oldListOfReceiptProducts, required this.newListOfReceiptProducts});
 }
 
 class DeleteSelectedAppointmentsEvent extends AppointmentEvent {
