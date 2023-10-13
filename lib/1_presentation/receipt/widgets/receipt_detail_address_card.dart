@@ -20,8 +20,8 @@ class _ReceiptDetailAddressCardState extends State<ReceiptDetailAddressCard> {
 
   @override
   Widget build(BuildContext context) {
-    final deliveryAddress = widget.receipt.customer.listOfAddress.where((e) => e.addressType == AddressType.delivery && e.isDefault).first;
-    final invoiceAddress = widget.receipt.customer.listOfAddress.where((e) => e.addressType == AddressType.invoice && e.isDefault).first;
+    final deliveryAddress = widget.receipt.receiptCustomer.listOfAddress.where((e) => e.addressType == AddressType.delivery && e.isDefault).first;
+    final invoiceAddress = widget.receipt.receiptCustomer.listOfAddress.where((e) => e.addressType == AddressType.invoice && e.isDefault).first;
     final shownAddress = switch (_addressType) {
       ReceiptDetailAddressTyp.shipping => deliveryAddress,
       ReceiptDetailAddressTyp.invoice => invoiceAddress,
@@ -32,7 +32,7 @@ class _ReceiptDetailAddressCardState extends State<ReceiptDetailAddressCard> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Align(alignment: Alignment.center, child: Text(widget.receipt.customer.name, style: TextStyles.h3BoldPrimary)),
+            Align(alignment: Alignment.center, child: Text(widget.receipt.receiptCustomer.name, style: TextStyles.h3BoldPrimary)),
             const Divider(height: 30),
             DefaultTabController(
               length: 2,

@@ -1,16 +1,21 @@
 import 'package:json_annotation/json_annotation.dart';
 
+import '../../entities_presta/address_presta.dart';
+import '../../entities_presta/country_presta.dart';
+import '../../entities_presta/customer_presta.dart';
+import '../../enums/enums.dart';
 import '../address.dart';
+import '../marketplace/marketplace.dart';
 import 'customer_marketplace.dart';
 
 part 'customer.g.dart';
 
-enum Gender { empty, male, female }
+enum CustomerInvoiceType { standardInvoice, collectiveInvoice }
 
 @JsonSerializable(explicitToJson: true)
 class Customer {
   final String id;
-  final CustomerMarketplace? customerMarketplace;
+  final CustomerMarketplace customerMarketplace;
   final String? company;
   final String firstName;
   final String lastName;
@@ -18,25 +23,31 @@ class Customer {
   final String email;
   final Gender gender;
   final String birthday;
-  final bool isNewsletterAccepted;
-  final bool isGuest;
+  final String phone; //* NEU
+  final String phoneMobile; //* NEU
   final List<Address> listOfAddress;
+  final CustomerInvoiceType customerInvoiceType; //* NEU
+  final String uidNumber; //* NEU
+  final String taxNumber; //* NEU
   final DateTime creationDate;
   final DateTime lastEditingDate;
 
   const Customer({
     required this.id,
-    this.customerMarketplace,
-    this.company,
+    required this.customerMarketplace,
+    required this.company,
     required this.firstName,
     required this.lastName,
     required this.name,
     required this.email,
     required this.gender,
     required this.birthday,
-    required this.isNewsletterAccepted,
-    required this.isGuest,
+    required this.phone,
+    required this.phoneMobile,
     required this.listOfAddress,
+    required this.customerInvoiceType,
+    required this.uidNumber,
+    required this.taxNumber,
     required this.creationDate,
     required this.lastEditingDate,
   });
@@ -48,7 +59,7 @@ class Customer {
   factory Customer.empty() {
     return Customer(
       id: '',
-      customerMarketplace: null,
+      customerMarketplace: CustomerMarketplace.empty(),
       company: null,
       firstName: '',
       lastName: '',
@@ -56,9 +67,66 @@ class Customer {
       email: '',
       gender: Gender.empty,
       birthday: '',
-      isNewsletterAccepted: false,
-      isGuest: false,
+      phone: '',
+      phoneMobile: '',
       listOfAddress: [],
+      customerInvoiceType: CustomerInvoiceType.standardInvoice,
+      uidNumber: '',
+      taxNumber: '',
+      creationDate: DateTime.now(),
+      lastEditingDate: DateTime.now(),
+    );
+  }
+
+  factory Customer.fromPresta(
+    CustomerPresta customerPresta,
+    Marketplace marketplace,
+    AddressPresta addressInvoicePresta,
+    AddressPresta addressDeliveryPresta,
+    CountryPresta countryInvoicePresta,
+    CountryPresta countryDeliveryPresta,
+  ) {
+    String getUidNumber(String uidFromAddressInvoice, String uidFromAddressDelivery) {
+      if (uidFromAddressInvoice != '') return uidFromAddressInvoice;
+      if (uidFromAddressDelivery != '') return uidFromAddressDelivery;
+      return '';
+    }
+
+    String getPhone(String phoneFromAddressInvoice, String phoneFromAddressDelivery) {
+      if (phoneFromAddressInvoice != '') return phoneFromAddressInvoice;
+      if (phoneFromAddressDelivery != '') return phoneFromAddressDelivery;
+      return '';
+    }
+
+    String getPhoneMobile(String phoneFromAddressInvoice, String phoneFromAddressDelivery) {
+      if (phoneFromAddressInvoice != '') return phoneFromAddressInvoice;
+      if (phoneFromAddressDelivery != '') return phoneFromAddressDelivery;
+      return '';
+    }
+
+    return Customer(
+      id: '',
+      customerMarketplace: CustomerMarketplace.fromPresta(customerPresta, marketplace),
+      company: customerPresta.company,
+      firstName: customerPresta.firstname,
+      lastName: customerPresta.lastname,
+      name: '${customerPresta.firstname} ${customerPresta.lastname}',
+      email: customerPresta.email,
+      gender: switch (customerPresta.idGender) {
+        '1' => Gender.male,
+        '2' => Gender.female,
+        (_) => Gender.empty,
+      },
+      birthday: customerPresta.birthday,
+      phone: getPhone(addressInvoicePresta.phone, addressDeliveryPresta.phone),
+      phoneMobile: getPhoneMobile(addressInvoicePresta.phone, addressDeliveryPresta.phone),
+      listOfAddress: [
+        Address.fromPresta(addressInvoicePresta, countryInvoicePresta, AddressType.invoice),
+        Address.fromPresta(addressDeliveryPresta, countryDeliveryPresta, AddressType.delivery),
+      ],
+      customerInvoiceType: CustomerInvoiceType.standardInvoice,
+      uidNumber: getUidNumber(addressInvoicePresta.vatNumber, addressDeliveryPresta.vatNumber),
+      taxNumber: '',
       creationDate: DateTime.now(),
       lastEditingDate: DateTime.now(),
     );
@@ -74,9 +142,12 @@ class Customer {
     String? email,
     Gender? gender,
     String? birthday,
-    bool? isNewsletterAccepted,
-    bool? isGuest,
+    String? phone,
+    String? phoneMobile,
     List<Address>? listOfAddress,
+    CustomerInvoiceType? customerInvoiceType,
+    String? uidNumber,
+    String? taxNumber,
     DateTime? creationDate,
     DateTime? lastEditingDate,
   }) {
@@ -90,9 +161,12 @@ class Customer {
       email: email ?? this.email,
       gender: gender ?? this.gender,
       birthday: birthday ?? this.birthday,
-      isNewsletterAccepted: isNewsletterAccepted ?? this.isNewsletterAccepted,
-      isGuest: isGuest ?? this.isGuest,
+      phone: phone ?? this.phone,
+      phoneMobile: phoneMobile ?? this.phoneMobile,
       listOfAddress: listOfAddress ?? this.listOfAddress,
+      customerInvoiceType: customerInvoiceType ?? this.customerInvoiceType,
+      uidNumber: uidNumber ?? this.uidNumber,
+      taxNumber: taxNumber ?? this.taxNumber,
       creationDate: creationDate ?? this.creationDate,
       lastEditingDate: lastEditingDate ?? this.lastEditingDate,
     );
@@ -100,6 +174,6 @@ class Customer {
 
   @override
   String toString() {
-    return 'Customer(id: $id, customerMarketplace: $customerMarketplace, company: $company, firstName: $firstName, lastName: $lastName, name: $name, email: $email, gender: $gender, birthday: $birthday, isNewsletterAccepted: $isNewsletterAccepted, isGuest: $isGuest, listOfAddress: $listOfAddress, creationDate: $creationDate, lastEditingDate: $lastEditingDate)';
+    return 'Customer(id: $id, customerMarketplace: $customerMarketplace, company: $company, firstName: $firstName, lastName: $lastName, name: $name, email: $email, gender: $gender, birthday: $birthday, phone: $phone, phoneMobile: $phoneMobile, listOfAddress: $listOfAddress, customerInvoiceType: $customerInvoiceType, uidNumber: $uidNumber, taxNumber: $taxNumber, creationDate: $creationDate, lastEditingDate: $lastEditingDate)';
   }
 }

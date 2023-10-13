@@ -1,7 +1,4 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.dart';
-import 'package:cezeri_commerce/3_domain/entities/id.dart';
-import 'package:cezeri_helpers/cezeri_helpers.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 import '../../../1_presentation/core/functions/mixed_functions.dart';
@@ -12,12 +9,12 @@ import '../../entities_presta/customer_presta.dart';
 import '../../entities_presta/order_presta.dart';
 import '../address.dart';
 import '../customer/customer.dart';
-import '../customer/customer_marketplace.dart';
 import '../marketplace/marketplace.dart';
 import '../settings/bank_details.dart';
 import '../settings/main_settings.dart';
 import '../settings/payment_method.dart';
 import 'payment.dart';
+import 'receipt_customer.dart';
 import 'receipt_product.dart';
 
 part 'receipt.g.dart';
@@ -61,7 +58,10 @@ class Receipt {
   final String receiptDocumentText;
   final String uidNumber;
   final String searchField;
-  final Customer customer;
+  final String customerId;
+  final ReceiptCustomer receiptCustomer; //* damit nicht zu jeder Bestellung zusätzlich der Kunde von Firebase geladen werden muss.
+  final Address addressInvoice;
+  final Address addressDelivery;
   final ReceiptTyp receiptTyp;
   final OfferStatus offerStatus;
   final ReceiptStatus receiptStatus;
@@ -86,6 +86,9 @@ class Receipt {
   final double discountGross;
   final double discountNet;
   final double discountPercent;
+  final double additionalAmountNet;
+  final double additionalAmountTax;
+  final double additionalAmountGross;
   final double profit;
   final double profitExclShipping;
   final double profitExclWrapping;
@@ -118,7 +121,10 @@ class Receipt {
     required this.receiptDocumentText,
     required this.uidNumber,
     required this.searchField,
-    required this.customer,
+    required this.customerId,
+    required this.receiptCustomer,
+    required this.addressInvoice,
+    required this.addressDelivery,
     required this.receiptTyp,
     required this.offerStatus,
     required this.receiptStatus,
@@ -143,6 +149,9 @@ class Receipt {
     required this.discountGross,
     required this.discountNet,
     required this.discountPercent,
+    required this.additionalAmountNet,
+    required this.additionalAmountTax,
+    required this.additionalAmountGross,
     required this.profit,
     required this.profitExclShipping,
     required this.profitExclWrapping,
@@ -171,6 +180,7 @@ class Receipt {
     required AddressPresta addressDeliveryPresta,
     required CountryPresta countryInvoicePresta,
     required CountryPresta countryDeliveryPresta,
+    required Customer customer,
   }) {
     double getTotalNet() =>
         (orderPresta.totalProducts).toMyDouble() +
@@ -205,71 +215,34 @@ class Receipt {
       return PaymentStatus.open;
     }
 
-    final addressInvoice = Address.empty().copyWith(
-      id: UniqueID().value,
-      companyName: addressInvoicePresta.company,
-      firstName: addressInvoicePresta.firstname,
-      lastName: addressInvoicePresta.lastname,
-      name: '${addressInvoicePresta.firstname} ${addressInvoicePresta.lastname}',
-      street: addressInvoicePresta.address1,
-      street2: addressInvoicePresta.address2,
-      postcode: addressInvoicePresta.postcode,
-      city: addressInvoicePresta.city,
-      country: Country.countryList.where((e) => e.isoCode.toUpperCase() == countryInvoicePresta.isoCode.toUpperCase()).first,
-      phone: addressInvoicePresta.phone,
-      phoneMobile: addressInvoicePresta.phoneMobile,
-      addressType: AddressType.invoice,
-      isDefault: true,
-      creationDate: DateTime.now(),
-      lastEditingDate: DateTime.now(),
-    );
-    final addressDelivery = Address.empty().copyWith(
-      id: UniqueID().value,
-      companyName: addressDeliveryPresta.company,
-      firstName: addressDeliveryPresta.firstname,
-      lastName: addressDeliveryPresta.lastname,
-      name: '${addressDeliveryPresta.firstname} ${addressDeliveryPresta.lastname}',
-      street: addressDeliveryPresta.address1,
-      street2: addressDeliveryPresta.address2,
-      postcode: addressDeliveryPresta.postcode,
-      city: addressDeliveryPresta.city,
-      country: Country.empty().copyWith(
-        id: UniqueID().value,
-        isoCode: countryDeliveryPresta.isoCode,
-        name: countryDeliveryPresta.name,
-      ),
-      phone: addressDeliveryPresta.phone,
-      phoneMobile: addressDeliveryPresta.phoneMobile,
-      addressType: AddressType.delivery,
-      isDefault: true,
-      creationDate: DateTime.now(),
-      lastEditingDate: DateTime.now(),
-    );
+    final addressInvoice = Address.fromPresta(addressInvoicePresta, countryInvoicePresta, AddressType.invoice);
 
-    // TODO: check if customer already exists
-    final customer = Customer.empty().copyWith(
-      customerMarketplace: CustomerMarketplace.empty().copyWith(
-        customerIdMarketplace: customerPresta.id,
-        marketplaceId: marketplace.id,
-        marketplaceName: marketplace.name,
-      ),
-      company: customerPresta.company,
-      firstName: customerPresta.firstname,
-      lastName: customerPresta.lastname,
-      name: '${customerPresta.firstname} ${customerPresta.lastname}',
-      email: customerPresta.email,
-      gender: switch (customerPresta.idGender) {
-        '1' => Gender.male,
-        '2' => Gender.female,
-        (_) => Gender.empty,
-      },
-      birthday: customerPresta.birthday,
-      isNewsletterAccepted: stringToBool(customerPresta.newsletter),
-      isGuest: stringToBool(customerPresta.isGuest),
-      listOfAddress: [addressInvoice, addressDelivery],
-      creationDate: DateTime.now(),
-      lastEditingDate: DateTime.now(),
-    );
+    final addressDelivery = Address.fromPresta(addressDeliveryPresta, countryDeliveryPresta, AddressType.delivery);
+
+    // // TODO: check if customer already exists
+    // final customer = Customer.empty().copyWith(
+    //   customerMarketplace: CustomerMarketplace.empty().copyWith(
+    //     customerIdMarketplace: customerPresta.id,
+    //     marketplaceId: marketplace.id,
+    //     marketplaceName: marketplace.name,
+    //   ),
+    //   company: customerPresta.company,
+    //   firstName: customerPresta.firstname,
+    //   lastName: customerPresta.lastname,
+    //   name: '${customerPresta.firstname} ${customerPresta.lastname}',
+    //   email: customerPresta.email,
+    //   gender: switch (customerPresta.idGender) {
+    //     '1' => Gender.male,
+    //     '2' => Gender.female,
+    //     (_) => Gender.empty,
+    //   },
+    //   birthday: customerPresta.birthday,
+    //   isNewsletterAccepted: stringToBool(customerPresta.newsletter),
+    //   isGuest: stringToBool(customerPresta.isGuest),
+    //   listOfAddress: [addressInvoice, addressDelivery],
+    //   creationDate: DateTime.now(),
+    //   lastEditingDate: DateTime.now(),
+    // );
 
     String getUidNumber(String uidFromAddressInvoice, String uidFromAddressDelivery) {
       if (uidFromAddressInvoice != '') return uidFromAddressInvoice;
@@ -309,7 +282,10 @@ class Receipt {
       receiptDocumentText: mainSettings.appointmentDocumentText,
       uidNumber: getUidNumber(addressInvoicePresta.vatNumber, addressDeliveryPresta.vatNumber),
       searchField: '', // TODO: searchfield
-      customer: customer,
+      customerId: customer.id,
+      receiptCustomer: ReceiptCustomer.fromCustomer(customer),
+      addressInvoice: addressInvoice,
+      addressDelivery: addressDelivery,
       receiptTyp: ReceiptTyp.appointment,
       offerStatus: OfferStatus.noOffer,
       receiptStatus: ReceiptStatus.open,
@@ -335,6 +311,9 @@ class Receipt {
       discountNet: (orderPresta.totalDiscountsTaxExcl).toMyDouble(),
       // Von Prestashop kommen sowohl normale Rabatte als auch Prozenrabatte als normales Rabatt
       discountPercent: 0, //calcDiscountPercentage((orderPresta.totalProducts).toMyDouble(), (orderPresta.totalDiscountsTaxExcl).toMyDouble()),
+      additionalAmountNet: 0.0,
+      additionalAmountTax: 0.0,
+      additionalAmountGross: 0.0,
       profit: profit,
       profitExclShipping: profitExclShipping,
       profitExclWrapping: profitExclWrapping,
@@ -372,7 +351,10 @@ class Receipt {
       receiptDocumentText: '',
       uidNumber: '',
       searchField: '',
-      customer: Customer.empty(),
+      customerId: '',
+      receiptCustomer: ReceiptCustomer.empty(),
+      addressInvoice: Address.empty(),
+      addressDelivery: Address.empty(),
       receiptTyp: ReceiptTyp.appointment,
       offerStatus: OfferStatus.open,
       receiptStatus: ReceiptStatus.open,
@@ -397,6 +379,9 @@ class Receipt {
       discountGross: 0,
       discountNet: 0,
       discountPercent: 0,
+      additionalAmountNet: 0,
+      additionalAmountTax: 0,
+      additionalAmountGross: 0,
       profit: 0,
       profitExclShipping: 0,
       profitExclWrapping: 0,
@@ -431,7 +416,10 @@ class Receipt {
     String? receiptDocumentText,
     String? uidNumber,
     String? searchField,
-    Customer? customer,
+    String? customerId,
+    ReceiptCustomer? receiptCustomer,
+    Address? addressInvoice,
+    Address? addressDelivery,
     ReceiptTyp? receiptTyp,
     OfferStatus? offerStatus,
     ReceiptStatus? receiptStatus,
@@ -456,6 +444,9 @@ class Receipt {
     double? discountGross,
     double? discountNet,
     double? discountPercent,
+    double? additionalAmountNet,
+    double? additionalAmountTax,
+    double? additionalAmountGross,
     double? profit,
     double? profitExclShipping,
     double? profitExclWrapping,
@@ -488,7 +479,10 @@ class Receipt {
       receiptDocumentText: receiptDocumentText ?? this.receiptDocumentText,
       uidNumber: uidNumber ?? this.uidNumber,
       searchField: searchField ?? this.searchField,
-      customer: customer ?? this.customer,
+      customerId: customerId ?? this.customerId,
+      receiptCustomer: receiptCustomer ?? this.receiptCustomer,
+      addressInvoice: addressInvoice ?? this.addressInvoice,
+      addressDelivery: addressDelivery ?? this.addressDelivery,
       receiptTyp: receiptTyp ?? this.receiptTyp,
       offerStatus: offerStatus ?? this.offerStatus,
       receiptStatus: receiptStatus ?? this.receiptStatus,
@@ -513,6 +507,9 @@ class Receipt {
       discountGross: discountGross ?? this.discountGross,
       discountNet: discountNet ?? this.discountNet,
       discountPercent: discountPercent ?? this.discountPercent,
+      additionalAmountNet: additionalAmountNet ?? this.additionalAmountNet,
+      additionalAmountTax: additionalAmountTax ?? this.additionalAmountTax,
+      additionalAmountGross: additionalAmountGross ?? this.additionalAmountGross,
       profit: profit ?? this.profit,
       profitExclShipping: profitExclShipping ?? this.profitExclShipping,
       profitExclWrapping: profitExclWrapping ?? this.profitExclWrapping,
@@ -529,6 +526,6 @@ class Receipt {
 
   @override
   String toString() {
-    return 'Receipt(receiptId: $receiptId, offerId: $offerId, offerNumberAsString: $offerNumberAsString, appointmentId: $appointmentId, appointmentNumberAsString: $appointmentNumberAsString, invoiceId: $invoiceId, invoiceNumberAsString: $invoiceNumberAsString, creditId: $creditId, creditNumberAsString: $creditNumberAsString, marketplaceId: $marketplaceId, receiptMarketplaceId: $receiptMarketplaceId, receiptMarketplaceReference: $receiptMarketplaceReference, paymentMethod: $paymentMethod, commentInternal: $commentInternal, commentGlobal: $commentGlobal, currency: $currency, receiptDocumentText: $receiptDocumentText, uidNumber: $uidNumber, searchField: $searchField, customer: $customer, receiptTyp: $receiptTyp, offerStatus: $offerStatus, receiptStatus: $receiptStatus, paymentStatus: $paymentStatus, tax: $tax, termOfPayment: $termOfPayment, totalGross: $totalGross, totalNet: $totalNet, totalTax: $totalTax, subTotalNet: $subTotalNet, subTotalTax: $subTotalTax, subTotalGross: $subTotalGross, totalPaidGross: $totalPaidGross, totalPaidNet: $totalPaidNet, totalPaidTax: $totalPaidTax, totalShippingGross: $totalShippingGross, totalShippingNet: $totalShippingNet, totalShippingTax: $totalShippingTax, totalWrappingGross: $totalWrappingGross, totalWrappingNet: $totalWrappingNet, totalWrappingTax: $totalWrappingTax, discountGross: $discountGross, discountNet: $discountNet, discountPercent: $discountPercent, profit: $profit, profitExclShipping: $profitExclShipping, profitExclWrapping: $profitExclWrapping, profitExclShippingAndWrapping: $profitExclShippingAndWrapping, bankDetails: $bankDetails, listOfPayments: $listOfPayments, listOfReceiptProduct: $listOfReceiptProduct, creationDateMarektplace: $creationDateMarektplace, creationDate: $creationDate, creationDateInt: $creationDateInt, lastEditingDate: $lastEditingDate)';
+    return 'Receipt(receiptId: $receiptId, offerId: $offerId, offerNumberAsString: $offerNumberAsString, appointmentId: $appointmentId, appointmentNumberAsString: $appointmentNumberAsString, invoiceId: $invoiceId, invoiceNumberAsString: $invoiceNumberAsString, creditId: $creditId, creditNumberAsString: $creditNumberAsString, marketplaceId: $marketplaceId, receiptMarketplaceId: $receiptMarketplaceId, receiptMarketplaceReference: $receiptMarketplaceReference, paymentMethod: $paymentMethod, commentInternal: $commentInternal, commentGlobal: $commentGlobal, currency: $currency, receiptDocumentText: $receiptDocumentText, uidNumber: $uidNumber, searchField: $searchField, customerId: $customerId, addressInvoice: $addressInvoice, addressDelivery: $addressDelivery, receiptTyp: $receiptTyp, offerStatus: $offerStatus, receiptStatus: $receiptStatus, paymentStatus: $paymentStatus, tax: $tax, termOfPayment: $termOfPayment, totalGross: $totalGross, totalNet: $totalNet, totalTax: $totalTax, subTotalNet: $subTotalNet, subTotalTax: $subTotalTax, subTotalGross: $subTotalGross, totalPaidGross: $totalPaidGross, totalPaidNet: $totalPaidNet, totalPaidTax: $totalPaidTax, totalShippingGross: $totalShippingGross, totalShippingNet: $totalShippingNet, totalShippingTax: $totalShippingTax, totalWrappingGross: $totalWrappingGross, totalWrappingNet: $totalWrappingNet, totalWrappingTax: $totalWrappingTax, discountGross: $discountGross, discountNet: $discountNet, discountPercent: $discountPercent, additionalAmountNet: $additionalAmountNet, additionalAmountTax: $additionalAmountTax, additionalAmountGross: $additionalAmountGross, profit: $profit, profitExclShipping: $profitExclShipping, profitExclWrapping: $profitExclWrapping, profitExclShippingAndWrapping: $profitExclShippingAndWrapping, bankDetails: $bankDetails, listOfPayments: $listOfPayments, listOfReceiptProduct: $listOfReceiptProduct, creationDateMarektplace: $creationDateMarektplace, creationDate: $creationDate, creationDateInt: $creationDateInt, lastEditingDate: $lastEditingDate)';
   }
 }

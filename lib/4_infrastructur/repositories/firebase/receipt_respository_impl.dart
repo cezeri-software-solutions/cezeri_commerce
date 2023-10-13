@@ -1,6 +1,7 @@
 import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.dart';
 import 'package:cezeri_commerce/3_domain/entities/receipt/receipt.dart';
 import 'package:cezeri_commerce/3_domain/entities/receipt/receipt_product.dart';
+import 'package:cezeri_commerce/3_domain/repositories/firebase/customer_repository.dart';
 import 'package:cezeri_commerce/3_domain/repositories/firebase/receipt_respository.dart';
 import 'package:cezeri_commerce/core/firebase_failures.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -11,6 +12,7 @@ import 'package:logger/logger.dart';
 
 import '../../../1_presentation/core/functions/check_internet_connection.dart';
 import '../../../1_presentation/core/functions/mixed_functions.dart';
+import '../../../3_domain/entities/customer/customer.dart';
 import '../../../3_domain/entities/marketplace/marketplace.dart';
 import '../../../3_domain/entities/product/product.dart';
 import '../../../3_domain/entities/settings/main_settings.dart';
@@ -25,12 +27,14 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
   final FirebaseAuth firebaseAuth;
   final ProductRepository productRepository;
   final ProductImportRepository productImportRepository;
+  final CustomerRepository customerRepository;
 
   const ReceiptRespositoryImpl({
     required this.db,
     required this.firebaseAuth,
     required this.productRepository,
     required this.productImportRepository,
+    required this.customerRepository,
   });
 
   @override
@@ -164,6 +168,19 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
           final optionalCountryDelivery = await api.getCountry(int.parse(addressDelivery.idCountry));
           final countryDelivery = optionalCountryDelivery.value;
 
+          final loadedCustomerFromFirestore = await getCustomerByMarketplaceId(marketplace.id, customer.id);
+          Customer? customerFirestore;
+          if (loadedCustomerFromFirestore == null) {
+            final createdCustomerInFirestore = await createCustomerFromMarketplace(
+              Customer.fromPresta(customer, marketplace, addressInvoice, addressDelivery, countryInvoice, countryDelivery),
+            );
+            customerFirestore = createdCustomerInFirestore;
+          } else {
+            customerFirestore = loadedCustomerFromFirestore;
+          }
+          //* Wenn der Kunde nicht geladen werden kann und auch nicht erstellt werden kann, soll diese Bestellung übersprungen werden.
+          if (customerFirestore == null) continue; // TODO: implemnt log error to firestore
+
           final phAppointment = Receipt.fromOrderPresta(
             marketplace: marketplace,
             mainSettings: mainSettings,
@@ -175,6 +192,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
             addressDeliveryPresta: addressDelivery,
             countryInvoicePresta: countryInvoice,
             countryDeliveryPresta: countryDelivery,
+            customer: customerFirestore,
           );
 
           final docRefAppointment = db.collection(currentUserUid).doc(currentUserUid).collection('Appointments').doc();
@@ -365,6 +383,31 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
     );
 
     return createdProduct;
+  }
+
+  Future<Customer?> getCustomerByMarketplaceId(String marketplaceId, int customerIdMarketplace) async {
+    final logger = Logger();
+    Customer? loadedCustomer;
+    final fosCustomer = await customerRepository.getCustomerByCustomerIdInMarketplace(marketplaceId, customerIdMarketplace);
+    fosCustomer.fold(
+      (failure) =>
+          logger.e('Kunde mit der Marktplatz ID: $customerIdMarketplace konte nicht in der Firestore Datenbank gefunden werden. \n Error: $failure'),
+      (customer) => loadedCustomer = customer,
+    );
+
+    return loadedCustomer;
+  }
+
+  Future<Customer?> createCustomerFromMarketplace(Customer customer) async {
+    final logger = Logger();
+    Customer? createdCustomer;
+    final fosCustomer = await customerRepository.createCustomer(customer);
+    fosCustomer.fold(
+      (failure) => logger.e('Kunde: ${customer.name} konte nicht in der Firestore Datenbank angelegt werden. \n Error: $failure'),
+      (customer) => createdCustomer = customer,
+    );
+
+    return createdCustomer;
   }
 }
 

@@ -2,6 +2,7 @@ import 'package:bloc/bloc.dart';
 import 'package:dartz/dartz.dart';
 import 'package:meta/meta.dart';
 
+import '../../../3_domain/entities/customer/customer.dart';
 import '../../../3_domain/entities/receipt/receipt.dart';
 import '../../../3_domain/entities/receipt/receipt_product.dart';
 import '../../../3_domain/repositories/firebase/receipt_respository.dart';
@@ -186,7 +187,7 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
                 element.appointmentNumberAsString.toLowerCase().contains(state.appointmentSearchText.toLowerCase()) ||
                 element.receiptMarketplaceId.toString().toLowerCase().contains(state.appointmentSearchText.toLowerCase()) ||
                 element.receiptMarketplaceReference.toString().toLowerCase().contains(state.appointmentSearchText.toLowerCase()) ||
-                element.customer.name.toString().toLowerCase().contains(state.appointmentSearchText.toLowerCase()))
+                element.receiptCustomer.name.toString().toLowerCase().contains(state.appointmentSearchText.toLowerCase()))
             .toList()
       };
       emit(state.copyWith(listOfFilteredAppointments: listOfAppointments));

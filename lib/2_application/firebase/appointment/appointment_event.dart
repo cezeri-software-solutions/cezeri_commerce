@@ -11,6 +11,12 @@ class GetAppointmentEvent extends AppointmentEvent {
   GetAppointmentEvent({required this.appointment});
 }
 
+class GetCustomerInAppointmentEvent extends AppointmentEvent {
+  final String customerId;
+
+  GetCustomerInAppointmentEvent({required this.customerId});
+}
+
 class GetAllAppointmentsEvent extends AppointmentEvent {}
 
 class GetOpenAppointmentsEvent extends AppointmentEvent {}

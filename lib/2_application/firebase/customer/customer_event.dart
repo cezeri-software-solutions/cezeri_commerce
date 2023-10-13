@@ -1,0 +1,46 @@
+part of 'customer_bloc.dart';
+
+@immutable
+abstract class CustomerEvent {}
+
+class SetCustomerStateToInitialEvent extends CustomerEvent {}
+
+class GetAllCustomersEvenet extends CustomerEvent {}
+
+class GetCustomerEvent extends CustomerEvent {
+  final Customer customer;
+
+  GetCustomerEvent({required this.customer});
+}
+
+class CreateCustomerEvent extends CustomerEvent {
+  final Customer customer;
+
+  CreateCustomerEvent({required this.customer});
+}
+
+class UpdateCustomerEvent extends CustomerEvent {
+  final Customer customer;
+
+  UpdateCustomerEvent({required this.customer});
+}
+
+class DeleteSelectedCustomersEvent extends CustomerEvent {
+  final List<Customer> selectedCustomers;
+
+  DeleteSelectedCustomersEvent({required this.selectedCustomers});
+}
+
+class SetSearchFieldTextEvent extends CustomerEvent {
+  final String searchText;
+
+  SetSearchFieldTextEvent({required this.searchText});
+}
+
+class OnSearchFieldSubmittedEvent extends CustomerEvent {}
+
+class OnCustomerSelectedEvent extends CustomerEvent {
+  final Customer customer;
+
+  OnCustomerSelectedEvent({required this.customer});
+}

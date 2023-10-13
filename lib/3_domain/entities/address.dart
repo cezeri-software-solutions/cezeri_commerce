@@ -1,5 +1,9 @@
+import 'package:cezeri_commerce/3_domain/entities/id.dart';
 import 'package:cezeri_helpers/cezeri_helpers.dart';
 import 'package:json_annotation/json_annotation.dart';
+
+import '../entities_presta/address_presta.dart';
+import '../entities_presta/country_presta.dart';
 
 part 'address.g.dart';
 
@@ -63,6 +67,27 @@ class Address {
       phoneMobile: '',
       addressType: AddressType.delivery,
       isDefault: false,
+      creationDate: DateTime.now(),
+      lastEditingDate: DateTime.now(),
+    );
+  }
+
+  factory Address.fromPresta(AddressPresta addressPresta, CountryPresta countryPresta, AddressType addressType) {
+    return Address(
+      id: UniqueID().value,
+      companyName: addressPresta.company,
+      firstName: addressPresta.firstname,
+      lastName: addressPresta.lastname,
+      name: '${addressPresta.firstname} ${addressPresta.lastname}',
+      street: addressPresta.address1,
+      street2: addressPresta.address2,
+      postcode: addressPresta.postcode,
+      city: addressPresta.city,
+      country: Country.countryList.where((e) => e.isoCode.toUpperCase() == countryPresta.isoCode.toUpperCase()).first,
+      phone: addressPresta.phone,
+      phoneMobile: addressPresta.phoneMobile,
+      addressType: addressType,
+      isDefault: true,
       creationDate: DateTime.now(),
       lastEditingDate: DateTime.now(),
     );

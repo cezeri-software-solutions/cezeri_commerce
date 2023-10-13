@@ -70,7 +70,7 @@ class _ReceiptDetailGeneralCardState extends State<ReceiptDetailGeneralCard> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text('E-Mail', style: TextStyles.infoOnTextField),
-                      Text(widget.receipt.customer.email),
+                      Text(widget.receipt.receiptCustomer.email),
                     ],
                   ),
                 ),

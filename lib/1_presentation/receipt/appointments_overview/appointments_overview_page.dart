@@ -124,8 +124,8 @@ class __AppointmentContainerState extends State<_AppointmentContainer> {
     final screenWidth = MediaQuery.sizeOf(context).width;
     final responsiveness = screenWidth > 700 ? Responsiveness.isTablet : Responsiveness.isMobil;
     final marketplace = widget.listOfMarketplaces.where((e) => e.id == widget.appointment.marketplaceId).first;
-    final deliveryAddress = widget.appointment.customer.listOfAddress.where((e) => e.addressType == AddressType.delivery && e.isDefault).first;
-    final invoiceAddress = widget.appointment.customer.listOfAddress.where((e) => e.addressType == AddressType.invoice && e.isDefault).first;
+    final deliveryAddress = widget.appointment.receiptCustomer.listOfAddress.where((e) => e.addressType == AddressType.delivery && e.isDefault).first;
+    final invoiceAddress = widget.appointment.receiptCustomer.listOfAddress.where((e) => e.addressType == AddressType.invoice && e.isDefault).first;
     return BlocBuilder<AppointmentBloc, AppointmentState>(
       builder: (context, state) {
         return Container(
@@ -256,8 +256,8 @@ class __AppointmentContainerState extends State<_AppointmentContainer> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        if (widget.appointment.customer.company != null) Text(widget.appointment.customer.company!),
-                        Text(widget.appointment.customer.name),
+                        if (widget.appointment.receiptCustomer.company != null) Text(widget.appointment.receiptCustomer.company!),
+                        Text(widget.appointment.receiptCustomer.name),
                         Text(invoiceAddress.street),
                         Text.rich(
                           TextSpan(

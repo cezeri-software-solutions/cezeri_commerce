@@ -3,6 +3,7 @@ part of 'appointment_bloc.dart';
 @immutable
 class AppointmentState {
   final Receipt? appointment;
+  final Customer? customer;
   final List<Receipt>? listOfAllAppointments;
   final List<Receipt>? listOfFilteredAppointments; // Der State, der im presentation layer ausgegeben wird, egal ob Suchfeld leer oder nicht
   final List<Receipt> selectedAppointments; // Ausgewählte Aufträge zum löschen oder für Massenbearbeitung
@@ -28,6 +29,7 @@ class AppointmentState {
 
   const AppointmentState({
     this.appointment,
+    this.customer,
     required this.listOfAllAppointments,
     required this.listOfFilteredAppointments,
     required this.selectedAppointments,
@@ -52,6 +54,7 @@ class AppointmentState {
 
   factory AppointmentState.initial() => AppointmentState(
         appointment: null,
+        customer: null,
         listOfAllAppointments: null,
         listOfFilteredAppointments: null,
         selectedAppointments: const [],
@@ -76,6 +79,7 @@ class AppointmentState {
 
   AppointmentState copyWith({
     Receipt? appointment,
+    Customer? customer,
     List<Receipt>? listOfAllAppointments,
     List<Receipt>? listOfFilteredAppointments,
     List<Receipt>? selectedAppointments,
@@ -99,6 +103,7 @@ class AppointmentState {
   }) {
     return AppointmentState(
       appointment: appointment ?? this.appointment,
+      customer: customer ?? this.customer,
       listOfAllAppointments: listOfAllAppointments ?? this.listOfAllAppointments,
       listOfFilteredAppointments: listOfFilteredAppointments ?? this.listOfFilteredAppointments,
       selectedAppointments: selectedAppointments ?? this.selectedAppointments,

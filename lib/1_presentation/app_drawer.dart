@@ -33,13 +33,24 @@ class AppDrawer extends StatelessWidget {
                     ),
                     ListTile(leading: const Icon(Icons.dashboard), title: const Text('Dashboard'), onTap: () {}),
                     ListTile(
-                      leading: const Icon(Icons.article),
+                      leading: const Icon(Icons.warehouse),
                       title: const Text('Artikel'),
                       onTap: () {
                         if (context.router.current.name == ProductsOverviewRoute.name) {
                           context.router.pop();
                         } else {
                           context.router.replaceAll([const ProductsOverviewRoute()]);
+                        }
+                      },
+                    ),
+                    ListTile(
+                      leading: const Icon(Icons.person),
+                      title: const Text('Kunden'),
+                      onTap: () {
+                        if (context.router.current.name == CustomersOverviewRoute.name) {
+                          context.router.pop();
+                        } else {
+                          context.router.replaceAll([const CustomersOverviewRoute()]);
                         }
                       },
                     ),

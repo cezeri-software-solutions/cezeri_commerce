@@ -11,6 +11,8 @@ CustomerMarketplace _$CustomerMarketplaceFromJson(Map<String, dynamic> json) =>
       marketplaceId: json['marketplaceId'] as String,
       marketplaceName: json['marketplaceName'] as String,
       customerIdMarketplace: json['customerIdMarketplace'] as int,
+      isNewsletterAccepted: json['isNewsletterAccepted'] as bool,
+      isGuest: json['isGuest'] as bool,
     );
 
 Map<String, dynamic> _$CustomerMarketplaceToJson(
@@ -19,4 +21,6 @@ Map<String, dynamic> _$CustomerMarketplaceToJson(
       'marketplaceId': instance.marketplaceId,
       'marketplaceName': instance.marketplaceName,
       'customerIdMarketplace': instance.customerIdMarketplace,
+      'isNewsletterAccepted': instance.isNewsletterAccepted,
+      'isGuest': instance.isGuest,
     };

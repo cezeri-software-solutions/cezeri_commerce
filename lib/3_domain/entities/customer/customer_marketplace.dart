@@ -1,5 +1,9 @@
 import 'package:json_annotation/json_annotation.dart';
 
+import '../../../1_presentation/core/functions/mixed_functions.dart';
+import '../../entities_presta/customer_presta.dart';
+import '../marketplace/marketplace.dart';
+
 part 'customer_marketplace.g.dart';
 
 @JsonSerializable()
@@ -7,11 +11,15 @@ class CustomerMarketplace {
   final String marketplaceId;
   final String marketplaceName;
   final int customerIdMarketplace;
+  final bool isNewsletterAccepted;
+  final bool isGuest;
 
   const CustomerMarketplace({
     required this.marketplaceId,
     required this.marketplaceName,
     required this.customerIdMarketplace,
+    required this.isNewsletterAccepted,
+    required this.isGuest,
   });
 
   factory CustomerMarketplace.fromJson(Map<String, dynamic> json) => _$CustomerMarketplaceFromJson(json);
@@ -23,6 +31,18 @@ class CustomerMarketplace {
       marketplaceId: '',
       marketplaceName: '',
       customerIdMarketplace: 0,
+      isNewsletterAccepted: false,
+      isGuest: false,
+    );
+  }
+
+  factory CustomerMarketplace.fromPresta(CustomerPresta customerPresta, Marketplace marketplace) {
+    return CustomerMarketplace(
+      marketplaceId: marketplace.id,
+      marketplaceName: marketplace.name,
+      customerIdMarketplace: customerPresta.id,
+      isNewsletterAccepted: stringToBool(customerPresta.newsletter),
+      isGuest: stringToBool(customerPresta.isGuest),
     );
   }
 
@@ -30,15 +50,20 @@ class CustomerMarketplace {
     String? marketplaceId,
     String? marketplaceName,
     int? customerIdMarketplace,
+    bool? isNewsletterAccepted,
+    bool? isGuest,
   }) {
     return CustomerMarketplace(
       marketplaceId: marketplaceId ?? this.marketplaceId,
       marketplaceName: marketplaceName ?? this.marketplaceName,
       customerIdMarketplace: customerIdMarketplace ?? this.customerIdMarketplace,
+      isNewsletterAccepted: isNewsletterAccepted ?? this.isNewsletterAccepted,
+      isGuest: isGuest ?? this.isGuest,
     );
   }
 
   @override
-  String toString() =>
-      'CustomerMarketplace(marketplaceId: $marketplaceId, marketplaceName: $marketplaceName, customerIdMarketplace: $customerIdMarketplace)';
+  String toString() {
+    return 'CustomerMarketplace(marketplaceId: $marketplaceId, marketplaceName: $marketplaceName, customerIdMarketplace: $customerIdMarketplace, isNewsletterAccepted: $isNewsletterAccepted, isGuest: $isGuest)';
+  }
 }
