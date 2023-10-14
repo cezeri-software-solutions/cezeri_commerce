@@ -63,7 +63,7 @@ class MarketplaceRepositoryImpl implements MarketplaceRepository {
       //* Zum hinzufügen von neuen Attributen.
       // for (final marketplace in listOfMarketplaces) {
       //   final docRefMp = db.collection(currentUserUid).doc(currentUserUid).collection('Marketetplaces').doc(marketplace.id);
-      //   final updatedMp = marketplace.copyWith(marketplaceSettings: MarketplaceSettings.empty());
+      //   final updatedMp = marketplace.copyWith(address: Address.empty(), bankDetails: BankDetails.empty());
       //   await docRefMp.update(updatedMp.toJson());
       // }
 

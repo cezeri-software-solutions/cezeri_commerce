@@ -7,12 +7,15 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
 import '../../../2_application/firebase/appointment/appointment_bloc.dart';
+import '../../../2_application/firebase/main_settings/main_settings_bloc.dart';
 import '../../../2_application/firebase/marketplace/marketplace_bloc.dart';
 import '../../../3_domain/entities/address.dart';
 import '../../../3_domain/entities/marketplace/marketplace.dart';
 import '../../../3_domain/entities/receipt/receipt.dart';
 import '../../../3_domain/entities/receipt/receipt_product.dart';
 import '../../../3_domain/enums/enums.dart';
+import '../../../3_domain/pdf/pdf_api.dart';
+import '../../../3_domain/pdf/pdf_receipt_api.dart';
 import '../../../constants.dart';
 import '../../../core/firebase_failures.dart';
 import '../../../routes/router.gr.dart';
@@ -154,8 +157,9 @@ class __AppointmentContainerState extends State<_AppointmentContainer> {
                                 child: Center(child: Text(widget.appointment.listOfReceiptProduct.length.toString())),
                               )
                             : const SizedBox(),
-                        Gaps.h10,
+                        //Gaps.h10,
                         IconButton(
+                          padding: EdgeInsets.zero,
                           onPressed: () => widget.appointmentBloc.add(SetAppointmentIsExpandedEvent(index: widget.index)),
                           icon: switch (state.isExpanded[widget.index]) {
                             true => const Icon(Icons.arrow_drop_down_circle, size: 30, color: CustomColors.primaryColor),
@@ -164,6 +168,25 @@ class __AppointmentContainerState extends State<_AppointmentContainer> {
                                 child: const Icon(Icons.arrow_drop_down_circle, size: 30, color: Colors.grey, grade: 25),
                               ),
                           },
+                        ),
+                        ConstrainedBox(
+                          constraints: const BoxConstraints(maxHeight: 30),
+                          child: IconButton(
+                            padding: EdgeInsets.zero,
+                            onPressed: () async {
+                              final mainSettings = context.read<MainSettingsBloc>().state.mainSettings;
+                              final receiptName = switch (widget.appointment.receiptTyp) {
+                                ReceiptTyp.offer => widget.appointment.offerNumberAsString,
+                                ReceiptTyp.appointment => widget.appointment.appointmentNumberAsString,
+                                ReceiptTyp.invoice => widget.appointment.invoiceNumberAsString,
+                                ReceiptTyp.credit => widget.appointment.creditNumberAsString,
+                              };
+                              final data = await PdfReceiptApi.generate(
+                                  widget.appointment, mainSettings!, marketplace, widget.appointment.receiptCustomer, marketplace.logoUrl);
+                              await PdfApi.saveDocument(name: '$receiptName.pdf', byteList: data);
+                            },
+                            icon: const Icon(Icons.picture_as_pdf, color: Colors.red),
+                          ),
                         ),
                       ],
                     ),

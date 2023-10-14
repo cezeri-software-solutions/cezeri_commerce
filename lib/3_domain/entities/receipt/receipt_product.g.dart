@@ -55,4 +55,3 @@ Map<String, dynamic> _$ReceiptProductToJson(ReceiptProduct instance) =>
       'profit': instance.profit,
       'isFromDatabase': instance.isFromDatabase,
     };
- 
