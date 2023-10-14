@@ -83,9 +83,16 @@ class Receipt {
   final double totalWrappingGross;
   final double totalWrappingNet;
   final double totalWrappingTax;
-  final double discountGross;
-  final double discountNet;
-  final double discountPercent;
+  final double discountGross; //* € Rabatt Brutto
+  final double discountNet; //* € Rabatt Netto
+  final double discountTax; //* € Rabatt Steuer
+  final double discountPercent; //* % Rabatt
+  final double discountPercentAmountGross; //* % Rabatt in € Brutto
+  final double discountPercentAmountNet; //* % Rabatt in € Netto
+  final double discountPercentAmountTax; //* % Rabatt in € Steuer
+  final double posDiscountPercentAmountGross; //* % Rabatt in € Brutto die von den einzelnen Artikeln addiert wird
+  final double posDiscountPercentAmountNet; //* % Rabatt in € Netto die von den einzelnen Artikeln addiert wird
+  final double posDiscountPercentAmountTax; //* % Rabatt in € Steuer die von den einzelnen Artikeln addiert wird
   final double additionalAmountNet;
   final double additionalAmountTax;
   final double additionalAmountGross;
@@ -148,7 +155,14 @@ class Receipt {
     required this.totalWrappingTax,
     required this.discountGross,
     required this.discountNet,
+    required this.discountTax,
     required this.discountPercent,
+    required this.discountPercentAmountGross,
+    required this.discountPercentAmountNet,
+    required this.discountPercentAmountTax,
+    required this.posDiscountPercentAmountGross,
+    required this.posDiscountPercentAmountNet,
+    required this.posDiscountPercentAmountTax,
     required this.additionalAmountNet,
     required this.additionalAmountTax,
     required this.additionalAmountGross,
@@ -309,8 +323,15 @@ class Receipt {
       totalWrappingTax: (orderPresta.totalWrappingTaxIncl).toMyDouble() - (orderPresta.totalWrappingTaxExcl).toMyDouble(),
       discountGross: (orderPresta.totalDiscountsTaxIncl).toMyDouble(),
       discountNet: (orderPresta.totalDiscountsTaxExcl).toMyDouble(),
+      discountTax: (orderPresta.totalDiscountsTaxIncl).toMyDouble() - (orderPresta.totalDiscountsTaxExcl).toMyDouble(),
       // Von Prestashop kommen sowohl normale Rabatte als auch Prozenrabatte als normales Rabatt
       discountPercent: 0, //calcDiscountPercentage((orderPresta.totalProducts).toMyDouble(), (orderPresta.totalDiscountsTaxExcl).toMyDouble()),
+      discountPercentAmountGross: 0,
+      discountPercentAmountNet: 0,
+      discountPercentAmountTax: 0,
+      posDiscountPercentAmountGross: 0,
+      posDiscountPercentAmountNet: 0,
+      posDiscountPercentAmountTax: 0,
       additionalAmountNet: 0.0,
       additionalAmountTax: 0.0,
       additionalAmountGross: 0.0,
@@ -378,7 +399,14 @@ class Receipt {
       totalWrappingTax: 0,
       discountGross: 0,
       discountNet: 0,
+      discountTax: 0,
       discountPercent: 0,
+      discountPercentAmountGross: 0,
+      discountPercentAmountNet: 0,
+      discountPercentAmountTax: 0,
+      posDiscountPercentAmountGross: 0,
+      posDiscountPercentAmountNet: 0,
+      posDiscountPercentAmountTax: 0,
       additionalAmountNet: 0,
       additionalAmountTax: 0,
       additionalAmountGross: 0,
@@ -443,7 +471,14 @@ class Receipt {
     double? totalWrappingTax,
     double? discountGross,
     double? discountNet,
+    double? discountTax,
     double? discountPercent,
+    double? discountPercentAmountGross,
+    double? discountPercentAmountNet,
+    double? discountPercentAmountTax,
+    double? posDiscountPercentAmountGross,
+    double? posDiscountPercentAmountNet,
+    double? posDiscountPercentAmountTax,
     double? additionalAmountNet,
     double? additionalAmountTax,
     double? additionalAmountGross,
@@ -506,7 +541,14 @@ class Receipt {
       totalWrappingTax: totalWrappingTax ?? this.totalWrappingTax,
       discountGross: discountGross ?? this.discountGross,
       discountNet: discountNet ?? this.discountNet,
+      discountTax: discountTax ?? this.discountTax,
       discountPercent: discountPercent ?? this.discountPercent,
+      discountPercentAmountGross: discountPercentAmountGross ?? this.discountPercentAmountGross,
+      discountPercentAmountNet: discountPercentAmountNet ?? this.discountPercentAmountNet,
+      discountPercentAmountTax: discountPercentAmountTax ?? this.discountPercentAmountTax,
+      posDiscountPercentAmountGross: posDiscountPercentAmountGross ?? this.posDiscountPercentAmountGross,
+      posDiscountPercentAmountNet: posDiscountPercentAmountNet ?? this.posDiscountPercentAmountNet,
+      posDiscountPercentAmountTax: posDiscountPercentAmountTax ?? this.posDiscountPercentAmountTax,
       additionalAmountNet: additionalAmountNet ?? this.additionalAmountNet,
       additionalAmountTax: additionalAmountTax ?? this.additionalAmountTax,
       additionalAmountGross: additionalAmountGross ?? this.additionalAmountGross,
@@ -526,6 +568,6 @@ class Receipt {
 
   @override
   String toString() {
-    return 'Receipt(receiptId: $receiptId, offerId: $offerId, offerNumberAsString: $offerNumberAsString, appointmentId: $appointmentId, appointmentNumberAsString: $appointmentNumberAsString, invoiceId: $invoiceId, invoiceNumberAsString: $invoiceNumberAsString, creditId: $creditId, creditNumberAsString: $creditNumberAsString, marketplaceId: $marketplaceId, receiptMarketplaceId: $receiptMarketplaceId, receiptMarketplaceReference: $receiptMarketplaceReference, paymentMethod: $paymentMethod, commentInternal: $commentInternal, commentGlobal: $commentGlobal, currency: $currency, receiptDocumentText: $receiptDocumentText, uidNumber: $uidNumber, searchField: $searchField, customerId: $customerId, addressInvoice: $addressInvoice, addressDelivery: $addressDelivery, receiptTyp: $receiptTyp, offerStatus: $offerStatus, receiptStatus: $receiptStatus, paymentStatus: $paymentStatus, tax: $tax, termOfPayment: $termOfPayment, totalGross: $totalGross, totalNet: $totalNet, totalTax: $totalTax, subTotalNet: $subTotalNet, subTotalTax: $subTotalTax, subTotalGross: $subTotalGross, totalPaidGross: $totalPaidGross, totalPaidNet: $totalPaidNet, totalPaidTax: $totalPaidTax, totalShippingGross: $totalShippingGross, totalShippingNet: $totalShippingNet, totalShippingTax: $totalShippingTax, totalWrappingGross: $totalWrappingGross, totalWrappingNet: $totalWrappingNet, totalWrappingTax: $totalWrappingTax, discountGross: $discountGross, discountNet: $discountNet, discountPercent: $discountPercent, additionalAmountNet: $additionalAmountNet, additionalAmountTax: $additionalAmountTax, additionalAmountGross: $additionalAmountGross, profit: $profit, profitExclShipping: $profitExclShipping, profitExclWrapping: $profitExclWrapping, profitExclShippingAndWrapping: $profitExclShippingAndWrapping, bankDetails: $bankDetails, listOfPayments: $listOfPayments, listOfReceiptProduct: $listOfReceiptProduct, creationDateMarektplace: $creationDateMarektplace, creationDate: $creationDate, creationDateInt: $creationDateInt, lastEditingDate: $lastEditingDate)';
+    return 'Receipt(receiptId: $receiptId, offerId: $offerId, offerNumberAsString: $offerNumberAsString, appointmentId: $appointmentId, appointmentNumberAsString: $appointmentNumberAsString, invoiceId: $invoiceId, invoiceNumberAsString: $invoiceNumberAsString, creditId: $creditId, creditNumberAsString: $creditNumberAsString, marketplaceId: $marketplaceId, receiptMarketplaceId: $receiptMarketplaceId, receiptMarketplaceReference: $receiptMarketplaceReference, paymentMethod: $paymentMethod, commentInternal: $commentInternal, commentGlobal: $commentGlobal, currency: $currency, receiptDocumentText: $receiptDocumentText, uidNumber: $uidNumber, searchField: $searchField, customerId: $customerId, receiptCustomer: $receiptCustomer, addressInvoice: $addressInvoice, addressDelivery: $addressDelivery, receiptTyp: $receiptTyp, offerStatus: $offerStatus, receiptStatus: $receiptStatus, paymentStatus: $paymentStatus, tax: $tax, termOfPayment: $termOfPayment, totalGross: $totalGross, totalNet: $totalNet, totalTax: $totalTax, subTotalNet: $subTotalNet, subTotalTax: $subTotalTax, subTotalGross: $subTotalGross, totalPaidGross: $totalPaidGross, totalPaidNet: $totalPaidNet, totalPaidTax: $totalPaidTax, totalShippingGross: $totalShippingGross, totalShippingNet: $totalShippingNet, totalShippingTax: $totalShippingTax, totalWrappingGross: $totalWrappingGross, totalWrappingNet: $totalWrappingNet, totalWrappingTax: $totalWrappingTax, discountGross: $discountGross, discountNet: $discountNet, discountTax: $discountTax, discountPercent: $discountPercent, discountPercentAmountGross: $discountPercentAmountGross, discountPercentAmountNet: $discountPercentAmountNet, discountPercentAmountTax: $discountPercentAmountTax, posDiscountPercentAmountGross: $posDiscountPercentAmountGross, posDiscountPercentAmountNet: $posDiscountPercentAmountNet, posDiscountPercentAmountTax: $posDiscountPercentAmountTax, additionalAmountNet: $additionalAmountNet, additionalAmountTax: $additionalAmountTax, additionalAmountGross: $additionalAmountGross, profit: $profit, profitExclShipping: $profitExclShipping, profitExclWrapping: $profitExclWrapping, profitExclShippingAndWrapping: $profitExclShippingAndWrapping, bankDetails: $bankDetails, listOfPayments: $listOfPayments, listOfReceiptProduct: $listOfReceiptProduct, creationDateMarektplace: $creationDateMarektplace, creationDate: $creationDate, creationDateInt: $creationDateInt, lastEditingDate: $lastEditingDate)';
   }
 }

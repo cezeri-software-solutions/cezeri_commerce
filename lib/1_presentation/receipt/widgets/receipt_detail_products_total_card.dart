@@ -137,7 +137,7 @@ class ReceiptDetailProductsTotalCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text('${state.receipt.currency} Rabatt'),
-                    Text('${state.discountAmountGross.toMyCurrencyStringToShow()} ${state.receipt.currency}', style: TextStyles.defaultBold),
+                    Text('${state.receipt.discountPercent.toMyCurrencyStringToShow()} ${state.receipt.currency}', style: TextStyles.defaultBold),
                   ],
                 ),
                 const Divider(),
@@ -145,7 +145,7 @@ class ReceiptDetailProductsTotalCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const Text('Versandkosten'),
-                    Text('${state.shippingAmountGross.toMyCurrencyStringToShow()} ${state.receipt.currency}', style: TextStyles.defaultBold),
+                    Text('${state.receipt.totalShippingGross.toMyCurrencyStringToShow()} ${state.receipt.currency}', style: TextStyles.defaultBold),
                   ],
                 ),
                 const Divider(),
@@ -153,7 +153,8 @@ class ReceiptDetailProductsTotalCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const Text('Zuschlag'),
-                    Text('${state.additionalAmountGross.toMyCurrencyStringToShow()} ${state.receipt.currency}', style: TextStyles.defaultBold),
+                    Text('${state.receipt.additionalAmountGross.toMyCurrencyStringToShow()} ${state.receipt.currency}',
+                        style: TextStyles.defaultBold),
                   ],
                 ),
                 const Divider(),

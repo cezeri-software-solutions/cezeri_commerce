@@ -8,11 +8,7 @@ class ReceiptDetailState {
   //* Helper ProductsTotal
   final double productsTotalNet;
   final double procutsTotalGross;
-  final double discountPercentage;
   final double discountPercentageAmountGross;
-  final double discountAmountGross;
-  final double shippingAmountGross;
-  final double additionalAmountGross;
   final double taxAmount;
   final double totalGross;
   //* Controller ProductsTotal
@@ -39,10 +35,6 @@ class ReceiptDetailState {
     required this.receipt,
     required this.listOfReceiptProducts,
     required this.taxRulesListFromSettings,
-    required this.discountPercentage,
-    required this.discountAmountGross,
-    required this.shippingAmountGross,
-    required this.additionalAmountGross,
     required this.discountPercentageController,
     required this.discountAmountGrossController,
     required this.shippingAmountGrossController,
@@ -61,23 +53,23 @@ class ReceiptDetailState {
   })  : productsTotalNet = _calcProductsTotalNet(listOfReceiptProducts),
         procutsTotalGross = _calcProductsTotalGross(listOfReceiptProducts),
         posDiscountPercentAmount = _calcPosDiscountPercentAmount(listOfReceiptProducts, posDiscountPercent),
-        discountPercentageAmountGross = _calcDiscountPercentageAmount(listOfReceiptProducts, discountPercentage),
+        discountPercentageAmountGross = _calcDiscountPercentageAmount(listOfReceiptProducts, receipt.discountPercent),
         taxAmount = _calcTaxAmount(
           receipt.tax,
           _calcProductsTotalNet(listOfReceiptProducts),
           _calcProductsTotalGross(listOfReceiptProducts),
           _calcPosDiscountPercentAmount(listOfReceiptProducts, posDiscountPercent),
-          _calcDiscountPercentageAmount(listOfReceiptProducts, discountPercentage),
-          discountAmountGross,
-          shippingAmountGross,
-          additionalAmountGross,
+          _calcDiscountPercentageAmount(listOfReceiptProducts, receipt.discountPercent),
+          receipt.discountGross,
+          receipt.totalShippingGross,
+          receipt.additionalAmountGross,
         ),
         totalGross = _calcProductsTotalGross(listOfReceiptProducts) -
             _calcPosDiscountPercentAmount(listOfReceiptProducts, posDiscountPercent) -
-            _calcDiscountPercentageAmount(listOfReceiptProducts, discountPercentage) -
-            discountAmountGross +
-            shippingAmountGross +
-            additionalAmountGross;
+            _calcDiscountPercentageAmount(listOfReceiptProducts, receipt.discountPercent) -
+            receipt.discountGross +
+            receipt.totalShippingGross +
+            receipt.additionalAmountGross;
 
   static double _calcProductsTotalNet(List<ReceiptProduct> receiptProducts) {
     return receiptProducts.map((e) => e.unitPriceNet * e.quantity).toList().reduce((value, element) => value + element);
@@ -121,10 +113,6 @@ class ReceiptDetailState {
         receipt: Receipt.empty(),
         listOfReceiptProducts: [ReceiptProduct.empty()],
         taxRulesListFromSettings: const [],
-        discountPercentage: 0,
-        discountAmountGross: 0,
-        shippingAmountGross: 0,
-        additionalAmountGross: 0,
         discountPercentageController: TextEditingController(text: '0'),
         discountAmountGrossController: TextEditingController(text: '0'),
         shippingAmountGrossController: TextEditingController(text: '0'),
@@ -148,11 +136,7 @@ class ReceiptDetailState {
     List<Tax>? taxRulesListFromSettings,
     double? productsTotalNet,
     double? procutsTotalGross,
-    double? discountPercentage,
     double? discountPercentageAmountGross,
-    double? discountAmountGross,
-    double? shippingAmountGross,
-    double? additionalAmountGross,
     double? taxAmount,
     double? totalGross,
     TextEditingController? discountPercentageController,
@@ -175,10 +159,6 @@ class ReceiptDetailState {
       receipt: receipt ?? this.receipt,
       listOfReceiptProducts: listOfReceiptProducts ?? this.listOfReceiptProducts,
       taxRulesListFromSettings: taxRulesListFromSettings ?? this.taxRulesListFromSettings,
-      discountPercentage: discountPercentage ?? this.discountPercentage,
-      discountAmountGross: discountAmountGross ?? this.discountAmountGross,
-      shippingAmountGross: shippingAmountGross ?? this.shippingAmountGross,
-      additionalAmountGross: additionalAmountGross ?? this.additionalAmountGross,
       discountPercentageController: discountPercentageController ?? this.discountPercentageController,
       discountAmountGrossController: discountAmountGrossController ?? this.discountAmountGrossController,
       shippingAmountGrossController: shippingAmountGrossController ?? this.shippingAmountGrossController,

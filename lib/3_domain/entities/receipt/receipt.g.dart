@@ -58,7 +58,20 @@ Receipt _$ReceiptFromJson(Map<String, dynamic> json) => Receipt(
       totalWrappingTax: (json['totalWrappingTax'] as num).toDouble(),
       discountGross: (json['discountGross'] as num).toDouble(),
       discountNet: (json['discountNet'] as num).toDouble(),
+      discountTax: (json['discountTax'] as num).toDouble(),
       discountPercent: (json['discountPercent'] as num).toDouble(),
+      discountPercentAmountGross:
+          (json['discountPercentAmountGross'] as num).toDouble(),
+      discountPercentAmountNet:
+          (json['discountPercentAmountNet'] as num).toDouble(),
+      discountPercentAmountTax:
+          (json['discountPercentAmountTax'] as num).toDouble(),
+      posDiscountPercentAmountGross:
+          (json['posDiscountPercentAmountGross'] as num).toDouble(),
+      posDiscountPercentAmountNet:
+          (json['posDiscountPercentAmountNet'] as num).toDouble(),
+      posDiscountPercentAmountTax:
+          (json['posDiscountPercentAmountTax'] as num).toDouble(),
       additionalAmountNet: (json['additionalAmountNet'] as num).toDouble(),
       additionalAmountTax: (json['additionalAmountTax'] as num).toDouble(),
       additionalAmountGross: (json['additionalAmountGross'] as num).toDouble(),
@@ -129,7 +142,14 @@ Map<String, dynamic> _$ReceiptToJson(Receipt instance) => <String, dynamic>{
       'totalWrappingTax': instance.totalWrappingTax,
       'discountGross': instance.discountGross,
       'discountNet': instance.discountNet,
+      'discountTax': instance.discountTax,
       'discountPercent': instance.discountPercent,
+      'discountPercentAmountGross': instance.discountPercentAmountGross,
+      'discountPercentAmountNet': instance.discountPercentAmountNet,
+      'discountPercentAmountTax': instance.discountPercentAmountTax,
+      'posDiscountPercentAmountGross': instance.posDiscountPercentAmountGross,
+      'posDiscountPercentAmountNet': instance.posDiscountPercentAmountNet,
+      'posDiscountPercentAmountTax': instance.posDiscountPercentAmountTax,
       'additionalAmountNet': instance.additionalAmountNet,
       'additionalAmountTax': instance.additionalAmountTax,
       'additionalAmountGross': instance.additionalAmountGross,

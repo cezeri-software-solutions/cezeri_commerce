@@ -19,13 +19,9 @@ class ReceiptDetailBloc extends Bloc<ReceiptDetailEvent, ReceiptDetailState> {
       emit(state.copyWith(
         receipt: event.receipt,
         listOfReceiptProducts: event.receipt.listOfReceiptProduct,
-        discountPercentage: event.receipt.discountPercent,
         discountPercentageController: TextEditingController(text: event.receipt.discountPercent.toMyCurrencyString()),
-        discountAmountGross: event.receipt.discountGross,
         discountAmountGrossController: TextEditingController(text: event.receipt.discountGross.toMyCurrencyString()),
-        shippingAmountGross: event.receipt.totalShippingGross,
         shippingAmountGrossController: TextEditingController(text: event.receipt.totalShippingGross.toMyCurrencyString()),
-        additionalAmountGross: event.receipt.additionalAmountGross,
         additionalAmountGrossController: TextEditingController(text: event.receipt.additionalAmountGross.toMyCurrencyString()),
         taxRulesListFromSettings: event.listOfTaxRules,
       ));
@@ -91,26 +87,46 @@ class ReceiptDetailBloc extends Bloc<ReceiptDetailEvent, ReceiptDetailState> {
 //? #########################################################################
 
     on<SetTotalDiscountPercentControllerEvent>((event, emit) {
-      emit(state.copyWith(discountPercentage: event.value));
+      emit(state.copyWith(receipt: state.receipt.copyWith(discountPercent: event.value)));
+      add(OnReceiptDetailTotalControllerChangedEvent());
     });
 
 //? #########################################################################
 
     on<SetTotalDiscountAmountGrossControllerEvent>((event, emit) {
-      emit(state.copyWith(discountAmountGross: event.value));
+      emit(state.copyWith(receipt: state.receipt.copyWith(discountGross: event.value)));
+      add(OnReceiptDetailTotalControllerChangedEvent());
     });
 
 //? #########################################################################
 
     on<SetShippingAmountGrossControllerEvent>((event, emit) {
-      emit(state.copyWith(shippingAmountGross: event.value));
+      emit(state.copyWith(receipt: state.receipt.copyWith(totalShippingGross: event.value)));
+      add(OnReceiptDetailTotalControllerChangedEvent());
     });
 
 //? #########################################################################
 
     on<SetAdditionalAmountGrossControllerEvent>((event, emit) {
-      emit(state.copyWith(additionalAmountGross: event.value));
       emit(state.copyWith(receipt: state.receipt.copyWith(additionalAmountGross: event.value)));
+      add(OnReceiptDetailTotalControllerChangedEvent());
+    });
+
+//? #########################################################################
+
+    on<OnReceiptDetailTotalControllerChangedEvent>((event, emit) {
+      emit(state.copyWith(
+          receipt: state.receipt.copyWith(
+        discountPercentAmountGross: state.discountPercentageAmountGross,
+        discountPercentAmountNet: state.discountPercentageAmountGross / taxToCalc(state.receipt.tax),
+        discountPercentAmountTax: state.discountPercentageAmountGross - (state.discountPercentageAmountGross / taxToCalc(state.receipt.tax)),
+        discountNet: state.receipt.discountGross / taxToCalc(state.receipt.tax),
+        discountTax: state.receipt.discountGross - (state.receipt.discountGross / taxToCalc(state.receipt.tax)),
+        totalShippingNet: state.receipt.totalShippingGross / taxToCalc(state.receipt.tax),
+        totalShippingTax: state.receipt.totalShippingGross - (state.receipt.totalShippingGross / taxToCalc(state.receipt.tax)),
+        additionalAmountNet: state.receipt.additionalAmountGross / taxToCalc(state.receipt.tax),
+        additionalAmountTax: state.receipt.additionalAmountGross - (state.receipt.additionalAmountGross / taxToCalc(state.receipt.tax)),
+      )));
     });
 
 //? #########################################################################
