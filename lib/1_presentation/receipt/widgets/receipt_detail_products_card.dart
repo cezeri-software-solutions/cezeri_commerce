@@ -15,6 +15,7 @@ import '../../../constants.dart';
 import '../../../injection.dart';
 import '../../core/widgets/my_avatar.dart';
 import '../../core/widgets/my_delete_dialog.dart';
+import '../../core/widgets/my_text_form_field_small_double.dart';
 
 class ReceiptDetailProductsCard extends StatefulWidget {
   final AppointmentBloc appointmentBloc;
@@ -72,20 +73,17 @@ class _ReceiptDetailProductsCardState extends State<ReceiptDetailProductsCard> {
                           children: [
                             const Icon(Icons.qr_code_scanner),
                             Gaps.w16,
-                            ConstrainedBox(
-                              constraints: const BoxConstraints(maxHeight: 28, maxWidth: 200),
-                              child: CupertinoTextField(
-                                focusNode: scannerFocusNode,
-                                controller: state.barcodeScannerController,
-                                style: TextStyles.s12,
-                                onTap: () => widget.receiptDetailBloc.add(SetIsInScanModeEvent(isInScanMode: true)),
-                                onTapOutside: (_) => widget.receiptDetailBloc.add(SetIsInScanModeEvent(isInScanMode: false)),
-                                onChanged: (value) => _onEanScanned(
-                                  value,
-                                  stateProduct.listOfAllProducts,
-                                  stateProduct.product,
-                                  state.listOfReceiptProducts,
-                                ),
+                            MyTextFormFieldSmall(
+                              maxWidth: 200,
+                              focusNode: scannerFocusNode,
+                              controller: state.barcodeScannerController,
+                              onTap: () => widget.receiptDetailBloc.add(SetIsInScanModeEvent(isInScanMode: true)),
+                              onTapOutside: (_) => widget.receiptDetailBloc.add(SetIsInScanModeEvent(isInScanMode: false)),
+                              onChanged: (value) => _onEanScanned(
+                                value,
+                                stateProduct.listOfAllProducts,
+                                stateProduct.product,
+                                state.listOfReceiptProducts,
                               ),
                             ),
                             Gaps.w16,
@@ -162,110 +160,79 @@ class _ReceiptDetailProductsCardState extends State<ReceiptDetailProductsCard> {
                                   children: [
                                     Expanded(
                                       flex: RowWidthsRDP.articleNumber,
-                                      child: ConstrainedBox(
-                                        constraints: const BoxConstraints(maxHeight: 28),
-                                        child: CupertinoTextField(
-                                          readOnly: !state.isEditable[index],
-                                          placeholder: receiptProduct.articleNumber,
-                                          placeholderStyle: TextStyles.s12,
-                                          controller: state.articleNumberControllers[index],
-                                          style: TextStyles.s12,
-                                          onChanged: (_) => widget.receiptDetailBloc.add(SetArticleNumberControllerEvent(index: index)),
-                                          onTapOutside: (_) => FocusScope.of(context).unfocus(),
-                                        ),
+                                      child: MyTextFormFieldSmall(
+                                        readOnly: !state.isEditable[index],
+                                        inputFormatters: const [],
+                                        controller: state.articleNumberControllers[index],
+                                        onChanged: (_) => widget.receiptDetailBloc.add(SetArticleNumberControllerEvent(index: index)),
+                                        onTapOutside: (_) => FocusScope.of(context).unfocus(),
                                       ),
                                     ),
                                     Gaps.w8,
                                     Expanded(
                                       flex: RowWidthsRDP.articleName,
-                                      child: ConstrainedBox(
-                                        constraints: const BoxConstraints(maxHeight: 28),
-                                        child: CupertinoTextField(
-                                          readOnly: !state.isEditable[index],
-                                          controller: state.articleNameControllers[index],
-                                          style: TextStyles.s12,
-                                          onChanged: (_) => widget.receiptDetailBloc.add(SetArticleNameControllerEvent(index: index)),
-                                          onTapOutside: (_) => FocusScope.of(context).unfocus(),
-                                        ),
+                                      child: MyTextFormFieldSmall(
+                                        readOnly: !state.isEditable[index],
+                                        inputFormatters: const [],
+                                        controller: state.articleNameControllers[index],
+                                        onChanged: (_) => widget.receiptDetailBloc.add(SetArticleNameControllerEvent(index: index)),
+                                        onTapOutside: (_) => FocusScope.of(context).unfocus(),
                                       ),
                                     ),
                                     Gaps.w8,
                                     Expanded(
                                       flex: RowWidthsRDP.tax,
-                                      child: ConstrainedBox(
-                                        constraints: const BoxConstraints(maxHeight: 28),
-                                        child: CupertinoTextField(
-                                          readOnly: true,
-                                          placeholder: state.listOfReceiptProducts[index].tax.taxName,
-                                          placeholderStyle: TextStyles.s12,
-                                        ),
+                                      child: MyTextFormFieldSmall(
+                                        readOnly: true,
+                                        hintText: state.listOfReceiptProducts[index].tax.taxName,
                                       ),
                                     ),
                                     Gaps.w8,
                                     Expanded(
                                       flex: RowWidthsRDP.quantity,
-                                      child: ConstrainedBox(
-                                        constraints: const BoxConstraints(maxHeight: 28),
-                                        child: CupertinoTextField(
-                                            controller: state.quantityControllers[index],
-                                            style: TextStyles.s12,
-                                            onChanged: (value) => widget.receiptDetailBloc.add(SetQuantityControllerEvent(index: index)),
-                                            onTapOutside: (_) {
-                                              widget.receiptDetailBloc.add(SetAllControllersEvent());
-                                              FocusScope.of(context).unfocus();
-                                            }),
+                                      child: MyTextFormFieldSmall(
+                                        controller: state.quantityControllers[index],
+                                        onChanged: (value) => widget.receiptDetailBloc.add(SetQuantityControllerEvent(index: index)),
+                                        onTapOutside: (_) {
+                                          widget.receiptDetailBloc.add(SetAllControllersEvent());
+                                          FocusScope.of(context).unfocus();
+                                        },
                                       ),
                                     ),
                                     Gaps.w8,
                                     Expanded(
                                       flex: RowWidthsRDP.unitPriceNet,
-                                      child: ConstrainedBox(
-                                        constraints: const BoxConstraints(maxHeight: 28),
-                                        child: CupertinoTextField(
-                                          controller: state.unitPriceNetControllers[index],
-                                          style: TextStyles.s12,
-                                          onChanged: (_) => widget.receiptDetailBloc.add(SetUnitPriceNetControllerEvent(index: index)),
-                                          onTapOutside: (_) => FocusScope.of(context).unfocus(),
-                                        ),
+                                      child: MyTextFormFieldSmall(
+                                        controller: state.unitPriceNetControllers[index],
+                                        onChanged: (_) => widget.receiptDetailBloc.add(SetUnitPriceNetControllerEvent(index: index)),
+                                        onTapOutside: (_) => FocusScope.of(context).unfocus(),
                                       ),
                                     ),
                                     Gaps.w8,
                                     Expanded(
                                       flex: RowWidthsRDP.discountGrossUnit,
-                                      child: ConstrainedBox(
-                                        constraints: const BoxConstraints(maxHeight: 28),
-                                        child: CupertinoTextField(
-                                          controller: state.posDiscountPercentControllers[index],
-                                          style: TextStyles.s12,
-                                          onChanged: (_) => widget.receiptDetailBloc.add(SetPosDiscountPercentControllerEvent(index: index)),
-                                          onTapOutside: (_) => FocusScope.of(context).unfocus(),
-                                          suffix: const Text('% '),
-                                        ),
+                                      child: MyTextFormFieldSmall(
+                                        controller: state.posDiscountPercentControllers[index],
+                                        onChanged: (_) => widget.receiptDetailBloc.add(SetPosDiscountPercentControllerEvent(index: index)),
+                                        onTapOutside: (_) => FocusScope.of(context).unfocus(),
+                                        suffix: const Text('% '),
                                       ),
                                     ),
                                     Gaps.w8,
                                     Expanded(
                                       flex: RowWidthsRDP.unitPriceGross,
-                                      child: ConstrainedBox(
-                                        constraints: const BoxConstraints(maxHeight: 28),
-                                        child: CupertinoTextField(
-                                          controller: state.unitPriceGrossControllers[index],
-                                          style: TextStyles.s12,
-                                          onChanged: (_) => widget.receiptDetailBloc.add(SetUnitPriceGrossControllerEvent(index: index)),
-                                          onTapOutside: (_) => FocusScope.of(context).unfocus(),
-                                        ),
+                                      child: MyTextFormFieldSmall(
+                                        controller: state.unitPriceGrossControllers[index],
+                                        onChanged: (_) => widget.receiptDetailBloc.add(SetUnitPriceGrossControllerEvent(index: index)),
+                                        onTapOutside: (_) => FocusScope.of(context).unfocus(),
                                       ),
                                     ),
                                     Gaps.w8,
                                     Expanded(
                                       flex: RowWidthsRDP.totalPriceGross,
-                                      child: ConstrainedBox(
-                                        constraints: const BoxConstraints(maxHeight: 28),
-                                        child: CupertinoTextField(
-                                          readOnly: true,
-                                          placeholder: (receiptProduct.unitPriceGross * receiptProduct.quantity).toMyCurrencyStringToShow(),
-                                          placeholderStyle: TextStyles.s12,
-                                        ),
+                                      child: MyTextFormFieldSmall(
+                                        readOnly: true,
+                                        hintText: (receiptProduct.unitPriceGross * receiptProduct.quantity).toMyCurrencyStringToShow(),
                                       ),
                                     ),
                                     ConstrainedBox(

@@ -1,5 +1,6 @@
 import 'package:cezeri_commerce/3_domain/entities/id.dart';
 import 'package:cezeri_helpers/cezeri_helpers.dart';
+import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 import '../entities_presta/address_presta.dart';
@@ -10,7 +11,7 @@ part 'address.g.dart';
 enum AddressType { invoice, delivery }
 
 @JsonSerializable(explicitToJson: true)
-class Address {
+class Address extends Equatable {
   final String id;
   final String companyName;
   final String firstName;
@@ -134,5 +135,22 @@ class Address {
   @override
   String toString() {
     return 'Address(id: $id, companyName: $companyName, firstName: $firstName, lastName: $lastName, name: $name, street: $street, street2: $street2, postcode: $postcode, city: $city, country: $country, phone: $phone, phoneMobile: $phoneMobile, addressType: $addressType, isDefault: $isDefault, creationDate: $creationDate, lastEditingDate: $lastEditingDate)';
+  }
+
+  @override
+  List<Object> get props {
+    return [
+      companyName,
+      firstName,
+      lastName,
+      name,
+      street,
+      street2,
+      postcode,
+      city,
+      phone,
+      phoneMobile,
+      addressType,
+    ];
   }
 }

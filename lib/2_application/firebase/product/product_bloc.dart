@@ -172,6 +172,8 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
 
     on<SetSearchFieldTextEvent>((event, emit) async {
       emit(state.copyWith(productSearchText: event.searchText));
+
+      add(OnSearchFieldSubmittedEvent());
     });
 
     on<OnSearchFieldSubmittedEvent>((event, emit) async {
@@ -180,6 +182,8 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
         (_) => state.listOfAllProducts!
             .where((element) =>
                 element.name.toLowerCase().contains(state.productSearchText.toLowerCase()) ||
+                element.ean.toLowerCase().contains(state.productSearchText.toLowerCase()) ||
+                element.supplier.toLowerCase().contains(state.productSearchText.toLowerCase()) ||
                 element.articleNumber.toLowerCase().contains(state.productSearchText.toLowerCase()))
             .toList()
       };

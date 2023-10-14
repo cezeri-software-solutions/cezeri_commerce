@@ -1,11 +1,11 @@
 import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../2_application/firebase/appointment/appointment_bloc.dart';
 import '../../../2_application/firebase/receipt_detail/receipt_detail_bloc.dart';
 import '../../../constants.dart';
+import '../../core/widgets/my_text_form_field_small_double.dart';
 
 class ReceiptDetailProductsTotalCard extends StatelessWidget {
   final AppointmentBloc appointmentBloc;
@@ -31,14 +31,12 @@ class ReceiptDetailProductsTotalCard extends StatelessWidget {
                     Row(
                       children: [
                         const Icon(Icons.remove),
-                        ConstrainedBox(
-                          constraints: const BoxConstraints(maxHeight: 28, maxWidth: 100),
-                          child: CupertinoTextField(
-                            controller: state.discountPercentageController,
-                            style: TextStyles.s12,
-                            suffix: const Text('% '),
-                            onChanged: (value) => receiptDetailBloc.add(SetTotalDiscountPercentControllerEvent(value: value.toMyDouble())),
-                          ),
+                        MyTextFormFieldSmall(
+                          maxWidth: 100,
+                          controller: state.discountPercentageController,
+                          suffix: const Text('%'),
+                          onChanged: (value) => receiptDetailBloc.add(SetTotalDiscountPercentControllerEvent(value: value.toMyDouble())),
+                          onTapOutside: (_) => receiptDetailBloc.add(SetControllerOnTapOutsideReceiptDetailEvent()),
                         ),
                       ],
                     ),
@@ -52,14 +50,12 @@ class ReceiptDetailProductsTotalCard extends StatelessWidget {
                     Row(
                       children: [
                         const Icon(Icons.remove),
-                        ConstrainedBox(
-                          constraints: const BoxConstraints(maxHeight: 28, maxWidth: 100),
-                          child: CupertinoTextField(
-                            controller: state.discountAmountGrossController,
-                            style: TextStyles.s12,
-                            suffix: Text('${state.receipt.currency} '),
-                            onChanged: (value) => receiptDetailBloc.add(SetTotalDiscountAmountGrossControllerEvent(value: value.toMyDouble())),
-                          ),
+                        MyTextFormFieldSmall(
+                          maxWidth: 100,
+                          controller: state.discountAmountGrossController,
+                          suffix: Text(state.receipt.currency),
+                          onChanged: (value) => receiptDetailBloc.add(SetTotalDiscountAmountGrossControllerEvent(value: value.toMyDouble())),
+                          onTapOutside: (_) => receiptDetailBloc.add(SetControllerOnTapOutsideReceiptDetailEvent()),
                         ),
                       ],
                     ),
@@ -73,14 +69,12 @@ class ReceiptDetailProductsTotalCard extends StatelessWidget {
                     Row(
                       children: [
                         const Icon(Icons.add),
-                        ConstrainedBox(
-                          constraints: const BoxConstraints(maxHeight: 28, maxWidth: 100),
-                          child: CupertinoTextField(
-                            controller: state.additionalAmountGrossController,
-                            style: TextStyles.s12,
-                            suffix: Text('${state.receipt.currency} '),
-                            onChanged: (value) => receiptDetailBloc.add(SetAdditionalAmountGrossControllerEvent(value: value.toMyDouble())),
-                          ),
+                        MyTextFormFieldSmall(
+                          maxWidth: 100,
+                          controller: state.additionalAmountGrossController,
+                          suffix: Text(state.receipt.currency),
+                          onChanged: (value) => receiptDetailBloc.add(SetAdditionalAmountGrossControllerEvent(value: value.toMyDouble())),
+                          onTapOutside: (_) => receiptDetailBloc.add(SetControllerOnTapOutsideReceiptDetailEvent()),
                         ),
                       ],
                     ),
@@ -94,14 +88,12 @@ class ReceiptDetailProductsTotalCard extends StatelessWidget {
                     Row(
                       children: [
                         const Icon(Icons.add),
-                        ConstrainedBox(
-                          constraints: const BoxConstraints(maxHeight: 28, maxWidth: 100),
-                          child: CupertinoTextField(
-                            controller: state.shippingAmountGrossController,
-                            style: TextStyles.s12,
-                            suffix: Text('${state.receipt.currency} '),
-                            onChanged: (value) => receiptDetailBloc.add(SetShippingAmountGrossControllerEvent(value: value.toMyDouble())),
-                          ),
+                        MyTextFormFieldSmall(
+                          maxWidth: 100,
+                          controller: state.shippingAmountGrossController,
+                          suffix: Text(state.receipt.currency),
+                          onChanged: (value) => receiptDetailBloc.add(SetShippingAmountGrossControllerEvent(value: value.toMyDouble())),
+                          onTapOutside: (_) => receiptDetailBloc.add(SetControllerOnTapOutsideReceiptDetailEvent()),
                         ),
                       ],
                     ),

@@ -57,10 +57,11 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
                   buttonText: 'Speichern',
                   onPressed: () {
                     if (state.appointment != null) {
-                      final updatedAppointment = state.appointment!.copyWith(
+                      final updatedAppointment = stateReceiptDetail.receipt.copyWith(
                         discountPercent: stateReceiptDetail.discountPercentage,
                         discountGross: stateReceiptDetail.discountAmountGross,
                         totalShippingGross: stateReceiptDetail.shippingAmountGross,
+                        additionalAmountGross: stateReceiptDetail.additionalAmountGross,
                       );
                       widget.appointmentBloc.add(UpdateAppointmentEvent(
                         appointment: updatedAppointment,

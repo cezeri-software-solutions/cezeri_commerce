@@ -131,7 +131,11 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
 
       final newAppointment = event.appointment.copyWith(listOfReceiptProduct: event.newListOfReceiptProducts);
 
-      final failureOrSuccess = await receiptRepository.updateAppointment(newAppointment, [], []);
+      final failureOrSuccess = await receiptRepository.updateAppointment(
+        newAppointment,
+        event.oldListOfReceiptProducts,
+        event.newListOfReceiptProducts,
+      );
       failureOrSuccess.fold(
         (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
         (unit) => emit(state.copyWith(appointment: event.appointment, firebaseFailure: null, isAnyFailure: false)),

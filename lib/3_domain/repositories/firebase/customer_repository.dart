@@ -6,7 +6,7 @@ import '../../entities/customer/customer.dart';
 abstract class CustomerRepository {
   Future<Either<FirebaseFailure, List<Customer>>> getListOfCustomers();
   Future<Either<FirebaseFailure, Customer>> createCustomer(Customer customer);
-  Future<Either<FirebaseFailure, Unit>> updateCustomer(Customer customer);
+  Future<Either<FirebaseFailure, Customer>> updateCustomer(Customer customer);
   Future<Either<FirebaseFailure, Unit>> deleteCustomer(String id);
   Future<Either<FirebaseFailure, Unit>> deleteListOfCustomers(List<Customer> customers);
   Future<Either<FirebaseFailure, Customer>> getCustomer(Customer customer);

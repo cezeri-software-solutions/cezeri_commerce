@@ -25,8 +25,8 @@ class ReceiptDetailBloc extends Bloc<ReceiptDetailEvent, ReceiptDetailState> {
         discountAmountGrossController: TextEditingController(text: event.receipt.discountGross.toMyCurrencyString()),
         shippingAmountGross: event.receipt.totalShippingGross,
         shippingAmountGrossController: TextEditingController(text: event.receipt.totalShippingGross.toMyCurrencyString()),
-        additionalAmountGross: 0.0,
-        additionalAmountGrossController: TextEditingController(text: 0.0.toMyCurrencyString()),
+        additionalAmountGross: event.receipt.additionalAmountGross,
+        additionalAmountGrossController: TextEditingController(text: event.receipt.additionalAmountGross.toMyCurrencyString()),
         taxRulesListFromSettings: event.listOfTaxRules,
       ));
 
@@ -110,6 +110,26 @@ class ReceiptDetailBloc extends Bloc<ReceiptDetailEvent, ReceiptDetailState> {
 
     on<SetAdditionalAmountGrossControllerEvent>((event, emit) {
       emit(state.copyWith(additionalAmountGross: event.value));
+      emit(state.copyWith(receipt: state.receipt.copyWith(additionalAmountGross: event.value)));
+    });
+
+//? #########################################################################
+
+    on<SetControllerOnTapOutsideReceiptDetailEvent>((event, emit) {
+      emit(state.copyWith(
+        discountPercentageController: state.discountPercentageController.text == ''
+            ? TextEditingController(text: '0.00')
+            : TextEditingController(text: state.discountPercentageController.text),
+        discountAmountGrossController: state.discountAmountGrossController.text == ''
+            ? TextEditingController(text: '0.00')
+            : TextEditingController(text: state.discountAmountGrossController.text),
+        shippingAmountGrossController: state.shippingAmountGrossController.text == ''
+            ? TextEditingController(text: '0.00')
+            : TextEditingController(text: state.shippingAmountGrossController.text),
+        additionalAmountGrossController: state.additionalAmountGrossController.text == ''
+            ? TextEditingController(text: '0.00')
+            : TextEditingController(text: state.additionalAmountGrossController.text),
+      ));
     });
 
 //? #########################################################################

@@ -11,8 +11,8 @@ abstract class ReceiptRepository {
   Future<Either<FirebaseFailure, List<Receipt>>> getListOfAllAppointments();
   Future<Either<FirebaseFailure, Unit>> updateAppointment(
     Receipt appointment,
-    List<ReceiptProduct> toAddQuantityProducts,
-    List<ReceiptProduct> toSubtractQuantityProducts,
+    List<ReceiptProduct> oldListOfReceiptProducts,
+    List<ReceiptProduct> newListOfReceiptProducts,
   );
   Future<Either<FirebaseFailure, Unit>> deleteAppointment(String id);
   Future<Either<FirebaseFailure, Unit>> deleteListOfAppointments(List<Receipt> listOfReceipts );

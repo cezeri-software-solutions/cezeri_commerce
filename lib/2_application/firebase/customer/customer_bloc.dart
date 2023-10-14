@@ -63,6 +63,8 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
 
     on<SetSearchFieldTextEvent>((event, emit) async {
       emit(state.copyWith(customerSearchText: event.searchText));
+
+      add(OnSearchFieldSubmittedEvent());
     });
 
     on<OnSearchFieldSubmittedEvent>((event, emit) async {
@@ -70,9 +72,11 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
         '' => state.listOfAllCustomers,
         (_) => state.listOfAllCustomers!
             .where((e) => e.company != null
-                ? e.name.toLowerCase().contains(state.customerSearchText.toLowerCase())
+                ? e.name.toLowerCase().contains(state.customerSearchText.toLowerCase()) ||
+                    e.company!.toLowerCase().contains(state.customerSearchText.toLowerCase()) ||
+                    e.email.toLowerCase().contains(state.customerSearchText.toLowerCase())
                 : e.name.toLowerCase().contains(state.customerSearchText.toLowerCase()) ||
-                    e.company!.toLowerCase().contains(state.customerSearchText.toLowerCase()))
+                    e.email.toLowerCase().contains(state.customerSearchText.toLowerCase()))
             .toList()
       };
       if (listOfCustomers != null && listOfCustomers.isNotEmpty) listOfCustomers.sort((a, b) => a.name.compareTo(b.name));

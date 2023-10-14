@@ -94,8 +94,20 @@ class CustomerRepositoryImpl implements CustomerRepository {
   }
 
   @override
-  Future<Either<FirebaseFailure, Unit>> updateCustomer(Customer customer) {
-    // TODO: implement updateCustomer
-    throw UnimplementedError();
+  Future<Either<FirebaseFailure, Customer>> updateCustomer(Customer customer) async {
+    final isConnected = await checkInternetConnection();
+    if (!isConnected) return left(NoConnectionFailure());
+
+    final currentUserUid = firebaseAuth.currentUser!.uid;
+
+    try {
+      final docRef = db.collection(currentUserUid).doc(currentUserUid).collection('Customers').doc(customer.id);
+
+      await docRef.update(customer.toJson());
+
+      return right(customer);
+    } on FirebaseException {
+      return left(GeneralFailure());
+    }
   }
 }

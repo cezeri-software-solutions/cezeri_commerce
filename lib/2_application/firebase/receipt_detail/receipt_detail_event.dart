@@ -58,6 +58,8 @@ class SetAdditionalAmountGrossControllerEvent extends ReceiptDetailEvent {
   SetAdditionalAmountGrossControllerEvent({required this.value});
 }
 
+class SetControllerOnTapOutsideReceiptDetailEvent extends ReceiptDetailEvent {}
+
 //? #################################################################################################
 //? ################## Contollers ###################################################################
 

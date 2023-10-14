@@ -31,7 +31,15 @@ class CustomersOverviewPage extends StatelessWidget {
             itemCount: state.listOfFilteredCustomers!.length,
             itemBuilder: (context, index) {
               final customer = state.listOfFilteredCustomers![index];
-              return Text(customer.name);
+              return Column(
+                children: [
+                  ListTile(
+                    title: Text(customer.name),
+                    subtitle: Text(customer.email),
+                  ),
+                  const Divider(),
+                ],
+              );
             },
           ),
         );

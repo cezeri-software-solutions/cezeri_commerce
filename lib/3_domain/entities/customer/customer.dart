@@ -23,12 +23,12 @@ class Customer {
   final String email;
   final Gender gender;
   final String birthday;
-  final String phone; //* NEU
-  final String phoneMobile; //* NEU
+  final String phone;
+  final String phoneMobile;
   final List<Address> listOfAddress;
-  final CustomerInvoiceType customerInvoiceType; //* NEU
-  final String uidNumber; //* NEU
-  final String taxNumber; //* NEU
+  final CustomerInvoiceType customerInvoiceType;
+  final String uidNumber;
+  final String taxNumber;
   final DateTime creationDate;
   final DateTime lastEditingDate;
 

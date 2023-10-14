@@ -12,6 +12,7 @@ import 'package:logger/logger.dart';
 
 import '../../../1_presentation/core/functions/check_internet_connection.dart';
 import '../../../1_presentation/core/functions/mixed_functions.dart';
+import '../../../3_domain/entities/address.dart';
 import '../../../3_domain/entities/customer/customer.dart';
 import '../../../3_domain/entities/marketplace/marketplace.dart';
 import '../../../3_domain/entities/product/product.dart';
@@ -56,9 +57,10 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
   @override
   Future<Either<FirebaseFailure, Unit>> updateAppointment(
     Receipt appointment,
-    List<ReceiptProduct> toAddQuantityProducts,
-    List<ReceiptProduct> toSubtractQuantityProducts,
+    List<ReceiptProduct> oldListOfReceiptProducts,
+    List<ReceiptProduct> newListOfReceiptProducts,
   ) async {
+    final logger = Logger();
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
 
@@ -66,7 +68,60 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
     final docRef = db.collection(currentUserUid).doc(currentUserUid).collection('Appointments').doc(appointment.receiptId);
 
     try {
-      await docRef.update(appointment.toJson());
+      await db.runTransaction((transaction) async {
+        for (final oldProduct in oldListOfReceiptProducts) {
+          if (!oldProduct.isFromMarketplace) continue;
+          final newProduct = newListOfReceiptProducts.where((p) => p.productId == oldProduct.productId).firstOrNull;
+
+          if (newProduct == null) {
+            // oldProduct wurde entfernt
+            // Erhöhen Sie den Bestand von oldProduct in Firestore
+            Product? toUpdateProduct = await loadProductToUpdate(oldProduct);
+            if (toUpdateProduct == null) return left(GeneralFailure());
+            await updateProductAvailableQuantityIncremental(
+              transaction: transaction,
+              db: db,
+              currentUserUid: currentUserUid,
+              product: toUpdateProduct,
+              newQuantityIncremental: oldProduct.quantity,
+            );
+          } else {
+            // Überprüfen Sie, ob sich die Menge geändert hat
+            final quantityDifference = oldProduct.quantity - newProduct.quantity;
+            if (quantityDifference != 0) {
+              // Anpassen des Bestands in Firestore basierend auf quantityDifference
+              Product? toUpdateProduct = await loadProductToUpdate(oldProduct);
+              if (toUpdateProduct == null) return left(GeneralFailure());
+              await updateProductAvailableQuantityIncremental(
+                transaction: transaction,
+                db: db,
+                currentUserUid: currentUserUid,
+                product: toUpdateProduct,
+                newQuantityIncremental: quantityDifference,
+              );
+            }
+          }
+        }
+
+        for (final newProduct in newListOfReceiptProducts) {
+          if (!newProduct.isFromMarketplace) continue;
+          if (!oldListOfReceiptProducts.any((p) => p.productId == newProduct.productId)) {
+            // newProduct wurde hinzugefügt
+            // Verringern Sie den Bestand von newProduct in Firestore
+            Product? toUpdateProduct = await loadProductToUpdate(newProduct);
+              if (toUpdateProduct == null) return left(GeneralFailure());
+              await updateProductAvailableQuantityIncremental(
+                transaction: transaction,
+                db: db,
+                currentUserUid: currentUserUid,
+                product: toUpdateProduct,
+                newQuantityIncremental: newProduct.quantity * -1,
+              );
+          }
+        }
+
+        transaction.update(docRef, appointment.toJson());
+      });
       return right(unit);
     } on FirebaseException {
       return left(GeneralFailure());
@@ -176,7 +231,10 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
             );
             customerFirestore = createdCustomerInFirestore;
           } else {
-            customerFirestore = loadedCustomerFromFirestore;
+            final invoiceAddress = Address.fromPresta(addressInvoice, countryInvoice, AddressType.invoice);
+            final deliveryAddress = Address.fromPresta(addressDelivery, countryDelivery, AddressType.delivery);
+            final checkedCustomer = await checkCustomerAddressIsUpToDateOrUpdateThem(loadedCustomerFromFirestore, invoiceAddress, deliveryAddress);
+            customerFirestore = checkedCustomer;
           }
           //* Wenn der Kunde nicht geladen werden kann und auch nicht erstellt werden kann, soll diese Bestellung übersprungen werden.
           if (customerFirestore == null) continue; // TODO: implemnt log error to firestore
@@ -320,7 +378,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
 
         await db.runTransaction((transaction) async {
           for (final product in listOfProducts) {
-            await updateProductWarehouseQuantityIncremental(
+            await updateProductAvailableQuantityIncremental(
               transaction: transaction,
               db: db,
               currentUserUid: currentUserUid,
@@ -409,6 +467,78 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
 
     return createdCustomer;
   }
+
+  Future<Customer?> checkCustomerAddressIsUpToDateOrUpdateThem(Customer customer, Address addressInvoice, Address addressDelivery) async {
+    final logger = Logger();
+
+    final indexOfStoredInvoiceAddress = customer.listOfAddress.indexWhere((e) => e == addressInvoice);
+    final indexOfStoredDeliveryAddress = customer.listOfAddress.indexWhere((e) => e == addressDelivery);
+
+    bool updateRequired = false;
+
+    // Wenn die Rechnungsadresse vorhanden ist, aber isDefault false ist
+    if (indexOfStoredInvoiceAddress != -1 && !customer.listOfAddress[indexOfStoredInvoiceAddress].isDefault) {
+      customer.listOfAddress[indexOfStoredInvoiceAddress] = customer.listOfAddress[indexOfStoredInvoiceAddress].copyWith(isDefault: true);
+      updateRequired = true;
+    }
+
+    // Wenn die Lieferadresse vorhanden ist, aber isDefault false ist
+    if (indexOfStoredDeliveryAddress != -1 && !customer.listOfAddress[indexOfStoredDeliveryAddress].isDefault) {
+      customer.listOfAddress[indexOfStoredDeliveryAddress] = customer.listOfAddress[indexOfStoredDeliveryAddress].copyWith(isDefault: true);
+      updateRequired = true;
+    }
+
+    // Wenn die Rechnungsadresse nicht vorhanden ist
+    if (indexOfStoredInvoiceAddress == -1) {
+      customer.listOfAddress.add(addressInvoice.copyWith(isDefault: true));
+      updateRequired = true;
+    }
+
+    // Wenn die Lieferadresse nicht vorhanden ist
+    if (indexOfStoredDeliveryAddress == -1) {
+      customer.listOfAddress.add(addressDelivery.copyWith(isDefault: true));
+      updateRequired = true;
+    }
+
+    // Setzen Sie isDefault für alle anderen Adressen auf false
+    for (int i = 0; i < customer.listOfAddress.length; i++) {
+      if (i != indexOfStoredInvoiceAddress && i != indexOfStoredDeliveryAddress) {
+        customer.listOfAddress[i] = customer.listOfAddress[i].copyWith(isDefault: false);
+      }
+    }
+
+    Customer? updatedCustomer;
+
+    if (updateRequired) {
+      final fosCustomer = await customerRepository.updateCustomer(customer);
+      fosCustomer.fold(
+        (failure) =>
+            logger.e('Adressen des Kunden: ${customer.name} konte nicht in der Firestore Datenbank aktualisiert werden werden. \n Error: $failure'),
+        (customer) => updatedCustomer = customer,
+      );
+    } else {
+      updatedCustomer = customer;
+    }
+
+    updatedCustomer ??= customer;
+
+    return updatedCustomer;
+  }
+
+  Future<Product?> loadProductToUpdate(ReceiptProduct receiptProduct) async {
+    final logger = Logger();
+    Product? toUpdateProduct;
+    final fosToUpdateProduct = await productRepository.getProduct(receiptProduct.productId);
+    fosToUpdateProduct.fold(
+      (failure) {
+        logger.e('Artikel ${receiptProduct.name} zum updaten des Bestandes konnte nicht aus Firestore geladen werden');
+        return left(GeneralFailure());
+      },
+      (loadedProduct) => toUpdateProduct = loadedProduct,
+    );
+
+    return toUpdateProduct;
+  }
 }
 
 ReceiptProduct generateReceiptProduct({
@@ -467,7 +597,7 @@ Future<List<Product>?> getListOfProducts({
   }
 }
 
-Future<void> updateProductWarehouseQuantityIncremental({
+Future<void> updateProductAvailableQuantityIncremental({
   required Transaction transaction,
   required FirebaseFirestore db,
   required String currentUserUid,
