@@ -27,7 +27,7 @@ class ReceiptProduct {
   final double discountPercent;
   final double profitUnit;
   final double profit;
-  final bool isFromMarketplace;
+  final bool isFromDatabase;
 
   const ReceiptProduct({
     required this.productId,
@@ -50,7 +50,7 @@ class ReceiptProduct {
     required this.discountPercent,
     required this.profitUnit,
     required this.profit,
-    required this.isFromMarketplace,
+    required this.isFromDatabase,
   });
 
   factory ReceiptProduct.fromJson(Map<String, dynamic> json) => _$ReceiptProductFromJson(json);
@@ -79,7 +79,7 @@ class ReceiptProduct {
       discountPercent: 0,
       profitUnit: 0,
       profit: 0,
-      isFromMarketplace: false,
+      isFromDatabase: false,
     );
   }
 
@@ -103,9 +103,9 @@ class ReceiptProduct {
       discountGross: 0,
       discountNet: 0,
       discountPercent: 0,
-      profitUnit: 0,
-      profit: 0,
-      isFromMarketplace: true,
+      profitUnit: product.netPrice - product.wholesalePrice,
+      profit: product.netPrice - product.wholesalePrice,
+      isFromDatabase: true,
     );
   }
 
@@ -130,7 +130,7 @@ class ReceiptProduct {
     double? discountPercent,
     double? profitUnit,
     double? profit,
-    bool? isFromMarketplace,
+    bool? isFromDatabase,
   }) {
     return ReceiptProduct(
       productId: productId ?? this.productId,
@@ -153,12 +153,12 @@ class ReceiptProduct {
       discountPercent: discountPercent ?? this.discountPercent,
       profitUnit: profitUnit ?? this.profitUnit,
       profit: profit ?? this.profit,
-      isFromMarketplace: isFromMarketplace ?? this.isFromMarketplace,
+      isFromDatabase: isFromDatabase ?? this.isFromDatabase,
     );
   }
 
   @override
   String toString() {
-    return 'ReceiptProduct(productId: $productId, productAttributeId: $productAttributeId, quantity: $quantity, shippedQuantity: $shippedQuantity, name: $name, articleNumber: $articleNumber, ean: $ean, price: $price, unitPriceGross: $unitPriceGross, unitPriceNet: $unitPriceNet, customization: $customization, tax: $tax, wholesalePrice: $wholesalePrice, discountGrossUnit: $discountGrossUnit, discountNetUnit: $discountNetUnit, discountGross: $discountGross, discountNet: $discountNet, discountPercent: $discountPercent, profitUnit: $profitUnit, profit: $profit, ifFromMarketplace: $isFromMarketplace)';
+    return 'ReceiptProduct(productId: $productId, productAttributeId: $productAttributeId, quantity: $quantity, shippedQuantity: $shippedQuantity, name: $name, articleNumber: $articleNumber, ean: $ean, price: $price, unitPriceGross: $unitPriceGross, unitPriceNet: $unitPriceNet, customization: $customization, tax: $tax, wholesalePrice: $wholesalePrice, discountGrossUnit: $discountGrossUnit, discountNetUnit: $discountNetUnit, discountGross: $discountGross, discountNet: $discountNet, discountPercent: $discountPercent, profitUnit: $profitUnit, profit: $profit, ifFromMarketplace: $isFromDatabase)';
   }
 }

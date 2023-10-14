@@ -46,3 +46,12 @@ extension ToMyDouble on String? {
     }
   }
 }
+
+//* Kaufmännische Rundung auf 2 Nachkommastellen
+extension ToMyRoundedDouble on double {
+  double toMyRoundedDouble() {
+    // Rundet das double kaufmännisch auf zwei Dezimalstellen
+    return (this * 100).roundToDouble() / 100;
+  }
+}
+

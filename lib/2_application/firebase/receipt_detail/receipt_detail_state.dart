@@ -7,7 +7,7 @@ class ReceiptDetailState {
   final List<Tax> taxRulesListFromSettings;
   //* Helper ProductsTotal
   final double productsTotalNet;
-  final double procutsTotalGross;
+  final double productsTotalGross;
   final double discountPercentageAmountGross;
   final double taxAmount;
   final double totalGross;
@@ -18,10 +18,8 @@ class ReceiptDetailState {
   final TextEditingController additionalAmountGrossController;
   //* Helper Products
   final bool isInScanMode;
-  final double posDiscountPercent;
   final double posDiscountPercentAmount;
   final List<bool> isEditable;
-  final List<Tax> taxRulesList;
   //* Controller Products
   final TextEditingController barcodeScannerController;
   final List<TextEditingController> articleNumberControllers;
@@ -40,9 +38,7 @@ class ReceiptDetailState {
     required this.shippingAmountGrossController,
     required this.additionalAmountGrossController,
     required this.isInScanMode,
-    required this.posDiscountPercent,
     required this.isEditable,
-    required this.taxRulesList,
     required this.barcodeScannerController,
     required this.articleNumberControllers,
     required this.articleNameControllers,
@@ -51,21 +47,21 @@ class ReceiptDetailState {
     required this.posDiscountPercentControllers,
     required this.unitPriceGrossControllers,
   })  : productsTotalNet = _calcProductsTotalNet(listOfReceiptProducts),
-        procutsTotalGross = _calcProductsTotalGross(listOfReceiptProducts),
-        posDiscountPercentAmount = _calcPosDiscountPercentAmount(listOfReceiptProducts, posDiscountPercent),
+        productsTotalGross = _calcProductsTotalGross(listOfReceiptProducts),
+        posDiscountPercentAmount = _calcPosDiscountPercentAmount(listOfReceiptProducts),
         discountPercentageAmountGross = _calcDiscountPercentageAmount(listOfReceiptProducts, receipt.discountPercent),
         taxAmount = _calcTaxAmount(
-          receipt.tax,
+          receipt.tax.taxRate,
           _calcProductsTotalNet(listOfReceiptProducts),
           _calcProductsTotalGross(listOfReceiptProducts),
-          _calcPosDiscountPercentAmount(listOfReceiptProducts, posDiscountPercent),
+          _calcPosDiscountPercentAmount(listOfReceiptProducts),
           _calcDiscountPercentageAmount(listOfReceiptProducts, receipt.discountPercent),
           receipt.discountGross,
           receipt.totalShippingGross,
           receipt.additionalAmountGross,
         ),
         totalGross = _calcProductsTotalGross(listOfReceiptProducts) -
-            _calcPosDiscountPercentAmount(listOfReceiptProducts, posDiscountPercent) -
+            _calcPosDiscountPercentAmount(listOfReceiptProducts) -
             _calcDiscountPercentageAmount(listOfReceiptProducts, receipt.discountPercent) -
             receipt.discountGross +
             receipt.totalShippingGross +
@@ -79,16 +75,16 @@ class ReceiptDetailState {
     return receiptProducts.map((e) => e.unitPriceGross * e.quantity).toList().reduce((value, element) => value + element);
   }
 
-  static double _calcDiscountPercentageAmount(List<ReceiptProduct> receiptProducts, double discountPercentage) {
-    return calcPercentageAmount(_calcProductsTotalGross(receiptProducts), discountPercentage);
-  }
-
-  static double _calcPosDiscountPercentAmount(List<ReceiptProduct> receiptProducts, double posDiscountPercent) {
+  static double _calcPosDiscountPercentAmount(List<ReceiptProduct> receiptProducts) {
     double posPercentAmount = 0;
     for (final product in receiptProducts) {
       posPercentAmount += calcPercentageAmount(product.unitPriceGross * product.quantity, product.discountPercent);
     }
     return posPercentAmount;
+  }
+
+  static double _calcDiscountPercentageAmount(List<ReceiptProduct> receiptProducts, double discountPercentage) {
+    return calcPercentageAmount(_calcProductsTotalGross(receiptProducts), discountPercentage);
   }
 
   static double _calcTaxAmount(
@@ -118,9 +114,7 @@ class ReceiptDetailState {
         shippingAmountGrossController: TextEditingController(text: '0'),
         additionalAmountGrossController: TextEditingController(text: '0'),
         isInScanMode: false,
-        posDiscountPercent: 0,
         isEditable: const [],
-        taxRulesList: const [],
         barcodeScannerController: TextEditingController(),
         articleNumberControllers: const [],
         articleNameControllers: const [],
@@ -144,9 +138,7 @@ class ReceiptDetailState {
     TextEditingController? shippingAmountGrossController,
     TextEditingController? additionalAmountGrossController,
     bool? isInScanMode,
-    double? posDiscountPercent,
     List<bool>? isEditable,
-    List<Tax>? taxRulesList,
     TextEditingController? barcodeScannerController,
     List<TextEditingController>? articleNumberControllers,
     List<TextEditingController>? articleNameControllers,
@@ -164,9 +156,7 @@ class ReceiptDetailState {
       shippingAmountGrossController: shippingAmountGrossController ?? this.shippingAmountGrossController,
       additionalAmountGrossController: additionalAmountGrossController ?? this.additionalAmountGrossController,
       isInScanMode: isInScanMode ?? this.isInScanMode,
-      posDiscountPercent: posDiscountPercent ?? this.posDiscountPercent,
       isEditable: isEditable ?? this.isEditable,
-      taxRulesList: taxRulesList ?? this.taxRulesList,
       barcodeScannerController: barcodeScannerController ?? this.barcodeScannerController,
       articleNumberControllers: articleNumberControllers ?? this.articleNumberControllers,
       articleNameControllers: articleNameControllers ?? this.articleNameControllers,

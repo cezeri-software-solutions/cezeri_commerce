@@ -112,7 +112,7 @@ class ReceiptDetailProductsTotalCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const Text('Zwischensumme Brutto'),
-                    Text('${state.procutsTotalGross.toMyCurrencyStringToShow()} ${state.receipt.currency}', style: TextStyles.defaultBold),
+                    Text('${state.productsTotalGross.toMyCurrencyStringToShow()} ${state.receipt.currency}', style: TextStyles.defaultBold),
                   ],
                 ),
                 const Divider(),
@@ -161,7 +161,7 @@ class ReceiptDetailProductsTotalCard extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Umsatzsteuer ${state.receipt.tax}%'),
+                    Text('Umsatzsteuer ${state.receipt.tax.taxRate}%'),
                     Text('${state.taxAmount.toMyCurrencyStringToShow()} ${state.receipt.currency}', style: TextStyles.defaultBold),
                   ],
                 ),

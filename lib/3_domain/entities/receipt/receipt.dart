@@ -13,6 +13,7 @@ import '../marketplace/marketplace.dart';
 import '../settings/bank_details.dart';
 import '../settings/main_settings.dart';
 import '../settings/payment_method.dart';
+import '../settings/tax.dart';
 import 'payment.dart';
 import 'receipt_customer.dart';
 import 'receipt_product.dart';
@@ -66,7 +67,7 @@ class Receipt {
   final OfferStatus offerStatus;
   final ReceiptStatus receiptStatus;
   final PaymentStatus paymentStatus;
-  final int tax;
+  final Tax tax;
   final int termOfPayment;
   final double totalGross;
   final double totalNet;
@@ -304,7 +305,7 @@ class Receipt {
       offerStatus: OfferStatus.noOffer,
       receiptStatus: ReceiptStatus.open,
       paymentStatus: getPaymentStatus(),
-      tax: calcTaxPercent(getTotalGross(), getTotalNet()),
+      tax: mainSettings.taxes.where((e) => e.taxRate.round() == calcTaxPercent(getTotalGross(), getTotalNet()).round()).first,
       termOfPayment: mainSettings.termOfPayment,
       totalGross: getTotalGross(),
       totalNet: getTotalNet(),
@@ -380,7 +381,7 @@ class Receipt {
       offerStatus: OfferStatus.open,
       receiptStatus: ReceiptStatus.open,
       paymentStatus: PaymentStatus.open,
-      tax: 0,
+      tax: Tax.empty(),
       termOfPayment: 14,
       totalGross: 0,
       totalNet: 0,
@@ -452,7 +453,7 @@ class Receipt {
     OfferStatus? offerStatus,
     ReceiptStatus? receiptStatus,
     PaymentStatus? paymentStatus,
-    int? tax,
+    Tax? tax,
     int? termOfPayment,
     double? totalGross,
     double? totalNet,

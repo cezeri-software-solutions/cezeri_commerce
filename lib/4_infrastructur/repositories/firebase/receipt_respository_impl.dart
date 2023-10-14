@@ -70,7 +70,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
     try {
       await db.runTransaction((transaction) async {
         for (final oldProduct in oldListOfReceiptProducts) {
-          if (!oldProduct.isFromMarketplace) continue;
+          if (!oldProduct.isFromDatabase) continue;
           final newProduct = newListOfReceiptProducts.where((p) => p.productId == oldProduct.productId).firstOrNull;
 
           if (newProduct == null) {
@@ -104,7 +104,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
         }
 
         for (final newProduct in newListOfReceiptProducts) {
-          if (!newProduct.isFromMarketplace) continue;
+          if (!newProduct.isFromDatabase) continue;
           if (!oldListOfReceiptProducts.any((p) => p.productId == newProduct.productId)) {
             // newProduct wurde hinzugefügt
             // Verringern Sie den Bestand von newProduct in Firestore
@@ -569,7 +569,7 @@ ReceiptProduct generateReceiptProduct({
     discountPercent: 0, //calcPercentageOfTwoDoubles(product.netPrice, (orderProductPresta.unitPriceTaxExcl).toMyDouble()),
     profitUnit: (orderProductPresta.unitPriceTaxExcl).toMyDouble() - (product.wholesalePrice),
     profit: ((orderProductPresta.unitPriceTaxExcl).toMyDouble() - product.wholesalePrice) * quantity,
-    isFromMarketplace: true,
+    isFromDatabase: true,
   );
 }
 
@@ -580,7 +580,7 @@ Future<List<Product>?> getListOfProducts({
 }) async {
   final logger = Logger();
   try {
-    final listOfProductsInDatabase = receipt.listOfReceiptProduct.where((e) => e.isFromMarketplace).toList();
+    final listOfProductsInDatabase = receipt.listOfReceiptProduct.where((e) => e.isFromDatabase).toList();
     logger.i(listOfProductsInDatabase.map((e) => e.productId));
     final docRefProducts = db
         .collection(currentUserUid)
