@@ -2,6 +2,8 @@ import 'dart:math';
 
 import 'package:auto_route/auto_route.dart';
 import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.dart';
+import 'package:cezeri_commerce/1_presentation/core/widgets/my_circular_progress_indicator.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -13,9 +15,11 @@ import '../../../3_domain/entities/address.dart';
 import '../../../3_domain/entities/marketplace/marketplace.dart';
 import '../../../3_domain/entities/receipt/receipt.dart';
 import '../../../3_domain/entities/receipt/receipt_product.dart';
+import '../../../3_domain/entities/settings/main_settings.dart';
 import '../../../3_domain/enums/enums.dart';
-import '../../../3_domain/pdf/pdf_api.dart';
-import '../../../3_domain/pdf/pdf_receipt_api.dart';
+import '../../../3_domain/pdf/pdf_api_mobile.dart';
+import '../../../3_domain/pdf/pdf_api_web.dart';
+import '../../../3_domain/pdf/pdf_receipt_generator.dart';
 import '../../../constants.dart';
 import '../../../core/firebase_failures.dart';
 import '../../../routes/router.gr.dart';
@@ -122,6 +126,8 @@ class _AppointmentContainer extends StatefulWidget {
 }
 
 class __AppointmentContainerState extends State<_AppointmentContainer> {
+  bool _isLoadingPdf = false;
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.sizeOf(context).width;
@@ -173,19 +179,8 @@ class __AppointmentContainerState extends State<_AppointmentContainer> {
                           constraints: const BoxConstraints(maxHeight: 30),
                           child: IconButton(
                             padding: EdgeInsets.zero,
-                            onPressed: () async {
-                              final mainSettings = context.read<MainSettingsBloc>().state.mainSettings;
-                              final receiptName = switch (widget.appointment.receiptTyp) {
-                                ReceiptTyp.offer => widget.appointment.offerNumberAsString,
-                                ReceiptTyp.appointment => widget.appointment.appointmentNumberAsString,
-                                ReceiptTyp.invoice => widget.appointment.invoiceNumberAsString,
-                                ReceiptTyp.credit => widget.appointment.creditNumberAsString,
-                              };
-                              final data = await PdfReceiptApi.generate(
-                                  widget.appointment, mainSettings!, marketplace, widget.appointment.receiptCustomer, marketplace.logoUrl);
-                              await PdfApi.saveDocument(name: '$receiptName.pdf', byteList: data);
-                            },
-                            icon: const Icon(Icons.picture_as_pdf, color: Colors.red),
+                            onPressed: () async => await _onPdfPressed(marketplace: marketplace),
+                            icon: _isLoadingPdf ? const MyCircularProgressIndicator() : const Icon(Icons.picture_as_pdf, color: Colors.red),
                           ),
                         ),
                       ],
@@ -377,6 +372,63 @@ class __AppointmentContainerState extends State<_AppointmentContainer> {
         );
       },
     );
+  }
+
+  Future<void> _onPdfPressed({required Marketplace marketplace}) async {
+    setState(() => _isLoadingPdf = true);
+    final mainSettings = context.read<MainSettingsBloc>().state.mainSettings;
+    final receiptName = switch (widget.appointment.receiptTyp) {
+      ReceiptTyp.offer => widget.appointment.offerNumberAsString,
+      ReceiptTyp.appointment => widget.appointment.appointmentNumberAsString,
+      ReceiptTyp.invoice => widget.appointment.invoiceNumberAsString,
+      ReceiptTyp.credit => widget.appointment.creditNumberAsString,
+    };
+    final data = await PdfReceiptGenerator.generate(
+      receipt: widget.appointment,
+      mainSettings: mainSettings ?? MainSettings.empty(),
+      marketplace: marketplace,
+      customer: widget.appointment.receiptCustomer,
+      logoUrl: marketplace.logoUrl,
+    );
+    if (kIsWeb) {
+      if (mounted) {
+        showDialog(
+          context: context,
+          builder: (context) => Dialog(
+            child: SizedBox(
+              width: 400,
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    ListTile(
+                      leading: const Icon(Icons.open_in_browser),
+                      title: const Text('Im Browser öffnen'),
+                      onTap: () async {
+                        await PdfApiWeb.saveDocument(name: '$receiptName.pdf', byteList: data, showInBrowser: true);
+                        if (mounted) context.router.pop();
+                      },
+                    ),
+                    ListTile(
+                      leading: const Icon(Icons.download),
+                      title: const Text('Herunterladen'),
+                      onTap: () async {
+                        await PdfApiWeb.saveDocument(name: '$receiptName.pdf', byteList: data, showInBrowser: false);
+                        if (mounted) context.router.pop();
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      }
+    } else {
+      await PdfApiMobile.saveDocument(name: '$receiptName.pdf', byteList: data);
+    }
+    setState(() => _isLoadingPdf = false);
   }
 }
 

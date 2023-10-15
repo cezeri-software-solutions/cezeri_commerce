@@ -68,23 +68,23 @@ class ReceiptDetailState {
             receipt.additionalAmountGross;
 
   static double _calcProductsTotalNet(List<ReceiptProduct> receiptProducts) {
-    return receiptProducts.map((e) => e.unitPriceNet * e.quantity).toList().reduce((value, element) => value + element);
+    return (receiptProducts.map((e) => e.unitPriceNet * e.quantity).toList().reduce((value, element) => value + element)).toMyRoundedDouble();
   }
 
   static double _calcProductsTotalGross(List<ReceiptProduct> receiptProducts) {
-    return receiptProducts.map((e) => e.unitPriceGross * e.quantity).toList().reduce((value, element) => value + element);
+    return (receiptProducts.map((e) => e.unitPriceGross * e.quantity).toList().reduce((value, element) => value + element)).toMyRoundedDouble();
   }
 
   static double _calcPosDiscountPercentAmount(List<ReceiptProduct> receiptProducts) {
     double posPercentAmount = 0;
     for (final product in receiptProducts) {
-      posPercentAmount += calcPercentageAmount(product.unitPriceGross * product.quantity, product.discountPercent);
+      posPercentAmount += (calcPercentageAmount(product.unitPriceGross * product.quantity, product.discountPercent)).toMyRoundedDouble();
     }
     return posPercentAmount;
   }
 
   static double _calcDiscountPercentageAmount(List<ReceiptProduct> receiptProducts, double discountPercentage) {
-    return calcPercentageAmount(_calcProductsTotalGross(receiptProducts), discountPercentage);
+    return (calcPercentageAmount(_calcProductsTotalGross(receiptProducts), discountPercentage)).toMyRoundedDouble();
   }
 
   static double _calcTaxAmount(
@@ -97,12 +97,12 @@ class ReceiptDetailState {
     double shippingAmountGross,
     double additionalAmountGross,
   ) {
-    return (procutsTotalGross - productsTotalNet) +
-        calcTaxAmount(posDiscountPercentAmount, tax) +
-        calcTaxAmount(discountPercentageAmountGross, tax) +
-        calcTaxAmount(discountAmountGross, tax) +
-        calcTaxAmount(shippingAmountGross, tax) +
-        calcTaxAmount(additionalAmountGross, tax);
+    return (procutsTotalGross - productsTotalNet) -
+        calcTaxAmount(posDiscountPercentAmount, tax).toMyRoundedDouble() -
+        calcTaxAmount(discountPercentageAmountGross, tax).toMyRoundedDouble() -
+        calcTaxAmount(discountAmountGross, tax).toMyRoundedDouble() +
+        calcTaxAmount(shippingAmountGross, tax).toMyRoundedDouble() +
+        calcTaxAmount(additionalAmountGross, tax).toMyRoundedDouble();
   }
 
   factory ReceiptDetailState.initial() => ReceiptDetailState(

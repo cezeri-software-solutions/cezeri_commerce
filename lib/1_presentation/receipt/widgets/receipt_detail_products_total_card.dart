@@ -137,15 +137,7 @@ class ReceiptDetailProductsTotalCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text('${state.receipt.currency} Rabatt'),
-                    Text('${state.receipt.discountPercent.toMyCurrencyStringToShow()} ${state.receipt.currency}', style: TextStyles.defaultBold),
-                  ],
-                ),
-                const Divider(),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text('Versandkosten'),
-                    Text('${state.receipt.totalShippingGross.toMyCurrencyStringToShow()} ${state.receipt.currency}', style: TextStyles.defaultBold),
+                    Text('${state.receipt.discountGross.toMyCurrencyStringToShow()} ${state.receipt.currency}', style: TextStyles.defaultBold),
                   ],
                 ),
                 const Divider(),
@@ -161,8 +153,24 @@ class ReceiptDetailProductsTotalCard extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
+                    const Text('Versandkosten'),
+                    Text('${state.receipt.totalShippingGross.toMyCurrencyStringToShow()} ${state.receipt.currency}', style: TextStyles.defaultBold),
+                  ],
+                ),
+                const Divider(),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text('Gesamtbetrag Netto'),
+                    Text('${state.receipt.totalNet.toMyCurrencyStringToShow()} ${state.receipt.currency}', style: TextStyles.defaultBold),
+                  ],
+                ),
+                const Divider(),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
                     Text('Umsatzsteuer ${state.receipt.tax.taxRate}%'),
-                    Text('${state.taxAmount.toMyCurrencyStringToShow()} ${state.receipt.currency}', style: TextStyles.defaultBold),
+                    Text('${state.receipt.totalTax.toMyCurrencyStringToShow()} ${state.receipt.currency}', style: TextStyles.defaultBold),
                   ],
                 ),
                 const Divider(thickness: 3, height: 30),
