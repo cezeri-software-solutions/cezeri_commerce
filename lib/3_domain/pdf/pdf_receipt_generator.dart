@@ -76,7 +76,6 @@ class PdfReceiptGenerator {
           ],
         ),
         build: (context) {
-          print(mainSettings.isSmallBusiness);
           return [
             pw.Row(children: [
               pw.Expanded(flex: 6, child: buildBranchAndCustomerAddress(receipt, marketplace)),

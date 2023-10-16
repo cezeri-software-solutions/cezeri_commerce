@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:json_annotation/json_annotation.dart';
 
 import '../product/product.dart';
@@ -22,9 +23,11 @@ class ReceiptProduct {
   final double wholesalePrice;
   final double discountGrossUnit;
   final double discountNetUnit;
-  final double discountGross;
-  final double discountNet;
+  final double discountGross; // Gesamtrabatt (€Rabatt + %Rabatt) * Menge
+  final double discountNet; // Gesamtrabatt (€Rabatt + %Rabatt) * Menge
   final double discountPercent;
+  final double discountPercentAmountGrossUnit;
+  final double discountPercentAmountNetUnit;
   final double profitUnit;
   final double profit;
   final bool isFromDatabase;
@@ -48,6 +51,8 @@ class ReceiptProduct {
     required this.discountNetUnit,
     required this.discountNet,
     required this.discountPercent,
+    required this.discountPercentAmountGrossUnit,
+    required this.discountPercentAmountNetUnit,
     required this.profitUnit,
     required this.profit,
     required this.isFromDatabase,
@@ -77,6 +82,8 @@ class ReceiptProduct {
       discountGross: 0,
       discountNet: 0,
       discountPercent: 0,
+      discountPercentAmountGrossUnit: 0,
+      discountPercentAmountNetUnit: 0,
       profitUnit: 0,
       profit: 0,
       isFromDatabase: false,
@@ -103,6 +110,8 @@ class ReceiptProduct {
       discountGross: 0,
       discountNet: 0,
       discountPercent: 0,
+      discountPercentAmountGrossUnit: 0,
+      discountPercentAmountNetUnit: 0,
       profitUnit: product.netPrice - product.wholesalePrice,
       profit: product.netPrice - product.wholesalePrice,
       isFromDatabase: true,
@@ -128,6 +137,8 @@ class ReceiptProduct {
     double? discountGross,
     double? discountNet,
     double? discountPercent,
+    double? discountPercentAmountGrossUnit,
+    double? discountPercentAmountNetUnit,
     double? profitUnit,
     double? profit,
     bool? isFromDatabase,
@@ -151,6 +162,8 @@ class ReceiptProduct {
       discountGross: discountGross ?? this.discountGross,
       discountNet: discountNet ?? this.discountNet,
       discountPercent: discountPercent ?? this.discountPercent,
+      discountPercentAmountGrossUnit: discountPercentAmountGrossUnit ?? this.discountPercentAmountGrossUnit,
+      discountPercentAmountNetUnit: discountPercentAmountNetUnit ?? this.discountPercentAmountNetUnit,
       profitUnit: profitUnit ?? this.profitUnit,
       profit: profit ?? this.profit,
       isFromDatabase: isFromDatabase ?? this.isFromDatabase,
@@ -159,6 +172,6 @@ class ReceiptProduct {
 
   @override
   String toString() {
-    return 'ReceiptProduct(productId: $productId, productAttributeId: $productAttributeId, quantity: $quantity, shippedQuantity: $shippedQuantity, name: $name, articleNumber: $articleNumber, ean: $ean, price: $price, unitPriceGross: $unitPriceGross, unitPriceNet: $unitPriceNet, customization: $customization, tax: $tax, wholesalePrice: $wholesalePrice, discountGrossUnit: $discountGrossUnit, discountNetUnit: $discountNetUnit, discountGross: $discountGross, discountNet: $discountNet, discountPercent: $discountPercent, profitUnit: $profitUnit, profit: $profit, ifFromMarketplace: $isFromDatabase)';
+    return 'ReceiptProduct(productId: $productId, productAttributeId: $productAttributeId, quantity: $quantity, shippedQuantity: $shippedQuantity, name: $name, articleNumber: $articleNumber, ean: $ean, price: $price, unitPriceGross: $unitPriceGross, unitPriceNet: $unitPriceNet, customization: $customization, tax: $tax, wholesalePrice: $wholesalePrice, discountGrossUnit: $discountGrossUnit, discountNetUnit: $discountNetUnit, discountGross: $discountGross, discountNet: $discountNet, discountPercent: $discountPercent, discountPercentAmountGrossUnit: $discountPercentAmountGrossUnit, discountPercentAmountNetUnit: $discountPercentAmountNetUnit, profitUnit: $profitUnit, profit: $profit, isFromDatabase: $isFromDatabase)';
   }
 }

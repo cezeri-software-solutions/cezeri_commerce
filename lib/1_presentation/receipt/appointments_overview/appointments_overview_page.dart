@@ -3,10 +3,11 @@ import 'dart:math';
 import 'package:auto_route/auto_route.dart';
 import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.dart';
 import 'package:cezeri_commerce/1_presentation/core/widgets/my_circular_progress_indicator.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart' show Uint8List, kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:printing/printing.dart';
 
 import '../../../2_application/firebase/appointment/appointment_bloc.dart';
 import '../../../2_application/firebase/main_settings/main_settings_bloc.dart';
@@ -179,7 +180,7 @@ class __AppointmentContainerState extends State<_AppointmentContainer> {
                           constraints: const BoxConstraints(maxHeight: 30),
                           child: IconButton(
                             padding: EdgeInsets.zero,
-                            onPressed: () async => await _onPdfPressed(marketplace: marketplace),
+                            onPressed: () async => await _onPdfPressed(marketplace: marketplace), //await _onPdfPressed(marketplace: marketplace),
                             icon: _isLoadingPdf ? const MyCircularProgressIndicator() : const Icon(Icons.picture_as_pdf, color: Colors.red),
                           ),
                         ),
@@ -390,26 +391,31 @@ class __AppointmentContainerState extends State<_AppointmentContainer> {
       customer: widget.appointment.receiptCustomer,
       logoUrl: marketplace.logoUrl,
     );
-    if (kIsWeb) {
-      if (mounted) {
-        showDialog(
-          context: context,
-          builder: (context) => Dialog(
-            child: SizedBox(
-              width: 400,
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    ListTile(
-                      leading: const Icon(Icons.open_in_browser),
-                      title: const Text('Im Browser öffnen'),
-                      onTap: () async {
+
+    if (mounted) {
+      showDialog(
+        context: context,
+        builder: (context) => Dialog(
+          child: SizedBox(
+            width: 400,
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ListTile(
+                    leading: const Icon(Icons.open_in_browser),
+                    title: const Text(kIsWeb ? 'Im Browser öffnen' : 'Öffnen'),
+                    onTap: () async {
+                      if (kIsWeb) {
                         await PdfApiWeb.saveDocument(name: '$receiptName.pdf', byteList: data, showInBrowser: true);
-                        if (mounted) context.router.pop();
-                      },
-                    ),
+                      } else {
+                        await PdfApiMobile.saveDocument(name: '$receiptName.pdf', byteList: data);
+                      }
+                      if (mounted) context.router.pop();
+                    },
+                  ),
+                  if (kIsWeb)
                     ListTile(
                       leading: const Icon(Icons.download),
                       title: const Text('Herunterladen'),
@@ -418,15 +424,20 @@ class __AppointmentContainerState extends State<_AppointmentContainer> {
                         if (mounted) context.router.pop();
                       },
                     ),
-                  ],
-                ),
+                  ListTile(
+                    leading: const Icon(Icons.print),
+                    title: const Text('Drucken'),
+                    onTap: () async {
+                      await Printing.layoutPdf(onLayout: (_) => data);
+                      if (mounted) context.router.pop();
+                    },
+                  ),
+                ],
               ),
             ),
           ),
-        );
-      }
-    } else {
-      await PdfApiMobile.saveDocument(name: '$receiptName.pdf', byteList: data);
+        ),
+      );
     }
     setState(() => _isLoadingPdf = false);
   }

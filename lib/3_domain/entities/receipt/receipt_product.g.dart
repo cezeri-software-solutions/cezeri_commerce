@@ -26,6 +26,10 @@ ReceiptProduct _$ReceiptProductFromJson(Map<String, dynamic> json) =>
       discountNetUnit: (json['discountNetUnit'] as num).toDouble(),
       discountNet: (json['discountNet'] as num).toDouble(),
       discountPercent: (json['discountPercent'] as num).toDouble(),
+      discountPercentAmountGrossUnit:
+          (json['discountPercentAmountGrossUnit'] as num).toDouble(),
+      discountPercentAmountNetUnit:
+          (json['discountPercentAmountNetUnit'] as num).toDouble(),
       profitUnit: (json['profitUnit'] as num).toDouble(),
       profit: (json['profit'] as num).toDouble(),
       isFromDatabase: json['isFromDatabase'] as bool,
@@ -51,6 +55,8 @@ Map<String, dynamic> _$ReceiptProductToJson(ReceiptProduct instance) =>
       'discountGross': instance.discountGross,
       'discountNet': instance.discountNet,
       'discountPercent': instance.discountPercent,
+      'discountPercentAmountGrossUnit': instance.discountPercentAmountGrossUnit,
+      'discountPercentAmountNetUnit': instance.discountPercentAmountNetUnit,
       'profitUnit': instance.profitUnit,
       'profit': instance.profit,
       'isFromDatabase': instance.isFromDatabase,

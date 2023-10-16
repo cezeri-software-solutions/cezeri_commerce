@@ -109,14 +109,14 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
             // newProduct wurde hinzugefügt
             // Verringern Sie den Bestand von newProduct in Firestore
             Product? toUpdateProduct = await loadProductToUpdate(newProduct);
-              if (toUpdateProduct == null) return left(GeneralFailure());
-              await updateProductAvailableQuantityIncremental(
-                transaction: transaction,
-                db: db,
-                currentUserUid: currentUserUid,
-                product: toUpdateProduct,
-                newQuantityIncremental: newProduct.quantity * -1,
-              );
+            if (toUpdateProduct == null) return left(GeneralFailure());
+            await updateProductAvailableQuantityIncremental(
+              transaction: transaction,
+              db: db,
+              currentUserUid: currentUserUid,
+              product: toUpdateProduct,
+              newQuantityIncremental: newProduct.quantity * -1,
+            );
           }
         }
 
@@ -567,6 +567,8 @@ ReceiptProduct generateReceiptProduct({
     discountGross: 0, //product.grossPrice - (orderProductPresta.unitPriceTaxIncl).toMyDouble() * quantity,
     discountNet: 0, //product.netPrice - ((orderProductPresta.unitPriceTaxExcl).toMyDouble()) * quantity,
     discountPercent: 0, //calcPercentageOfTwoDoubles(product.netPrice, (orderProductPresta.unitPriceTaxExcl).toMyDouble()),
+    discountPercentAmountGrossUnit: 0,
+    discountPercentAmountNetUnit: 0,
     profitUnit: (orderProductPresta.unitPriceTaxExcl).toMyDouble() - (product.wholesalePrice),
     profit: ((orderProductPresta.unitPriceTaxExcl).toMyDouble() - product.wholesalePrice) * quantity,
     isFromDatabase: true,

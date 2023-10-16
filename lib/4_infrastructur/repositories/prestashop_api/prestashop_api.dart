@@ -189,6 +189,9 @@ class PrestashopApi with UiLoggy {
     );
 
     print(response.body);
+    print('--------------------------------');
+    print(document);
+    print('--------------------------------');
 
     if (response.statusCode == 200) {
       return true;

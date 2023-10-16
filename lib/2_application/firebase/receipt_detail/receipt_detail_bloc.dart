@@ -120,36 +120,57 @@ class ReceiptDetailBloc extends Bloc<ReceiptDetailEvent, ReceiptDetailState> {
       for (var product in state.listOfReceiptProducts) {
         profit += product.profit;
       }
+
+      List<ReceiptProduct> receiptProductsList = [];
+      for (int i = 0; i < state.listOfReceiptProducts.length; i++) {
+        final discountPercentAmountGrossUnit =
+            (calcPercentageAmount(state.listOfReceiptProducts[i].unitPriceGross, state.listOfReceiptProducts[i].discountPercent)).toMyRoundedDouble();
+        final discountPercentAmountNetUnit =
+            (discountPercentAmountGrossUnit / taxToCalc(state.listOfReceiptProducts[i].tax.taxRate)).toMyRoundedDouble();
+        final receiptProdut = state.listOfReceiptProducts[i].copyWith(
+          discountPercentAmountGrossUnit: discountPercentAmountGrossUnit,
+          discountPercentAmountNetUnit: discountPercentAmountNetUnit,
+          discountGross:
+              ((discountPercentAmountGrossUnit + state.listOfReceiptProducts[i].discountGrossUnit) * state.listOfReceiptProducts[i].quantity)
+                  .toMyRoundedDouble(),
+          discountNet: ((discountPercentAmountNetUnit + state.listOfReceiptProducts[i].discountNetUnit) * state.listOfReceiptProducts[i].quantity)
+              .toMyRoundedDouble(),
+        );
+        receiptProductsList.add(receiptProdut);
+      }
+
       emit(state.copyWith(
+          listOfReceiptProducts: receiptProductsList,
           receipt: state.receipt.copyWith(
-        discountPercentAmountGross: state.discountPercentageAmountGross,
-        discountPercentAmountNet: (state.discountPercentageAmountGross / taxToCalc(state.receipt.tax.taxRate)).toMyRoundedDouble(),
-        discountPercentAmountTax:
-            (state.discountPercentageAmountGross - (state.discountPercentageAmountGross / taxToCalc(state.receipt.tax.taxRate))).toMyRoundedDouble(),
-        discountNet: (state.receipt.discountGross / taxToCalc(state.receipt.tax.taxRate)).toMyRoundedDouble(),
-        discountTax: (state.receipt.discountGross - (state.receipt.discountGross / taxToCalc(state.receipt.tax.taxRate))).toMyRoundedDouble(),
-        totalShippingNet: (state.receipt.totalShippingGross / taxToCalc(state.receipt.tax.taxRate)).toMyRoundedDouble(),
-        totalShippingTax:
-            (state.receipt.totalShippingGross - (state.receipt.totalShippingGross / taxToCalc(state.receipt.tax.taxRate))).toMyRoundedDouble(),
-        additionalAmountNet: (state.receipt.additionalAmountGross / taxToCalc(state.receipt.tax.taxRate)).toMyRoundedDouble(),
-        additionalAmountTax:
-            (state.receipt.additionalAmountGross - (state.receipt.additionalAmountGross / taxToCalc(state.receipt.tax.taxRate))).toMyRoundedDouble(),
-        //
-        totalGross: state.totalGross,
-        totalNet: (state.totalGross / taxToCalc(state.receipt.tax.taxRate)).toMyRoundedDouble(),
-        totalTax: state.taxAmount,
-        subTotalGross: state.productsTotalGross,
-        subTotalNet: state.productsTotalNet,
-        subTotalTax: state.productsTotalGross - state.productsTotalNet,
-        posDiscountPercentAmountGross: state.posDiscountPercentAmount,
-        posDiscountPercentAmountNet: (state.posDiscountPercentAmount / taxToCalc(state.receipt.tax.taxRate)).toMyRoundedDouble(),
-        posDiscountPercentAmountTax:
-            (state.posDiscountPercentAmount - (state.posDiscountPercentAmount / taxToCalc(state.receipt.tax.taxRate))).toMyRoundedDouble(),
-        profit: profit,
-        profitExclShipping: profit - state.receipt.totalShippingNet,
-        profitExclWrapping: profit - state.receipt.totalWrappingNet,
-        profitExclShippingAndWrapping: profit - state.receipt.totalShippingNet - state.receipt.totalWrappingNet,
-      )));
+            discountPercentAmountGross: state.discountPercentageAmountGross,
+            discountPercentAmountNet: (state.discountPercentageAmountGross / taxToCalc(state.receipt.tax.taxRate)).toMyRoundedDouble(),
+            discountPercentAmountTax:
+                (state.discountPercentageAmountGross - (state.discountPercentageAmountGross / taxToCalc(state.receipt.tax.taxRate)))
+                    .toMyRoundedDouble(),
+            discountNet: (state.receipt.discountGross / taxToCalc(state.receipt.tax.taxRate)).toMyRoundedDouble(),
+            discountTax: (state.receipt.discountGross - (state.receipt.discountGross / taxToCalc(state.receipt.tax.taxRate))).toMyRoundedDouble(),
+            totalShippingNet: (state.receipt.totalShippingGross / taxToCalc(state.receipt.tax.taxRate)).toMyRoundedDouble(),
+            totalShippingTax:
+                (state.receipt.totalShippingGross - (state.receipt.totalShippingGross / taxToCalc(state.receipt.tax.taxRate))).toMyRoundedDouble(),
+            additionalAmountNet: (state.receipt.additionalAmountGross / taxToCalc(state.receipt.tax.taxRate)).toMyRoundedDouble(),
+            additionalAmountTax: (state.receipt.additionalAmountGross - (state.receipt.additionalAmountGross / taxToCalc(state.receipt.tax.taxRate)))
+                .toMyRoundedDouble(),
+            //
+            totalGross: state.totalGross,
+            totalNet: (state.totalGross / taxToCalc(state.receipt.tax.taxRate)).toMyRoundedDouble(),
+            totalTax: state.taxAmount,
+            subTotalGross: state.productsTotalGross,
+            subTotalNet: state.productsTotalNet,
+            subTotalTax: state.productsTotalGross - state.productsTotalNet,
+            posDiscountPercentAmountGross: state.posDiscountPercentAmount,
+            posDiscountPercentAmountNet: (state.posDiscountPercentAmount / taxToCalc(state.receipt.tax.taxRate)).toMyRoundedDouble(),
+            posDiscountPercentAmountTax:
+                (state.posDiscountPercentAmount - (state.posDiscountPercentAmount / taxToCalc(state.receipt.tax.taxRate))).toMyRoundedDouble(),
+            profit: profit,
+            profitExclShipping: profit - state.receipt.totalShippingNet,
+            profitExclWrapping: profit - state.receipt.totalWrappingNet,
+            profitExclShippingAndWrapping: profit - state.receipt.totalShippingNet - state.receipt.totalWrappingNet,
+          )));
     });
 
 //? #########################################################################
