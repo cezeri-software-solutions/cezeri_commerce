@@ -3,10 +3,10 @@ const MANIFEST = 'flutter-app-manifest';
 const TEMP = 'flutter-temp-cache';
 const CACHE_NAME = 'flutter-app-cache';
 
-const RESOURCES = {"version.json": "8292ecd6673451ee4e88051e22c61bf3",
-"index.html": "28e52cf591919e2ebe2c733af807268f",
-"/": "28e52cf591919e2ebe2c733af807268f",
-"main.dart.js": "97a457b4bf7a5be16d45d4b8516a1023",
+const RESOURCES = {"version.json": "a44a480883ffe9c40b6766ec4ff31238",
+"index.html": "0523c73884faf126d4ff7eb20a856976",
+"/": "0523c73884faf126d4ff7eb20a856976",
+"main.dart.js": "5b6728b001f606b4f21b11fbfec81974",
 "flutter.js": "6fef97aeca90b426343ba6c5c9dc5d4a",
 "favicon.png": "5dcef449791fa27946b3d35ad8803796",
 "icons/Icon-192.png": "ac9a721a12bbc803b44f645561ecb1e1",
@@ -289,7 +289,7 @@ const RESOURCES = {"version.json": "8292ecd6673451ee4e88051e22c61bf3",
 "assets/packages/country_flags/res/si/ms.si": "e04ef3545afb3927de3aff13640ff6b9",
 "assets/shaders/ink_sparkle.frag": "f8b80e740d33eb157090be4e995febdf",
 "assets/AssetManifest.bin": "1ce806ab16aa4640c7cd71d1b33da74d",
-"assets/fonts/MaterialIcons-Regular.otf": "a82ed4c6b661eda7d43cde4d8c26495e",
+"assets/fonts/MaterialIcons-Regular.otf": "2928aafc5f28d5d7a0a27717722de232",
 "assets/assets/font/Roboto-Regular.ttf": "afe8eacfc0903cc0612dc696881f0480",
 "assets/assets/font/Roboto-Bold.ttf": "fb6210739c4993c1a86f812e6502e471",
 "assets/assets/payment_methods/eps.png": "b614fba99f2559457a4189db4e1599dc",

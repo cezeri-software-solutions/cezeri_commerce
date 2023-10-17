@@ -1,7 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:cezeri_commerce/core/firebase_failures.dart';
 import 'package:dartz/dartz.dart';
-import 'package:meta/meta.dart';
+import 'package:flutter/material.dart';
 
 import '../../../3_domain/entities/customer/customer.dart';
 import '../../../3_domain/repositories/firebase/customer_repository.dart';
@@ -28,7 +28,7 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
       failureOrSuccess.fold(
         (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
         (listOfCustomer) {
-          emit(state.copyWith(listOfAllCustomers: listOfCustomer, selecetedCustomers: [], firebaseFailure: null, isAnyFailure: false));
+          emit(state.copyWith(listOfAllCustomers: listOfCustomer, selectedCustomers: [], firebaseFailure: null, isAnyFailure: false));
           add(OnSearchFieldSubmittedEvent());
         },
       );
@@ -61,6 +61,24 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
 
 //? #########################################################################
 
+    on<UpdateCustomerEvent>((event, emit) async {
+      emit(state.copyWith(isLoadingCustomerOnUpdate: true));
+
+      final failureOrSuccess = await customerRepository.updateCustomer(event.customer);
+      failureOrSuccess.fold(
+        (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
+        (customer) => emit(state.copyWith(customer: customer, firebaseFailure: null, isAnyFailure: false)),
+      );
+
+      emit(state.copyWith(
+        isLoadingCustomerOnUpdate: false,
+        fosCustomerOnUpdateOption: optionOf(failureOrSuccess),
+      ));
+      emit(state.copyWith(fosCustomerOnObserveOption: none()));
+    });
+
+//? #########################################################################
+
     on<SetSearchFieldTextEvent>((event, emit) async {
       emit(state.copyWith(customerSearchText: event.searchText));
 
@@ -79,8 +97,77 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
                     e.email.toLowerCase().contains(state.customerSearchText.toLowerCase()))
             .toList()
       };
-      if (listOfCustomers != null && listOfCustomers.isNotEmpty) listOfCustomers.sort((a, b) => a.name.compareTo(b.name));
+      if (listOfCustomers != null && listOfCustomers.isNotEmpty) listOfCustomers.sort((a, b) => b.customerNumber.compareTo(a.customerNumber));
       emit(state.copyWith(listOfFilteredCustomers: listOfCustomers));
+    });
+
+//? #########################################################################
+
+    on<OnSelectAllCustomersEvent>((event, emit) async {
+      List<Customer> customers = [];
+      bool isSelectedAll = false;
+      if (event.isSelected) {
+        isSelectedAll = true;
+        customers = List.from(state.listOfFilteredCustomers!);
+      }
+      emit(state.copyWith(isAllCustomersSelected: isSelectedAll, selectedCustomers: customers));
+    });
+
+//? #########################################################################
+
+    on<OnCustomerSelectedEvent>((event, emit) async {
+      List<Customer> customers = List.from(state.selectedCustomers);
+      if (customers.any((e) => e.id == event.customer.id)) {
+        customers.removeWhere((e) => e.id == event.customer.id);
+      } else {
+        customers.add(event.customer);
+      }
+      emit(state.copyWith(
+        isAllCustomersSelected:
+            state.isAllCustomersSelected && customers.length < state.selectedCustomers.length ? false : state.isAllCustomersSelected,
+        selectedCustomers: customers,
+      ));
+    });
+
+//? #########################################################################
+
+    on<SetCustomerControllerEvnet>((event, emit) async {
+      Customer? customer = state.customer;
+      if (customer == null) {
+        emit(state.copyWith(customer: Customer.empty()));
+      }
+      emit(state.copyWith(
+        companyNameController: TextEditingController(text: customer!.company ?? ''),
+        firstNameController: TextEditingController(text: customer.firstName),
+        lastNameController: TextEditingController(text: customer.lastName),
+        emailController: TextEditingController(text: customer.email),
+        phoneController: TextEditingController(text: customer.phone),
+        phoneMobileController: TextEditingController(text: customer.phoneMobile),
+        uidNumberController: TextEditingController(text: customer.uidNumber),
+        taxNumberController: TextEditingController(text: customer.taxNumber),
+      ));
+    });
+
+//? #########################################################################
+
+    on<OnCustomerControllerChangedEvent>((event, emit) async {
+      Customer? customer = state.customer;
+      if (customer == null) {
+        emit(state.copyWith(customer: Customer.empty()));
+      }
+      emit(state.copyWith(
+        customer: state.customer!.copyWith(
+          company: state.companyNameController.text,
+          firstName: state.firstNameController.text,
+          lastName: state.lastNameController.text,
+          name: '${state.firstNameController.text} ${state.lastNameController.text}',
+          email: state.emailController.text,
+          phone: state.phoneController.text,
+          phoneMobile: state.phoneMobileController.text,
+          uidNumber: state.uidNumberController.text,
+          taxNumber: state.taxNumberController.text,
+        ),
+      ));
     });
 
 //? #########################################################################

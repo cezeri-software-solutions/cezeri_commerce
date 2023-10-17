@@ -23,7 +23,7 @@ class AppointmentState {
   final Option<Either<FirebaseFailure, Unit>> fosAppointmentOnDeleteOption;
 
   //* --- helper --- *//
-  final bool selectAllAppointments;
+  final bool isAllAppointmentsSeledcted;
   final List<bool> isExpanded;
   final String appointmentSearchText;
 
@@ -47,7 +47,7 @@ class AppointmentState {
     required this.fosAppointmentOnCreateOption,
     required this.fosAppointmentOnUpdateOption,
     required this.fosAppointmentOnDeleteOption,
-    required this.selectAllAppointments,
+    required this.isAllAppointmentsSeledcted,
     required this.isExpanded,
     required this.appointmentSearchText,
   });
@@ -72,7 +72,7 @@ class AppointmentState {
         fosAppointmentOnCreateOption: none(),
         fosAppointmentOnUpdateOption: none(),
         fosAppointmentOnDeleteOption: none(),
-        selectAllAppointments: false,
+        isAllAppointmentsSeledcted: false,
         isExpanded: const [],
         appointmentSearchText: '',
       );
@@ -97,7 +97,7 @@ class AppointmentState {
     Option<Either<FirebaseFailure, Receipt>>? fosAppointmentOnCreateOption,
     Option<Either<FirebaseFailure, Unit>>? fosAppointmentOnUpdateOption,
     Option<Either<FirebaseFailure, Unit>>? fosAppointmentOnDeleteOption,
-    bool? selectAllAppointments,
+    bool? isAllAppointmentsSeledcted,
     List<bool>? isExpanded,
     String? appointmentSearchText,
   }) {
@@ -121,7 +121,7 @@ class AppointmentState {
       fosAppointmentOnCreateOption: fosAppointmentOnCreateOption ?? this.fosAppointmentOnCreateOption,
       fosAppointmentOnUpdateOption: fosAppointmentOnUpdateOption ?? this.fosAppointmentOnUpdateOption,
       fosAppointmentOnDeleteOption: fosAppointmentOnDeleteOption ?? this.fosAppointmentOnDeleteOption,
-      selectAllAppointments: selectAllAppointments ?? this.selectAllAppointments,
+      isAllAppointmentsSeledcted: isAllAppointmentsSeledcted ?? this.isAllAppointmentsSeledcted,
       isExpanded: isExpanded ?? this.isExpanded,
       appointmentSearchText: appointmentSearchText ?? this.appointmentSearchText,
     );

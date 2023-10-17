@@ -25,11 +25,7 @@ class ProductDetailScreen extends StatelessWidget {
           return Scaffold(appBar: appBar, body: const Center(child: Text('Ein Fehler ist aufgetreten')));
         }
 
-        return ProductDetailPage(
-          product: state.product,
-          productBloc: productBloc,
-          productCreateOrEdit: productCreateOrEdit,
-        );
+        return ProductDetailPage(product: state.product, productBloc: productBloc, productCreateOrEdit: productCreateOrEdit);
       },
     );
   }

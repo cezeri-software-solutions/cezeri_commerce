@@ -65,6 +65,17 @@ class AppDrawer extends StatelessWidget {
                         }
                       },
                     ),
+                    ListTile(
+                      leading: const Icon(Icons.send),
+                      title: const Text('Versandlabel'),
+                      onTap: () {
+                        if (context.router.current.name == ShippingLabelRoute.name) {
+                          context.router.pop();
+                        } else {
+                          context.router.replaceAll([const ShippingLabelRoute()]);
+                        }
+                      },
+                    ),
                     ExpansionTile(
                       leading: const Icon(FontAwesomeIcons.cartShopping),
                       title: const Text('E-Commerce'),

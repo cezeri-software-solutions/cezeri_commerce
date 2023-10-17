@@ -52,10 +52,10 @@ class SetAppointmentIsExpandedEvent extends AppointmentEvent {
   SetAppointmentIsExpandedEvent({required this.index});
 }
 
-class OnAllAppointmentSelectedEvent extends AppointmentEvent {
+class OnSelectAllAppointmentsEvent extends AppointmentEvent {
   final bool isSelected;
 
-  OnAllAppointmentSelectedEvent({required this.isSelected});
+  OnSelectAllAppointmentsEvent({required this.isSelected});
 }
 
 class OnAppointmentSelectedEvent extends AppointmentEvent {

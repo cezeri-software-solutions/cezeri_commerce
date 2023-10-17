@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import '../../../constants.dart';
 import '../input_formatters/double_input_formatter.dart';
 
-class MyTextFormFieldSmall extends StatelessWidget {
+class MyTextFormFieldSmallDouble extends StatelessWidget {
   final String? labelText;
   final String? hintText;
   final TextEditingController? controller;
@@ -22,7 +22,7 @@ class MyTextFormFieldSmall extends StatelessWidget {
   final void Function(String)? onFieldSubmitted;
   final double maxWidth;
 
-  const MyTextFormFieldSmall({
+  const MyTextFormFieldSmallDouble({
     super.key,
     this.labelText,
     this.hintText,

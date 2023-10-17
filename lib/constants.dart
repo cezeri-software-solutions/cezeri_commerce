@@ -31,6 +31,7 @@ class TextStyles {
   static const TextStyle appBarSubtitle = TextStyle(fontSize: 15);
 
   static const TextStyle infoOnTextField = TextStyle(color: Colors.grey);
+  static const TextStyle infoOnTextFieldSmall = TextStyle(color: Colors.grey, fontSize: 12);
 }
 
 class CustomColors {

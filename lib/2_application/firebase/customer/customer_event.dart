@@ -44,3 +44,23 @@ class OnCustomerSelectedEvent extends CustomerEvent {
 
   OnCustomerSelectedEvent({required this.customer});
 }
+
+//* --- helper --- *//
+
+class OnSelectAllCustomersEvent extends CustomerEvent {
+  final bool isSelected;
+
+  OnSelectAllCustomersEvent({required this.isSelected});
+}
+
+class OnCustomerselectedEvent extends CustomerEvent {
+  final Customer appointment;
+
+  OnCustomerselectedEvent({required this.appointment});
+}
+
+//* --- Controller --- *//
+
+class SetCustomerControllerEvnet extends CustomerEvent {}
+
+class OnCustomerControllerChangedEvent extends CustomerEvent {}

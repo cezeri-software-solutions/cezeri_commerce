@@ -1,0 +1,140 @@
+import 'package:auto_route/auto_route.dart';
+import 'package:cezeri_commerce/1_presentation/client/customer/customer_detail/customer_detail_screen.dart';
+import 'package:cezeri_commerce/3_domain/entities/address.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
+
+import '../../../../2_application/firebase/customer/customer_bloc.dart';
+import '../../../../3_domain/entities/customer/customer.dart';
+import '../../../../constants.dart';
+import '../../../../core/firebase_failures.dart';
+import '../../../../routes/router.gr.dart';
+import '../../../core/widgets/my_country_flag.dart';
+
+class CustomersOverviewPage extends StatelessWidget {
+  final CustomerBloc customerBloc;
+
+  const CustomersOverviewPage({super.key, required this.customerBloc});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<CustomerBloc, CustomerState>(
+      builder: (context, state) {
+        if (state.isLoadingCustomersOnObserve) {
+          return const Expanded(child: Center(child: CircularProgressIndicator()));
+        }
+        if (state.firebaseFailure != null && state.isAnyFailure) {
+          return switch (state.firebaseFailure.runtimeType) {
+            EmptyFailure => const Expanded(child: Center(child: Text('Du hast noch keine Kunden angelegt oder importiert!'))),
+            (_) => const Expanded(child: Center(child: Text('Ein Fehler beim Laden der Kunden ist aufgetreten!')))
+          };
+        }
+        if (state.listOfAllCustomers == null || state.listOfFilteredCustomers == null) {
+          return const Expanded(child: Center(child: CircularProgressIndicator()));
+        }
+
+        return Expanded(
+          child: ListView.separated(
+            itemCount: state.listOfFilteredCustomers!.length,
+            itemBuilder: (context, index) {
+              final customer = state.listOfFilteredCustomers![index];
+              if (index == 0) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Checkbox.adaptive(
+                          value: state.isAllCustomersSelected,
+                          onChanged: (value) => customerBloc.add(OnSelectAllCustomersEvent(isSelected: value!)),
+                        ),
+                        const Expanded(child: Text('Kunde', style: TextStyles.h3Bold)),
+                        const Expanded(child: Text('Adresse', style: TextStyles.h3Bold)),
+                      ],
+                    ),
+                    _CustomerContainer(customer: customer, index: index, customerBloc: customerBloc),
+                  ],
+                );
+              } else {
+                return _CustomerContainer(customer: customer, index: index, customerBloc: customerBloc);
+              }
+            },
+            separatorBuilder: (context, index) => const Divider(),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _CustomerContainer extends StatelessWidget {
+  final Customer customer;
+  final int index;
+  final CustomerBloc customerBloc;
+
+  const _CustomerContainer({required this.customer, required this.index, required this.customerBloc});
+
+  @override
+  Widget build(BuildContext context) {
+    final invoiceAddress = customer.listOfAddress.where((e) => e.addressType == AddressType.invoice && e.isDefault).first;
+    final deliveryAddress = customer.listOfAddress.where((e) => e.addressType == AddressType.delivery && e.isDefault).first;
+    return BlocBuilder<CustomerBloc, CustomerState>(
+      bloc: customerBloc,
+      builder: (context, state) {
+        return Container(
+          color: Colors.white,
+          child: Row(
+            children: [
+              Checkbox.adaptive(
+                value: state.selectedCustomers.any((e) => e.id == customer.id),
+                onChanged: (_) => customerBloc.add(OnCustomerSelectedEvent(customer: customer)),
+              ),
+              Expanded(
+                child: InkWell(
+                  onTap: () {
+                    customerBloc.add(GetCustomerEvent(customer: customer));
+                    context.router.push(CustomerDetailRoute(customerBloc: customerBloc, customerCreateOrEdit: CustomerCreateOrEdit.edit));
+                  },
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(customer.customerNumber.toString()),
+                      if (invoiceAddress.companyName != '') Text(invoiceAddress.companyName),
+                      Text(customer.name),
+                      Text(DateFormat('dd.MM.yyy', 'de').format(customer.creationDate)),
+                    ],
+                  ),
+                ),
+              ),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(invoiceAddress.street),
+                    Text.rich(
+                      TextSpan(
+                        children: [
+                          TextSpan(text: invoiceAddress.postcode),
+                          const TextSpan(text: ' '),
+                          TextSpan(text: invoiceAddress.city),
+                        ],
+                      ),
+                    ),
+                    Row(
+                      children: [
+                        Text(invoiceAddress.country.name),
+                        Gaps.w8,
+                        MyCountryFlag(country: invoiceAddress.country, size: 12),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}

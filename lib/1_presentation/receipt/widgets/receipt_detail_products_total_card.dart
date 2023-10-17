@@ -31,7 +31,7 @@ class ReceiptDetailProductsTotalCard extends StatelessWidget {
                     Row(
                       children: [
                         const Icon(Icons.remove),
-                        MyTextFormFieldSmall(
+                        MyTextFormFieldSmallDouble(
                           maxWidth: 100,
                           controller: state.discountPercentageController,
                           suffix: const Text('%'),
@@ -50,7 +50,7 @@ class ReceiptDetailProductsTotalCard extends StatelessWidget {
                     Row(
                       children: [
                         const Icon(Icons.remove),
-                        MyTextFormFieldSmall(
+                        MyTextFormFieldSmallDouble(
                           maxWidth: 100,
                           controller: state.discountAmountGrossController,
                           suffix: Text(state.receipt.currency),
@@ -69,7 +69,7 @@ class ReceiptDetailProductsTotalCard extends StatelessWidget {
                     Row(
                       children: [
                         const Icon(Icons.add),
-                        MyTextFormFieldSmall(
+                        MyTextFormFieldSmallDouble(
                           maxWidth: 100,
                           controller: state.additionalAmountGrossController,
                           suffix: Text(state.receipt.currency),
@@ -88,7 +88,7 @@ class ReceiptDetailProductsTotalCard extends StatelessWidget {
                     Row(
                       children: [
                         const Icon(Icons.add),
-                        MyTextFormFieldSmall(
+                        MyTextFormFieldSmallDouble(
                           maxWidth: 100,
                           controller: state.shippingAmountGrossController,
                           suffix: Text(state.receipt.currency),

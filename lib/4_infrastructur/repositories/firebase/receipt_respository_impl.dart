@@ -225,11 +225,13 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
 
           final loadedCustomerFromFirestore = await getCustomerByMarketplaceId(marketplace.id, customer.id);
           Customer? customerFirestore;
+          int nextCustomerNumber = mainSettings.nextCustomerNumber;
           if (loadedCustomerFromFirestore == null) {
             final createdCustomerInFirestore = await createCustomerFromMarketplace(
-              Customer.fromPresta(customer, marketplace, addressInvoice, addressDelivery, countryInvoice, countryDelivery),
+              Customer.fromPresta(customer, nextCustomerNumber, marketplace, addressInvoice, addressDelivery, countryInvoice, countryDelivery),
             );
             customerFirestore = createdCustomerInFirestore;
+            nextCustomerNumber += 1;
           } else {
             final invoiceAddress = Address.fromPresta(addressInvoice, countryInvoice, AddressType.invoice);
             final deliveryAddress = Address.fromPresta(addressDelivery, countryDelivery, AddressType.delivery);
@@ -259,7 +261,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
           listOfReceiptToReturn.add(appointment);
 
           final nextAppointmentNumber = mainSettings.nextAppointmentNumber + 1;
-          final updatedMainSettings = mainSettings.copyWith(nextAppointmentNumber: nextAppointmentNumber);
+          final updatedMainSettings = mainSettings.copyWith(nextAppointmentNumber: nextAppointmentNumber, nextCustomerNumber: nextCustomerNumber);
           docRefMainSettings.set(updatedMainSettings.toJson());
         }
         final updatedMarketplace = marketplace.copyWith(

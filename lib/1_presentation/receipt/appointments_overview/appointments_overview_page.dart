@@ -77,10 +77,8 @@ class _AppointmentsOverviewPageState extends State<AppointmentsOverviewPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Checkbox.adaptive(
-                          value: state.selectAllAppointments,
-                          onChanged: (value) => widget.appointmentBloc.add(
-                            OnAllAppointmentSelectedEvent(isSelected: value!),
-                          ),
+                          value: state.isAllAppointmentsSeledcted,
+                          onChanged: (value) => widget.appointmentBloc.add(OnSelectAllAppointmentsEvent(isSelected: value!)),
                         ),
                         const Divider(),
                         _AppointmentContainer(

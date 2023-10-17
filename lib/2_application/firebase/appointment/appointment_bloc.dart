@@ -199,14 +199,14 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
 
 //? #########################################################################
 
-    on<OnAllAppointmentSelectedEvent>((event, emit) async {
+    on<OnSelectAllAppointmentsEvent>((event, emit) async {
       List<Receipt> appointments = [];
       bool isSelectedAll = false;
       if (event.isSelected) {
         isSelectedAll = true;
         appointments = List.from(state.listOfFilteredAppointments!);
       }
-      emit(state.copyWith(selectAllAppointments: isSelectedAll, selectedAppointments: appointments));
+      emit(state.copyWith(isAllAppointmentsSeledcted: isSelectedAll, selectedAppointments: appointments));
     });
 
 //? #########################################################################
@@ -218,7 +218,11 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
       } else {
         appointments.add(event.appointment);
       }
-      emit(state.copyWith(selectedAppointments: appointments));
+      emit(state.copyWith(
+        isAllAppointmentsSeledcted:
+            state.isAllAppointmentsSeledcted && appointments.length < state.selectedAppointments.length ? false : state.isAllAppointmentsSeledcted,
+        selectedAppointments: appointments,
+      ));
     });
 
 //? #########################################################################

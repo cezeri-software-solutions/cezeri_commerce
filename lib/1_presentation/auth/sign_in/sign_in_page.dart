@@ -79,6 +79,7 @@ class _SignInPageState extends State<SignInPage> {
                                     : const Icon(Icons.visibility, color: Colors.grey),
                               ),
                             ),
+                            onFieldSubmitted: (_) => _onSubmitPasswordField(),
                             validator: (password) => validatePassword(password),
                             textInputAction: TextInputAction.done,
                             autofillHints: const [AutofillHints.password],
@@ -89,13 +90,7 @@ class _SignInPageState extends State<SignInPage> {
                     const SizedBox(height: 60),
                     MyElevatedButton(
                       buttonText: 'Anmelden',
-                      onPressed: () {
-                        if (formKey.currentState!.validate()) {
-                          BlocProvider.of<SignInFormBloc>(context).add(
-                            SignInWithEmailAndPasswordPressed(email: emailController.text, password: passwordController.text),
-                          );
-                        }
-                      },
+                      onPressed: () => _onSubmitPasswordField(),
                     ),
                     const SizedBox(height: 20),
                     MyElevatedButton(
@@ -126,5 +121,13 @@ class _SignInPageState extends State<SignInPage> {
     setState(() {
       _isHidden = !_isHidden;
     });
+  }
+
+  void _onSubmitPasswordField() {
+    if (formKey.currentState!.validate()) {
+      BlocProvider.of<SignInFormBloc>(context).add(
+        SignInWithEmailAndPasswordPressed(email: emailController.text, password: passwordController.text),
+      );
+    }
   }
 }

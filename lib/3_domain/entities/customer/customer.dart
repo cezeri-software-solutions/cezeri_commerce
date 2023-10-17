@@ -15,6 +15,7 @@ enum CustomerInvoiceType { standardInvoice, collectiveInvoice }
 @JsonSerializable(explicitToJson: true)
 class Customer {
   final String id;
+  final int customerNumber;
   final CustomerMarketplace customerMarketplace;
   final String? company;
   final String firstName;
@@ -34,6 +35,7 @@ class Customer {
 
   const Customer({
     required this.id,
+    required this.customerNumber,
     required this.customerMarketplace,
     required this.company,
     required this.firstName,
@@ -59,6 +61,7 @@ class Customer {
   factory Customer.empty() {
     return Customer(
       id: '',
+      customerNumber: 0,
       customerMarketplace: CustomerMarketplace.empty(),
       company: null,
       firstName: '',
@@ -80,6 +83,7 @@ class Customer {
 
   factory Customer.fromPresta(
     CustomerPresta customerPresta,
+    int customerNumber,
     Marketplace marketplace,
     AddressPresta addressInvoicePresta,
     AddressPresta addressDeliveryPresta,
@@ -106,6 +110,7 @@ class Customer {
 
     return Customer(
       id: '',
+      customerNumber: customerNumber,
       customerMarketplace: CustomerMarketplace.fromPresta(customerPresta, marketplace),
       company: customerPresta.company,
       firstName: customerPresta.firstname,
@@ -134,6 +139,7 @@ class Customer {
 
   Customer copyWith({
     String? id,
+    int? customerNumber,
     CustomerMarketplace? customerMarketplace,
     String? company,
     String? firstName,
@@ -153,6 +159,7 @@ class Customer {
   }) {
     return Customer(
       id: id ?? this.id,
+      customerNumber: customerNumber ?? this.customerNumber,
       customerMarketplace: customerMarketplace ?? this.customerMarketplace,
       company: company ?? this.company,
       firstName: firstName ?? this.firstName,
@@ -174,6 +181,6 @@ class Customer {
 
   @override
   String toString() {
-    return 'Customer(id: $id, customerMarketplace: $customerMarketplace, company: $company, firstName: $firstName, lastName: $lastName, name: $name, email: $email, gender: $gender, birthday: $birthday, phone: $phone, phoneMobile: $phoneMobile, listOfAddress: $listOfAddress, customerInvoiceType: $customerInvoiceType, uidNumber: $uidNumber, taxNumber: $taxNumber, creationDate: $creationDate, lastEditingDate: $lastEditingDate)';
+    return 'Customer(id: $id, customerNumber: $customerNumber, customerMarketplace: $customerMarketplace, company: $company, firstName: $firstName, lastName: $lastName, name: $name, email: $email, gender: $gender, birthday: $birthday, phone: $phone, phoneMobile: $phoneMobile, listOfAddress: $listOfAddress, customerInvoiceType: $customerInvoiceType, uidNumber: $uidNumber, taxNumber: $taxNumber, creationDate: $creationDate, lastEditingDate: $lastEditingDate)';
   }
 }

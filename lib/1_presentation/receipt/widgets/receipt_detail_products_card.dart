@@ -73,7 +73,7 @@ class _ReceiptDetailProductsCardState extends State<ReceiptDetailProductsCard> {
                           children: [
                             const Icon(Icons.qr_code_scanner),
                             Gaps.w16,
-                            MyTextFormFieldSmall(
+                            MyTextFormFieldSmallDouble(
                               maxWidth: 200,
                               focusNode: scannerFocusNode,
                               controller: state.barcodeScannerController,
@@ -160,7 +160,7 @@ class _ReceiptDetailProductsCardState extends State<ReceiptDetailProductsCard> {
                                   children: [
                                     Expanded(
                                       flex: RowWidthsRDP.articleNumber,
-                                      child: MyTextFormFieldSmall(
+                                      child: MyTextFormFieldSmallDouble(
                                         readOnly: !state.isEditable[index],
                                         inputFormatters: const [],
                                         controller: state.articleNumberControllers[index],
@@ -171,7 +171,7 @@ class _ReceiptDetailProductsCardState extends State<ReceiptDetailProductsCard> {
                                     Gaps.w8,
                                     Expanded(
                                       flex: RowWidthsRDP.articleName,
-                                      child: MyTextFormFieldSmall(
+                                      child: MyTextFormFieldSmallDouble(
                                         readOnly: !state.isEditable[index],
                                         inputFormatters: const [],
                                         controller: state.articleNameControllers[index],
@@ -182,7 +182,7 @@ class _ReceiptDetailProductsCardState extends State<ReceiptDetailProductsCard> {
                                     Gaps.w8,
                                     Expanded(
                                       flex: RowWidthsRDP.tax,
-                                      child: MyTextFormFieldSmall(
+                                      child: MyTextFormFieldSmallDouble(
                                         readOnly: true,
                                         hintText: state.listOfReceiptProducts[index].tax.taxName,
                                       ),
@@ -190,7 +190,7 @@ class _ReceiptDetailProductsCardState extends State<ReceiptDetailProductsCard> {
                                     Gaps.w8,
                                     Expanded(
                                       flex: RowWidthsRDP.quantity,
-                                      child: MyTextFormFieldSmall(
+                                      child: MyTextFormFieldSmallDouble(
                                         controller: state.quantityControllers[index],
                                         onChanged: (value) => widget.receiptDetailBloc.add(SetQuantityControllerEvent(index: index)),
                                         onTapOutside: (_) {
@@ -202,7 +202,7 @@ class _ReceiptDetailProductsCardState extends State<ReceiptDetailProductsCard> {
                                     Gaps.w8,
                                     Expanded(
                                       flex: RowWidthsRDP.unitPriceNet,
-                                      child: MyTextFormFieldSmall(
+                                      child: MyTextFormFieldSmallDouble(
                                         controller: state.unitPriceNetControllers[index],
                                         onChanged: (_) => widget.receiptDetailBloc.add(SetUnitPriceNetControllerEvent(index: index)),
                                         onTapOutside: (_) => FocusScope.of(context).unfocus(),
@@ -211,7 +211,7 @@ class _ReceiptDetailProductsCardState extends State<ReceiptDetailProductsCard> {
                                     Gaps.w8,
                                     Expanded(
                                       flex: RowWidthsRDP.discountGrossUnit,
-                                      child: MyTextFormFieldSmall(
+                                      child: MyTextFormFieldSmallDouble(
                                         controller: state.posDiscountPercentControllers[index],
                                         onChanged: (_) => widget.receiptDetailBloc.add(SetPosDiscountPercentControllerEvent(index: index)),
                                         onTapOutside: (_) => FocusScope.of(context).unfocus(),
@@ -221,7 +221,7 @@ class _ReceiptDetailProductsCardState extends State<ReceiptDetailProductsCard> {
                                     Gaps.w8,
                                     Expanded(
                                       flex: RowWidthsRDP.unitPriceGross,
-                                      child: MyTextFormFieldSmall(
+                                      child: MyTextFormFieldSmallDouble(
                                         controller: state.unitPriceGrossControllers[index],
                                         onChanged: (_) => widget.receiptDetailBloc.add(SetUnitPriceGrossControllerEvent(index: index)),
                                         onTapOutside: (_) => FocusScope.of(context).unfocus(),
@@ -230,7 +230,7 @@ class _ReceiptDetailProductsCardState extends State<ReceiptDetailProductsCard> {
                                     Gaps.w8,
                                     Expanded(
                                       flex: RowWidthsRDP.totalPriceGross,
-                                      child: MyTextFormFieldSmall(
+                                      child: MyTextFormFieldSmallDouble(
                                         readOnly: true,
                                         hintText: (receiptProduct.unitPriceGross * receiptProduct.quantity).toMyCurrencyStringToShow(),
                                       ),
