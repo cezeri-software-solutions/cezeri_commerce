@@ -1,5 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
 
+import '../carrier/carrier.dart';
 import 'bank_details.dart';
 import 'opening_times.dart';
 import 'payment_method.dart';
@@ -34,6 +35,7 @@ class MainSettings {
   final int limitationNumberOfBranches;
   final bool isSmallBusiness;
   final bool isMainSettings;
+  final List<Carrier> listOfCarriers;
   final List<PaymentMethod> paymentMethods;
   final BankDetails bankDetails;
   final OpeningTimes openingTimes;
@@ -64,6 +66,7 @@ class MainSettings {
     required this.limitationNumberOfBranches,
     required this.isSmallBusiness,
     required this.isMainSettings,
+    required this.listOfCarriers,
     required this.paymentMethods,
     required this.bankDetails,
     required this.openingTimes,
@@ -100,6 +103,7 @@ class MainSettings {
       limitationNumberOfBranches: 0,
       isSmallBusiness: false,
       isMainSettings: true,
+      listOfCarriers: [],
       paymentMethods: [],
       bankDetails: BankDetails.empty(),
       openingTimes: OpeningTimes.empty(),
@@ -132,6 +136,7 @@ class MainSettings {
     int? limitationNumberOfBranches,
     bool? isSmallBusiness,
     bool? isMainSettings,
+    List<Carrier>? listOfCarriers,
     List<PaymentMethod>? paymentMethods,
     BankDetails? bankDetails,
     OpeningTimes? openingTimes,
@@ -162,6 +167,7 @@ class MainSettings {
       limitationNumberOfBranches: limitationNumberOfBranches ?? this.limitationNumberOfBranches,
       isSmallBusiness: isSmallBusiness ?? this.isSmallBusiness,
       isMainSettings: isMainSettings ?? this.isMainSettings,
+      listOfCarriers: listOfCarriers ?? this.listOfCarriers,
       paymentMethods: paymentMethods ?? this.paymentMethods,
       bankDetails: bankDetails ?? this.bankDetails,
       openingTimes: openingTimes ?? this.openingTimes,
@@ -170,6 +176,6 @@ class MainSettings {
 
   @override
   String toString() {
-    return 'MainSettings(settingsId: $settingsId, logoUrl: $logoUrl, offerPraefix: $offerPraefix, appointmentPraefix: $appointmentPraefix, invoicePraefix: $invoicePraefix, creditPraefix: $creditPraefix, currency: $currency, smsMessage: $smsMessage, offerDocumentText: $offerDocumentText, appointmentDocumentText: $appointmentDocumentText, invoiceDocumentText: $invoiceDocumentText, creditDocumentText: $creditDocumentText, taxes: $taxes, nextOfferNumber: $nextOfferNumber, nextAppointmentNumber: $nextAppointmentNumber, nextInvoiceNumber: $nextInvoiceNumber, nextBranchNumber: $nextBranchNumber, nextCustomerNumber: $nextCustomerNumber, termOfPayment: $termOfPayment, countEmployees: $countEmployees, countBranches: $countBranches, limitationNumberOfEmployees: $limitationNumberOfEmployees, limitationNumberOfBranches: $limitationNumberOfBranches, isSmallBusiness: $isSmallBusiness, isMainSettings: $isMainSettings, paymentMethods: $paymentMethods, bankDetails: $bankDetails, openingTimes: $openingTimes)';
+    return 'MainSettings(settingsId: $settingsId, logoUrl: $logoUrl, offerPraefix: $offerPraefix, appointmentPraefix: $appointmentPraefix, invoicePraefix: $invoicePraefix, creditPraefix: $creditPraefix, currency: $currency, smsMessage: $smsMessage, offerDocumentText: $offerDocumentText, appointmentDocumentText: $appointmentDocumentText, invoiceDocumentText: $invoiceDocumentText, creditDocumentText: $creditDocumentText, taxes: $taxes, nextOfferNumber: $nextOfferNumber, nextAppointmentNumber: $nextAppointmentNumber, nextInvoiceNumber: $nextInvoiceNumber, nextBranchNumber: $nextBranchNumber, nextCustomerNumber: $nextCustomerNumber, termOfPayment: $termOfPayment, countEmployees: $countEmployees, countBranches: $countBranches, limitationNumberOfEmployees: $limitationNumberOfEmployees, limitationNumberOfBranches: $limitationNumberOfBranches, isSmallBusiness: $isSmallBusiness, isMainSettings: $isMainSettings, listOfCarriers: $listOfCarriers, paymentMethods: $paymentMethods, bankDetails: $bankDetails, openingTimes: $openingTimes)';
   }
 }

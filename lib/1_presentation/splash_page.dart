@@ -61,9 +61,9 @@ class _SplashPageState extends State<SplashPage> {
                       : null, // TODO: Speichere den Fehler in Firebase und kontaktiere den User
                   (client) {
                     if (client.companyName != Client.empty().companyName && client.name != Client.empty().name) {
-                      context.router.replaceAll([const HomeRoute()]);
-                    } else {
                       context.read<MainSettingsBloc>().add(GetMainSettingsEvent());
+                    } else {
+                      context.router.replaceAll([const RegisterUserDataRoute()]);
                     }
                   },
                 ),
@@ -77,7 +77,7 @@ class _SplashPageState extends State<SplashPage> {
                 () => null,
                 (a) => a.fold(
                   (failure) => myScaffoldMessenger(context, failure, null, null, null),
-                  (mainSettings) => context.router.replaceAll([const RegisterUserDataRoute()]),
+                  (mainSettings) => context.router.replaceAll([const HomeRoute()]),
                 ),
               );
             },

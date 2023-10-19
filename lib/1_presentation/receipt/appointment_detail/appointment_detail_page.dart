@@ -58,13 +58,13 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
                   onPressed: () {
                     if (state.appointment != null) {
                       final updatedAppointment = stateReceiptDetail.receipt.copyWith(
-                        //* Hier kommen die Änderungen vom AppointmentBloc
-                        //* Also Änderungen die oberhalb passieren bevor die Produkte anfangen
-                        //discountPercent: stateReceiptDetail.discountPercentage,
-                        //discountGross: stateReceiptDetail.discountAmountGross,
-                        //totalShippingGross: stateReceiptDetail.shippingAmountGross,
-                        //additionalAmountGross: stateReceiptDetail.additionalAmountGross,
-                      );
+                          //* Hier kommen die Änderungen vom AppointmentBloc
+                          //* Also Änderungen die oberhalb passieren bevor die Produkte anfangen
+                          //discountPercent: stateReceiptDetail.discountPercentage,
+                          //discountGross: stateReceiptDetail.discountAmountGross,
+                          //totalShippingGross: stateReceiptDetail.shippingAmountGross,
+                          //additionalAmountGross: stateReceiptDetail.additionalAmountGross,
+                          );
                       widget.appointmentBloc.add(UpdateAppointmentEvent(
                         appointment: updatedAppointment,
                         oldListOfReceiptProducts: state.appointment!.listOfReceiptProduct,
@@ -128,6 +128,8 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
                         ReceiptDetailGeneralCard(receipt: state.appointment!, listOfMarketplaces: widget.listOfMarketplaces),
                         Gaps.h16,
                         ReceiptDetailProductsCard(appointmentBloc: widget.appointmentBloc, receiptDetailBloc: widget.receiptDetailBloc),
+                        Gaps.h16,
+                        ReceiptDetailProductsTotalCard(appointmentBloc: widget.appointmentBloc, receiptDetailBloc: widget.receiptDetailBloc),
                         Gaps.h16,
                       ],
                     ),

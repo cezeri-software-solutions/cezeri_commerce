@@ -23,6 +23,11 @@ class MainSettingsRepositoryImpl implements MainSettingsRepository {
 
     try {
       final settings = await docRef.get();
+      //* Zum hinzufügen von neuen Feldern
+      // final phMainSetting = MainSettings.fromJson(settings.data()!);
+      // final mainSettings = phMainSetting.copyWith(listOfCarriers: []);
+      // await docRef.update(mainSettings.toJson());
+      //
       return right(MainSettings.fromJson(settings.data()!));
     } on FirebaseException {
       return left(GeneralFailure());

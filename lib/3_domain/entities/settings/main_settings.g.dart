@@ -34,6 +34,9 @@ MainSettings _$MainSettingsFromJson(Map<String, dynamic> json) => MainSettings(
       limitationNumberOfBranches: json['limitationNumberOfBranches'] as int,
       isSmallBusiness: json['isSmallBusiness'] as bool,
       isMainSettings: json['isMainSettings'] as bool,
+      listOfCarriers: (json['listOfCarriers'] as List<dynamic>)
+          .map((e) => Carrier.fromJson(e as Map<String, dynamic>))
+          .toList(),
       paymentMethods: (json['paymentMethods'] as List<dynamic>)
           .map((e) => PaymentMethod.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -70,6 +73,7 @@ Map<String, dynamic> _$MainSettingsToJson(MainSettings instance) =>
       'limitationNumberOfBranches': instance.limitationNumberOfBranches,
       'isSmallBusiness': instance.isSmallBusiness,
       'isMainSettings': instance.isMainSettings,
+      'listOfCarriers': instance.listOfCarriers.map((e) => e.toJson()).toList(),
       'paymentMethods': instance.paymentMethods.map((e) => e.toJson()).toList(),
       'bankDetails': instance.bankDetails.toJson(),
       'openingTimes': instance.openingTimes.toJson(),
