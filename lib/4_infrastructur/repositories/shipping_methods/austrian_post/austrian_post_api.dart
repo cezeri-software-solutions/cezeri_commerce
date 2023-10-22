@@ -2,15 +2,34 @@ import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
 import 'package:xml/xml.dart';
 
+class AustrianPostApiConfig {
+  final String clientId;
+  final String orgUnitId;
+  final String orgUnitGuide;
+
+  const AustrianPostApiConfig({required this.clientId, required this.orgUnitId, required this.orgUnitGuide});
+}
+
+class AustrianPostApiSettings {
+  final String paperLayout;
+  final String labelSize;
+  final String printerLanguage;
+
+  AustrianPostApiSettings({required this.paperLayout, required this.labelSize, required this.printerLanguage});
+}
+
 class AustrianPostApi {
-  final String baseUrl = 'https://abn-plc.post.at/DataService/Post.Webservice/ShippingService.svc/secure';
-  final String username = 'demo';
-  final String password = 'demo';
+  final String _baseUrl = 'https://abn-plc.post.at/DataService/Post.Webservice/ShippingService.svc/secure';
+  final AustrianPostApiConfig _config;
+  final AustrianPostApiSettings _settings;
+  final bool _isReturn;
+
+  AustrianPostApi(this._config, this._settings, this._isReturn);
 
   Future<String> createShipment(String soapRequest) async {
     final logger = Logger();
     final response = await http.post(
-      Uri.parse(baseUrl),
+      Uri.parse(_baseUrl),
       headers: {
         'Content-Type': 'text/xml',
         'SOAPAction': 'http://post.ondot.at/IShippingService/ImportShipment',
@@ -30,7 +49,7 @@ class AustrianPostApi {
   String generateSoapRequest() {
     final builder = XmlBuilder();
 
-     builder.element('soapenv:Envelope', nest: () {
+    builder.element('soapenv:Envelope', nest: () {
       builder.attribute('xmlns:soapenv', 'http://schemas.xmlsoap.org/soap/envelope/');
       builder.attribute('xmlns:post', 'http://post.ondot.at');
 
@@ -38,7 +57,7 @@ class AustrianPostApi {
       builder.element('soapenv:Body', nest: () {
         builder.element('post:ImportShipment', nest: () {
           builder.element('post:row', nest: () {
-            builder.element('post:ClientID', nest: '-1');
+            builder.element('post:ClientID', nest: _config.clientId);
             builder.element('post:ColloList', nest: () {
               builder.element('post:ColloRow', nest: () {
                 builder.element('post:Weight', nest: '17');
@@ -64,12 +83,12 @@ class AustrianPostApi {
               builder.element('post:Name2');
               builder.element('post:PostalCode', nest: '1010');
             });
-            builder.element('post:OrgUnitGuid', nest: 'cd96848d-6552-4653-a992-f0f411710fb4');
-            builder.element('post:OrgUnitID', nest: '1461448');
+            builder.element('post:OrgUnitGuid', nest: _config.orgUnitGuide);
+            builder.element('post:OrgUnitID', nest: _config.orgUnitId);
             builder.element('post:PrinterObject', nest: () {
-              builder.element('post:LabelFormatID', nest: '100x200');
-              builder.element('post:LanguageID', nest: 'PDF');
-              builder.element('post:PaperLayoutID', nest: 'A6');
+              builder.element('post:LabelFormatID', nest: _settings.labelSize);
+              builder.element('post:LanguageID', nest: _settings.printerLanguage);
+              builder.element('post:PaperLayoutID', nest: _settings.paperLayout);
             });
           });
         });
@@ -83,6 +102,6 @@ class AustrianPostApi {
   String getPdfLabel(String response) {
     final document = XmlDocument.parse(response);
     final pdfDataElement = document.findAllElements('pdfData').first;
-    return pdfDataElement.value!;
+    return pdfDataElement.innerText;
   }
 }

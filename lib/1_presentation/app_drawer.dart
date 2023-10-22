@@ -131,6 +131,17 @@ class AppDrawer extends StatelessWidget {
                           },
                         ),
                         ListTile(
+                          leading: const Icon(Icons.local_shipping_outlined),
+                          title: const Text('Versanddienstleister'),
+                          onTap: () {
+                            if (context.router.current.name == CarriersOverviewRoute.name) {
+                              context.router.pop();
+                            } else {
+                              context.router.replaceAll([const CarriersOverviewRoute()]);
+                            }
+                          },
+                        ),
+                        ListTile(
                           leading: const Icon(Icons.settings),
                           title: const Text('Grundeinstellungen'),
                           onTap: () {

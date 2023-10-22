@@ -12,6 +12,16 @@ class MainSettingsState {
   final Option<Either<FirebaseFailure, Unit>> fosMainSettingsOnCreateOption;
   final Option<Either<FirebaseFailure, Unit>> fosMainSettingsOnUpdateOption;
 
+  //* #################################################################
+  //* ############################ Carrier ############################
+  final Carrier curCarrier;
+  final TextEditingController marketplaceMappingController;
+  final TextEditingController clientIdController;
+  final TextEditingController orgUnitIdController;
+  final TextEditingController orgUnitGuideController;
+  final Country selectedCountry;
+  final CarrierProduct selectedCarrierProduct;
+
   const MainSettingsState({
     required this.mainSettings,
     required this.firebaseFailure,
@@ -22,6 +32,13 @@ class MainSettingsState {
     required this.fosMainSettingsOnObserveOption,
     required this.fosMainSettingsOnCreateOption,
     required this.fosMainSettingsOnUpdateOption,
+    required this.curCarrier,
+    required this.marketplaceMappingController,
+    required this.clientIdController,
+    required this.orgUnitIdController,
+    required this.orgUnitGuideController,
+    required this.selectedCountry,
+    required this.selectedCarrierProduct,
   });
 
   factory MainSettingsState.initial() => MainSettingsState(
@@ -34,6 +51,13 @@ class MainSettingsState {
         fosMainSettingsOnObserveOption: none(),
         fosMainSettingsOnCreateOption: none(),
         fosMainSettingsOnUpdateOption: none(),
+        curCarrier: Carrier.empty(),
+        marketplaceMappingController: TextEditingController(),
+        clientIdController: TextEditingController(),
+        orgUnitIdController: TextEditingController(),
+        orgUnitGuideController: TextEditingController(),
+        selectedCountry: Country.countryList.where((e) => e.isoCode == 'AT').first,
+        selectedCarrierProduct: CarrierProduct.empty(),
       );
 
   MainSettingsState copyWith({
@@ -46,6 +70,13 @@ class MainSettingsState {
     Option<Either<FirebaseFailure, MainSettings>>? fosMainSettingsOnObserveOption,
     Option<Either<FirebaseFailure, Unit>>? fosMainSettingsOnCreateOption,
     Option<Either<FirebaseFailure, Unit>>? fosMainSettingsOnUpdateOption,
+    Carrier? curCarrier,
+    TextEditingController? marketplaceMappingController,
+    TextEditingController? clientIdController,
+    TextEditingController? orgUnitIdController,
+    TextEditingController? orgUnitGuideController,
+    Country? selectedCountry,
+    CarrierProduct? selectedCarrierProduct,
   }) {
     return MainSettingsState(
       mainSettings: mainSettings ?? this.mainSettings,
@@ -57,6 +88,13 @@ class MainSettingsState {
       fosMainSettingsOnObserveOption: fosMainSettingsOnObserveOption ?? this.fosMainSettingsOnObserveOption,
       fosMainSettingsOnCreateOption: fosMainSettingsOnCreateOption ?? this.fosMainSettingsOnCreateOption,
       fosMainSettingsOnUpdateOption: fosMainSettingsOnUpdateOption ?? this.fosMainSettingsOnUpdateOption,
+      curCarrier: curCarrier ?? this.curCarrier,
+      marketplaceMappingController: marketplaceMappingController ?? this.marketplaceMappingController,
+      clientIdController: clientIdController ?? this.clientIdController,
+      orgUnitIdController: orgUnitIdController ?? this.orgUnitIdController,
+      orgUnitGuideController: orgUnitGuideController ?? this.orgUnitGuideController,
+      selectedCountry: selectedCountry ?? this.selectedCountry,
+      selectedCarrierProduct: selectedCarrierProduct ?? this.selectedCarrierProduct,
     );
   }
 }

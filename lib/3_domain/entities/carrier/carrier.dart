@@ -5,6 +5,8 @@ import 'carrier_product.dart';
 
 part 'carrier.g.dart';
 
+enum CarrierTyp { empty, austrianPost, dpd }
+
 @JsonSerializable(explicitToJson: true)
 class Carrier {
   final String internalName;
@@ -13,7 +15,7 @@ class Carrier {
   final String imagePath;
   final String trackingUrl;
   final CarrierKey carrierKey;
-  final List<CarrierProduct> carrierProducts;
+  final CarrierTyp carrierTyp;
   final List<CarrierProduct> carrierAutomations;
   final List<String> listOfPaperLayout;
   final String paperLayout;
@@ -22,6 +24,7 @@ class Carrier {
   final List<String> listOfPrinterLanguages;
   final String printerLanguage;
   final bool isDefault;
+  final bool isActive;
 
   Carrier({
     required this.internalName,
@@ -30,7 +33,7 @@ class Carrier {
     required this.imagePath,
     required this.trackingUrl,
     required this.carrierKey,
-    required this.carrierProducts,
+    required this.carrierTyp,
     required this.carrierAutomations,
     required this.listOfPaperLayout,
     required this.paperLayout,
@@ -39,6 +42,7 @@ class Carrier {
     required this.listOfPrinterLanguages,
     required this.printerLanguage,
     required this.isDefault,
+    required this.isActive,
   });
 
   factory Carrier.fromJson(Map<String, dynamic> json) => _$CarrierFromJson(json);
@@ -53,7 +57,7 @@ class Carrier {
       imagePath: '',
       trackingUrl: '',
       carrierKey: CarrierKey.empty(),
-      carrierProducts: [],
+      carrierTyp: CarrierTyp.empty,
       carrierAutomations: [],
       listOfPaperLayout: [],
       paperLayout: '',
@@ -62,6 +66,7 @@ class Carrier {
       listOfPrinterLanguages: [],
       printerLanguage: '',
       isDefault: false,
+      isActive: false,
     );
   }
 
@@ -72,7 +77,7 @@ class Carrier {
     String? imagePath,
     String? trackingUrl,
     CarrierKey? carrierKey,
-    List<CarrierProduct>? carrierProducts,
+    CarrierTyp? carrierTyp,
     List<CarrierProduct>? carrierAutomations,
     List<String>? listOfPaperLayout,
     String? paperLayout,
@@ -81,6 +86,7 @@ class Carrier {
     List<String>? listOfPrinterLanguages,
     String? printerLanguage,
     bool? isDefault,
+    bool? isActive,
   }) {
     return Carrier(
       internalName: internalName ?? this.internalName,
@@ -89,7 +95,7 @@ class Carrier {
       imagePath: imagePath ?? this.imagePath,
       trackingUrl: trackingUrl ?? this.trackingUrl,
       carrierKey: carrierKey ?? this.carrierKey,
-      carrierProducts: carrierProducts ?? this.carrierProducts,
+      carrierTyp: carrierTyp ?? this.carrierTyp,
       carrierAutomations: carrierAutomations ?? this.carrierAutomations,
       listOfPaperLayout: listOfPaperLayout ?? this.listOfPaperLayout,
       paperLayout: paperLayout ?? this.paperLayout,
@@ -98,12 +104,13 @@ class Carrier {
       listOfPrinterLanguages: listOfPrinterLanguages ?? this.listOfPrinterLanguages,
       printerLanguage: printerLanguage ?? this.printerLanguage,
       isDefault: isDefault ?? this.isDefault,
+      isActive: isActive ?? this.isActive,
     );
   }
 
   @override
   String toString() {
-    return 'Carrier(internalName: $internalName, name: $name, marketplaceMapping: $marketplaceMapping, imagePath: $imagePath, trackingUrl: $trackingUrl, carrierKey: $carrierKey, carrierProducts: $carrierProducts, carrierAutomations: $carrierAutomations, listOfPaperLayout: $listOfPaperLayout, paperLayout: $paperLayout, listOfLabelSizes: $listOfLabelSizes, labelSize: $labelSize, listOfPrinterLanguages: $listOfPrinterLanguages, printerLanguage: $printerLanguage, isDefault: $isDefault)';
+    return 'Carrier(internalName: $internalName, name: $name, marketplaceMapping: $marketplaceMapping, imagePath: $imagePath, trackingUrl: $trackingUrl, carrierKey: $carrierKey, carrierTyp: $carrierTyp, carrierAutomations: $carrierAutomations, listOfPaperLayout: $listOfPaperLayout, paperLayout: $paperLayout, listOfLabelSizes: $listOfLabelSizes, labelSize: $labelSize, listOfPrinterLanguages: $listOfPrinterLanguages, printerLanguage: $printerLanguage, isDefault: $isDefault, isActive: $isActive)';
   }
 
   static List<Carrier> carrierList = [
@@ -112,7 +119,8 @@ class Carrier {
       name: 'Österreichische Post',
       imagePath: 'assets/carriers/AustrianPost.jpg',
       trackingUrl: 'https://www.post.at/s/sendungsdetails?snr=',
-      listOfPaperLayout: ['2xA5inA4', 'A5', 'A4'],
+      carrierTyp: CarrierTyp.austrianPost,
+      listOfPaperLayout: ['2xA5inA4', 'A6', 'A5', 'A4'],
       paperLayout: '2xA5inA4',
       listOfLabelSizes: ['100x150', '100x200'],
       labelSize: '100x150',

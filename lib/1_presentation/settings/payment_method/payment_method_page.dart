@@ -106,7 +106,7 @@ class _PaymentMethodListTile extends StatelessWidget {
             trailing: Switch.adaptive(
               value: mainSettings.paymentMethods.any((e) => e.name == paymentMethod.name),
               onChanged: (value) =>
-                  context.read<MainSettingsBloc>().add(EnableOrDesablePaymentMethodEvent(value: value, paymentMethod: paymentMethod)),
+                  context.read<MainSettingsBloc>().add(EnableOrDisablePaymentMethodEvent(value: value, paymentMethod: paymentMethod)),
             ),
           ),
         ),

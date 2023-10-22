@@ -1,5 +1,6 @@
-import 'package:cezeri_helpers/cezeri_helpers.dart';
 import 'package:json_annotation/json_annotation.dart';
+
+import '../country.dart';
 
 part 'carrier_product.g.dart';
 
@@ -26,7 +27,14 @@ class CarrierProduct {
   Map<String, dynamic> toJson() => _$CarrierProductToJson(this);
 
   factory CarrierProduct.empty() {
-    return CarrierProduct(id: '', productName: '', isDefault: false, isReturn: false, isActive: false, country: Country.empty());
+    return CarrierProduct(
+      id: '',
+      productName: '',
+      isDefault: false,
+      isReturn: false,
+      isActive: false,
+      country: Country.empty(),
+    );
   }
 
   CarrierProduct copyWith({
@@ -52,7 +60,8 @@ class CarrierProduct {
     return 'CarrierProduct(id: $id, productName: $productName, isDefault: $isDefault, isReturn: $isReturn, isActive: $isActive, country: $country)';
   }
 
-  static List<CarrierProduct> carrierProductList = [
+  static List<CarrierProduct> carrierProductListAustrianPost = [
+    CarrierProduct.empty(),
     CarrierProduct.empty().copyWith(id: '28', productName: 'Retourpaket'),
     CarrierProduct.empty().copyWith(id: '63', productName: 'Retourpaket International'),
     CarrierProduct.empty().copyWith(id: '14', productName: 'Premium light'),
@@ -71,5 +80,9 @@ class CarrierProduct {
     CarrierProduct.empty().copyWith(id: '69', productName: 'Paket Light Int. non boxable Outbound'),
     CarrierProduct.empty().copyWith(id: '96', productName: 'Kleinpaket 2000'),
     CarrierProduct.empty().copyWith(id: '16', productName: 'Kleinpaket 2000 Plus'),
+  ];
+
+  static List<CarrierProduct> carrierProductListDpd = [
+    CarrierProduct.empty(),
   ];
 }

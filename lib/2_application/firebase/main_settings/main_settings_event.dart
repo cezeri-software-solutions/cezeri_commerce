@@ -37,9 +37,85 @@ class UpdateTaxRulesEvent extends MainSettingsEvent {
 //? ################################################################
 //? ########################## Payment Methods #####################
 
-class EnableOrDesablePaymentMethodEvent extends MainSettingsEvent {
+class EnableOrDisablePaymentMethodEvent extends MainSettingsEvent {
   final bool value;
   final PaymentMethod paymentMethod;
 
-  EnableOrDesablePaymentMethodEvent({required this.value, required this.paymentMethod});
+  EnableOrDisablePaymentMethodEvent({required this.value, required this.paymentMethod});
+}
+
+//? ################################################################
+//? ########################## Carriers #####################
+
+class EnableOrDisableCarrierEvent extends MainSettingsEvent {
+  final bool value;
+  final Carrier carrier;
+
+  EnableOrDisableCarrierEvent({required this.value, required this.carrier});
+}
+
+class OnIsDefaultCarrierChangedEvent extends MainSettingsEvent {
+  final bool value;
+  final Carrier carrier;
+
+  OnIsDefaultCarrierChangedEvent({required this.value, required this.carrier});
+}
+
+class OnSaveCarrierDetailEvent extends MainSettingsEvent {
+  final int index;
+
+  OnSaveCarrierDetailEvent({required this.index});
+}
+
+class OnCarrierDetailPressedEvent extends MainSettingsEvent {
+  final Carrier carrier;
+
+  OnCarrierDetailPressedEvent({required this.carrier});
+}
+
+class OnCarrierControllerChangedEvent extends MainSettingsEvent {}
+
+class OnCarrierPaperLayoutChangedEvnet extends MainSettingsEvent {
+  final String value;
+
+  OnCarrierPaperLayoutChangedEvnet({required this.value});
+}
+
+class OnCarrierLabelSizeChangedEvnet extends MainSettingsEvent {
+  final String value;
+
+  OnCarrierLabelSizeChangedEvnet({required this.value});
+}
+
+class OnCarrierPrinterLanguageChangedEvnet extends MainSettingsEvent {
+  final String value;
+
+  OnCarrierPrinterLanguageChangedEvnet({required this.value});
+}
+
+class SetSelectedCountryToCarrierAutomationEvent extends MainSettingsEvent {
+  final Country selectedCountry;
+
+  SetSelectedCountryToCarrierAutomationEvent({required this.selectedCountry});
+}
+
+class SetSelectedCarrierProductToCarrierAutomationEvent extends MainSettingsEvent {
+  final CarrierProduct selectedCarrierProduct;
+
+  SetSelectedCarrierProductToCarrierAutomationEvent({required this.selectedCarrierProduct});
+}
+
+class SetIsReturnShipmentToCarrierAutomationEvent extends MainSettingsEvent {
+  final bool value;
+
+  SetIsReturnShipmentToCarrierAutomationEvent({required this.value});
+}
+
+class SaveSelectedCarrierProductToCarrierAutomationEvent extends MainSettingsEvent {}
+
+class ChangePackageAutomationForCountryEvnet extends MainSettingsEvent {
+  final CarrierProduct selectedCarrierProduct;
+  final int index;
+
+  ChangePackageAutomationForCountryEvnet({required this.selectedCarrierProduct, required this.index});
 }

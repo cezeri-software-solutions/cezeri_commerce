@@ -1,7 +1,8 @@
 import 'dart:convert';
 
-import 'package:cezeri_helpers/cezeri_helpers.dart';
 import 'package:json_annotation/json_annotation.dart';
+
+import '../entities/country.dart';
 
 part 'country_presta.g.dart';
 

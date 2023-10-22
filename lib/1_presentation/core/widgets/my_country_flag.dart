@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:cezeri_helpers/cezeri_helpers.dart';
 import 'package:flutter/material.dart';
+
+import '../../../3_domain/entities/country.dart';
 
 class MyCountryFlag extends StatelessWidget {
   final Country country;

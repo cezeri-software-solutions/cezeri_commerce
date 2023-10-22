@@ -3,12 +3,17 @@ import 'dart:convert';
 import 'package:cezeri_commerce/1_presentation/core/widgets/my_outlined_button.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:logger/logger.dart';
 
+import '../../2_application/firebase/main_settings/main_settings_bloc.dart';
+import '../../3_domain/entities/carrier/carrier_product.dart';
+import '../../3_domain/entities/country.dart';
 import '../../3_domain/pdf/pdf_api_mobile.dart';
 import '../../3_domain/pdf/pdf_api_web.dart';
 import '../../4_infrastructur/repositories/shipping_methods/austrian_post/austrian_post_api.dart';
 import '../../constants.dart';
-import '../core/widgets/my_form_field_container_small.dart';
+import '../core/widgets/my_form_field_small.dart';
 
 class ShippingLabelPage extends StatefulWidget {
   const ShippingLabelPage({super.key});
@@ -18,12 +23,33 @@ class ShippingLabelPage extends StatefulWidget {
 }
 
 class _ShippingLabelPageState extends State<ShippingLabelPage> {
-  late TextEditingController _senderCompanyName;
-  late TextEditingController _senderName;
-  late TextEditingController _sender;
+  final TextEditingController _senderCompanyName = TextEditingController();
+  final TextEditingController _senderName = TextEditingController();
+  final TextEditingController _senderStreet = TextEditingController();
+  final TextEditingController _senderCity = TextEditingController();
+  final TextEditingController _senderEmail = TextEditingController();
+  final TextEditingController _senderPhone = TextEditingController();
+  final TextEditingController _senderPhoneMobile = TextEditingController();
+  final Country _senderCountry = Country.countryList.where((e) => e.isoCode == 'AT').first;
+
+  final TextEditingController _recipientCompanyName = TextEditingController();
+  final TextEditingController _recipientName = TextEditingController();
+  final TextEditingController _recipientStreet = TextEditingController();
+  final TextEditingController _recipientCity = TextEditingController();
+  final TextEditingController _recipeintEmail = TextEditingController();
+  final TextEditingController _recipeintPhone = TextEditingController();
+  final TextEditingController _recipeintPhoneMobile = TextEditingController();
+  final Country _recipientCountry = Country.countryList.where((e) => e.isoCode == 'AT').first;
+
+  final TextEditingController _weight = TextEditingController();
+  CarrierProduct carrierProduct = CarrierProduct.carrierProductListAustrianPost.first;
 
   @override
   Widget build(BuildContext context) {
+    final logger = Logger();
+    final ms = context.read<MainSettingsBloc>().state.mainSettings!;
+    final defaultCarrier = ms.listOfCarriers.where((e) => e.isDefault).first;
+    final cCredentials = defaultCarrier.carrierKey;
     return SingleChildScrollView(
       child: Column(
         children: [
@@ -42,7 +68,19 @@ class _ShippingLabelPageState extends State<ShippingLabelPage> {
                     MyOutlinedButton(
                       buttonText: 'Label erstellen',
                       onPressed: () async {
-                        final service = AustrianPostApi();
+                        final service = AustrianPostApi(
+                          AustrianPostApiConfig(
+                            clientId: cCredentials.clientId,
+                            orgUnitId: cCredentials.orgUnitId,
+                            orgUnitGuide: cCredentials.orgUnitGuide,
+                          ),
+                          AustrianPostApiSettings(
+                            paperLayout: defaultCarrier.paperLayout,
+                            labelSize: defaultCarrier.labelSize,
+                            printerLanguage: defaultCarrier.printerLanguage,
+                          ),
+                          false,
+                        );
                         final soapRequest = service.generateSoapRequest(); //generateSoapRequest();
                         String pdfString = '';
 

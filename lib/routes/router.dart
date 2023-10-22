@@ -20,6 +20,8 @@ class AppRouter extends $AppRouter {
         AutoRoute(page: MainSettingsRoute.page, path: '/main_settings'),
         AutoRoute(page: TaxRulesRoute.page, path: '/main_settings/tax_rules'),
         AutoRoute(page: PaymentMethodRoute.page, path: '/main_settings/payment_method'),
+        AutoRoute(page: CarriersOverviewRoute.page, path: '/main_settings/carriers_overview'),
+        AutoRoute(page: CarrierDetailRoute.page, path: '/main_settings/carriers_overview/carrier_detail'),
         AutoRoute(page: AppointmentsOverviewRoute.page, path: '/appointments_overview'),
         AutoRoute(page: AppointmentDetailRoute.page, path: '/appointments_overview/appointment_detail'),
         AutoRoute(page: CustomersOverviewRoute.page, path: '/customers_overview'),

@@ -4,7 +4,6 @@ import 'package:cezeri_commerce/1_presentation/core/widgets/my_avatar.dart';
 import 'package:cezeri_commerce/1_presentation/core/widgets/my_dialog_countries.dart';
 import 'package:cezeri_commerce/1_presentation/core/widgets/my_outlined_button.dart';
 import 'package:cezeri_commerce/1_presentation/core/widgets/my_text_form_field.dart';
-import 'package:cezeri_helpers/cezeri_helpers.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -14,6 +13,7 @@ import 'package:logger/logger.dart';
 
 import '../../../../2_application/firebase/marketplace/marketplace_bloc.dart';
 import '../../../../3_domain/entities/address.dart';
+import '../../../../3_domain/entities/country.dart';
 import '../../../../3_domain/entities/marketplace/marketplace.dart';
 import '../../../../3_domain/entities/marketplace/marketplace_settings.dart';
 import '../../../../3_domain/entities/settings/bank_details.dart';

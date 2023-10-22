@@ -14,9 +14,7 @@ Carrier _$CarrierFromJson(Map<String, dynamic> json) => Carrier(
       trackingUrl: json['trackingUrl'] as String,
       carrierKey:
           CarrierKey.fromJson(json['carrierKey'] as Map<String, dynamic>),
-      carrierProducts: (json['carrierProducts'] as List<dynamic>)
-          .map((e) => CarrierProduct.fromJson(e as Map<String, dynamic>))
-          .toList(),
+      carrierTyp: $enumDecode(_$CarrierTypEnumMap, json['carrierTyp']),
       carrierAutomations: (json['carrierAutomations'] as List<dynamic>)
           .map((e) => CarrierProduct.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -33,6 +31,7 @@ Carrier _$CarrierFromJson(Map<String, dynamic> json) => Carrier(
           .toList(),
       printerLanguage: json['printerLanguage'] as String,
       isDefault: json['isDefault'] as bool,
+      isActive: json['isActive'] as bool,
     );
 
 Map<String, dynamic> _$CarrierToJson(Carrier instance) => <String, dynamic>{
@@ -42,8 +41,7 @@ Map<String, dynamic> _$CarrierToJson(Carrier instance) => <String, dynamic>{
       'imagePath': instance.imagePath,
       'trackingUrl': instance.trackingUrl,
       'carrierKey': instance.carrierKey.toJson(),
-      'carrierProducts':
-          instance.carrierProducts.map((e) => e.toJson()).toList(),
+      'carrierTyp': _$CarrierTypEnumMap[instance.carrierTyp]!,
       'carrierAutomations':
           instance.carrierAutomations.map((e) => e.toJson()).toList(),
       'listOfPaperLayout': instance.listOfPaperLayout,
@@ -53,4 +51,11 @@ Map<String, dynamic> _$CarrierToJson(Carrier instance) => <String, dynamic>{
       'listOfPrinterLanguages': instance.listOfPrinterLanguages,
       'printerLanguage': instance.printerLanguage,
       'isDefault': instance.isDefault,
+      'isActive': instance.isActive,
     };
+
+const _$CarrierTypEnumMap = {
+  CarrierTyp.empty: 'empty',
+  CarrierTyp.austrianPost: 'austrianPost',
+  CarrierTyp.dpd: 'dpd',
+};

@@ -1,10 +1,10 @@
 import 'package:cezeri_commerce/3_domain/entities/id.dart';
-import 'package:cezeri_helpers/cezeri_helpers.dart';
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 import '../entities_presta/address_presta.dart';
 import '../entities_presta/country_presta.dart';
+import 'country.dart';
 
 part 'address.g.dart';
 

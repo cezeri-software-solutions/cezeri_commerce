@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../../2_application/firebase/customer/customer_bloc.dart';
 import '../../../../../constants.dart';
-import '../../../../core/widgets/my_form_field_container_small.dart';
+import '../../../../core/widgets/my_form_field_small.dart';
 
 class CustomerMasterCard extends StatelessWidget {
   final CustomerBloc customerBloc;
