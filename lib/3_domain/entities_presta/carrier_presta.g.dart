@@ -23,7 +23,8 @@ CarrierPresta _$CarrierPrestaFromJson(Map<String, dynamic> json) =>
       id: json['id'] as int,
       deleted: json['deleted'] as String,
       isModule: json['is_module'] as String,
-      idTaxRulesGroup: json['id_tax_rules_group'] as int,
+      idTaxRulesGroup:
+          CarrierPresta._idTaxRulesGroupFromJson(json['id_tax_rules_group']),
       idReference: json['id_reference'] as String,
       name: json['name'] as String,
       active: json['active'] as String,
@@ -41,7 +42,6 @@ CarrierPresta _$CarrierPrestaFromJson(Map<String, dynamic> json) =>
       externalModuleName: json['external_module_name'] as String,
       needRange: json['need_range'] as String,
       position: json['position'] as String,
-      delay: json['delay'] as String,
     );
 
 Map<String, dynamic> _$CarrierPrestaToJson(CarrierPresta instance) =>
@@ -67,5 +67,4 @@ Map<String, dynamic> _$CarrierPrestaToJson(CarrierPresta instance) =>
       'external_module_name': instance.externalModuleName,
       'need_range': instance.needRange,
       'position': instance.position,
-      'delay': instance.delay,
     };
