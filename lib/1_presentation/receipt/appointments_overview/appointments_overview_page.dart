@@ -3,20 +3,18 @@ import 'dart:math';
 import 'package:auto_route/auto_route.dart';
 import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.dart';
 import 'package:cezeri_commerce/1_presentation/core/widgets/my_circular_progress_indicator.dart';
-import 'package:flutter/foundation.dart' show Uint8List, kIsWeb;
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:printing/printing.dart';
 
 import '../../../2_application/firebase/appointment/appointment_bloc.dart';
-import '../../../2_application/firebase/main_settings/main_settings_bloc.dart';
 import '../../../2_application/firebase/marketplace/marketplace_bloc.dart';
 import '../../../3_domain/entities/address.dart';
 import '../../../3_domain/entities/marketplace/marketplace.dart';
 import '../../../3_domain/entities/receipt/receipt.dart';
 import '../../../3_domain/entities/receipt/receipt_product.dart';
-import '../../../3_domain/entities/settings/main_settings.dart';
 import '../../../3_domain/enums/enums.dart';
 import '../../../3_domain/pdf/pdf_api_mobile.dart';
 import '../../../3_domain/pdf/pdf_api_web.dart';
@@ -375,7 +373,6 @@ class __AppointmentContainerState extends State<_AppointmentContainer> {
 
   Future<void> _onPdfPressed({required Marketplace marketplace}) async {
     setState(() => _isLoadingPdf = true);
-    final mainSettings = context.read<MainSettingsBloc>().state.mainSettings;
     final receiptName = switch (widget.appointment.receiptTyp) {
       ReceiptTyp.offer => widget.appointment.offerNumberAsString,
       ReceiptTyp.appointment => widget.appointment.appointmentNumberAsString,
@@ -384,9 +381,6 @@ class __AppointmentContainerState extends State<_AppointmentContainer> {
     };
     final data = await PdfReceiptGenerator.generate(
       receipt: widget.appointment,
-      mainSettings: mainSettings ?? MainSettings.empty(),
-      marketplace: marketplace,
-      customer: widget.appointment.receiptCustomer,
       logoUrl: marketplace.logoUrl,
     );
 

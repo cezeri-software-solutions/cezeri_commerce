@@ -1,13 +1,17 @@
 import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.dart';
+import 'package:cezeri_commerce/3_domain/entities/carrier/carrier_product.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 import '../../../1_presentation/core/functions/mixed_functions.dart';
 import '../../entities_presta/address_presta.dart';
+import '../../entities_presta/carrier_presta.dart';
 import '../../entities_presta/country_presta.dart';
 import '../../entities_presta/currency_presta.dart';
 import '../../entities_presta/customer_presta.dart';
 import '../../entities_presta/order_presta.dart';
 import '../address.dart';
+import '../carrier/carrier.dart';
+import '../carrier/parcel_tracking.dart';
 import '../customer/customer.dart';
 import '../marketplace/marketplace.dart';
 import '../settings/bank_details.dart';
@@ -15,7 +19,9 @@ import '../settings/main_settings.dart';
 import '../settings/payment_method.dart';
 import '../settings/tax.dart';
 import 'payment.dart';
+import 'receipt_carrier.dart';
 import 'receipt_customer.dart';
+import 'receipt_marketplace.dart';
 import 'receipt_product.dart';
 
 part 'receipt.g.dart';
@@ -45,6 +51,8 @@ class Receipt {
   final String offerNumberAsString;
   final int appointmentId;
   final String appointmentNumberAsString;
+  final int deliveryNoteId;
+  final String deliveryNoteNumberAsString;
   final int invoiceId;
   final String invoiceNumberAsString;
   final int creditId;
@@ -68,6 +76,7 @@ class Receipt {
   final ReceiptStatus receiptStatus;
   final PaymentStatus paymentStatus;
   final Tax tax;
+  final bool isSmallBusiness;
   final int termOfPayment;
   final double totalGross;
   final double totalNet;
@@ -104,6 +113,9 @@ class Receipt {
   final BankDetails bankDetails;
   final List<Payment> listOfPayments;
   final List<ReceiptProduct> listOfReceiptProduct;
+  final List<ParcelTracking> listOfParcelTracking;
+  final ReceiptCarrier receiptCarrier;
+  final ReceiptMarketplace receiptMarketplace;
   final DateTime creationDateMarektplace;
   final DateTime creationDate; // Wenn importiert: DateTime import // Wenn dirkt angelegt: Datum Erstellung
   final int creationDateInt;
@@ -115,6 +127,8 @@ class Receipt {
     required this.offerNumberAsString,
     required this.appointmentId,
     required this.appointmentNumberAsString,
+    required this.deliveryNoteId,
+    required this.deliveryNoteNumberAsString,
     required this.invoiceId,
     required this.invoiceNumberAsString,
     required this.creditId,
@@ -138,6 +152,7 @@ class Receipt {
     required this.receiptStatus,
     required this.paymentStatus,
     required this.tax,
+    required this.isSmallBusiness,
     required this.termOfPayment,
     required this.totalGross,
     required this.totalNet,
@@ -174,6 +189,9 @@ class Receipt {
     required this.bankDetails,
     required this.listOfPayments,
     required this.listOfReceiptProduct,
+    required this.listOfParcelTracking,
+    required this.receiptCarrier,
+    required this.receiptMarketplace,
     required this.creationDateMarektplace,
     required this.creationDate,
     required this.creationDateInt,
@@ -195,6 +213,7 @@ class Receipt {
     required AddressPresta addressDeliveryPresta,
     required CountryPresta countryInvoicePresta,
     required CountryPresta countryDeliveryPresta,
+    required CarrierPresta carrierPresta,
     required Customer customer,
   }) {
     double getTotalNet() =>
@@ -234,31 +253,6 @@ class Receipt {
 
     final addressDelivery = Address.fromPresta(addressDeliveryPresta, countryDeliveryPresta, AddressType.delivery);
 
-    // // TODO: check if customer already exists
-    // final customer = Customer.empty().copyWith(
-    //   customerMarketplace: CustomerMarketplace.empty().copyWith(
-    //     customerIdMarketplace: customerPresta.id,
-    //     marketplaceId: marketplace.id,
-    //     marketplaceName: marketplace.name,
-    //   ),
-    //   company: customerPresta.company,
-    //   firstName: customerPresta.firstname,
-    //   lastName: customerPresta.lastname,
-    //   name: '${customerPresta.firstname} ${customerPresta.lastname}',
-    //   email: customerPresta.email,
-    //   gender: switch (customerPresta.idGender) {
-    //     '1' => Gender.male,
-    //     '2' => Gender.female,
-    //     (_) => Gender.empty,
-    //   },
-    //   birthday: customerPresta.birthday,
-    //   isNewsletterAccepted: stringToBool(customerPresta.newsletter),
-    //   isGuest: stringToBool(customerPresta.isGuest),
-    //   listOfAddress: [addressInvoice, addressDelivery],
-    //   creationDate: DateTime.now(),
-    //   lastEditingDate: DateTime.now(),
-    // );
-
     String getUidNumber(String uidFromAddressInvoice, String uidFromAddressDelivery) {
       if (uidFromAddressInvoice != '') return uidFromAddressInvoice;
       if (uidFromAddressDelivery != '') return uidFromAddressDelivery;
@@ -274,6 +268,31 @@ class Receipt {
     final profitExclWrapping = profit - (orderPresta.totalWrappingTaxExcl).toMyDouble();
     final profitExclShippingAndWrapping = profit - (orderPresta.totalShippingTaxExcl).toMyDouble() - (orderPresta.totalWrappingTaxExcl).toMyDouble();
 
+    final carrierMapping = mainSettings.listOfCarriers.where((e) => e.marketplaceMapping == carrierPresta.name).firstOrNull;
+    final carrier = switch (carrierMapping) {
+      null => mainSettings.listOfCarriers.where((e) => e.isDefault).first,
+      _ => carrierMapping,
+    };
+    CarrierProduct getCarrierProduct() {
+      final isAutomationGiven = carrier.carrierAutomations.any((e) => e.country.isoCode == countryDeliveryPresta.isoCode && !e.isReturn);
+      return switch (isAutomationGiven) {
+        true => carrier.carrierAutomations.where((e) => e.country.isoCode == countryDeliveryPresta.isoCode && !e.isReturn).first,
+        false => carrier.carrierAutomations.first,
+      };
+    }
+
+    final carrierProduct = switch (carrier.carrierAutomations) {
+      [] => switch (carrier.carrierTyp) {
+          CarrierTyp.austrianPost => CarrierProduct.carrierProductListAustrianPost.first,
+          CarrierTyp.dpd => CarrierProduct.carrierProductListDpd.first,
+          CarrierTyp.empty => CarrierProduct.empty(),
+        },
+      _ => getCarrierProduct(),
+    };
+    final receiptCarrier = ReceiptCarrier(receiptCarrierName: carrier.name, carrierTyp: carrier.carrierTyp, carrierProduct: carrierProduct);
+
+    final receiptMarketplace = ReceiptMarketplace(address: marketplace.address, bankDetails: marketplace.bankDetails, url: marketplace.url);
+
     // TODO: Look if needed or just solve in bloc
     //final searchField = '${customer.name} / ${customer.company} / ${customer.name} / ';
 
@@ -283,6 +302,8 @@ class Receipt {
       offerNumberAsString: '',
       appointmentId: mainSettings.nextAppointmentNumber,
       appointmentNumberAsString: mainSettings.appointmentPraefix + mainSettings.nextAppointmentNumber.toString(),
+      deliveryNoteId: 0,
+      deliveryNoteNumberAsString: '',
       invoiceId: 0,
       invoiceNumberAsString: '',
       creditId: 0,
@@ -306,6 +327,7 @@ class Receipt {
       receiptStatus: ReceiptStatus.open,
       paymentStatus: getPaymentStatus(),
       tax: mainSettings.taxes.where((e) => e.taxRate.round() == calcTaxPercent(getTotalGross(), getTotalNet()).round()).first,
+      isSmallBusiness: mainSettings.isSmallBusiness,
       termOfPayment: mainSettings.termOfPayment,
       totalGross: getTotalGross(),
       totalNet: getTotalNet(),
@@ -345,6 +367,9 @@ class Receipt {
           ? [Payment((orderPresta.totalPaidReal).toMyDouble(), orderPresta.payment, DateTime.parse(orderPresta.dateAdd))]
           : [],
       listOfReceiptProduct: listOfReceiptproduct,
+      listOfParcelTracking: [],
+      receiptCarrier: receiptCarrier,
+      receiptMarketplace: receiptMarketplace,
       creationDateMarektplace: DateTime.parse(orderPresta.dateAdd),
       creationDate: DateTime.now(),
       creationDateInt: DateTime.parse(orderPresta.dateAdd).microsecondsSinceEpoch,
@@ -359,6 +384,8 @@ class Receipt {
       offerNumberAsString: '',
       appointmentId: 0,
       appointmentNumberAsString: '',
+      deliveryNoteId: 0,
+      deliveryNoteNumberAsString: '',
       invoiceId: 0,
       invoiceNumberAsString: '',
       creditId: 0,
@@ -382,6 +409,7 @@ class Receipt {
       receiptStatus: ReceiptStatus.open,
       paymentStatus: PaymentStatus.open,
       tax: Tax.empty(),
+      isSmallBusiness: false,
       termOfPayment: 14,
       totalGross: 0,
       totalNet: 0,
@@ -418,6 +446,9 @@ class Receipt {
       bankDetails: BankDetails.empty(),
       listOfPayments: [],
       listOfReceiptProduct: [],
+      listOfParcelTracking: [],
+      receiptCarrier: ReceiptCarrier.empty(),
+      receiptMarketplace: ReceiptMarketplace.empty(),
       creationDateMarektplace: DateTime.now(),
       creationDate: DateTime.now(),
       creationDateInt: 0,
@@ -431,6 +462,8 @@ class Receipt {
     String? offerNumberAsString,
     int? appointmentId,
     String? appointmentNumberAsString,
+    int? deliveryNoteId,
+    String? deliveryNoteNumberAsString,
     int? invoiceId,
     String? invoiceNumberAsString,
     int? creditId,
@@ -454,6 +487,7 @@ class Receipt {
     ReceiptStatus? receiptStatus,
     PaymentStatus? paymentStatus,
     Tax? tax,
+    bool? isSmallBusiness,
     int? termOfPayment,
     double? totalGross,
     double? totalNet,
@@ -490,6 +524,9 @@ class Receipt {
     BankDetails? bankDetails,
     List<Payment>? listOfPayments,
     List<ReceiptProduct>? listOfReceiptProduct,
+    List<ParcelTracking>? listOfParcelTracking,
+    ReceiptCarrier? receiptCarrier,
+    ReceiptMarketplace? receiptMarketplace,
     DateTime? creationDateMarektplace,
     DateTime? creationDate,
     int? creationDateInt,
@@ -501,6 +538,8 @@ class Receipt {
       offerNumberAsString: offerNumberAsString ?? this.offerNumberAsString,
       appointmentId: appointmentId ?? this.appointmentId,
       appointmentNumberAsString: appointmentNumberAsString ?? this.appointmentNumberAsString,
+      deliveryNoteId: deliveryNoteId ?? this.deliveryNoteId,
+      deliveryNoteNumberAsString: deliveryNoteNumberAsString ?? this.deliveryNoteNumberAsString,
       invoiceId: invoiceId ?? this.invoiceId,
       invoiceNumberAsString: invoiceNumberAsString ?? this.invoiceNumberAsString,
       creditId: creditId ?? this.creditId,
@@ -524,6 +563,7 @@ class Receipt {
       receiptStatus: receiptStatus ?? this.receiptStatus,
       paymentStatus: paymentStatus ?? this.paymentStatus,
       tax: tax ?? this.tax,
+      isSmallBusiness: isSmallBusiness ?? this.isSmallBusiness,
       termOfPayment: termOfPayment ?? this.termOfPayment,
       totalGross: totalGross ?? this.totalGross,
       totalNet: totalNet ?? this.totalNet,
@@ -560,6 +600,9 @@ class Receipt {
       bankDetails: bankDetails ?? this.bankDetails,
       listOfPayments: listOfPayments ?? this.listOfPayments,
       listOfReceiptProduct: listOfReceiptProduct ?? this.listOfReceiptProduct,
+      listOfParcelTracking: listOfParcelTracking ?? this.listOfParcelTracking,
+      receiptCarrier: receiptCarrier ?? this.receiptCarrier,
+      receiptMarketplace: receiptMarketplace ?? this.receiptMarketplace,
       creationDateMarektplace: creationDateMarektplace ?? this.creationDateMarektplace,
       creationDate: creationDate ?? this.creationDate,
       creationDateInt: creationDateInt ?? this.creationDateInt,
@@ -569,6 +612,6 @@ class Receipt {
 
   @override
   String toString() {
-    return 'Receipt(receiptId: $receiptId, offerId: $offerId, offerNumberAsString: $offerNumberAsString, appointmentId: $appointmentId, appointmentNumberAsString: $appointmentNumberAsString, invoiceId: $invoiceId, invoiceNumberAsString: $invoiceNumberAsString, creditId: $creditId, creditNumberAsString: $creditNumberAsString, marketplaceId: $marketplaceId, receiptMarketplaceId: $receiptMarketplaceId, receiptMarketplaceReference: $receiptMarketplaceReference, paymentMethod: $paymentMethod, commentInternal: $commentInternal, commentGlobal: $commentGlobal, currency: $currency, receiptDocumentText: $receiptDocumentText, uidNumber: $uidNumber, searchField: $searchField, customerId: $customerId, receiptCustomer: $receiptCustomer, addressInvoice: $addressInvoice, addressDelivery: $addressDelivery, receiptTyp: $receiptTyp, offerStatus: $offerStatus, receiptStatus: $receiptStatus, paymentStatus: $paymentStatus, tax: $tax, termOfPayment: $termOfPayment, totalGross: $totalGross, totalNet: $totalNet, totalTax: $totalTax, subTotalNet: $subTotalNet, subTotalTax: $subTotalTax, subTotalGross: $subTotalGross, totalPaidGross: $totalPaidGross, totalPaidNet: $totalPaidNet, totalPaidTax: $totalPaidTax, totalShippingGross: $totalShippingGross, totalShippingNet: $totalShippingNet, totalShippingTax: $totalShippingTax, totalWrappingGross: $totalWrappingGross, totalWrappingNet: $totalWrappingNet, totalWrappingTax: $totalWrappingTax, discountGross: $discountGross, discountNet: $discountNet, discountTax: $discountTax, discountPercent: $discountPercent, discountPercentAmountGross: $discountPercentAmountGross, discountPercentAmountNet: $discountPercentAmountNet, discountPercentAmountTax: $discountPercentAmountTax, posDiscountPercentAmountGross: $posDiscountPercentAmountGross, posDiscountPercentAmountNet: $posDiscountPercentAmountNet, posDiscountPercentAmountTax: $posDiscountPercentAmountTax, additionalAmountNet: $additionalAmountNet, additionalAmountTax: $additionalAmountTax, additionalAmountGross: $additionalAmountGross, profit: $profit, profitExclShipping: $profitExclShipping, profitExclWrapping: $profitExclWrapping, profitExclShippingAndWrapping: $profitExclShippingAndWrapping, bankDetails: $bankDetails, listOfPayments: $listOfPayments, listOfReceiptProduct: $listOfReceiptProduct, creationDateMarektplace: $creationDateMarektplace, creationDate: $creationDate, creationDateInt: $creationDateInt, lastEditingDate: $lastEditingDate)';
+    return 'Receipt(receiptId: $receiptId, offerId: $offerId, offerNumberAsString: $offerNumberAsString, appointmentId: $appointmentId, appointmentNumberAsString: $appointmentNumberAsString, deliveryNoteId: $deliveryNoteId, deliveryNoteNumberAsString: $deliveryNoteNumberAsString, invoiceId: $invoiceId, invoiceNumberAsString: $invoiceNumberAsString, creditId: $creditId, creditNumberAsString: $creditNumberAsString, marketplaceId: $marketplaceId, receiptMarketplaceId: $receiptMarketplaceId, receiptMarketplaceReference: $receiptMarketplaceReference, paymentMethod: $paymentMethod, commentInternal: $commentInternal, commentGlobal: $commentGlobal, currency: $currency, receiptDocumentText: $receiptDocumentText, uidNumber: $uidNumber, searchField: $searchField, customerId: $customerId, receiptCustomer: $receiptCustomer, addressInvoice: $addressInvoice, addressDelivery: $addressDelivery, receiptTyp: $receiptTyp, offerStatus: $offerStatus, receiptStatus: $receiptStatus, paymentStatus: $paymentStatus, tax: $tax, isSmallBusiness: $isSmallBusiness, termOfPayment: $termOfPayment, totalGross: $totalGross, totalNet: $totalNet, totalTax: $totalTax, subTotalNet: $subTotalNet, subTotalTax: $subTotalTax, subTotalGross: $subTotalGross, totalPaidGross: $totalPaidGross, totalPaidNet: $totalPaidNet, totalPaidTax: $totalPaidTax, totalShippingGross: $totalShippingGross, totalShippingNet: $totalShippingNet, totalShippingTax: $totalShippingTax, totalWrappingGross: $totalWrappingGross, totalWrappingNet: $totalWrappingNet, totalWrappingTax: $totalWrappingTax, discountGross: $discountGross, discountNet: $discountNet, discountTax: $discountTax, discountPercent: $discountPercent, discountPercentAmountGross: $discountPercentAmountGross, discountPercentAmountNet: $discountPercentAmountNet, discountPercentAmountTax: $discountPercentAmountTax, posDiscountPercentAmountGross: $posDiscountPercentAmountGross, posDiscountPercentAmountNet: $posDiscountPercentAmountNet, posDiscountPercentAmountTax: $posDiscountPercentAmountTax, additionalAmountNet: $additionalAmountNet, additionalAmountTax: $additionalAmountTax, additionalAmountGross: $additionalAmountGross, profit: $profit, profitExclShipping: $profitExclShipping, profitExclWrapping: $profitExclWrapping, profitExclShippingAndWrapping: $profitExclShippingAndWrapping, bankDetails: $bankDetails, listOfPayments: $listOfPayments, listOfReceiptProduct: $listOfReceiptProduct, listOfParcelTracking: $listOfParcelTracking, receiptCarrier: $receiptCarrier, receiptMarketplace: $receiptMarketplace, creationDateMarektplace: $creationDateMarektplace, creationDate: $creationDate, creationDateInt: $creationDateInt, lastEditingDate: $lastEditingDate)';
   }
 }

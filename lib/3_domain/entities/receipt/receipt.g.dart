@@ -12,6 +12,8 @@ Receipt _$ReceiptFromJson(Map<String, dynamic> json) => Receipt(
       offerNumberAsString: json['offerNumberAsString'] as String,
       appointmentId: json['appointmentId'] as int,
       appointmentNumberAsString: json['appointmentNumberAsString'] as String,
+      deliveryNoteId: json['deliveryNoteId'] as int,
+      deliveryNoteNumberAsString: json['deliveryNoteNumberAsString'] as String,
       invoiceId: json['invoiceId'] as int,
       invoiceNumberAsString: json['invoiceNumberAsString'] as String,
       creditId: json['creditId'] as int,
@@ -40,6 +42,7 @@ Receipt _$ReceiptFromJson(Map<String, dynamic> json) => Receipt(
       receiptStatus: $enumDecode(_$ReceiptStatusEnumMap, json['receiptStatus']),
       paymentStatus: $enumDecode(_$PaymentStatusEnumMap, json['paymentStatus']),
       tax: Tax.fromJson(json['tax'] as Map<String, dynamic>),
+      isSmallBusiness: json['isSmallBusiness'] as bool,
       termOfPayment: json['termOfPayment'] as int,
       totalGross: (json['totalGross'] as num).toDouble(),
       totalNet: (json['totalNet'] as num).toDouble(),
@@ -88,6 +91,13 @@ Receipt _$ReceiptFromJson(Map<String, dynamic> json) => Receipt(
       listOfReceiptProduct: (json['listOfReceiptProduct'] as List<dynamic>)
           .map((e) => ReceiptProduct.fromJson(e as Map<String, dynamic>))
           .toList(),
+      listOfParcelTracking: (json['listOfParcelTracking'] as List<dynamic>)
+          .map((e) => ParcelTracking.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      receiptCarrier: ReceiptCarrier.fromJson(
+          json['receiptCarrier'] as Map<String, dynamic>),
+      receiptMarketplace: ReceiptMarketplace.fromJson(
+          json['receiptMarketplace'] as Map<String, dynamic>),
       creationDateMarektplace:
           DateTime.parse(json['creationDateMarektplace'] as String),
       creationDate: DateTime.parse(json['creationDate'] as String),
@@ -101,6 +111,8 @@ Map<String, dynamic> _$ReceiptToJson(Receipt instance) => <String, dynamic>{
       'offerNumberAsString': instance.offerNumberAsString,
       'appointmentId': instance.appointmentId,
       'appointmentNumberAsString': instance.appointmentNumberAsString,
+      'deliveryNoteId': instance.deliveryNoteId,
+      'deliveryNoteNumberAsString': instance.deliveryNoteNumberAsString,
       'invoiceId': instance.invoiceId,
       'invoiceNumberAsString': instance.invoiceNumberAsString,
       'creditId': instance.creditId,
@@ -124,6 +136,7 @@ Map<String, dynamic> _$ReceiptToJson(Receipt instance) => <String, dynamic>{
       'receiptStatus': _$ReceiptStatusEnumMap[instance.receiptStatus]!,
       'paymentStatus': _$PaymentStatusEnumMap[instance.paymentStatus]!,
       'tax': instance.tax.toJson(),
+      'isSmallBusiness': instance.isSmallBusiness,
       'termOfPayment': instance.termOfPayment,
       'totalGross': instance.totalGross,
       'totalNet': instance.totalNet,
@@ -161,6 +174,10 @@ Map<String, dynamic> _$ReceiptToJson(Receipt instance) => <String, dynamic>{
       'listOfPayments': instance.listOfPayments.map((e) => e.toJson()).toList(),
       'listOfReceiptProduct':
           instance.listOfReceiptProduct.map((e) => e.toJson()).toList(),
+      'listOfParcelTracking':
+          instance.listOfParcelTracking.map((e) => e.toJson()).toList(),
+      'receiptCarrier': instance.receiptCarrier.toJson(),
+      'receiptMarketplace': instance.receiptMarketplace.toJson(),
       'creationDateMarektplace':
           instance.creationDateMarektplace.toIso8601String(),
       'creationDate': instance.creationDate.toIso8601String(),

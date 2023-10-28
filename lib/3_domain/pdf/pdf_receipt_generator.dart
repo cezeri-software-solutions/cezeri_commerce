@@ -1,5 +1,4 @@
 import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.dart';
-import 'package:cezeri_commerce/3_domain/entities/marketplace/marketplace.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
@@ -8,16 +7,11 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
 import '../entities/receipt/receipt.dart';
-import '../entities/receipt/receipt_customer.dart';
-import '../entities/settings/main_settings.dart';
 import 'widgets/pdf_text.dart';
 
 class PdfReceiptGenerator {
   static Future<Uint8List> generate({
     required Receipt receipt,
-    required MainSettings mainSettings,
-    required Marketplace marketplace,
-    required ReceiptCustomer customer,
     required String logoUrl,
   }) async {
     //final fontRegular = await PdfGoogleFonts.robotoRegular();
@@ -78,18 +72,18 @@ class PdfReceiptGenerator {
         build: (context) {
           return [
             pw.Row(children: [
-              pw.Expanded(flex: 6, child: buildBranchAndCustomerAddress(receipt, marketplace)),
-              pw.Expanded(flex: 4, child: buildCustomerDeliveryAddress(receipt, marketplace)),
+              pw.Expanded(flex: 6, child: buildBranchAndCustomerAddress(receipt)),
+              pw.Expanded(flex: 4, child: buildCustomerDeliveryAddress(receipt)),
             ]),
             pw.SizedBox(height: 10),
             buildAppointmentInformations(receipt),
             pw.SizedBox(height: 30),
             buildPositions(receipt),
             pw.Divider(thickness: 0.5),
-            buildTotalAmount(receipt, mainSettings),
+            buildTotalAmount(receipt),
             pw.SizedBox(height: 10),
             buildPaymentTermText(receipt),
-            if (mainSettings.isSmallBusiness) ...[
+            if (receipt.isSmallBusiness) ...[
               pw.SizedBox(height: 10),
               buildSmallBusinessText(),
             ],
@@ -98,7 +92,7 @@ class PdfReceiptGenerator {
             //pw.Expanded(child: pw.Container()),
           ];
         },
-        footer: (context) => buildFooter(receipt, marketplace),
+        footer: (context) => buildFooter(receipt),
         margin: const pw.EdgeInsets.only(left: 55, right: 55, top: 55, bottom: 20),
       ),
     );
@@ -117,12 +111,12 @@ class PdfReceiptGenerator {
 
   static pw.Widget buildBranchLogo(Receipt appointment, pw.MemoryImage url) => pw.SizedBox(height: 80, width: 160, child: pw.Image(url));
 
-  static pw.Widget buildBranchAndCustomerAddress(Receipt receipt, Marketplace marketplace) {
+  static pw.Widget buildBranchAndCustomerAddress(Receipt receipt) {
     return pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
         PdfText(
-            '${marketplace.address.companyName} | ${marketplace.address.name} | ${marketplace.address.street} | ${marketplace.address.postcode} ${marketplace.address.city}',
+            '${receipt.receiptMarketplace.address.companyName} | ${receipt.receiptMarketplace.address.name} | ${receipt.receiptMarketplace.address.street} | ${receipt.receiptMarketplace.address.postcode} ${receipt.receiptMarketplace.address.city}',
             style: const pw.TextStyle(fontSize: 8, color: PdfColors.grey600)),
         pw.SizedBox(height: 6),
         if (receipt.addressInvoice.companyName != '') PdfText(receipt.addressInvoice.companyName),
@@ -138,7 +132,7 @@ class PdfReceiptGenerator {
     );
   }
 
-  static pw.Widget buildCustomerDeliveryAddress(Receipt receipt, Marketplace marketplace) {
+  static pw.Widget buildCustomerDeliveryAddress(Receipt receipt) {
     return pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
@@ -258,7 +252,7 @@ class PdfReceiptGenerator {
     );
   }
 
-  static pw.Widget buildTotalAmount(Receipt receipt, MainSettings mainSettings) {
+  static pw.Widget buildTotalAmount(Receipt receipt) {
     final subTotalNet = receipt.subTotalNet;
     final subTotalGross = receipt.subTotalGross;
     final posDiscountPercentAmountGross = receipt.posDiscountPercentAmountGross;
@@ -383,7 +377,7 @@ class PdfReceiptGenerator {
                     ],
                   ),
                 if (showSubAmounts) pw.Divider(color: PdfColors.grey400, thickness: 0.5, height: 3),
-                if (!mainSettings.isSmallBusiness) ...[
+                if (!receipt.isSmallBusiness) ...[
                   pw.Row(mainAxisAlignment: pw.MainAxisAlignment.spaceBetween, children: [
                     PdfText('Gesamtbetrag Netto'),
                     pw.Row(
@@ -460,7 +454,7 @@ class PdfReceiptGenerator {
     return PdfText(receipt.receiptDocumentText);
   }
 
-  static pw.Widget buildFooter(Receipt receipt, Marketplace marketplace) {
+  static pw.Widget buildFooter(Receipt receipt) {
     return pw.Column(
       children: [
         pw.Divider(thickness: 0.5),
@@ -473,37 +467,37 @@ class PdfReceiptGenerator {
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
                 children: [
                   PdfText(
-                    marketplace.address.companyName,
+                    receipt.receiptMarketplace.address.companyName,
                     style: pw.TextStyle(fontSize: 8, fontWeight: pw.FontWeight.bold),
                   ),
-                  PdfText(marketplace.address.name),
-                  PdfText(marketplace.address.street),
-                  PdfText('${marketplace.address.postcode} ${marketplace.address.city}'),
-                  PdfText(marketplace.address.country.name),
+                  PdfText(receipt.receiptMarketplace.address.name),
+                  PdfText(receipt.receiptMarketplace.address.street),
+                  PdfText('${receipt.receiptMarketplace.address.postcode} ${receipt.receiptMarketplace.address.city}'),
+                  PdfText(receipt.receiptMarketplace.address.country.name),
                   // TODO: UID-Nummer muss in marketplace gespeichert werden.
-                  //if (marketplace.address. != '') PdfText(marketplace.address.uidNumber),
+                  //if (receipt.receiptMarketplace.address. != '') PdfText(receipt.receiptMarketplace.address.uidNumber),
                 ],
               ),
               pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
                 children: [
                   PdfText(
-                    marketplace.bankDetails.bankName,
+                    receipt.receiptMarketplace.bankDetails.bankName,
                     style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
                   ),
-                  PdfText('BIC: ${marketplace.bankDetails.bankBic}'),
-                  PdfText('IBAN: ${marketplace.bankDetails.bankIban}'),
+                  PdfText('BIC: ${receipt.receiptMarketplace.bankDetails.bankBic}'),
+                  PdfText('IBAN: ${receipt.receiptMarketplace.bankDetails.bankIban}'),
                   PdfText('Paypal:', style: pw.TextStyle(fontSize: 8, fontWeight: pw.FontWeight.bold)),
-                  PdfText(marketplace.bankDetails.paypalEmail),
+                  PdfText(receipt.receiptMarketplace.bankDetails.paypalEmail),
                 ],
               ),
               pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
                 children: [
-                  PdfText('Tel. 1: ${marketplace.address.phone}'),
-                  if (marketplace.address.phoneMobile != '') PdfText('Tel. 2: ${marketplace.address.phoneMobile}'),
+                  PdfText('Tel. 1: ${receipt.receiptMarketplace.address.phone}'),
+                  if (receipt.receiptMarketplace.address.phoneMobile != '') PdfText('Tel. 2: ${receipt.receiptMarketplace.address.phoneMobile}'),
                   PdfText('Homepage:'),
-                  PdfText(marketplace.url),
+                  PdfText(receipt.receiptMarketplace.url),
                 ],
               ),
             ],
