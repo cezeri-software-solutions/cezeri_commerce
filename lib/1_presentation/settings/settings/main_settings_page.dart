@@ -43,6 +43,7 @@ class _MainSettingsPageState extends State<MainSettingsPage> {
   late TextEditingController _creditPraefixController = TextEditingController();
   late TextEditingController _nextOfferNumberController = TextEditingController();
   late TextEditingController _nextAppointmentNumberController = TextEditingController();
+  late TextEditingController _nextDeliveryNoteNumberController = TextEditingController();
   late TextEditingController _nextInvoiceNumberController = TextEditingController();
   late TextEditingController _nextCustomerNumberController = TextEditingController();
 
@@ -71,6 +72,7 @@ class _MainSettingsPageState extends State<MainSettingsPage> {
     _creditPraefixController = TextEditingController(text: widget.mSettings.creditPraefix);
     _nextOfferNumberController = TextEditingController(text: widget.mSettings.nextOfferNumber.toString());
     _nextAppointmentNumberController = TextEditingController(text: widget.mSettings.nextAppointmentNumber.toString());
+    _nextDeliveryNoteNumberController = TextEditingController(text: widget.mSettings.nextDeliveryNoteNumber.toString());
     _nextInvoiceNumberController = TextEditingController(text: widget.mSettings.nextInvoiceNumber.toString());
     _nextCustomerNumberController = TextEditingController(text: widget.mSettings.nextCustomerNumber.toString());
 
@@ -199,6 +201,14 @@ class _MainSettingsPageState extends State<MainSettingsPage> {
                             title: 'Nächste Auftragsnummer.',
                             trailing: TextField(
                               controller: _nextAppointmentNumberController,
+                              keyboardType: TextInputType.number,
+                            ),
+                            trailingWidth: 80,
+                          ),
+                          MySettingsListTile(
+                            title: 'Nächste Lieferscheinnummer.',
+                            trailing: TextField(
+                              controller: _nextDeliveryNoteNumberController,
                               keyboardType: TextInputType.number,
                             ),
                             trailingWidth: 80,
@@ -386,6 +396,7 @@ class _MainSettingsPageState extends State<MainSettingsPage> {
       creditDocumentText: _creditDocumentTextController.text,
       nextOfferNumber: int.parse(_nextOfferNumberController.text),
       nextAppointmentNumber: int.parse(_nextAppointmentNumberController.text),
+      nextDeliveryNoteNumber: int.parse(_nextDeliveryNoteNumberController.text),
       nextInvoiceNumber: int.parse(_nextInvoiceNumberController.text),
       termOfPayment: int.parse(_termOfPaymentController.text),
       isSmallBusiness: _isSmallBusiness,

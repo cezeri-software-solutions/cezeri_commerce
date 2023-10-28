@@ -212,6 +212,8 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
 
           final optionalCurrency = await api.getCurrency(int.parse(orderPresta.idCurrency));
           final currency = optionalCurrency.value;
+          final optionalCarrier = await api.getCarrier(int.parse(orderPresta.idCarrier));
+          final carrier = optionalCarrier.value;
           final optionalCustomer = await api.getCustomer(int.parse(orderPresta.idCustomer));
           final customer = optionalCustomer.value;
           final optionalAddressInvoice = await api.getAddress(int.parse(orderPresta.idAddressInvoice));
@@ -222,6 +224,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
           final countryInvoice = optionalCountryInvoice.value;
           final optionalCountryDelivery = await api.getCountry(int.parse(addressDelivery.idCountry));
           final countryDelivery = optionalCountryDelivery.value;
+          
 
           final loadedCustomerFromFirestore = await getCustomerByMarketplaceId(marketplace.id, customer.id);
           Customer? customerFirestore;
@@ -252,6 +255,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
             addressDeliveryPresta: addressDelivery,
             countryInvoicePresta: countryInvoice,
             countryDeliveryPresta: countryDelivery,
+            carrierPresta: carrier,
             customer: customerFirestore,
           );
 
