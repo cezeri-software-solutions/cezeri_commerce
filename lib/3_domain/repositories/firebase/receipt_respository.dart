@@ -14,6 +14,7 @@ abstract class ReceiptRepository {
     List<ReceiptProduct> oldListOfReceiptProducts,
     List<ReceiptProduct> newListOfReceiptProducts,
   );
+  Future<Either<FirebaseFailure, Receipt>> createAppointmentManually(Receipt receipt);
   Future<Either<FirebaseFailure, Unit>> deleteAppointment(String id);
-  Future<Either<FirebaseFailure, Unit>> deleteListOfAppointments(List<Receipt> listOfReceipts );
+  Future<Either<FirebaseFailure, Unit>> deleteListOfAppointments(List<Receipt> listOfReceipts);
 }

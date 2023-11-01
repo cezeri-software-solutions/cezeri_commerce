@@ -92,9 +92,7 @@ class CustomerRepositoryImpl implements CustomerRepository {
     final docRef = db.collection(currentUserUid).doc(currentUserUid).collection('Customers');
 
     try {
-      final listOfCustomers = await docRef.get().then(
-            (value) => value.docs.map((querySnapshot) => Customer.fromJson(querySnapshot.data())).toList(),
-          );
+      final listOfCustomers = await docRef.get().then((value) => value.docs.map((querySnapshot) => Customer.fromJson(querySnapshot.data())).toList());
 
       if (listOfCustomers.isEmpty) return left(EmptyFailure());
       return right(listOfCustomers);

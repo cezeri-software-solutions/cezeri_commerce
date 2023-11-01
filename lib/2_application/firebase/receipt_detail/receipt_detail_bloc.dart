@@ -32,13 +32,27 @@ class ReceiptDetailBloc extends Bloc<ReceiptDetailEvent, ReceiptDetailState> {
 //? #########################################################################
 
     on<SetListOfReceiptProductssReceiptDetailEvent>((event, emit) {
-      emit(state.copyWith(listOfReceiptProducts: event.listOfReceiptProducts));
+      emit(state.copyWith(
+        receipt: event.receipt,
+        listOfReceiptProducts: [ReceiptProduct.empty().copyWith(tax: event.receipt.tax)],
+        isEditable: [true],
+        articleNumberControllers: [TextEditingController()],
+        articleNameControllers: [TextEditingController()],
+        quantityControllers: [TextEditingController(text: '1')],
+        unitPriceNetControllers: [TextEditingController(text: '0.00')],
+        posDiscountPercentControllers: [TextEditingController(text: '0.00')],
+        unitPriceGrossControllers: [TextEditingController(text: '0.00')],
+        taxRulesListFromSettings: event.listOfTaxRules,
+      ));
     });
 
 //? #########################################################################
 
     on<AddProductToReceiptProductsEvent>((event, emit) {
       state.barcodeScannerController.clear();
+      final isFirstProductEmpty = state.listOfReceiptProducts.length == 1 &&
+          state.listOfReceiptProducts.first.articleNumber == '' &&
+          state.listOfReceiptProducts.first.name == '';
       int? index;
       for (int i = 0; i < state.listOfReceiptProducts.length; i++) {
         if (event.receiptProduct.productId == state.listOfReceiptProducts[i].productId &&
@@ -66,15 +80,20 @@ class ReceiptDetailBloc extends Bloc<ReceiptDetailEvent, ReceiptDetailState> {
 
         add(SetAllControllersEvent(listOfReceiptProducts: listOfReceiptProducts));
       }
+      
+      if (isFirstProductEmpty) add(RemoveProductFromReceiptProductsEvent(index: 0));
     });
 
 //? #########################################################################
 
     on<RemoveProductFromReceiptProductsEvent>((event, emit) {
       List<ReceiptProduct> listOfReceiptProducts = List.from(state.listOfReceiptProducts);
-      listOfReceiptProducts.removeAt(event.index);
-
-      emit(state.copyWith(listOfReceiptProducts: listOfReceiptProducts));
+      if (listOfReceiptProducts.length == 1) {
+        add(SetListOfReceiptProductssReceiptDetailEvent(receipt: state.receipt, listOfTaxRules: state.taxRulesListFromSettings));
+      } else {
+        listOfReceiptProducts.removeAt(event.index);
+        emit(state.copyWith(listOfReceiptProducts: listOfReceiptProducts));
+      }
 
       add(SetAllControllersEvent());
     });

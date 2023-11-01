@@ -6,6 +6,7 @@ import '../../entities_presta/customer_presta.dart';
 import '../../enums/enums.dart';
 import '../address.dart';
 import '../marketplace/marketplace.dart';
+import '../settings/tax.dart';
 import 'customer_marketplace.dart';
 
 part 'customer.g.dart';
@@ -30,6 +31,7 @@ class Customer {
   final CustomerInvoiceType customerInvoiceType;
   final String uidNumber;
   final String taxNumber;
+  final Tax tax;
   final DateTime creationDate;
   final DateTime lastEditingDate;
 
@@ -50,6 +52,7 @@ class Customer {
     required this.customerInvoiceType,
     required this.uidNumber,
     required this.taxNumber,
+    required this.tax,
     required this.creationDate,
     required this.lastEditingDate,
   });
@@ -76,6 +79,7 @@ class Customer {
       customerInvoiceType: CustomerInvoiceType.standardInvoice,
       uidNumber: '',
       taxNumber: '',
+      tax: Tax.empty(),
       creationDate: DateTime.now(),
       lastEditingDate: DateTime.now(),
     );
@@ -89,6 +93,7 @@ class Customer {
     AddressPresta addressDeliveryPresta,
     CountryPresta countryInvoicePresta,
     CountryPresta countryDeliveryPresta,
+    Tax tax,
   ) {
     String getUidNumber(String uidFromAddressInvoice, String uidFromAddressDelivery) {
       if (uidFromAddressInvoice != '') return uidFromAddressInvoice;
@@ -112,7 +117,7 @@ class Customer {
       id: '',
       customerNumber: customerNumber,
       customerMarketplace: CustomerMarketplace.fromPresta(customerPresta, marketplace),
-      company: customerPresta.company,
+      company: customerPresta.company != null ? addressInvoicePresta.company : null,
       firstName: customerPresta.firstname,
       lastName: customerPresta.lastname,
       name: '${customerPresta.firstname} ${customerPresta.lastname}',
@@ -132,6 +137,7 @@ class Customer {
       customerInvoiceType: CustomerInvoiceType.standardInvoice,
       uidNumber: getUidNumber(addressInvoicePresta.vatNumber, addressDeliveryPresta.vatNumber),
       taxNumber: '',
+      tax: tax,
       creationDate: DateTime.now(),
       lastEditingDate: DateTime.now(),
     );
@@ -154,6 +160,7 @@ class Customer {
     CustomerInvoiceType? customerInvoiceType,
     String? uidNumber,
     String? taxNumber,
+    Tax? tax,
     DateTime? creationDate,
     DateTime? lastEditingDate,
   }) {
@@ -174,6 +181,7 @@ class Customer {
       customerInvoiceType: customerInvoiceType ?? this.customerInvoiceType,
       uidNumber: uidNumber ?? this.uidNumber,
       taxNumber: taxNumber ?? this.taxNumber,
+      tax: tax ?? this.tax,
       creationDate: creationDate ?? this.creationDate,
       lastEditingDate: lastEditingDate ?? this.lastEditingDate,
     );
@@ -181,6 +189,6 @@ class Customer {
 
   @override
   String toString() {
-    return 'Customer(id: $id, customerNumber: $customerNumber, customerMarketplace: $customerMarketplace, company: $company, firstName: $firstName, lastName: $lastName, name: $name, email: $email, gender: $gender, birthday: $birthday, phone: $phone, phoneMobile: $phoneMobile, listOfAddress: $listOfAddress, customerInvoiceType: $customerInvoiceType, uidNumber: $uidNumber, taxNumber: $taxNumber, creationDate: $creationDate, lastEditingDate: $lastEditingDate)';
+    return 'Customer(id: $id, customerNumber: $customerNumber, customerMarketplace: $customerMarketplace, company: $company, firstName: $firstName, lastName: $lastName, name: $name, email: $email, gender: $gender, birthday: $birthday, phone: $phone, phoneMobile: $phoneMobile, listOfAddress: $listOfAddress, customerInvoiceType: $customerInvoiceType, uidNumber: $uidNumber, taxNumber: $taxNumber, tax: $tax, creationDate: $creationDate, lastEditingDate: $lastEditingDate)';
   }
 }

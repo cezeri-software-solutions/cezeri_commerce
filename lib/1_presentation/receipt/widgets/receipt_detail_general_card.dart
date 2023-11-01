@@ -1,16 +1,18 @@
-import 'package:cezeri_commerce/1_presentation/core/widgets/my_dropdown_button_form_field.dart';
+import 'package:cezeri_commerce/1_presentation/core/widgets/my_dropdown_button_small.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../../../2_application/firebase/appointment/appointment_bloc.dart';
 import '../../../3_domain/entities/marketplace/marketplace.dart';
 import '../../../3_domain/entities/receipt/receipt.dart';
 import '../../../constants.dart';
 
 class ReceiptDetailGeneralCard extends StatefulWidget {
   final Receipt receipt;
+  final AppointmentBloc appointmentBloc;
   final List<Marketplace> listOfMarketplaces;
 
-  const ReceiptDetailGeneralCard({super.key, required this.receipt, required this.listOfMarketplaces});
+  const ReceiptDetailGeneralCard({super.key, required this.receipt, required this.appointmentBloc, required this.listOfMarketplaces});
 
   @override
   State<ReceiptDetailGeneralCard> createState() => _ReceiptDetailGeneralCardState();
@@ -20,6 +22,7 @@ class _ReceiptDetailGeneralCardState extends State<ReceiptDetailGeneralCard> {
   @override
   Widget build(BuildContext context) {
     final marketplaceNames = widget.listOfMarketplaces.map((e) => e.name).toList();
+    marketplaceNames.add(Marketplace.empty().name);
     final receiptHeader = switch (widget.receipt.receiptTyp) {
       ReceiptTyp.offer => 'Angebot: ${widget.receipt.offerNumberAsString}',
       ReceiptTyp.appointment => 'Auftrag: ${widget.receipt.appointmentNumberAsString}',
@@ -27,8 +30,11 @@ class _ReceiptDetailGeneralCardState extends State<ReceiptDetailGeneralCard> {
       ReceiptTyp.credit => 'Gutschrift: ${widget.receipt.creditNumberAsString}',
     };
 
-    String selectedMarketplaceName = widget.listOfMarketplaces.where((e) => e.id == widget.receipt.marketplaceId).first.name;
-    Marketplace selectedMarketplace = widget.listOfMarketplaces.where((e) => e.name == selectedMarketplaceName).first;
+    final selectedMarketplace = widget.listOfMarketplaces.where((e) => e.id == widget.receipt.marketplaceId).firstOrNull;
+    String selectedMarketplaceName = switch (selectedMarketplace) {
+      null => Marketplace.empty().name,
+      _ => selectedMarketplace.name,
+    };
 
     return Card(
       child: Padding(
@@ -92,10 +98,15 @@ class _ReceiptDetailGeneralCardState extends State<ReceiptDetailGeneralCard> {
               ],
             ),
             Gaps.h16,
-            MyDropdownButtonFormField(
+            MyDropdownButtonSmall(
               labelText: 'Marktplatz',
               value: selectedMarketplaceName,
-              onChanged: (marketplaceName) => selectedMarketplaceName = marketplaceName!,
+              onChanged: (marketplaceName) {
+                //selectedMarketplaceName = marketplaceName!;
+                widget.appointmentBloc.add(
+                  OnAppointmentMarketplaceChangedEvent(marketplaceId: widget.listOfMarketplaces.where((e) => e.name == marketplaceName).first.id),
+                );
+              },
               items: marketplaceNames,
             )
           ],

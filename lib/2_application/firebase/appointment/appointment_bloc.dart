@@ -2,9 +2,12 @@ import 'package:bloc/bloc.dart';
 import 'package:dartz/dartz.dart';
 import 'package:meta/meta.dart';
 
+import '../../../3_domain/entities/carrier/carrier_product.dart';
 import '../../../3_domain/entities/customer/customer.dart';
 import '../../../3_domain/entities/receipt/receipt.dart';
+import '../../../3_domain/entities/receipt/receipt_carrier.dart';
 import '../../../3_domain/entities/receipt/receipt_product.dart';
+import '../../../3_domain/entities/settings/payment_method.dart';
 import '../../../3_domain/repositories/firebase/receipt_respository.dart';
 import '../../../core/firebase_failures.dart';
 
@@ -38,6 +41,12 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
         isLoadingAppointmentOnObserve: false,
         fosAppointmentOnObserveOption: optionOf(failureOrSuccess),
       ));
+    });
+
+//? #########################################################################
+
+    on<SetAppointmentEvent>((event, emit) async {
+      emit(state.copyWith(appointment: event.appointment));
     });
 
 //? #########################################################################
@@ -122,6 +131,24 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
         fosAppointmentsOnObserveFromPrestaOption: optionOf(failureOrSuccess),
       ));
       emit(state.copyWith(fosAppointmentsOnObserveFromPrestaOption: none()));
+    });
+
+//? #########################################################################
+
+    on<CreateNewAppointmentManuallyEvent>((event, emit) async {
+      emit(state.copyWith(isLoadingAppointmentOnCreate: true));
+
+      final failureOrSuccess = await receiptRepository.createAppointmentManually(event.receipt);
+      failureOrSuccess.fold(
+        (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
+        (receipt) => emit(state.copyWith(firebaseFailure: null, isAnyFailure: false)),
+      );
+
+      emit(state.copyWith(
+        isLoadingAppointmentOnCreate: false,
+        fosAppointmentOnCreateOption: optionOf(failureOrSuccess),
+      ));
+      emit(state.copyWith(fosAppointmentOnUpdateOption: none()));
     });
 
 //? #########################################################################
@@ -231,6 +258,53 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
       List<bool> isExpanded = List.from(state.isExpanded);
       isExpanded[event.index] = !isExpanded[event.index];
       emit(state.copyWith(isExpanded: isExpanded));
+    });
+
+//? #########################################################################
+
+    on<OnAppointmentMarketplaceChangedEvent>((event, emit) async {
+      emit(state.copyWith(appointment: state.appointment!.copyWith(marketplaceId: event.marketplaceId)));
+    });
+
+//? #########################################################################
+
+    on<OnAppointmentPaymentMethodChangedEvent>((event, emit) async {
+      emit(state.copyWith(appointment: state.appointment!.copyWith(paymentMethod: event.paymentMethod)));
+    });
+
+//? #########################################################################
+
+    on<OnAppointmentPaymentStatusChangedEvent>((event, emit) async {
+      emit(state.copyWith(
+        appointment: state.appointment!.copyWith(
+          paymentStatus: switch (event.paymentStatus) {
+            'Offen' => PaymentStatus.open,
+            'Teilweise bezahlt' => PaymentStatus.partiallyPaid,
+            'Komplett bezahlt' => PaymentStatus.paid,
+            _ => PaymentStatus.open,
+          },
+        ),
+      ));
+    });
+
+//? #########################################################################
+
+    on<OnAppointmentCarrierChangedEvent>((event, emit) async {
+      emit(state.copyWith(appointment: state.appointment!.copyWith(receiptCarrier: event.receiptCarrier)));
+    });
+
+//? #########################################################################
+
+    on<OnAppointmentCarrierProductChangedEvent>((event, emit) async {
+      emit(state.copyWith(
+        appointment: state.appointment!.copyWith(
+          receiptCarrier: state.appointment!.receiptCarrier.copyWith(
+            carrierProduct: state.appointment!.receiptCarrier.carrierProduct.copyWith(
+              productName: event.receiptCarrierProduct.productName,
+            ),
+          ),
+        ),
+      ));
     });
 
 //? #########################################################################

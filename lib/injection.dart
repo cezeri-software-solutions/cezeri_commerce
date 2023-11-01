@@ -61,6 +61,7 @@ Future<void> init() async {
       productRepository: sl(),
       productImportRepository: sl(),
       customerRepository: sl(),
+      mainSettingsRepository: sl(),
     ),
   );
   sl.registerLazySingleton<CustomerRepository>(() => CustomerRepositoryImpl(db: sl(), firebaseAuth: sl()));

@@ -58,8 +58,8 @@ class Receipt {
   final int creditId;
   final String creditNumberAsString;
   final String marketplaceId; // Id des Marketplace aus der dieses Dokument importiert bzw. erstellt wurde.
-  final int receiptMarketplaceId;
-  final String receiptMarketplaceReference;
+  final int receiptMarketplaceId; // Nur wenn es wirklich von einem Marktplatz geladen wurde z.B.: 12050
+  final String receiptMarketplaceReference; // Nur wenn es wirklich von einem Marktplatz geladen wurde z.B.: CCF_12050
   final PaymentMethod paymentMethod;
   final String commentInternal;
   final String commentGlobal;

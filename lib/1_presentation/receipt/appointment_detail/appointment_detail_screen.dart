@@ -24,6 +24,12 @@ class AppointmentDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final receiptDetailBloc = sl<ReceiptDetailBloc>();
+    if (receiptCreateOrEdit == ReceiptCreateOrEdit.create) {
+      receiptDetailBloc.add(SetListOfReceiptProductssReceiptDetailEvent(
+        receipt: appointmentBloc.state.appointment!,
+        listOfTaxRules: context.read<MainSettingsBloc>().state.mainSettings!.taxes,
+      ));
+    }
 
     return BlocProvider(
       create: (context) => receiptDetailBloc,
@@ -52,10 +58,21 @@ class AppointmentDetailScreen extends StatelessWidget {
               state.fosAppointmentOnUpdateOption.fold(
                 () => null,
                 (a) => a.fold(
-                  (prestaFailure) => null,
-                  (unit) {
-                    myScaffoldMessenger(context, null, null, 'Dokument erfolgreich aktualisiert', null);
-                  },
+                  (failure) => null,
+                  (unit) => myScaffoldMessenger(context, null, null, 'Dokument erfolgreich aktualisiert', null),
+                ),
+              );
+            },
+          ),
+          BlocListener<AppointmentBloc, AppointmentState>(
+            bloc: appointmentBloc,
+            listenWhen: (p, c) => p.fosAppointmentOnCreateOption != c.fosAppointmentOnCreateOption,
+            listener: (context, state) {
+              state.fosAppointmentOnCreateOption.fold(
+                () => null,
+                (a) => a.fold(
+                  (failure) => myScaffoldMessenger(context, failure, null, null, null),
+                  (receipt) => myScaffoldMessenger(context, null, null, 'Dokument erfolgreich erstellt', null),
                 ),
               );
             },

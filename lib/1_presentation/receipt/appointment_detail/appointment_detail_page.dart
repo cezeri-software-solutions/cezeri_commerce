@@ -6,9 +6,12 @@ import '../../../2_application/firebase/receipt_detail/receipt_detail_bloc.dart'
 import '../../../3_domain/entities/marketplace/marketplace.dart';
 import '../../../3_domain/enums/enums.dart';
 import '../../../constants.dart';
+import '../../core/widgets/my_info_dialog.dart';
 import '../../core/widgets/my_outlined_button.dart';
 import '../widgets/receipt_detail_address_card.dart';
+import '../widgets/receipt_detail_carrier_card.dart';
 import '../widgets/receipt_detail_general_card.dart';
+import '../widgets/receipt_detail_payment_method_card.dart';
 import '../widgets/receipt_detail_products_card.dart';
 import '../widgets/receipt_detail_products_total_card.dart';
 import 'appointment_detail_screen.dart';
@@ -44,7 +47,7 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
           title: Text('Auftrag: ${state.appointment!.appointmentNumberAsString}'),
           centerTitle: responsiveness == Responsiveness.isTablet ? true : false,
           actions: [
-            if (state.appointment != null)
+            if (widget.receiptCreateOrEdit == ReceiptCreateOrEdit.edit)
               IconButton(
                 onPressed: () => widget.appointmentBloc.add(GetAppointmentEvent(appointment: state.appointment!)),
                 icon: const Icon(Icons.refresh, size: 30),
@@ -55,23 +58,33 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
               builder: (context, stateReceiptDetail) {
                 return MyOutlinedButton(
                   buttonText: 'Speichern',
-                  onPressed: () {
-                    if (state.appointment != null) {
+                  onPressed: () async {
+                    final isValid = await _validateReceiptOncreateOrUpdate(state, stateReceiptDetail);
+                    if (!isValid) return;
+                    if (widget.receiptCreateOrEdit == ReceiptCreateOrEdit.edit) {
                       final updatedAppointment = stateReceiptDetail.receipt.copyWith(
-                          //* Hier kommen die Änderungen vom AppointmentBloc
-                          //* Also Änderungen die oberhalb passieren bevor die Produkte anfangen
-                          //discountPercent: stateReceiptDetail.discountPercentage,
-                          //discountGross: stateReceiptDetail.discountAmountGross,
-                          //totalShippingGross: stateReceiptDetail.shippingAmountGross,
-                          //additionalAmountGross: stateReceiptDetail.additionalAmountGross,
-                          );
+                        //* Hier kommen die Änderungen vom AppointmentBloc
+                        //* Also Änderungen die oberhalb passieren bevor die Produkte anfangen
+                        listOfReceiptProduct: stateReceiptDetail.listOfReceiptProducts,
+                        marketplaceId: state.appointment!.marketplaceId,
+                        paymentMethod: state.appointment!.paymentMethod,
+                        paymentStatus: state.appointment!.paymentStatus,
+                        receiptCarrier: state.appointment!.receiptCarrier,
+                      );
                       widget.appointmentBloc.add(UpdateAppointmentEvent(
                         appointment: updatedAppointment,
                         oldListOfReceiptProducts: state.appointment!.listOfReceiptProduct,
                         newListOfReceiptProducts: stateReceiptDetail.listOfReceiptProducts,
                       ));
                     } else {
-                      // TODO: Handle create new product
+                      final toCreateAppointment = stateReceiptDetail.receipt.copyWith(
+                        listOfReceiptProduct: stateReceiptDetail.listOfReceiptProducts,
+                        marketplaceId: state.appointment!.marketplaceId,
+                        paymentMethod: state.appointment!.paymentMethod,
+                        paymentStatus: state.appointment!.paymentStatus,
+                        receiptCarrier: state.appointment!.receiptCarrier,
+                      );
+                      widget.appointmentBloc.add(CreateNewAppointmentManuallyEvent(receipt: toCreateAppointment));
                     }
                   },
                   isLoading: state.isLoadingAppointmentOnUpdate,
@@ -98,7 +111,13 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
                             children: [
                               Expanded(child: ReceiptDetailAddressCard(receipt: state.appointment!)),
                               Gaps.w16,
-                              Expanded(child: ReceiptDetailGeneralCard(receipt: state.appointment!, listOfMarketplaces: widget.listOfMarketplaces)),
+                              Expanded(
+                                child: ReceiptDetailGeneralCard(
+                                  receipt: state.appointment!,
+                                  appointmentBloc: widget.appointmentBloc,
+                                  listOfMarketplaces: widget.listOfMarketplaces,
+                                ),
+                              ),
                             ],
                           ),
                           Gaps.h16,
@@ -107,6 +126,7 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
                           Row(
                             children: [
                               const Expanded(child: SizedBox()),
+                              Gaps.w16,
                               Expanded(
                                 child: ReceiptDetailProductsTotalCard(
                                   appointmentBloc: widget.appointmentBloc,
@@ -114,7 +134,16 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
                                 ),
                               ),
                             ],
-                          )
+                          ),
+                          Gaps.h16,
+                          Row(
+                            children: [
+                              Expanded(child: ReceiptDetailPaymentMethodCard(appointmentBloc: widget.appointmentBloc)),
+                              Gaps.w16,
+                              Expanded(child: ReceiptDetailCarrierCard(appointmentBloc: widget.appointmentBloc)),
+                            ],
+                          ),
+                          Gaps.h42,
                         ],
                       ),
                     ),
@@ -125,12 +154,20 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
                       children: [
                         ReceiptDetailAddressCard(receipt: state.appointment!),
                         Gaps.h16,
-                        ReceiptDetailGeneralCard(receipt: state.appointment!, listOfMarketplaces: widget.listOfMarketplaces),
+                        ReceiptDetailGeneralCard(
+                          receipt: state.appointment!,
+                          appointmentBloc: widget.appointmentBloc,
+                          listOfMarketplaces: widget.listOfMarketplaces,
+                        ),
                         Gaps.h16,
                         ReceiptDetailProductsCard(appointmentBloc: widget.appointmentBloc, receiptDetailBloc: widget.receiptDetailBloc),
                         Gaps.h16,
                         ReceiptDetailProductsTotalCard(appointmentBloc: widget.appointmentBloc, receiptDetailBloc: widget.receiptDetailBloc),
                         Gaps.h16,
+                        ReceiptDetailPaymentMethodCard(appointmentBloc: widget.appointmentBloc),
+                        Gaps.h16,
+                        ReceiptDetailCarrierCard(appointmentBloc: widget.appointmentBloc),
+                        Gaps.h42,
                       ],
                     ),
                   ),
@@ -138,5 +175,24 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
         );
       },
     );
+  }
+
+  Future<bool> _validateReceiptOncreateOrUpdate(AppointmentState stateReceipt, ReceiptDetailState stateReceiptDetail) async {
+    if (stateReceipt.appointment!.marketplaceId == '') {
+      await showDialog(
+        context: context,
+        builder: (context) => const MyInfoDialog(title: 'Achtung!', content: 'Ein Marktplatz muss ausgewählt werden'),
+      );
+      return false;
+    }
+    if (stateReceiptDetail.listOfReceiptProducts.any((e) => e.articleNumber == '' || e.name == '')) {
+      await showDialog(
+        context: context,
+        builder: (context) =>
+            const MyInfoDialog(title: 'Achtung!', content: 'Es dark kein Artikel mit leerer Artikelnummer oder leerem Artikelnamen vorhanden sein'),
+      );
+      return false;
+    }
+    return true;
   }
 }

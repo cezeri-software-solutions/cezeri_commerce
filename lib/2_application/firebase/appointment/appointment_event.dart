@@ -11,6 +11,12 @@ class GetAppointmentEvent extends AppointmentEvent {
   GetAppointmentEvent({required this.appointment});
 }
 
+class SetAppointmentEvent extends AppointmentEvent {
+  final Receipt appointment;
+
+  SetAppointmentEvent({required this.appointment});
+}
+
 class GetCustomerInAppointmentEvent extends AppointmentEvent {
   final String customerId;
 
@@ -22,6 +28,12 @@ class GetAllAppointmentsEvent extends AppointmentEvent {}
 class GetOpenAppointmentsEvent extends AppointmentEvent {}
 
 class GetNewAppointmentsFromPrestaEvent extends AppointmentEvent {}
+
+class CreateNewAppointmentManuallyEvent extends AppointmentEvent {
+  final Receipt receipt;
+
+  CreateNewAppointmentManuallyEvent({required this.receipt});
+}
 
 class UpdateAppointmentEvent extends AppointmentEvent {
   final Receipt appointment;
@@ -62,4 +74,34 @@ class OnAppointmentSelectedEvent extends AppointmentEvent {
   final Receipt appointment;
 
   OnAppointmentSelectedEvent({required this.appointment});
+}
+
+class OnAppointmentMarketplaceChangedEvent extends AppointmentEvent {
+  final String marketplaceId;
+
+  OnAppointmentMarketplaceChangedEvent({required this.marketplaceId});
+}
+
+class OnAppointmentPaymentMethodChangedEvent extends AppointmentEvent {
+  final PaymentMethod paymentMethod;
+
+  OnAppointmentPaymentMethodChangedEvent({required this.paymentMethod});
+}
+
+class OnAppointmentPaymentStatusChangedEvent extends AppointmentEvent {
+  final String paymentStatus;
+
+  OnAppointmentPaymentStatusChangedEvent({required this.paymentStatus});
+}
+
+class OnAppointmentCarrierChangedEvent extends AppointmentEvent {
+  final ReceiptCarrier receiptCarrier;
+
+  OnAppointmentCarrierChangedEvent({required this.receiptCarrier});
+}
+
+class OnAppointmentCarrierProductChangedEvent extends AppointmentEvent {
+  final CarrierProduct receiptCarrierProduct;
+
+  OnAppointmentCarrierProductChangedEvent({required this.receiptCarrierProduct});
 }

@@ -11,9 +11,10 @@ class SetReceiptReceiptDetailEvent extends ReceiptDetailEvent {
 }
 
 class SetListOfReceiptProductssReceiptDetailEvent extends ReceiptDetailEvent {
-  final List<ReceiptProduct> listOfReceiptProducts;
+  final Receipt receipt;
+  final List<Tax> listOfTaxRules;
 
-  SetListOfReceiptProductssReceiptDetailEvent({required this.listOfReceiptProducts});
+  SetListOfReceiptProductssReceiptDetailEvent({required this.receipt, required this.listOfTaxRules});
 }
 
 class AddProductToReceiptProductsEvent extends ReceiptDetailEvent {

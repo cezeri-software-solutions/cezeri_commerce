@@ -25,6 +25,15 @@ class ReceiptCarrier {
     return ReceiptCarrier(receiptCarrierName: '', carrierTyp: CarrierTyp.empty, carrierProduct: CarrierProduct.empty());
   }
 
+  factory ReceiptCarrier.fromCarrier(Carrier carrier) {
+    final carrierProduct = carrier.carrierAutomations.where((e) => e.isDefault).firstOrNull;
+   return ReceiptCarrier(
+      receiptCarrierName: carrier.name,
+      carrierTyp: carrier.carrierTyp,
+      carrierProduct: carrierProduct ?? CarrierProduct.empty(),
+    );
+  }
+
   ReceiptCarrier copyWith({
     String? receiptCarrierName,
     CarrierTyp? carrierTyp,

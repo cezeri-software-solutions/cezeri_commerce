@@ -27,6 +27,7 @@ Customer _$CustomerFromJson(Map<String, dynamic> json) => Customer(
           _$CustomerInvoiceTypeEnumMap, json['customerInvoiceType']),
       uidNumber: json['uidNumber'] as String,
       taxNumber: json['taxNumber'] as String,
+      tax: Tax.fromJson(json['tax'] as Map<String, dynamic>),
       creationDate: DateTime.parse(json['creationDate'] as String),
       lastEditingDate: DateTime.parse(json['lastEditingDate'] as String),
     );
@@ -49,6 +50,7 @@ Map<String, dynamic> _$CustomerToJson(Customer instance) => <String, dynamic>{
           _$CustomerInvoiceTypeEnumMap[instance.customerInvoiceType]!,
       'uidNumber': instance.uidNumber,
       'taxNumber': instance.taxNumber,
+      'tax': instance.tax.toJson(),
       'creationDate': instance.creationDate.toIso8601String(),
       'lastEditingDate': instance.lastEditingDate.toIso8601String(),
     };

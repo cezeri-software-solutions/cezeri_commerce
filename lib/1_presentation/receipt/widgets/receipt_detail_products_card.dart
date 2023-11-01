@@ -64,6 +64,11 @@ class _ReceiptDetailProductsCardState extends State<ReceiptDetailProductsCard> {
             return BlocBuilder<ProductBloc, ProductState>(
               builder: (context, stateProduct) {
                 if (state.isInScanMode) FocusScope.of(context).requestFocus(scannerFocusNode);
+                // if (state.listOfReceiptProducts.isEmpty || state.isEditable.isEmpty) {
+                //   widget.receiptDetailBloc.add(SetListOfReceiptProductssReceiptDetailEvent());
+                //   return const MyCircularProgressIndicator();
+                // }
+                if (state.listOfReceiptProducts.isEmpty || state.isEditable.isEmpty) return const MyCircularProgressIndicator();
                 return Card(
                   child: Padding(
                     padding: const EdgeInsets.all(8),

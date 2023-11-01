@@ -1,12 +1,17 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:cezeri_commerce/1_presentation/app_drawer.dart';
+import 'package:cezeri_commerce/3_domain/entities/receipt/receipt_product.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../2_application/firebase/appointment/appointment_bloc.dart';
+import '../../../2_application/firebase/customer/customer_bloc.dart';
 import '../../../2_application/firebase/marketplace/marketplace_bloc.dart';
+import '../../../3_domain/entities/address.dart';
+import '../../../3_domain/entities/customer/customer.dart';
 import '../../../3_domain/entities/receipt/receipt.dart';
+import '../../../3_domain/entities/receipt/receipt_customer.dart';
 import '../../../constants.dart';
 import '../../../injection.dart';
 import '../../../routes/router.gr.dart';
@@ -14,6 +19,7 @@ import '../../core/functions/my_scaffold_messanger.dart';
 import '../../core/widgets/my_delete_dialog.dart';
 import '../../core/widgets/my_info_dialog.dart';
 import '../../core/widgets/my_outlined_button.dart';
+import '../appointment_detail/appointment_detail_screen.dart';
 import 'appointments_overview_page.dart';
 
 @RoutePage()
@@ -24,6 +30,7 @@ class AppointmentsOverviewScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final appointmentBloc = sl<AppointmentBloc>()..add(GetAllAppointmentsEvent());
     final marketplaceBloc = sl<MarketplaceBloc>()..add(GetAllMarketplacesEvent());
+    final customerBloc = sl<CustomerBloc>();
 
     final searchController = TextEditingController();
 
@@ -34,6 +41,9 @@ class AppointmentsOverviewScreen extends StatelessWidget {
         ),
         BlocProvider<MarketplaceBloc>(
           create: (context) => marketplaceBloc,
+        ),
+        BlocProvider<CustomerBloc>(
+          create: (context) => customerBloc,
         ),
       ],
       child: MultiBlocListener(
@@ -102,7 +112,23 @@ class AppointmentsOverviewScreen extends StatelessWidget {
                     ),
                   ),
                   IconButton(onPressed: () => context.read<AppointmentBloc>().add(GetAllAppointmentsEvent()), icon: const Icon(Icons.refresh)),
-                  IconButton(onPressed: () {}, icon: const Icon(Icons.add, color: Colors.green)),
+                  IconButton(
+                    onPressed: () {
+                      customerBloc.add(GetAllCustomersEvenet());
+                      showDialog(
+                        context: context,
+                        builder: (_) => BlocProvider.value(
+                          value: customerBloc,
+                          child: _SelectCustomerDialog(
+                            appointmentBloc: appointmentBloc,
+                            customerBloc: customerBloc,
+                            marketplaceBloc: marketplaceBloc,
+                          ),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.add, color: Colors.green),
+                  ),
                   IconButton(
                     onPressed: () => showDialog(
                       context: context,
@@ -240,6 +266,114 @@ class __GenerateDialogState extends State<_GenerateDialog> {
                   ),
                 ],
               ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _SelectCustomerDialog extends StatefulWidget {
+  final AppointmentBloc appointmentBloc;
+  final CustomerBloc customerBloc;
+  final MarketplaceBloc marketplaceBloc;
+
+  const _SelectCustomerDialog({required this.appointmentBloc, required this.customerBloc, required this.marketplaceBloc});
+
+  @override
+  State<_SelectCustomerDialog> createState() => _SelectCustomerDialogState();
+}
+
+class _SelectCustomerDialogState extends State<_SelectCustomerDialog> {
+  final _controller = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.sizeOf(context).height;
+    final screenWidth = MediaQuery.sizeOf(context).width;
+    return BlocBuilder<CustomerBloc, CustomerState>(
+      bloc: widget.customerBloc,
+      builder: (context, state) {
+        if (state.listOfAllCustomers == null) widget.customerBloc.add(GetAllCustomersEvenet());
+
+        if (state.firebaseFailure != null && state.isAnyFailure) {
+          return Dialog(child: SizedBox(width: 600, height: 1200, child: Center(child: Text(state.firebaseFailure.toString()))));
+        }
+        if (state.isLoadingCustomersOnObserve || state.listOfAllCustomers == null) {
+          return const Dialog(child: SizedBox(width: 600, height: 1200, child: Center(child: CircularProgressIndicator())));
+        }
+
+        List<Customer> customerList = state.listOfAllCustomers!;
+
+        if (_controller.text.isNotEmpty) {
+          String searchText = _controller.text.toLowerCase();
+          customerList = customerList
+              .where((e) =>
+                  e.name.toLowerCase().contains(searchText) ||
+                  e.email.toLowerCase().contains(searchText) ||
+                  e.listOfAddress.any((address) => address.companyName.toLowerCase().contains(searchText)))
+              .toList();
+        }
+
+        return Dialog(
+          child: SizedBox(
+            height: screenHeight > 1200 ? 1200 : screenHeight,
+            width: screenWidth > 600 ? 600 : screenWidth,
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      CupertinoSearchTextField(
+                        controller: _controller,
+                        onChanged: (value) => setState(() {}),
+                        onSuffixTap: () => setState(() => _controller.clear()),
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: customerList.length,
+                    itemBuilder: ((context, index) {
+                      final customer = customerList[index];
+                      return Column(
+                        children: [
+                          if (index == 0) Gaps.h10,
+                          ListTile(
+                            title: Text(customer.name, style: TextStyles.defaultt),
+                            subtitle: customer.company != null ? Text(customer.company!) : null,
+                            onTap: () {
+                              _controller.clear();
+                              context.router.pop();
+                              final newAppointment = Receipt.empty().copyWith(
+                                customerId: customer.id,
+                                receiptCustomer: ReceiptCustomer.fromCustomer(customer),
+                                addressInvoice: customer.listOfAddress.where((e) => e.addressType == AddressType.invoice && e.isDefault).first,
+                                addressDelivery: customer.listOfAddress.where((e) => e.addressType == AddressType.delivery && e.isDefault).first,
+                                tax: customer.tax,
+                                listOfReceiptProduct: [ReceiptProduct.empty()],
+                              );
+                              widget.appointmentBloc.add(SetAppointmentEvent(appointment: newAppointment));
+                              context.router.push(
+                                AppointmentDetailRoute(
+                                  appointmentBloc: widget.appointmentBloc,
+                                  listOfMarketplaces: widget.marketplaceBloc.state.listOfMarketplace!,
+                                  receiptCreateOrEdit: ReceiptCreateOrEdit.create,
+                                ),
+                              );
+                            },
+                          ),
+                          const Divider(height: 0),
+                        ],
+                      );
+                    }),
+                  ),
+                ),
+              ],
             ),
           ),
         );

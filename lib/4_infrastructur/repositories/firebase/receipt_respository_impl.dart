@@ -19,6 +19,7 @@ import '../../../3_domain/entities/product/product.dart';
 import '../../../3_domain/entities/settings/main_settings.dart';
 import '../../../3_domain/entities_presta/order_presta.dart';
 import '../../../3_domain/entities_presta/product_presta.dart';
+import '../../../3_domain/repositories/firebase/main_settings_respository.dart';
 import '../../../3_domain/repositories/firebase/product_repository.dart';
 import '../../../3_domain/repositories/prestashop/product/product_import_repository.dart';
 import '../prestashop_api/prestashop_api.dart';
@@ -29,6 +30,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
   final ProductRepository productRepository;
   final ProductImportRepository productImportRepository;
   final CustomerRepository customerRepository;
+  final MainSettingsRepository mainSettingsRepository;
 
   const ReceiptRespositoryImpl({
     required this.db,
@@ -36,6 +38,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
     required this.productRepository,
     required this.productImportRepository,
     required this.customerRepository,
+    required this.mainSettingsRepository,
   });
 
   @override
@@ -124,6 +127,42 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
       });
       return right(unit);
     } on FirebaseException {
+      return left(GeneralFailure());
+    }
+  }
+
+  @override
+  Future<Either<FirebaseFailure, Receipt>> createAppointmentManually(Receipt appointment) async {
+    final isConnected = await checkInternetConnection();
+    if (!isConnected) return left(NoConnectionFailure());
+    final logger = Logger();
+
+    try {
+      Receipt toCreateAppointment = Receipt.empty();
+      await db.runTransaction((transaction) async {
+        final currentUserUid = firebaseAuth.currentUser!.uid;
+        final docRefSettings = db.collection(currentUserUid).doc(currentUserUid).collection('Settings').doc(currentUserUid);
+        final settingsSnapshot = await transaction.get(docRefSettings);
+        final settings = MainSettings.fromJson(settingsSnapshot.data()!);
+
+        final docRef = db.collection(currentUserUid).doc(currentUserUid).collection('Appointments').doc();
+
+        toCreateAppointment = appointment.copyWith(
+          receiptId: docRef.id,
+          appointmentId: settings.nextAppointmentNumber,
+          appointmentNumberAsString: settings.appointmentPraefix + settings.nextAppointmentNumber.toString(),
+        );
+
+        final updatedMainSettings = settings.copyWith(nextAppointmentNumber: settings.nextAppointmentNumber + 1);
+        transaction.update(docRefSettings, updatedMainSettings.toJson());
+
+        transaction.set(docRef, toCreateAppointment.toJson());
+      });
+      return right(toCreateAppointment);
+    } on FirebaseException {
+      return left(GeneralFailure());
+    } catch (e) {
+      logger.e(e);
       return left(GeneralFailure());
     }
   }
@@ -224,14 +263,24 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
           final countryInvoice = optionalCountryInvoice.value;
           final optionalCountryDelivery = await api.getCountry(int.parse(addressDelivery.idCountry));
           final countryDelivery = optionalCountryDelivery.value;
-          
 
           final loadedCustomerFromFirestore = await getCustomerByMarketplaceId(marketplace.id, customer.id);
           Customer? customerFirestore;
           int nextCustomerNumber = mainSettings.nextCustomerNumber;
           if (loadedCustomerFromFirestore == null) {
+            double getTotalNet() =>
+                (orderPresta.totalProducts).toMyDouble() +
+                (orderPresta.totalShippingTaxExcl).toMyDouble() +
+                (orderPresta.totalWrappingTaxExcl).toMyDouble() -
+                (orderPresta.totalDiscountsTaxExcl).toMyDouble();
+            double getTotalGross() =>
+                (orderPresta.totalProductsWt).toMyDouble() +
+                (orderPresta.totalShippingTaxIncl).toMyDouble() +
+                (orderPresta.totalWrappingTaxIncl).toMyDouble() -
+                (orderPresta.totalDiscountsTaxIncl).toMyDouble();
+            final tax = mainSettings.taxes.where((e) => e.taxRate.round() == calcTaxPercent(getTotalGross(), getTotalNet()).round()).first;
             final createdCustomerInFirestore = await createCustomerFromMarketplace(
-              Customer.fromPresta(customer, nextCustomerNumber, marketplace, addressInvoice, addressDelivery, countryInvoice, countryDelivery),
+              Customer.fromPresta(customer, nextCustomerNumber, marketplace, addressInvoice, addressDelivery, countryInvoice, countryDelivery, tax),
             );
             customerFirestore = createdCustomerInFirestore;
             nextCustomerNumber += 1;
@@ -266,7 +315,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
 
           final nextAppointmentNumber = mainSettings.nextAppointmentNumber + 1;
           final updatedMainSettings = mainSettings.copyWith(nextAppointmentNumber: nextAppointmentNumber, nextCustomerNumber: nextCustomerNumber);
-          docRefMainSettings.set(updatedMainSettings.toJson());
+          docRefMainSettings.update(updatedMainSettings.toJson());
         }
         final updatedMarketplace = marketplace.copyWith(
           marketplaceSettings: marketplace.marketplaceSettings.copyWith(nextIdToImport: allOrderIds.last + 1),
