@@ -332,43 +332,25 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
   }
 
   @override
-  Future<Either<FirebaseFailure, List<Receipt>>> getListOfOpenAppointments() async {
+  Future<Either<FirebaseFailure, List<Receipt>>> getListOfReceipts(int value, ReceiptTyp receiptTyp) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
 
     final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRef =
-        db.collection(currentUserUid).doc(currentUserUid).collection('Appointments').where('receiptStatus', isEqualTo: ReceiptStatus.open.name);
+    final colRef = value != 0
+        ? getColRef(currentUserUid, receiptTyp)
+        : switch (receiptTyp) {
+            ReceiptTyp.offer => getColRef(currentUserUid, receiptTyp).where('offerStatus', isEqualTo: OfferStatus.closed.name),
+            ReceiptTyp.appointment => getColRef(currentUserUid, receiptTyp).where('receiptStatus', isEqualTo: ReceiptStatus.open.name),
+            ReceiptTyp.deliveryNote =>
+              getColRef(currentUserUid, receiptTyp).where('paymentStatus', whereIn: [PaymentStatus.open.name, PaymentStatus.partiallyPaid.name]),
+            ReceiptTyp.invoice ||
+            ReceiptTyp.credit =>
+              getColRef(currentUserUid, receiptTyp).where('paymentStatus', whereIn: [PaymentStatus.open.name, PaymentStatus.partiallyPaid.name]),
+          };
 
     try {
-      final listOfAppointments = await docRef.get().then(
-            (value) => value.docs.map((querySnapshot) => Receipt.fromJson(querySnapshot.data())).toList(),
-          );
-
-      //* Zum hinzufügen von neuen Attributen.
-      // for (final marketplace in listOfAppointments) {
-      //   final docRefMp = db.collection(currentUserUid).doc(currentUserUid).collection('Marketetplaces').doc(marketplace.id);
-      //   final updatedMp = marketplace.copyWith(marketplaceSettings: AppointmentSettings.empty());
-      //   await docRefMp.update(updatedMp.toJson());
-      // }
-
-      if (listOfAppointments.isEmpty) return left(EmptyFailure());
-      return right(listOfAppointments);
-    } on FirebaseException {
-      return left(GeneralFailure());
-    }
-  }
-
-  @override
-  Future<Either<FirebaseFailure, List<Receipt>>> getListOfAllAppointments() async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(NoConnectionFailure());
-
-    final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRef = db.collection(currentUserUid).doc(currentUserUid).collection('Appointments');
-
-    try {
-      final listOfAppointments = await docRef.get().then(
+      final listOfAppointments = await colRef.get().then(
             (value) => value.docs.map((querySnapshot) => Receipt.fromJson(querySnapshot.data())).toList(),
           );
 
@@ -420,15 +402,16 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
   }
 
   @override
-  Future<Either<FirebaseFailure, Unit>> deleteListOfAppointments(List<Receipt> listOfReceipts) async {
+  Future<Either<FirebaseFailure, Unit>> deleteListOfReceipts(List<Receipt> listOfReceipts) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
 
-    final currentUserUid = firebaseAuth.currentUser!.uid;
+    final curUserUid = firebaseAuth.currentUser!.uid;
+    final receiptTyp = listOfReceipts.first.receiptTyp;
 
     try {
       for (final receipt in listOfReceipts) {
-        final listOfProducts = await getListOfProducts(db: db, receipt: receipt, currentUserUid: currentUserUid);
+        final listOfProducts = await getListOfProducts(db: db, receipt: receipt, currentUserUid: curUserUid);
         if (listOfProducts == null) continue;
 
         await db.runTransaction((transaction) async {
@@ -436,13 +419,13 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
             await updateProductAvailableQuantityIncremental(
               transaction: transaction,
               db: db,
-              currentUserUid: currentUserUid,
+              currentUserUid: curUserUid,
               product: product,
               newQuantityIncremental: receipt.listOfReceiptProduct.where((e) => e.productId == product.id).first.quantity,
             );
           }
           // TODO: update quantity in marketplaces triggern
-          final docRef = db.collection(currentUserUid).doc(currentUserUid).collection('Appointments').doc(receipt.receiptId);
+          final docRef = getColRef(curUserUid, receiptTyp).doc(receipt.receiptId);
           transaction.delete(docRef);
         });
       }
@@ -451,6 +434,115 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
     } on FirebaseException {
       return left(GeneralFailure());
     }
+  }
+
+  @override
+  Future<Either<FirebaseFailure, List<Receipt>>> generateFromAppointment(
+    List<Receipt> listOfReceipts,
+    bool generateDeliveryNote,
+    bool generateInvoice,
+  ) async {
+    final isConnected = await checkInternetConnection();
+    if (!isConnected) return left(NoConnectionFailure());
+    final logger = Logger();
+
+    final currentUserUid = firebaseAuth.currentUser!.uid;
+    final docRefSettings = db.collection(currentUserUid).doc(currentUserUid).collection('Settings').doc(currentUserUid);
+
+    List<Receipt> generatedReceipts = [];
+
+    try {
+      final settingsSnapshot = await docRefSettings.get();
+      final settings = MainSettings.fromJson(settingsSnapshot.data()!);
+      int nextDeliveryNoteNumber = settings.nextDeliveryNoteNumber;
+      int nextInvoiceNumber = settings.nextInvoiceNumber;
+
+      for (final receipt in listOfReceipts) {
+        await db.runTransaction((transaction) async {
+          List<ReceiptProduct> updatedReceiptProducts = receipt.listOfReceiptProduct.map((e) {
+            return e.copyWith(shippedQuantity: e.quantity);
+          }).toList();
+          Receipt appointment = receipt.copyWith(
+            receiptStatus: ReceiptStatus.completed,
+            lastEditingDate: DateTime.now(),
+            listOfReceiptProduct: updatedReceiptProducts,
+          );
+          if (generateDeliveryNote) {
+            final deliveryNote = Receipt.fromAppointmentGenDeliveryNote(
+              appointment: appointment,
+              settings: settings,
+              nextDeliveryNoteNumber: nextDeliveryNoteNumber,
+              nextInvoiceNumber: nextInvoiceNumber,
+              generateInvoice: generateInvoice,
+            );
+            final docRefDn = getColRef(currentUserUid, deliveryNote.receiptTyp).doc(appointment.receiptId);
+            transaction.set(docRefDn, deliveryNote.toJson());
+            nextDeliveryNoteNumber += 1;
+            generatedReceipts.add(deliveryNote);
+            appointment = appointment.copyWith(
+              deliveryNoteId: deliveryNote.deliveryNoteId,
+              deliveryNoteNumberAsString: deliveryNote.deliveryNoteNumberAsString,
+            );
+          }
+
+          if (generateInvoice) {
+            final invoice = Receipt.fromAppointmentGenInvoice(
+              appointment: appointment,
+              settings: settings,
+              nextDeliveryNoteNumber: nextDeliveryNoteNumber,
+              nextInvoiceNumber: nextInvoiceNumber,
+              generateDeliveryNote: generateDeliveryNote,
+            );
+            final docRefI = getColRef(currentUserUid, invoice.receiptTyp).doc(appointment.receiptId);
+            transaction.set(docRefI, invoice.toJson());
+            nextInvoiceNumber += 1;
+            generatedReceipts.add(invoice);
+            appointment = appointment.copyWith(
+              invoiceId: invoice.invoiceId,
+              invoiceNumberAsString: invoice.invoiceNumberAsString,
+            );
+          }
+
+          transaction.update(getColRef(currentUserUid, appointment.receiptTyp).doc(appointment.receiptId), appointment.toJson());
+
+          for (final receiptProduct in receipt.listOfReceiptProduct) {
+            if (!receiptProduct.isFromDatabase) continue;
+            Product? product;
+            final fosProduct = await productRepository.getProduct(receiptProduct.productId);
+            fosProduct.fold(
+              (failure) {
+                logger.e('Artikel ${receiptProduct.name} kontte nicht aus Firestore geladen werden: $failure');
+                return left(GeneralFailure());
+              },
+              (productFromFirestore) => product = productFromFirestore,
+            );
+            await updateProductWarehouseQuantityIncremental(
+              transaction: transaction,
+              db: db,
+              currentUserUid: currentUserUid,
+              product: product!,
+              newQuantityIncremental: receiptProduct.quantity * -1,
+            );
+          }
+        });
+      }
+      final updatedMainSettings = settings.copyWith(nextDeliveryNoteNumber: nextDeliveryNoteNumber, nextInvoiceNumber: nextInvoiceNumber);
+      await docRefSettings.update(updatedMainSettings.toJson());
+      return right(generatedReceipts);
+    } on FirebaseException {
+      return left(GeneralFailure());
+    } catch (e) {
+      return left(GeneralFailure());
+    }
+  }
+
+  CollectionReference<Map<String, dynamic>> getColRef(String currentUserUid, ReceiptTyp receiptTyp) {
+    return switch (receiptTyp) {
+      ReceiptTyp.offer => db.collection(currentUserUid).doc(currentUserUid).collection('Offers'),
+      ReceiptTyp.appointment => db.collection(currentUserUid).doc(currentUserUid).collection('Appointments'),
+      ReceiptTyp.deliveryNote => db.collection(currentUserUid).doc(currentUserUid).collection('DeliveryNotes'),
+      ReceiptTyp.invoice || ReceiptTyp.credit => db.collection(currentUserUid).doc(currentUserUid).collection('Invoices'),
+    };
   }
 
   Future<Product?> getProductByArticleNumber(String articleNumber, Marketplace marketplace, MainSettings mainSettings) async {
@@ -666,6 +758,24 @@ Future<void> updateProductAvailableQuantityIncremental({
 
   try {
     final updatedProduct = product.copyWith(availableStock: product.availableStock + newQuantityIncremental);
+    transaction.update(docRefProduct, updatedProduct.toJson());
+  } catch (error) {
+    logger.e('Error on updating product quantity in firebase: $error');
+  }
+}
+
+Future<void> updateProductWarehouseQuantityIncremental({
+  required Transaction transaction,
+  required FirebaseFirestore db,
+  required String currentUserUid,
+  required Product product,
+  required int newQuantityIncremental,
+}) async {
+  final logger = Logger();
+  final docRefProduct = db.collection(currentUserUid).doc(currentUserUid).collection('Products').doc(product.id);
+
+  try {
+    final updatedProduct = product.copyWith(warehouseStock: product.warehouseStock + newQuantityIncremental);
     transaction.update(docRefProduct, updatedProduct.toJson());
   } catch (error) {
     logger.e('Error on updating product quantity in firebase: $error');

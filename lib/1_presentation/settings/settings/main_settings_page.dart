@@ -33,12 +33,14 @@ class _MainSettingsPageState extends State<MainSettingsPage> {
 
   late TextEditingController _offerDocumentTextController = TextEditingController();
   late TextEditingController _appointmentDocumentTextController = TextEditingController();
+  late TextEditingController _deliveryNoteDocumentTextController = TextEditingController();
   late TextEditingController _invoiceDocumentTextController = TextEditingController();
   late TextEditingController _creditDocumentTextController = TextEditingController();
   late TextEditingController _termOfPaymentController = TextEditingController();
 
   late TextEditingController _offerPraefixController = TextEditingController();
   late TextEditingController _appointmentPraefixController = TextEditingController();
+  late TextEditingController _deliveryNotePraefixController = TextEditingController();
   late TextEditingController _invoicePraefixController = TextEditingController();
   late TextEditingController _creditPraefixController = TextEditingController();
   late TextEditingController _nextOfferNumberController = TextEditingController();
@@ -62,12 +64,14 @@ class _MainSettingsPageState extends State<MainSettingsPage> {
 
     _offerDocumentTextController = TextEditingController(text: widget.mSettings.offerDocumentText);
     _appointmentDocumentTextController = TextEditingController(text: widget.mSettings.appointmentDocumentText);
+    _deliveryNoteDocumentTextController = TextEditingController(text: widget.mSettings.deliveryNoteDocumentText);
     _invoiceDocumentTextController = TextEditingController(text: widget.mSettings.invoiceDocumentText);
     _creditDocumentTextController = TextEditingController(text: widget.mSettings.creditDocumentText);
     _termOfPaymentController = TextEditingController(text: widget.mSettings.termOfPayment.toString());
 
     _offerPraefixController = TextEditingController(text: widget.mSettings.offerPraefix);
     _appointmentPraefixController = TextEditingController(text: widget.mSettings.appointmentPraefix);
+    _deliveryNotePraefixController = TextEditingController(text: widget.mSettings.deliveryNotePraefix);
     _invoicePraefixController = TextEditingController(text: widget.mSettings.invoicePraefix);
     _creditPraefixController = TextEditingController(text: widget.mSettings.creditPraefix);
     _nextOfferNumberController = TextEditingController(text: widget.mSettings.nextOfferNumber.toString());
@@ -169,6 +173,14 @@ class _MainSettingsPageState extends State<MainSettingsPage> {
                             title: 'Präfix Auftrag.',
                             trailing: TextField(
                               controller: _appointmentPraefixController,
+                              textCapitalization: TextCapitalization.characters,
+                            ),
+                            trailingWidth: 80,
+                          ),
+                          MySettingsListTile(
+                            title: 'Präfix Lieferschein.',
+                            trailing: TextField(
+                              controller: _deliveryNotePraefixController,
                               textCapitalization: TextCapitalization.characters,
                             ),
                             trailingWidth: 80,
@@ -348,6 +360,13 @@ class _MainSettingsPageState extends State<MainSettingsPage> {
                           ),
                           const SizedBox(height: 20),
                           MyTextFormField(
+                            controller: _deliveryNoteDocumentTextController,
+                            labelText: 'Lieferscheintext',
+                            maxLines: 3,
+                            textCapitalization: TextCapitalization.sentences,
+                          ),
+                          const SizedBox(height: 20),
+                          MyTextFormField(
                             controller: _invoiceDocumentTextController,
                             labelText: 'Rechnungstext',
                             maxLines: 3,
@@ -387,11 +406,13 @@ class _MainSettingsPageState extends State<MainSettingsPage> {
     final updatedMainSettings = widget.mSettings.copyWith(
       offerPraefix: _offerPraefixController.text,
       appointmentPraefix: _appointmentPraefixController.text,
+      deliveryNotePraefix: _deliveryNotePraefixController.text,
       invoicePraefix: _invoicePraefixController.text,
       creditPraefix: _creditPraefixController.text,
       currency: _selectedCurrencyItem,
       offerDocumentText: _offerDocumentTextController.text,
       appointmentDocumentText: _appointmentDocumentTextController.text,
+      deliveryNoteDocumentText: _deliveryNoteDocumentTextController.text,
       invoiceDocumentText: _invoiceDocumentTextController.text,
       creditDocumentText: _creditDocumentTextController.text,
       nextOfferNumber: int.parse(_nextOfferNumberController.text),

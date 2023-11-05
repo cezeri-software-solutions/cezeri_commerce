@@ -21,8 +21,8 @@ class ReceiptDetailCarrierCard extends StatelessWidget {
     return BlocBuilder<AppointmentBloc, AppointmentState>(
       bloc: appointmentBloc,
       builder: (context, state) {
-        if (!carrierItems.any((e) => e.receiptCarrierName == state.appointment!.receiptCarrier.receiptCarrierName)) {
-          carrierItems.add(state.appointment!.receiptCarrier);
+        if (!carrierItems.any((e) => e.receiptCarrierName == state.receipt!.receiptCarrier.receiptCarrierName)) {
+          carrierItems.add(state.receipt!.receiptCarrier);
         }
 
         final selectedCarrierFromSettings = context
@@ -30,7 +30,7 @@ class ReceiptDetailCarrierCard extends StatelessWidget {
             .state
             .mainSettings!
             .listOfCarriers
-            .where((e) => e.carrierTyp == state.appointment!.receiptCarrier.carrierTyp)
+            .where((e) => e.carrierTyp == state.receipt!.receiptCarrier.carrierTyp)
             .first;
 
         final List<CarrierProduct> carrierProductItems = [CarrierProduct.empty()];
@@ -48,7 +48,7 @@ class ReceiptDetailCarrierCard extends StatelessWidget {
                 const Divider(height: 30),
                 MyDropdownButtonSmall(
                   labelText: 'Versanddienstleister',
-                  value: state.appointment!.receiptCarrier.receiptCarrierName,
+                  value: state.receipt!.receiptCarrier.receiptCarrierName,
                   onChanged: (carrierName) => appointmentBloc.add(
                     OnAppointmentCarrierChangedEvent(receiptCarrier: carrierItems.where((e) => e.receiptCarrierName == carrierName).first),
                   ),
@@ -57,7 +57,7 @@ class ReceiptDetailCarrierCard extends StatelessWidget {
                 Gaps.h16,
                 MyDropdownButtonSmall(
                   labelText: 'Produkt',
-                  value: state.appointment!.receiptCarrier.carrierProduct.productName,
+                  value: state.receipt!.receiptCarrier.carrierProduct.productName,
                   onChanged: (carrierProductName) => appointmentBloc.add(
                     OnAppointmentCarrierProductChangedEvent(
                       receiptCarrierProduct: carrierProductItems.where((e) => e.productName == carrierProductName!).first,

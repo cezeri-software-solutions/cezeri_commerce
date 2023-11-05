@@ -26,6 +26,7 @@ class _ReceiptDetailGeneralCardState extends State<ReceiptDetailGeneralCard> {
     final receiptHeader = switch (widget.receipt.receiptTyp) {
       ReceiptTyp.offer => 'Angebot: ${widget.receipt.offerNumberAsString}',
       ReceiptTyp.appointment => 'Auftrag: ${widget.receipt.appointmentNumberAsString}',
+      ReceiptTyp.deliveryNote => 'Lieferschein: ${widget.receipt.deliveryNoteNumberAsString}',
       ReceiptTyp.invoice => 'Rechnung: ${widget.receipt.invoiceNumberAsString}',
       ReceiptTyp.credit => 'Gutschrift: ${widget.receipt.creditNumberAsString}',
     };

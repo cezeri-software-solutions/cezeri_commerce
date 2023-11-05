@@ -188,6 +188,7 @@ Map<String, dynamic> _$ReceiptToJson(Receipt instance) => <String, dynamic>{
 const _$ReceiptTypEnumMap = {
   ReceiptTyp.appointment: 'appointment',
   ReceiptTyp.offer: 'offer',
+  ReceiptTyp.deliveryNote: 'deliveryNote',
   ReceiptTyp.invoice: 'invoice',
   ReceiptTyp.credit: 'credit',
 };

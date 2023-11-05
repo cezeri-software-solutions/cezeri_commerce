@@ -23,9 +23,12 @@ class GetCustomerInAppointmentEvent extends AppointmentEvent {
   GetCustomerInAppointmentEvent({required this.customerId});
 }
 
-class GetAllAppointmentsEvent extends AppointmentEvent {}
+class GetReceiptsEvent extends AppointmentEvent {
+  final int tabValue;
+  final ReceiptTyp receiptTyp;
 
-class GetOpenAppointmentsEvent extends AppointmentEvent {}
+  GetReceiptsEvent({required this.tabValue, required this.receiptTyp});
+}
 
 class GetNewAppointmentsFromPrestaEvent extends AppointmentEvent {}
 
@@ -43,10 +46,10 @@ class UpdateAppointmentEvent extends AppointmentEvent {
   UpdateAppointmentEvent({required this.appointment, required this.oldListOfReceiptProducts, required this.newListOfReceiptProducts});
 }
 
-class DeleteSelectedAppointmentsEvent extends AppointmentEvent {
-  final List<Receipt> selectedAppointments;
+class DeleteSelectedReceiptsEvent extends AppointmentEvent {
+  final List<Receipt> selectedReceipts;
 
-  DeleteSelectedAppointmentsEvent({required this.selectedAppointments});
+  DeleteSelectedReceiptsEvent({required this.selectedReceipts});
 }
 
 class SetSearchFieldTextAppointmentsEvent extends AppointmentEvent {
@@ -56,6 +59,13 @@ class SetSearchFieldTextAppointmentsEvent extends AppointmentEvent {
 }
 
 class OnSearchFieldSubmittedAppointmentsEvent extends AppointmentEvent {}
+
+class OnGenerateFromAppointmentEvent extends AppointmentEvent {
+  final bool generateDeliveryNote;
+  final bool generateInvoice;
+
+  OnGenerateFromAppointmentEvent({required this.generateDeliveryNote, required this.generateInvoice});
+}
 
 //* --- helper --- *//
 class SetAppointmentIsExpandedEvent extends AppointmentEvent {

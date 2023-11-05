@@ -26,7 +26,7 @@ class AppointmentDetailScreen extends StatelessWidget {
     final receiptDetailBloc = sl<ReceiptDetailBloc>();
     if (receiptCreateOrEdit == ReceiptCreateOrEdit.create) {
       receiptDetailBloc.add(SetListOfReceiptProductssReceiptDetailEvent(
-        receipt: appointmentBloc.state.appointment!,
+        receipt: appointmentBloc.state.receipt!,
         listOfTaxRules: context.read<MainSettingsBloc>().state.mainSettings!.taxes,
       ));
     }
@@ -37,9 +37,9 @@ class AppointmentDetailScreen extends StatelessWidget {
         listeners: [
           BlocListener<AppointmentBloc, AppointmentState>(
             bloc: appointmentBloc,
-            listenWhen: (p, c) => p.fosAppointmentOnObserveOption != c.fosAppointmentOnObserveOption,
+            listenWhen: (p, c) => p.fosReceiptOnObserveOption != c.fosReceiptOnObserveOption,
             listener: (context, state) {
-              state.fosAppointmentOnObserveOption.fold(
+              state.fosReceiptOnObserveOption.fold(
                 () => null,
                 (a) => a.fold(
                   (failure) => myScaffoldMessenger(context, failure, null, null, null),
@@ -53,9 +53,9 @@ class AppointmentDetailScreen extends StatelessWidget {
           ),
           BlocListener<AppointmentBloc, AppointmentState>(
             bloc: appointmentBloc,
-            listenWhen: (p, c) => p.fosAppointmentOnUpdateOption != c.fosAppointmentOnUpdateOption,
+            listenWhen: (p, c) => p.fosReceiptOnUpdateOption != c.fosReceiptOnUpdateOption,
             listener: (context, state) {
-              state.fosAppointmentOnUpdateOption.fold(
+              state.fosReceiptOnUpdateOption.fold(
                 () => null,
                 (a) => a.fold(
                   (failure) => null,
@@ -66,9 +66,9 @@ class AppointmentDetailScreen extends StatelessWidget {
           ),
           BlocListener<AppointmentBloc, AppointmentState>(
             bloc: appointmentBloc,
-            listenWhen: (p, c) => p.fosAppointmentOnCreateOption != c.fosAppointmentOnCreateOption,
+            listenWhen: (p, c) => p.fosReceiptOnCreateOption != c.fosReceiptOnCreateOption,
             listener: (context, state) {
-              state.fosAppointmentOnCreateOption.fold(
+              state.fosReceiptOnCreateOption.fold(
                 () => null,
                 (a) => a.fold(
                   (failure) => myScaffoldMessenger(context, failure, null, null, null),
@@ -79,9 +79,9 @@ class AppointmentDetailScreen extends StatelessWidget {
           ),
           BlocListener<AppointmentBloc, AppointmentState>(
             bloc: appointmentBloc,
-            listenWhen: (p, c) => p.fosAppointmentOnDeleteOption != c.fosAppointmentOnDeleteOption,
+            listenWhen: (p, c) => p.fosReceiptOnDeleteOption != c.fosReceiptOnDeleteOption,
             listener: (context, state) {
-              state.fosAppointmentOnDeleteOption.fold(
+              state.fosReceiptOnDeleteOption.fold(
                 () => null,
                 (a) => a.fold(
                   (failure) {
@@ -101,9 +101,9 @@ class AppointmentDetailScreen extends StatelessWidget {
           builder: (context, state) {
             final appBar = AppBar(title: const Text('Auftrag'));
 
-            if (state.isLoadingAppointmentOnObserve) return Scaffold(appBar: appBar, body: const Center(child: CircularProgressIndicator()));
+            if (state.isLoadingReceiptOnObserve) return Scaffold(appBar: appBar, body: const Center(child: CircularProgressIndicator()));
             if ((state.firebaseFailure != null && state.isAnyFailure) ||
-                (receiptCreateOrEdit == ReceiptCreateOrEdit.edit && state.appointment == null)) {
+                (receiptCreateOrEdit == ReceiptCreateOrEdit.edit && state.receipt == null)) {
               return Scaffold(appBar: appBar, body: const Center(child: Text('Ein Fehler ist aufgetreten')));
             }
             return AppointmentDetailPage(

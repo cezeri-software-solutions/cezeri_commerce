@@ -44,12 +44,12 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
         final responsiveness = screenWidth > 700 ? Responsiveness.isTablet : Responsiveness.isMobil;
 
         final appBar = AppBar(
-          title: Text('Auftrag: ${state.appointment!.appointmentNumberAsString}'),
+          title: Text('Auftrag: ${state.receipt!.appointmentNumberAsString}'),
           centerTitle: responsiveness == Responsiveness.isTablet ? true : false,
           actions: [
             if (widget.receiptCreateOrEdit == ReceiptCreateOrEdit.edit)
               IconButton(
-                onPressed: () => widget.appointmentBloc.add(GetAppointmentEvent(appointment: state.appointment!)),
+                onPressed: () => widget.appointmentBloc.add(GetAppointmentEvent(appointment: state.receipt!)),
                 icon: const Icon(Icons.refresh, size: 30),
               ),
             responsiveness == Responsiveness.isTablet ? Gaps.w32 : Gaps.w8,
@@ -66,28 +66,28 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
                         //* Hier kommen die Änderungen vom AppointmentBloc
                         //* Also Änderungen die oberhalb passieren bevor die Produkte anfangen
                         listOfReceiptProduct: stateReceiptDetail.listOfReceiptProducts,
-                        marketplaceId: state.appointment!.marketplaceId,
-                        paymentMethod: state.appointment!.paymentMethod,
-                        paymentStatus: state.appointment!.paymentStatus,
-                        receiptCarrier: state.appointment!.receiptCarrier,
+                        marketplaceId: state.receipt!.marketplaceId,
+                        paymentMethod: state.receipt!.paymentMethod,
+                        paymentStatus: state.receipt!.paymentStatus,
+                        receiptCarrier: state.receipt!.receiptCarrier,
                       );
                       widget.appointmentBloc.add(UpdateAppointmentEvent(
                         appointment: updatedAppointment,
-                        oldListOfReceiptProducts: state.appointment!.listOfReceiptProduct,
+                        oldListOfReceiptProducts: state.receipt!.listOfReceiptProduct,
                         newListOfReceiptProducts: stateReceiptDetail.listOfReceiptProducts,
                       ));
                     } else {
                       final toCreateAppointment = stateReceiptDetail.receipt.copyWith(
                         listOfReceiptProduct: stateReceiptDetail.listOfReceiptProducts,
-                        marketplaceId: state.appointment!.marketplaceId,
-                        paymentMethod: state.appointment!.paymentMethod,
-                        paymentStatus: state.appointment!.paymentStatus,
-                        receiptCarrier: state.appointment!.receiptCarrier,
+                        marketplaceId: state.receipt!.marketplaceId,
+                        paymentMethod: state.receipt!.paymentMethod,
+                        paymentStatus: state.receipt!.paymentStatus,
+                        receiptCarrier: state.receipt!.receiptCarrier,
                       );
                       widget.appointmentBloc.add(CreateNewAppointmentManuallyEvent(receipt: toCreateAppointment));
                     }
                   },
-                  isLoading: state.isLoadingAppointmentOnUpdate,
+                  isLoading: state.isLoadingReceiptOnUpdate,
                   buttonBackgroundColor: Colors.green,
                 );
               },
@@ -109,11 +109,11 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
                             mainAxisSize: MainAxisSize.min,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Expanded(child: ReceiptDetailAddressCard(receipt: state.appointment!)),
+                              Expanded(child: ReceiptDetailAddressCard(receipt: state.receipt!)),
                               Gaps.w16,
                               Expanded(
                                 child: ReceiptDetailGeneralCard(
-                                  receipt: state.appointment!,
+                                  receipt: state.receipt!,
                                   appointmentBloc: widget.appointmentBloc,
                                   listOfMarketplaces: widget.listOfMarketplaces,
                                 ),
@@ -152,10 +152,10 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
                     padding: const EdgeInsets.all(8),
                     child: ListView(
                       children: [
-                        ReceiptDetailAddressCard(receipt: state.appointment!),
+                        ReceiptDetailAddressCard(receipt: state.receipt!),
                         Gaps.h16,
                         ReceiptDetailGeneralCard(
-                          receipt: state.appointment!,
+                          receipt: state.receipt!,
                           appointmentBloc: widget.appointmentBloc,
                           listOfMarketplaces: widget.listOfMarketplaces,
                         ),
@@ -178,7 +178,7 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
   }
 
   Future<bool> _validateReceiptOncreateOrUpdate(AppointmentState stateReceipt, ReceiptDetailState stateReceiptDetail) async {
-    if (stateReceipt.appointment!.marketplaceId == '') {
+    if (stateReceipt.receipt!.marketplaceId == '') {
       await showDialog(
         context: context,
         builder: (context) => const MyInfoDialog(title: 'Achtung!', content: 'Ein Marktplatz muss ausgewählt werden'),

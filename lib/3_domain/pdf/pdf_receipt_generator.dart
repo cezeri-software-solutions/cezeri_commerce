@@ -104,6 +104,7 @@ class PdfReceiptGenerator {
     return switch (receipt.receiptTyp) {
       ReceiptTyp.offer => PdfText('Angebot', style: style),
       ReceiptTyp.appointment => PdfText('Auftrag', style: style),
+      ReceiptTyp.deliveryNote => PdfText('Lieferschein', style: style),
       ReceiptTyp.invoice => PdfText('Rechnung', style: style),
       ReceiptTyp.credit => PdfText('Rechnungskorrektur', style: style),
     };
@@ -176,6 +177,7 @@ class PdfReceiptGenerator {
                     switch (receipt.receiptTyp) {
                       ReceiptTyp.offer => PdfText(receipt.offerNumberAsString),
                       ReceiptTyp.appointment => PdfText(receipt.appointmentNumberAsString),
+                      ReceiptTyp.deliveryNote => PdfText(receipt.deliveryNoteNumberAsString),
                       ReceiptTyp.invoice => PdfText(receipt.invoiceNumberAsString),
                       ReceiptTyp.credit => PdfText(receipt.creditNumberAsString),
                     },

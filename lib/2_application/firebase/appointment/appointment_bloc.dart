@@ -27,43 +27,50 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
 //? #########################################################################
 
     on<GetAppointmentEvent>((event, emit) async {
-      emit(state.copyWith(isLoadingAppointmentOnObserve: true));
+      emit(state.copyWith(isLoadingReceiptOnObserve: true));
 
       final failureOrSuccess = await receiptRepository.getAppointment(event.appointment);
       failureOrSuccess.fold(
         (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
-        (loadedAppointment) => emit(state.copyWith(appointment: loadedAppointment, firebaseFailure: null, isAnyFailure: false)),
+        (loadedAppointment) => emit(state.copyWith(receipt: loadedAppointment, firebaseFailure: null, isAnyFailure: false)),
       );
 
       add(OnSearchFieldSubmittedAppointmentsEvent());
 
       emit(state.copyWith(
-        isLoadingAppointmentOnObserve: false,
-        fosAppointmentOnObserveOption: optionOf(failureOrSuccess),
+        isLoadingReceiptOnObserve: false,
+        fosReceiptOnObserveOption: optionOf(failureOrSuccess),
       ));
     });
 
 //? #########################################################################
 
     on<SetAppointmentEvent>((event, emit) async {
-      emit(state.copyWith(appointment: event.appointment));
+      emit(state.copyWith(receipt: event.appointment));
     });
 
 //? #########################################################################
 
-    on<GetAllAppointmentsEvent>((event, emit) async {
-      emit(state.copyWith(isLoadingAppointmentsOnObserve: true));
+    on<GetReceiptsEvent>((event, emit) async {
+      emit(state.copyWith(isLoadingReceiptsOnObserve: true));
 
-      final failureOrSuccess = await receiptRepository.getListOfAllAppointments();
+      final failureOrSuccess = await receiptRepository.getListOfReceipts(event.tabValue, event.receiptTyp);
       failureOrSuccess.fold(
         (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
         (listOfAppointments) {
-          listOfAppointments.sort((a, b) => b.appointmentId.compareTo(a.appointmentId));
+          listOfAppointments.sort((a, b) => switch (listOfAppointments.first.receiptTyp) {
+                ReceiptTyp.offer => b.offerId.compareTo(a.offerId),
+                ReceiptTyp.appointment => b.appointmentId.compareTo(a.appointmentId),
+                ReceiptTyp.deliveryNote => b.deliveryNoteId.compareTo(a.deliveryNoteId),
+                ReceiptTyp.invoice || ReceiptTyp.credit => b.invoiceId.compareTo(a.invoiceId),
+              });
           emit(state.copyWith(
-            listOfAllAppointments: listOfAppointments,
+            listOfAllReceipts: listOfAppointments,
             isExpanded: List<bool>.filled(listOfAppointments.length, false),
             firebaseFailure: null,
             isAnyFailure: false,
+            tabValue: event.tabValue,
+            receiptTyp: event.receiptTyp,
           ));
         },
       );
@@ -71,35 +78,8 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
       add(OnSearchFieldSubmittedAppointmentsEvent());
 
       emit(state.copyWith(
-        isLoadingAppointmentsOnObserve: false,
-        fosAppointmentsOnObserveOption: optionOf(failureOrSuccess),
-      ));
-    });
-
-//? #########################################################################
-
-    on<GetOpenAppointmentsEvent>((event, emit) async {
-      emit(state.copyWith(isLoadingAppointmentsOnObserve: true));
-
-      final failureOrSuccess = await receiptRepository.getListOfOpenAppointments();
-      failureOrSuccess.fold(
-        (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
-        (listOfAppointments) {
-          listOfAppointments.sort((a, b) => b.appointmentId.compareTo(a.appointmentId));
-          emit(state.copyWith(
-            listOfAllAppointments: listOfAppointments,
-            isExpanded: List<bool>.filled(listOfAppointments.length, false),
-            firebaseFailure: null,
-            isAnyFailure: false,
-          ));
-        },
-      );
-
-      add(OnSearchFieldSubmittedAppointmentsEvent());
-
-      emit(state.copyWith(
-        isLoadingAppointmentsOnObserve: false,
-        fosAppointmentsOnObserveOption: optionOf(failureOrSuccess),
+        isLoadingReceiptsOnObserve: false,
+        fosReceiptsOnObserveOption: optionOf(failureOrSuccess),
       ));
     });
 
@@ -112,11 +92,16 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
       failureOrSuccess.fold(
         (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
         (listOfAppointments) {
-          List<Receipt> listWithNewAppointments = List.from(state.listOfAllAppointments ?? []);
+          List<Receipt> listWithNewAppointments = List.from(state.listOfAllReceipts ?? []);
           listWithNewAppointments.addAll(listOfAppointments);
-          listWithNewAppointments.sort((a, b) => b.appointmentId.compareTo(a.appointmentId));
+          listWithNewAppointments.sort((a, b) => switch (listOfAppointments.first.receiptTyp) {
+                ReceiptTyp.offer => b.offerId.compareTo(a.offerId),
+                ReceiptTyp.appointment => b.appointmentId.compareTo(a.appointmentId),
+                ReceiptTyp.deliveryNote => b.deliveryNoteId.compareTo(a.deliveryNoteId),
+                ReceiptTyp.invoice || ReceiptTyp.credit => b.invoiceId.compareTo(a.invoiceId),
+              });
           emit(state.copyWith(
-            listOfAllAppointments: listWithNewAppointments,
+            listOfAllReceipts: listWithNewAppointments,
             isExpanded: List<bool>.filled(listWithNewAppointments.length, false),
             firebaseFailure: null,
             isAnyFailure: false,
@@ -136,7 +121,7 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
 //? #########################################################################
 
     on<CreateNewAppointmentManuallyEvent>((event, emit) async {
-      emit(state.copyWith(isLoadingAppointmentOnCreate: true));
+      emit(state.copyWith(isLoadingReceiptOnCreate: true));
 
       final failureOrSuccess = await receiptRepository.createAppointmentManually(event.receipt);
       failureOrSuccess.fold(
@@ -145,16 +130,16 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
       );
 
       emit(state.copyWith(
-        isLoadingAppointmentOnCreate: false,
-        fosAppointmentOnCreateOption: optionOf(failureOrSuccess),
+        isLoadingReceiptOnCreate: false,
+        fosReceiptOnCreateOption: optionOf(failureOrSuccess),
       ));
-      emit(state.copyWith(fosAppointmentOnUpdateOption: none()));
+      emit(state.copyWith(fosReceiptOnUpdateOption: none()));
     });
 
 //? #########################################################################
 
     on<UpdateAppointmentEvent>((event, emit) async {
-      emit(state.copyWith(isLoadingAppointmentOnUpdate: true));
+      emit(state.copyWith(isLoadingReceiptOnUpdate: true));
 
       final newAppointment = event.appointment.copyWith(listOfReceiptProduct: event.newListOfReceiptProducts);
 
@@ -165,31 +150,31 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
       );
       failureOrSuccess.fold(
         (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
-        (unit) => emit(state.copyWith(appointment: event.appointment, firebaseFailure: null, isAnyFailure: false)),
+        (unit) => emit(state.copyWith(receipt: event.appointment, firebaseFailure: null, isAnyFailure: false)),
       );
 
       emit(state.copyWith(
-        isLoadingAppointmentOnUpdate: false,
-        fosAppointmentOnUpdateOption: optionOf(failureOrSuccess),
+        isLoadingReceiptOnUpdate: false,
+        fosReceiptOnUpdateOption: optionOf(failureOrSuccess),
       ));
-      emit(state.copyWith(fosAppointmentOnUpdateOption: none()));
+      emit(state.copyWith(fosReceiptOnUpdateOption: none()));
     });
 
 //? #########################################################################
 
-    on<DeleteSelectedAppointmentsEvent>((event, emit) async {
-      emit(state.copyWith(isLoadingAppointmentOnDelete: true));
+    on<DeleteSelectedReceiptsEvent>((event, emit) async {
+      emit(state.copyWith(isLoadingReceiptOnDelete: true));
 
-      final failureOrSuccess = await receiptRepository.deleteListOfAppointments(event.selectedAppointments);
+      final failureOrSuccess = await receiptRepository.deleteListOfReceipts(event.selectedReceipts);
       failureOrSuccess.fold(
         (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
         (unit) {
-          List<Receipt> appointments = List.from(state.listOfFilteredAppointments!);
-          for (final appointment in event.selectedAppointments) {
+          List<Receipt> appointments = List.from(state.listOfFilteredReceipts!);
+          for (final appointment in event.selectedReceipts) {
             appointments.removeWhere((e) => e.receiptId == appointment.receiptId);
           }
           emit(state.copyWith(
-            listOfFilteredAppointments: appointments,
+            listOfFilteredReceipts: appointments,
             isExpanded: List<bool>.filled(appointments.length, false),
             firebaseFailure: null,
             isAnyFailure: false,
@@ -198,30 +183,79 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
       );
 
       emit(state.copyWith(
-        isLoadingAppointmentOnDelete: false,
-        fosAppointmentOnDeleteOption: optionOf(failureOrSuccess),
+        isLoadingReceiptOnDelete: false,
+        fosReceiptOnDeleteOption: optionOf(failureOrSuccess),
       ));
-      emit(state.copyWith(fosAppointmentOnDeleteOption: none()));
+      emit(state.copyWith(fosReceiptOnDeleteOption: none()));
     });
 
 //? #########################################################################
 
     on<SetSearchFieldTextAppointmentsEvent>((event, emit) async {
-      emit(state.copyWith(appointmentSearchText: event.searchText));
+      emit(state.copyWith(receiptSearchText: event.searchText));
     });
 
     on<OnSearchFieldSubmittedAppointmentsEvent>((event, emit) async {
-      final listOfAppointments = switch (state.appointmentSearchText) {
-        '' => state.listOfAllAppointments,
-        (_) => state.listOfAllAppointments!
+      List<Receipt> listOfReceipts = switch (state.listOfAllReceipts!.first.receiptTyp) {
+        ReceiptTyp.offer => switch (state.tabValue) {
+            0 => state.listOfAllReceipts!.where((e) => e.offerStatus == OfferStatus.open).toList(),
+            _ => state.listOfAllReceipts!,
+          },
+        ReceiptTyp.appointment => switch (state.tabValue) {
+            0 => state.listOfAllReceipts!.where((e) => e.receiptStatus == ReceiptStatus.open).toList(),
+            _ => state.listOfAllReceipts!,
+          },
+        ReceiptTyp.deliveryNote => switch (state.tabValue) {
+            0 => state.listOfAllReceipts!.where((e) => e.paymentStatus != PaymentStatus.paid).toList(),
+            _ => state.listOfAllReceipts!,
+          },
+        ReceiptTyp.invoice || ReceiptTyp.credit => switch (state.tabValue) {
+            0 => state.listOfAllReceipts!.where((e) => e.paymentStatus != PaymentStatus.paid).toList(),
+            _ => state.listOfAllReceipts!,
+          },
+      };
+
+      listOfReceipts = switch (state.receiptSearchText) {
+        '' => listOfReceipts,
+        (_) => listOfReceipts
             .where((element) =>
-                element.appointmentNumberAsString.toLowerCase().contains(state.appointmentSearchText.toLowerCase()) ||
-                element.receiptMarketplaceId.toString().toLowerCase().contains(state.appointmentSearchText.toLowerCase()) ||
-                element.receiptMarketplaceReference.toString().toLowerCase().contains(state.appointmentSearchText.toLowerCase()) ||
-                element.receiptCustomer.name.toString().toLowerCase().contains(state.appointmentSearchText.toLowerCase()))
+                element.offerNumberAsString.toLowerCase().contains(state.receiptSearchText.toLowerCase()) ||
+                element.appointmentNumberAsString.toLowerCase().contains(state.receiptSearchText.toLowerCase()) ||
+                element.deliveryNoteNumberAsString.toLowerCase().contains(state.receiptSearchText.toLowerCase()) ||
+                element.invoiceNumberAsString.toLowerCase().contains(state.receiptSearchText.toLowerCase()) ||
+                element.creditNumberAsString.toLowerCase().contains(state.receiptSearchText.toLowerCase()) ||
+                element.receiptMarketplaceId.toString().toLowerCase().contains(state.receiptSearchText.toLowerCase()) ||
+                element.receiptMarketplaceReference.toString().toLowerCase().contains(state.receiptSearchText.toLowerCase()) ||
+                element.receiptCustomer.name.toString().toLowerCase().contains(state.receiptSearchText.toLowerCase()) ||
+                element.receiptCustomer.id.toString().toLowerCase().contains(state.receiptSearchText.toLowerCase()))
             .toList()
       };
-      emit(state.copyWith(listOfFilteredAppointments: listOfAppointments));
+      emit(state.copyWith(listOfFilteredReceipts: listOfReceipts));
+    });
+
+//? #########################################################################
+
+    on<OnGenerateFromAppointmentEvent>((event, emit) async {
+      emit(state.copyWith(isLoadingReceiptOnGenerate: true));
+
+      final failureOrSuccess = await receiptRepository.generateFromAppointment(
+        state.selectedReceipts,
+        event.generateDeliveryNote,
+        event.generateInvoice,
+      );
+      failureOrSuccess.fold(
+        (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
+        (receipt) {
+          emit(state.copyWith(selectedReceipts: [], firebaseFailure: null, isAnyFailure: false));
+          add(GetReceiptsEvent(tabValue: state.tabValue, receiptTyp: state.receiptTyp));
+        },
+      );
+
+      emit(state.copyWith(
+        isLoadingReceiptOnGenerate: false,
+        fosReceiptOnGenerateOption: optionOf(failureOrSuccess),
+      ));
+      emit(state.copyWith(fosReceiptOnGenerateOption: none()));
     });
 
 //? #########################################################################
@@ -231,24 +265,24 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
       bool isSelectedAll = false;
       if (event.isSelected) {
         isSelectedAll = true;
-        appointments = List.from(state.listOfFilteredAppointments!);
+        appointments = List.from(state.listOfFilteredReceipts!);
       }
-      emit(state.copyWith(isAllAppointmentsSeledcted: isSelectedAll, selectedAppointments: appointments));
+      emit(state.copyWith(isAllReceiptsSeledcted: isSelectedAll, selectedReceipts: appointments));
     });
 
 //? #########################################################################
 
     on<OnAppointmentSelectedEvent>((event, emit) async {
-      List<Receipt> appointments = List.from(state.selectedAppointments);
+      List<Receipt> appointments = List.from(state.selectedReceipts);
       if (appointments.any((e) => e.receiptId == event.appointment.receiptId)) {
         appointments.removeWhere((e) => e.receiptId == event.appointment.receiptId);
       } else {
         appointments.add(event.appointment);
       }
       emit(state.copyWith(
-        isAllAppointmentsSeledcted:
-            state.isAllAppointmentsSeledcted && appointments.length < state.selectedAppointments.length ? false : state.isAllAppointmentsSeledcted,
-        selectedAppointments: appointments,
+        isAllReceiptsSeledcted:
+            state.isAllReceiptsSeledcted && appointments.length < state.selectedReceipts.length ? false : state.isAllReceiptsSeledcted,
+        selectedReceipts: appointments,
       ));
     });
 
@@ -263,20 +297,20 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
 //? #########################################################################
 
     on<OnAppointmentMarketplaceChangedEvent>((event, emit) async {
-      emit(state.copyWith(appointment: state.appointment!.copyWith(marketplaceId: event.marketplaceId)));
+      emit(state.copyWith(receipt: state.receipt!.copyWith(marketplaceId: event.marketplaceId)));
     });
 
 //? #########################################################################
 
     on<OnAppointmentPaymentMethodChangedEvent>((event, emit) async {
-      emit(state.copyWith(appointment: state.appointment!.copyWith(paymentMethod: event.paymentMethod)));
+      emit(state.copyWith(receipt: state.receipt!.copyWith(paymentMethod: event.paymentMethod)));
     });
 
 //? #########################################################################
 
     on<OnAppointmentPaymentStatusChangedEvent>((event, emit) async {
       emit(state.copyWith(
-        appointment: state.appointment!.copyWith(
+        receipt: state.receipt!.copyWith(
           paymentStatus: switch (event.paymentStatus) {
             'Offen' => PaymentStatus.open,
             'Teilweise bezahlt' => PaymentStatus.partiallyPaid,
@@ -290,16 +324,16 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
 //? #########################################################################
 
     on<OnAppointmentCarrierChangedEvent>((event, emit) async {
-      emit(state.copyWith(appointment: state.appointment!.copyWith(receiptCarrier: event.receiptCarrier)));
+      emit(state.copyWith(receipt: state.receipt!.copyWith(receiptCarrier: event.receiptCarrier)));
     });
 
 //? #########################################################################
 
     on<OnAppointmentCarrierProductChangedEvent>((event, emit) async {
       emit(state.copyWith(
-        appointment: state.appointment!.copyWith(
-          receiptCarrier: state.appointment!.receiptCarrier.copyWith(
-            carrierProduct: state.appointment!.receiptCarrier.carrierProduct.copyWith(
+        receipt: state.receipt!.copyWith(
+          receiptCarrier: state.receipt!.receiptCarrier.copyWith(
+            carrierProduct: state.receipt!.receiptCarrier.carrierProduct.copyWith(
               productName: event.receiptCarrierProduct.productName,
             ),
           ),

@@ -3,6 +3,7 @@ import 'package:cezeri_commerce/1_presentation/splash_page.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
+import '../3_domain/entities/receipt/receipt.dart';
 import '../constants.dart';
 import '../routes/router.gr.dart';
 
@@ -54,16 +55,55 @@ class AppDrawer extends StatelessWidget {
                         }
                       },
                     ),
-                    ListTile(
+                    ExpansionTile(
+                      title: const Text('Dokumente'),
                       leading: const Icon(Icons.receipt),
-                      title: const Text('Aufträge'),
-                      onTap: () {
-                        if (context.router.current.name == AppointmentsOverviewRoute.name) {
-                          context.router.pop();
-                        } else {
-                          context.router.replaceAll([const AppointmentsOverviewRoute()]);
-                        }
-                      },
+                      children: [
+                        ListTile(
+                          leading: const Icon(Icons.receipt),
+                          title: const Text('Angebote'),
+                          onTap: () {
+                            if (context.router.current.name == OffersOverviewRoute.name) {
+                              context.router.pop();
+                            } else {
+                              context.router.replaceAll([OffersOverviewRoute(receiptTyp: ReceiptTyp.offer)]);
+                            }
+                          },
+                        ),
+                        ListTile(
+                          leading: const Icon(Icons.receipt),
+                          title: const Text('Aufträge'),
+                          onTap: () {
+                            if (context.router.current.name == AppointmentsOverviewRoute.name) {
+                              context.router.pop();
+                            } else {
+                              context.router.replaceAll([AppointmentsOverviewRoute(receiptTyp: ReceiptTyp.appointment)]);
+                            }
+                          },
+                        ),
+                        ListTile(
+                          leading: const Icon(Icons.receipt),
+                          title: const Text('Lieferscheine'),
+                          onTap: () {
+                            if (context.router.current.name == DeliveryNotesOverviewRoute.name) {
+                              context.router.pop();
+                            } else {
+                              context.router.replaceAll([DeliveryNotesOverviewRoute(receiptTyp: ReceiptTyp.deliveryNote)]);
+                            }
+                          },
+                        ),
+                        ListTile(
+                          leading: const Icon(Icons.receipt),
+                          title: const Text('Rechnungen'),
+                          onTap: () {
+                            if (context.router.current.name == InvoicesOverviewRoute.name) {
+                              context.router.pop();
+                            } else {
+                              context.router.replaceAll([InvoicesOverviewRoute(receiptTyp: ReceiptTyp.invoice)]);
+                            }
+                          },
+                        ),
+                      ],
                     ),
                     ListTile(
                       leading: const Icon(Icons.send),

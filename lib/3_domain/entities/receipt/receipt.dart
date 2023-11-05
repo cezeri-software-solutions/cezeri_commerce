@@ -30,6 +30,7 @@ part 'receipt.g.dart';
 enum ReceiptTyp {
   appointment,
   offer,
+  deliveryNote,
   invoice,
   credit,
 }
@@ -201,6 +202,52 @@ class Receipt {
   factory Receipt.fromJson(Map<String, dynamic> json) => _$ReceiptFromJson(json);
 
   Map<String, dynamic> toJson() => _$ReceiptToJson(this);
+
+  factory Receipt.fromAppointmentGenDeliveryNote({
+    required Receipt appointment,
+    required MainSettings settings,
+    required int nextDeliveryNoteNumber,
+    required int nextInvoiceNumber,
+    required bool generateInvoice,
+  }) {
+    final now = DateTime.now();
+
+    return appointment.copyWith(
+      deliveryNoteId: nextDeliveryNoteNumber,
+      deliveryNoteNumberAsString: settings.deliveryNotePraefix + nextDeliveryNoteNumber.toString(),
+      invoiceId: generateInvoice ? nextInvoiceNumber : appointment.invoiceId,
+      invoiceNumberAsString: generateInvoice ? settings.invoicePraefix + nextInvoiceNumber.toString() : appointment.invoiceNumberAsString,
+      receiptTyp: ReceiptTyp.deliveryNote,
+      receiptDocumentText: settings.deliveryNoteDocumentText,
+      creationDate: now,
+      creationDateInt: now.microsecondsSinceEpoch,
+      lastEditingDate: now,
+    );
+  }
+
+  factory Receipt.fromAppointmentGenInvoice({
+    required Receipt appointment,
+    required MainSettings settings,
+    required int nextDeliveryNoteNumber,
+    required int nextInvoiceNumber,
+    required bool generateDeliveryNote,
+  }) {
+    final now = DateTime.now();
+
+    return appointment.copyWith(
+      deliveryNoteId: generateDeliveryNote ? nextDeliveryNoteNumber : appointment.deliveryNoteId,
+      deliveryNoteNumberAsString:
+          generateDeliveryNote ? settings.deliveryNotePraefix + nextDeliveryNoteNumber.toString() : appointment.deliveryNoteNumberAsString,
+      invoiceId: nextInvoiceNumber,
+      invoiceNumberAsString: settings.invoicePraefix + nextInvoiceNumber.toString(),
+      receiptTyp: ReceiptTyp.invoice,
+      receiptStatus: ReceiptStatus.completed,
+      receiptDocumentText: settings.invoiceDocumentText,
+      creationDate: now,
+      creationDateInt: now.microsecondsSinceEpoch,
+      lastEditingDate: now,
+    );
+  }
 
   factory Receipt.fromOrderPresta({
     required Marketplace marketplace,

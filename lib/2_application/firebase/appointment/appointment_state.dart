@@ -2,128 +2,148 @@ part of 'appointment_bloc.dart';
 
 @immutable
 class AppointmentState {
-  final Receipt? appointment;
+  final Receipt? receipt;
   final Customer? customer;
-  final List<Receipt>? listOfAllAppointments;
-  final List<Receipt>? listOfFilteredAppointments; // Der State, der im presentation layer ausgegeben wird, egal ob Suchfeld leer oder nicht
-  final List<Receipt> selectedAppointments; // Ausgewählte Aufträge zum löschen oder für Massenbearbeitung
+  final List<Receipt>? listOfAllReceipts;
+  final List<Receipt>? listOfFilteredReceipts; // Der State, der im presentation layer ausgegeben wird, egal ob Suchfeld leer oder nicht
+  final List<Receipt> selectedReceipts; // Ausgewählte Aufträge zum löschen oder für Massenbearbeitung
   final FirebaseFailure? firebaseFailure;
   final bool isAnyFailure;
-  final bool isLoadingAppointmentOnObserve;
-  final bool isLoadingAppointmentsOnObserve;
+  final bool isLoadingReceiptOnObserve;
+  final bool isLoadingReceiptsOnObserve;
   final bool isLoadingAppointmentsFromPrestaOnObserve;
-  final bool isLoadingAppointmentOnCreate;
-  final bool isLoadingAppointmentOnUpdate;
-  final bool isLoadingAppointmentOnDelete;
-  final Option<Either<FirebaseFailure, Receipt>> fosAppointmentOnObserveOption;
-  final Option<Either<FirebaseFailure, List<Receipt>>> fosAppointmentsOnObserveOption;
+  final bool isLoadingReceiptOnCreate;
+  final bool isLoadingReceiptOnUpdate;
+  final bool isLoadingReceiptOnDelete;
+  final bool isLoadingReceiptOnGenerate;
+  final Option<Either<FirebaseFailure, Receipt>> fosReceiptOnObserveOption;
+  final Option<Either<FirebaseFailure, List<Receipt>>> fosReceiptsOnObserveOption;
   final Option<Either<FirebaseFailure, List<Receipt>>> fosAppointmentsOnObserveFromPrestaOption;
-  final Option<Either<FirebaseFailure, Receipt>> fosAppointmentOnCreateOption;
-  final Option<Either<FirebaseFailure, Unit>> fosAppointmentOnUpdateOption;
-  final Option<Either<FirebaseFailure, Unit>> fosAppointmentOnDeleteOption;
+  final Option<Either<FirebaseFailure, Receipt>> fosReceiptOnCreateOption;
+  final Option<Either<FirebaseFailure, Unit>> fosReceiptOnUpdateOption;
+  final Option<Either<FirebaseFailure, Unit>> fosReceiptOnDeleteOption;
+  final Option<Either<FirebaseFailure, List<Receipt>>> fosReceiptOnGenerateOption;
 
   //* --- helper --- *//
-  final bool isAllAppointmentsSeledcted;
+  final bool isAllReceiptsSeledcted;
   final List<bool> isExpanded;
-  final String appointmentSearchText;
+  final String receiptSearchText;
+  final int tabValue;
+  final ReceiptTyp receiptTyp;
 
   const AppointmentState({
-    this.appointment,
+    this.receipt,
     this.customer,
-    required this.listOfAllAppointments,
-    required this.listOfFilteredAppointments,
-    required this.selectedAppointments,
+    required this.listOfAllReceipts,
+    required this.listOfFilteredReceipts,
+    required this.selectedReceipts,
     required this.firebaseFailure,
     required this.isAnyFailure,
-    required this.isLoadingAppointmentOnObserve,
-    required this.isLoadingAppointmentsOnObserve,
+    required this.isLoadingReceiptOnObserve,
+    required this.isLoadingReceiptsOnObserve,
     required this.isLoadingAppointmentsFromPrestaOnObserve,
-    required this.isLoadingAppointmentOnCreate,
-    required this.isLoadingAppointmentOnUpdate,
-    required this.isLoadingAppointmentOnDelete,
-    required this.fosAppointmentOnObserveOption,
-    required this.fosAppointmentsOnObserveOption,
+    required this.isLoadingReceiptOnCreate,
+    required this.isLoadingReceiptOnUpdate,
+    required this.isLoadingReceiptOnDelete,
+    required this.isLoadingReceiptOnGenerate,
+    required this.fosReceiptOnObserveOption,
+    required this.fosReceiptsOnObserveOption,
     required this.fosAppointmentsOnObserveFromPrestaOption,
-    required this.fosAppointmentOnCreateOption,
-    required this.fosAppointmentOnUpdateOption,
-    required this.fosAppointmentOnDeleteOption,
-    required this.isAllAppointmentsSeledcted,
+    required this.fosReceiptOnCreateOption,
+    required this.fosReceiptOnUpdateOption,
+    required this.fosReceiptOnDeleteOption,
+    required this.fosReceiptOnGenerateOption,
+    required this.isAllReceiptsSeledcted,
     required this.isExpanded,
-    required this.appointmentSearchText,
+    required this.receiptSearchText,
+    required this.tabValue,
+    required this.receiptTyp,
   });
 
   factory AppointmentState.initial() => AppointmentState(
-        appointment: null,
+        receipt: null,
         customer: null,
-        listOfAllAppointments: null,
-        listOfFilteredAppointments: null,
-        selectedAppointments: const [],
+        listOfAllReceipts: null,
+        listOfFilteredReceipts: null,
+        selectedReceipts: const [],
         firebaseFailure: null,
         isAnyFailure: false,
-        isLoadingAppointmentOnObserve: false,
-        isLoadingAppointmentsOnObserve: true,
+        isLoadingReceiptOnObserve: false,
+        isLoadingReceiptsOnObserve: true,
         isLoadingAppointmentsFromPrestaOnObserve: false,
-        isLoadingAppointmentOnCreate: false,
-        isLoadingAppointmentOnUpdate: false,
-        isLoadingAppointmentOnDelete: false,
-        fosAppointmentOnObserveOption: none(),
-        fosAppointmentsOnObserveOption: none(),
+        isLoadingReceiptOnCreate: false,
+        isLoadingReceiptOnUpdate: false,
+        isLoadingReceiptOnDelete: false,
+        isLoadingReceiptOnGenerate: false,
+        fosReceiptOnObserveOption: none(),
+        fosReceiptsOnObserveOption: none(),
         fosAppointmentsOnObserveFromPrestaOption: none(),
-        fosAppointmentOnCreateOption: none(),
-        fosAppointmentOnUpdateOption: none(),
-        fosAppointmentOnDeleteOption: none(),
-        isAllAppointmentsSeledcted: false,
+        fosReceiptOnCreateOption: none(),
+        fosReceiptOnUpdateOption: none(),
+        fosReceiptOnDeleteOption: none(),
+        fosReceiptOnGenerateOption: none(),
+        isAllReceiptsSeledcted: false,
         isExpanded: const [],
-        appointmentSearchText: '',
+        receiptSearchText: '',
+        tabValue: 0,
+        receiptTyp: ReceiptTyp.appointment,
       );
 
   AppointmentState copyWith({
-    Receipt? appointment,
+    Receipt? receipt,
     Customer? customer,
-    List<Receipt>? listOfAllAppointments,
-    List<Receipt>? listOfFilteredAppointments,
-    List<Receipt>? selectedAppointments,
+    List<Receipt>? listOfAllReceipts,
+    List<Receipt>? listOfFilteredReceipts,
+    List<Receipt>? selectedReceipts,
     FirebaseFailure? firebaseFailure,
     bool? isAnyFailure,
-    bool? isLoadingAppointmentOnObserve,
-    bool? isLoadingAppointmentsOnObserve,
+    bool? isLoadingReceiptOnObserve,
+    bool? isLoadingReceiptsOnObserve,
     bool? isLoadingAppointmentsFromPrestaOnObserve,
-    bool? isLoadingAppointmentOnCreate,
-    bool? isLoadingAppointmentOnUpdate,
-    bool? isLoadingAppointmentOnDelete,
-    Option<Either<FirebaseFailure, Receipt>>? fosAppointmentOnObserveOption,
-    Option<Either<FirebaseFailure, List<Receipt>>>? fosAppointmentsOnObserveOption,
+    bool? isLoadingReceiptOnCreate,
+    bool? isLoadingReceiptOnUpdate,
+    bool? isLoadingReceiptOnDelete,
+    bool? isLoadingReceiptOnGenerate,
+    Option<Either<FirebaseFailure, Receipt>>? fosReceiptOnObserveOption,
+    Option<Either<FirebaseFailure, List<Receipt>>>? fosReceiptsOnObserveOption,
     Option<Either<FirebaseFailure, List<Receipt>>>? fosAppointmentsOnObserveFromPrestaOption,
-    Option<Either<FirebaseFailure, Receipt>>? fosAppointmentOnCreateOption,
-    Option<Either<FirebaseFailure, Unit>>? fosAppointmentOnUpdateOption,
-    Option<Either<FirebaseFailure, Unit>>? fosAppointmentOnDeleteOption,
-    bool? isAllAppointmentsSeledcted,
+    Option<Either<FirebaseFailure, Receipt>>? fosReceiptOnCreateOption,
+    Option<Either<FirebaseFailure, Unit>>? fosReceiptOnUpdateOption,
+    Option<Either<FirebaseFailure, Unit>>? fosReceiptOnDeleteOption,
+    Option<Either<FirebaseFailure, List<Receipt>>>? fosReceiptOnGenerateOption,
+    bool? isAllReceiptsSeledcted,
     List<bool>? isExpanded,
-    String? appointmentSearchText,
+    String? receiptSearchText,
+    int? tabValue,
+    ReceiptTyp? receiptTyp,
   }) {
     return AppointmentState(
-      appointment: appointment ?? this.appointment,
+      receipt: receipt ?? this.receipt,
       customer: customer ?? this.customer,
-      listOfAllAppointments: listOfAllAppointments ?? this.listOfAllAppointments,
-      listOfFilteredAppointments: listOfFilteredAppointments ?? this.listOfFilteredAppointments,
-      selectedAppointments: selectedAppointments ?? this.selectedAppointments,
+      listOfAllReceipts: listOfAllReceipts ?? this.listOfAllReceipts,
+      listOfFilteredReceipts: listOfFilteredReceipts ?? this.listOfFilteredReceipts,
+      selectedReceipts: selectedReceipts ?? this.selectedReceipts,
       firebaseFailure: firebaseFailure ?? this.firebaseFailure,
       isAnyFailure: isAnyFailure ?? this.isAnyFailure,
-      isLoadingAppointmentOnObserve: isLoadingAppointmentOnObserve ?? this.isLoadingAppointmentOnObserve,
-      isLoadingAppointmentsOnObserve: isLoadingAppointmentsOnObserve ?? this.isLoadingAppointmentsOnObserve,
+      isLoadingReceiptOnObserve: isLoadingReceiptOnObserve ?? this.isLoadingReceiptOnObserve,
+      isLoadingReceiptsOnObserve: isLoadingReceiptsOnObserve ?? this.isLoadingReceiptsOnObserve,
       isLoadingAppointmentsFromPrestaOnObserve: isLoadingAppointmentsFromPrestaOnObserve ?? this.isLoadingAppointmentsFromPrestaOnObserve,
-      isLoadingAppointmentOnCreate: isLoadingAppointmentOnCreate ?? this.isLoadingAppointmentOnCreate,
-      isLoadingAppointmentOnUpdate: isLoadingAppointmentOnUpdate ?? this.isLoadingAppointmentOnUpdate,
-      isLoadingAppointmentOnDelete: isLoadingAppointmentOnDelete ?? this.isLoadingAppointmentOnDelete,
-      fosAppointmentOnObserveOption: fosAppointmentOnObserveOption ?? this.fosAppointmentOnObserveOption,
-      fosAppointmentsOnObserveOption: fosAppointmentsOnObserveOption ?? this.fosAppointmentsOnObserveOption,
+      isLoadingReceiptOnCreate: isLoadingReceiptOnCreate ?? this.isLoadingReceiptOnCreate,
+      isLoadingReceiptOnUpdate: isLoadingReceiptOnUpdate ?? this.isLoadingReceiptOnUpdate,
+      isLoadingReceiptOnDelete: isLoadingReceiptOnDelete ?? this.isLoadingReceiptOnDelete,
+      isLoadingReceiptOnGenerate: isLoadingReceiptOnGenerate ?? this.isLoadingReceiptOnGenerate,
+      fosReceiptOnObserveOption: fosReceiptOnObserveOption ?? this.fosReceiptOnObserveOption,
+      fosReceiptsOnObserveOption: fosReceiptsOnObserveOption ?? this.fosReceiptsOnObserveOption,
       fosAppointmentsOnObserveFromPrestaOption: fosAppointmentsOnObserveFromPrestaOption ?? this.fosAppointmentsOnObserveFromPrestaOption,
-      fosAppointmentOnCreateOption: fosAppointmentOnCreateOption ?? this.fosAppointmentOnCreateOption,
-      fosAppointmentOnUpdateOption: fosAppointmentOnUpdateOption ?? this.fosAppointmentOnUpdateOption,
-      fosAppointmentOnDeleteOption: fosAppointmentOnDeleteOption ?? this.fosAppointmentOnDeleteOption,
-      isAllAppointmentsSeledcted: isAllAppointmentsSeledcted ?? this.isAllAppointmentsSeledcted,
+      fosReceiptOnCreateOption: fosReceiptOnCreateOption ?? this.fosReceiptOnCreateOption,
+      fosReceiptOnUpdateOption: fosReceiptOnUpdateOption ?? this.fosReceiptOnUpdateOption,
+      fosReceiptOnDeleteOption: fosReceiptOnDeleteOption ?? this.fosReceiptOnDeleteOption,
+      fosReceiptOnGenerateOption: fosReceiptOnGenerateOption ?? this.fosReceiptOnGenerateOption,
+      isAllReceiptsSeledcted: isAllReceiptsSeledcted ?? this.isAllReceiptsSeledcted,
       isExpanded: isExpanded ?? this.isExpanded,
-      appointmentSearchText: appointmentSearchText ?? this.appointmentSearchText,
+      receiptSearchText: receiptSearchText ?? this.receiptSearchText,
+      tabValue: tabValue ?? this.tabValue,
+      receiptTyp: receiptTyp ?? this.receiptTyp,
     );
   }
 }

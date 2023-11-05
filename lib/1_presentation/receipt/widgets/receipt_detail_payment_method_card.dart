@@ -21,11 +21,11 @@ class ReceiptDetailPaymentMethodCard extends StatelessWidget {
     return BlocBuilder<AppointmentBloc, AppointmentState>(
       bloc: appointmentBloc,
       builder: (context, state) {
-        if (!paymentMethodItems.any((e) => e.name == state.appointment!.paymentMethod.name)) {
-          paymentMethodItems.add(state.appointment!.paymentMethod);
+        if (!paymentMethodItems.any((e) => e.name == state.receipt!.paymentMethod.name)) {
+          paymentMethodItems.add(state.receipt!.paymentMethod);
         }
 
-        final paymentStatusValue = switch (state.appointment!.paymentStatus) {
+        final paymentStatusValue = switch (state.receipt!.paymentStatus) {
           PaymentStatus.open => 'Offen',
           PaymentStatus.partiallyPaid => 'Teilweise bezahlt',
           PaymentStatus.paid => 'Komplett bezahlt',
@@ -41,7 +41,7 @@ class ReceiptDetailPaymentMethodCard extends StatelessWidget {
                 const Divider(height: 30),
                 MyDropdownButtonSmall(
                   labelText: 'Zahlungsart',
-                  value: state.appointment!.paymentMethod.name,
+                  value: state.receipt!.paymentMethod.name,
                   onChanged: (name) => appointmentBloc.add(
                     OnAppointmentPaymentMethodChangedEvent(paymentMethod: paymentMethodItems.where((e) => e.name == name).first),
                   ),
