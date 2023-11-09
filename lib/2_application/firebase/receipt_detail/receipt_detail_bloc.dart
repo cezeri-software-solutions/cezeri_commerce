@@ -80,7 +80,7 @@ class ReceiptDetailBloc extends Bloc<ReceiptDetailEvent, ReceiptDetailState> {
 
         add(SetAllControllersEvent(listOfReceiptProducts: listOfReceiptProducts));
       }
-      
+
       if (isFirstProductEmpty) add(RemoveProductFromReceiptProductsEvent(index: 0));
     });
 
@@ -303,7 +303,7 @@ class ReceiptDetailBloc extends Bloc<ReceiptDetailEvent, ReceiptDetailState> {
       List<ReceiptProduct> listOfReceiptProducts = List.from(state.listOfReceiptProducts);
       final unitPriceNet = listOfUnitPriceNetControllers[event.index].text.toMyDouble();
       final unitPriceGross = (unitPriceNet * taxToCalc(listOfReceiptProducts[event.index].tax.taxRate)).toMyRoundedDouble();
-      final profitUnit = unitPriceNet - listOfReceiptProducts[event.index].wholesalePrice;
+      final profitUnit = unitPriceNet - listOfReceiptProducts[event.index].wholesalePrice - listOfReceiptProducts[event.index].discountNetUnit;
       final profit = profitUnit * listOfReceiptProducts[event.index].quantity;
       listOfReceiptProducts[event.index] = listOfReceiptProducts[event.index].copyWith(
         unitPriceNet: unitPriceNet,
@@ -343,7 +343,7 @@ class ReceiptDetailBloc extends Bloc<ReceiptDetailEvent, ReceiptDetailState> {
           (listOfUnitPriceGrossControllers[event.index].text.toMyDouble() / taxToCalc(listOfReceiptProducts[event.index].tax.taxRate))
               .toMyRoundedDouble();
       final unitPriceGross = listOfUnitPriceGrossControllers[event.index].text.toMyDouble();
-      final profitUnit = unitPriceNet - listOfReceiptProducts[event.index].wholesalePrice;
+      final profitUnit = unitPriceNet - listOfReceiptProducts[event.index].wholesalePrice - listOfReceiptProducts[event.index].discountNetUnit;
       final profit = profitUnit * listOfReceiptProducts[event.index].quantity;
       listOfReceiptProducts[event.index] = listOfReceiptProducts[event.index].copyWith(
         unitPriceNet: unitPriceNet,

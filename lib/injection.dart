@@ -14,12 +14,14 @@ import '2_application/firebase/main_settings/main_settings_bloc.dart';
 import '2_application/firebase/marketplace/marketplace_bloc.dart';
 import '2_application/firebase/product/product_bloc.dart';
 import '2_application/firebase/receipt_detail/receipt_detail_bloc.dart';
+import '2_application/packing_station/packing_station_bloc.dart';
 import '2_application/prestashop/product_import/product_import_bloc.dart';
 import '3_domain/repositories/firebase/auth_repository.dart';
 import '3_domain/repositories/firebase/client_repository.dart';
 import '3_domain/repositories/firebase/customer_repository.dart';
 import '3_domain/repositories/firebase/main_settings_respository.dart';
 import '3_domain/repositories/firebase/marketplace_repository.dart';
+import '3_domain/repositories/firebase/packing_station_repository.dart';
 import '3_domain/repositories/firebase/product_repository.dart';
 import '3_domain/repositories/prestashop/product/product_edit_repository.dart';
 import '3_domain/repositories/prestashop/product/product_import_repository.dart';
@@ -28,6 +30,7 @@ import '4_infrastructur/repositories/firebase/client_repository_impl.dart';
 import '4_infrastructur/repositories/firebase/customer_repository_impl.dart';
 import '4_infrastructur/repositories/firebase/main_settings_respository_impl.dart';
 import '4_infrastructur/repositories/firebase/marketplace_repository_impl.dart';
+import '4_infrastructur/repositories/firebase/packing_station_repository_impl.dart';
 import '4_infrastructur/repositories/firebase/product_repository_impl.dart';
 import '4_infrastructur/repositories/prestashop/product/product_edit_repository_impl.dart';
 import '4_infrastructur/repositories/prestashop/product/product_import_repository_impl.dart';
@@ -45,6 +48,7 @@ Future<void> init() async {
   sl.registerFactory(() => MarketplaceBloc(marketplaceRepository: sl()));
   sl.registerFactory(() => MainSettingsBloc(mainSettingsRepository: sl()));
   sl.registerFactory(() => AppointmentBloc(receiptRepository: sl()));
+  sl.registerFactory(() => PackingStationBloc(receiptRepository: sl(), customerRepository: sl(), packingStationRepository: sl()));
   sl.registerFactory(() => CustomerBloc(customerRepository: sl()));
   sl.registerFactory(() => ReceiptDetailBloc());
 
@@ -65,6 +69,7 @@ Future<void> init() async {
     ),
   );
   sl.registerLazySingleton<CustomerRepository>(() => CustomerRepositoryImpl(db: sl(), firebaseAuth: sl()));
+  sl.registerLazySingleton<PackingStationRepository>(() => PackingStationRepositoryImpl(db: sl(), firebaseAuth: sl()));
 
   //! repositories Prestashop
   sl.registerLazySingleton<ProductImportRepository>(() => ProductImportRepositoryImpl());

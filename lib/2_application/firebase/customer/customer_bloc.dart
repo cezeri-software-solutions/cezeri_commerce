@@ -131,6 +131,12 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
 
 //? #########################################################################
 
+    on<OnCustomerInvoiceTypeChangedEvent>((event, emit) async {
+      emit(state.copyWith(customer: state.customer!.copyWith(customerInvoiceType: event.customerInvoiceType)));
+    });
+
+//? #########################################################################
+
     on<SetCustomerControllerEvnet>((event, emit) async {
       Customer? customer = state.customer;
       if (customer == null) {

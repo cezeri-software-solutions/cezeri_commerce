@@ -7,6 +7,7 @@ part of 'receipt.dart';
 // **************************************************************************
 
 Receipt _$ReceiptFromJson(Map<String, dynamic> json) => Receipt(
+      id: json['id'] as String,
       receiptId: json['receiptId'] as String,
       offerId: json['offerId'] as int,
       offerNumberAsString: json['offerNumberAsString'] as String,
@@ -39,10 +40,12 @@ Receipt _$ReceiptFromJson(Map<String, dynamic> json) => Receipt(
           Address.fromJson(json['addressDelivery'] as Map<String, dynamic>),
       receiptTyp: $enumDecode(_$ReceiptTypEnumMap, json['receiptTyp']),
       offerStatus: $enumDecode(_$OfferStatusEnumMap, json['offerStatus']),
-      receiptStatus: $enumDecode(_$ReceiptStatusEnumMap, json['receiptStatus']),
+      appointmentStatus:
+          $enumDecode(_$AppointmentStatusEnumMap, json['appointmentStatus']),
       paymentStatus: $enumDecode(_$PaymentStatusEnumMap, json['paymentStatus']),
       tax: Tax.fromJson(json['tax'] as Map<String, dynamic>),
       isSmallBusiness: json['isSmallBusiness'] as bool,
+      isPicked: json['isPicked'] as bool,
       termOfPayment: json['termOfPayment'] as int,
       totalGross: (json['totalGross'] as num).toDouble(),
       totalNet: (json['totalNet'] as num).toDouble(),
@@ -100,12 +103,16 @@ Receipt _$ReceiptFromJson(Map<String, dynamic> json) => Receipt(
           json['receiptMarketplace'] as Map<String, dynamic>),
       creationDateMarektplace:
           DateTime.parse(json['creationDateMarektplace'] as String),
+      packagingBox: json['packagingBox'] == null
+          ? null
+          : PackagingBox.fromJson(json['packagingBox'] as Map<String, dynamic>),
       creationDate: DateTime.parse(json['creationDate'] as String),
       creationDateInt: json['creationDateInt'] as int,
       lastEditingDate: DateTime.parse(json['lastEditingDate'] as String),
     );
 
 Map<String, dynamic> _$ReceiptToJson(Receipt instance) => <String, dynamic>{
+      'id': instance.id,
       'receiptId': instance.receiptId,
       'offerId': instance.offerId,
       'offerNumberAsString': instance.offerNumberAsString,
@@ -133,10 +140,12 @@ Map<String, dynamic> _$ReceiptToJson(Receipt instance) => <String, dynamic>{
       'addressDelivery': instance.addressDelivery.toJson(),
       'receiptTyp': _$ReceiptTypEnumMap[instance.receiptTyp]!,
       'offerStatus': _$OfferStatusEnumMap[instance.offerStatus]!,
-      'receiptStatus': _$ReceiptStatusEnumMap[instance.receiptStatus]!,
+      'appointmentStatus':
+          _$AppointmentStatusEnumMap[instance.appointmentStatus]!,
       'paymentStatus': _$PaymentStatusEnumMap[instance.paymentStatus]!,
       'tax': instance.tax.toJson(),
       'isSmallBusiness': instance.isSmallBusiness,
+      'isPicked': instance.isPicked,
       'termOfPayment': instance.termOfPayment,
       'totalGross': instance.totalGross,
       'totalNet': instance.totalNet,
@@ -180,6 +189,7 @@ Map<String, dynamic> _$ReceiptToJson(Receipt instance) => <String, dynamic>{
       'receiptMarketplace': instance.receiptMarketplace.toJson(),
       'creationDateMarektplace':
           instance.creationDateMarektplace.toIso8601String(),
+      'packagingBox': instance.packagingBox?.toJson(),
       'creationDate': instance.creationDate.toIso8601String(),
       'creationDateInt': instance.creationDateInt,
       'lastEditingDate': instance.lastEditingDate.toIso8601String(),
@@ -199,9 +209,10 @@ const _$OfferStatusEnumMap = {
   OfferStatus.closed: 'closed',
 };
 
-const _$ReceiptStatusEnumMap = {
-  ReceiptStatus.open: 'open',
-  ReceiptStatus.completed: 'completed',
+const _$AppointmentStatusEnumMap = {
+  AppointmentStatus.open: 'open',
+  AppointmentStatus.partiallyCompleted: 'partiallyCompleted',
+  AppointmentStatus.completed: 'completed',
 };
 
 const _$PaymentStatusEnumMap = {

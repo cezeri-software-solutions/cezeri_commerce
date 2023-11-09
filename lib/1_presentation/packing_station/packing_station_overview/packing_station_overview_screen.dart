@@ -1,0 +1,137 @@
+import 'package:auto_route/auto_route.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../../../2_application/firebase/marketplace/marketplace_bloc.dart';
+import '../../../2_application/packing_station/packing_station_bloc.dart';
+import '../../../3_domain/enums/enums.dart';
+import '../../../constants.dart';
+import '../../../injection.dart';
+import '../../app_drawer.dart';
+import '../../core/functions/my_scaffold_messanger.dart';
+import 'packing_station_overview_page.dart';
+
+@RoutePage()
+class PackingStationOverviewScreen extends StatelessWidget {
+  const PackingStationOverviewScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final packingStationBloc = sl<PackingStationBloc>()..add(PackgingStationGetAppointmentsEvent());
+    final marketplaceBloc = sl<MarketplaceBloc>()..add(GetAllMarketplacesEvent());
+
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => packingStationBloc,
+        ),
+        BlocProvider(
+          create: (context) => marketplaceBloc,
+        ),
+      ],
+      child: MultiBlocListener(
+        listeners: [
+          BlocListener<PackingStationBloc, PackingStationState>(
+            listenWhen: (p, c) => p.fosAppointmentOnObserveOption != c.fosAppointmentOnObserveOption,
+            listener: (context, state) {
+              state.fosAppointmentOnObserveOption.fold(
+                () => null,
+                (a) => a.fold(
+                  (failure) => myScaffoldMessenger(context, failure, null, null, null),
+                  (appointment) => null,
+                ),
+              );
+            },
+          ),
+          BlocListener<PackingStationBloc, PackingStationState>(
+            listenWhen: (p, c) => p.fosAppointmentsOnObserveOption != c.fosAppointmentsOnObserveOption,
+            listener: (context, state) {
+              state.fosAppointmentsOnObserveOption.fold(
+                () => null,
+                (a) => a.fold(
+                  (failure) => myScaffoldMessenger(context, failure, null, null, null),
+                  (appointments) => myScaffoldMessenger(context, null, null, 'Aufträge erfolgreich geladen', null),
+                ),
+              );
+            },
+          ),
+        ],
+        child: BlocBuilder<PackingStationBloc, PackingStationState>(
+          builder: (context, state) {
+            return Scaffold(
+              drawer: const AppDrawer(),
+              appBar: AppBar(
+                title: const Text('Packtisch'),
+                actions: [
+                  IconButton(
+                    onPressed: () => context.read<PackingStationBloc>().add(PackgingStationGetAppointmentsEvent()),
+                    icon: const Icon(Icons.refresh),
+                  ),
+                ],
+              ),
+              body: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      _PackingStationFilterChipsContainer(packingStationBloc: packingStationBloc, packingStationFilter: state.packingStationFilter),
+                    ],
+                  ),
+                  PackingStationOverviewPage(packingStationBloc: packingStationBloc, marketplaceBloc: marketplaceBloc),
+                ],
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
+class _PackingStationFilterChipsContainer extends StatelessWidget {
+  final PackingStationBloc packingStationBloc;
+  final PackingStationFilter packingStationFilter;
+
+  const _PackingStationFilterChipsContainer({required this.packingStationBloc, required this.packingStationFilter});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        FilterChip(
+          label: const Text('Bezahlt'),
+          labelStyle: const TextStyle(color: Colors.black),
+          selected: packingStationFilter == PackingStationFilter.paid,
+          selectedColor: CustomColors.chipSelectedColor,
+          backgroundColor: CustomColors.chipBackgroundColor,
+          onSelected: (bool isSelected) => packingStationFilter != PackingStationFilter.paid
+              ? packingStationBloc.add(SetPackingStationFilterAppointmentsEvent(packingStationFilter: PackingStationFilter.paid))
+              : null,
+        ),
+        Gaps.w8,
+        FilterChip(
+          label: const Text('Gepickt'),
+          labelStyle: const TextStyle(color: Colors.black),
+          selected: packingStationFilter == PackingStationFilter.picked,
+          selectedColor: CustomColors.chipSelectedColor,
+          backgroundColor: CustomColors.chipBackgroundColor,
+          onSelected: (bool isSelected) => packingStationFilter != PackingStationFilter.picked
+              ? packingStationBloc.add(SetPackingStationFilterAppointmentsEvent(packingStationFilter: PackingStationFilter.picked))
+              : null,
+        ),
+        Gaps.w8,
+        FilterChip(
+          label: const Text('Alle'),
+          labelStyle: const TextStyle(color: Colors.black),
+          selected: packingStationFilter == PackingStationFilter.all,
+          selectedColor: CustomColors.chipSelectedColor,
+          backgroundColor: CustomColors.chipBackgroundColor,
+          onSelected: (bool isSelected) => packingStationFilter != PackingStationFilter.all
+              ? packingStationBloc.add(SetPackingStationFilterAppointmentsEvent(packingStationFilter: PackingStationFilter.all))
+              : null,
+        ),
+        Gaps.w8,
+      ],
+    );
+  }
+}

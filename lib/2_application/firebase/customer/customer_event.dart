@@ -59,6 +59,12 @@ class OnCustomerselectedEvent extends CustomerEvent {
   OnCustomerselectedEvent({required this.appointment});
 }
 
+class OnCustomerInvoiceTypeChangedEvent extends CustomerEvent {
+  final CustomerInvoiceType customerInvoiceType;
+
+  OnCustomerInvoiceTypeChangedEvent({required this.customerInvoiceType});
+}
+
 //* --- Controller --- *//
 
 class SetCustomerControllerEvnet extends CustomerEvent {}

@@ -55,6 +55,17 @@ class AppDrawer extends StatelessWidget {
                         }
                       },
                     ),
+                    ListTile(
+                      leading: const Icon(Icons.delivery_dining),
+                      title: const Text('Packstation'),
+                      onTap: () {
+                        if (context.router.current.name == PackingStationOverviewRoute.name) {
+                          context.router.pop();
+                        } else {
+                          context.router.replaceAll([const PackingStationOverviewRoute()]);
+                        }
+                      },
+                    ),
                     ExpansionTile(
                       title: const Text('Dokumente'),
                       leading: const Icon(Icons.receipt),

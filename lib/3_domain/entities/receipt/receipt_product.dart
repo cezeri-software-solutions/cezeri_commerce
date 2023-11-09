@@ -1,4 +1,3 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:json_annotation/json_annotation.dart';
 
 import '../product/product.dart';
@@ -30,6 +29,7 @@ class ReceiptProduct {
   final double discountPercentAmountNetUnit;
   final double profitUnit;
   final double profit;
+  final double weight;
   final bool isFromDatabase;
 
   const ReceiptProduct({
@@ -55,6 +55,7 @@ class ReceiptProduct {
     required this.discountPercentAmountNetUnit,
     required this.profitUnit,
     required this.profit,
+    required this.weight,
     required this.isFromDatabase,
   });
 
@@ -86,6 +87,7 @@ class ReceiptProduct {
       discountPercentAmountNetUnit: 0,
       profitUnit: 0,
       profit: 0,
+      weight: 0.0,
       isFromDatabase: false,
     );
   }
@@ -114,6 +116,7 @@ class ReceiptProduct {
       discountPercentAmountNetUnit: 0,
       profitUnit: product.netPrice - product.wholesalePrice,
       profit: product.netPrice - product.wholesalePrice,
+      weight: product.weight,
       isFromDatabase: true,
     );
   }
@@ -141,6 +144,7 @@ class ReceiptProduct {
     double? discountPercentAmountNetUnit,
     double? profitUnit,
     double? profit,
+    double? weight,
     bool? isFromDatabase,
   }) {
     return ReceiptProduct(
@@ -166,12 +170,13 @@ class ReceiptProduct {
       discountPercentAmountNetUnit: discountPercentAmountNetUnit ?? this.discountPercentAmountNetUnit,
       profitUnit: profitUnit ?? this.profitUnit,
       profit: profit ?? this.profit,
+      weight: weight ?? this.weight,
       isFromDatabase: isFromDatabase ?? this.isFromDatabase,
     );
   }
 
   @override
   String toString() {
-    return 'ReceiptProduct(productId: $productId, productAttributeId: $productAttributeId, quantity: $quantity, shippedQuantity: $shippedQuantity, name: $name, articleNumber: $articleNumber, ean: $ean, price: $price, unitPriceGross: $unitPriceGross, unitPriceNet: $unitPriceNet, customization: $customization, tax: $tax, wholesalePrice: $wholesalePrice, discountGrossUnit: $discountGrossUnit, discountNetUnit: $discountNetUnit, discountGross: $discountGross, discountNet: $discountNet, discountPercent: $discountPercent, discountPercentAmountGrossUnit: $discountPercentAmountGrossUnit, discountPercentAmountNetUnit: $discountPercentAmountNetUnit, profitUnit: $profitUnit, profit: $profit, isFromDatabase: $isFromDatabase)';
+    return 'ReceiptProduct(productId: $productId, productAttributeId: $productAttributeId, quantity: $quantity, shippedQuantity: $shippedQuantity, name: $name, articleNumber: $articleNumber, ean: $ean, price: $price, unitPriceGross: $unitPriceGross, unitPriceNet: $unitPriceNet, customization: $customization, tax: $tax, wholesalePrice: $wholesalePrice, discountGrossUnit: $discountGrossUnit, discountNetUnit: $discountNetUnit, discountGross: $discountGross, discountNet: $discountNet, discountPercent: $discountPercent, discountPercentAmountGrossUnit: $discountPercentAmountGrossUnit, discountPercentAmountNetUnit: $discountPercentAmountNetUnit, profitUnit: $profitUnit, profit: $profit, weight: $weight, isFromDatabase: $isFromDatabase)';
   }
 }

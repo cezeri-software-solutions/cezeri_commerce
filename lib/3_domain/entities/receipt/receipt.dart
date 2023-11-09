@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.dart';
 import 'package:cezeri_commerce/3_domain/entities/carrier/carrier_product.dart';
 import 'package:json_annotation/json_annotation.dart';
@@ -9,11 +10,13 @@ import '../../entities_presta/country_presta.dart';
 import '../../entities_presta/currency_presta.dart';
 import '../../entities_presta/customer_presta.dart';
 import '../../entities_presta/order_presta.dart';
+import '../../enums/enums.dart';
 import '../address.dart';
 import '../carrier/carrier.dart';
 import '../carrier/parcel_tracking.dart';
 import '../customer/customer.dart';
 import '../marketplace/marketplace.dart';
+import '../packaging_box.dart';
 import '../settings/bank_details.dart';
 import '../settings/main_settings.dart';
 import '../settings/payment_method.dart';
@@ -40,13 +43,14 @@ enum ReceiptTyp {
 enum OfferStatus { noOffer, open, closed }
 
 // Status des Auftrages (Ob daraus eine Rechnung entstanden ist)
-enum ReceiptStatus { open, completed }
+enum AppointmentStatus { open, partiallyCompleted, completed }
 
 // Zahlungsstatus
 enum PaymentStatus { open, partiallyPaid, paid }
 
 @JsonSerializable(explicitToJson: true)
 class Receipt {
+  final String id;
   final String receiptId;
   final int offerId;
   final String offerNumberAsString;
@@ -74,10 +78,11 @@ class Receipt {
   final Address addressDelivery;
   final ReceiptTyp receiptTyp;
   final OfferStatus offerStatus;
-  final ReceiptStatus receiptStatus;
+  final AppointmentStatus appointmentStatus;
   final PaymentStatus paymentStatus;
   final Tax tax;
   final bool isSmallBusiness;
+  final bool isPicked;
   final int termOfPayment;
   final double totalGross;
   final double totalNet;
@@ -118,11 +123,13 @@ class Receipt {
   final ReceiptCarrier receiptCarrier;
   final ReceiptMarketplace receiptMarketplace;
   final DateTime creationDateMarektplace;
+  final PackagingBox? packagingBox;
   final DateTime creationDate; // Wenn importiert: DateTime import // Wenn dirkt angelegt: Datum Erstellung
   final int creationDateInt;
   final DateTime lastEditingDate;
 
   const Receipt({
+    required this.id,
     required this.receiptId,
     required this.offerId,
     required this.offerNumberAsString,
@@ -150,10 +157,11 @@ class Receipt {
     required this.addressDelivery,
     required this.receiptTyp,
     required this.offerStatus,
-    required this.receiptStatus,
+    required this.appointmentStatus,
     required this.paymentStatus,
     required this.tax,
     required this.isSmallBusiness,
+    required this.isPicked,
     required this.termOfPayment,
     required this.totalGross,
     required this.totalNet,
@@ -194,6 +202,7 @@ class Receipt {
     required this.receiptCarrier,
     required this.receiptMarketplace,
     required this.creationDateMarektplace,
+    this.packagingBox,
     required this.creationDate,
     required this.creationDateInt,
     required this.lastEditingDate,
@@ -241,12 +250,139 @@ class Receipt {
       invoiceId: nextInvoiceNumber,
       invoiceNumberAsString: settings.invoicePraefix + nextInvoiceNumber.toString(),
       receiptTyp: ReceiptTyp.invoice,
-      receiptStatus: ReceiptStatus.completed,
+      appointmentStatus: AppointmentStatus.completed,
       receiptDocumentText: settings.invoiceDocumentText,
       creationDate: now,
       creationDateInt: now.microsecondsSinceEpoch,
       lastEditingDate: now,
     );
+  }
+
+  factory Receipt.genPartial(GenType genType, Receipt originalAppointment) {
+    List<ReceiptProduct> receiptProducts = [];
+    for (final receiptProduct in originalAppointment.listOfReceiptProduct) {
+      if (genType == GenType.partialRest) {
+        if (receiptProduct.shippedQuantity >= receiptProduct.quantity || receiptProduct.shippedQuantity < 0) continue;
+      }
+      if (genType == GenType.partialToCreate) {
+        if (receiptProduct.shippedQuantity == 0) continue;
+      }
+
+      final discountPercentAmountGrossUnit =
+          (calcPercentageAmount(receiptProduct.unitPriceGross, receiptProduct.discountPercent)).toMyRoundedDouble();
+      final discountPercentAmountNetUnit = (discountPercentAmountGrossUnit / taxToCalc(receiptProduct.tax.taxRate)).toMyRoundedDouble();
+      final profitUnit = receiptProduct.unitPriceNet - receiptProduct.wholesalePrice - receiptProduct.discountNetUnit;
+      final quantity = switch (genType) {
+        GenType.partialToCreate => receiptProduct.shippedQuantity,
+        GenType.partialRest => receiptProduct.quantity - receiptProduct.shippedQuantity,
+      };
+      final shippedQuantity = switch (genType) {
+        GenType.partialToCreate => receiptProduct.shippedQuantity,
+        GenType.partialRest => 0,
+      };
+      final profit = switch (genType) {
+        GenType.partialToCreate => profitUnit * shippedQuantity,
+        GenType.partialRest => profitUnit * quantity,
+      };
+      final discountGross = switch (genType) {
+        GenType.partialToCreate => ((discountPercentAmountGrossUnit + receiptProduct.discountGrossUnit) * shippedQuantity).toMyRoundedDouble(),
+        GenType.partialRest => ((discountPercentAmountGrossUnit + receiptProduct.discountGrossUnit) * quantity).toMyRoundedDouble(),
+      };
+      final discountNet = switch (genType) {
+        GenType.partialToCreate => ((discountPercentAmountNetUnit + receiptProduct.discountNetUnit) * shippedQuantity).toMyRoundedDouble(),
+        GenType.partialRest => ((discountPercentAmountNetUnit + receiptProduct.discountNetUnit) * quantity).toMyRoundedDouble(),
+      };
+      final newReceiptProduct = receiptProduct.copyWith(
+        quantity: quantity,
+        shippedQuantity: shippedQuantity,
+        discountGross: discountGross,
+        discountNet: discountNet,
+        discountPercentAmountGrossUnit: discountPercentAmountGrossUnit,
+        discountPercentAmountNetUnit: discountPercentAmountNetUnit,
+        profitUnit: profitUnit,
+        profit: profit,
+      );
+      receiptProducts.add(newReceiptProduct);
+    }
+
+    final phAppointment = switch (originalAppointment.appointmentStatus) {
+      AppointmentStatus.open => genType == GenType.partialRest
+          ? originalAppointment
+          : originalAppointment.copyWith(
+              listOfReceiptProduct: receiptProducts,
+            ),
+      AppointmentStatus.partiallyCompleted => originalAppointment.copyWith(
+          listOfReceiptProduct: receiptProducts,
+          totalShippingGross: 0,
+          totalShippingNet: 0,
+          totalShippingTax: 0,
+          totalWrappingGross: 0,
+          totalWrappingNet: 0,
+          totalWrappingTax: 0,
+          discountGross: 0,
+          discountNet: 0,
+          discountTax: 0,
+          additionalAmountNet: 0,
+          additionalAmountTax: 0,
+          additionalAmountGross: 0,
+        ),
+      _ => throw Error(),
+    };
+
+    final productsTotalNet =
+        (receiptProducts.map((e) => e.unitPriceNet * e.quantity).toList().reduce((value, element) => value + element)).toMyRoundedDouble();
+    final productsTotalGross =
+        (receiptProducts.map((e) => e.unitPriceGross * e.quantity).toList().reduce((value, element) => value + element)).toMyRoundedDouble();
+    final double posDiscountPercentAmount = receiptProducts.fold(
+        0, (prev, product) => prev + (calcPercentageAmount(product.unitPriceGross * product.quantity, product.discountPercent)).toMyRoundedDouble());
+    final discountPercentageAmountGross = (calcPercentageAmount(productsTotalGross, phAppointment.discountPercent)).toMyRoundedDouble();
+    final tax = phAppointment.tax.taxRate;
+    final taxAmount = productsTotalGross -
+        productsTotalNet -
+        calcTaxAmount(posDiscountPercentAmount, tax).toMyRoundedDouble() -
+        calcTaxAmount(discountPercentageAmountGross, tax).toMyRoundedDouble() -
+        calcTaxAmount(phAppointment.discountGross, tax).toMyRoundedDouble() +
+        calcTaxAmount(phAppointment.totalShippingGross, tax).toMyRoundedDouble() +
+        calcTaxAmount(phAppointment.additionalAmountGross, tax).toMyRoundedDouble();
+    final totalGross = productsTotalGross -
+        posDiscountPercentAmount -
+        discountPercentageAmountGross -
+        phAppointment.discountGross +
+        phAppointment.totalShippingGross +
+        phAppointment.additionalAmountGross;
+    double profit = switch (genType) {
+      GenType.partialRest => 0,
+      GenType.partialToCreate => switch (originalAppointment.appointmentStatus) {
+          AppointmentStatus.open => phAppointment.totalShippingNet,
+          AppointmentStatus.partiallyCompleted => 0,
+          _ => throw Error(),
+        }
+    };
+    for (var product in receiptProducts) {
+      profit += product.profit;
+    }
+    final newReceipt = phAppointment.copyWith(
+      totalGross: totalGross,
+      totalNet: (totalGross / taxToCalc(tax)).toMyRoundedDouble(),
+      totalTax: taxAmount,
+      subTotalNet: productsTotalNet,
+      subTotalTax: productsTotalGross - productsTotalNet,
+      subTotalGross: productsTotalGross,
+      discountPercent: phAppointment.discountPercent,
+      discountPercentAmountGross: discountPercentageAmountGross,
+      discountPercentAmountNet: (discountPercentageAmountGross / taxToCalc(tax)).toMyRoundedDouble(),
+      discountPercentAmountTax: (discountPercentageAmountGross - (discountPercentageAmountGross / taxToCalc(tax))).toMyRoundedDouble(),
+      posDiscountPercentAmountGross: posDiscountPercentAmount,
+      posDiscountPercentAmountNet: (posDiscountPercentAmount / taxToCalc(tax)).toMyRoundedDouble(),
+      posDiscountPercentAmountTax: (posDiscountPercentAmount - (posDiscountPercentAmount / taxToCalc(tax))).toMyRoundedDouble(),
+      profit: profit,
+      profitExclShipping: profit - phAppointment.totalShippingNet,
+      profitExclWrapping: profit - phAppointment.totalWrappingNet,
+      profitExclShippingAndWrapping: profit - phAppointment.totalShippingNet - phAppointment.totalWrappingNet,
+      listOfReceiptProduct: receiptProducts,
+    );
+
+    return newReceipt;
   }
 
   factory Receipt.fromOrderPresta({
@@ -344,6 +480,7 @@ class Receipt {
     //final searchField = '${customer.name} / ${customer.company} / ${customer.name} / ';
 
     return Receipt(
+      id: '',
       receiptId: '',
       offerId: 0,
       offerNumberAsString: '',
@@ -371,10 +508,11 @@ class Receipt {
       addressDelivery: addressDelivery,
       receiptTyp: ReceiptTyp.appointment,
       offerStatus: OfferStatus.noOffer,
-      receiptStatus: ReceiptStatus.open,
+      appointmentStatus: AppointmentStatus.open,
       paymentStatus: getPaymentStatus(),
       tax: mainSettings.taxes.where((e) => e.taxRate.round() == calcTaxPercent(getTotalGross(), getTotalNet()).round()).first,
       isSmallBusiness: mainSettings.isSmallBusiness,
+      isPicked: false,
       termOfPayment: mainSettings.termOfPayment,
       totalGross: getTotalGross(),
       totalNet: getTotalNet(),
@@ -426,6 +564,7 @@ class Receipt {
 
   factory Receipt.empty() {
     return Receipt(
+      id: '',
       receiptId: '',
       offerId: 0,
       offerNumberAsString: '',
@@ -453,10 +592,11 @@ class Receipt {
       addressDelivery: Address.empty(),
       receiptTyp: ReceiptTyp.appointment,
       offerStatus: OfferStatus.open,
-      receiptStatus: ReceiptStatus.open,
+      appointmentStatus: AppointmentStatus.open,
       paymentStatus: PaymentStatus.open,
       tax: Tax.empty(),
       isSmallBusiness: false,
+      isPicked: false,
       termOfPayment: 14,
       totalGross: 0,
       totalNet: 0,
@@ -497,6 +637,7 @@ class Receipt {
       receiptCarrier: ReceiptCarrier.empty(),
       receiptMarketplace: ReceiptMarketplace.empty(),
       creationDateMarektplace: DateTime.now(),
+      packagingBox: null,
       creationDate: DateTime.now(),
       creationDateInt: 0,
       lastEditingDate: DateTime.now(),
@@ -504,6 +645,7 @@ class Receipt {
   }
 
   Receipt copyWith({
+    String? id,
     String? receiptId,
     int? offerId,
     String? offerNumberAsString,
@@ -531,10 +673,11 @@ class Receipt {
     Address? addressDelivery,
     ReceiptTyp? receiptTyp,
     OfferStatus? offerStatus,
-    ReceiptStatus? receiptStatus,
+    AppointmentStatus? appointmentStatus,
     PaymentStatus? paymentStatus,
     Tax? tax,
     bool? isSmallBusiness,
+    bool? isPicked,
     int? termOfPayment,
     double? totalGross,
     double? totalNet,
@@ -575,11 +718,13 @@ class Receipt {
     ReceiptCarrier? receiptCarrier,
     ReceiptMarketplace? receiptMarketplace,
     DateTime? creationDateMarektplace,
+    PackagingBox? packagingBox,
     DateTime? creationDate,
     int? creationDateInt,
     DateTime? lastEditingDate,
   }) {
     return Receipt(
+      id: id ?? this.id,
       receiptId: receiptId ?? this.receiptId,
       offerId: offerId ?? this.offerId,
       offerNumberAsString: offerNumberAsString ?? this.offerNumberAsString,
@@ -607,10 +752,11 @@ class Receipt {
       addressDelivery: addressDelivery ?? this.addressDelivery,
       receiptTyp: receiptTyp ?? this.receiptTyp,
       offerStatus: offerStatus ?? this.offerStatus,
-      receiptStatus: receiptStatus ?? this.receiptStatus,
+      appointmentStatus: appointmentStatus ?? this.appointmentStatus,
       paymentStatus: paymentStatus ?? this.paymentStatus,
       tax: tax ?? this.tax,
       isSmallBusiness: isSmallBusiness ?? this.isSmallBusiness,
+      isPicked: isPicked ?? this.isPicked,
       termOfPayment: termOfPayment ?? this.termOfPayment,
       totalGross: totalGross ?? this.totalGross,
       totalNet: totalNet ?? this.totalNet,
@@ -651,6 +797,7 @@ class Receipt {
       receiptCarrier: receiptCarrier ?? this.receiptCarrier,
       receiptMarketplace: receiptMarketplace ?? this.receiptMarketplace,
       creationDateMarektplace: creationDateMarektplace ?? this.creationDateMarektplace,
+      packagingBox: packagingBox ?? this.packagingBox,
       creationDate: creationDate ?? this.creationDate,
       creationDateInt: creationDateInt ?? this.creationDateInt,
       lastEditingDate: lastEditingDate ?? this.lastEditingDate,
@@ -659,6 +806,6 @@ class Receipt {
 
   @override
   String toString() {
-    return 'Receipt(receiptId: $receiptId, offerId: $offerId, offerNumberAsString: $offerNumberAsString, appointmentId: $appointmentId, appointmentNumberAsString: $appointmentNumberAsString, deliveryNoteId: $deliveryNoteId, deliveryNoteNumberAsString: $deliveryNoteNumberAsString, invoiceId: $invoiceId, invoiceNumberAsString: $invoiceNumberAsString, creditId: $creditId, creditNumberAsString: $creditNumberAsString, marketplaceId: $marketplaceId, receiptMarketplaceId: $receiptMarketplaceId, receiptMarketplaceReference: $receiptMarketplaceReference, paymentMethod: $paymentMethod, commentInternal: $commentInternal, commentGlobal: $commentGlobal, currency: $currency, receiptDocumentText: $receiptDocumentText, uidNumber: $uidNumber, searchField: $searchField, customerId: $customerId, receiptCustomer: $receiptCustomer, addressInvoice: $addressInvoice, addressDelivery: $addressDelivery, receiptTyp: $receiptTyp, offerStatus: $offerStatus, receiptStatus: $receiptStatus, paymentStatus: $paymentStatus, tax: $tax, isSmallBusiness: $isSmallBusiness, termOfPayment: $termOfPayment, totalGross: $totalGross, totalNet: $totalNet, totalTax: $totalTax, subTotalNet: $subTotalNet, subTotalTax: $subTotalTax, subTotalGross: $subTotalGross, totalPaidGross: $totalPaidGross, totalPaidNet: $totalPaidNet, totalPaidTax: $totalPaidTax, totalShippingGross: $totalShippingGross, totalShippingNet: $totalShippingNet, totalShippingTax: $totalShippingTax, totalWrappingGross: $totalWrappingGross, totalWrappingNet: $totalWrappingNet, totalWrappingTax: $totalWrappingTax, discountGross: $discountGross, discountNet: $discountNet, discountTax: $discountTax, discountPercent: $discountPercent, discountPercentAmountGross: $discountPercentAmountGross, discountPercentAmountNet: $discountPercentAmountNet, discountPercentAmountTax: $discountPercentAmountTax, posDiscountPercentAmountGross: $posDiscountPercentAmountGross, posDiscountPercentAmountNet: $posDiscountPercentAmountNet, posDiscountPercentAmountTax: $posDiscountPercentAmountTax, additionalAmountNet: $additionalAmountNet, additionalAmountTax: $additionalAmountTax, additionalAmountGross: $additionalAmountGross, profit: $profit, profitExclShipping: $profitExclShipping, profitExclWrapping: $profitExclWrapping, profitExclShippingAndWrapping: $profitExclShippingAndWrapping, bankDetails: $bankDetails, listOfPayments: $listOfPayments, listOfReceiptProduct: $listOfReceiptProduct, listOfParcelTracking: $listOfParcelTracking, receiptCarrier: $receiptCarrier, receiptMarketplace: $receiptMarketplace, creationDateMarektplace: $creationDateMarektplace, creationDate: $creationDate, creationDateInt: $creationDateInt, lastEditingDate: $lastEditingDate)';
+    return 'Receipt(id: $id, receiptId: $receiptId, offerId: $offerId, offerNumberAsString: $offerNumberAsString, appointmentId: $appointmentId, appointmentNumberAsString: $appointmentNumberAsString, deliveryNoteId: $deliveryNoteId, deliveryNoteNumberAsString: $deliveryNoteNumberAsString, invoiceId: $invoiceId, invoiceNumberAsString: $invoiceNumberAsString, creditId: $creditId, creditNumberAsString: $creditNumberAsString, marketplaceId: $marketplaceId, receiptMarketplaceId: $receiptMarketplaceId, receiptMarketplaceReference: $receiptMarketplaceReference, paymentMethod: $paymentMethod, commentInternal: $commentInternal, commentGlobal: $commentGlobal, currency: $currency, receiptDocumentText: $receiptDocumentText, uidNumber: $uidNumber, searchField: $searchField, customerId: $customerId, receiptCustomer: $receiptCustomer, addressInvoice: $addressInvoice, addressDelivery: $addressDelivery, receiptTyp: $receiptTyp, offerStatus: $offerStatus, appointmentStatus: $appointmentStatus, paymentStatus: $paymentStatus, tax: $tax, isSmallBusiness: $isSmallBusiness, isPicked: $isPicked, termOfPayment: $termOfPayment, totalGross: $totalGross, totalNet: $totalNet, totalTax: $totalTax, subTotalNet: $subTotalNet, subTotalTax: $subTotalTax, subTotalGross: $subTotalGross, totalPaidGross: $totalPaidGross, totalPaidNet: $totalPaidNet, totalPaidTax: $totalPaidTax, totalShippingGross: $totalShippingGross, totalShippingNet: $totalShippingNet, totalShippingTax: $totalShippingTax, totalWrappingGross: $totalWrappingGross, totalWrappingNet: $totalWrappingNet, totalWrappingTax: $totalWrappingTax, discountGross: $discountGross, discountNet: $discountNet, discountTax: $discountTax, discountPercent: $discountPercent, discountPercentAmountGross: $discountPercentAmountGross, discountPercentAmountNet: $discountPercentAmountNet, discountPercentAmountTax: $discountPercentAmountTax, posDiscountPercentAmountGross: $posDiscountPercentAmountGross, posDiscountPercentAmountNet: $posDiscountPercentAmountNet, posDiscountPercentAmountTax: $posDiscountPercentAmountTax, additionalAmountNet: $additionalAmountNet, additionalAmountTax: $additionalAmountTax, additionalAmountGross: $additionalAmountGross, profit: $profit, profitExclShipping: $profitExclShipping, profitExclWrapping: $profitExclWrapping, profitExclShippingAndWrapping: $profitExclShippingAndWrapping, bankDetails: $bankDetails, listOfPayments: $listOfPayments, listOfReceiptProduct: $listOfReceiptProduct, listOfParcelTracking: $listOfParcelTracking, receiptCarrier: $receiptCarrier, receiptMarketplace: $receiptMarketplace, creationDateMarektplace: $creationDateMarektplace, packagingBox: $packagingBox, creationDate: $creationDate, creationDateInt: $creationDateInt, lastEditingDate: $lastEditingDate)';
   }
 }

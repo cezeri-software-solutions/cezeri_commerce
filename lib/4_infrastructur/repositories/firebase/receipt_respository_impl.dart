@@ -19,6 +19,7 @@ import '../../../3_domain/entities/product/product.dart';
 import '../../../3_domain/entities/settings/main_settings.dart';
 import '../../../3_domain/entities_presta/order_presta.dart';
 import '../../../3_domain/entities_presta/product_presta.dart';
+import '../../../3_domain/enums/enums.dart';
 import '../../../3_domain/repositories/firebase/main_settings_respository.dart';
 import '../../../3_domain/repositories/firebase/product_repository.dart';
 import '../../../3_domain/repositories/prestashop/product/product_import_repository.dart';
@@ -42,12 +43,12 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
   });
 
   @override
-  Future<Either<FirebaseFailure, Receipt>> getAppointment(Receipt appointment) async {
+  Future<Either<FirebaseFailure, Receipt>> getAppointment(Receipt receipt) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
 
     final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRef = db.collection(currentUserUid).doc(currentUserUid).collection('Appointments').doc(appointment.receiptId);
+    final docRef = getColRef(currentUserUid, receipt.receiptTyp).doc(receipt.id);
 
     try {
       final loadedAppointment = await docRef.get();
@@ -68,7 +69,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
     if (!isConnected) return left(NoConnectionFailure());
 
     final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRef = db.collection(currentUserUid).doc(currentUserUid).collection('Appointments').doc(appointment.receiptId);
+    final docRef = db.collection(currentUserUid).doc(currentUserUid).collection('Appointments').doc(appointment.id);
 
     try {
       await db.runTransaction((transaction) async {
@@ -148,6 +149,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
         final docRef = db.collection(currentUserUid).doc(currentUserUid).collection('Appointments').doc();
 
         toCreateAppointment = appointment.copyWith(
+          id: docRef.id,
           receiptId: docRef.id,
           appointmentId: settings.nextAppointmentNumber,
           appointmentNumberAsString: settings.appointmentPraefix + settings.nextAppointmentNumber.toString(),
@@ -309,7 +311,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
           );
 
           final docRefAppointment = db.collection(currentUserUid).doc(currentUserUid).collection('Appointments').doc();
-          final appointment = phAppointment.copyWith(receiptId: docRefAppointment.id);
+          final appointment = phAppointment.copyWith(id: docRefAppointment.id, receiptId: docRefAppointment.id);
           docRefAppointment.set(appointment.toJson());
           listOfReceiptToReturn.add(appointment);
 
@@ -341,7 +343,8 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
         ? getColRef(currentUserUid, receiptTyp)
         : switch (receiptTyp) {
             ReceiptTyp.offer => getColRef(currentUserUid, receiptTyp).where('offerStatus', isEqualTo: OfferStatus.closed.name),
-            ReceiptTyp.appointment => getColRef(currentUserUid, receiptTyp).where('receiptStatus', isEqualTo: ReceiptStatus.open.name),
+            ReceiptTyp.appointment => getColRef(currentUserUid, receiptTyp)
+                .where('appointmentStatus', whereIn: [AppointmentStatus.open.name, AppointmentStatus.partiallyCompleted.name]),
             ReceiptTyp.deliveryNote =>
               getColRef(currentUserUid, receiptTyp).where('paymentStatus', whereIn: [PaymentStatus.open.name, PaymentStatus.partiallyPaid.name]),
             ReceiptTyp.invoice ||
@@ -355,26 +358,12 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
           );
 
       //* Zum hinzufügen von neuen Attributen.
-      // for (final marketplace in listOfAppointments) {
-      //   final docRefMp = db.collection(currentUserUid).doc(currentUserUid).collection('Marketetplaces').doc(marketplace.id);
-      //   final updatedMp = marketplace.copyWith(marketplaceSettings: AppointmentSettings.empty());
-      //   await docRefMp.update(updatedMp.toJson());
+      // for (final receipt in listOfAppointments) {
+      //   final docRefReceipt = getColRef(currentUserUid, receiptTyp).doc(receipt.id);
+      //   final updatedReceipt = receipt.copyWith(isPicked: false);
+      //   await docRefReceipt.update(updatedReceipt.toJson());
       // }
-
-      // List<Receipt> phAppointments = [];
-      // for (final app in listOfAppointments) {
-      //   const ccfId = '9dP9VFfOmw0b3tSdmw71';
-      //   const cccId = 'kTKz7pH6HvcyTolKTQbm';
-      //   if (app.receiptMarketplaceReference.startsWith('CCF_')) {
-      //     final docRefNew = db.collection(currentUserUid).doc(currentUserUid).collection('Appointments').doc(app.receiptId);
-      //     final phApp = app.copyWith(marketplaceId: ccfId);
-      //     await docRefNew.update(phApp.toJson());
-      //   } else {
-      //     final docRefNew = db.collection(currentUserUid).doc(currentUserUid).collection('Appointments').doc(app.receiptId);
-      //     final phApp = app.copyWith(marketplaceId: cccId);
-      //     await docRefNew.update(phApp.toJson());
-      //   }
-      // }
+      //* ENDE hinzufügen von neuen Attributen
 
       if (listOfAppointments.isEmpty) return left(EmptyFailure());
       return right(listOfAppointments);
@@ -425,7 +414,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
             );
           }
           // TODO: update quantity in marketplaces triggern
-          final docRef = getColRef(curUserUid, receiptTyp).doc(receipt.receiptId);
+          final docRef = getColRef(curUserUid, receiptTyp).doc(receipt.id);
           transaction.delete(docRef);
         });
       }
@@ -437,7 +426,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
   }
 
   @override
-  Future<Either<FirebaseFailure, List<Receipt>>> generateFromAppointment(
+  Future<Either<FirebaseFailure, List<Receipt>>> generateFromListOfAppointments(
     List<Receipt> listOfReceipts,
     bool generateDeliveryNote,
     bool generateInvoice,
@@ -463,19 +452,20 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
             return e.copyWith(shippedQuantity: e.quantity);
           }).toList();
           Receipt appointment = receipt.copyWith(
-            receiptStatus: ReceiptStatus.completed,
+            appointmentStatus: AppointmentStatus.completed,
             lastEditingDate: DateTime.now(),
             listOfReceiptProduct: updatedReceiptProducts,
           );
           if (generateDeliveryNote) {
-            final deliveryNote = Receipt.fromAppointmentGenDeliveryNote(
+            final phDeliveryNote = Receipt.fromAppointmentGenDeliveryNote(
               appointment: appointment,
               settings: settings,
               nextDeliveryNoteNumber: nextDeliveryNoteNumber,
               nextInvoiceNumber: nextInvoiceNumber,
               generateInvoice: generateInvoice,
             );
-            final docRefDn = getColRef(currentUserUid, deliveryNote.receiptTyp).doc(appointment.receiptId);
+            final docRefDn = getColRef(currentUserUid, phDeliveryNote.receiptTyp).doc();
+            final deliveryNote = phDeliveryNote.copyWith(id: docRefDn.id);
             transaction.set(docRefDn, deliveryNote.toJson());
             nextDeliveryNoteNumber += 1;
             generatedReceipts.add(deliveryNote);
@@ -486,14 +476,15 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
           }
 
           if (generateInvoice) {
-            final invoice = Receipt.fromAppointmentGenInvoice(
+            final phInvoice = Receipt.fromAppointmentGenInvoice(
               appointment: appointment,
               settings: settings,
               nextDeliveryNoteNumber: nextDeliveryNoteNumber,
               nextInvoiceNumber: nextInvoiceNumber,
               generateDeliveryNote: generateDeliveryNote,
             );
-            final docRefI = getColRef(currentUserUid, invoice.receiptTyp).doc(appointment.receiptId);
+            final docRefI = getColRef(currentUserUid, phInvoice.receiptTyp).doc();
+            final invoice = phInvoice.copyWith(id: docRefI.id);
             transaction.set(docRefI, invoice.toJson());
             nextInvoiceNumber += 1;
             generatedReceipts.add(invoice);
@@ -503,7 +494,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
             );
           }
 
-          transaction.update(getColRef(currentUserUid, appointment.receiptTyp).doc(appointment.receiptId), appointment.toJson());
+          transaction.update(getColRef(currentUserUid, appointment.receiptTyp).doc(appointment.id), appointment.toJson());
 
           for (final receiptProduct in receipt.listOfReceiptProduct) {
             if (!receiptProduct.isFromDatabase) continue;
@@ -526,6 +517,137 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
           }
         });
       }
+      final updatedMainSettings = settings.copyWith(nextDeliveryNoteNumber: nextDeliveryNoteNumber, nextInvoiceNumber: nextInvoiceNumber);
+      await docRefSettings.update(updatedMainSettings.toJson());
+      return right(generatedReceipts);
+    } on FirebaseException {
+      return left(GeneralFailure());
+    } catch (e) {
+      return left(GeneralFailure());
+    }
+  }
+
+  @override
+  Future<Either<FirebaseFailure, List<Receipt>>> generateFromAppointment(
+    Receipt incomingAppointment,
+    Receipt originalAppointment,
+    bool generateDeliveryNote,
+    bool generateInvoice,
+  ) async {
+    final isConnected = await checkInternetConnection();
+    if (!isConnected) return left(NoConnectionFailure());
+    final logger = Logger();
+
+    final currentUserUid = firebaseAuth.currentUser!.uid;
+    final docRefSettings = db.collection(currentUserUid).doc(currentUserUid).collection('Settings').doc(currentUserUid);
+
+    List<Receipt> generatedReceipts = [];
+
+    final isCompletelyPacked = incomingAppointment.listOfReceiptProduct.every((e) => e.shippedQuantity == e.quantity);
+    final isCompletelyPackedInOnePart = originalAppointment.appointmentStatus == AppointmentStatus.open && isCompletelyPacked;
+
+    try {
+      final settingsSnapshot = await docRefSettings.get();
+      final settings = MainSettings.fromJson(settingsSnapshot.data()!);
+      int nextDeliveryNoteNumber = settings.nextDeliveryNoteNumber;
+      int nextInvoiceNumber = settings.nextInvoiceNumber;
+
+      await db.runTransaction((transaction) async {
+        List<ReceiptProduct> updatedOriginalAppointmentProducts = isCompletelyPacked
+            ? originalAppointment.listOfReceiptProduct.map((e) {
+                return e.copyWith(shippedQuantity: e.quantity);
+              }).toList()
+            : originalAppointment.listOfReceiptProduct.map((e) {
+                final receiptProduct = incomingAppointment.listOfReceiptProduct
+                    .where((element) => element.name == e.name && element.articleNumber == e.articleNumber)
+                    .firstOrNull;
+                if (receiptProduct == null) {
+                  return e;
+                } else {
+                  return e.copyWith(shippedQuantity: receiptProduct.shippedQuantity);
+                }
+              }).toList();
+
+        Receipt partialAppointment = Receipt.genPartial(GenType.partialToCreate, incomingAppointment);
+
+        Receipt originalAppointmentToUpdate = isCompletelyPackedInOnePart
+            ? incomingAppointment.copyWith(
+                appointmentStatus: AppointmentStatus.completed,
+                lastEditingDate: DateTime.now(),
+              )
+            : originalAppointment.copyWith(
+                appointmentStatus: updatedOriginalAppointmentProducts.every((e) => e.shippedQuantity == e.quantity)
+                    ? AppointmentStatus.completed
+                    : AppointmentStatus.partiallyCompleted,
+                lastEditingDate: DateTime.now(),
+                listOfReceiptProduct: updatedOriginalAppointmentProducts,
+              );
+
+        if (generateDeliveryNote) {
+          final phDeliveryNote = Receipt.fromAppointmentGenDeliveryNote(
+            appointment: isCompletelyPackedInOnePart ? incomingAppointment : partialAppointment,
+            settings: settings,
+            nextDeliveryNoteNumber: nextDeliveryNoteNumber,
+            nextInvoiceNumber: nextInvoiceNumber,
+            generateInvoice: generateInvoice,
+          );
+          final docRefDn = getColRef(currentUserUid, phDeliveryNote.receiptTyp).doc();
+          final deliveryNote = phDeliveryNote.copyWith(id: docRefDn.id);
+          transaction.set(docRefDn, deliveryNote.toJson());
+          nextDeliveryNoteNumber += 1;
+          generatedReceipts.add(deliveryNote);
+          originalAppointmentToUpdate = originalAppointmentToUpdate.copyWith(
+            deliveryNoteId: deliveryNote.deliveryNoteId,
+            deliveryNoteNumberAsString: deliveryNote.deliveryNoteNumberAsString,
+          );
+        }
+
+        if (generateInvoice) {
+          final phInvoice = Receipt.fromAppointmentGenInvoice(
+            appointment: isCompletelyPackedInOnePart ? incomingAppointment : partialAppointment,
+            settings: settings,
+            nextDeliveryNoteNumber: nextDeliveryNoteNumber,
+            nextInvoiceNumber: nextInvoiceNumber,
+            generateDeliveryNote: generateDeliveryNote,
+          );
+          final docRefI = getColRef(currentUserUid, phInvoice.receiptTyp).doc();
+          final invoice = phInvoice.copyWith(id: docRefI.id);
+          transaction.set(docRefI, invoice.toJson());
+          nextInvoiceNumber += 1;
+          generatedReceipts.add(invoice);
+          originalAppointmentToUpdate = originalAppointmentToUpdate.copyWith(
+            invoiceId: invoice.invoiceId,
+            invoiceNumberAsString: invoice.invoiceNumberAsString,
+          );
+        }
+
+        transaction.update(
+          getColRef(currentUserUid, originalAppointmentToUpdate.receiptTyp).doc(originalAppointment.id),
+          originalAppointmentToUpdate.toJson(),
+        );
+
+        for (final receiptProduct
+            in isCompletelyPackedInOnePart ? originalAppointment.listOfReceiptProduct : incomingAppointment.listOfReceiptProduct) {
+          if (!receiptProduct.isFromDatabase) continue;
+          Product? product;
+          final fosProduct = await productRepository.getProduct(receiptProduct.productId);
+          fosProduct.fold(
+            (failure) {
+              logger.e('Artikel ${receiptProduct.name} kontte nicht aus Firestore geladen werden: $failure');
+              return left(GeneralFailure());
+            },
+            (productFromFirestore) => product = productFromFirestore,
+          );
+          await updateProductWarehouseQuantityIncremental(
+            transaction: transaction,
+            db: db,
+            currentUserUid: currentUserUid,
+            product: product!,
+            newQuantityIncremental: isCompletelyPackedInOnePart ? receiptProduct.quantity * -1 : receiptProduct.shippedQuantity * -1,
+          );
+        }
+      });
+
       final updatedMainSettings = settings.copyWith(nextDeliveryNoteNumber: nextDeliveryNoteNumber, nextInvoiceNumber: nextInvoiceNumber);
       await docRefSettings.update(updatedMainSettings.toJson());
       return right(generatedReceipts);
@@ -718,6 +840,7 @@ ReceiptProduct generateReceiptProduct({
     discountPercentAmountNetUnit: 0,
     profitUnit: (orderProductPresta.unitPriceTaxExcl).toMyDouble() - (product.wholesalePrice),
     profit: ((orderProductPresta.unitPriceTaxExcl).toMyDouble() - product.wholesalePrice) * quantity,
+    weight: product.weight,
     isFromDatabase: true,
   );
 }

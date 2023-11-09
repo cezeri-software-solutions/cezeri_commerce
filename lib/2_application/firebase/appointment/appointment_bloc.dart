@@ -72,10 +72,10 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
             tabValue: event.tabValue,
             receiptTyp: event.receiptTyp,
           ));
+
+          add(OnSearchFieldSubmittedAppointmentsEvent());
         },
       );
-
-      add(OnSearchFieldSubmittedAppointmentsEvent());
 
       emit(state.copyWith(
         isLoadingReceiptsOnObserve: false,
@@ -171,7 +171,7 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
         (unit) {
           List<Receipt> appointments = List.from(state.listOfFilteredReceipts!);
           for (final appointment in event.selectedReceipts) {
-            appointments.removeWhere((e) => e.receiptId == appointment.receiptId);
+            appointments.removeWhere((e) => e.id == appointment.id);
           }
           emit(state.copyWith(
             listOfFilteredReceipts: appointments,
@@ -202,7 +202,7 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
             _ => state.listOfAllReceipts!,
           },
         ReceiptTyp.appointment => switch (state.tabValue) {
-            0 => state.listOfAllReceipts!.where((e) => e.receiptStatus == ReceiptStatus.open).toList(),
+            0 => state.listOfAllReceipts!.where((e) => e.appointmentStatus != AppointmentStatus.completed).toList(),
             _ => state.listOfAllReceipts!,
           },
         ReceiptTyp.deliveryNote => switch (state.tabValue) {
@@ -238,7 +238,7 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
     on<OnGenerateFromAppointmentEvent>((event, emit) async {
       emit(state.copyWith(isLoadingReceiptOnGenerate: true));
 
-      final failureOrSuccess = await receiptRepository.generateFromAppointment(
+      final failureOrSuccess = await receiptRepository.generateFromListOfAppointments(
         state.selectedReceipts,
         event.generateDeliveryNote,
         event.generateInvoice,
@@ -274,8 +274,8 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
 
     on<OnAppointmentSelectedEvent>((event, emit) async {
       List<Receipt> appointments = List.from(state.selectedReceipts);
-      if (appointments.any((e) => e.receiptId == event.appointment.receiptId)) {
-        appointments.removeWhere((e) => e.receiptId == event.appointment.receiptId);
+      if (appointments.any((e) => e.id == event.appointment.id)) {
+        appointments.removeWhere((e) => e.id == event.appointment.id);
       } else {
         appointments.add(event.appointment);
       }

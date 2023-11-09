@@ -142,7 +142,7 @@ class __AppointmentContainerState extends State<_AppointmentContainer> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Checkbox.adaptive(
-                    value: state.selectedReceipts.any((e) => e.receiptId == widget.receipt.receiptId),
+                    value: state.selectedReceipts.any((e) => e.id == widget.receipt.id),
                     onChanged: (_) => widget.appointmentBloc.add(OnAppointmentSelectedEvent(appointment: widget.receipt)),
                   ),
                   SizedBox(
@@ -176,7 +176,7 @@ class __AppointmentContainerState extends State<_AppointmentContainer> {
                           constraints: const BoxConstraints(maxHeight: 30),
                           child: IconButton(
                             padding: EdgeInsets.zero,
-                            onPressed: () async => await _onPdfPressed(marketplace: marketplace), //await _onPdfPressed(marketplace: marketplace),
+                            onPressed: () async => await _onPdfPressed(marketplace: marketplace),
                             icon: _isLoadingPdf ? const MyCircularProgressIndicator() : const Icon(Icons.picture_as_pdf, color: Colors.red),
                           ),
                         ),
@@ -386,7 +386,7 @@ class __AppointmentContainerState extends State<_AppointmentContainer> {
       ReceiptTyp.invoice => widget.receipt.invoiceNumberAsString,
       ReceiptTyp.credit => widget.receipt.creditNumberAsString,
     };
-    final data = await PdfReceiptGenerator.generate(
+    final generatedPdf = await PdfReceiptGenerator.generate(
       receipt: widget.receipt,
       logoUrl: marketplace.logoUrl,
     );
@@ -407,9 +407,9 @@ class __AppointmentContainerState extends State<_AppointmentContainer> {
                     title: const Text(kIsWeb ? 'Im Browser öffnen' : 'Öffnen'),
                     onTap: () async {
                       if (kIsWeb) {
-                        await PdfApiWeb.saveDocument(name: '$receiptName.pdf', byteList: data, showInBrowser: true);
+                        await PdfApiWeb.saveDocument(name: '$receiptName.pdf', byteList: generatedPdf, showInBrowser: true);
                       } else {
-                        await PdfApiMobile.saveDocument(name: '$receiptName.pdf', byteList: data);
+                        await PdfApiMobile.saveDocument(name: '$receiptName.pdf', byteList: generatedPdf);
                       }
                       if (mounted) context.router.pop();
                     },
@@ -419,7 +419,7 @@ class __AppointmentContainerState extends State<_AppointmentContainer> {
                       leading: const Icon(Icons.download),
                       title: const Text('Herunterladen'),
                       onTap: () async {
-                        await PdfApiWeb.saveDocument(name: '$receiptName.pdf', byteList: data, showInBrowser: false);
+                        await PdfApiWeb.saveDocument(name: '$receiptName.pdf', byteList: generatedPdf, showInBrowser: false);
                         if (mounted) context.router.pop();
                       },
                     ),
@@ -427,7 +427,7 @@ class __AppointmentContainerState extends State<_AppointmentContainer> {
                     leading: const Icon(Icons.print),
                     title: const Text('Drucken'),
                     onTap: () async {
-                      await Printing.layoutPdf(onLayout: (_) => data);
+                      await Printing.layoutPdf(onLayout: (_) => generatedPdf);
                       if (mounted) context.router.pop();
                     },
                   ),

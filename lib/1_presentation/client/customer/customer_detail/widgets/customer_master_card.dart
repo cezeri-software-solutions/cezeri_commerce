@@ -1,7 +1,9 @@
+import 'package:cezeri_commerce/1_presentation/core/widgets/my_dropdown_button_small.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../../2_application/firebase/customer/customer_bloc.dart';
+import '../../../../../3_domain/entities/customer/customer.dart';
 import '../../../../../constants.dart';
 import '../../../../core/widgets/my_form_field_small.dart';
 
@@ -15,6 +17,13 @@ class CustomerMasterCard extends StatelessWidget {
     return BlocBuilder<CustomerBloc, CustomerState>(
       bloc: customerBloc,
       builder: (context, state) {
+        final invoiceTypeValue = switch (state.customer!.customerInvoiceType) {
+          CustomerInvoiceType.standardInvoice => 'Stand- Einzelrechnung',
+          CustomerInvoiceType.collectiveInvoice => 'Sammelrechnung',
+        };
+
+        final invoiceTypeItems = ['Stand- Einzelrechnung', 'Sammelrechnung'];
+
         return Card(
           child: Padding(
             padding: const EdgeInsets.all(8.0),
@@ -99,6 +108,18 @@ class CustomerMasterCard extends StatelessWidget {
                       ),
                     ),
                   ],
+                ),
+                Gaps.h4,
+                MyDropdownButtonSmall(
+                  value: invoiceTypeValue,
+                  onChanged: (type) => customerBloc.add(OnCustomerInvoiceTypeChangedEvent(
+                    customerInvoiceType: switch (type!) {
+                      'Stand- Einzelrechnung' => CustomerInvoiceType.standardInvoice,
+                      'Sammelrechnung' => CustomerInvoiceType.collectiveInvoice,
+                      _ => throw Error,
+                    },
+                  )),
+                  items: invoiceTypeItems,
                 ),
                 Gaps.h4,
               ],

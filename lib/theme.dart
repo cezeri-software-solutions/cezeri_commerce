@@ -18,6 +18,7 @@ class AppTheme {
     floatingActionButtonTheme: const FloatingActionButtonThemeData().copyWith(
       backgroundColor: CustomColors.primaryColor,
     ),
+    textTheme: const TextTheme().copyWith(bodyMedium: const TextStyle(fontSize: 13)),
     iconTheme: const IconThemeData().copyWith(color: CustomColors.iconColor),
     appBarTheme: const AppBarTheme().copyWith(surfaceTintColor: Colors.transparent),
     useMaterial3: true,

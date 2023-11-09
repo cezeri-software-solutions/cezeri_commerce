@@ -5,3 +5,9 @@ enum Gender { empty, male, female }
 enum Responsiveness { isMobil, isTablet }
 
 enum AddOrSubtract { add, subtract }
+
+enum PackingStationFilter { paid, picked, all }
+
+//* Bei Teillieferungen, ob eine Teillierung von einem Auftrag generiert werden soll
+//* oder eine Restlieferung aus einer Teillieferung generiert werden soll 
+enum GenType { partialToCreate, partialRest }

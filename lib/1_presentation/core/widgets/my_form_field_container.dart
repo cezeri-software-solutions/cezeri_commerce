@@ -5,12 +5,14 @@ class MyFormFieldContainer extends StatelessWidget {
   final Widget child;
   final EdgeInsetsGeometry? padding;
   final double? width;
+  final double? borderRadius;
   const MyFormFieldContainer({
     Key? key,
     this.height,
     required this.child,
     this.padding = const EdgeInsets.all(16),
     this.width,
+    this.borderRadius = 14,
   }) : super(key: key);
 
   @override
@@ -26,8 +28,8 @@ class MyFormFieldContainer extends StatelessWidget {
         decoration: BoxDecoration(
           border: Border.all(color: themeData.colorScheme.outline),
           color: themeData.colorScheme.primaryContainer, //Colors.blueGrey[50],
-          borderRadius: const BorderRadius.all(
-            Radius.circular(14),
+          borderRadius: BorderRadius.all(
+            Radius.circular(borderRadius!),
           ),
         ),
         child: child,
