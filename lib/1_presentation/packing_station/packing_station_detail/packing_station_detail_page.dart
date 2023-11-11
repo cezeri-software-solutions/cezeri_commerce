@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
+import '../../../2_application/firebase/main_settings/main_settings_bloc.dart';
 import '../../../2_application/packing_station/packing_station_bloc.dart';
 import '../../../3_domain/entities/carrier/carrier.dart';
 import '../../../3_domain/entities/customer/customer.dart';
@@ -14,6 +15,7 @@ import '../../../constants.dart';
 import '../../../core/firebase_failures.dart';
 import '../../core/widgets/my_avatar.dart';
 import '../../core/widgets/my_circular_progress_indicator.dart';
+import '../../core/widgets/my_dropdown_button_small.dart';
 import '../../core/widgets/my_form_field_container.dart';
 import '../../core/widgets/my_info_dialog.dart';
 import '../../core/widgets/my_text.dart';
@@ -54,6 +56,10 @@ class PackingStationDetailPage extends StatelessWidget {
           final carrier = Carrier.carrierList.where((e) => e.carrierTyp == appointment.receiptCarrier.carrierTyp).first;
 
           if (!_scannerFocusNode.hasFocus) _scannerFocusNode.requestFocus();
+
+          final listOfPackagingBoxes = context.read<MainSettingsBloc>().state.mainSettings!.listOfPackagingBoxes;
+          final listOfPackagingBoxItems = listOfPackagingBoxes.map((e) => e.name).toList();
+          listOfPackagingBoxItems.insert(0, '');
 
           return Column(
             children: [
@@ -125,6 +131,21 @@ class PackingStationDetailPage extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
+                  MyDropdownButtonSmall(
+                    labelText: 'Verpackungskarton:',
+                    maxWidth: 200,
+                    value: state.packagingBox.name,
+                    onChanged: (value) => packingStationBloc.add(PackingStationOnPackagingBoxChangedEvent(packagingBoxName: value!)),
+                    items: state.listOfPackagingBoxes.map((e) => e.name).toList(),
+                  ),
+                  Gaps.w16,
+                  MyTextFormFieldSmallDouble(
+                    labelText: 'Gewicht:',
+                    maxWidth: 100,
+                    controller: state.weightController,
+                    onChanged: (value) => packingStationBloc.add(PackingStationOnWeightControllerChangedEvent()),
+                  ),
+                  Gaps.w16,
                   InkWell(
                     onTap: () => packingStationBloc.add(PackingStationOnPickAllEvent()),
                     child: Container(

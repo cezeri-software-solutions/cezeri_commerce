@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:auto_route/auto_route.dart';
 import 'package:cezeri_commerce/3_domain/entities/receipt/receipt.dart';
 import 'package:flutter/material.dart';
@@ -45,6 +47,11 @@ class PackingStationDetailScreen extends StatelessWidget {
                 logoUrl: marketplace.logoUrl,
               );
               await Printing.layoutPdf(onLayout: (_) => generatedPdf);
+              if (deliveryNote.listOfParcelTracking.isNotEmpty && deliveryNote.listOfParcelTracking.first.pdfString != '') {
+                final pdfString = deliveryNote.listOfParcelTracking.first.pdfString;
+                final pdfBytes = base64.decode(pdfString);
+                await Printing.layoutPdf(onLayout: (_) => pdfBytes);
+              }
               if (context.mounted) context.router.popUntilRouteWithName(PackingStationOverviewRoute.name);
             },
           ),

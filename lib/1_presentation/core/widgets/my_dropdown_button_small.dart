@@ -54,6 +54,7 @@ class MyDropdownButtonSmall extends StatelessWidget {
                 child: Text(value),
               );
             }).toList(),
+            isExpanded: true,
             value: value,
             style: const TextStyle(fontSize: 12, color: Colors.black).copyWith(letterSpacing: 0),
             onChanged: onChanged,

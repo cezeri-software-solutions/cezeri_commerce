@@ -20,6 +20,7 @@ class AppRouter extends $AppRouter {
         AutoRoute(page: MainSettingsRoute.page, path: '/main_settings'),
         AutoRoute(page: TaxRulesRoute.page, path: '/main_settings/tax_rules'),
         AutoRoute(page: PaymentMethodRoute.page, path: '/main_settings/payment_method'),
+        AutoRoute(page: PackagingBoxesRoute.page, path: '/main_settings/packaging_boxes'),
         AutoRoute(page: CarriersOverviewRoute.page, path: '/main_settings/carriers_overview'),
         AutoRoute(page: CarrierDetailRoute.page, path: '/main_settings/carriers_overview/carrier_detail'),
         AutoRoute(page: OffersOverviewRoute.page, path: '/offers_overview'),
@@ -31,6 +32,8 @@ class AppRouter extends $AppRouter {
         AutoRoute(page: CustomerDetailRoute.page, path: '/customers_overview/customer_detail'),
         AutoRoute(page: PackingStationOverviewRoute.page, path: '/packing_station'),
         AutoRoute(page: PackingStationDetailRoute.page, path: '/packing_station_overview/packing_station_detail'),
+        AutoRoute(page: PicklistsOverviewRoute.page, path: '/picklists_overview'),
+        AutoRoute(page: PicklistDetailRoute.page, path: '/picklist_detail'),
         //
         AutoRoute(page: MyFullscreenImageRoute.page, path: '/fullscreen_image'),
         AutoRoute(page: ShippingLabelRoute.page, path: '/shipping_label'),

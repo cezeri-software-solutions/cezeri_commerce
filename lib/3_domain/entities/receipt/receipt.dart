@@ -1,4 +1,3 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.dart';
 import 'package:cezeri_commerce/3_domain/entities/carrier/carrier_product.dart';
 import 'package:json_annotation/json_annotation.dart';
@@ -16,9 +15,9 @@ import '../carrier/carrier.dart';
 import '../carrier/parcel_tracking.dart';
 import '../customer/customer.dart';
 import '../marketplace/marketplace.dart';
-import '../packaging_box.dart';
 import '../settings/bank_details.dart';
 import '../settings/main_settings.dart';
+import '../settings/packaging_box.dart';
 import '../settings/payment_method.dart';
 import '../settings/tax.dart';
 import 'payment.dart';
@@ -84,6 +83,7 @@ class Receipt {
   final bool isSmallBusiness;
   final bool isPicked;
   final int termOfPayment;
+  final double weight;
   final double totalGross;
   final double totalNet;
   final double totalTax;
@@ -163,6 +163,7 @@ class Receipt {
     required this.isSmallBusiness,
     required this.isPicked,
     required this.termOfPayment,
+    required this.weight,
     required this.totalGross,
     required this.totalNet,
     required this.totalTax,
@@ -514,6 +515,7 @@ class Receipt {
       isSmallBusiness: mainSettings.isSmallBusiness,
       isPicked: false,
       termOfPayment: mainSettings.termOfPayment,
+      weight: listOfReceiptproduct.map((e) => e.weight).toList().fold(0.0, (a, b) => a + b),
       totalGross: getTotalGross(),
       totalNet: getTotalNet(),
       totalTax: getTotalGross() - getTotalNet(),
@@ -598,6 +600,7 @@ class Receipt {
       isSmallBusiness: false,
       isPicked: false,
       termOfPayment: 14,
+      weight: 0.0,
       totalGross: 0,
       totalNet: 0,
       totalTax: 0,
@@ -679,6 +682,7 @@ class Receipt {
     bool? isSmallBusiness,
     bool? isPicked,
     int? termOfPayment,
+    double? weight,
     double? totalGross,
     double? totalNet,
     double? totalTax,
@@ -758,6 +762,7 @@ class Receipt {
       isSmallBusiness: isSmallBusiness ?? this.isSmallBusiness,
       isPicked: isPicked ?? this.isPicked,
       termOfPayment: termOfPayment ?? this.termOfPayment,
+      weight: weight ?? this.weight,
       totalGross: totalGross ?? this.totalGross,
       totalNet: totalNet ?? this.totalNet,
       totalTax: totalTax ?? this.totalTax,

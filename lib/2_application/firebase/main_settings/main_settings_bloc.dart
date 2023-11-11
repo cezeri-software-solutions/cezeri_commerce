@@ -7,7 +7,9 @@ import '../../../3_domain/entities/carrier/carrier.dart';
 import '../../../3_domain/entities/carrier/carrier_product.dart';
 import '../../../3_domain/entities/country.dart';
 import '../../../3_domain/entities/settings/main_settings.dart';
+import '../../../3_domain/entities/settings/packaging_box.dart';
 import '../../../3_domain/entities/settings/tax.dart';
+import '../../../3_domain/enums/enums.dart';
 import '../../../3_domain/repositories/firebase/main_settings_respository.dart';
 import '../../../core/firebase_failures.dart';
 
@@ -124,6 +126,86 @@ class MainSettingsBloc extends Bloc<MainSettingsEvent, MainSettingsState> {
       MainSettings updatedMainSettings = state.mainSettings!.copyWith(paymentMethods: paymentMethods);
 
       add(UpdateMainSettingsEvent(mainSettings: updatedMainSettings));
+    });
+
+//? ##############################################################################
+//? ########################## Packaging Boxes ###################################
+
+    on<PackagingBoxMainSettingsAddEvent>((event, emit) async {
+      List<PackagingBox> packagingBoxes = List.from(state.mainSettings!.listOfPackagingBoxes);
+      if (packagingBoxes.isEmpty) {
+        packagingBoxes.add(event.packagingBox.copyWith(pos: 1));
+      } else {
+        final positions = packagingBoxes.map((e) => e.pos).toList();
+        int nextPos = positions.reduce((current, next) => current > next ? current : next) + 1;
+        final updatedPackagingBox = event.packagingBox.copyWith(pos: nextPos);
+        packagingBoxes.add(updatedPackagingBox);
+      }
+
+      emit(state.copyWith(mainSettings: state.mainSettings!.copyWith(listOfPackagingBoxes: packagingBoxes)));
+    });
+
+//? #########################################################################
+
+    on<PackagingBoxMainSettingsUpdateEvent>((event, emit) async {
+      List<PackagingBox> packagingBoxes = List.from(state.mainSettings!.listOfPackagingBoxes);
+      List<PackagingBox> updatedPackagingBoxes = packagingBoxes.map((e) {
+        if (e.id == event.packagingBox.id) {
+          return event.packagingBox;
+        } else {
+          return e;
+        }
+      }).toList();
+
+      emit(state.copyWith(mainSettings: state.mainSettings!.copyWith(listOfPackagingBoxes: updatedPackagingBoxes)));
+    });
+
+//? #########################################################################
+
+    on<PackagingBoxMainSettingsUpdatePosEvent>((event, emit) async {
+      List<PackagingBox> packagingBoxes = List.from(state.mainSettings!.listOfPackagingBoxes);
+
+      if (event.positionTo == PositionTo.down) {
+        int indexToDown = packagingBoxes.indexWhere((box) => box.id == event.packagingBox.id);
+        int indexToUp = packagingBoxes.indexWhere((box) => box.pos == event.packagingBox.pos + 1);
+        if (indexToDown != -1 && indexToUp != -1) {
+          int posToDown = packagingBoxes[indexToDown].pos;
+          packagingBoxes[indexToDown] = packagingBoxes[indexToDown].copyWith(pos: posToDown + 1);
+          packagingBoxes[indexToUp] = packagingBoxes[indexToUp].copyWith(pos: posToDown);
+        }
+      }
+
+      if (event.positionTo == PositionTo.up) {
+        int indexToUp = packagingBoxes.indexWhere((box) => box.id == event.packagingBox.id);
+        int indexToDown = packagingBoxes.indexWhere((box) => box.pos == event.packagingBox.pos - 1);
+        if (indexToUp != -1 && indexToDown != -1) {
+          int posToDown = packagingBoxes[indexToUp].pos;
+          packagingBoxes[indexToUp] = packagingBoxes[indexToUp].copyWith(pos: posToDown - 1);
+          packagingBoxes[indexToDown] = packagingBoxes[indexToDown].copyWith(pos: posToDown);
+        }
+      }
+
+      packagingBoxes.sort((a, b) => a.pos.compareTo(b.pos));
+
+      emit(state.copyWith(mainSettings: state.mainSettings!.copyWith(listOfPackagingBoxes: packagingBoxes)));
+    });
+
+//? #########################################################################
+
+    on<PackagingBoxMainSettingsSaveEvent>((event, emit) async {
+      emit(state.copyWith(isLoadingMainSettingsOnUpdate: true));
+
+      final failureOrSuccess = await mainSettingsRepository.updateSettingsPackagingBoxs(state.mainSettings!.listOfPackagingBoxes);
+      failureOrSuccess.fold(
+        (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
+        (mainSettings) => emit(state.copyWith(mainSettings: mainSettings, firebaseFailure: null, isAnyFailure: false)),
+      );
+
+      emit(state.copyWith(
+        isLoadingMainSettingsOnUpdate: false,
+        fosMainSettingsOnUpdateWithMsOption: optionOf(failureOrSuccess),
+      ));
+      emit(state.copyWith(fosMainSettingsOnUpdateWithMsOption: none()));
     });
 
 //? #########################################################################

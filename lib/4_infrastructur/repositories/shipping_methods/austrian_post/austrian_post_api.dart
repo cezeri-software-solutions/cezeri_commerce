@@ -99,6 +99,12 @@ class AustrianPostApi {
     return document.toXmlString();
   }
 
+  String getTrackingNumber(String response) {
+    final document = XmlDocument.parse(response);
+    final pdfDataElement = document.findAllElements('Code').first;
+    return pdfDataElement.innerText;
+  }
+
   String getPdfLabel(String response) {
     final document = XmlDocument.parse(response);
     final pdfDataElement = document.findAllElements('pdfData').first;

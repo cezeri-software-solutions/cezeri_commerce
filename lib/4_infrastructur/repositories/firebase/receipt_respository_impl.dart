@@ -13,6 +13,7 @@ import 'package:logger/logger.dart';
 import '../../../1_presentation/core/functions/check_internet_connection.dart';
 import '../../../1_presentation/core/functions/mixed_functions.dart';
 import '../../../3_domain/entities/address.dart';
+import '../../../3_domain/entities/carrier/parcel_tracking.dart';
 import '../../../3_domain/entities/customer/customer.dart';
 import '../../../3_domain/entities/marketplace/marketplace.dart';
 import '../../../3_domain/entities/product/product.dart';
@@ -24,6 +25,7 @@ import '../../../3_domain/repositories/firebase/main_settings_respository.dart';
 import '../../../3_domain/repositories/firebase/product_repository.dart';
 import '../../../3_domain/repositories/prestashop/product/product_import_repository.dart';
 import '../prestashop_api/prestashop_api.dart';
+import '../shipping_methods/austrian_post/austrian_post_api.dart';
 
 class ReceiptRespositoryImpl implements ReceiptRepository {
   final FirebaseFirestore db;
@@ -552,6 +554,13 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
       int nextDeliveryNoteNumber = settings.nextDeliveryNoteNumber;
       int nextInvoiceNumber = settings.nextInvoiceNumber;
 
+      ParcelTracking? parcelTracking;
+      if (generateDeliveryNote) {
+        parcelTracking = await getParcelTracking(incomingAppointment, settings, nextDeliveryNoteNumber);
+      }
+      final isSuccessfulSetParcelTracking =
+          parcelTracking != null && parcelTracking.deliveryNoteId != 0 && parcelTracking.trackingNumber != '' && parcelTracking.trackingUrl != '';
+
       await db.runTransaction((transaction) async {
         List<ReceiptProduct> updatedOriginalAppointmentProducts = isCompletelyPacked
             ? originalAppointment.listOfReceiptProduct.map((e) {
@@ -573,12 +582,16 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
         Receipt originalAppointmentToUpdate = isCompletelyPackedInOnePart
             ? incomingAppointment.copyWith(
                 appointmentStatus: AppointmentStatus.completed,
+                listOfParcelTracking: isSuccessfulSetParcelTracking ? [parcelTracking!] : [],
                 lastEditingDate: DateTime.now(),
               )
             : originalAppointment.copyWith(
                 appointmentStatus: updatedOriginalAppointmentProducts.every((e) => e.shippedQuantity == e.quantity)
                     ? AppointmentStatus.completed
                     : AppointmentStatus.partiallyCompleted,
+                listOfParcelTracking: isSuccessfulSetParcelTracking
+                    ? [...originalAppointment.listOfParcelTracking, parcelTracking!]
+                    : originalAppointment.listOfParcelTracking,
                 lastEditingDate: DateTime.now(),
                 listOfReceiptProduct: updatedOriginalAppointmentProducts,
               );
@@ -592,7 +605,13 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
             generateInvoice: generateInvoice,
           );
           final docRefDn = getColRef(currentUserUid, phDeliveryNote.receiptTyp).doc();
-          final deliveryNote = phDeliveryNote.copyWith(id: docRefDn.id);
+          final deliveryNote = phDeliveryNote.copyWith(
+            id: docRefDn.id,
+            listOfParcelTracking: isSuccessfulSetParcelTracking ? [parcelTracking!] : [],
+            packagingBox: phDeliveryNote.packagingBox != null && phDeliveryNote.packagingBox!.name != ''
+                ? phDeliveryNote.packagingBox!.copyWith(deliveryNoteId: nextDeliveryNoteNumber)
+                : phDeliveryNote.packagingBox,
+          );
           transaction.set(docRefDn, deliveryNote.toJson());
           nextDeliveryNoteNumber += 1;
           generatedReceipts.add(deliveryNote);
@@ -611,7 +630,10 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
             generateDeliveryNote: generateDeliveryNote,
           );
           final docRefI = getColRef(currentUserUid, phInvoice.receiptTyp).doc();
-          final invoice = phInvoice.copyWith(id: docRefI.id);
+          final invoice = phInvoice.copyWith(
+            id: docRefI.id,
+            listOfParcelTracking: isSuccessfulSetParcelTracking ? [parcelTracking!] : [],
+          );
           transaction.set(docRefI, invoice.toJson());
           nextInvoiceNumber += 1;
           generatedReceipts.add(invoice);
@@ -903,4 +925,50 @@ Future<void> updateProductWarehouseQuantityIncremental({
   } catch (error) {
     logger.e('Error on updating product quantity in firebase: $error');
   }
+}
+
+Future<ParcelTracking?> getParcelTracking(Receipt receipt, MainSettings ms, int nextDeliveryNoteNumber) async {
+  final logger = Logger();
+
+  final carrier = ms.listOfCarriers.where((e) => e.carrierTyp == receipt.receiptCarrier.carrierTyp).firstOrNull;
+  if (carrier == null) return null;
+  final cCredentials = carrier.carrierKey;
+
+  final service = AustrianPostApi(
+    AustrianPostApiConfig(
+      clientId: cCredentials.clientId,
+      orgUnitId: cCredentials.orgUnitId,
+      orgUnitGuide: cCredentials.orgUnitGuide,
+    ),
+    AustrianPostApiSettings(
+      paperLayout: carrier.paperLayout,
+      labelSize: carrier.labelSize,
+      printerLanguage: carrier.printerLanguage,
+    ),
+    false,
+  );
+
+  final soapRequest = service.generateSoapRequest();
+  String responseString = '';
+
+  try {
+    final response = await service.createShipment(soapRequest);
+    responseString = response;
+    logger.i('Response: $response');
+  } catch (e) {
+    logger.e('Error: $e');
+    return null;
+  }
+
+  final trackingNumber = service.getTrackingNumber(responseString);
+  final pdfString = service.getPdfLabel(responseString);
+
+  final parcelTracking = ParcelTracking(
+    deliveryNoteId: nextDeliveryNoteNumber,
+    trackingUrl: carrier.trackingUrl,
+    trackingNumber: trackingNumber,
+    pdfString: pdfString,
+  );
+
+  return parcelTracking;
 }

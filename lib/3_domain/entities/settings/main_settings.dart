@@ -3,6 +3,7 @@ import 'package:json_annotation/json_annotation.dart';
 import '../carrier/carrier.dart';
 import 'bank_details.dart';
 import 'opening_times.dart';
+import 'packaging_box.dart';
 import 'payment_method.dart';
 import 'tax.dart';
 
@@ -40,6 +41,7 @@ class MainSettings {
   final bool isMainSettings;
   final List<Carrier> listOfCarriers;
   final List<PaymentMethod> paymentMethods;
+  final List<PackagingBox> listOfPackagingBoxes;
   final BankDetails bankDetails;
   final OpeningTimes openingTimes;
 
@@ -74,6 +76,7 @@ class MainSettings {
     required this.isMainSettings,
     required this.listOfCarriers,
     required this.paymentMethods,
+    required this.listOfPackagingBoxes,
     required this.bankDetails,
     required this.openingTimes,
   });
@@ -114,6 +117,7 @@ class MainSettings {
       isMainSettings: true,
       listOfCarriers: [],
       paymentMethods: [],
+      listOfPackagingBoxes: [],
       bankDetails: BankDetails.empty(),
       openingTimes: OpeningTimes.empty(),
     );
@@ -150,6 +154,7 @@ class MainSettings {
     bool? isMainSettings,
     List<Carrier>? listOfCarriers,
     List<PaymentMethod>? paymentMethods,
+    List<PackagingBox>? listOfPackagingBoxes,
     BankDetails? bankDetails,
     OpeningTimes? openingTimes,
   }) {
@@ -184,6 +189,7 @@ class MainSettings {
       isMainSettings: isMainSettings ?? this.isMainSettings,
       listOfCarriers: listOfCarriers ?? this.listOfCarriers,
       paymentMethods: paymentMethods ?? this.paymentMethods,
+      listOfPackagingBoxes: listOfPackagingBoxes ?? this.listOfPackagingBoxes,
       bankDetails: bankDetails ?? this.bankDetails,
       openingTimes: openingTimes ?? this.openingTimes,
     );
@@ -191,6 +197,6 @@ class MainSettings {
 
   @override
   String toString() {
-    return 'MainSettings(settingsId: $settingsId, logoUrl: $logoUrl, offerPraefix: $offerPraefix, appointmentPraefix: $appointmentPraefix, deliveryNotePraefix: $deliveryNotePraefix, invoicePraefix: $invoicePraefix, creditPraefix: $creditPraefix, currency: $currency, smsMessage: $smsMessage, offerDocumentText: $offerDocumentText, appointmentDocumentText: $appointmentDocumentText, deliveryNoteDocumentText: $deliveryNoteDocumentText, invoiceDocumentText: $invoiceDocumentText, creditDocumentText: $creditDocumentText, taxes: $taxes, nextOfferNumber: $nextOfferNumber, nextAppointmentNumber: $nextAppointmentNumber, nextDeliveryNoteNumber: $nextDeliveryNoteNumber, nextInvoiceNumber: $nextInvoiceNumber, nextBranchNumber: $nextBranchNumber, nextCustomerNumber: $nextCustomerNumber, termOfPayment: $termOfPayment, countEmployees: $countEmployees, countBranches: $countBranches, limitationNumberOfEmployees: $limitationNumberOfEmployees, limitationNumberOfBranches: $limitationNumberOfBranches, isSmallBusiness: $isSmallBusiness, isMainSettings: $isMainSettings, listOfCarriers: $listOfCarriers, paymentMethods: $paymentMethods, bankDetails: $bankDetails, openingTimes: $openingTimes)';
+    return 'MainSettings(settingsId: $settingsId, logoUrl: $logoUrl, offerPraefix: $offerPraefix, appointmentPraefix: $appointmentPraefix, deliveryNotePraefix: $deliveryNotePraefix, invoicePraefix: $invoicePraefix, creditPraefix: $creditPraefix, currency: $currency, smsMessage: $smsMessage, offerDocumentText: $offerDocumentText, appointmentDocumentText: $appointmentDocumentText, deliveryNoteDocumentText: $deliveryNoteDocumentText, invoiceDocumentText: $invoiceDocumentText, creditDocumentText: $creditDocumentText, taxes: $taxes, nextOfferNumber: $nextOfferNumber, nextAppointmentNumber: $nextAppointmentNumber, nextDeliveryNoteNumber: $nextDeliveryNoteNumber, nextInvoiceNumber: $nextInvoiceNumber, nextBranchNumber: $nextBranchNumber, nextCustomerNumber: $nextCustomerNumber, termOfPayment: $termOfPayment, countEmployees: $countEmployees, countBranches: $countBranches, limitationNumberOfEmployees: $limitationNumberOfEmployees, limitationNumberOfBranches: $limitationNumberOfBranches, isSmallBusiness: $isSmallBusiness, isMainSettings: $isMainSettings, listOfCarriers: $listOfCarriers, paymentMethods: $paymentMethods, listOfPackagingBoxes: $listOfPackagingBoxes, bankDetails: $bankDetails, openingTimes: $openingTimes)';
   }
 }

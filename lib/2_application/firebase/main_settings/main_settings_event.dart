@@ -45,7 +45,36 @@ class EnableOrDisablePaymentMethodEvent extends MainSettingsEvent {
 }
 
 //? ################################################################
-//? ########################## Carriers #####################
+//? ########################## Packaging Boxes #####################
+
+class PackagingBoxMainSettingsAddEvent extends MainSettingsEvent {
+  final PackagingBox packagingBox;
+
+  PackagingBoxMainSettingsAddEvent({required this.packagingBox});
+}
+
+//? ################################################################
+
+class PackagingBoxMainSettingsUpdateEvent extends MainSettingsEvent {
+  final PackagingBox packagingBox;
+
+  PackagingBoxMainSettingsUpdateEvent({required this.packagingBox});
+}
+
+//? ################################################################
+class PackagingBoxMainSettingsUpdatePosEvent extends MainSettingsEvent {
+  final PackagingBox packagingBox;
+  final PositionTo positionTo;
+
+  PackagingBoxMainSettingsUpdatePosEvent({required this.packagingBox, required this.positionTo});
+}
+
+//? ################################################################
+
+class PackagingBoxMainSettingsSaveEvent extends MainSettingsEvent {}
+
+//? ################################################################
+//? ########################## Carriers ############################
 
 class EnableOrDisableCarrierEvent extends MainSettingsEvent {
   final bool value;

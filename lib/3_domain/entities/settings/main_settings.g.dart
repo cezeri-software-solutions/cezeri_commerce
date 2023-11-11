@@ -43,6 +43,9 @@ MainSettings _$MainSettingsFromJson(Map<String, dynamic> json) => MainSettings(
       paymentMethods: (json['paymentMethods'] as List<dynamic>)
           .map((e) => PaymentMethod.fromJson(e as Map<String, dynamic>))
           .toList(),
+      listOfPackagingBoxes: (json['listOfPackagingBoxes'] as List<dynamic>)
+          .map((e) => PackagingBox.fromJson(e as Map<String, dynamic>))
+          .toList(),
       bankDetails:
           BankDetails.fromJson(json['bankDetails'] as Map<String, dynamic>),
       openingTimes:
@@ -81,6 +84,8 @@ Map<String, dynamic> _$MainSettingsToJson(MainSettings instance) =>
       'isMainSettings': instance.isMainSettings,
       'listOfCarriers': instance.listOfCarriers.map((e) => e.toJson()).toList(),
       'paymentMethods': instance.paymentMethods.map((e) => e.toJson()).toList(),
+      'listOfPackagingBoxes':
+          instance.listOfPackagingBoxes.map((e) => e.toJson()).toList(),
       'bankDetails': instance.bankDetails.toJson(),
       'openingTimes': instance.openingTimes.toJson(),
     };

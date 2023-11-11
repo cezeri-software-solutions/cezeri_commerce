@@ -6,6 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../../1_presentation/core/functions/check_internet_connection.dart';
 import '../../../3_domain/entities/settings/main_settings.dart';
+import '../../../3_domain/entities/settings/packaging_box.dart';
 
 class MainSettingsRepositoryImpl implements MainSettingsRepository {
   final FirebaseFirestore db;
@@ -63,6 +64,29 @@ class MainSettingsRepositoryImpl implements MainSettingsRepository {
     try {
       await docRef.set(toCreateSettings.toJson());
       return right(unit);
+    } on FirebaseException {
+      return left(GeneralFailure());
+    }
+  }
+
+  @override
+  Future<Either<FirebaseFailure, MainSettings>> updateSettingsPackagingBoxs(List<PackagingBox> packagingBoxes) async {
+    final isConnected = await checkInternetConnection();
+    if (!isConnected) return left(NoConnectionFailure());
+
+    final currentUserUid = firebaseAuth.currentUser!.uid;
+    final docRef = db.collection(currentUserUid).doc(currentUserUid).collection('Settings').doc(currentUserUid);
+
+    try {
+      MainSettings? updatedSettings;
+      await db.runTransaction((transaction) async {
+        final settingsDSS = await transaction.get(docRef);
+        final settings = MainSettings.fromJson(settingsDSS.data()!);
+
+        updatedSettings = settings.copyWith(listOfPackagingBoxes: packagingBoxes);
+        transaction.update(docRef, updatedSettings!.toJson());
+      });
+      return right(updatedSettings!);
     } on FirebaseException {
       return left(GeneralFailure());
     }

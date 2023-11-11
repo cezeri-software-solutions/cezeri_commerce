@@ -11,6 +11,7 @@ class MyTextFormFieldSmall extends StatelessWidget {
   final List<TextInputFormatter>? inputFormatters;
   final bool readOnly;
   final FocusNode? focusNode;
+  final TextInputType? keyboardType;
   final TextCapitalization textCapitalization;
   final int maxLines;
   final Widget? suffix;
@@ -29,6 +30,7 @@ class MyTextFormFieldSmall extends StatelessWidget {
     this.validator,
     this.inputFormatters,
     this.focusNode,
+    this.keyboardType,
     this.readOnly = false,
     this.textCapitalization = TextCapitalization.none,
     this.maxLines = 1,
@@ -55,6 +57,7 @@ class MyTextFormFieldSmall extends StatelessWidget {
             validator: validator,
             style: const TextStyle(fontSize: 12).copyWith(letterSpacing: 0),
             focusNode: focusNode,
+            keyboardType: keyboardType,
             readOnly: readOnly,
             textCapitalization: textCapitalization,
             maxLines: maxLines,

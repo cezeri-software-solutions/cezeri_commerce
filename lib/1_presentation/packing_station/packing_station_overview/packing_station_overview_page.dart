@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
+import '../../../2_application/firebase/main_settings/main_settings_bloc.dart';
 import '../../../2_application/firebase/marketplace/marketplace_bloc.dart';
 import '../../../2_application/packing_station/packing_station_bloc.dart';
 import '../../../3_domain/entities/carrier/carrier.dart';
@@ -138,7 +139,10 @@ class _PackingStationContainer extends StatelessWidget {
                   children: [
                     InkWell(
                       onTap: () {
-                        packingStationBloc.add(PackgingStationGetAppointmentEvent(appointment: appointment));
+                        packingStationBloc.add(PackgingStationGetAppointmentEvent(
+                          appointment: appointment,
+                          listOfPackagingBoxes: context.read<MainSettingsBloc>().state.mainSettings!.listOfPackagingBoxes,
+                        ));
                         packingStationBloc.add(PackingsStationGetProductsFromFirestoreEvent(
                           productIds: appointment.listOfReceiptProduct.map((e) => e.productId).toList(),
                         ));

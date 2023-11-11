@@ -1,11 +1,15 @@
 import 'package:bloc/bloc.dart';
+import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.dart';
+import 'package:cezeri_commerce/3_domain/entities/picklist/picklist_product.dart';
 import 'package:cezeri_commerce/3_domain/entities/receipt/receipt_product.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 
 import '../../3_domain/entities/customer/customer.dart';
+import '../../3_domain/entities/picklist/picklist.dart';
 import '../../3_domain/entities/product/product.dart';
 import '../../3_domain/entities/receipt/receipt.dart';
+import '../../3_domain/entities/settings/packaging_box.dart';
 import '../../3_domain/enums/enums.dart';
 import '../../3_domain/repositories/firebase/customer_repository.dart';
 import '../../3_domain/repositories/firebase/packing_station_repository.dart';
@@ -40,7 +44,14 @@ class PackingStationBloc extends Bloc<PackingStationEvent, PackingStationState> 
       failureOrSuccess.fold(
         (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
         (loadedAppointment) async {
-          emit(state.copyWith(originalAppointment: loadedAppointment, firebaseFailure: null, isAnyFailure: false));
+          final listOfPackagingBoxes = event.listOfPackagingBoxes;
+          if (!listOfPackagingBoxes.any((e) => e.name == '')) listOfPackagingBoxes.insert(0, PackagingBox.empty());
+          emit(state.copyWith(
+            originalAppointment: loadedAppointment,
+            listOfPackagingBoxes: listOfPackagingBoxes,
+            firebaseFailure: null,
+            isAnyFailure: false,
+          ));
           add(PackingStationSetAppointFromOriginalEvent());
         },
       );
@@ -91,7 +102,7 @@ class PackingStationBloc extends Bloc<PackingStationEvent, PackingStationState> 
 
     on<PackingStationFilterAppointmentsEvent>((event, emit) {
       final filteredAppointments = switch (state.packingStationFilter) {
-        PackingStationFilter.paid => state.listOfAllAppointments!.where((e) => e.paymentStatus == PaymentStatus.paid).toList(),
+        PackingStationFilter.paid => state.listOfAllAppointments!.where((e) => e.paymentStatus == PaymentStatus.paid && !e.isPicked).toList(),
         PackingStationFilter.picked => state.listOfAllAppointments!.where((e) => e.isPicked).toList(),
         PackingStationFilter.all => state.listOfAllAppointments!,
       };
@@ -151,11 +162,21 @@ class PackingStationBloc extends Bloc<PackingStationEvent, PackingStationState> 
 //? #########################################################################
 
     on<PackingStationOnPickingQuantityChanged>((event, emit) async {
+      double getWeight(List<ReceiptProduct> receiptProducts) {
+        double weight = 0.0;
+        for (final receiptProduct in receiptProducts) {
+          weight += receiptProduct.weight * receiptProduct.shippedQuantity;
+        }
+        return (weight + state.packagingBox.weight).toMyRoundedDouble();
+      }
+
       if (event.pickCompletely) {
         List<ReceiptProduct> receiptProducts = List.from(state.appointment!.listOfReceiptProduct);
         final updatedReceiptProduct = receiptProducts[event.index].copyWith(shippedQuantity: receiptProducts[event.index].quantity);
         receiptProducts[event.index] = updatedReceiptProduct;
-        emit(state.copyWith(appointment: state.appointment!.copyWith(listOfReceiptProduct: receiptProducts)));
+        emit(state.copyWith(
+            appointment: state.appointment!.copyWith(listOfReceiptProduct: receiptProducts, weight: getWeight(receiptProducts)),
+            weightController: TextEditingController(text: getWeight(receiptProducts).toString())));
         return;
       }
 
@@ -166,7 +187,9 @@ class PackingStationBloc extends Bloc<PackingStationEvent, PackingStationState> 
                 ? receiptProducts[event.index].shippedQuantity + 1
                 : receiptProducts[event.index].shippedQuantity);
         receiptProducts[event.index] = updatedReceiptProduct;
-        emit(state.copyWith(appointment: state.appointment!.copyWith(listOfReceiptProduct: receiptProducts)));
+        emit(state.copyWith(
+            appointment: state.appointment!.copyWith(listOfReceiptProduct: receiptProducts, weight: getWeight(receiptProducts)),
+            weightController: TextEditingController(text: getWeight(receiptProducts).toString())));
         return;
       }
 
@@ -177,7 +200,9 @@ class PackingStationBloc extends Bloc<PackingStationEvent, PackingStationState> 
                 ? receiptProducts[event.index].shippedQuantity - 1
                 : receiptProducts[event.index].shippedQuantity);
         receiptProducts[event.index] = updatedReceiptProduct;
-        emit(state.copyWith(appointment: state.appointment!.copyWith(listOfReceiptProduct: receiptProducts)));
+        emit(state.copyWith(
+            appointment: state.appointment!.copyWith(listOfReceiptProduct: receiptProducts, weight: getWeight(receiptProducts)),
+            weightController: TextEditingController(text: getWeight(receiptProducts).toString())));
         return;
       }
     });
@@ -185,10 +210,20 @@ class PackingStationBloc extends Bloc<PackingStationEvent, PackingStationState> 
 //? #########################################################################
 
     on<PackingStationOnPickAllEvent>((event, emit) async {
+      double getWeight(List<ReceiptProduct> receiptProducts) {
+        double weight = 0.0;
+        for (final receiptProduct in receiptProducts) {
+          weight += receiptProduct.weight * receiptProduct.shippedQuantity;
+        }
+        return (weight + state.packagingBox.weight).toMyRoundedDouble();
+      }
+
       List<ReceiptProduct> receiptProducts = state.appointment!.listOfReceiptProduct.map((e) {
         return e.copyWith(shippedQuantity: e.quantity);
       }).toList();
-      emit(state.copyWith(appointment: state.appointment!.copyWith(listOfReceiptProduct: receiptProducts)));
+      emit(state.copyWith(
+          appointment: state.appointment!.copyWith(listOfReceiptProduct: receiptProducts, weight: getWeight(receiptProducts)),
+          weightController: TextEditingController(text: getWeight(receiptProducts).toString())));
     });
 
 //? #########################################################################
@@ -208,9 +243,17 @@ class PackingStationBloc extends Bloc<PackingStationEvent, PackingStationState> 
     on<PackingStationGenerateFromAppointmentEvent>((event, emit) async {
       emit(state.copyWith(isLoadingOnGenerateAppointments: true));
 
+      final appointment = state.appointment!.copyWith(
+        packagingBox: state.packagingBox.name != '' ? state.packagingBox : state.appointment!.packagingBox,
+      );
+      final originalAppointment = state.originalAppointment!.copyWith(
+        packagingBox: state.packagingBox.name != '' ? state.packagingBox : state.originalAppointment!.packagingBox,
+        weight: state.appointment!.weight,
+      );
+
       final failureOrSuccess = await receiptRepository.generateFromAppointment(
-        state.appointment!,
-        state.originalAppointment!,
+        appointment,
+        originalAppointment,
         true,
         event.generateInvoice,
       );
@@ -230,16 +273,156 @@ class PackingStationBloc extends Bloc<PackingStationEvent, PackingStationState> 
     });
 
 //? #########################################################################
+
+    on<PackingStationOnWeightControllerChangedEvent>((event, emit) async {
+      emit(state.copyWith(appointment: state.appointment!.copyWith(weight: state.weightController.text.toMyDouble())));
+    });
+
+//? #########################################################################
+
+    on<PackingStationOnPackagingBoxChangedEvent>((event, emit) async {
+      final packingBox = state.listOfPackagingBoxes.where((e) => e.name == event.packagingBoxName).first;
+      emit(state.copyWith(
+        appointment: state.appointment!.copyWith(packagingBox: packingBox, weight: state.appointment!.weight + packingBox.weight),
+        packagingBox: packingBox,
+        weightController: TextEditingController(text: (state.appointment!.weight + packingBox.weight).toMyRoundedDouble().toString()),
+      ));
+    });
+
+//? #########################################################################
 //? #########################################################################
 //? #########################################################################
 
     on<PackingStationSetAppointFromOriginalEvent>((event, emit) async {
       if (state.originalAppointment!.listOfReceiptProduct.every((e) => e.shippedQuantity == 0)) {
-        emit(state.copyWith(appointment: state.originalAppointment));
+        emit(
+          state.copyWith(
+            appointment: state.originalAppointment,
+            weightController: TextEditingController(text: state.originalAppointment!.weight.toString()),
+          ),
+        );
         return;
       } else {
-        emit(state.copyWith(appointment: Receipt.genPartial(GenType.partialRest, state.originalAppointment!)));
+        emit(
+          state.copyWith(
+            appointment: Receipt.genPartial(GenType.partialRest, state.originalAppointment!),
+            weightController: TextEditingController(text: Receipt.genPartial(GenType.partialRest, state.originalAppointment!).weight.toString()),
+          ),
+        );
       }
+    });
+
+//? #########################################################################
+//? ############################ Picklist ###################################
+//? #########################################################################
+
+    on<PicklistOnCreatePicklistEvent>((event, emit) async {
+      emit(state.copyWith(isLoadingPicklistOnCreate: true));
+
+      final failureOrSuccess = await packingStationRepository.createPicklist(state.selectedAppointments);
+      failureOrSuccess.fold(
+        (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
+        (picklist) => emit(state.copyWith(picklist: picklist, firebaseFailure: null, isAnyFailure: false)),
+      );
+
+      emit(state.copyWith(
+        selectedAppointments: [],
+        isLoadingPicklistOnCreate: false,
+        fosPicklistOnCreateOption: optionOf(failureOrSuccess),
+      ));
+    });
+
+//? #########################################################################
+
+    on<PicklistOnSetPicklistEvent>((event, emit) async {
+      emit(state.copyWith(picklist: event.picklist));
+    });
+
+//? #########################################################################
+
+    on<PicklistGetPicklistsEvent>((event, emit) async {
+      emit(state.copyWith(isLoadingPicklistsOnObserve: true));
+
+      final failureOrSuccess = await packingStationRepository.getListOfPicklists();
+      failureOrSuccess.fold(
+        (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
+        (picklists) => emit(state.copyWith(listOfPicklists: picklists, firebaseFailure: null, isAnyFailure: false)),
+      );
+
+      emit(state.copyWith(
+        isLoadingPicklistsOnObserve: false,
+        fosPicklistsOnObserveOption: optionOf(failureOrSuccess),
+      ));
+    });
+
+//? #########################################################################
+
+    on<PicklistOnUpdatePicklistEvent>((event, emit) async {
+      emit(state.copyWith(isLoadingPicklistOnUpdate: true));
+
+      final failureOrSuccess = await packingStationRepository.updatePicklist(state.picklist!);
+      failureOrSuccess.fold(
+        (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
+        (_) {
+          if (state.listOfPicklists != null && state.picklist != null) {
+            final index = state.listOfPicklists!.indexWhere((e) => e.id == state.picklist!.id);
+            if (index != -1) {
+              List<Picklist> updatedList = List<Picklist>.from(state.listOfPicklists!);
+              updatedList[index] = state.picklist!;
+              emit(state.copyWith(listOfPicklists: updatedList));
+            }
+          }
+          emit(state.copyWith(firebaseFailure: null, isAnyFailure: false));
+        },
+      );
+
+      emit(state.copyWith(
+        isLoadingPicklistOnUpdate: false,
+        fosPicklistOnUpdateOption: optionOf(failureOrSuccess),
+      ));
+    });
+
+//? #########################################################################
+
+    on<PicklistOnPicklistQuantityChanged>((event, emit) async {
+      if (event.pickCompletely) {
+        List<PicklistProduct> picklistProducts = List.from(state.picklist!.listOfPicklistProducts);
+        final updatedPicklistProduct = picklistProducts[event.index].copyWith(pickedQuantity: picklistProducts[event.index].quantity);
+        picklistProducts[event.index] = updatedPicklistProduct;
+        emit(state.copyWith(picklist: state.picklist!.copyWith(listOfPicklistProducts: picklistProducts)));
+        return;
+      }
+
+      if (!event.isSubtract) {
+        List<PicklistProduct> picklistProducts = List.from(state.picklist!.listOfPicklistProducts);
+        final updatedPicklistProduct = picklistProducts[event.index].copyWith(
+            pickedQuantity: picklistProducts[event.index].pickedQuantity < picklistProducts[event.index].quantity
+                ? picklistProducts[event.index].pickedQuantity + 1
+                : picklistProducts[event.index].pickedQuantity);
+        picklistProducts[event.index] = updatedPicklistProduct;
+        emit(state.copyWith(picklist: state.picklist!.copyWith(listOfPicklistProducts: picklistProducts)));
+        return;
+      }
+
+      if (event.isSubtract) {
+        List<PicklistProduct> picklistProducts = List.from(state.picklist!.listOfPicklistProducts);
+        final updatedPicklistProduct = picklistProducts[event.index].copyWith(
+            pickedQuantity: picklistProducts[event.index].pickedQuantity > 0
+                ? picklistProducts[event.index].pickedQuantity - 1
+                : picklistProducts[event.index].pickedQuantity);
+        picklistProducts[event.index] = updatedPicklistProduct;
+        emit(state.copyWith(picklist: state.picklist!.copyWith(listOfPicklistProducts: picklistProducts)));
+        return;
+      }
+    });
+
+//? #########################################################################
+
+    on<PicklistOnPickAllQuantityEvent>((event, emit) async {
+      List<PicklistProduct> picklistProducts = state.picklist!.listOfPicklistProducts.map((e) {
+        return e.copyWith(pickedQuantity: e.quantity);
+      }).toList();
+      emit(state.copyWith(picklist: state.picklist!.copyWith(listOfPicklistProducts: picklistProducts)));
     });
   }
 }

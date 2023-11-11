@@ -9,5 +9,9 @@ enum AddOrSubtract { add, subtract }
 enum PackingStationFilter { paid, picked, all }
 
 //* Bei Teillieferungen, ob eine Teillierung von einem Auftrag generiert werden soll
-//* oder eine Restlieferung aus einer Teillieferung generiert werden soll 
+//* oder eine Restlieferung aus einer Teillieferung generiert werden soll
 enum GenType { partialToCreate, partialRest }
+
+enum PicklistStatus { open, partiallyCompleted, completed }
+
+enum PositionTo { up, down }

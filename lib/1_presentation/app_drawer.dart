@@ -193,6 +193,17 @@ class AppDrawer extends StatelessWidget {
                           },
                         ),
                         ListTile(
+                          leading: const Icon(Icons.archive),
+                          title: const Text('Verpackungskartons'),
+                          onTap: () {
+                            if (context.router.current.name == PackagingBoxesRoute.name) {
+                              context.router.pop();
+                            } else {
+                              context.router.replaceAll([const PackagingBoxesRoute()]);
+                            }
+                          },
+                        ),
+                        ListTile(
                           leading: const Icon(Icons.settings),
                           title: const Text('Grundeinstellungen'),
                           onTap: () {
@@ -205,6 +216,7 @@ class AppDrawer extends StatelessWidget {
                         ),
                       ],
                     ),
+                    Gaps.h42,
                   ],
                 ),
               ),

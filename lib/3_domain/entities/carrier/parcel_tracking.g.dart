@@ -11,6 +11,7 @@ ParcelTracking _$ParcelTrackingFromJson(Map<String, dynamic> json) =>
       deliveryNoteId: json['deliveryNoteId'] as int,
       trackingUrl: json['trackingUrl'] as String,
       trackingNumber: json['trackingNumber'] as String,
+      pdfString: json['pdfString'] as String,
     );
 
 Map<String, dynamic> _$ParcelTrackingToJson(ParcelTracking instance) =>
@@ -18,4 +19,5 @@ Map<String, dynamic> _$ParcelTrackingToJson(ParcelTracking instance) =>
       'deliveryNoteId': instance.deliveryNoteId,
       'trackingUrl': instance.trackingUrl,
       'trackingNumber': instance.trackingNumber,
+      'pdfString': instance.pdfString,
     };

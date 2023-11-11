@@ -7,8 +7,10 @@ import '../../../2_application/packing_station/packing_station_bloc.dart';
 import '../../../3_domain/enums/enums.dart';
 import '../../../constants.dart';
 import '../../../injection.dart';
+import '../../../routes/router.gr.dart';
 import '../../app_drawer.dart';
 import '../../core/functions/my_scaffold_messanger.dart';
+import '../../core/widgets/my_outlined_button.dart';
 import 'packing_station_overview_page.dart';
 
 @RoutePage()
@@ -55,6 +57,21 @@ class PackingStationOverviewScreen extends StatelessWidget {
               );
             },
           ),
+          BlocListener<PackingStationBloc, PackingStationState>(
+            listenWhen: (p, c) => p.fosPicklistOnCreateOption != c.fosPicklistOnCreateOption,
+            listener: (context, state) {
+              state.fosPicklistOnCreateOption.fold(
+                () => null,
+                (a) => a.fold(
+                  (failure) => myScaffoldMessenger(context, failure, null, null, null),
+                  (picklist) {
+                    packingStationBloc.add(PicklistOnSetPicklistEvent(picklist: picklist));
+                    context.router.push(PicklistDetailRoute(packingStationBloc: packingStationBloc));
+                  },
+                ),
+              );
+            },
+          ),
         ],
         child: BlocBuilder<PackingStationBloc, PackingStationState>(
           builder: (context, state) {
@@ -72,8 +89,24 @@ class PackingStationOverviewScreen extends StatelessWidget {
               body: Column(
                 children: [
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
+                      Row(
+                        children: [
+                          Gaps.w8,
+                          MyOutlinedButton(
+                            buttonText: 'Pickliste erstellen',
+                            isLoading: state.isLoadingPicklistOnCreate,
+                            buttonBackgroundColor: Colors.green,
+                            onPressed: () => packingStationBloc.add(PicklistOnCreatePicklistEvent()),
+                          ),
+                          Gaps.w8,
+                          MyOutlinedButton(
+                            buttonText: 'Picklisten',
+                            onPressed: () => context.router.push(PicklistsOverviewRoute(packingStationBloc: packingStationBloc)),
+                          ),
+                        ],
+                      ),
                       _PackingStationFilterChipsContainer(packingStationBloc: packingStationBloc, packingStationFilter: state.packingStationFilter),
                     ],
                   ),

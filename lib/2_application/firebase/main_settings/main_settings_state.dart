@@ -11,6 +11,7 @@ class MainSettingsState {
   final Option<Either<FirebaseFailure, MainSettings>> fosMainSettingsOnObserveOption;
   final Option<Either<FirebaseFailure, Unit>> fosMainSettingsOnCreateOption;
   final Option<Either<FirebaseFailure, Unit>> fosMainSettingsOnUpdateOption;
+  final Option<Either<FirebaseFailure, MainSettings>> fosMainSettingsOnUpdateWithMsOption;
 
   //* #################################################################
   //* ############################ Carrier ############################
@@ -32,6 +33,7 @@ class MainSettingsState {
     required this.fosMainSettingsOnObserveOption,
     required this.fosMainSettingsOnCreateOption,
     required this.fosMainSettingsOnUpdateOption,
+    required this.fosMainSettingsOnUpdateWithMsOption,
     required this.curCarrier,
     required this.marketplaceMappingController,
     required this.clientIdController,
@@ -51,6 +53,7 @@ class MainSettingsState {
         fosMainSettingsOnObserveOption: none(),
         fosMainSettingsOnCreateOption: none(),
         fosMainSettingsOnUpdateOption: none(),
+        fosMainSettingsOnUpdateWithMsOption: none(),
         curCarrier: Carrier.empty(),
         marketplaceMappingController: TextEditingController(),
         clientIdController: TextEditingController(),
@@ -70,6 +73,7 @@ class MainSettingsState {
     Option<Either<FirebaseFailure, MainSettings>>? fosMainSettingsOnObserveOption,
     Option<Either<FirebaseFailure, Unit>>? fosMainSettingsOnCreateOption,
     Option<Either<FirebaseFailure, Unit>>? fosMainSettingsOnUpdateOption,
+    Option<Either<FirebaseFailure, MainSettings>>? fosMainSettingsOnUpdateWithMsOption,
     Carrier? curCarrier,
     TextEditingController? marketplaceMappingController,
     TextEditingController? clientIdController,
@@ -88,6 +92,7 @@ class MainSettingsState {
       fosMainSettingsOnObserveOption: fosMainSettingsOnObserveOption ?? this.fosMainSettingsOnObserveOption,
       fosMainSettingsOnCreateOption: fosMainSettingsOnCreateOption ?? this.fosMainSettingsOnCreateOption,
       fosMainSettingsOnUpdateOption: fosMainSettingsOnUpdateOption ?? this.fosMainSettingsOnUpdateOption,
+      fosMainSettingsOnUpdateWithMsOption: fosMainSettingsOnUpdateWithMsOption ?? this.fosMainSettingsOnUpdateWithMsOption,
       curCarrier: curCarrier ?? this.curCarrier,
       marketplaceMappingController: marketplaceMappingController ?? this.marketplaceMappingController,
       clientIdController: clientIdController ?? this.clientIdController,

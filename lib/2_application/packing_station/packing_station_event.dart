@@ -6,8 +6,9 @@ class SetPackingStationStateToInitialEvent extends PackingStationEvent {}
 
 class PackgingStationGetAppointmentEvent extends PackingStationEvent {
   final Receipt appointment;
+  final List<PackagingBox> listOfPackagingBoxes;
 
-  PackgingStationGetAppointmentEvent({required this.appointment});
+  PackgingStationGetAppointmentEvent({required this.appointment, required this.listOfPackagingBoxes});
 }
 
 class PackingStationSetAppointFromOriginalEvent extends PackingStationEvent {}
@@ -77,3 +78,37 @@ class PackingStationGenerateFromAppointmentEvent extends PackingStationEvent {
 
   PackingStationGenerateFromAppointmentEvent({required this.generateInvoice});
 }
+
+class PackingStationOnWeightControllerChangedEvent extends PackingStationEvent {}
+
+class PackingStationOnPackagingBoxChangedEvent extends PackingStationEvent {
+  final String packagingBoxName;
+
+  PackingStationOnPackagingBoxChangedEvent({required this.packagingBoxName});
+}
+
+//* #################################################################################################
+//* #################################### Picklist ###################################################
+//* #################################################################################################
+
+class PicklistOnCreatePicklistEvent extends PackingStationEvent {}
+
+class PicklistOnSetPicklistEvent extends PackingStationEvent {
+  final Picklist picklist;
+
+  PicklistOnSetPicklistEvent({required this.picklist});
+}
+
+class PicklistGetPicklistsEvent extends PackingStationEvent {}
+
+class PicklistOnUpdatePicklistEvent extends PackingStationEvent {}
+
+class PicklistOnPicklistQuantityChanged extends PackingStationEvent {
+  final int index;
+  final bool isSubtract;
+  final bool pickCompletely;
+
+  PicklistOnPicklistQuantityChanged({required this.index, required this.isSubtract, required this.pickCompletely});
+}
+
+class PicklistOnPickAllQuantityEvent extends PackingStationEvent {}
