@@ -1,18 +1,17 @@
-import 'package:cezeri_commerce/1_presentation/core/extensions/string_to_double.dart';
-import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.dart';
 import 'package:cezeri_commerce/1_presentation/core/widgets/my_outlined_button.dart';
 import 'package:cezeri_commerce/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../2_application/firebase/product/product_bloc.dart';
+import '../../../3_domain/entities/product/marketplace_product_presta.dart';
 import '../../../3_domain/entities/product/product.dart';
 import '../../../3_domain/enums/enums.dart';
 import 'product_detail_screen.dart';
 import 'widgets/edit_product_marketplace.dart';
 import 'widgets/product_detail_widgets.dart';
 
-class ProductDetailPage extends StatefulWidget {
+class ProductDetailPage extends StatelessWidget {
   final Product? product;
   final ProductBloc productBloc;
   final ProductCreateOrEdit productCreateOrEdit;
@@ -20,72 +19,9 @@ class ProductDetailPage extends StatefulWidget {
   const ProductDetailPage({super.key, this.product, required this.productBloc, required this.productCreateOrEdit});
 
   @override
-  State<ProductDetailPage> createState() => _ProductDetailPageState();
-}
-
-class _ProductDetailPageState extends State<ProductDetailPage> {
-  late TextEditingController _articleNumberController = TextEditingController();
-  late TextEditingController _eanController = TextEditingController();
-  late TextEditingController _nameController = TextEditingController();
-  late TextEditingController _wholesalePriceController = TextEditingController();
-  late TextEditingController _supplierController = TextEditingController();
-  late TextEditingController _supplierArticleNumberController = TextEditingController();
-  late TextEditingController _manufacturerController = TextEditingController();
-  late TextEditingController _netPriceController = TextEditingController();
-  late TextEditingController _grossPriceController = TextEditingController();
-  late TextEditingController _recommendedRetailPriceController = TextEditingController();
-  late TextEditingController _unityController = TextEditingController();
-  late TextEditingController _unitPriceController = TextEditingController();
-  late TextEditingController _weightController = TextEditingController();
-  late TextEditingController _widthController = TextEditingController();
-  late TextEditingController _heightController = TextEditingController();
-  late TextEditingController _depthController = TextEditingController();
-
-  @override
-  void initState() {
-    super.initState();
-
-    if (widget.product != null) {
-      _articleNumberController = TextEditingController(text: widget.product!.articleNumber);
-      _eanController = TextEditingController(text: widget.product!.ean);
-      _nameController = TextEditingController(text: widget.product!.name);
-      _wholesalePriceController = TextEditingController(text: widget.product!.wholesalePrice.toMyCurrencyStringToShow());
-      _supplierController = TextEditingController(text: widget.product!.supplier);
-      _supplierArticleNumberController = TextEditingController(text: widget.product!.supplierArticleNumber);
-      _manufacturerController = TextEditingController(text: widget.product!.manufacturer);
-      _netPriceController = TextEditingController(text: widget.product!.netPrice.toMyCurrencyStringToShow());
-      _grossPriceController = TextEditingController(text: widget.product!.grossPrice.toMyCurrencyStringToShow());
-      _recommendedRetailPriceController = TextEditingController(text: widget.product!.recommendedRetailPrice.toMyCurrencyStringToShow());
-      _unityController = TextEditingController(text: widget.product!.unity);
-      _unitPriceController = TextEditingController(text: widget.product!.unitPrice.toMyCurrencyStringToShow());
-      _weightController = TextEditingController(text: widget.product!.weight.toMyCurrencyStringToShow());
-      _widthController = TextEditingController(text: widget.product!.width.toMyCurrencyStringToShow());
-      _heightController = TextEditingController(text: widget.product!.height.toMyCurrencyStringToShow());
-      _depthController = TextEditingController(text: widget.product!.depth.toMyCurrencyStringToShow());
-    } else {
-      _articleNumberController = TextEditingController();
-      _eanController = TextEditingController();
-      _nameController = TextEditingController();
-      _wholesalePriceController = TextEditingController();
-      _supplierController = TextEditingController();
-      _supplierArticleNumberController = TextEditingController();
-      _manufacturerController = TextEditingController();
-      _netPriceController = TextEditingController();
-      _grossPriceController = TextEditingController();
-      _recommendedRetailPriceController = TextEditingController();
-      _unityController = TextEditingController();
-      _unitPriceController = TextEditingController();
-      _weightController = TextEditingController();
-      _widthController = TextEditingController();
-      _heightController = TextEditingController();
-      _depthController = TextEditingController();
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
     return BlocBuilder<ProductBloc, ProductState>(
-      bloc: widget.productBloc,
+      bloc: productBloc,
       builder: (context, state) {
         final screenWidth = MediaQuery.sizeOf(context).width;
         final responsiveness = screenWidth > 700 ? Responsiveness.isTablet : Responsiveness.isMobil;
@@ -94,17 +30,17 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
           title: const Text('Artikel'),
           centerTitle: responsiveness == Responsiveness.isTablet ? true : false,
           actions: [
-            if (widget.product != null)
+            if (product != null)
               IconButton(
-                onPressed: () => widget.productBloc.add(GetProductEvent(id: widget.product!.id)),
+                onPressed: () => productBloc.add(GetProductEvent(id: product!.id)),
                 icon: const Icon(Icons.refresh, size: 30),
               ),
             responsiveness == Responsiveness.isTablet ? Gaps.w32 : Gaps.w8,
             MyOutlinedButton(
               buttonText: 'Speichern',
               onPressed: () {
-                if (widget.product != null) {
-                  widget.productBloc.add(OnEditProductInPresta(product: _getProductOnEdit()));
+                if (product != null) {
+                  productBloc.add(UpdateProductEvent());
                 } else {
                   // TODO: Handle create new product
                 }
@@ -134,18 +70,9 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   children: [
-                                    ProductMasterCard(
-                                      articleNumberController: _articleNumberController,
-                                      eanController: _eanController,
-                                      nameController: _nameController,
-                                    ),
+                                    ProductMasterCard(productBloc: productBloc),
                                     Gaps.h16,
-                                    PurchaseCard(
-                                      wholesalePriceController: _wholesalePriceController,
-                                      supplierController: _supplierController,
-                                      supplierArticleNumberController: _supplierArticleNumberController,
-                                      manufacturerController: _manufacturerController,
-                                    ),
+                                    PurchaseCard(productBloc: productBloc),
                                   ],
                                 ),
                               ),
@@ -154,27 +81,16 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                                 flex: 1,
                                 child: Column(
                                   children: [
-                                    SellingCard(
-                                      netPriceController: _netPriceController,
-                                      grossPriceController: _grossPriceController,
-                                      recommendedRetailPriceController: _recommendedRetailPriceController,
-                                      unitPriceController: _unitPriceController,
-                                      unityController: _unityController,
-                                    ),
+                                    SellingCard(productBloc: productBloc),
                                     Gaps.h16,
-                                    WeightAndDimensionsCard(
-                                      weightController: _weightController,
-                                      widthController: _widthController,
-                                      heightController: _heightController,
-                                      depthController: _depthController,
-                                    ),
+                                    WeightAndDimensionsCard(productBloc: productBloc),
                                   ],
                                 ),
                               ),
                             ],
                           ),
                           Gaps.h16,
-                          ProductDetailMarketplaces(widget: widget),
+                          ProductDetailMarketplaces(productBloc: productBloc),
                           Gaps.h16,
                         ],
                       ),
@@ -184,35 +100,15 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                     padding: const EdgeInsets.all(8.0),
                     child: ListView(
                       children: [
-                        ProductMasterCard(
-                          articleNumberController: _articleNumberController,
-                          eanController: _eanController,
-                          nameController: _nameController,
-                        ),
+                        ProductMasterCard(productBloc: productBloc),
                         Gaps.h16,
-                        PurchaseCard(
-                          wholesalePriceController: _wholesalePriceController,
-                          supplierController: _supplierController,
-                          supplierArticleNumberController: _supplierArticleNumberController,
-                          manufacturerController: _manufacturerController,
-                        ),
+                        PurchaseCard(productBloc: productBloc),
                         Gaps.h16,
-                        SellingCard(
-                          netPriceController: _netPriceController,
-                          grossPriceController: _grossPriceController,
-                          recommendedRetailPriceController: _recommendedRetailPriceController,
-                          unitPriceController: _unitPriceController,
-                          unityController: _unityController,
-                        ),
+                        SellingCard(productBloc: productBloc),
                         Gaps.h16,
-                        WeightAndDimensionsCard(
-                          weightController: _weightController,
-                          widthController: _widthController,
-                          heightController: _heightController,
-                          depthController: _depthController,
-                        ),
+                        WeightAndDimensionsCard(productBloc: productBloc),
                         Gaps.h16,
-                        ProductDetailMarketplaces(widget: widget),
+                        ProductDetailMarketplaces(productBloc: productBloc),
                         Gaps.h16,
                       ],
                     ),
@@ -222,101 +118,82 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
       },
     );
   }
-
-  Product _getProductOnEdit() {
-    final product = widget.product!.copyWith(
-      articleNumber: _articleNumberController.text,
-      ean: _eanController.text,
-      name: _nameController.text,
-      wholesalePrice: _wholesalePriceController.text.toDouble(),
-      supplier: _supplierController.text,
-      supplierArticleNumber: _supplierArticleNumberController.text,
-      manufacturer: _manufacturerController.text,
-      netPrice: _netPriceController.text.toDouble(),
-      grossPrice: _grossPriceController.text.toDouble(),
-      recommendedRetailPrice: _recommendedRetailPriceController.text.toDouble(),
-      unity: _unityController.text,
-      unitPrice: _unitPriceController.text.toDouble(),
-      weight: _weightController.text.toDouble(),
-      width: _widthController.text.toDouble(),
-      height: _heightController.text.toDouble(),
-      depth: _depthController.text.toDouble(),
-    );
-    return product;
-  }
 }
 
 class ProductDetailMarketplaces extends StatelessWidget {
-  const ProductDetailMarketplaces({
-    super.key,
-    required this.widget,
-  });
+  final ProductBloc productBloc;
 
-  final ProductDetailPage widget;
+  const ProductDetailMarketplaces({super.key, required this.productBloc});
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        const Divider(),
-        const Text(
-          'Marktplätze',
-          style: TextStyles.h2,
-        ),
-        Gaps.h8,
-        SizedBox(
-          height: 110,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            physics: const BouncingScrollPhysics(),
-            itemCount: widget.product!.productMarketplaces.length,
-            itemBuilder: (context, index) {
-              final mp = widget.product!.productMarketplaces[index];
-              return Row(
-                children: [
-                  InkWell(
-                    onTap: () => showModalBottomSheet(
-                      context: context,
-                      isScrollControlled: true,
-                      builder: (_) => BlocProvider.value(
-                        value: widget.productBloc,
-                        child: EditProductMarketplace(productMarketplace: mp),
-                      ),
-                    ),
-                    child: SizedBox(
-                      height: 110,
-                      width: 200,
-                      child: Card(
-                        elevation: 4.0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.0),
+    return BlocBuilder<ProductBloc, ProductState>(
+      bloc: productBloc,
+      builder: (context, state) {
+        return Column(
+          children: [
+            const Divider(),
+            const Text(
+              'Marktplätze',
+              style: TextStyles.h2,
+            ),
+            Gaps.h8,
+            SizedBox(
+              height: 110,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                physics: const BouncingScrollPhysics(),
+                itemCount: state.product!.productMarketplaces.length,
+                itemBuilder: (context, index) {
+                  final pm = state.product!.productMarketplaces[index];
+                  final marketplaceProduct = pm.marketplaceProduct as MarketplaceProductPresta;
+                  return Row(
+                    children: [
+                      InkWell(
+                        onTap: () => showModalBottomSheet(
+                          context: context,
+                          isScrollControlled: true,
+                          builder: (_) => BlocProvider.value(
+                            value: productBloc,
+                            child: EditProductMarketplace(productMarketplace: pm),
+                          ),
                         ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text(mp.nameMarketplace!, style: const TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold)),
+                        child: SizedBox(
+                          height: 110,
+                          width: 200,
+                          child: Card(
+                            elevation: 4.0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8.0),
                             ),
-                            Container(
-                              height: 5.0,
-                              decoration: BoxDecoration(
-                                color: mp.active! ? Colors.green : Colors.grey,
-                                borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(8.0), bottomRight: Radius.circular(8.0)),
-                              ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text(pm.nameMarketplace, style: const TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold)),
+                                ),
+                                Container(
+                                  height: 5.0,
+                                  decoration: BoxDecoration(
+                                    color: marketplaceProduct.active == '1' ? Colors.green : Colors.grey,
+                                    borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(8.0), bottomRight: Radius.circular(8.0)),
+                                  ),
+                                ),
+                              ],
                             ),
-                          ],
+                          ),
                         ),
                       ),
-                    ),
-                  ),
-                  Gaps.w16,
-                ],
-              );
-            },
-          ),
-        ),
-      ],
+                      Gaps.w16,
+                    ],
+                  );
+                },
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

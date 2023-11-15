@@ -1,9 +1,10 @@
 import 'package:bloc/bloc.dart';
+import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.dart';
 import 'package:cezeri_commerce/3_domain/repositories/prestashop/product/product_edit_repository.dart';
 import 'package:cezeri_commerce/core/firebase_failures.dart';
 import 'package:cezeri_commerce/core/presta_failure.dart';
 import 'package:dartz/dartz.dart';
-import 'package:meta/meta.dart';
+import 'package:flutter/material.dart';
 
 import '../../../3_domain/entities/marketplace/marketplace.dart';
 import '../../../3_domain/entities/product/product.dart';
@@ -54,7 +55,10 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
       final failureOrSuccess = await productRepository.getProduct(event.id);
       failureOrSuccess.fold(
         (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
-        (product) => emit(state.copyWith(product: product, firebaseFailure: null, isAnyFailure: false)),
+        (product) {
+          emit(state.copyWith(product: product, firebaseFailure: null, isAnyFailure: false));
+          add(SetProductControllerEvent(product: product));
+        },
       );
 
       emit(state.copyWith(
@@ -62,6 +66,27 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
         fosProductOnObserveOption: optionOf(failureOrSuccess),
       ));
       emit(state.copyWith(fosProductOnObserveOption: none()));
+    });
+
+    on<SetProductControllerEvent>((event, emit) async {
+      emit(state.copyWith(
+        articleNumberController: TextEditingController(text: event.product.articleNumber),
+        eanController: TextEditingController(text: event.product.ean),
+        nameController: TextEditingController(text: event.product.name),
+        wholesalePriceController: TextEditingController(text: event.product.wholesalePrice.toMyCurrencyStringToShow()),
+        supplierController: TextEditingController(text: event.product.supplier),
+        supplierArticleNumberController: TextEditingController(text: event.product.supplierArticleNumber),
+        manufacturerController: TextEditingController(text: event.product.manufacturer),
+        netPriceController: TextEditingController(text: event.product.netPrice.toMyCurrencyStringToShow()),
+        grossPriceController: TextEditingController(text: event.product.grossPrice.toMyCurrencyStringToShow()),
+        recommendedRetailPriceController: TextEditingController(text: event.product.recommendedRetailPrice.toMyCurrencyStringToShow()),
+        unityController: TextEditingController(text: event.product.unity),
+        unitPriceController: TextEditingController(text: event.product.unitPrice.toMyCurrencyStringToShow()),
+        weightController: TextEditingController(text: event.product.weight.toMyCurrencyStringToShow()),
+        widthController: TextEditingController(text: event.product.width.toMyCurrencyStringToShow()),
+        heightController: TextEditingController(text: event.product.height.toMyCurrencyStringToShow()),
+        depthController: TextEditingController(text: event.product.depth.toMyCurrencyStringToShow()),
+      ));
     });
 
 //? #########################################################################
@@ -105,11 +130,36 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
     on<UpdateProductEvent>((event, emit) async {
       emit(state.copyWith(isLoadingProductOnUpdate: true));
 
-      final failureOrSuccess = await productRepository.updateProduct(event.product);
+      final updatedProduct = state.product!.copyWith(
+        articleNumber: state.articleNumberController.text,
+        ean: state.eanController.text,
+        name: state.nameController.text,
+        wholesalePrice: state.wholesalePriceController.text.toMyDouble(),
+        supplier: state.supplierController.text,
+        supplierArticleNumber: state.supplierArticleNumberController.text,
+        manufacturer: state.manufacturerController.text,
+        netPrice: state.netPriceController.text.toMyDouble(),
+        grossPrice: state.grossPriceController.text.toMyDouble(),
+        recommendedRetailPrice: state.recommendedRetailPriceController.text.toMyDouble(),
+        unity: state.unityController.text,
+        unitPrice: state.unitPriceController.text.toMyDouble(),
+        weight: state.weightController.text.toMyDouble(),
+        width: state.widthController.text.toMyDouble(),
+        height: state.heightController.text.toMyDouble(),
+        depth: state.depthController.text.toMyDouble(),
+      );
+
+      bool isUpdateInFirestoreSucceeded = false;
+      final failureOrSuccess = await productRepository.updateProduct(updatedProduct);
       failureOrSuccess.fold(
         (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
-        (unit) => emit(state.copyWith(firebaseFailure: null, isAnyFailure: false)),
+        (unit) {
+          emit(state.copyWith(firebaseFailure: null, isAnyFailure: false));
+          isUpdateInFirestoreSucceeded = true;
+        },
       );
+
+      if (isUpdateInFirestoreSucceeded) add(OnEditProductInPresta(product: updatedProduct));
 
       emit(state.copyWith(
         isLoadingProductOnUpdate: false,

@@ -1,28 +1,40 @@
-import 'package:cezeri_commerce/1_presentation/core/widgets/my_avatar.dart';
 import 'package:cezeri_commerce/2_application/firebase/product/product_bloc.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:logger/logger.dart';
 
 import '../../../2_application/firebase/main_settings/main_settings_bloc.dart';
 import '../../../2_application/prestashop/product_import/product_import_bloc.dart';
 import '../../../3_domain/entities/marketplace/marketplace.dart';
+import '../../../3_domain/entities/product/marketplace_product_presta.dart';
 import '../../../3_domain/entities/product/product.dart';
 import '../../../constants.dart';
+import '../../core/widgets/my_avatar.dart';
+import '../../core/widgets/my_outlined_button.dart';
 
 class ProductImportPage extends StatelessWidget {
   final ProductImportBloc productImportBloc;
   final Marketplace marketplace;
   final void Function(int id) importProductById;
+  final void Function(int id) importProductByIdAsJson;
 
-  const ProductImportPage({super.key, required this.productImportBloc, required this.marketplace, required this.importProductById});
+  const ProductImportPage({
+    super.key,
+    required this.productImportBloc,
+    required this.marketplace,
+    required this.importProductById,
+    required this.importProductByIdAsJson,
+  });
 
   @override
   Widget build(BuildContext context) {
     final idController = TextEditingController();
+    final logger = Logger();
 
     return BlocBuilder<ProductImportBloc, ProductImportState>(
       builder: (context, state) {
+        final mainSettings = context.read<MainSettingsBloc>().state.mainSettings!;
         print(state.productPresta);
         print(state.isLoadingProductPrestaOnObserve);
         print(state.isAnyFailure);
@@ -39,10 +51,9 @@ class ProductImportPage extends StatelessWidget {
                   title: Text(
                     state.productPresta!.name!,
                   ),
-                  subtitle: Text(state.productPresta!.quantity!.toString()),
+                  subtitle: Text(state.productPresta!.quantity.toString()),
                   trailing: TextButton(
                     onPressed: () {
-                      final mainSettings = context.read<MainSettingsBloc>().state.mainSettings!;
                       final product = Product.fromProductPresta(
                         productPresta: state.productPresta!,
                         marketplace: marketplace,
@@ -53,12 +64,22 @@ class ProductImportPage extends StatelessWidget {
                     child: const Text('Speichern'),
                   ),
                 ),
+                MyOutlinedButton(
+                    buttonText: 'Product.toJson',
+                    onPressed: () {
+                      final product = Product.fromProductPresta(
+                        productPresta: state.productPresta!,
+                        marketplace: marketplace,
+                        mainSettings: mainSettings,
+                      );
+                      final marketplaceProductPresta = product.productMarketplaces.first.marketplaceProduct as MarketplaceProductPresta;
+                    }),
                 TextButton(onPressed: () => importProductById(2), child: const Text('Try Again')),
                 Text('id: ------- ${state.productPresta!.id} --- ${state.productPresta!.id.runtimeType}'),
                 Text('idManufacturer: ------- ${state.productPresta!.idManufacturer}'),
                 Text('idSupplier: ------- ${state.productPresta!.idSupplier}'),
                 Text('idCategoryDefault: ------- ${state.productPresta!.idCategoryDefault}'),
-                Text('isNew: ------- ${state.productPresta!.isNew}'),
+                // Text('isNew: ------- ${state.productPresta!.isNew}'),
                 Text('cacheDefaultAttribute: ------- ${state.productPresta!.cacheDefaultAttribute}'),
                 Text('idDefaultImage: ------- ${state.productPresta!.idDefaultImage}'),
                 Text('idDefaultCombination: ------- ${state.productPresta!.idDefaultCombination}'),
@@ -123,23 +144,24 @@ class ProductImportPage extends StatelessWidget {
                 Text('metaTitle: ------- ${state.productPresta!.metaTitle}'),
                 Text('linkRewrite: ------- ${state.productPresta!.linkRewrite}'),
                 Text('name: ------- ${state.productPresta!.name}'),
-                Text('listOfName: ------- ${state.productPresta!.listOfName}'),
+                Text('name: ------- ${state.productPresta!.nameMultilanguage}'),
+                // Text('listOfName: ------- ${state.productPresta!.listOfName}'),
                 Text('description: ------- ${state.productPresta!.description}'),
                 Text('descriptionShort: ------- ${state.productPresta!.descriptionShort}'),
                 Text('availableNow: ------- ${state.productPresta!.availableNow}'),
                 Text('availableLater: ------- ${state.productPresta!.availableLater}'),
-                Text('categoryIds original: ------- ${state.productPresta!.categoryIds}'),
-                Text('imageIds original: ------- ${state.productPresta!.imageIds}'),
-                Text('categoryIds original: ------- ${state.productPresta!.categories}'),
-                Text('images original: ------- ${state.productPresta!.images}'),
-                Text('categoryIds original: ------- ${state.productPresta!.combinations}'),
-                Text('categoryIds original: ------- ${state.productPresta!.productOptionValues}'),
-                Text('categoryIds original: ------- ${state.productPresta!.productFeatures}'),
-                Text('categoryIds original: ------- ${state.productPresta!.tags}'),
-                Text('categoryIds original: ------- ${state.productPresta!.stockAvailables}'),
-                Text('categoryIds original: ------- ${state.productPresta!.accessories}'),
-                Text('categoryIds original: ------- ${state.productPresta!.productBundle}'),
-                MyAvatar(name: 'name', file: state.productPresta!.imageFiles!.first!.imageFile),
+                // Text('categoryIds original: ------- ${state.productPresta!.categoryIds}'),
+                // Text('imageIds original: ------- ${state.productPresta!.imageIds}'),
+                // Text('categoryIds original: ------- ${state.productPresta!.categories}'),
+                // Text('images original: ------- ${state.productPresta!.images}'),
+                // Text('categoryIds original: ------- ${state.productPresta!.combinations}'),
+                // Text('categoryIds original: ------- ${state.productPresta!.productOptionValues}'),
+                // Text('categoryIds original: ------- ${state.productPresta!.productFeatures}'),
+                // Text('categoryIds original: ------- ${state.productPresta!.tags}'),
+                // Text('categoryIds original: ------- ${state.productPresta!.stockAvailables}'),
+                // Text('categoryIds original: ------- ${state.productPresta!.accessories}'),
+                // Text('categoryIds original: ------- ${state.productPresta!.productBundle}'),
+                MyAvatar(name: 'name', file: state.productPresta!.imageFiles!.first.imageFile),
               ],
               Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -157,7 +179,12 @@ class ProductImportPage extends StatelessWidget {
                   Gaps.h16,
                   OutlinedButton(
                     onPressed: () => importProductById(int.parse(idController.text)),
-                    child: const Text('Import Starten'),
+                    child: const Text('Import Als Starten'),
+                  ),
+                  Gaps.h16,
+                  OutlinedButton(
+                    onPressed: () => importProductByIdAsJson(int.parse(idController.text)),
+                    child: const Text('Import Neu Starten'),
                   ),
                 ],
               ),

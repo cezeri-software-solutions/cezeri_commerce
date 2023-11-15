@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<prestashop xmlns:xlink="http://www.w3.org/1999/xlink">
+    <product>
+        <id>
+            <![CDATA[1191]]>
+
+        </id>
+        <id_manufacturer xlink:href="https://carcleancare.com/api/manufacturers/1"><![CDATA[1]]></id_manufacturer>
+        <id_supplier><![CDATA[0]]></id_supplier>
+        <id_category_default xlink:href="https://carcleancare.com/api/categories/7"><![CDATA[7]]></id_category_default>
+        <new><![CDATA[]]></new>
+        <cache_default_attribute><![CDATA[0]]></cache_default_attribute>
+        <id_default_image notFilterable="true"><![CDATA[]]></id_default_image>
+        <id_default_combination notFilterable="true"><![CDATA[0]]></id_default_combination>
+        <id_tax_rules_group xlink:href="https://carcleancare.com/api/tax_rule_groups/58"><![CDATA[58]]></id_tax_rules_group>
+        <position_in_category notFilterable="true"><![CDATA[2]]></position_in_category>
+        <manufacturer_name notFilterable="true"><![CDATA[Koch Chemie]]></manufacturer_name>
+        <wholesale_price><![CDATA[7.230000]]></wholesale_price>
+        <name>
+            <language id="1" xlink:href="https://carcleancare.com/api/languages/1">
+                <![CDATA[copy of Koch Chemie - Polish Set 1 - 250ml]]>
+
+            </language>
+            <language id="2" xlink:href="https://carcleancare.com/api/languages/2">
+                <![CDATA[copy of Koch Chemie - Politur Set 1 - 250ml]]>
+
+            </language>
+            <language id="3" xlink:href="https://carcleancare.com/api/languages/3">
+                <![CDATA[copy of Koch Chemie - Set di lucidatura 1 - 250ml]]>
+
+            </language>
+        </name>
+    </product>
+</prestashop>

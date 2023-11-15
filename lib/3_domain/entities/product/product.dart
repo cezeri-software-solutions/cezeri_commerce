@@ -1,13 +1,17 @@
+import 'package:cezeri_commerce/1_presentation/core/extensions/string_to_int.dart';
+import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.dart';
 import 'package:cezeri_commerce/3_domain/entities/product/product_language.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 import '../../../1_presentation/core/functions/mixed_functions.dart';
 import '../../entities_presta/product_presta.dart';
+import '../language.dart';
 import '../marketplace/marketplace.dart';
 import '../settings/main_settings.dart';
 import '../settings/tax.dart';
 import 'product_image.dart';
 import 'product_marketplace.dart';
+import 'set_product.dart';
 
 part 'product.g.dart';
 
@@ -23,9 +27,6 @@ class Product {
   final String name;
   final List<ProductLanguage> listOfName;
   final Tax tax; // Steuer Inland
-  final bool haveImages;
-  final String mainImageUrl;
-  final int mainImageId;
   final List<String> imageUrls;
   final bool isActive;
   final int ordered; // wieviele schon nachbestellt wurden
@@ -42,6 +43,8 @@ class Product {
   final double recommendedRetailPrice;
   final bool haveVariants; // Gibt es eine Variante
   final bool isSetArticle;
+  final bool
+      isSetSelfQuantityManaged; // Wenn Set Artikle && true, dann wird der Bestand unabhängig von seinen Bestandteilen geführt, ansonsten wird der Bestand durch den niedrigsten Besteand der Besandteile ermittelt
   final String manufacturerNumber;
   final String manufacturer;
   final int warehouseStock;
@@ -50,8 +53,13 @@ class Product {
   final List<ProductLanguage> listOfDescription;
   final String descriptionShort;
   final List<ProductLanguage> listOfDescriptionShort;
+  final String metaTitle;
+  final List<ProductLanguage> listOfMetaTitle;
+  final String metaDescription;
+  final List<ProductLanguage> listOfMetaDescription;
   final double volume; // Volumen in cm3
   final List<ProductImage> listOfProductImages;
+  final List<SetProduct> listOfSetProducts;
   final List<ProductMarketplace> productMarketplaces;
 
   Product({
@@ -65,9 +73,6 @@ class Product {
     required this.name,
     required this.listOfName,
     required this.tax,
-    required this.haveImages,
-    required this.mainImageUrl,
-    required this.mainImageId,
     required this.imageUrls,
     required this.isActive,
     required this.ordered,
@@ -84,6 +89,7 @@ class Product {
     required this.recommendedRetailPrice,
     required this.haveVariants,
     required this.isSetArticle,
+    required this.isSetSelfQuantityManaged,
     required this.manufacturerNumber,
     required this.manufacturer,
     required this.warehouseStock,
@@ -92,10 +98,15 @@ class Product {
     required this.listOfDescription,
     required this.descriptionShort,
     required this.listOfDescriptionShort,
-    required this.volume,
+    required this.metaTitle,
+    required this.listOfMetaTitle,
+    required this.metaDescription,
+    required this.listOfMetaDescription,
+    //required this.volume,
     required this.listOfProductImages,
+    required this.listOfSetProducts,
     required this.productMarketplaces,
-  });
+  }) : volume = width * height * depth;
 
   factory Product.empty() {
     return Product(
@@ -109,9 +120,6 @@ class Product {
       name: '',
       listOfName: [],
       tax: Tax.empty(),
-      haveImages: false,
-      mainImageUrl: '',
-      mainImageId: 0,
       imageUrls: [],
       isActive: true,
       ordered: 0,
@@ -128,6 +136,7 @@ class Product {
       recommendedRetailPrice: 0,
       haveVariants: false,
       isSetArticle: false,
+      isSetSelfQuantityManaged: false,
       manufacturerNumber: '',
       manufacturer: '',
       warehouseStock: 0,
@@ -136,8 +145,12 @@ class Product {
       listOfDescription: [],
       descriptionShort: '',
       listOfDescriptionShort: [],
-      volume: 0,
+      metaTitle: '',
+      listOfMetaTitle: [],
+      metaDescription: '',
+      listOfMetaDescription: [],
       listOfProductImages: [],
+      listOfSetProducts: [],
       productMarketplaces: [],
     );
   }
@@ -147,44 +160,78 @@ class Product {
     required Marketplace marketplace,
     required MainSettings mainSettings,
   }) {
+    List<ProductLanguage> getListOfProductLanguages(List<Multilanguage>? valueMultilanguage) {
+      List<ProductLanguage> listOfProductLanguages = [];
+      if (valueMultilanguage != null &&
+          valueMultilanguage.isNotEmpty &&
+          productPresta.marketplaceLanguages != null &&
+          productPresta.marketplaceLanguages!.isNotEmpty) {
+        final marketplaceLanguages = productPresta.marketplaceLanguages!;
+        for (final value in valueMultilanguage) {
+          final mLanguage = marketplaceLanguages.where((e) => e.id.toString() == value.id).firstOrNull;
+          if (mLanguage == null) continue;
+          final language = Language.languageList.where((e) => e.isoCode.toUpperCase() == mLanguage.isoCode.toUpperCase()).firstOrNull;
+          if (language == null) continue;
+          final id = language.id;
+          listOfProductLanguages.add(ProductLanguage(id: id, value: value.value, isoCode: language.isoCode));
+        }
+      }
+      return listOfProductLanguages;
+    }
+
+    String getProductValue(List<ProductLanguage> listOfProductLanguages, String? value) {
+      String toReturnValue = '';
+      if (listOfProductLanguages.isNotEmpty) {
+        final phValue = listOfProductLanguages.where((e) => e.isoCode.toUpperCase() == 'DE').firstOrNull;
+        if (phValue != null) {
+          toReturnValue = phValue.value;
+        }
+      } else {
+        toReturnValue = value ?? '';
+      }
+      return toReturnValue;
+    }
+
     final productMarketplaces = [ProductMarketplace.fromProductPresta(productPresta, marketplace)];
     final taxRule = mainSettings.taxes.where((e) => e.isDefault).first;
 
+    final listOfName = getListOfProductLanguages(productPresta.nameMultilanguage);
+    final listOfDescription = getListOfProductLanguages(productPresta.descriptionMultilanguage);
+    final listOfDescriptionShort = getListOfProductLanguages(productPresta.descriptionShortMultilanguage);
+    final listOfMetaTitle = getListOfProductLanguages(productPresta.metaTitleMultilanguage);
+    final listOfMetaDescription = getListOfProductLanguages(productPresta.metaDescriptionMultilanguage);
+
+    final name = getProductValue(listOfName, productPresta.name);
+    final description = getProductValue(listOfDescription, productPresta.description);
+    final descriptionShort = getProductValue(listOfDescriptionShort, productPresta.descriptionShort);
+    final metaTitle = getProductValue(listOfMetaTitle, productPresta.metaTitle);
+    final metaDescription = getProductValue(listOfMetaDescription, productPresta.metaDescription);
+
     return Product.empty().copyWith(
-      articleNumber: productPresta.reference ?? Product.empty().articleNumber,
-      supplierArticleNumber: productPresta.reference ?? Product.empty().supplierArticleNumber,
+      articleNumber: productPresta.reference,
+      supplierArticleNumber: productPresta.reference,
       // TODO: Lieferanten anlegen und id(number) mit übergenben
       supplierNumber: Product.empty().supplierNumber,
-      supplier: productPresta.supplierReference ?? Product.empty().supplier,
-      sku: productPresta.reference ?? Product.empty().sku,
-      ean: productPresta.ean13 ?? Product.empty().ean,
-      name: productPresta.name ?? Product.empty().name,
-      listOfName: productPresta.listOfName ?? Product.empty().listOfName,
+      supplier: productPresta.supplierReference,
+      sku: productPresta.reference,
+      ean: productPresta.ean13,
+      name: name,
+      listOfName: listOfName,
       tax: taxRule,
-      haveImages: productPresta.imageIds != null
-          ? productPresta.imageIds!.isNotEmpty
-              ? true
-              : Product.empty().haveImages
-          : false,
-      // TODO: Bilder mit laden
-      //mainImageUrl: ,
-      // imageUrls: ,
       isActive: Product.empty().isActive,
       // TODO: Wieviele von diesem Artikel schon nachbestellt wurden
       // ordered: productPresta.reference ?? Product.empty().articleNumber,
-      brandName: productPresta.manufacturerName ?? Product.empty().brandName,
-      unity: productPresta.unity ?? Product.empty().unity,
-      width: productPresta.width ?? Product.empty().width,
-      height: productPresta.height ?? Product.empty().height,
-      depth: productPresta.depth ?? Product.empty().depth,
-      weight: productPresta.weight ?? Product.empty().weight,
-      netPrice: productPresta.price ?? Product.empty().netPrice,
-      grossPrice: productPresta.price != null ? productPresta.price! * taxToCalc(taxRule.taxRate) : Product.empty().grossPrice,
-      wholesalePrice: productPresta.wholesalePrice ?? Product.empty().wholesalePrice,
-      recommendedRetailPrice: productPresta.price != null ? productPresta.price! * taxToCalc(taxRule.taxRate) : Product.empty().grossPrice,
-      // TODO: nachschauen woher ich die Varianten bekomme
-      haveVariants: Product.empty().haveVariants,
-      // TODO: Wenn SetArtikel, alle Artikel aus dem Set mit importieren, anlegen und den Bestand davon berechnen
+      brandName: productPresta.manufacturerName,
+      unity: productPresta.unity,
+      width: productPresta.width.toMyDouble(),
+      height: productPresta.height.toMyDouble(),
+      depth: productPresta.depth.toMyDouble(),
+      weight: productPresta.weight.toMyDouble(),
+      netPrice: productPresta.price.toMyDouble(),
+      grossPrice: (productPresta.price.toMyDouble() * taxToCalc(taxRule.taxRate)).toMyRoundedDouble(),
+      wholesalePrice: productPresta.wholesalePrice.toMyDouble(),
+      recommendedRetailPrice: productPresta.price.toMyDouble() * taxToCalc(taxRule.taxRate),
+      haveVariants: productPresta.associations.associationsCombinations != null,
       isSetArticle: switch (productPresta.type) {
         'simple' => false,
         'pack' => true,
@@ -192,16 +239,18 @@ class Product {
       },
       // TODO: Hersteller anlegen und Nummer übergeben
       manufacturerNumber: Product.empty().manufacturerNumber,
-      manufacturer: productPresta.manufacturerName ?? Product.empty().manufacturer,
-      warehouseStock: productPresta.quantity ?? Product.empty().warehouseStock,
-      availableStock: productPresta.quantity ?? Product.empty().availableStock,
-      description: productPresta.description ?? Product.empty().description,
-      listOfDescription: productPresta.listOfDescription ?? Product.empty().listOfDescription,
-      descriptionShort: productPresta.descriptionShort ?? Product.empty().descriptionShort,
-      listOfDescriptionShort: productPresta.listOfDescriptionShort ?? Product.empty().listOfDescriptionShort,
-      volume: (productPresta.width ?? Product.empty().width) *
-          (productPresta.height ?? Product.empty().height) *
-          (productPresta.depth ?? Product.empty().depth),
+      manufacturer: productPresta.manufacturerName,
+      warehouseStock: productPresta.quantity.toMyInt(),
+      availableStock: productPresta.quantity.toMyInt(),
+      description: description,
+      listOfDescription: listOfDescription,
+      descriptionShort: descriptionShort,
+      listOfDescriptionShort: listOfDescriptionShort,
+      metaTitle: metaTitle,
+      listOfMetaTitle: listOfMetaTitle,
+      metaDescription: metaDescription,
+      listOfMetaDescription: listOfMetaDescription,
+      volume: (productPresta.width.toMyDouble() * productPresta.height.toMyDouble() * productPresta.depth.toMyDouble()),
       productMarketplaces: productMarketplaces,
     );
   }
@@ -221,9 +270,6 @@ class Product {
     String? name,
     List<ProductLanguage>? listOfName,
     Tax? tax,
-    bool? haveImages,
-    String? mainImageUrl,
-    int? mainImageId,
     List<String>? imageUrls,
     bool? isActive,
     int? ordered,
@@ -240,6 +286,7 @@ class Product {
     double? recommendedRetailPrice,
     bool? haveVariants,
     bool? isSetArticle,
+    bool? isSetSelfQuantityManaged,
     String? manufacturerNumber,
     String? manufacturer,
     int? warehouseStock,
@@ -248,8 +295,13 @@ class Product {
     List<ProductLanguage>? listOfDescription,
     String? descriptionShort,
     List<ProductLanguage>? listOfDescriptionShort,
+    String? metaTitle,
+    List<ProductLanguage>? listOfMetaTitle,
+    String? metaDescription,
+    List<ProductLanguage>? listOfMetaDescription,
     double? volume,
     List<ProductImage>? listOfProductImages,
+    List<SetProduct>? listOfSetProducts,
     List<ProductMarketplace>? productMarketplaces,
   }) {
     return Product(
@@ -263,9 +315,6 @@ class Product {
       name: name ?? this.name,
       listOfName: listOfName ?? this.listOfName,
       tax: tax ?? this.tax,
-      haveImages: haveImages ?? this.haveImages,
-      mainImageUrl: mainImageUrl ?? this.mainImageUrl,
-      mainImageId: mainImageId ?? this.mainImageId,
       imageUrls: imageUrls ?? this.imageUrls,
       isActive: isActive ?? this.isActive,
       ordered: ordered ?? this.ordered,
@@ -282,6 +331,7 @@ class Product {
       recommendedRetailPrice: recommendedRetailPrice ?? this.recommendedRetailPrice,
       haveVariants: haveVariants ?? this.haveVariants,
       isSetArticle: isSetArticle ?? this.isSetArticle,
+      isSetSelfQuantityManaged: isSetSelfQuantityManaged ?? this.isSetSelfQuantityManaged,
       manufacturerNumber: manufacturerNumber ?? this.manufacturerNumber,
       manufacturer: manufacturer ?? this.manufacturer,
       warehouseStock: warehouseStock ?? this.warehouseStock,
@@ -290,14 +340,18 @@ class Product {
       listOfDescription: listOfDescription ?? this.listOfDescription,
       descriptionShort: descriptionShort ?? this.descriptionShort,
       listOfDescriptionShort: listOfDescriptionShort ?? this.listOfDescriptionShort,
-      volume: volume ?? this.volume,
+      metaTitle: metaTitle ?? this.metaTitle,
+      listOfMetaTitle: listOfMetaTitle ?? this.listOfMetaTitle,
+      metaDescription: metaDescription ?? this.metaDescription,
+      listOfMetaDescription: listOfMetaDescription ?? this.listOfMetaDescription,
       listOfProductImages: listOfProductImages ?? this.listOfProductImages,
+      listOfSetProducts: listOfSetProducts ?? this.listOfSetProducts,
       productMarketplaces: productMarketplaces ?? this.productMarketplaces,
     );
   }
 
   @override
   String toString() {
-    return 'Product(id: $id, articleNumber: $articleNumber, supplierArticleNumber: $supplierArticleNumber, supplierNumber: $supplierNumber, supplier: $supplier, sku: $sku, ean: $ean, name: $name, listOfName: $listOfName, tax: $tax, haveImages: $haveImages, mainImageUrl: $mainImageUrl, mainImageId: $mainImageId, imageUrls: $imageUrls, isActive: $isActive, ordered: $ordered, brandName: $brandName, unity: $unity, unitPrice: $unitPrice, width: $width, height: $height, depth: $depth, weight: $weight, netPrice: $netPrice, grossPrice: $grossPrice, wholesalePrice: $wholesalePrice, recommendedRetailPrice: $recommendedRetailPrice, haveVariants: $haveVariants, isSetArticle: $isSetArticle, manufacturerNumber: $manufacturerNumber, manufacturer: $manufacturer, warehouseStock: $warehouseStock, availableStock: $availableStock, description: $description, listOfDescription: $listOfDescription, descriptionShort: $descriptionShort, listOfDescriptionShort: $listOfDescriptionShort, volume: $volume, listOfProductImages: $listOfProductImages, productMarketplaces: $productMarketplaces)';
+    return 'Product(id: $id, articleNumber: $articleNumber, supplierArticleNumber: $supplierArticleNumber, supplierNumber: $supplierNumber, supplier: $supplier, sku: $sku, ean: $ean, name: $name, listOfName: $listOfName, tax: $tax, imageUrls: $imageUrls, isActive: $isActive, ordered: $ordered, brandName: $brandName, unity: $unity, unitPrice: $unitPrice, width: $width, height: $height, depth: $depth, weight: $weight, netPrice: $netPrice, grossPrice: $grossPrice, wholesalePrice: $wholesalePrice, recommendedRetailPrice: $recommendedRetailPrice, haveVariants: $haveVariants, isSetArticle: $isSetArticle, isSetSelfQuantityManaged: $isSetSelfQuantityManaged, manufacturerNumber: $manufacturerNumber, manufacturer: $manufacturer, warehouseStock: $warehouseStock, availableStock: $availableStock, description: $description, listOfDescription: $listOfDescription, descriptionShort: $descriptionShort, listOfDescriptionShort: $listOfDescriptionShort, metaTitle: $metaTitle, listOfMetaTitle: $listOfMetaTitle, metaDescription: $metaDescription, listOfMetaDescription: $listOfMetaDescription, volume: $volume, listOfProductImages: $listOfProductImages, listOfSetProducts: $listOfSetProducts, productMarketplaces: $productMarketplaces)';
   }
 }

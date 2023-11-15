@@ -12,6 +12,17 @@ extension ToMyCurrencyString on double? {
   }
 }
 
+extension ToMyXmlString on double? {
+  String toMyXmlString([int? int]) {
+    if (this == null) {
+      return "0.00";
+    }
+    double value = this!;
+    double roundedValue = (value * (int == null ? 100 : math.pow(10, int))).round() / (int == null ? 100 : math.pow(10, int));
+    return roundedValue.toStringAsFixed(int ?? 2).replaceAll(',', '.');
+  }
+}
+
 //* Dient nur zur schöneren Darstellung.
 //* Nicht so abspeichern
 extension ToMyCurrencyStringToShow on double {
@@ -54,4 +65,3 @@ extension ToMyRoundedDouble on double {
     return (this * 100).roundToDouble() / 100;
   }
 }
-

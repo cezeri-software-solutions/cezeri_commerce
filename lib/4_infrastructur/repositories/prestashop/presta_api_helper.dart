@@ -4,8 +4,6 @@ import 'package:dartz/dartz.dart';
 import 'package:http/http.dart' as http;
 import 'package:xml/xml.dart';
 
-import '../../../3_domain/entities/language.dart';
-import '../../../3_domain/entities/marketplace/marketplace.dart';
 import '../../../core/presta_failure.dart';
 
 enum PrestaApiResource {
@@ -266,33 +264,33 @@ Future<Either<PrestaGeneralFailure, XmlDocument>> getResourcesFromPrestaByFilter
   }
 }
 
-Future<List<Language>?> getMarketplaceLanguages(Marketplace marketplace) async {
-  final uri = '${marketplace.fullUrl}languages/?output_format=JSON&display=full';
-  final response = await http.get(
-    Uri.parse(uri),
-    headers: {'Authorization': 'Basic ${base64Encode(utf8.encode('${marketplace.key}:'))}'},
-  );
+// Future<List<LanguagePresta>?> getMarketplaceLanguages(Marketplace marketplace) async {
+//   final uri = '${marketplace.fullUrl}languages/?output_format=JSON&display=full';
+//   final response = await http.get(
+//     Uri.parse(uri),
+//     headers: {'Authorization': 'Basic ${base64Encode(utf8.encode('${marketplace.key}:'))}'},
+//   );
 
-  if (response.statusCode == 200) {
-    final Map<String, dynamic> jsonResponse = jsonDecode(response.body);
-    final List<dynamic> languageList = jsonResponse['languages'];
+//   if (response.statusCode == 200) {
+//     final Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+//     final List<dynamic> languageList = jsonResponse['languages'];
 
-    List<Language> shopLanguages = languageList
-        .map((e) => Language(
-              id: e['id'] as int,
-              name: e['name'] as String,
-              isoCode: e['iso_code'] as String,
-              locale: e['locale'] as String,
-              languageCode: e['language_code'] as String,
-              active: e['active'] == '1',
-              isRtl: e['is_rtl'] == '1',
-              dateFormatLite: e['date_format_lite'] as String,
-              dateFormatFull: e['date_format_full'] as String,
-              isDefault: false,
-            ))
-        .toList();
-    return shopLanguages;
-  } else {
-    return null;
-  }
-}
+//     List<LanguagePresta> shopLanguages = languageList
+//         .map((e) => LanguagePresta(
+//               id: e['id'] as int,
+//               name: e['name'] as String,
+//               isoCode: e['iso_code'] as String,
+//               locale: e['locale'] as String,
+//               languageCode: e['language_code'] as String,
+//               active: e['active'] == '1',
+//               isRtl: e['is_rtl'] == '1',
+//               dateFormatLite: e['date_format_lite'] as String,
+//               dateFormatFull: e['date_format_full'] as String,
+//               isDefault: false,
+//             ))
+//         .toList();
+//     return shopLanguages;
+//   } else {
+//     return null;
+//   }
+// }

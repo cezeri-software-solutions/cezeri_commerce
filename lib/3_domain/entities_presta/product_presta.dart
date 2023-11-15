@@ -1,538 +1,530 @@
-import 'package:xml/xml.dart';
+import 'dart:convert';
 
-import '../entities/language.dart';
-import '../entities/product/product_associations.dart';
-import '../entities/product/product_associations_product_bundle.dart';
-import '../entities/product/product_associations_product_features.dart';
-import '../entities/product/product_associations_stock_availables.dart';
-import '../entities/product/product_language.dart';
+import 'package:json_annotation/json_annotation.dart';
+
+import 'language_presta.dart';
 import 'product_presta_image.dart';
 
+part 'product_presta.g.dart';
+
+@JsonSerializable()
+class ProductsPresta {
+  static const _encoder = JsonEncoder.withIndent('  ');
+
+  @JsonKey(name: 'products')
+  final List<ProductPresta> items;
+
+  const ProductsPresta({required this.items});
+
+  factory ProductsPresta.fromJson(Map<String, dynamic> json) => _$ProductsPrestaFromJson(json);
+  Map<String, dynamic> toJson() => _$ProductsPrestaToJson(this);
+
+  @override
+  String toString() => _encoder.convert(toJson());
+}
+
+@JsonSerializable(explicitToJson: true)
 class ProductPresta {
-  int id;
-  int? idManufacturer;
-  int? idSupplier;
-  int? idCategoryDefault;
-  bool? isNew;
-  bool? cacheDefaultAttribute;
-  int? idDefaultImage;
-  int? idDefaultCombination;
-  int? idTaxRulesGroup;
-  int? positionInCategory;
-  String? manufacturerName;
-  int? quantity;
-  String? type;
-  int? idShopDefault;
-  String? reference;
-  String? supplierReference;
-  String? location;
-  double? width;
-  double? height;
-  double? depth;
-  double? weight;
-  bool? quantityDiscount;
-  String? ean13;
-  String? isbn;
-  String? upc;
-  String? mpn;
-  bool? cacheIsPack;
-  bool? cacheHasAttachments;
-  bool? isVirtual;
-  int? state;
-  int? additionalDeliveryTimes;
-  String? deliveryInStock;
-  String? deliveryOutStock;
-  bool? onSale;
-  bool? onlineOnly;
-  double? ecotax;
-  int? minimalQuantity;
-  int? lowStockThreshold;
-  bool? lowStockAlert;
-  double? price;
-  double? wholesalePrice;
-  String? unity;
-  double? unitPriceRatio;
-  double? additionalShippingCost;
-  int? customizable;
-  int? textFields;
-  int? uploadableFiles;
-  bool? active;
-  String? redirectType;
-  int? idTypeRedirected;
-  bool? availableForOrder;
-  DateTime? availableDate;
-  bool? showCondition;
-  String? condition;
-  bool? showPrice;
-  bool? indexed;
-  String? visibility;
-  bool? advancedStockManagement;
-  DateTime? dateAdd;
-  DateTime? dateUpd;
-  int? packStockType;
-  String? metaDescription;
-  List<ProductLanguage>? listOfMetaDescription;
-  String? metaKeywords;
-  List<ProductLanguage>? listOfMetaKeywords;
-  String? metaTitle;
-  List<ProductLanguage>? listOfMetaTitle;
-  String? linkRewrite;
-  List<ProductLanguage>? listOfLinkRewrite;
-  String? name;
-  List<ProductLanguage>? listOfName;
-  String? description;
-  List<ProductLanguage>? listOfDescription;
-  String? descriptionShort;
-  List<ProductLanguage>? listOfDescriptionShort;
-  String? availableNow;
-  String? availableLater;
-  List<int?>? categoryIds;
-  List<int?>? imageIds;
-  List<ProductPrestaImage?>? imageFiles;
-  List<ProductAssociations>? categories;
-  List<ProductAssociations>? images;
-  List<ProductAssociations>? combinations;
-  List<ProductAssociations>? productOptionValues;
-  List<ProductAssociationsProductFeatures>? productFeatures;
-  List<ProductAssociations>? tags;
-  List<ProductAssociationsStockAvailables>? stockAvailables;
-  List<String>? accessories; // ids as String der ähnlichen Produkte in Prestashop, die unten aufgeführt werden.
-  List<ProductAssociationsProductBundle>? productBundle; // Wenn Produktbündel
+  static const _encoder = JsonEncoder.withIndent('  ');
+
+  final int id;
+  final String idManufacturer;
+  final String idSupplier;
+  final String idCategoryDefault;
+  final String? newProduct;
+  final String cacheDefaultAttribute;
+  final String idDefaultImage;
+  final String idDefaultCombination;
+  final String idTaxRulesGroup;
+  final String positionInCategory;
+  final String manufacturerName;
+  final String quantity;
+  final String type;
+  final String idShopDefault;
+  final String reference;
+  final String supplierReference;
+  final String location;
+  final String width;
+  final String height;
+  final String depth;
+  final String weight;
+  final String quantityDiscount;
+  final String ean13;
+  final String isbn;
+  final String upc;
+  final String mpn;
+  final String cacheIsPack;
+  final String cacheHasAttachments;
+  final String isVirtual;
+  final String state;
+  final String additionalDeliveryTimes;
+  final String? deliveryInStock;
+  final List<Multilanguage>? deliveryInStockMultilanguage;
+  final String? deliveryOutStock;
+  final List<Multilanguage>? deliveryOutStockMultilanguage;
+  final String onSale;
+  final String onlineOnly;
+  final String ecotax;
+  final String minimalQuantity;
+  final String? lowStockThreshold;
+  final String lowStockAlert;
+  final String price;
+  final String wholesalePrice;
+  final String unity;
+  final String unitPriceRatio;
+  final String additionalShippingCost;
+  final String customizable;
+  final String textFields;
+  final String uploadableFiles;
+  final String active;
+  final String redirectType;
+  final String idTypeRedirected;
+  final String availableForOrder;
+  final String availableDate;
+  final String showCondition;
+  final String condition;
+  final String showPrice;
+  final String indexed;
+  final String visibility;
+  final String advancedStockManagement;
+  final String dateAdd;
+  final String dateUpd;
+  final String packStockType;
+  final String? metaDescription;
+  final List<Multilanguage>? metaDescriptionMultilanguage;
+  final String? metaKeywords;
+  final List<Multilanguage>? metaKeywordsMultilanguage;
+  final String? metaTitle;
+  final List<Multilanguage>? metaTitleMultilanguage;
+  final String? linkRewrite;
+  final List<Multilanguage>? linkRewriteMultilanguage;
+  final String? name;
+  final List<Multilanguage>? nameMultilanguage;
+  final String? description;
+  final List<Multilanguage>? descriptionMultilanguage;
+  final String? descriptionShort;
+  final List<Multilanguage>? descriptionShortMultilanguage;
+  final String? availableNow;
+  final List<Multilanguage>? availableNowMultilanguage;
+  final String? availableLater;
+  final List<Multilanguage>? availableLaterMultilanguage;
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  final List<ProductPrestaImage>? imageFiles;
+  final List<LanguagePresta>? marketplaceLanguages;
+  final Associations associations;
 
   ProductPresta({
     required this.id,
-    this.idManufacturer,
-    this.idSupplier,
-    this.idCategoryDefault,
-    this.isNew,
-    this.cacheDefaultAttribute,
-    this.idDefaultImage,
-    this.idDefaultCombination,
-    this.idTaxRulesGroup,
-    this.positionInCategory,
-    this.manufacturerName,
-    this.quantity,
-    this.type,
-    this.idShopDefault,
-    this.reference,
-    this.supplierReference,
-    this.location,
-    this.width,
-    this.height,
-    this.depth,
-    this.weight,
-    this.quantityDiscount,
-    this.ean13,
-    this.isbn,
-    this.upc,
-    this.mpn,
-    this.cacheIsPack,
-    this.cacheHasAttachments,
-    this.isVirtual,
-    this.state,
-    this.additionalDeliveryTimes,
-    this.deliveryInStock,
-    this.deliveryOutStock,
-    this.onSale,
-    this.onlineOnly,
-    this.ecotax,
-    this.minimalQuantity,
+    required this.idManufacturer,
+    required this.idSupplier,
+    required this.idCategoryDefault,
+    this.newProduct,
+    required this.cacheDefaultAttribute,
+    required this.idDefaultImage,
+    required this.idDefaultCombination,
+    required this.idTaxRulesGroup,
+    required this.positionInCategory,
+    required this.manufacturerName,
+    required this.quantity,
+    required this.type,
+    required this.idShopDefault,
+    required this.reference,
+    required this.supplierReference,
+    required this.location,
+    required this.width,
+    required this.height,
+    required this.depth,
+    required this.weight,
+    required this.quantityDiscount,
+    required this.ean13,
+    required this.isbn,
+    required this.upc,
+    required this.mpn,
+    required this.cacheIsPack,
+    required this.cacheHasAttachments,
+    required this.isVirtual,
+    required this.state,
+    required this.additionalDeliveryTimes,
+    required this.deliveryInStock,
+    required this.deliveryInStockMultilanguage,
+    required this.deliveryOutStock,
+    required this.deliveryOutStockMultilanguage,
+    required this.onSale,
+    required this.onlineOnly,
+    required this.ecotax,
+    required this.minimalQuantity,
     this.lowStockThreshold,
-    this.lowStockAlert,
-    this.price,
-    this.wholesalePrice,
-    this.unity,
-    this.unitPriceRatio,
-    this.additionalShippingCost,
-    this.customizable,
-    this.textFields,
-    this.uploadableFiles,
-    this.active,
-    this.redirectType,
-    this.idTypeRedirected,
-    this.availableForOrder,
-    this.availableDate,
-    this.showCondition,
-    this.condition,
-    this.showPrice,
-    this.indexed,
-    this.visibility,
-    this.advancedStockManagement,
-    this.dateAdd,
-    this.dateUpd,
-    this.packStockType,
-    this.metaDescription,
-    this.listOfMetaDescription,
-    this.metaKeywords,
-    this.listOfMetaKeywords,
-    this.metaTitle,
-    this.listOfMetaTitle,
-    this.linkRewrite,
-    this.listOfLinkRewrite,
-    this.name,
-    this.listOfName,
-    this.description,
-    this.listOfDescription,
-    this.descriptionShort,
-    this.listOfDescriptionShort,
-    this.availableNow,
-    this.availableLater,
-    this.categoryIds,
-    this.imageIds,
+    required this.lowStockAlert,
+    required this.price,
+    required this.wholesalePrice,
+    required this.unity,
+    required this.unitPriceRatio,
+    required this.additionalShippingCost,
+    required this.customizable,
+    required this.textFields,
+    required this.uploadableFiles,
+    required this.active,
+    required this.redirectType,
+    required this.idTypeRedirected,
+    required this.availableForOrder,
+    required this.availableDate,
+    required this.showCondition,
+    required this.condition,
+    required this.showPrice,
+    required this.indexed,
+    required this.visibility,
+    required this.advancedStockManagement,
+    required this.dateAdd,
+    required this.dateUpd,
+    required this.packStockType,
+    required this.metaDescription,
+    required this.metaDescriptionMultilanguage,
+    required this.metaKeywords,
+    this.metaKeywordsMultilanguage,
+    required this.metaTitle,
+    this.metaTitleMultilanguage,
+    required this.linkRewrite,
+    this.linkRewriteMultilanguage,
+    required this.name,
+    this.nameMultilanguage,
+    required this.description,
+    this.descriptionMultilanguage,
+    required this.descriptionShort,
+    this.descriptionShortMultilanguage,
+    required this.availableNow,
+    this.availableNowMultilanguage,
+    required this.availableLater,
+    this.availableLaterMultilanguage,
     this.imageFiles,
-    this.categories,
-    this.images,
-    this.combinations,
-    this.productOptionValues,
-    this.productFeatures,
-    this.tags,
-    this.stockAvailables,
-    this.accessories,
-    this.productBundle,
+    this.marketplaceLanguages,
+    required this.associations,
   });
 
-  factory ProductPresta.fromXml(XmlDocument document, List<Language> marketplaceLanguages) {
-    bool parseBool(String? value) {
-      if (value == null) {
-        return false;
+  factory ProductPresta.fromJson(Map<String, dynamic> json) {
+    String? deliveryInStock;
+    List<Multilanguage>? deliveryInStockMultilanguage;
+    String? deliveryOutStock;
+    List<Multilanguage>? deliveryOutStockMultilanguage;
+    String? metaDescription;
+    List<Multilanguage>? metaDescriptionMultilanguage;
+    String? metaKeywords;
+    List<Multilanguage>? metaKeywordsMultilanguage;
+    String? metaTitle;
+    List<Multilanguage>? metaTitleMultilanguage;
+    String? linkRewrite;
+    List<Multilanguage>? linkRewriteMultilanguage;
+    String? name;
+    List<Multilanguage>? nameMultilanguage;
+    String? description;
+    List<Multilanguage>? descriptionMultilanguage;
+    String? descriptionShort;
+    List<Multilanguage>? descriptionShortMultilanguage;
+    String? availableNow;
+    List<Multilanguage>? availableNowMultilanguage;
+    String? availableLater;
+    List<Multilanguage>? availableLaterMultilanguage;
+    if (json['delivery_in_stock'] is String) {
+      deliveryInStock = json['delivery_in_stock'] as String;
+    } else if (json['delivery_in_stock'] is List) {
+      var firstItem = json['delivery_in_stock'][0];
+      if (firstItem is Map<String, dynamic> && firstItem['value'] is String) {
+        deliveryInStock = firstItem['value'];
       }
-      return value.toLowerCase() == 'true' || value == '1';
+      deliveryInStockMultilanguage = (json['delivery_in_stock'] as List).map((e) => Multilanguage.fromJson(e as Map<String, dynamic>)).toList();
     }
-
-    final isMultiLanguage = document.findAllElements('name').expand((e) => e.findElements('language')).skip(1).isNotEmpty;
-
-    // TODO: get from Settings
-    final myLanguages = [Language.emptyDe(), Language.emptyEn(), Language.emptyIt()];
-
-    final listOfMetaDescription = document.findAllElements('meta_description').expand((e) => e.findElements('language')).map((e) {
-      final iso = marketplaceLanguages.where((element) => element.id == int.parse(e.getAttribute('id')!)).first.isoCode;
-      return ProductLanguage(
-        id: myLanguages.where((element) => element.isoCode == iso).first.id,
-        description: e.text,
-        isoCode: iso,
-      );
-    }).toList();
-
-    final listOfMetaKeywords = document.findAllElements('meta_keywords').expand((e) => e.findElements('language')).map((e) {
-      final iso = marketplaceLanguages.where((element) => element.id == int.parse(e.getAttribute('id')!)).first.isoCode;
-      return ProductLanguage(
-        id: myLanguages.where((element) => element.isoCode == iso).first.id,
-        description: e.text,
-        isoCode: iso,
-      );
-    }).toList();
-
-    final listOfMetaTitle = document.findAllElements('meta_title').expand((e) => e.findElements('language')).map((e) {
-      final iso = marketplaceLanguages.where((element) => element.id == int.parse(e.getAttribute('id')!)).first.isoCode;
-      return ProductLanguage(
-        id: myLanguages.where((element) => element.isoCode == iso).first.id,
-        description: e.text,
-        isoCode: iso,
-      );
-    }).toList();
-
-    final listOfLinkRewrite = document.findAllElements('link_rewrite').expand((e) => e.findElements('language')).map((e) {
-      final iso = marketplaceLanguages.where((element) => element.id == int.parse(e.getAttribute('id')!)).first.isoCode;
-      return ProductLanguage(
-        id: myLanguages.where((element) => element.isoCode == iso).first.id,
-        description: e.text,
-        isoCode: iso,
-      );
-    }).toList();
-
-    final listOfName = document.findAllElements('name').expand((e) => e.findElements('language')).map((e) {
-      final iso = marketplaceLanguages.where((element) => element.id == int.parse(e.getAttribute('id')!)).first.isoCode;
-      return ProductLanguage(
-        id: myLanguages.where((element) => element.isoCode == iso).first.id,
-        description: e.text,
-        isoCode: iso,
-      );
-    }).toList();
-
-    final listOfDescription = document.findAllElements('description').expand((e) => e.findElements('language')).map((e) {
-      final iso = marketplaceLanguages.where((element) => element.id == int.parse(e.getAttribute('id')!)).first.isoCode;
-      return ProductLanguage(
-        id: myLanguages.where((element) => element.isoCode == iso).first.id,
-        description: e.text,
-        isoCode: iso,
-      );
-    }).toList();
-
-    final listOfDescriptionShort = document.findAllElements('description_short').expand((e) => e.findElements('language')).map((e) {
-      final iso = marketplaceLanguages.where((element) => element.id == int.parse(e.getAttribute('id')!)).first.isoCode;
-      return ProductLanguage(
-        id: myLanguages.where((element) => element.isoCode == iso).first.id,
-        description: e.text,
-        isoCode: iso,
-      );
-    }).toList();
-
+    if (json['delivery_out_stock'] is String) {
+      deliveryOutStock = json['delivery_out_stock'] as String;
+    } else if (json['delivery_out_stock'] is List) {
+      var firstItem = json['delivery_out_stock'][0];
+      if (firstItem is Map<String, dynamic> && firstItem['value'] is String) {
+        deliveryOutStock = firstItem['value'];
+      }
+      deliveryOutStockMultilanguage = (json['delivery_out_stock'] as List).map((e) => Multilanguage.fromJson(e as Map<String, dynamic>)).toList();
+    }
+    if (json['meta_description'] is String) {
+      metaDescription = json['meta_description'] as String;
+    } else if (json['meta_description'] is List) {
+      var firstItem = json['meta_description'][0];
+      if (firstItem is Map<String, dynamic> && firstItem['value'] is String) {
+        metaDescription = firstItem['value'];
+      }
+      metaDescriptionMultilanguage = (json['meta_description'] as List).map((e) => Multilanguage.fromJson(e as Map<String, dynamic>)).toList();
+    }
+    if (json['meta_keywords'] is String) {
+      metaKeywords = json['meta_keywords'] as String;
+    } else if (json['meta_keywords'] is List) {
+      var firstItem = json['meta_keywords'][0];
+      if (firstItem is Map<String, dynamic> && firstItem['value'] is String) {
+        metaKeywords = firstItem['value'];
+      }
+      metaKeywordsMultilanguage = (json['meta_keywords'] as List).map((e) => Multilanguage.fromJson(e as Map<String, dynamic>)).toList();
+    }
+    if (json['meta_title'] is String) {
+      metaTitle = json['meta_title'] as String;
+    } else if (json['meta_title'] is List) {
+      var firstItem = json['meta_title'][0];
+      if (firstItem is Map<String, dynamic> && firstItem['value'] is String) {
+        metaTitle = firstItem['value'];
+      }
+      metaTitleMultilanguage = (json['meta_title'] as List).map((e) => Multilanguage.fromJson(e as Map<String, dynamic>)).toList();
+    }
+    if (json['link_rewrite'] is String) {
+      linkRewrite = json['link_rewrite'] as String;
+    } else if (json['link_rewrite'] is List) {
+      var firstItem = json['link_rewrite'][0];
+      if (firstItem is Map<String, dynamic> && firstItem['value'] is String) {
+        linkRewrite = firstItem['value'];
+      }
+      linkRewriteMultilanguage = (json['link_rewrite'] as List).map((e) => Multilanguage.fromJson(e as Map<String, dynamic>)).toList();
+    }
+    if (json['name'] is String) {
+      name = json['name'] as String;
+    } else if (json['name'] is List) {
+      var firstItem = json['name'][0];
+      if (firstItem is Map<String, dynamic> && firstItem['value'] is String) {
+        name = firstItem['value'];
+      }
+      nameMultilanguage = (json['name'] as List).map((e) => Multilanguage.fromJson(e as Map<String, dynamic>)).toList();
+    }
+    if (json['description'] is String) {
+      description = json['description'] as String;
+    } else if (json['description'] is List) {
+      var firstItem = json['description'][0];
+      if (firstItem is Map<String, dynamic> && firstItem['value'] is String) {
+        description = firstItem['value'];
+      }
+      descriptionMultilanguage = (json['description'] as List).map((e) => Multilanguage.fromJson(e as Map<String, dynamic>)).toList();
+    }
+    if (json['description_short'] is String) {
+      descriptionShort = json['description_short'] as String;
+    } else if (json['description_short'] is List) {
+      var firstItem = json['description_short'][0];
+      if (firstItem is Map<String, dynamic> && firstItem['value'] is String) {
+        descriptionShort = firstItem['value'];
+      }
+      descriptionShortMultilanguage = (json['description_short'] as List).map((e) => Multilanguage.fromJson(e as Map<String, dynamic>)).toList();
+    }
+    if (json['available_now'] is String) {
+      availableNow = json['available_now'] as String;
+    } else if (json['available_now'] is List) {
+      var firstItem = json['available_now'][0];
+      if (firstItem is Map<String, dynamic> && firstItem['value'] is String) {
+        availableNow = firstItem['value'];
+      }
+      availableNowMultilanguage = (json['available_now'] as List).map((e) => Multilanguage.fromJson(e as Map<String, dynamic>)).toList();
+    }
+    if (json['available_later'] is String) {
+      availableLater = json['available_later'] as String;
+    } else if (json['available_later'] is List) {
+      var firstItem = json['available_later'][0];
+      if (firstItem is Map<String, dynamic> && firstItem['value'] is String) {
+        availableLater = firstItem['value'];
+      }
+      availableLaterMultilanguage = (json['available_later'] as List).map((e) => Multilanguage.fromJson(e as Map<String, dynamic>)).toList();
+    }
+    if (json['available_later'] is String) {
+      availableLater = json['available_later'] as String;
+    } else if (json['available_later'] is List) {
+      var firstItem = json['available_later'][0];
+      if (firstItem is Map<String, dynamic> && firstItem['value'] is String) {
+        availableLater = firstItem['value'];
+      }
+      availableLaterMultilanguage = (json['available_later'] as List).map((e) => Multilanguage.fromJson(e as Map<String, dynamic>)).toList();
+    }
     return ProductPresta(
-      id: int.parse(document.findAllElements('id').first.text),
-      idManufacturer: int.tryParse(document.findAllElements('id_manufacturer').first.text),
-      idSupplier: int.tryParse(document.findAllElements('id_supplier').first.text),
-      idCategoryDefault: int.tryParse(document.findAllElements('id_category_default').first.text),
-      isNew: parseBool(document.findAllElements('new').first.text),
-      cacheDefaultAttribute: parseBool(document.findAllElements('cache_default_attribute').first.text),
-      idDefaultImage: int.tryParse(document.findAllElements('id_default_image').first.text),
-      idDefaultCombination: int.tryParse(document.findAllElements('id_default_combination').first.text),
-      idTaxRulesGroup: int.tryParse(document.findAllElements('id_tax_rules_group').first.text),
-      positionInCategory: int.tryParse(document.findAllElements('position_in_category').first.text),
-      manufacturerName: document.findAllElements('manufacturer_name').first.text,
-      quantity: int.tryParse(document.findAllElements('quantity').first.text),
-      type: document.findAllElements('type').first.text,
-      idShopDefault: int.tryParse(document.findAllElements('id_shop_default').first.text),
-      reference: document.findAllElements('reference').first.text,
-      supplierReference: document.findAllElements('supplier_reference').first.text,
-      location: document.findAllElements('location').first.text,
-      width: double.tryParse(document.findAllElements('width').first.text),
-      height: double.tryParse(document.findAllElements('height').first.text),
-      depth: double.tryParse(document.findAllElements('depth').first.text),
-      weight: double.tryParse(document.findAllElements('weight').first.text),
-      quantityDiscount: parseBool(document.findAllElements('quantity_discount').first.text),
-      ean13: document.findAllElements('ean13').first.text,
-      isbn: document.findAllElements('isbn').first.text,
-      upc: document.findAllElements('upc').first.text,
-      mpn: document.findAllElements('mpn').first.text,
-      cacheIsPack: parseBool(document.findAllElements('cache_is_pack').first.text),
-      cacheHasAttachments: parseBool(document.findAllElements('cache_has_attachments').first.text),
-      isVirtual: parseBool(document.findAllElements('is_virtual').first.text),
-      state: int.tryParse(document.findAllElements('state').first.text),
-      additionalDeliveryTimes: int.tryParse(document.findAllElements('additional_delivery_times').first.text),
-      deliveryInStock: document.findAllElements('delivery_in_stock').first.text,
-      deliveryOutStock: document.findAllElements('delivery_out_stock').first.text,
-      onSale: parseBool(document.findAllElements('on_sale').first.text),
-      onlineOnly: parseBool(document.findAllElements('online_only').first.text),
-      ecotax: double.tryParse(document.findAllElements('ecotax').first.text),
-      minimalQuantity: int.tryParse(document.findAllElements('minimal_quantity').first.text),
-      lowStockThreshold: int.tryParse(document.findAllElements('low_stock_threshold').first.text),
-      lowStockAlert: parseBool(document.findAllElements('low_stock_alert').first.text),
-      price: double.tryParse(document.findAllElements('price').first.text),
-      wholesalePrice: double.tryParse(document.findAllElements('wholesale_price').first.text),
-      unity: document.findAllElements('unity').first.text,
-      unitPriceRatio: double.tryParse(document.findAllElements('unit_price_ratio').first.text),
-      additionalShippingCost: double.tryParse(document.findAllElements('additional_shipping_cost').first.text),
-      customizable: int.tryParse(document.findAllElements('customizable').first.text),
-      textFields: int.tryParse(document.findAllElements('text_fields').first.text),
-      uploadableFiles: int.tryParse(document.findAllElements('uploadable_files').first.text),
-      active: parseBool(document.findAllElements('active').first.text),
-      redirectType: document.findAllElements('redirect_type').first.text,
-      idTypeRedirected: int.tryParse(document.findAllElements('id_type_redirected').first.text),
-      availableForOrder: parseBool(document.findAllElements('available_for_order').first.text),
-      availableDate: DateTime.tryParse(document.findAllElements('available_date').first.text),
-      showCondition: parseBool(document.findAllElements('show_condition').first.text),
-      condition: document.findAllElements('condition').first.text,
-      showPrice: parseBool(document.findAllElements('show_price').first.text),
-      indexed: parseBool(document.findAllElements('indexed').first.text),
-      visibility: document.findAllElements('visibility').first.text,
-      advancedStockManagement: parseBool(document.findAllElements('advanced_stock_management').first.text),
-      dateAdd: DateTime.tryParse(document.findAllElements('date_add').first.text),
-      dateUpd: DateTime.tryParse(document.findAllElements('date_upd').first.text),
-      packStockType: int.tryParse(document.findAllElements('pack_stock_type').first.text),
-      metaDescription: !isMultiLanguage
-          ? document.findAllElements('meta_description').first.text
-          : listOfMetaDescription.where((element) => element.isoCode == 'de').first.description,
-      listOfMetaDescription: listOfMetaDescription,
-      metaKeywords: !isMultiLanguage
-          ? document.findAllElements('meta_keywords').first.text
-          : listOfMetaKeywords.where((element) => element.isoCode == 'de').first.description,
-      listOfMetaKeywords: listOfMetaKeywords,
-      metaTitle: !isMultiLanguage
-          ? document.findAllElements('meta_title').first.text
-          : listOfMetaTitle.where((element) => element.isoCode == 'de').first.description,
-      listOfMetaTitle: listOfMetaTitle,
-      linkRewrite: !isMultiLanguage
-          ? document.findAllElements('link_rewrite').first.text
-          : listOfLinkRewrite.where((element) => element.isoCode == 'de').first.description,
-      listOfLinkRewrite: listOfLinkRewrite,
-      name: !isMultiLanguage ? document.findAllElements('name').first.text : listOfName.where((element) => element.isoCode == 'de').first.description,
-      listOfName: listOfName,
-      description: !isMultiLanguage
-          ? document.findAllElements('description').first.text
-          : listOfDescription.where((element) => element.isoCode == 'de').first.description,
-      listOfDescription: listOfDescription,
-      descriptionShort: !isMultiLanguage
-          ? document.findAllElements('description_short').first.text
-          : listOfDescriptionShort.where((element) => element.isoCode == 'de').first.description,
-      listOfDescriptionShort: listOfDescriptionShort,
-      availableNow: document.findAllElements('available_now').first.text,
-      availableLater: document.findAllElements('available_later').first.text,
-      categoryIds: document.findAllElements('category').map((e) => int.tryParse(e.findAllElements('id').first.text)).toList(),
-      imageIds: document.findAllElements('image').map((e) => int.tryParse(e.findAllElements('id').first.text)).toList(),
-      categories: document
-          .findAllElements('categories')
-          .expand((e) => e.findElements('category'))
-          .map((e) => ProductAssociations(
-                href: e.getAttribute('xlink:href'),
-                id: (e.findElements('id').isNotEmpty) ? int.tryParse(e.findElements('id').first.text) : null,
-              ))
-          .toList(),
-      images: document
-          .findAllElements('images')
-          .expand((e) => e.findElements('image'))
-          .map((e) => ProductAssociations(
-                href: e.getAttribute('xlink:href'),
-                id: (e.findElements('id').isNotEmpty) ? int.tryParse(e.findElements('id').first.text) : null,
-              ))
-          .toList(),
-      combinations: document
-          .findAllElements('combinations')
-          .expand((e) => e.findElements('combination'))
-          .map((e) => ProductAssociations(
-                href: e.getAttribute('xlink:href'),
-                id: (e.findElements('id').isNotEmpty) ? int.tryParse(e.findElements('id').first.text) : null,
-              ))
-          .toList(),
-      productOptionValues: document
-          .findAllElements('product_option_values')
-          .expand((e) => e.findElements('product_option_value'))
-          .map((e) => ProductAssociations(
-                href: e.getAttribute('xlink:href'),
-                id: (e.findElements('id').isNotEmpty) ? int.tryParse(e.findElements('id').first.text) : null,
-              ))
-          .toList(),
-      productFeatures: document
-          .findAllElements('product_features')
-          .expand((e) => e.findElements('product_feature'))
-          .map((e) => ProductAssociationsProductFeatures(
-                href: e.getAttribute('xlink:href'),
-                id: (e.findElements('id').isNotEmpty) ? int.tryParse(e.findElements('id').first.text) : null,
-                idFeatureValue: e.findElements('id_feature_value').firstOrNull?.getAttribute('xlink:href'),
-              ))
-          .toList(),
-      tags: document
-          .findAllElements('tags')
-          .expand((e) => e.findElements('tag'))
-          .map((e) => ProductAssociations(
-                href: e.getAttribute('xlink:href'),
-                id: (e.findElements('id').isNotEmpty) ? int.tryParse(e.findElements('id').first.text) : null,
-              ))
-          .toList(),
-      stockAvailables: document
-          .findAllElements('stock_availables')
-          .expand((e) => e.findElements('stock_available'))
-          .map((e) => ProductAssociationsStockAvailables(
-                href: e.getAttribute('xlink:href'),
-                id: (e.findElements('id').isNotEmpty) ? int.tryParse(e.findElements('id').first.text) : null,
-                idProductAttribute:
-                    (e.findElements('id_product_attribute').isNotEmpty) ? int.tryParse(e.findElements('id_product_attribute').first.text) : null,
-              ))
-          .toList(),
-      accessories: document
-          .findAllElements('accessories')
-          .expand((e) => e.findElements('product'))
-          .map((e) => (e.findElements('id').firstOrNull) != null ? e.findElements('id').first.getAttribute('xlink:href')! : '')
-          .toList(),
-      productBundle: document
-          .findAllElements('product_bundle')
-          .expand((e) => e.findElements('product'))
-          .map((e) => ProductAssociationsProductBundle(
-                id: (e.findElements('id').isNotEmpty) ? int.tryParse(e.findElements('id').first.text) : null,
-                idProductAttribute:
-                    (e.findElements('id_product_attribute').isNotEmpty) ? int.tryParse(e.findElements('id_product_attribute').first.text) : null,
-                quantity: (e.findElements('quantity').isNotEmpty) ? int.tryParse(e.findElements('quantity').first.text) : null,
-              ))
-          .toList(),
+      id: json['id'] as int,
+      idManufacturer: json['id_manufacturer'] as String,
+      idSupplier: json['id_supplier'] as String,
+      idCategoryDefault: json['id_category_default'] as String,
+      newProduct: json['new'] as String?,
+      cacheDefaultAttribute: json['cache_default_attribute'] as String,
+      idDefaultImage: json['id_default_image'] as String,
+      idDefaultCombination: ProductPresta._idDefaultCombinationFromJson(json['id_default_combination']),
+      idTaxRulesGroup: json['id_tax_rules_group'] as String,
+      positionInCategory: json['position_in_category'] as String,
+      manufacturerName: json['manufacturer_name'] as String,
+      quantity: json['quantity'] as String,
+      type: json['type'] as String,
+      idShopDefault: json['id_shop_default'] as String,
+      reference: json['reference'] as String,
+      supplierReference: json['supplier_reference'] as String,
+      location: json['location'] as String,
+      width: json['width'] as String,
+      height: json['height'] as String,
+      depth: json['depth'] as String,
+      weight: json['weight'] as String,
+      quantityDiscount: json['quantity_discount'] as String,
+      ean13: json['ean13'] as String,
+      isbn: json['isbn'] as String,
+      upc: json['upc'] as String,
+      mpn: json['mpn'] as String,
+      cacheIsPack: json['cache_is_pack'] as String,
+      cacheHasAttachments: json['cache_has_attachments'] as String,
+      isVirtual: json['is_virtual'] as String,
+      state: json['state'] as String,
+      additionalDeliveryTimes: json['additional_delivery_times'] as String,
+      deliveryInStock: deliveryInStock,
+      deliveryInStockMultilanguage: deliveryInStockMultilanguage,
+      deliveryOutStock: deliveryOutStock,
+      deliveryOutStockMultilanguage: deliveryOutStockMultilanguage,
+      onSale: json['on_sale'] as String,
+      onlineOnly: json['online_only'] as String,
+      ecotax: json['ecotax'] as String,
+      minimalQuantity: json['minimal_quantity'] as String,
+      lowStockThreshold: json['low_stock_threshold'] as String?,
+      lowStockAlert: json['low_stock_alert'] as String,
+      price: json['price'] as String,
+      wholesalePrice: json['wholesale_price'] as String,
+      unity: json['unity'] as String,
+      unitPriceRatio: json['unit_price_ratio'] as String,
+      additionalShippingCost: json['additional_shipping_cost'] as String,
+      customizable: json['customizable'] as String,
+      textFields: json['text_fields'] as String,
+      uploadableFiles: json['uploadable_files'] as String,
+      active: json['active'] as String,
+      redirectType: json['redirect_type'] as String,
+      idTypeRedirected: json['id_type_redirected'] as String,
+      availableForOrder: json['available_for_order'] as String,
+      availableDate: json['available_date'] as String,
+      showCondition: json['show_condition'] as String,
+      condition: json['condition'] as String,
+      showPrice: json['show_price'] as String,
+      indexed: json['indexed'] as String,
+      visibility: json['visibility'] as String,
+      advancedStockManagement: json['advanced_stock_management'] as String,
+      dateAdd: json['date_add'] as String,
+      dateUpd: json['date_upd'] as String,
+      packStockType: json['pack_stock_type'] as String,
+      metaDescription: metaDescription,
+      metaDescriptionMultilanguage: metaDescriptionMultilanguage,
+      metaKeywords: metaKeywords,
+      metaKeywordsMultilanguage: metaKeywordsMultilanguage,
+      metaTitle: metaTitle,
+      metaTitleMultilanguage: metaTitleMultilanguage,
+      linkRewrite: linkRewrite,
+      linkRewriteMultilanguage: linkRewriteMultilanguage,
+      name: name,
+      nameMultilanguage: nameMultilanguage,
+      description: description,
+      descriptionMultilanguage: descriptionMultilanguage,
+      descriptionShort: descriptionShort,
+      descriptionShortMultilanguage: descriptionShortMultilanguage,
+      availableNow: availableNow,
+      availableNowMultilanguage: availableNowMultilanguage,
+      availableLater: availableLater,
+      availableLaterMultilanguage: availableLaterMultilanguage,
+      imageFiles: [],
+      associations: Associations.fromJson(json['associations'] as Map<String, dynamic>),
     );
   }
 
+  Map<String, dynamic> toJson() => _$ProductPrestaToJson(this);
+
+  @override
+  String toString() => _encoder.convert(toJson());
+
+  static String _idDefaultCombinationFromJson(dynamic value) {
+    if (value is int) return value.toString();
+    return value as String;
+  }
+
+  // static List<Multilanguage>? _multilanguageFromJson(dynamic value) {
+  //   if (value is List) return value.map((e) => Multilanguage.fromJson(e)).toList();
+  //   return null;
+  // }
+
   ProductPresta copyWith({
     int? id,
-    int? idManufacturer,
-    int? idSupplier,
-    int? idCategoryDefault,
-    bool? isNew,
-    bool? cacheDefaultAttribute,
-    int? idDefaultImage,
-    int? idDefaultCombination,
-    int? idTaxRulesGroup,
-    int? positionInCategory,
+    String? idManufacturer,
+    String? idSupplier,
+    String? idCategoryDefault,
+    String? newProduct,
+    String? cacheDefaultAttribute,
+    String? idDefaultImage,
+    String? idDefaultCombination,
+    String? idTaxRulesGroup,
+    String? positionInCategory,
     String? manufacturerName,
-    int? quantity,
+    String? quantity,
     String? type,
-    int? idShopDefault,
+    String? idShopDefault,
     String? reference,
     String? supplierReference,
     String? location,
-    double? width,
-    double? height,
-    double? depth,
-    double? weight,
-    bool? quantityDiscount,
+    String? width,
+    String? height,
+    String? depth,
+    String? weight,
+    String? quantityDiscount,
     String? ean13,
     String? isbn,
     String? upc,
     String? mpn,
-    bool? cacheIsPack,
-    bool? cacheHasAttachments,
-    bool? isVirtual,
-    int? state,
-    int? additionalDeliveryTimes,
+    String? cacheIsPack,
+    String? cacheHasAttachments,
+    String? isVirtual,
+    String? state,
+    String? additionalDeliveryTimes,
     String? deliveryInStock,
+    List<Multilanguage>? deliveryInStockMultilanguage,
     String? deliveryOutStock,
-    bool? onSale,
-    bool? onlineOnly,
-    double? ecotax,
-    int? minimalQuantity,
-    int? lowStockThreshold,
-    bool? lowStockAlert,
-    double? price,
-    double? wholesalePrice,
+    List<Multilanguage>? deliveryOutStockMultilanguage,
+    String? onSale,
+    String? onlineOnly,
+    String? ecotax,
+    String? minimalQuantity,
+    String? lowStockThreshold,
+    String? lowStockAlert,
+    String? price,
+    String? wholesalePrice,
     String? unity,
-    double? unitPriceRatio,
-    double? additionalShippingCost,
-    int? customizable,
-    int? textFields,
-    int? uploadableFiles,
-    bool? active,
+    String? unitPriceRatio,
+    String? additionalShippingCost,
+    String? customizable,
+    String? textFields,
+    String? uploadableFiles,
+    String? active,
     String? redirectType,
-    int? idTypeRedirected,
-    bool? availableForOrder,
-    DateTime? availableDate,
-    bool? showCondition,
+    String? idTypeRedirected,
+    String? availableForOrder,
+    String? availableDate,
+    String? showCondition,
     String? condition,
-    bool? showPrice,
-    bool? indexed,
+    String? showPrice,
+    String? indexed,
     String? visibility,
-    bool? advancedStockManagement,
-    DateTime? dateAdd,
-    DateTime? dateUpd,
-    int? packStockType,
+    String? advancedStockManagement,
+    String? dateAdd,
+    String? dateUpd,
+    String? packStockType,
     String? metaDescription,
-    List<ProductLanguage>? listOfMetaDescription,
+    List<Multilanguage>? metaDescriptionMultilanguage,
     String? metaKeywords,
-    List<ProductLanguage>? listOfMetaKeywords,
+    List<Multilanguage>? metaKeywordsMultilanguage,
     String? metaTitle,
-    List<ProductLanguage>? listOfMetaTitle,
+    List<Multilanguage>? metaTitleMultilanguage,
     String? linkRewrite,
-    List<ProductLanguage>? listOfLinkRewrite,
+    List<Multilanguage>? linkRewriteMultilanguage,
     String? name,
-    List<ProductLanguage>? listOfName,
+    List<Multilanguage>? nameMultilanguage,
     String? description,
-    List<ProductLanguage>? listOfDescription,
+    List<Multilanguage>? descriptionMultilanguage,
     String? descriptionShort,
-    List<ProductLanguage>? listOfDescriptionShort,
+    List<Multilanguage>? descriptionShortMultilanguage,
     String? availableNow,
+    List<Multilanguage>? availableNowMultilanguage,
     String? availableLater,
-    List<int?>? categoryIds,
-    List<int?>? imageIds,
-    List<ProductPrestaImage?>? imageFiles,
-    List<ProductAssociations>? categories,
-    List<ProductAssociations>? images,
-    List<ProductAssociations>? combinations,
-    List<ProductAssociations>? productOptionValues,
-    List<ProductAssociationsProductFeatures>? productFeatures,
-    List<ProductAssociations>? tags,
-    List<ProductAssociationsStockAvailables>? stockAvailables,
-    List<String>? accessories,
-    List<ProductAssociationsProductBundle>? productBundle,
+    List<Multilanguage>? availableLaterMultilanguage,
+    List<ProductPrestaImage>? imageFiles,
+    List<LanguagePresta>? marketplaceLanguages,
+    Associations? associations,
   }) {
     return ProductPresta(
       id: id ?? this.id,
       idManufacturer: idManufacturer ?? this.idManufacturer,
       idSupplier: idSupplier ?? this.idSupplier,
       idCategoryDefault: idCategoryDefault ?? this.idCategoryDefault,
-      isNew: isNew ?? this.isNew,
+      newProduct: newProduct ?? this.newProduct,
       cacheDefaultAttribute: cacheDefaultAttribute ?? this.cacheDefaultAttribute,
       idDefaultImage: idDefaultImage ?? this.idDefaultImage,
       idDefaultCombination: idDefaultCombination ?? this.idDefaultCombination,
@@ -560,7 +552,9 @@ class ProductPresta {
       state: state ?? this.state,
       additionalDeliveryTimes: additionalDeliveryTimes ?? this.additionalDeliveryTimes,
       deliveryInStock: deliveryInStock ?? this.deliveryInStock,
+      deliveryInStockMultilanguage: deliveryInStockMultilanguage ?? this.deliveryInStockMultilanguage,
       deliveryOutStock: deliveryOutStock ?? this.deliveryOutStock,
+      deliveryOutStockMultilanguage: deliveryOutStockMultilanguage ?? this.deliveryOutStockMultilanguage,
       onSale: onSale ?? this.onSale,
       onlineOnly: onlineOnly ?? this.onlineOnly,
       ecotax: ecotax ?? this.ecotax,
@@ -590,38 +584,181 @@ class ProductPresta {
       dateUpd: dateUpd ?? this.dateUpd,
       packStockType: packStockType ?? this.packStockType,
       metaDescription: metaDescription ?? this.metaDescription,
-      listOfMetaDescription: listOfMetaDescription ?? this.listOfMetaDescription,
+      metaDescriptionMultilanguage: metaDescriptionMultilanguage ?? this.metaDescriptionMultilanguage,
       metaKeywords: metaKeywords ?? this.metaKeywords,
-      listOfMetaKeywords: listOfMetaKeywords ?? this.listOfMetaKeywords,
+      metaKeywordsMultilanguage: metaKeywordsMultilanguage ?? this.metaKeywordsMultilanguage,
       metaTitle: metaTitle ?? this.metaTitle,
-      listOfMetaTitle: listOfMetaTitle ?? this.listOfMetaTitle,
+      metaTitleMultilanguage: metaTitleMultilanguage ?? this.metaTitleMultilanguage,
       linkRewrite: linkRewrite ?? this.linkRewrite,
-      listOfLinkRewrite: listOfLinkRewrite ?? this.listOfLinkRewrite,
+      linkRewriteMultilanguage: linkRewriteMultilanguage ?? this.linkRewriteMultilanguage,
       name: name ?? this.name,
-      listOfName: listOfName ?? this.listOfName,
+      nameMultilanguage: nameMultilanguage ?? this.nameMultilanguage,
       description: description ?? this.description,
-      listOfDescription: listOfDescription ?? this.listOfDescription,
+      descriptionMultilanguage: descriptionMultilanguage ?? this.descriptionMultilanguage,
       descriptionShort: descriptionShort ?? this.descriptionShort,
-      listOfDescriptionShort: listOfDescriptionShort ?? this.listOfDescriptionShort,
+      descriptionShortMultilanguage: descriptionShortMultilanguage ?? this.descriptionShortMultilanguage,
       availableNow: availableNow ?? this.availableNow,
+      availableNowMultilanguage: availableNowMultilanguage ?? this.availableNowMultilanguage,
       availableLater: availableLater ?? this.availableLater,
-      categoryIds: categoryIds ?? this.categoryIds,
-      imageIds: imageIds ?? this.imageIds,
+      availableLaterMultilanguage: availableLaterMultilanguage ?? this.availableLaterMultilanguage,
       imageFiles: imageFiles ?? this.imageFiles,
-      categories: categories ?? this.categories,
-      images: images ?? this.images,
-      combinations: combinations ?? this.combinations,
-      productOptionValues: productOptionValues ?? this.productOptionValues,
-      productFeatures: productFeatures ?? this.productFeatures,
-      tags: tags ?? this.tags,
-      stockAvailables: stockAvailables ?? this.stockAvailables,
-      accessories: accessories ?? this.accessories,
-      productBundle: productBundle ?? this.productBundle,
+      marketplaceLanguages: marketplaceLanguages ?? this.marketplaceLanguages,
+      associations: associations ?? this.associations,
+    );
+  }
+}
+
+@JsonSerializable()
+class Multilanguage {
+  static const _encoder = JsonEncoder.withIndent('  ');
+
+  final String id;
+  final String value;
+
+  Multilanguage({required this.id, required this.value});
+
+  factory Multilanguage.fromJson(Map<String, dynamic> json) => _$MultilanguageFromJson(json);
+  Map<String, dynamic> toJson() => _$MultilanguageToJson(this);
+
+  @override
+  String toString() => _encoder.convert(toJson());
+}
+
+@JsonSerializable(explicitToJson: true)
+class Associations {
+  static const _encoder = JsonEncoder.withIndent('  ');
+
+  @JsonKey(name: 'categories')
+  final List<AssociationsCategory>? associationsCategories;
+  @JsonKey(name: 'images')
+  final List<AssociationsImage>? associationsImages;
+  @JsonKey(name: 'combinations')
+  final List<AssociationsCombination>? associationsCombinations;
+  @JsonKey(name: 'product_option_values')
+  final List<AssociationsProductOptionValue>? associationsProductOptionValues;
+  @JsonKey(name: 'product_features')
+  final List<AssociationsProductFeature>? associationsProductFeatures;
+  @JsonKey(name: 'stock_availables')
+  final List<AssociationsStockAvailable>? associationsStockAvailables;
+  @JsonKey(name: 'accessories')
+  final List<AssociationsAccessory>? associationsAccessories;
+  @JsonKey(name: 'product_bundle')
+  final List<AssociationsProductBundle>? associationsProductBundle;
+
+  Associations({
+    required this.associationsCategories,
+    required this.associationsImages,
+    required this.associationsCombinations,
+    required this.associationsProductOptionValues,
+    required this.associationsProductFeatures,
+    required this.associationsStockAvailables,
+    required this.associationsAccessories,
+    required this.associationsProductBundle,
+  });
+
+  factory Associations.fromJson(Map<String, dynamic> json) => _$AssociationsFromJson(json);
+  Map<String, dynamic> toJson() => _$AssociationsToJson(this);
+
+  factory Associations.empty() {
+    return Associations(
+      associationsCategories: [],
+      associationsImages: [],
+      associationsCombinations: [],
+      associationsProductOptionValues: [],
+      associationsProductFeatures: [],
+      associationsStockAvailables: [],
+      associationsAccessories: [],
+      associationsProductBundle: [],
     );
   }
 
   @override
-  String toString() {
-    return 'ProductPresta(id: $id, idManufacturer: $idManufacturer, idSupplier: $idSupplier, idCategoryDefault: $idCategoryDefault, isNew: $isNew, cacheDefaultAttribute: $cacheDefaultAttribute, idDefaultImage: $idDefaultImage, idDefaultCombination: $idDefaultCombination, idTaxRulesGroup: $idTaxRulesGroup, positionInCategory: $positionInCategory, manufacturerName: $manufacturerName, quantity: $quantity, type: $type, idShopDefault: $idShopDefault, reference: $reference, supplierReference: $supplierReference, location: $location, width: $width, height: $height, depth: $depth, weight: $weight, quantityDiscount: $quantityDiscount, ean13: $ean13, isbn: $isbn, upc: $upc, mpn: $mpn, cacheIsPack: $cacheIsPack, cacheHasAttachments: $cacheHasAttachments, isVirtual: $isVirtual, state: $state, additionalDeliveryTimes: $additionalDeliveryTimes, deliveryInStock: $deliveryInStock, deliveryOutStock: $deliveryOutStock, onSale: $onSale, onlineOnly: $onlineOnly, ecotax: $ecotax, minimalQuantity: $minimalQuantity, lowStockThreshold: $lowStockThreshold, lowStockAlert: $lowStockAlert, price: $price, wholesalePrice: $wholesalePrice, unity: $unity, unitPriceRatio: $unitPriceRatio, additionalShippingCost: $additionalShippingCost, customizable: $customizable, textFields: $textFields, uploadableFiles: $uploadableFiles, active: $active, redirectType: $redirectType, idTypeRedirected: $idTypeRedirected, availableForOrder: $availableForOrder, availableDate: $availableDate, showCondition: $showCondition, condition: $condition, showPrice: $showPrice, indexed: $indexed, visibility: $visibility, advancedStockManagement: $advancedStockManagement, dateAdd: $dateAdd, dateUpd: $dateUpd, packStockType: $packStockType, metaDescription: $metaDescription, listOfMetaDescription: $listOfMetaDescription, metaKeywords: $metaKeywords, listOfMetaKeywords: $listOfMetaKeywords, metaTitle: $metaTitle, listOfMetaTitle: $listOfMetaTitle, linkRewrite: $linkRewrite, listOfLinkRewrite: $listOfLinkRewrite, name: $name, listOfName: $listOfName, description: $description, listOfDescription: $listOfDescription, descriptionShort: $descriptionShort, listOfDescriptionShort: $listOfDescriptionShort, availableNow: $availableNow, availableLater: $availableLater, categoryIds: $categoryIds, imageIds: $imageIds, imageFiles: $imageFiles, categories: $categories, images: $images, combinations: $combinations, productOptionValues: $productOptionValues, productFeatures: $productFeatures, tags: $tags, stockAvailables: $stockAvailables, accessories: $accessories, productBundle: $productBundle)';
-  }
+  String toString() => _encoder.convert(toJson());
+}
+
+@JsonSerializable()
+class AssociationsCategory {
+  final String id;
+
+  AssociationsCategory({required this.id});
+
+  factory AssociationsCategory.fromJson(Map<String, dynamic> json) => _$AssociationsCategoryFromJson(json);
+  Map<String, dynamic> toJson() => _$AssociationsCategoryToJson(this);
+}
+
+@JsonSerializable()
+class AssociationsImage {
+  final String id;
+
+  AssociationsImage({required this.id});
+
+  factory AssociationsImage.fromJson(Map<String, dynamic> json) => _$AssociationsImageFromJson(json);
+  Map<String, dynamic> toJson() => _$AssociationsImageToJson(this);
+}
+
+@JsonSerializable()
+class AssociationsCombination {
+  final String id;
+
+  AssociationsCombination({required this.id});
+
+  factory AssociationsCombination.fromJson(Map<String, dynamic> json) => _$AssociationsCombinationFromJson(json);
+  Map<String, dynamic> toJson() => _$AssociationsCombinationToJson(this);
+}
+
+@JsonSerializable()
+class AssociationsProductOptionValue {
+  final String id;
+
+  AssociationsProductOptionValue({required this.id});
+
+  factory AssociationsProductOptionValue.fromJson(Map<String, dynamic> json) => _$AssociationsProductOptionValueFromJson(json);
+  Map<String, dynamic> toJson() => _$AssociationsProductOptionValueToJson(this);
+}
+
+@JsonSerializable()
+class AssociationsProductFeature {
+  final String id;
+  @JsonKey(name: 'id_feature_value')
+  final String idFeatureValue;
+
+  AssociationsProductFeature({required this.id, required this.idFeatureValue});
+
+  factory AssociationsProductFeature.fromJson(Map<String, dynamic> json) => _$AssociationsProductFeatureFromJson(json);
+  Map<String, dynamic> toJson() => _$AssociationsProductFeatureToJson(this);
+}
+
+@JsonSerializable()
+class AssociationsStockAvailable {
+  final String id;
+  @JsonKey(name: 'id_product_attribute')
+  final String idProductAttribute;
+
+  AssociationsStockAvailable({required this.id, required this.idProductAttribute});
+
+  factory AssociationsStockAvailable.fromJson(Map<String, dynamic> json) => _$AssociationsStockAvailableFromJson(json);
+  Map<String, dynamic> toJson() => _$AssociationsStockAvailableToJson(this);
+}
+
+@JsonSerializable()
+class AssociationsAccessory {
+  final String id;
+
+  AssociationsAccessory({required this.id});
+
+  factory AssociationsAccessory.fromJson(Map<String, dynamic> json) => _$AssociationsAccessoryFromJson(json);
+  Map<String, dynamic> toJson() => _$AssociationsAccessoryToJson(this);
+}
+
+@JsonSerializable()
+class AssociationsProductBundle {
+  final String id;
+  @JsonKey(name: 'id_product_attribute')
+  final String idProductAttribute;
+  final String quantity;
+
+  AssociationsProductBundle({required this.id, required this.idProductAttribute, required this.quantity});
+
+  factory AssociationsProductBundle.fromJson(Map<String, dynamic> json) => _$AssociationsProductBundleFromJson(json);
+  Map<String, dynamic> toJson() => _$AssociationsProductBundleToJson(this);
 }

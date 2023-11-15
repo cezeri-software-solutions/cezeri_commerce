@@ -1,13 +1,13 @@
 import 'dart:io';
 
 class ProductPrestaImage {
-  final int? productId;
-  final File? imageFile;
+  final int productId;
+  final File imageFile;
 
-  const ProductPrestaImage({this.productId, this.imageFile});
+  const ProductPrestaImage({required this.productId, required this.imageFile});
 
   factory ProductPrestaImage.empty() {
-    return const ProductPrestaImage(productId: null, imageFile: null);
+    return ProductPrestaImage(productId: 0, imageFile: File(''));
   }
 
   ProductPrestaImage copyWith({

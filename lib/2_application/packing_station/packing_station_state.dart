@@ -1,4 +1,3 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 part of 'packing_station_bloc.dart';
 
 @immutable
@@ -41,6 +40,8 @@ class PackingStationState {
   final TextEditingController weightController;
   final PackagingBox packagingBox;
   final List<PackagingBox> listOfPackagingBoxes;
+  final PackagingBox? smallesPackagingBox;
+  final double remainingVolumePercent;
 
   const PackingStationState({
     required this.originalAppointment,
@@ -78,6 +79,8 @@ class PackingStationState {
     required this.weightController,
     required this.packagingBox,
     required this.listOfPackagingBoxes,
+    required this.smallesPackagingBox,
+    required this.remainingVolumePercent,
   });
 
   factory PackingStationState.initial() => PackingStationState(
@@ -116,6 +119,8 @@ class PackingStationState {
         weightController: TextEditingController(),
         packagingBox: PackagingBox.empty(),
         listOfPackagingBoxes: const [],
+        smallesPackagingBox: null,
+        remainingVolumePercent: 0,
       );
 
   PackingStationState copyWith({
@@ -154,6 +159,8 @@ class PackingStationState {
     TextEditingController? weightController,
     PackagingBox? packagingBox,
     List<PackagingBox>? listOfPackagingBoxes,
+    PackagingBox? smallesPackagingBox,
+    double? remainingVolumePercent,
   }) {
     return PackingStationState(
       originalAppointment: originalAppointment ?? this.originalAppointment,
@@ -191,6 +198,8 @@ class PackingStationState {
       weightController: weightController ?? this.weightController,
       packagingBox: packagingBox ?? this.packagingBox,
       listOfPackagingBoxes: listOfPackagingBoxes ?? this.listOfPackagingBoxes,
+      smallesPackagingBox: smallesPackagingBox ?? this.smallesPackagingBox,
+      remainingVolumePercent: remainingVolumePercent ?? this.remainingVolumePercent,
     );
   }
 }

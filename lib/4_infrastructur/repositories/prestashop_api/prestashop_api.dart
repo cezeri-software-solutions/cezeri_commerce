@@ -1,7 +1,11 @@
 import 'dart:convert';
+import 'dart:io';
 
+import 'package:cezeri_commerce/1_presentation/core/extensions/string_to_int.dart';
+import 'package:cezeri_commerce/3_domain/entities/marketplace/marketplace.dart';
 import 'package:http/http.dart';
 import 'package:loggy/loggy.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:quiver/core.dart';
 import 'package:xml/xml.dart';
 
@@ -15,7 +19,11 @@ import '../../../3_domain/entities_presta/customer_presta.dart';
 import '../../../3_domain/entities_presta/language_presta.dart';
 import '../../../3_domain/entities_presta/order_id_presta.dart';
 import '../../../3_domain/entities_presta/order_presta.dart';
+import '../../../3_domain/entities_presta/product_presta.dart';
+import '../../../3_domain/entities_presta/product_presta_image.dart';
+import '../../../3_domain/entities_presta/stock_available_presta.dart';
 import 'patch_builders.dart';
+import 'put_builder.dart';
 
 class PrestashopApiConfig {
   final String apiKey;
@@ -120,40 +128,145 @@ class PrestashopApi with UiLoggy {
   }
 
   //* Products */
-  Future<Optional<OrderPresta>> getProduct(final int id) async {
+  Future<Optional<ProductPresta>> getProduct(final int id, final Marketplace marketplace) async {
+    final payload = await _doGetJson(
+      '${_conf.webserviceUrl}products?ws_key=${_conf.apiKey}&filter[id]=[$id]&output_format=JSON&display=full',
+      single: true,
+    );
+    final optionalProductPresta = payload == null ? const Optional.absent() : Optional.of(ProductsPresta.fromJson(payload).items.single);
+    if (optionalProductPresta.isNotPresent) return throw PrestashopApiException;
+    final phProductPresta = optionalProductPresta.value;
+    final productPresta = await getProductImpl(phProductPresta, marketplace);
+    return productPresta.isNotPresent ? const Optional.absent() : productPresta;
+  }
+
+  Future<Optional<XmlDocument>> getProductAsXml(final int id) async {
     final payloadProduct = await _doGetXml(
       '${_conf.webserviceUrl}products/$id?ws_key=${_conf.apiKey}&display=full',
       single: true,
     );
-    return payloadProduct == null ? const Optional.absent() : Optional.of(OrdersPresta.fromJson(payloadProduct).items.single);
+    return payloadProduct == null ? const Optional.absent() : Optional.of(payloadProduct as XmlDocument);
   }
 
-//? ################################## GET ENDE #################################
-//? #############################################################################
-//? ################################## PATCH START ##############################
-
-  Future<bool> patchProductQuantity(final int id, int quantity) async {
-    final builder = productQuantityBuilder(id, quantity);
-    final payload = await _doPatch(
-      '${_conf.webserviceUrl}stock_availables/$id',
-      builder,
+  //* StockAvailables */
+  Future<Optional<StockAvailablePresta>> getStockAvailable(final int id) async {
+    final payload = await _doGetJson(
+      '${_conf.webserviceUrl}stock_availables/$id?ws_key=${_conf.apiKey}&output_format=JSON&display=full',
     );
-    return payload == false ? false : true;
+    return payload == null ? const Optional.absent() : Optional.of(StockAvailablesPresta.fromJson(payload).items.single);
   }
 
-  Future<bool> patchProduct(final int id, Product product, ProductMarketplace productMarketplace) async {
-    final languages = await getLanguages();
-    final builder = productBuilder(id, product, productMarketplace, languages);
-    final payload = await _doPatch(
-      '${_conf.webserviceUrl}products/$id',
-      builder,
+  Future<Optional<XmlDocument>> getStockAvailableAsXml(final int id) async {
+    final payload = await _doGetXml(
+      '${_conf.webserviceUrl}stock_availables/$id?ws_key=${_conf.apiKey}&display=full',
     );
-    final payloadQuantity = await patchProductQuantity(productMarketplace.stockAvailables!.first.id!, product.availableStock);
+    return payload == null ? const Optional.absent() : Optional.of(payload as XmlDocument);
+  }
+
+  Future<List<StockAvailablePresta>> getStockAvailables() async {
+    final payload = await _doGetJson(
+      '${_conf.webserviceUrl}stock_availables?ws_key=${_conf.apiKey}&output_format=JSON&display=full',
+    );
+    return StockAvailablesPresta.fromJson(payload).items;
+  }
+
+//? ################################## GET ENDE ######################################################################################
+//? ##################################################################################################################################
+//? ################################## PATCH START ###################################################################################
+
+  Future<bool> patchProductQuantity(final int marketplaceProductPrestaId, final int quantity, final Marketplace marketplace) async {
+    final optionalProductPresta = await getProduct(marketplaceProductPrestaId, marketplace);
+    if (optionalProductPresta.isNotPresent) return false;
+    final productPresta = optionalProductPresta.value;
+    final stockAvailableId = productPresta.associations.associationsStockAvailables!.first.id;
+    bool payload = false;
+    if (marketplace.isPresta8) {
+      final builder = stockAvailableBuilder(stockAvailableId, quantity);
+      final payloadDoPatch = await _doPatch(
+        '${_conf.webserviceUrl}stock_availables/$stockAvailableId',
+        builder,
+      );
+      payload = payloadDoPatch;
+    } else {
+      final optionaStockAvailableAsXml = await getStockAvailableAsXml(stockAvailableId.toMyInt());
+      if (optionaStockAvailableAsXml.isNotPresent) return false;
+      final stockAvailableAsXml = optionaStockAvailableAsXml.value;
+      final updatedDocument = stockAvailableUpdater(stockAvailableAsXml, quantity);
+      final payloadDoPut = await _doPut(
+        '${_conf.webserviceUrl}stock_availables/$stockAvailableId',
+        updatedDocument,
+      );
+      payload = payloadDoPut;
+    }
+
+    return payload;
+  }
+
+  Future<bool> patchProduct(
+    final int marketplaceProductPrestaId,
+    Product product,
+    ProductMarketplace productMarketplace,
+    Marketplace marketplace,
+  ) async {
+    final optionalProductPresta = await getProduct(marketplaceProductPrestaId, marketplace);
+    if (optionalProductPresta.isNotPresent) return false;
+    final productPresta = optionalProductPresta.value;
+    bool payload = false;
+    if (marketplace.isPresta8) {
+      final builder = productBuilder(
+        id: marketplaceProductPrestaId,
+        product: product,
+        productMarketplace: productMarketplace,
+        productPresta: productPresta,
+      );
+      if (builder == null) return false;
+      final payloadDoPatch = await _doPatch(
+        '${_conf.webserviceUrl}products/$marketplaceProductPrestaId',
+        builder,
+      );
+      payload = payloadDoPatch;
+    } else {
+      final optionalProductAsXml = await getProductAsXml(marketplaceProductPrestaId);
+      if (optionalProductAsXml.isNotPresent) return false;
+      final productAsXml = optionalProductAsXml.value;
+      final updatedProductAsXml = productUpdater(
+        document: productAsXml,
+        product: product,
+        productMarketplace: productMarketplace,
+        productPresta: productPresta,
+      );
+      final payloadDoPut = await _doPut(
+        '${_conf.webserviceUrl}products/$marketplaceProductPrestaId',
+        updatedProductAsXml,
+      );
+      payload = payloadDoPut;
+    }
+    //! Update StockAvailables
+    final stockAvailableId = productPresta.associations.associationsStockAvailables!.first.id;
+    bool payloadQuantity = true;
+    // if (marketplace.isPresta8) {
+    //   final builderStockAvailables = stockAvailableBuilder(stockAvailableId, product.availableStock);
+    //   final payloadDoPatchSA = await _doPatch(
+    //     '${_conf.webserviceUrl}stock_availables/$stockAvailableId',
+    //     builderStockAvailables,
+    //   );
+    //   payloadQuantity = payloadDoPatchSA;
+    // } else {
+    //   final optionaStockAvailableAsXml = await getStockAvailableAsXml(stockAvailableId.toMyInt());
+    //   if (optionaStockAvailableAsXml.isNotPresent) return false;
+    //   final stockAvailableAsXml = optionaStockAvailableAsXml.value;
+    //   final updatedDocument = stockAvailableUpdater(stockAvailableAsXml, product.availableStock);
+    //   final payloadDoPutSA = await _doPut(
+    //     '${_conf.webserviceUrl}stock_availables/$stockAvailableId',
+    //     updatedDocument,
+    //   );
+    //   payloadQuantity = payloadDoPutSA;
+    // }
     return payload && payloadQuantity == true ? true : false;
   }
 
-//? ################################## PATCH ENDE ###############################
-//? #############################################################################
+//? ################################## PATCH ENDE #####################################################################################
+//? ###################################################################################################################################
 
   //* Utility methods */
   Future<dynamic> _doGetJson(String uri, {bool single = false}) async {
@@ -188,6 +301,8 @@ class PrestashopApi with UiLoggy {
 
   Future<bool> _doPatch(String uri, XmlBuilder builder) async {
     loggy.debug('Fetching $uri');
+    print('Fetching $uri');
+    print('apiKey: ${_conf.apiKey}');
     final document = builder.buildDocument();
     final response = await _http.patch(
       Uri.parse(uri),
@@ -197,7 +312,9 @@ class PrestashopApi with UiLoggy {
       },
       body: document.toXmlString(),
     );
-
+    print('--------------------------------');
+    print(response);
+    print('--------------------------------');
     print(response.body);
     print('--------------------------------');
     print(document);
@@ -207,7 +324,115 @@ class PrestashopApi with UiLoggy {
       return true;
     }
     loggy.error(response);
+    print('---------- response.body START ----------------------');
+    print(response.body);
+    print('---------- response.body END ----------------------');
     throw PrestashopApiException(response);
+  }
+
+  Future<bool> _doPut(String uri, XmlDocument document) async {
+    final response = await _http.put(
+      Uri.parse(uri),
+      headers: {
+        'Authorization': 'Basic ${base64Encode(utf8.encode('${_conf.apiKey}:'))}',
+        'Content-Type': 'application/xml',
+      },
+      body: document.toXmlString(),
+    );
+
+    if (response.statusCode == 200) {
+      return true;
+    }
+    loggy.error(response);
+    print('---------- response.body START ----------------------');
+    print(response.body);
+    print(response.statusCode);
+    print('---------- response.body END ----------------------');
+    throw PrestashopApiException(response);
+  }
+
+  Future<Optional<ProductPresta>> getProductImpl(ProductPresta phProductPresta, Marketplace marketplace) async {
+    StockAvailablePresta? stockAvailablesPresta;
+    List<LanguagePresta> listOfLanguagesPresta = [];
+
+    final isVariantProduct = phProductPresta.associations.associationsStockAvailables!.length > 1;
+    if (isVariantProduct) return throw PrestashopApiException;
+
+    final idStockAvailable = phProductPresta.associations.associationsStockAvailables!.first.id;
+    final optionalStockAvailablesPresta = await getStockAvailable(idStockAvailable.toMyInt());
+    if (optionalStockAvailablesPresta.isNotPresent) return throw PrestashopApiException;
+    stockAvailablesPresta = optionalStockAvailablesPresta.value;
+
+    List<LanguagePresta>? marketplaceLanguages;
+    if (phProductPresta.nameMultilanguage != null && phProductPresta.nameMultilanguage!.isNotEmpty) {
+      listOfLanguagesPresta = await getLanguages();
+      if (listOfLanguagesPresta.isEmpty) return throw PrestashopApiException;
+      marketplaceLanguages = listOfLanguagesPresta;
+      final germanLanguage = listOfLanguagesPresta.where((e) => e.isoCode.toUpperCase() == 'DE').firstOrNull;
+      if (germanLanguage == null) return throw PrestashopApiException;
+      final germanLanguageId = germanLanguage.id.toString();
+
+      phProductPresta = phProductPresta.copyWith(
+        quantity: stockAvailablesPresta.quantity,
+        deliveryInStock: phProductPresta.deliveryInStockMultilanguage!.where((e) => e.id == germanLanguageId).first.value,
+        deliveryOutStock: phProductPresta.deliveryOutStockMultilanguage!.where((e) => e.id == germanLanguageId).first.value,
+        metaDescription: phProductPresta.metaDescriptionMultilanguage!.where((e) => e.id == germanLanguageId).first.value,
+        metaKeywords: phProductPresta.metaKeywordsMultilanguage!.where((e) => e.id == germanLanguageId).first.value,
+        metaTitle: phProductPresta.metaTitleMultilanguage!.where((e) => e.id == germanLanguageId).first.value,
+        linkRewrite: phProductPresta.linkRewriteMultilanguage!.where((e) => e.id == germanLanguageId).first.value,
+        name: phProductPresta.nameMultilanguage!.where((e) => e.id == germanLanguageId).first.value,
+        description: phProductPresta.descriptionMultilanguage!.where((e) => e.id == germanLanguageId).first.value,
+        descriptionShort: phProductPresta.descriptionShortMultilanguage!.where((e) => e.id == germanLanguageId).first.value,
+        availableNow: phProductPresta.availableNowMultilanguage!.where((e) => e.id == germanLanguageId).first.value,
+        availableLater: phProductPresta.availableLaterMultilanguage!.where((e) => e.id == germanLanguageId).first.value,
+      );
+    }
+
+    if (marketplaceLanguages == null && phProductPresta.nameMultilanguage != null && phProductPresta.nameMultilanguage!.isNotEmpty) {
+      final phMarketplaceLanguages = await getLanguages();
+      if (phMarketplaceLanguages.isNotEmpty) {
+        marketplaceLanguages = phMarketplaceLanguages;
+      }
+    }
+
+    List<ProductPrestaImage> listOfImages = [];
+    if (phProductPresta.associations.associationsImages != null && phProductPresta.associations.associationsImages!.isNotEmpty) {
+      for (final id in phProductPresta.associations.associationsImages!) {
+        final uri = '${marketplace.fullUrl}images/products/${phProductPresta.id}/${id.id}';
+        final responseImage = await _http.get(
+          Uri.parse(uri),
+          headers: {'Authorization': 'Basic ${base64Encode(utf8.encode('${marketplace.key}:'))}'},
+        );
+        if (responseImage.statusCode == 200) {
+          final Directory directory = await getTemporaryDirectory();
+          final File file = File('${directory.path}/product_${phProductPresta.id}_${id.id}.jpg');
+          final imageFile = await file.writeAsBytes(responseImage.bodyBytes);
+          listOfImages.add(ProductPrestaImage(productId: id.id.toMyInt(), imageFile: imageFile));
+        }
+      }
+    }
+
+    List<ProductPresta> listOfBundleProduct = [];
+    //* Wenn Set-Artikel auch richtig importiert und bearbeitet werden können
+    // if (phProductPresta.associations.associationsProductBundle != null && phProductPresta.associations.associationsProductBundle!.isNotEmpty) {
+    //   for (final id in phProductPresta.associations.associationsProductBundle!) {
+    //     final bundleProduct = await getProduct(id.id.toMyInt(), marketplace);
+    //     if (bundleProduct.isNotPresent) continue;
+    //     listOfBundleProduct.add(bundleProduct.value);
+    //   }
+    // }
+
+    final quantity = listOfBundleProduct.isNotEmpty
+        ? listOfBundleProduct.map((e) => e.quantity.toMyInt()).toList().reduce((min, currentNumber) => min < currentNumber ? min : currentNumber)
+        : stockAvailablesPresta.quantity;
+
+    final productPresta = phProductPresta.copyWith(
+      quantity: quantity.toString(),
+      imageFiles: listOfImages.isNotEmpty ? listOfImages : phProductPresta.imageFiles,
+      marketplaceLanguages: marketplaceLanguages,
+    );
+
+    return Optional.of(productPresta);
   }
 }
 

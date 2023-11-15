@@ -27,6 +27,23 @@ class ProductState {
   final Option<Either<PrestaFailure, Unit>> fosProductOnEditQuantityPrestaOption;
   //* Helpers
   final String productSearchText;
+  //* Controllers
+  final TextEditingController articleNumberController;
+  final TextEditingController eanController;
+  final TextEditingController nameController;
+  final TextEditingController wholesalePriceController;
+  final TextEditingController supplierController;
+  final TextEditingController supplierArticleNumberController;
+  final TextEditingController manufacturerController;
+  final TextEditingController netPriceController;
+  final TextEditingController grossPriceController;
+  final TextEditingController recommendedRetailPriceController;
+  final TextEditingController unityController;
+  final TextEditingController unitPriceController;
+  final TextEditingController weightController;
+  final TextEditingController widthController;
+  final TextEditingController heightController;
+  final TextEditingController depthController;
 
   const ProductState({
     required this.product,
@@ -50,6 +67,22 @@ class ProductState {
     required this.fosMassEditActivateProductMarketplaceOption,
     required this.fosProductOnEditQuantityPrestaOption,
     required this.productSearchText,
+    required this.articleNumberController,
+    required this.eanController,
+    required this.nameController,
+    required this.wholesalePriceController,
+    required this.supplierController,
+    required this.supplierArticleNumberController,
+    required this.manufacturerController,
+    required this.netPriceController,
+    required this.grossPriceController,
+    required this.recommendedRetailPriceController,
+    required this.unityController,
+    required this.unitPriceController,
+    required this.weightController,
+    required this.widthController,
+    required this.heightController,
+    required this.depthController,
   });
 
   factory ProductState.initial() {
@@ -75,6 +108,22 @@ class ProductState {
       fosMassEditActivateProductMarketplaceOption: none(),
       fosProductOnEditQuantityPrestaOption: none(),
       productSearchText: '',
+      articleNumberController: TextEditingController(),
+      eanController: TextEditingController(),
+      nameController: TextEditingController(),
+      wholesalePriceController: TextEditingController(),
+      supplierController: TextEditingController(),
+      supplierArticleNumberController: TextEditingController(),
+      manufacturerController: TextEditingController(),
+      netPriceController: TextEditingController(),
+      grossPriceController: TextEditingController(),
+      recommendedRetailPriceController: TextEditingController(),
+      unityController: TextEditingController(),
+      unitPriceController: TextEditingController(),
+      weightController: TextEditingController(),
+      widthController: TextEditingController(),
+      heightController: TextEditingController(),
+      depthController: TextEditingController(),
     );
   }
 
@@ -100,6 +149,22 @@ class ProductState {
     Option<Either<FirebaseFailure, Unit>>? fosMassEditActivateProductMarketplaceOption,
     Option<Either<PrestaFailure, Unit>>? fosProductOnEditQuantityPrestaOption,
     String? productSearchText,
+    TextEditingController? articleNumberController,
+    TextEditingController? eanController,
+    TextEditingController? nameController,
+    TextEditingController? wholesalePriceController,
+    TextEditingController? supplierController,
+    TextEditingController? supplierArticleNumberController,
+    TextEditingController? manufacturerController,
+    TextEditingController? netPriceController,
+    TextEditingController? grossPriceController,
+    TextEditingController? recommendedRetailPriceController,
+    TextEditingController? unityController,
+    TextEditingController? unitPriceController,
+    TextEditingController? weightController,
+    TextEditingController? widthController,
+    TextEditingController? heightController,
+    TextEditingController? depthController,
   }) {
     return ProductState(
       product: product ?? this.product,
@@ -118,12 +183,27 @@ class ProductState {
       fosProductOnCreateOption: fosProductOnCreateOption ?? this.fosProductOnCreateOption,
       fosProductOnUpdateOption: fosProductOnUpdateOption ?? this.fosProductOnUpdateOption,
       fosProductOnDeleteOption: fosProductOnDeleteOption ?? this.fosProductOnDeleteOption,
-      isLoadingOnMassEditActivateProductMarketplace:
-          isLoadingOnMassEditActivateProductMarketplace ?? this.isLoadingOnMassEditActivateProductMarketplace,
+      isLoadingOnMassEditActivateProductMarketplace: isLoadingOnMassEditActivateProductMarketplace ?? this.isLoadingOnMassEditActivateProductMarketplace,
       fosProductOnUpdateQuantityOption: fosProductOnUpdateQuantityOption ?? this.fosProductOnUpdateQuantityOption,
       fosMassEditActivateProductMarketplaceOption: fosMassEditActivateProductMarketplaceOption ?? this.fosMassEditActivateProductMarketplaceOption,
       fosProductOnEditQuantityPrestaOption: fosProductOnEditQuantityPrestaOption ?? this.fosProductOnEditQuantityPrestaOption,
       productSearchText: productSearchText ?? this.productSearchText,
+      articleNumberController: articleNumberController ?? this.articleNumberController,
+      eanController: eanController ?? this.eanController,
+      nameController: nameController ?? this.nameController,
+      wholesalePriceController: wholesalePriceController ?? this.wholesalePriceController,
+      supplierController: supplierController ?? this.supplierController,
+      supplierArticleNumberController: supplierArticleNumberController ?? this.supplierArticleNumberController,
+      manufacturerController: manufacturerController ?? this.manufacturerController,
+      netPriceController: netPriceController ?? this.netPriceController,
+      grossPriceController: grossPriceController ?? this.grossPriceController,
+      recommendedRetailPriceController: recommendedRetailPriceController ?? this.recommendedRetailPriceController,
+      unityController: unityController ?? this.unityController,
+      unitPriceController: unitPriceController ?? this.unitPriceController,
+      weightController: weightController ?? this.weightController,
+      widthController: widthController ?? this.widthController,
+      heightController: heightController ?? this.heightController,
+      depthController: depthController ?? this.depthController,
     );
   }
 }

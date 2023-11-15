@@ -53,6 +53,7 @@ class PackingStationBloc extends Bloc<PackingStationEvent, PackingStationState> 
             isAnyFailure: false,
           ));
           add(PackingStationSetAppointFromOriginalEvent());
+          add(PackingStationfindSmallestPackagingBoxEvent());
         },
       );
 
@@ -150,6 +151,7 @@ class PackingStationBloc extends Bloc<PackingStationEvent, PackingStationState> 
         (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
         (loadedProducts) {
           emit(state.copyWith(listOfProducts: loadedProducts, firebaseFailure: null, isAnyFailure: false));
+          add(PackingStationfindSmallestPackagingBoxEvent());
         },
       );
 
@@ -177,6 +179,8 @@ class PackingStationBloc extends Bloc<PackingStationEvent, PackingStationState> 
         emit(state.copyWith(
             appointment: state.appointment!.copyWith(listOfReceiptProduct: receiptProducts, weight: getWeight(receiptProducts)),
             weightController: TextEditingController(text: getWeight(receiptProducts).toString())));
+
+        add(PackingStationfindSmallestPackagingBoxEvent());
         return;
       }
 
@@ -190,6 +194,8 @@ class PackingStationBloc extends Bloc<PackingStationEvent, PackingStationState> 
         emit(state.copyWith(
             appointment: state.appointment!.copyWith(listOfReceiptProduct: receiptProducts, weight: getWeight(receiptProducts)),
             weightController: TextEditingController(text: getWeight(receiptProducts).toString())));
+
+        add(PackingStationfindSmallestPackagingBoxEvent());
         return;
       }
 
@@ -203,6 +209,8 @@ class PackingStationBloc extends Bloc<PackingStationEvent, PackingStationState> 
         emit(state.copyWith(
             appointment: state.appointment!.copyWith(listOfReceiptProduct: receiptProducts, weight: getWeight(receiptProducts)),
             weightController: TextEditingController(text: getWeight(receiptProducts).toString())));
+
+        add(PackingStationfindSmallestPackagingBoxEvent());
         return;
       }
     });
@@ -222,8 +230,11 @@ class PackingStationBloc extends Bloc<PackingStationEvent, PackingStationState> 
         return e.copyWith(shippedQuantity: e.quantity);
       }).toList();
       emit(state.copyWith(
-          appointment: state.appointment!.copyWith(listOfReceiptProduct: receiptProducts, weight: getWeight(receiptProducts)),
-          weightController: TextEditingController(text: getWeight(receiptProducts).toString())));
+        appointment: state.appointment!.copyWith(listOfReceiptProduct: receiptProducts, weight: getWeight(receiptProducts)),
+        weightController: TextEditingController(text: getWeight(receiptProducts).toString()),
+      ));
+
+      add(PackingStationfindSmallestPackagingBoxEvent());
     });
 
 //? #########################################################################
@@ -286,6 +297,74 @@ class PackingStationBloc extends Bloc<PackingStationEvent, PackingStationState> 
         appointment: state.appointment!.copyWith(packagingBox: packingBox, weight: state.appointment!.weight + packingBox.weight),
         packagingBox: packingBox,
         weightController: TextEditingController(text: (state.appointment!.weight + packingBox.weight).toMyRoundedDouble().toString()),
+      ));
+    });
+
+//? #########################################################################
+
+    on<PackingStationfindSmallestPackagingBoxEvent>((event, emit) async {
+      bool canProductFitInPackagingBox(Product product, PackagingBox box) {
+        // Überprüft, ob das Item in irgendeiner Orientierung in die Box passt
+        final boxDim = box.dimensionsInside;
+        return (product.depth <= boxDim.length && product.width <= boxDim.width && product.height <= boxDim.height) ||
+            (product.width <= boxDim.length && product.height <= boxDim.width && product.depth <= boxDim.height) ||
+            (product.height <= boxDim.length && product.depth <= boxDim.width && product.width <= boxDim.height);
+      }
+
+      PackagingBox? findSmallestPackagingBox(List<Product>? products, List<PackagingBox> boxes, {Function(double)? remainingVolumePercentCallback}) {
+        if (products == null) return null;
+
+        double totalVolumeOfProducts = products.fold(0, (sum, item) => sum + item.volume);
+        boxes.sort((a, b) => a.dimensionsInside.volume.compareTo(b.dimensionsInside.volume));
+
+        for (final box in boxes) {
+          if (products.every((item) => canProductFitInPackagingBox(item, box))) {
+            double remainingVolumePercent = ((box.dimensionsInside.volume - totalVolumeOfProducts) / box.dimensionsInside.volume) * 100;
+            if (remainingVolumePercentCallback != null) {
+              remainingVolumePercentCallback(remainingVolumePercent.toMyRoundedDouble());
+            }
+            return box;
+          }
+        }
+        return null;
+      }
+
+      List<Product> getListOfFirestoreProducts(List<Product> products, List<ReceiptProduct> receiptProducts) {
+        List<Product> toReturnProducts = [];
+        for (final receiptProduct in receiptProducts) {
+          final product = products.where((e) => e.id == receiptProduct.productId).firstOrNull;
+          if (product == null) continue;
+          for (int i = 0; i < receiptProduct.shippedQuantity; i++) {
+            toReturnProducts.add(product);
+          }
+        }
+        return toReturnProducts;
+      }
+
+      final toCalculateProducts = switch (state.listOfProducts) {
+        null => null,
+        _ => switch (state.appointment) {
+            null => null,
+            _ => switch (state.appointment!.listOfReceiptProduct.every((e) => e.shippedQuantity == 0)) {
+                true => state.listOfProducts,
+                _ => getListOfFirestoreProducts(state.listOfProducts!, state.appointment!.listOfReceiptProduct),
+              }
+          }
+      };
+
+      double remainingVolumePercent = 0;
+      final smallesPackagingBox =
+          findSmallestPackagingBox(toCalculateProducts, state.listOfPackagingBoxes, remainingVolumePercentCallback: (double percent) {
+        remainingVolumePercent = percent;
+      });
+      final selectedPackagingBox = smallesPackagingBox != null
+          ? state.listOfPackagingBoxes.where((e) => e.id == smallesPackagingBox.id).firstOrNull ?? state.packagingBox
+          : state.packagingBox;
+
+      emit(state.copyWith(
+        smallesPackagingBox: smallesPackagingBox,
+        packagingBox: selectedPackagingBox,
+        remainingVolumePercent: remainingVolumePercent,
       ));
     });
 

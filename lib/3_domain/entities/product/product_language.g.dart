@@ -9,13 +9,13 @@ part of 'product_language.dart';
 ProductLanguage _$ProductLanguageFromJson(Map<String, dynamic> json) =>
     ProductLanguage(
       id: json['id'] as int,
-      description: json['description'] as String,
+      value: json['value'] as String,
       isoCode: json['isoCode'] as String,
     );
 
 Map<String, dynamic> _$ProductLanguageToJson(ProductLanguage instance) =>
     <String, dynamic>{
       'id': instance.id,
-      'description': instance.description,
+      'value': instance.value,
       'isoCode': instance.isoCode,
     };

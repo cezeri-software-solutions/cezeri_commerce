@@ -13,6 +13,12 @@ class GetProductEvent extends ProductEvent {
   GetProductEvent({required this.id});
 }
 
+class SetProductControllerEvent extends ProductEvent {
+  final Product product;
+
+  SetProductControllerEvent({required this.product});
+}
+
 class GetProductByEanEvent extends ProductEvent {
   final String ean;
 
@@ -26,11 +32,7 @@ class CreateProductEvent extends ProductEvent {
   CreateProductEvent({required this.product, this.productPresta});
 }
 
-class UpdateProductEvent extends ProductEvent {
-  final Product product;
-
-  UpdateProductEvent({required this.product});
-}
+class UpdateProductEvent extends ProductEvent {}
 
 class DeleteSelectedProductsEvent extends ProductEvent {
   final List<Product> selectedProducts;

@@ -23,26 +23,43 @@ class ProductImportBloc extends Bloc<ProductImportEvent, ProductImportState> {
 //? #########################################################################
 
     on<GetAllProductsFromPrestaEvent>((event, emit) async {
-      emit(state.copyWith(isLoadingProductsPrestaOnObserve: true));
+      // emit(state.copyWith(isLoadingProductsPrestaOnObserve: true));
 
-      final failureOrSuccess = await productImportRepository.getAllProductsFromPrestashop();
-      failureOrSuccess.fold(
-        (failure) => emit(state.copyWith(prestaFailure: failure, isAnyFailure: true)),
-        (listOfProductPresta) => emit(state.copyWith(listOfProductPresta: listOfProductPresta, prestaFailure: null, isAnyFailure: false)),
-      );
+      // final failureOrSuccess = await productImportRepository.getAllProductsFromPrestashop();
+      // failureOrSuccess.fold(
+      //   (failure) => emit(state.copyWith(prestaFailure: failure, isAnyFailure: true)),
+      //   (listOfProductPresta) => emit(state.copyWith(listOfProductPresta: listOfProductPresta, prestaFailure: null, isAnyFailure: false)),
+      // );
 
-      emit(state.copyWith(
-        isLoadingProductsPrestaOnObserve: false,
-        fosProductsPrestaOnObserveOption: optionOf(failureOrSuccess),
-      ));
+      // emit(state.copyWith(
+      //   isLoadingProductsPrestaOnObserve: false,
+      //   fosProductsPrestaOnObserveOption: optionOf(failureOrSuccess),
+      // ));
     });
 
 //? #########################################################################
 
     on<GetProductByIdFromPrestaEvent>((event, emit) async {
+      // emit(state.copyWith(isLoadingProductPrestaOnObserve: true));
+
+      // final failureOrSuccess = await productImportRepository.getProductByIdFromPrestashop(event.id, event.marketplace);
+      // failureOrSuccess.fold(
+      //   (failure) => emit(state.copyWith(prestaFailure: failure, isAnyFailure: true)),
+      //   (productPresta) => emit(state.copyWith(productPrestaOld: productPresta, prestaFailure: null, isAnyFailure: false)),
+      // );
+
+      // emit(state.copyWith(
+      //   isLoadingProductPrestaOnObserve: false,
+      //   fosProductPrestaOldOnObserveOption: optionOf(failureOrSuccess),
+      // ));
+    });
+
+//? #########################################################################
+
+    on<GetProductByIdAsJsonFromPrestaEvent>((event, emit) async {
       emit(state.copyWith(isLoadingProductPrestaOnObserve: true));
 
-      final failureOrSuccess = await productImportRepository.getProductByIdFromPrestashop(event.id, event.marketplace);
+      final failureOrSuccess = await productImportRepository.getProductByIdFromPrestashopAsJson(event.id, event.marketplace);
       failureOrSuccess.fold(
         (failure) => emit(state.copyWith(prestaFailure: failure, isAnyFailure: true)),
         (productPresta) => emit(state.copyWith(productPresta: productPresta, prestaFailure: null, isAnyFailure: false)),

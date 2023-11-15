@@ -19,9 +19,6 @@ Product _$ProductFromJson(Map<String, dynamic> json) => Product(
           .map((e) => ProductLanguage.fromJson(e as Map<String, dynamic>))
           .toList(),
       tax: Tax.fromJson(json['tax'] as Map<String, dynamic>),
-      haveImages: json['haveImages'] as bool,
-      mainImageUrl: json['mainImageUrl'] as String,
-      mainImageId: json['mainImageId'] as int,
       imageUrls:
           (json['imageUrls'] as List<dynamic>).map((e) => e as String).toList(),
       isActive: json['isActive'] as bool,
@@ -40,6 +37,7 @@ Product _$ProductFromJson(Map<String, dynamic> json) => Product(
           (json['recommendedRetailPrice'] as num).toDouble(),
       haveVariants: json['haveVariants'] as bool,
       isSetArticle: json['isSetArticle'] as bool,
+      isSetSelfQuantityManaged: json['isSetSelfQuantityManaged'] as bool,
       manufacturerNumber: json['manufacturerNumber'] as String,
       manufacturer: json['manufacturer'] as String,
       warehouseStock: json['warehouseStock'] as int,
@@ -52,9 +50,19 @@ Product _$ProductFromJson(Map<String, dynamic> json) => Product(
       listOfDescriptionShort: (json['listOfDescriptionShort'] as List<dynamic>)
           .map((e) => ProductLanguage.fromJson(e as Map<String, dynamic>))
           .toList(),
-      volume: (json['volume'] as num).toDouble(),
+      metaTitle: json['metaTitle'] as String,
+      listOfMetaTitle: (json['listOfMetaTitle'] as List<dynamic>)
+          .map((e) => ProductLanguage.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      metaDescription: json['metaDescription'] as String,
+      listOfMetaDescription: (json['listOfMetaDescription'] as List<dynamic>)
+          .map((e) => ProductLanguage.fromJson(e as Map<String, dynamic>))
+          .toList(),
       listOfProductImages: (json['listOfProductImages'] as List<dynamic>)
           .map((e) => ProductImage.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      listOfSetProducts: (json['listOfSetProducts'] as List<dynamic>)
+          .map((e) => SetProduct.fromJson(e as Map<String, dynamic>))
           .toList(),
       productMarketplaces: (json['productMarketplaces'] as List<dynamic>)
           .map((e) => ProductMarketplace.fromJson(e as Map<String, dynamic>))
@@ -72,9 +80,6 @@ Map<String, dynamic> _$ProductToJson(Product instance) => <String, dynamic>{
       'name': instance.name,
       'listOfName': instance.listOfName.map((e) => e.toJson()).toList(),
       'tax': instance.tax.toJson(),
-      'haveImages': instance.haveImages,
-      'mainImageUrl': instance.mainImageUrl,
-      'mainImageId': instance.mainImageId,
       'imageUrls': instance.imageUrls,
       'isActive': instance.isActive,
       'ordered': instance.ordered,
@@ -91,6 +96,7 @@ Map<String, dynamic> _$ProductToJson(Product instance) => <String, dynamic>{
       'recommendedRetailPrice': instance.recommendedRetailPrice,
       'haveVariants': instance.haveVariants,
       'isSetArticle': instance.isSetArticle,
+      'isSetSelfQuantityManaged': instance.isSetSelfQuantityManaged,
       'manufacturerNumber': instance.manufacturerNumber,
       'manufacturer': instance.manufacturer,
       'warehouseStock': instance.warehouseStock,
@@ -101,9 +107,16 @@ Map<String, dynamic> _$ProductToJson(Product instance) => <String, dynamic>{
       'descriptionShort': instance.descriptionShort,
       'listOfDescriptionShort':
           instance.listOfDescriptionShort.map((e) => e.toJson()).toList(),
-      'volume': instance.volume,
+      'metaTitle': instance.metaTitle,
+      'listOfMetaTitle':
+          instance.listOfMetaTitle.map((e) => e.toJson()).toList(),
+      'metaDescription': instance.metaDescription,
+      'listOfMetaDescription':
+          instance.listOfMetaDescription.map((e) => e.toJson()).toList(),
       'listOfProductImages':
           instance.listOfProductImages.map((e) => e.toJson()).toList(),
+      'listOfSetProducts':
+          instance.listOfSetProducts.map((e) => e.toJson()).toList(),
       'productMarketplaces':
           instance.productMarketplaces.map((e) => e.toJson()).toList(),
     };

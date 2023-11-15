@@ -87,6 +87,8 @@ class PackingStationOnPackagingBoxChangedEvent extends PackingStationEvent {
   PackingStationOnPackagingBoxChangedEvent({required this.packagingBoxName});
 }
 
+class PackingStationfindSmallestPackagingBoxEvent extends PackingStationEvent {}
+
 //* #################################################################################################
 //* #################################### Picklist ###################################################
 //* #################################################################################################

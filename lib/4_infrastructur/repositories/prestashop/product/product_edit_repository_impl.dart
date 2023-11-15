@@ -7,6 +7,7 @@ import 'package:http/http.dart';
 
 import '../../../../1_presentation/core/functions/check_internet_connection.dart';
 import '../../../../3_domain/entities/marketplace/marketplace.dart';
+import '../../../../3_domain/entities/product/marketplace_product_presta.dart';
 import '../../../../3_domain/entities/product/product_marketplace.dart';
 import '../../../../3_domain/repositories/prestashop/product/product_edit_repository.dart';
 import '../../prestashop_api/prestashop_api.dart';
@@ -34,7 +35,8 @@ class ProductEditRepositoryImpl implements ProductEditRepository {
 
       final api = PrestashopApi(Client(), PrestashopApiConfig(apiKey: marketplace.key, webserviceUrl: marketplace.fullUrl));
 
-      final isSuccess = await api.patchProduct(productMarketplace.idProduct!, product, productMarketplace);
+      final marketplaceProduct = productMarketplace.marketplaceProduct as MarketplaceProductPresta;
+      final isSuccess = await api.patchProduct(marketplaceProduct.id, product, productMarketplace, marketplace);
       if (isSuccess) return right(unit);
     }
 
@@ -57,7 +59,13 @@ class ProductEditRepositoryImpl implements ProductEditRepository {
 
       final api = PrestashopApi(Client(), PrestashopApiConfig(apiKey: marketplace.key, webserviceUrl: marketplace.fullUrl));
 
-      final isSuccess = await api.patchProductQuantity(productMarketplace.stockAvailables!.first.id!, newQuantity);
+      if (productMarketplace.marketplaceProduct == null) return left(ProductHasNoMarketplaceFailure());
+      final marketplaceProduct = switch (productMarketplace.marketplaceProduct!.marketplaceType) {
+        MarketplaceType.prestashop => productMarketplace.marketplaceProduct as MarketplaceProductPresta,
+        _ => throw Error(),
+      };
+
+      final isSuccess = await api.patchProductQuantity(marketplaceProduct.id, newQuantity, marketplace);
       if (isSuccess) return right(unit);
     }
 

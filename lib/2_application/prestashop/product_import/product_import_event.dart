@@ -13,3 +13,10 @@ class GetProductByIdFromPrestaEvent extends ProductImportEvent {
 
   GetProductByIdFromPrestaEvent({required this.id, required this.marketplace});
 }
+
+class GetProductByIdAsJsonFromPrestaEvent extends ProductImportEvent {
+  final int id;
+  final Marketplace marketplace;
+
+  GetProductByIdAsJsonFromPrestaEvent({required this.id, required this.marketplace});
+}

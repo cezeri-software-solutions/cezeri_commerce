@@ -11,7 +11,9 @@ Marketplace _$MarketplaceFromJson(Map<String, dynamic> json) => Marketplace(
       name: json['name'] as String,
       shortName: json['shortName'] as String,
       logoUrl: json['logoUrl'] as String,
-      marketplaceType: json['marketplaceType'] as String,
+      marketplaceType:
+          $enumDecode(_$MarketplaceTypeEnumMap, json['marketplaceType']),
+      isPresta8: json['isPresta8'] as bool,
       endpointUrl: json['endpointUrl'] as String,
       url: json['url'] as String,
       shopSuffix: json['shopSuffix'] as String,
@@ -45,7 +47,8 @@ Map<String, dynamic> _$MarketplaceToJson(Marketplace instance) =>
       'name': instance.name,
       'shortName': instance.shortName,
       'logoUrl': instance.logoUrl,
-      'marketplaceType': instance.marketplaceType,
+      'marketplaceType': _$MarketplaceTypeEnumMap[instance.marketplaceType]!,
+      'isPresta8': instance.isPresta8,
       'endpointUrl': instance.endpointUrl,
       'url': instance.url,
       'shopSuffix': instance.shopSuffix,
@@ -65,3 +68,8 @@ Map<String, dynamic> _$MarketplaceToJson(Marketplace instance) =>
       'lastEditingDate': instance.lastEditingDate.toIso8601String(),
       'createnDate': instance.createnDate.toIso8601String(),
     };
+
+const _$MarketplaceTypeEnumMap = {
+  MarketplaceType.shop: 'shop',
+  MarketplaceType.prestashop: 'prestashop',
+};

@@ -9,25 +9,19 @@ part of 'language.dart';
 Language _$LanguageFromJson(Map<String, dynamic> json) => Language(
       id: json['id'] as int,
       name: json['name'] as String,
+      nameEnglish: json['nameEnglish'] as String,
+      nameNative: json['nameNative'] as String,
       isoCode: json['isoCode'] as String,
-      locale: json['locale'] as String,
-      languageCode: json['languageCode'] as String,
-      active: json['active'] as bool,
-      isRtl: json['isRtl'] as bool,
-      dateFormatLite: json['dateFormatLite'] as String,
-      dateFormatFull: json['dateFormatFull'] as String,
+      isActive: json['isActive'] as bool,
       isDefault: json['isDefault'] as bool,
     );
 
 Map<String, dynamic> _$LanguageToJson(Language instance) => <String, dynamic>{
       'id': instance.id,
       'name': instance.name,
+      'nameEnglish': instance.nameEnglish,
+      'nameNative': instance.nameNative,
       'isoCode': instance.isoCode,
-      'locale': instance.locale,
-      'languageCode': instance.languageCode,
-      'active': instance.active,
-      'isRtl': instance.isRtl,
-      'dateFormatLite': instance.dateFormatLite,
-      'dateFormatFull': instance.dateFormatFull,
+      'isActive': instance.isActive,
       'isDefault': instance.isDefault,
     };

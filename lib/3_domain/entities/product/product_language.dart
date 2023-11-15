@@ -5,19 +5,19 @@ part 'product_language.g.dart';
 @JsonSerializable()
 class ProductLanguage {
   final int id;
-  final String description;
+  final String value;
   final String isoCode;
 
   const ProductLanguage({
     required this.id,
-    required this.description,
+    required this.value,
     required this.isoCode,
   });
 
   factory ProductLanguage.empty() {
     return const ProductLanguage(
       id: 0,
-      description: '',
+      value: '',
       isoCode: '',
     );
   }
@@ -28,16 +28,16 @@ class ProductLanguage {
 
   ProductLanguage copyWith({
     int? id,
-    String? description,
+    String? value,
     String? isoCode,
   }) {
     return ProductLanguage(
       id: id ?? this.id,
-      description: description ?? this.description,
+      value: value ?? this.value,
       isoCode: isoCode ?? this.isoCode,
     );
   }
 
   @override
-  String toString() => 'ProductLanguage(id: $id, description: $description, isoCode: $isoCode)';
+  String toString() => 'ProductLanguage(id: $id, value: $value, isoCode: $isoCode)';
 }

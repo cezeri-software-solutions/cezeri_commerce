@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:cezeri_commerce/3_domain/entities_presta/product_presta_image.dart';
@@ -7,18 +6,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:http/http.dart' as http;
 import 'package:path/path.dart';
-import 'package:xml/xml.dart';
 
 import '../../../1_presentation/core/functions/check_internet_connection.dart';
 import '../../../3_domain/entities/marketplace/marketplace.dart';
 import '../../../3_domain/entities/product/product.dart';
 import '../../../3_domain/entities/product/product_image.dart';
-import '../../../3_domain/entities/product/product_marketplace.dart';
 import '../../../3_domain/entities_presta/product_presta.dart';
 import '../../../3_domain/repositories/firebase/product_repository.dart';
-import '../prestashop/presta_api_helper.dart';
 
 class ProductRepositoryImpl implements ProductRepository {
   final FirebaseFirestore db;
@@ -45,7 +40,7 @@ class ProductRepositoryImpl implements ProductRepository {
 
         toCreateProduct = product.copyWith(id: docRef.id, listOfProductImages: listOfProductImages);
 
-        //* Artikelbilder erstellen START
+        //* Artikelbilder erstellen ENDE
       } else {
         toCreateProduct = product.copyWith(id: docRef.id);
       }
@@ -191,47 +186,48 @@ class ProductRepositoryImpl implements ProductRepository {
 
   @override
   Future<Either<FirebaseFailure, Unit>> activateMarketplaceInSelectedProducts(List<Product> selectedProducts, Marketplace marketplace) async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(NoConnectionFailure());
+    // final isConnected = await checkInternetConnection();
+    // if (!isConnected) return left(NoConnectionFailure());
 
-    final currentUserUid = firebaseAuth.currentUser!.uid;
+    // final currentUserUid = firebaseAuth.currentUser!.uid;
 
-    try {
-      final prestaLanguages = await getMarketplaceLanguages(marketplace);
-      if (prestaLanguages == null) return left(GeneralFailure());
+    // try {
+    //   final prestaLanguages = await getMarketplaceLanguages(marketplace);
+    //   if (prestaLanguages == null) return left(GeneralFailure());
 
-      for (final product in selectedProducts) {
-        final uri = '${marketplace.fullUrl}products/?filter[reference]=[${product.articleNumber}]&display=full';
-        // final uri = '${marketplace.fullUrl}products/?filter[reference]=[${product.articleNumber}]&output_format=JSON&display=full';
-        // final uri = '${marketplace.fullUrl}products/?filter[reference]=[EL-1420313]&output_format=JSON&display=full';
-        // final uri = '${marketplace.fullUrl}languages/?output_format=JSON&display=full';
-        // final uri = '${marketplace.fullUrl}languages/?display=full';
-        final response = await http.get(
-          Uri.parse(uri),
-          headers: {'Authorization': 'Basic ${base64Encode(utf8.encode('${marketplace.key}:'))}'},
-        );
+    //   for (final product in selectedProducts) {
+    //     final uri = '${marketplace.fullUrl}products/?filter[reference]=[${product.articleNumber}]&display=full';
+    //     // final uri = '${marketplace.fullUrl}products/?filter[reference]=[${product.articleNumber}]&output_format=JSON&display=full';
+    //     // final uri = '${marketplace.fullUrl}products/?filter[reference]=[EL-1420313]&output_format=JSON&display=full';
+    //     // final uri = '${marketplace.fullUrl}languages/?output_format=JSON&display=full';
+    //     // final uri = '${marketplace.fullUrl}languages/?display=full';
+    //     final response = await http.get(
+    //       Uri.parse(uri),
+    //       headers: {'Authorization': 'Basic ${base64Encode(utf8.encode('${marketplace.key}:'))}'},
+    //     );
 
-        final responseBody = XmlDocument.parse(response.body);
-        final isProductInMarketplace = responseBody.findAllElements('products').first;
-        if (isProductInMarketplace.children.whereType<XmlElement>().isEmpty) continue;
+    //     final responseBody = XmlDocument.parse(response.body);
+    //     final isProductInMarketplace = responseBody.findAllElements('products').first;
+    //     if (isProductInMarketplace.children.whereType<XmlElement>().isEmpty) continue;
 
-        if (response.statusCode == 200) {
-          final productDocument = XmlDocument.parse(response.body);
-          final productPresta = ProductPresta.fromXml(productDocument, prestaLanguages);
-          final productMarketplace = ProductMarketplace.fromProductPresta(productPresta, marketplace);
-          List<ProductMarketplace> productMarketplaces = List.from(product.productMarketplaces);
-          if (!productMarketplaces.any((e) => e.idMarketplace == productMarketplace.idMarketplace)) {
-            productMarketplaces.add(productMarketplace);
-          }
-          final docRef = db.collection(currentUserUid).doc(currentUserUid).collection('Products').doc(product.id);
-          final updatedProdukt = product.copyWith(productMarketplaces: productMarketplaces);
-          await docRef.update(updatedProdukt.toJson());
-        }
-      }
-      return right(unit);
-    } on FirebaseException {
-      return left(GeneralFailure());
-    }
+    //     if (response.statusCode == 200) {
+    //       final productDocument = XmlDocument.parse(response.body);
+    //       final productPresta = ProductPrestaOld.fromXml(productDocument, prestaLanguages);
+    //       final productMarketplace = ProductMarketplace.fromProductPresta(productPresta, marketplace);
+    //       List<ProductMarketplace> productMarketplaces = List.from(product.productMarketplaces);
+    //       if (!productMarketplaces.any((e) => e.idMarketplace == productMarketplace.idMarketplace)) {
+    //         productMarketplaces.add(productMarketplace);
+    //       }
+    //       final docRef = db.collection(currentUserUid).doc(currentUserUid).collection('Products').doc(product.id);
+    //       final updatedProdukt = product.copyWith(productMarketplaces: productMarketplaces);
+    //       await docRef.update(updatedProdukt.toJson());
+    //     }
+    //   }
+    //   return right(unit);
+    // } on FirebaseException {
+    //   return left(GeneralFailure());
+    // }
+    throw UnimplementedError();
   }
 
   @override
@@ -301,11 +297,11 @@ Future<List<ProductImage>> uploadImageFilesToStorage(List<ProductPrestaImage?>? 
   int sortId = 0;
 
   for (final myFile in imageFiles!) {
-    if (myFile == null || myFile.imageFile == null) continue;
+    if (myFile == null) continue;
 
     sortId++;
 
-    final File file = myFile.imageFile!;
+    final File file = myFile.imageFile;
     // Erstelle einen eindeutigen Dateinamen, um Kollisionen zu vermeiden
     final fileName = basename(file.path);
     // Erstelle einen Verweis auf den Firebase Cloud Storage-Pfad, an dem das Bild gespeichert werden soll

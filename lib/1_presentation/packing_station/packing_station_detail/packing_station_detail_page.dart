@@ -17,6 +17,7 @@ import '../../core/widgets/my_avatar.dart';
 import '../../core/widgets/my_circular_progress_indicator.dart';
 import '../../core/widgets/my_dropdown_button_small.dart';
 import '../../core/widgets/my_form_field_container.dart';
+import '../../core/widgets/my_form_field_small.dart';
 import '../../core/widgets/my_info_dialog.dart';
 import '../../core/widgets/my_text.dart';
 import '../../core/widgets/my_text_form_field_small_double.dart';
@@ -131,6 +132,26 @@ class PackingStationDetailPage extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Freiraum:'),
+                      Text('${state.remainingVolumePercent}%'),
+                      const Text(''),
+                    ],
+                  ),
+                  Gaps.w16,
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Empfohlener Karton:'),
+                      if (state.smallesPackagingBox != null) ...[
+                        Text(state.smallesPackagingBox!.shortName),
+                        Text(state.smallesPackagingBox!.name),
+                      ],
+                    ],
+                  ),
+                  Gaps.w16,
                   MyDropdownButtonSmall(
                     labelText: 'Verpackungskarton:',
                     maxWidth: 200,
@@ -139,7 +160,7 @@ class PackingStationDetailPage extends StatelessWidget {
                     items: state.listOfPackagingBoxes.map((e) => e.name).toList(),
                   ),
                   Gaps.w16,
-                  MyTextFormFieldSmallDouble(
+                  MyTextFormFieldSmall(
                     labelText: 'Gewicht:',
                     maxWidth: 100,
                     controller: state.weightController,

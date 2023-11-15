@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:cezeri_commerce/3_domain/entities/settings/payment_method.dart';
 import 'package:json_annotation/json_annotation.dart';
 
@@ -7,13 +8,16 @@ import 'marketplace_settings.dart';
 
 part 'marketplace.g.dart';
 
+enum MarketplaceType { shop, prestashop } // shop = Ladengeschäft
+
 @JsonSerializable(explicitToJson: true)
 class Marketplace {
   final String id;
   final String name;
   final String shortName;
   final String logoUrl;
-  final String marketplaceType; // z.B. Prestashop, Shopware usw.
+  final MarketplaceType marketplaceType; // z.B. Prestashop, Shopware usw.
+  final bool isPresta8;
   final String endpointUrl; // http:// oder https://
   final String url; // your_shop.com
   final String shopSuffix; // Ändung z.B. api/
@@ -38,6 +42,7 @@ class Marketplace {
     required this.shortName,
     required this.logoUrl,
     required this.marketplaceType,
+    required this.isPresta8,
     required this.endpointUrl,
     required this.url,
     required this.shopSuffix,
@@ -67,7 +72,8 @@ class Marketplace {
       name: '',
       shortName: '',
       logoUrl: '',
-      marketplaceType: '',
+      marketplaceType: MarketplaceType.shop,
+      isPresta8: false,
       endpointUrl: '',
       url: '',
       shopSuffix: '',
@@ -93,7 +99,8 @@ class Marketplace {
     String? name,
     String? shortName,
     String? logoUrl,
-    String? marketplaceType,
+    MarketplaceType? marketplaceType,
+    bool? isPresta8,
     String? endpointUrl,
     String? url,
     String? shopSuffix,
@@ -118,6 +125,7 @@ class Marketplace {
       shortName: shortName ?? this.shortName,
       logoUrl: logoUrl ?? this.logoUrl,
       marketplaceType: marketplaceType ?? this.marketplaceType,
+      isPresta8: isPresta8 ?? this.isPresta8,
       endpointUrl: endpointUrl ?? this.endpointUrl,
       url: url ?? this.url,
       shopSuffix: shopSuffix ?? this.shopSuffix,
@@ -140,6 +148,6 @@ class Marketplace {
 
   @override
   String toString() {
-    return 'Marketplace(id: $id, name: $name, shortName: $shortName, logoUrl: $logoUrl, marketplaceType: $marketplaceType, endpointUrl: $endpointUrl, url: $url, shopSuffix: $shopSuffix, fullUrl: $fullUrl, key: $key, isActive: $isActive, orderStatusIdList: $orderStatusIdList, orderStatusOnSuccessImport: $orderStatusOnSuccessImport, orderStatusOnSuccessShipping: $orderStatusOnSuccessShipping, warehouseForProductImport: $warehouseForProductImport, createMissingProductOnOrderImport: $createMissingProductOnOrderImport, marketplaceSettings: $marketplaceSettings, paymentMethods: $paymentMethods, address: $address, bankDetails: $bankDetails, lastEditingDate: $lastEditingDate, createnDate: $createnDate)';
+    return 'Marketplace(id: $id, name: $name, shortName: $shortName, logoUrl: $logoUrl, marketplaceType: $marketplaceType, isPresta8: $isPresta8, endpointUrl: $endpointUrl, url: $url, shopSuffix: $shopSuffix, fullUrl: $fullUrl, key: $key, isActive: $isActive, orderStatusIdList: $orderStatusIdList, orderStatusOnSuccessImport: $orderStatusOnSuccessImport, orderStatusOnSuccessShipping: $orderStatusOnSuccessShipping, warehouseForProductImport: $warehouseForProductImport, createMissingProductOnOrderImport: $createMissingProductOnOrderImport, marketplaceSettings: $marketplaceSettings, paymentMethods: $paymentMethods, address: $address, bankDetails: $bankDetails, lastEditingDate: $lastEditingDate, createnDate: $createnDate)';
   }
 }

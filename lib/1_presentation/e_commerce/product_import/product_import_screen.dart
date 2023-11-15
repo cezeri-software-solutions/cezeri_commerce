@@ -116,6 +116,7 @@ class _ProductImportScreenState extends State<ProductImportScreen> {
                             productImportBloc: productImportBloc,
                             marketplace: stateMarketplace.listOfMarketplace![_selectedMarketplaceIndex],
                             importProductById: _importProductById,
+                            importProductByIdAsJson: _importProductByIdAsJson,
                           )
                         : ProductsImportPage(productImportBloc: productImportBloc),
                   ),
@@ -140,6 +141,10 @@ class _ProductImportScreenState extends State<ProductImportScreen> {
 
   void _importProductById(int id) {
     productImportBloc.add(GetProductByIdFromPrestaEvent(id: id, marketplace: _selectedMarketplace));
+  }
+
+  void _importProductByIdAsJson(int id) {
+    productImportBloc.add(GetProductByIdAsJsonFromPrestaEvent(id: id, marketplace: _selectedMarketplace));
   }
 }
 

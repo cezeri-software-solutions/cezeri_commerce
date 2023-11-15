@@ -1,66 +1,58 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../2_application/firebase/product/product_bloc.dart';
 import '../../../../constants.dart';
-import '../../../core/widgets/my_text_form_field.dart';
+import '../../../core/widgets/my_form_field_small.dart';
 
 class SellingCard extends StatelessWidget {
-  const SellingCard({
-    super.key,
-    required TextEditingController netPriceController,
-    required TextEditingController grossPriceController,
-    required TextEditingController recommendedRetailPriceController,
-    required TextEditingController unitPriceController,
-    required TextEditingController unityController,
-  })  : _netPriceController = netPriceController,
-        _grossPriceController = grossPriceController,
-        _recommendedRetailPriceController = recommendedRetailPriceController,
-        _unitPriceController = unitPriceController,
-        _unityController = unityController;
+  final ProductBloc productBloc;
 
-  final TextEditingController _netPriceController;
-  final TextEditingController _grossPriceController;
-  final TextEditingController _recommendedRetailPriceController;
-  final TextEditingController _unitPriceController;
-  final TextEditingController _unityController;
+  const SellingCard({super.key, required this.productBloc});
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text('Verkauf', style: TextStyles.h3BoldPrimary),
-            const Divider(),
-            MyTextFormField(
-              labelText: 'VK-Preis Netto',
-              controller: _netPriceController,
+    return BlocBuilder<ProductBloc, ProductState>(
+      bloc: productBloc,
+      builder: (context, state) {
+        return Card(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text('Verkauf', style: TextStyles.h3BoldPrimary),
+                const Divider(),
+                MyTextFormFieldSmall(
+                  labelText: 'VK-Preis Netto',
+                  controller: state.netPriceController,
+                ),
+                Gaps.h16,
+                MyTextFormFieldSmall(
+                  labelText: 'VK-Preis Brutto',
+                  controller: state.grossPriceController,
+                ),
+                Gaps.h16,
+                MyTextFormFieldSmall(
+                  labelText: 'UVP',
+                  controller: state.recommendedRetailPriceController,
+                ),
+                Gaps.h16,
+                MyTextFormFieldSmall(
+                  labelText: 'Einheitspreis Netto',
+                  controller: state.unitPriceController,
+                ),
+                Gaps.h16,
+                MyTextFormFieldSmall(
+                  labelText: 'Einheit',
+                  hintText: 'z.B. pro 1 L',
+                  controller: state.unityController,
+                ),
+              ],
             ),
-            Gaps.h16,
-            MyTextFormField(
-              labelText: 'VK-Preis Brutto',
-              controller: _grossPriceController,
-            ),
-            Gaps.h16,
-            MyTextFormField(
-              labelText: 'UVP',
-              controller: _recommendedRetailPriceController,
-            ),
-            Gaps.h16,
-            MyTextFormField(
-              labelText: 'Einheitspreis Netto',
-              controller: _unitPriceController,
-            ),
-            Gaps.h16,
-            MyTextFormField(
-              labelText: 'Einheit',
-              hintText: 'z.B. pro 1 L',
-              controller: _unityController,
-            ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }
