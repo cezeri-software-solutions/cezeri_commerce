@@ -16,6 +16,7 @@ import '../../../constants.dart';
 import '../../../injection.dart';
 import '../../../routes/router.gr.dart';
 import '../../core/functions/my_scaffold_messanger.dart';
+import '../../core/widgets/my_circular_progress_indicator.dart';
 import '../../core/widgets/my_delete_dialog.dart';
 import '../../core/widgets/my_info_dialog.dart';
 import '../../core/widgets/my_outlined_button.dart';
@@ -104,11 +105,11 @@ class ReceiptsOverviewScreen extends StatelessWidget {
                 (a) => a.fold(
                   (failure) {
                     myScaffoldMessenger(context, failure, null, null, null);
-                     context.router.popTop();
+                    context.router.popTop();
                   },
                   (unit) {
                     myScaffoldMessenger(context, null, null, 'Dokumente wurden erfolgreich generiert', null);
-                     context.router.popTop();
+                    context.router.popTop();
                   },
                 ),
               );
@@ -199,7 +200,7 @@ class ReceiptsOverviewScreen extends StatelessWidget {
                   if (receiptTyp == ReceiptTyp.appointment)
                     IconButton(
                       onPressed: () => context.read<AppointmentBloc>().add(GetNewAppointmentsFromPrestaEvent()),
-                      icon: state.isLoadingAppointmentsFromPrestaOnObserve ? const CircularProgressIndicator() : const Icon(Icons.download),
+                      icon: state.isLoadingAppointmentsFromPrestaOnObserve ? const MyCircularProgressIndicator() : const Icon(Icons.download),
                     )
                 ],
               ),

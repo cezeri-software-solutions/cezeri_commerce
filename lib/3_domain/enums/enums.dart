@@ -15,3 +15,5 @@ enum GenType { partialToCreate, partialRest }
 enum PicklistStatus { open, partiallyCompleted, completed }
 
 enum PositionTo { up, down }
+
+enum ChartType { incomingOrder, salesVolume }

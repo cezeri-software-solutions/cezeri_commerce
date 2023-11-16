@@ -71,6 +71,13 @@ class CustomColors {
   static const Color todoScalePurpleDisabled = Color.fromARGB(255, 255, 243, 224);
   static const Color todoScaleRedActive = Colors.red;
   static const Color todoScaleRedDisabled = Color.fromARGB(255, 255, 235, 238);
+
+  //* Chart Colors
+  static const Color chartColorCyan = Color.fromARGB(255, 80, 228, 255);
+  static const Color chartColorBlue = Color.fromARGB(255, 33, 150, 243);
+  static const Color chartColorYellow = Color.fromARGB(255, 255, 195, 0);
+  static const Color chartColorRed = Color.fromARGB(255, 232, 0, 84);
+  static const Color chartColorOrange = Color(0xFFFF683B);
 }
 
 class Gaps {

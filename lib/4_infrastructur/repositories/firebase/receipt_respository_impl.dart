@@ -26,6 +26,7 @@ import '../../../3_domain/repositories/firebase/product_repository.dart';
 import '../../../3_domain/repositories/prestashop/product/product_import_repository.dart';
 import '../prestashop_api/prestashop_api.dart';
 import '../shipping_methods/austrian_post/austrian_post_api.dart';
+import 'receipt_respository_helper.dart';
 
 class ReceiptRespositoryImpl implements ReceiptRepository {
   final FirebaseFirestore db;
@@ -66,15 +67,23 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
     List<ReceiptProduct> oldListOfReceiptProducts,
     List<ReceiptProduct> newListOfReceiptProducts,
   ) async {
-    final logger = Logger();
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
 
     final currentUserUid = firebaseAuth.currentUser!.uid;
     final docRef = db.collection(currentUserUid).doc(currentUserUid).collection('Appointments').doc(appointment.id);
+    final docRefStatDashboard = db
+        .collection(currentUserUid)
+        .doc(currentUserUid)
+        .collection('StatDashboard')
+        .doc('${appointment.creationDateMarektplace.year}${appointment.creationDateMarektplace.month}');
 
     try {
       await db.runTransaction((transaction) async {
+        final dsAppointmentBeforeUpdate = await transaction.get(docRef);
+        final appointmentBeforeUpdate = Receipt.fromJson(dsAppointmentBeforeUpdate.data()!);
+        final dsStatDashboard = await transaction.get(docRefStatDashboard);
+
         for (final oldProduct in oldListOfReceiptProducts) {
           if (!oldProduct.isFromDatabase) continue;
           final newProduct = newListOfReceiptProducts.where((p) => p.productId == oldProduct.productId).firstOrNull;
@@ -126,6 +135,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
           }
         }
 
+        await incrementStatDashboardOnUpdateReceipt(appointment, appointmentBeforeUpdate, docRefStatDashboard, dsStatDashboard, transaction);
         transaction.update(docRef, appointment.toJson());
       });
       return right(unit);
@@ -140,15 +150,21 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
     if (!isConnected) return left(NoConnectionFailure());
     final logger = Logger();
 
+    final now = DateTime.now();
+    final curYear = now.year;
+    final curMonth = now.month;
+
+    final currentUserUid = firebaseAuth.currentUser!.uid;
+    final docRefSettings = db.collection(currentUserUid).doc(currentUserUid).collection('Settings').doc(currentUserUid);
+    final docRef = db.collection(currentUserUid).doc(currentUserUid).collection('Appointments').doc();
+    final docRefStatDashboard = db.collection(currentUserUid).doc(currentUserUid).collection('StatDashboard').doc('$curYear$curMonth');
+
     try {
       Receipt toCreateAppointment = Receipt.empty();
       await db.runTransaction((transaction) async {
-        final currentUserUid = firebaseAuth.currentUser!.uid;
-        final docRefSettings = db.collection(currentUserUid).doc(currentUserUid).collection('Settings').doc(currentUserUid);
+        final dsStatDashboard = await transaction.get(docRefStatDashboard);
         final settingsSnapshot = await transaction.get(docRefSettings);
         final settings = MainSettings.fromJson(settingsSnapshot.data()!);
-
-        final docRef = db.collection(currentUserUid).doc(currentUserUid).collection('Appointments').doc();
 
         toCreateAppointment = appointment.copyWith(
           id: docRef.id,
@@ -161,6 +177,8 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
         transaction.update(docRefSettings, updatedMainSettings.toJson());
 
         transaction.set(docRef, toCreateAppointment.toJson());
+
+        await createOrIncrementStatDashboardOnCreateReceipt(toCreateAppointment, docRefStatDashboard, dsStatDashboard, transaction);
       });
       return right(toCreateAppointment);
     } on FirebaseException {
@@ -177,9 +195,14 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
     if (!isConnected) return left(NoConnectionFailure());
     final logger = Logger();
 
+    final now = DateTime.now();
+    final curYear = now.year;
+    final curMonth = now.month;
+
     final currentUserUid = firebaseAuth.currentUser!.uid;
     final docRefMainSettings = db.collection(currentUserUid).doc(currentUserUid).collection('Settings').doc(currentUserUid);
     final docRefMarketplaces = db.collection(currentUserUid).doc(currentUserUid).collection('Marketetplaces');
+    final docRefStatDashboard = db.collection(currentUserUid).doc(currentUserUid).collection('StatDashboard').doc('$curYear$curMonth');
 
     List<OrderPresta>? listOfOrderPresta;
     List<Receipt> listOfReceiptToReturn = [];
@@ -312,14 +335,24 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
             customer: customerFirestore,
           );
 
-          final docRefAppointment = db.collection(currentUserUid).doc(currentUserUid).collection('Appointments').doc();
-          final appointment = phAppointment.copyWith(id: docRefAppointment.id, receiptId: docRefAppointment.id);
-          docRefAppointment.set(appointment.toJson());
-          listOfReceiptToReturn.add(appointment);
+          try {
+            await db.runTransaction((transaction) async {
+              final dsStatDashboard = await transaction.get(docRefStatDashboard);
 
-          final nextAppointmentNumber = mainSettings.nextAppointmentNumber + 1;
-          final updatedMainSettings = mainSettings.copyWith(nextAppointmentNumber: nextAppointmentNumber, nextCustomerNumber: nextCustomerNumber);
-          docRefMainSettings.update(updatedMainSettings.toJson());
+              final docRefAppointment = db.collection(currentUserUid).doc(currentUserUid).collection('Appointments').doc();
+              final appointment = phAppointment.copyWith(id: docRefAppointment.id, receiptId: docRefAppointment.id);
+              transaction.set(docRefAppointment, appointment.toJson());
+              listOfReceiptToReturn.add(appointment);
+
+              await createOrIncrementStatDashboardOnCreateReceipt(appointment, docRefStatDashboard, dsStatDashboard, transaction);
+
+              final nextAppointmentNumber = mainSettings.nextAppointmentNumber + 1;
+              final updatedMainSettings = mainSettings.copyWith(nextAppointmentNumber: nextAppointmentNumber, nextCustomerNumber: nextCustomerNumber);
+              transaction.update(docRefMainSettings, updatedMainSettings.toJson());
+            });
+          } on FirebaseException {
+            return left(GeneralFailure());
+          }
         }
         final updatedMarketplace = marketplace.copyWith(
           marketplaceSettings: marketplace.marketplaceSettings.copyWith(nextIdToImport: allOrderIds.last + 1),
@@ -397,26 +430,35 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
 
-    final curUserUid = firebaseAuth.currentUser!.uid;
+    final currentUserUid = firebaseAuth.currentUser!.uid;
     final receiptTyp = listOfReceipts.first.receiptTyp;
 
     try {
       for (final receipt in listOfReceipts) {
-        final listOfProducts = await getListOfProducts(db: db, receipt: receipt, currentUserUid: curUserUid);
+        final listOfProducts = await getListOfProducts(db: db, receipt: receipt, currentUserUid: currentUserUid);
         if (listOfProducts == null) continue;
 
+        final docRefStatDashboard = db
+            .collection(currentUserUid)
+            .doc(currentUserUid)
+            .collection('StatDashboard')
+            .doc('${receipt.creationDateMarektplace.year}${receipt.creationDateMarektplace.month}');
+
         await db.runTransaction((transaction) async {
+          final dsStatDashboard = await transaction.get(docRefStatDashboard);
+
           for (final product in listOfProducts) {
             await updateProductAvailableQuantityIncremental(
               transaction: transaction,
               db: db,
-              currentUserUid: curUserUid,
+              currentUserUid: currentUserUid,
               product: product,
               newQuantityIncremental: receipt.listOfReceiptProduct.where((e) => e.productId == product.id).first.quantity,
             );
           }
           // TODO: update quantity in marketplaces triggern
-          final docRef = getColRef(curUserUid, receiptTyp).doc(receipt.id);
+          await incrementStatDashboardOnDeleteReceipt(receipt, docRefStatDashboard, dsStatDashboard, transaction);
+          final docRef = getColRef(currentUserUid, receiptTyp).doc(receipt.id);
           transaction.delete(docRef);
         });
       }
@@ -437,8 +479,13 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
     if (!isConnected) return left(NoConnectionFailure());
     final logger = Logger();
 
+    final now = DateTime.now();
+    final curYear = now.year;
+    final curMonth = now.month;
+
     final currentUserUid = firebaseAuth.currentUser!.uid;
     final docRefSettings = db.collection(currentUserUid).doc(currentUserUid).collection('Settings').doc(currentUserUid);
+    final docRefStatDashboard = db.collection(currentUserUid).doc(currentUserUid).collection('StatDashboard').doc('$curYear$curMonth');
 
     List<Receipt> generatedReceipts = [];
 
@@ -447,6 +494,8 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
       final settings = MainSettings.fromJson(settingsSnapshot.data()!);
       int nextDeliveryNoteNumber = settings.nextDeliveryNoteNumber;
       int nextInvoiceNumber = settings.nextInvoiceNumber;
+
+      final dsStatDashboard = await docRefStatDashboard.get();
 
       for (final receipt in listOfReceipts) {
         await db.runTransaction((transaction) async {
@@ -494,6 +543,8 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
               invoiceId: invoice.invoiceId,
               invoiceNumberAsString: invoice.invoiceNumberAsString,
             );
+
+            await createOrIncrementStatDashboardOnCreateReceipt(invoice, docRefStatDashboard, dsStatDashboard, transaction);
           }
 
           transaction.update(getColRef(currentUserUid, appointment.receiptTyp).doc(appointment.id), appointment.toJson());
@@ -540,8 +591,13 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
     if (!isConnected) return left(NoConnectionFailure());
     final logger = Logger();
 
+    final now = DateTime.now();
+    final curYear = now.year;
+    final curMonth = now.month;
+
     final currentUserUid = firebaseAuth.currentUser!.uid;
     final docRefSettings = db.collection(currentUserUid).doc(currentUserUid).collection('Settings').doc(currentUserUid);
+    final docRefStatDashboard = db.collection(currentUserUid).doc(currentUserUid).collection('StatDashboard').doc('$curYear$curMonth');
 
     List<Receipt> generatedReceipts = [];
 
@@ -562,6 +618,8 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
           parcelTracking != null && parcelTracking.deliveryNoteId != 0 && parcelTracking.trackingNumber != '' && parcelTracking.trackingUrl != '';
 
       await db.runTransaction((transaction) async {
+        final dsStatDashboard = await transaction.get(docRefStatDashboard);
+
         List<ReceiptProduct> updatedOriginalAppointmentProducts = isCompletelyPacked
             ? originalAppointment.listOfReceiptProduct.map((e) {
                 return e.copyWith(shippedQuantity: e.quantity);
@@ -641,6 +699,8 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
             invoiceId: invoice.invoiceId,
             invoiceNumberAsString: invoice.invoiceNumberAsString,
           );
+
+          await createOrIncrementStatDashboardOnCreateReceipt(invoice, docRefStatDashboard, dsStatDashboard, transaction);
         }
 
         transaction.update(
