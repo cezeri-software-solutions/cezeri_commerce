@@ -1,0 +1,67 @@
+import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../../2_application/firebase/dashboard/dashboard_bloc.dart';
+import '../../3_domain/entities/receipt/receipt.dart';
+import '../../3_domain/enums/enums.dart';
+import '../../constants.dart';
+import 'widgets/line_chart_view.dart';
+import 'widgets/stat_container.dart';
+
+class DashboardPage extends StatelessWidget {
+  final DashboardBloc dashboardBloc;
+
+  const DashboardPage({super.key, required this.dashboardBloc});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<DashboardBloc, DashboardState>(
+      bloc: dashboardBloc,
+      builder: (context, state) {
+        final screenWidth = MediaQuery.sizeOf(context).width;
+        final defStatContainerWidth = screenWidth / 4 - 20;
+
+        return SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    StatContainer(
+                      title: 'Offene Aufträge seit gestern',
+                      body: state.listOfAppointments!.length.toString(),
+                      width: defStatContainerWidth,
+                    ),
+                    StatContainer(
+                      title: 'Offene & bezahlte Aufträge seit gestern',
+                      body: state.listOfAppointments!.where((e) => e.paymentStatus == PaymentStatus.paid).toList().length.toString(),
+                      width: defStatContainerWidth,
+                    ),
+                    StatContainer(
+                      title: 'Auftragseingang akt. Monat',
+                      body: '${state.curStatDashboard!.incomingOrders.toMyCurrencyStringToShow()} €',
+                      width: defStatContainerWidth,
+                    ),
+                    StatContainer(
+                      title: 'Umsatz akt. Monat',
+                      body: '${state.curStatDashboard!.salesVolume.toMyCurrencyStringToShow()} €',
+                      width: defStatContainerWidth,
+                    ),
+                  ],
+                ),
+                Gaps.h32,
+                const Text('Auftragseingang pro Monat', style: TextStyles.h2Bold),
+                LineChartView(listOfStatDashboards: state.listOfStatDashboards!, chartTyp: ChartType.incomingOrder),
+                const Text('Umsatz pro Monat', style: TextStyles.h2Bold),
+                LineChartView(listOfStatDashboards: state.listOfStatDashboards!, chartTyp: ChartType.salesVolume),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+}

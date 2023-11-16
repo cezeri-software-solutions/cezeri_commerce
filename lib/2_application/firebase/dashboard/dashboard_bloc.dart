@@ -1,0 +1,110 @@
+import 'package:bloc/bloc.dart';
+import 'package:dartz/dartz.dart';
+import 'package:flutter/material.dart';
+
+import '../../../3_domain/entities/receipt/receipt.dart';
+import '../../../3_domain/entities/stat_dashboard.dart';
+import '../../../3_domain/repositories/firebase/dashboard_repository.dart';
+import '../../../3_domain/repositories/firebase/receipt_respository.dart';
+import '../../../core/firebase_failures.dart';
+
+part 'dashboard_event.dart';
+part 'dashboard_state.dart';
+
+class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
+  final DashboardRepository dashboardRepository;
+  final ReceiptRepository receiptRepository;
+  DashboardBloc({required this.dashboardRepository, required this.receiptRepository}) : super(DashboardState.initial()) {
+//? ######################################################################################################
+
+    on<GetCurStatDashboardEvent>((event, emit) async {
+      emit(state.copyWith(isLoadingOnObserve: true));
+      final Either<FirebaseFailure, StatDashboard> failureOrSuccess;
+
+      failureOrSuccess = await dashboardRepository.getStatDashboard();
+
+      failureOrSuccess.fold(
+        (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
+        (statDashboard) => emit(state.copyWith(curStatDashboard: statDashboard, firebaseFailure: null, isAnyFailure: false)),
+      );
+
+      emit(
+        state.copyWith(
+          isLoadingOnObserve: false,
+          fosDashboardOption: optionOf(failureOrSuccess),
+        ),
+      );
+    });
+
+//? ######################################################################################################
+
+    on<GetListOfStatDashboardsEvent>((event, emit) async {
+      emit(state.copyWith(isLoadingOnObserve: true));
+      final Either<FirebaseFailure, List<StatDashboard>> failureOrSuccessStatDashboard;
+      final Either<FirebaseFailure, List<Receipt>> failureOrSuccessReceipt;
+
+      failureOrSuccessStatDashboard = await dashboardRepository.getLast13StatDashboards();
+
+      failureOrSuccessStatDashboard.fold(
+        (failure) => emit(state.copyWith(
+          listOfStatDashboards: [],
+          curStatDashboard: StatDashboard.empty(),
+          firebaseFailure: failure,
+          isAnyFailure: true,
+        )),
+        (listOfStatDashboards) {
+          DateTime now = DateTime.now();
+          emit(state.copyWith(
+            listOfStatDashboards: listOfStatDashboards,
+            curStatDashboard:
+                listOfStatDashboards.where((e) => DateTime(e.dateTime.year, e.dateTime.month) == DateTime(now.year, now.month)).isNotEmpty
+                    ? listOfStatDashboards.where((e) => DateTime(e.dateTime.year, e.dateTime.month) == DateTime(now.year, now.month)).first
+                    : StatDashboard.empty(),
+            firebaseFailure: null,
+            isAnyFailure: false,
+          ));
+        },
+      );
+
+      failureOrSuccessReceipt = await dashboardRepository.getAppointmentsOfTodayAndTomorrow();
+
+      failureOrSuccessReceipt.fold(
+        (failure) => emit(state.copyWith(
+          listOfAppointmentsToday: [],
+          listOfAppointmentsTomorrow: [],
+          firebaseFailureReceipts: failure,
+          isAnyFailureReceipts: true,
+        )),
+        (listOfAppointments) {
+          DateTime now = DateTime.now();
+          emit(state.copyWith(
+            listOfAppointments: listOfAppointments,
+            listOfAppointmentsToday: listOfAppointments.isNotEmpty
+                ? listOfAppointments
+                    .where((e) =>
+                        DateTime(e.creationDateMarektplace.year, e.creationDateMarektplace.month, e.creationDateMarektplace.day) ==
+                        DateTime(now.year, now.month, now.day))
+                    .toList()
+                : [],
+            listOfAppointmentsTomorrow: listOfAppointments.isNotEmpty
+                ? listOfAppointments
+                    .where((e) =>
+                        DateTime(e.creationDateMarektplace.year, e.creationDateMarektplace.month, e.creationDateMarektplace.day) ==
+                        DateTime(now.year, now.month, now.day + 1))
+                    .toList()
+                : [],
+            firebaseFailureReceipts: null,
+            isAnyFailureReceipts: false,
+          ));
+        },
+      );
+
+      emit(state.copyWith(
+        isLoadingOnObserve: false,
+        fosListOfStatDashboardsOption: optionOf(failureOrSuccessStatDashboard),
+      ));
+    });
+
+//? ######################################################################################################
+  }
+}
