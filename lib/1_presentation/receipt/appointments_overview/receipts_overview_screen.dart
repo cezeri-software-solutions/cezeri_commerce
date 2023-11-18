@@ -131,6 +131,7 @@ class ReceiptsOverviewScreen extends StatelessWidget {
                   },
                 ),
                 actions: [
+                  IconButton(onPressed: () => appointmentBloc.add(SendEmailToCustomerReceiptEvent()), icon: const Icon(Icons.mail)),
                   Tooltip(
                     message: 'Senden',
                     child: IconButton(
@@ -194,7 +195,7 @@ class ReceiptsOverviewScreen extends StatelessWidget {
                             ),
                     ),
                     icon: state.isLoadingReceiptOnDelete
-                        ? const CircularProgressIndicator(color: Colors.red)
+                        ? const MyCircularProgressIndicator(color: Colors.red)
                         : const Icon(Icons.delete, color: Colors.red),
                   ),
                   if (receiptTyp == ReceiptTyp.appointment)

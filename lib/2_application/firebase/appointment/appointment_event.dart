@@ -115,3 +115,8 @@ class OnAppointmentCarrierProductChangedEvent extends AppointmentEvent {
 
   OnAppointmentCarrierProductChangedEvent({required this.receiptCarrierProduct});
 }
+
+class SendEmailToCustomerReceiptEvent extends AppointmentEvent {}
+
+
+

@@ -4,6 +4,7 @@ import 'package:bloc/bloc.dart';
 import 'package:dartz/dartz.dart';
 import 'package:meta/meta.dart';
 
+import '../../../3_domain/entities/e_mail_automation.dart';
 import '../../../3_domain/entities/marketplace/marketplace.dart';
 import '../../../3_domain/repositories/firebase/marketplace_repository.dart';
 import '../../../core/firebase_failures.dart';
@@ -108,6 +109,42 @@ class MarketplaceBloc extends Bloc<MarketplaceEvent, MarketplaceState> {
         fosMarketplaceOnDeleteOption: optionOf(failureOrSuccess),
       ));
       emit(state.copyWith(fosMarketplaceOnDeleteOption: none()));
+    });
+
+//? #########################################################################
+
+    on<OnAddMarketplaceEMailAutomationEvent>((event, emit) async {
+      emit(state.copyWith(isLoadingMarketplaceOnUpdate: true));
+
+      final failureOrSuccess = await marketplaceRepository.addMarketplaceEMailAutomation(event.marketplace, event.eMailAutomation);
+      failureOrSuccess.fold(
+        (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
+        (unit) => emit(state.copyWith(firebaseFailure: null, isAnyFailure: false)),
+      );
+
+      emit(state.copyWith(
+        isLoadingMarketplaceOnUpdate: false,
+        fosMarketplaceOnUpdateOption: optionOf(failureOrSuccess),
+      ));
+      emit(state.copyWith(fosMarketplaceOnUpdateOption: none()));
+    });
+
+//? #########################################################################
+
+    on<OnUpdateMarketplaceEMailAutomationEvent>((event, emit) async {
+      emit(state.copyWith(isLoadingMarketplaceOnUpdate: true));
+
+      final failureOrSuccess = await marketplaceRepository.updateMarketplaceEMailAutomation(event.marketplace, event.eMailAutomation);
+      failureOrSuccess.fold(
+        (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
+        (unit) => emit(state.copyWith(firebaseFailure: null, isAnyFailure: false)),
+      );
+
+      emit(state.copyWith(
+        isLoadingMarketplaceOnUpdate: false,
+        fosMarketplaceOnUpdateOption: optionOf(failureOrSuccess),
+      ));
+      emit(state.copyWith(fosMarketplaceOnUpdateOption: none()));
     });
 
 //? #########################################################################

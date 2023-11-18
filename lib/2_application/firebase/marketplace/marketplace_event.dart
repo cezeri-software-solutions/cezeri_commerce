@@ -32,3 +32,17 @@ class DeleteMarketplaceEvent extends MarketplaceEvent {
 
   DeleteMarketplaceEvent({required this.id});
 }
+
+class OnAddMarketplaceEMailAutomationEvent extends MarketplaceEvent {
+  final Marketplace marketplace;
+  final EMailAutomation eMailAutomation;
+
+  OnAddMarketplaceEMailAutomationEvent({required this.marketplace, required this.eMailAutomation});
+}
+
+class OnUpdateMarketplaceEMailAutomationEvent extends MarketplaceEvent {
+  final Marketplace marketplace;
+  final EMailAutomation eMailAutomation;
+
+  OnUpdateMarketplaceEMailAutomationEvent({required this.marketplace, required this.eMailAutomation});
+}

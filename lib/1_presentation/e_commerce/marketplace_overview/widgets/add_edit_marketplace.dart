@@ -283,14 +283,14 @@ class _AddEditMarketplaceState extends State<AddEditMarketplace> {
                           url: _urlController.text,
                           shopSuffix: _shopSuffixController.text,
                           fullUrl: _endpointUrlController.text + _urlController.text + _shopSuffixController.text,
-                          marketplaceSettings: MarketplaceSettings.empty().copyWith(
+                          marketplaceSettings: widget.marketplace!.marketplaceSettings.copyWith(
                             nextIdToImport: int.parse(_nextIdToImportController.text),
                             statusIdAfterImport: int.parse(_statusIdAfterImportController.text),
                             statusIdAfterShipping: int.parse(_statusIdAfterShippingController.text),
                             statusIdAfterCancellation: int.parse(_statusIdAfterCancellationController.text),
                             statusIdAfterDelete: int.parse(_statusIdAfterDeleteController.text),
                           ),
-                          address: Address.empty().copyWith(
+                          address: widget.marketplace!.address.copyWith(
                             companyName: _companyNameController.text,
                             firstName: _firstNameController.text,
                             lastName: _lastNameController.text,

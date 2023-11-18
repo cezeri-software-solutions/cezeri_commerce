@@ -9,6 +9,7 @@ part 'receipt_customer.g.dart';
 @JsonSerializable(explicitToJson: true)
 class ReceiptCustomer {
   final String id;
+  final int customerNumber;
   final String? company;
   final String firstName;
   final String lastName;
@@ -24,6 +25,7 @@ class ReceiptCustomer {
 
   ReceiptCustomer({
     required this.id,
+    required this.customerNumber,
     required this.company,
     required this.firstName,
     required this.lastName,
@@ -45,6 +47,7 @@ class ReceiptCustomer {
   factory ReceiptCustomer.empty() {
     return ReceiptCustomer(
       id: '',
+      customerNumber: 0,
       company: null,
       firstName: '',
       lastName: '',
@@ -63,6 +66,7 @@ class ReceiptCustomer {
   factory ReceiptCustomer.fromCustomer(Customer customer) {
     return ReceiptCustomer(
       id: customer.id,
+      customerNumber: customer.customerNumber,
       company: customer.company,
       firstName: customer.firstName,
       lastName: customer.lastName,
@@ -80,6 +84,7 @@ class ReceiptCustomer {
 
   ReceiptCustomer copyWith({
     String? id,
+    int? customerNumber,
     String? company,
     String? firstName,
     String? lastName,
@@ -95,6 +100,7 @@ class ReceiptCustomer {
   }) {
     return ReceiptCustomer(
       id: id ?? this.id,
+      customerNumber: customerNumber ?? this.customerNumber,
       company: company ?? this.company,
       firstName: firstName ?? this.firstName,
       lastName: lastName ?? this.lastName,
@@ -112,6 +118,6 @@ class ReceiptCustomer {
 
   @override
   String toString() {
-    return 'ReceiptCustomer(id: $id, company: $company, firstName: $firstName, lastName: $lastName, name: $name, email: $email, gender: $gender, birthday: $birthday, phone: $phone, phoneMobile: $phoneMobile, listOfAddress: $listOfAddress, uidNumber: $uidNumber, taxNumber: $taxNumber)';
+    return 'ReceiptCustomer(id: $id, customerNumber: $customerNumber, company: $company, firstName: $firstName, lastName: $lastName, name: $name, email: $email, gender: $gender, birthday: $birthday, phone: $phone, phoneMobile: $phoneMobile, listOfAddress: $listOfAddress, uidNumber: $uidNumber, taxNumber: $taxNumber)';
   }
 }

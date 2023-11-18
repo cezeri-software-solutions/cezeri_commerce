@@ -26,27 +26,32 @@ class SellingCard extends StatelessWidget {
                 MyTextFormFieldSmall(
                   labelText: 'VK-Preis Netto',
                   controller: state.netPriceController,
+                  onChanged: (_) => productBloc.add(OnProductControllerChangedEvent()),
                 ),
                 Gaps.h16,
                 MyTextFormFieldSmall(
                   labelText: 'VK-Preis Brutto',
                   controller: state.grossPriceController,
+                  onChanged: (_) => productBloc.add(OnProductControllerChangedEvent()),
                 ),
                 Gaps.h16,
                 MyTextFormFieldSmall(
                   labelText: 'UVP',
                   controller: state.recommendedRetailPriceController,
+                  onChanged: (_) => productBloc.add(OnProductControllerChangedEvent()),
                 ),
                 Gaps.h16,
                 MyTextFormFieldSmall(
                   labelText: 'Einheitspreis Netto',
                   controller: state.unitPriceController,
+                  onChanged: (_) => productBloc.add(OnProductControllerChangedEvent()),
                 ),
                 Gaps.h16,
                 MyTextFormFieldSmall(
                   labelText: 'Einheit',
                   hintText: 'z.B. pro 1 L',
                   controller: state.unityController,
+                  onChanged: (_) => productBloc.add(OnProductControllerChangedEvent()),
                 ),
               ],
             ),

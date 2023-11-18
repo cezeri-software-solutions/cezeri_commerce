@@ -29,6 +29,7 @@ class PurchaseCard extends StatelessWidget {
                       child: MyTextFormFieldSmall(
                         labelText: 'EK-Preis',
                         controller: state.wholesalePriceController,
+                        onChanged: (_) => productBloc.add(OnProductControllerChangedEvent()),
                       ),
                     ),
                     Gaps.w8,
@@ -36,6 +37,7 @@ class PurchaseCard extends StatelessWidget {
                       child: MyTextFormFieldSmall(
                         labelText: 'Lief. Name',
                         controller: state.supplierController,
+                        onChanged: (_) => productBloc.add(OnProductControllerChangedEvent()),
                       ),
                     ),
                   ],
@@ -47,6 +49,7 @@ class PurchaseCard extends StatelessWidget {
                       child: MyTextFormFieldSmall(
                         labelText: 'Lief. Artikel-Nr.',
                         controller: state.supplierArticleNumberController,
+                        onChanged: (_) => productBloc.add(OnProductControllerChangedEvent()),
                       ),
                     ),
                     Gaps.w8,
@@ -54,6 +57,7 @@ class PurchaseCard extends StatelessWidget {
                       child: MyTextFormFieldSmall(
                         labelText: 'Hersteller',
                         controller: state.manufacturerController,
+                        onChanged: (_) => productBloc.add(OnProductControllerChangedEvent()),
                       ),
                     ),
                   ],

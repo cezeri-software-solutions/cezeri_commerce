@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cezeri_commerce/3_domain/entities/e_mail_automation.dart';
 import 'package:cezeri_commerce/core/firebase_failures.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
@@ -8,6 +9,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:path/path.dart';
 
 import '../../../1_presentation/core/functions/check_internet_connection.dart';
+import '../../../3_domain/entities/id.dart';
 import '../../../3_domain/entities/marketplace/marketplace.dart';
 import '../../../3_domain/repositories/firebase/marketplace_repository.dart';
 
@@ -135,6 +137,64 @@ class MarketplaceRepositoryImpl implements MarketplaceRepository {
       final docRef = db.collection(currentUserUid).doc(currentUserUid).collection('Marketetplaces').doc(id);
 
       await docRef.delete();
+
+      return right(unit);
+    } on FirebaseException {
+      return left(GeneralFailure());
+    }
+  }
+
+  @override
+  Future<Either<FirebaseFailure, Unit>> addMarketplaceEMailAutomation(Marketplace marketplace, EMailAutomation eMailAutomation) async {
+    final isConnected = await checkInternetConnection();
+    if (!isConnected) return left(NoConnectionFailure());
+
+    final currentUserUid = firebaseAuth.currentUser!.uid;
+    final docRef = db.collection(currentUserUid).doc(currentUserUid).collection('Marketetplaces').doc(marketplace.id);
+
+    try {
+      final dsMarketplace = await docRef.get();
+      final marketplace = Marketplace.fromJson(dsMarketplace.data()!);
+
+      final newEMailAutomation = eMailAutomation.copyWith(id: UniqueID().value);
+
+      List<EMailAutomation> listOfEMailAutomations = List.from(marketplace.marketplaceSettings.listOfEMailAutomations);
+      listOfEMailAutomations.add(newEMailAutomation);
+      final updatedMarketplace = marketplace.copyWith(
+        marketplaceSettings: marketplace.marketplaceSettings.copyWith(listOfEMailAutomations: listOfEMailAutomations),
+      );
+
+      await docRef.update(updatedMarketplace.toJson());
+
+      return right(unit);
+    } on FirebaseException {
+      return left(GeneralFailure());
+    }
+  }
+
+  @override
+  Future<Either<FirebaseFailure, Unit>> updateMarketplaceEMailAutomation(Marketplace marketplace, EMailAutomation eMailAutomation) async {
+    final isConnected = await checkInternetConnection();
+    if (!isConnected) return left(NoConnectionFailure());
+
+    final currentUserUid = firebaseAuth.currentUser!.uid;
+    final docRef = db.collection(currentUserUid).doc(currentUserUid).collection('Marketetplaces').doc(marketplace.id);
+
+    try {
+      final dsMarketplace = await docRef.get();
+      final marketplace = Marketplace.fromJson(dsMarketplace.data()!);
+
+      List<EMailAutomation> listOfEMailAutomations = List.from(marketplace.marketplaceSettings.listOfEMailAutomations);
+      for (int i = 0; i < listOfEMailAutomations.length; i++) {
+        if (listOfEMailAutomations[i].id == eMailAutomation.id) {
+          listOfEMailAutomations[i] = eMailAutomation;
+        }
+      }
+      final updatedMarketplace = marketplace.copyWith(
+        marketplaceSettings: marketplace.marketplaceSettings.copyWith(listOfEMailAutomations: listOfEMailAutomations),
+      );
+
+      await docRef.update(updatedMarketplace.toJson());
 
       return right(unit);
     } on FirebaseException {

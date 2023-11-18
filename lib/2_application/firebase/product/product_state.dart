@@ -27,6 +27,9 @@ class ProductState {
   final Option<Either<PrestaFailure, Unit>> fosProductOnEditQuantityPrestaOption;
   //* Helpers
   final String productSearchText;
+  final bool isDescriptionSetFirstTime;
+  final bool isDescriptionChanged;
+  final List<ProductImage> listOfProductImages;
   //* Controllers
   final TextEditingController articleNumberController;
   final TextEditingController eanController;
@@ -44,6 +47,8 @@ class ProductState {
   final TextEditingController widthController;
   final TextEditingController heightController;
   final TextEditingController depthController;
+
+  final HtmlEditorController descriptionCcontroller;
 
   const ProductState({
     required this.product,
@@ -67,6 +72,9 @@ class ProductState {
     required this.fosMassEditActivateProductMarketplaceOption,
     required this.fosProductOnEditQuantityPrestaOption,
     required this.productSearchText,
+    required this.isDescriptionSetFirstTime,
+    required this.isDescriptionChanged,
+    required this.listOfProductImages,
     required this.articleNumberController,
     required this.eanController,
     required this.nameController,
@@ -83,6 +91,7 @@ class ProductState {
     required this.widthController,
     required this.heightController,
     required this.depthController,
+    required this.descriptionCcontroller,
   });
 
   factory ProductState.initial() {
@@ -108,6 +117,9 @@ class ProductState {
       fosMassEditActivateProductMarketplaceOption: none(),
       fosProductOnEditQuantityPrestaOption: none(),
       productSearchText: '',
+      isDescriptionSetFirstTime: true,
+      isDescriptionChanged: false,
+      listOfProductImages: const [],
       articleNumberController: TextEditingController(),
       eanController: TextEditingController(),
       nameController: TextEditingController(),
@@ -124,6 +136,7 @@ class ProductState {
       widthController: TextEditingController(),
       heightController: TextEditingController(),
       depthController: TextEditingController(),
+      descriptionCcontroller: HtmlEditorController(),
     );
   }
 
@@ -149,6 +162,9 @@ class ProductState {
     Option<Either<FirebaseFailure, Unit>>? fosMassEditActivateProductMarketplaceOption,
     Option<Either<PrestaFailure, Unit>>? fosProductOnEditQuantityPrestaOption,
     String? productSearchText,
+    bool? isDescriptionSetFirstTime,
+    bool? isDescriptionChanged,
+    List<ProductImage>? listOfProductImages,
     TextEditingController? articleNumberController,
     TextEditingController? eanController,
     TextEditingController? nameController,
@@ -165,6 +181,7 @@ class ProductState {
     TextEditingController? widthController,
     TextEditingController? heightController,
     TextEditingController? depthController,
+    HtmlEditorController? descriptionCcontroller,
   }) {
     return ProductState(
       product: product ?? this.product,
@@ -183,11 +200,15 @@ class ProductState {
       fosProductOnCreateOption: fosProductOnCreateOption ?? this.fosProductOnCreateOption,
       fosProductOnUpdateOption: fosProductOnUpdateOption ?? this.fosProductOnUpdateOption,
       fosProductOnDeleteOption: fosProductOnDeleteOption ?? this.fosProductOnDeleteOption,
-      isLoadingOnMassEditActivateProductMarketplace: isLoadingOnMassEditActivateProductMarketplace ?? this.isLoadingOnMassEditActivateProductMarketplace,
+      isLoadingOnMassEditActivateProductMarketplace:
+          isLoadingOnMassEditActivateProductMarketplace ?? this.isLoadingOnMassEditActivateProductMarketplace,
       fosProductOnUpdateQuantityOption: fosProductOnUpdateQuantityOption ?? this.fosProductOnUpdateQuantityOption,
       fosMassEditActivateProductMarketplaceOption: fosMassEditActivateProductMarketplaceOption ?? this.fosMassEditActivateProductMarketplaceOption,
       fosProductOnEditQuantityPrestaOption: fosProductOnEditQuantityPrestaOption ?? this.fosProductOnEditQuantityPrestaOption,
       productSearchText: productSearchText ?? this.productSearchText,
+      isDescriptionSetFirstTime: isDescriptionSetFirstTime ?? this.isDescriptionSetFirstTime,
+      isDescriptionChanged: isDescriptionChanged ?? this.isDescriptionChanged,
+      listOfProductImages: listOfProductImages ?? this.listOfProductImages,
       articleNumberController: articleNumberController ?? this.articleNumberController,
       eanController: eanController ?? this.eanController,
       nameController: nameController ?? this.nameController,
@@ -204,6 +225,7 @@ class ProductState {
       widthController: widthController ?? this.widthController,
       heightController: heightController ?? this.heightController,
       depthController: depthController ?? this.depthController,
+      descriptionCcontroller: descriptionCcontroller ?? this.descriptionCcontroller,
     );
   }
 }

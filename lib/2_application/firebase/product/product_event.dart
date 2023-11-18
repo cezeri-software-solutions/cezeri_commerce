@@ -19,6 +19,16 @@ class SetProductControllerEvent extends ProductEvent {
   SetProductControllerEvent({required this.product});
 }
 
+class OnProductControllerChangedEvent extends ProductEvent {}
+
+class OnProductDescriptionChangedEvent extends ProductEvent {
+  final String? content;
+
+  OnProductDescriptionChangedEvent({required this.content});
+}
+
+class OnSaveProductDescriptionEvent extends ProductEvent {}
+
 class GetProductByEanEvent extends ProductEvent {
   final String ean;
 
@@ -52,6 +62,13 @@ class OnProductSelectedEvent extends ProductEvent {
   final Product product;
 
   OnProductSelectedEvent({required this.product});
+}
+
+class OnReorderProductImagesEvent extends ProductEvent {
+  final int oldIndex;
+  final int newIndex;
+
+  OnReorderProductImagesEvent({required this.oldIndex, required this.newIndex});
 }
 
 //? Update Menge nur in Firebase (Danach wird automatisch OnEditQuantityInMarketplacesEvent getriggert)

@@ -28,4 +28,5 @@ abstract class ReceiptRepository {
     bool generateDeliveryNote,
     bool generateInvoice,
   );
+  Future<Either<FirebaseFailure, Unit>> sendEmails();
 }

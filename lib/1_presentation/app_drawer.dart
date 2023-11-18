@@ -163,6 +163,17 @@ class AppDrawer extends StatelessWidget {
                             }
                           },
                         ),
+                        ListTile(
+                          leading: const Icon(Icons.mail),
+                          title: const Text('E-Mail Automatisierungen'),
+                          onTap: () {
+                            if (context.router.current.name == EMailAutomationRoute.name) {
+                              context.router.pop();
+                            } else {
+                              context.router.replaceAll([const EMailAutomationRoute()]);
+                            }
+                          },
+                        ),
                       ],
                     ),
                     ExpansionTile(

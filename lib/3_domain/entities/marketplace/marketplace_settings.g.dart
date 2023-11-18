@@ -17,6 +17,9 @@ MarketplaceSettings _$MarketplaceSettingsFromJson(Map<String, dynamic> json) =>
       statusIdAfterShipping: json['statusIdAfterShipping'] as int,
       statusIdAfterCancellation: json['statusIdAfterCancellation'] as int,
       statusIdAfterDelete: json['statusIdAfterDelete'] as int,
+      listOfEMailAutomations: (json['listOfEMailAutomations'] as List<dynamic>)
+          .map((e) => EMailAutomation.fromJson(e as Map<String, dynamic>))
+          .toList(),
     );
 
 Map<String, dynamic> _$MarketplaceSettingsToJson(
@@ -29,4 +32,6 @@ Map<String, dynamic> _$MarketplaceSettingsToJson(
       'statusIdAfterShipping': instance.statusIdAfterShipping,
       'statusIdAfterCancellation': instance.statusIdAfterCancellation,
       'statusIdAfterDelete': instance.statusIdAfterDelete,
+      'listOfEMailAutomations':
+          instance.listOfEMailAutomations.map((e) => e.toJson()).toList(),
     };

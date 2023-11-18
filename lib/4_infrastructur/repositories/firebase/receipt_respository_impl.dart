@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.dart';
 import 'package:cezeri_commerce/3_domain/entities/receipt/receipt.dart';
 import 'package:cezeri_commerce/3_domain/entities/receipt/receipt_product.dart';
@@ -5,6 +7,7 @@ import 'package:cezeri_commerce/3_domain/repositories/firebase/customer_reposito
 import 'package:cezeri_commerce/3_domain/repositories/firebase/receipt_respository.dart';
 import 'package:cezeri_commerce/core/firebase_failures.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart';
@@ -15,12 +18,14 @@ import '../../../1_presentation/core/functions/mixed_functions.dart';
 import '../../../3_domain/entities/address.dart';
 import '../../../3_domain/entities/carrier/parcel_tracking.dart';
 import '../../../3_domain/entities/customer/customer.dart';
+import '../../../3_domain/entities/e_mail_automation.dart';
 import '../../../3_domain/entities/marketplace/marketplace.dart';
 import '../../../3_domain/entities/product/product.dart';
 import '../../../3_domain/entities/settings/main_settings.dart';
 import '../../../3_domain/entities_presta/order_presta.dart';
 import '../../../3_domain/entities_presta/product_presta.dart';
 import '../../../3_domain/enums/enums.dart';
+import '../../../3_domain/pdf/pdf_receipt_generator.dart';
 import '../../../3_domain/repositories/firebase/main_settings_respository.dart';
 import '../../../3_domain/repositories/firebase/product_repository.dart';
 import '../../../3_domain/repositories/prestashop/product/product_import_repository.dart';
@@ -497,8 +502,22 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
 
       final dsStatDashboard = await docRefStatDashboard.get();
 
+      Marketplace? marketplace;
+
       for (final receipt in listOfReceipts) {
         await db.runTransaction((transaction) async {
+          final docRefMarketplace = db.collection(currentUserUid).doc(currentUserUid).collection('Marketetplaces').doc(receipt.marketplaceId);
+          if (marketplace == null) {
+            final dsMarketplace = await docRefMarketplace.get();
+            if (dsMarketplace.exists) marketplace = Marketplace.fromJson(dsMarketplace.data()!);
+          } else {
+            if (receipt.marketplaceId != marketplace!.id) {
+              final dsMarketplace = await docRefMarketplace.get();
+              if (dsMarketplace.exists) marketplace = Marketplace.fromJson(dsMarketplace.data()!);
+            }
+          }
+          List<Receipt> generatedReceiptsFromThisReceipt = [];
+
           List<ReceiptProduct> updatedReceiptProducts = receipt.listOfReceiptProduct.map((e) {
             return e.copyWith(shippedQuantity: e.quantity);
           }).toList();
@@ -520,6 +539,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
             transaction.set(docRefDn, deliveryNote.toJson());
             nextDeliveryNoteNumber += 1;
             generatedReceipts.add(deliveryNote);
+            generatedReceiptsFromThisReceipt.add(deliveryNote);
             appointment = appointment.copyWith(
               deliveryNoteId: deliveryNote.deliveryNoteId,
               deliveryNoteNumberAsString: deliveryNote.deliveryNoteNumberAsString,
@@ -539,6 +559,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
             transaction.set(docRefI, invoice.toJson());
             nextInvoiceNumber += 1;
             generatedReceipts.add(invoice);
+            generatedReceiptsFromThisReceipt.add(invoice);
             appointment = appointment.copyWith(
               invoiceId: invoice.invoiceId,
               invoiceNumberAsString: invoice.invoiceNumberAsString,
@@ -568,6 +589,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
               newQuantityIncremental: receiptProduct.quantity * -1,
             );
           }
+          if (marketplace != null) await sendCustomerEmails(generatedReceiptsFromThisReceipt, marketplace!);
         });
       }
       final updatedMainSettings = settings.copyWith(nextDeliveryNoteNumber: nextDeliveryNoteNumber, nextInvoiceNumber: nextInvoiceNumber);
@@ -598,6 +620,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
     final currentUserUid = firebaseAuth.currentUser!.uid;
     final docRefSettings = db.collection(currentUserUid).doc(currentUserUid).collection('Settings').doc(currentUserUid);
     final docRefStatDashboard = db.collection(currentUserUid).doc(currentUserUid).collection('StatDashboard').doc('$curYear$curMonth');
+    final docRefMarketplace = db.collection(currentUserUid).doc(currentUserUid).collection('Marketetplaces').doc(originalAppointment.marketplaceId);
 
     List<Receipt> generatedReceipts = [];
 
@@ -609,6 +632,9 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
       final settings = MainSettings.fromJson(settingsSnapshot.data()!);
       int nextDeliveryNoteNumber = settings.nextDeliveryNoteNumber;
       int nextInvoiceNumber = settings.nextInvoiceNumber;
+
+      final dsMarketplace = await docRefMarketplace.get();
+      final marketplace = Marketplace.fromJson(dsMarketplace.data()!);
 
       ParcelTracking? parcelTracking;
       if (generateDeliveryNote) {
@@ -732,6 +758,12 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
 
       final updatedMainSettings = settings.copyWith(nextDeliveryNoteNumber: nextDeliveryNoteNumber, nextInvoiceNumber: nextInvoiceNumber);
       await docRefSettings.update(updatedMainSettings.toJson());
+      final isSuccessfulSent = await sendCustomerEmails(generatedReceipts, marketplace);
+      if (isSuccessfulSent) {
+        logger.i('Alle E-Mails wurden erfolgreich verschickt.');
+      } else {
+        logger.e('Eine oder meherer E-Mails konnten nicht verschickt werden!');
+      }
       return right(generatedReceipts);
     } on FirebaseException {
       return left(GeneralFailure());
@@ -890,6 +922,198 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
 
     return toUpdateProduct;
   }
+
+  @override
+  Future<Either<FirebaseFailure, Unit>> sendEmails() async {
+    bool isFailure = false;
+    //await sendEmail(to: 'info@ccf-autopflege.at', from: 'ince.ali@msn.com', subject: 'Test-Mail', text: 'Hallo das ist eine Test-Mail');
+    if (isFailure) return left(GeneralFailure());
+    return right(unit);
+  }
+}
+
+String fillPlaceholder(Receipt receipt, String value) {
+  ParcelTracking? parceltracking;
+  final isParceltrackingGiven = receipt.receiptTyp == ReceiptTyp.deliveryNote && receipt.listOfParcelTracking.isNotEmpty;
+  if (isParceltrackingGiven) {
+    parceltracking = receipt.listOfParcelTracking.first;
+  }
+
+  String newValue = value.replaceAll(
+    '{receiptNumber}',
+    switch (receipt.receiptTyp) {
+      ReceiptTyp.offer => receipt.offerNumberAsString,
+      ReceiptTyp.appointment => receipt.appointmentNumberAsString,
+      ReceiptTyp.deliveryNote => receipt.deliveryNoteNumberAsString,
+      ReceiptTyp.invoice => receipt.invoiceNumberAsString,
+      ReceiptTyp.credit => receipt.creditNumberAsString,
+    },
+  );
+  newValue = newValue.replaceAll('{customerNumer}', receipt.receiptCustomer.customerNumber.toString());
+  newValue = newValue.replaceAll('{customerFullName}', receipt.receiptCustomer.name);
+  newValue = newValue.replaceAll('{receiptMarketplaceReference}', receipt.receiptMarketplaceReference);
+  newValue = newValue.replaceAll('{trackingUrl}', isParceltrackingGiven ? parceltracking!.trackingUrl : '');
+  newValue = newValue.replaceAll('{trackingNumber}', isParceltrackingGiven ? parceltracking!.trackingNumber : '');
+  newValue = newValue.replaceAll(
+      '{trackingLink}',
+      isParceltrackingGiven
+          ? '<a href="${parceltracking!.trackingUrl}${parceltracking.trackingNumber}" target="_blank">Link zur Sendungsverfolgung</a><br>'
+          : '');
+
+  return newValue;
+}
+
+Future<bool> sendCustomerEmails(List<Receipt> listOfReceipts, Marketplace marketplace) async {
+  bool isSuccess = false;
+  for (final receipt in listOfReceipts) {
+    switch (receipt.receiptTyp) {
+      case ReceiptTyp.offer:
+        {
+          final index = marketplace.marketplaceSettings.listOfEMailAutomations.indexWhere(
+            (e) => e.eMailAutomationType == EMailAutomationType.offer,
+          );
+          if (index != -1 && marketplace.marketplaceSettings.listOfEMailAutomations[index].isActive) {
+            final eMailAutomation = marketplace.marketplaceSettings.listOfEMailAutomations[index];
+            final subject = fillPlaceholder(receipt, eMailAutomation.subject);
+            final htmlContent = fillPlaceholder(receipt, eMailAutomation.htmlContent);
+            final generatedPdf = await PdfReceiptGenerator.generate(receipt: receipt, logoUrl: marketplace.logoUrl);
+            final attachment = base64Encode(generatedPdf);
+            final isSuccessfull = await sendEmail(
+              to: receipt.receiptCustomer.email,
+              from: eMailAutomation.fromEmail,
+              subject: subject,
+              html: htmlContent,
+              attachmentBase64: attachment,
+              filename: receipt.invoiceNumberAsString,
+            );
+            isSuccess = isSuccessfull;
+          }
+          break;
+        }
+      case ReceiptTyp.appointment:
+        {
+          final index = marketplace.marketplaceSettings.listOfEMailAutomations.indexWhere(
+            (e) => e.eMailAutomationType == EMailAutomationType.appointment,
+          );
+          if (index != -1 && marketplace.marketplaceSettings.listOfEMailAutomations[index].isActive) {
+            final eMailAutomation = marketplace.marketplaceSettings.listOfEMailAutomations[index];
+            final subject = fillPlaceholder(receipt, eMailAutomation.subject);
+            final htmlContent = fillPlaceholder(receipt, eMailAutomation.htmlContent);
+            final generatedPdf = await PdfReceiptGenerator.generate(receipt: receipt, logoUrl: marketplace.logoUrl);
+            final attachment = base64Encode(generatedPdf);
+            final isSuccessfull = await sendEmail(
+              to: receipt.receiptCustomer.email,
+              from: eMailAutomation.fromEmail,
+              subject: subject,
+              html: htmlContent,
+              attachmentBase64: attachment,
+              filename: receipt.invoiceNumberAsString,
+            );
+            isSuccess = isSuccessfull;
+          }
+          break;
+        }
+      case ReceiptTyp.deliveryNote:
+        {
+          final index = marketplace.marketplaceSettings.listOfEMailAutomations.indexWhere(
+            (e) => e.eMailAutomationType == EMailAutomationType.shipmentTracking,
+          );
+          if (index != -1 && marketplace.marketplaceSettings.listOfEMailAutomations[index].isActive) {
+            final eMailAutomation = marketplace.marketplaceSettings.listOfEMailAutomations[index];
+            final subject = fillPlaceholder(receipt, eMailAutomation.subject);
+            final htmlContent = fillPlaceholder(receipt, eMailAutomation.htmlContent);
+            final isSuccessfull = await sendEmail(
+              to: receipt.receiptCustomer.email,
+              from: eMailAutomation.fromEmail,
+              subject: subject,
+              html: htmlContent,
+            );
+            isSuccess = isSuccessfull;
+          }
+          break;
+        }
+      case ReceiptTyp.invoice:
+        {
+          final index = marketplace.marketplaceSettings.listOfEMailAutomations.indexWhere(
+            (e) => e.eMailAutomationType == EMailAutomationType.invoice,
+          );
+          if (index != -1 && marketplace.marketplaceSettings.listOfEMailAutomations[index].isActive) {
+            final eMailAutomation = marketplace.marketplaceSettings.listOfEMailAutomations[index];
+            final subject = fillPlaceholder(receipt, eMailAutomation.subject);
+            final htmlContent = fillPlaceholder(receipt, eMailAutomation.htmlContent);
+            final generatedPdf = await PdfReceiptGenerator.generate(receipt: receipt, logoUrl: marketplace.logoUrl);
+            final attachment = base64Encode(generatedPdf);
+            final isSuccessfull = await sendEmail(
+              to: receipt.receiptCustomer.email,
+              from: eMailAutomation.fromEmail,
+              subject: subject,
+              html: htmlContent,
+              attachmentBase64: attachment,
+              filename: receipt.invoiceNumberAsString,
+            );
+            isSuccess = isSuccessfull;
+          }
+          break;
+        }
+      case ReceiptTyp.credit:
+        {
+          final index = marketplace.marketplaceSettings.listOfEMailAutomations.indexWhere(
+            (e) => e.eMailAutomationType == EMailAutomationType.credit,
+          );
+          if (index != -1 && marketplace.marketplaceSettings.listOfEMailAutomations[index].isActive) {
+            final eMailAutomation = marketplace.marketplaceSettings.listOfEMailAutomations[index];
+            final subject = fillPlaceholder(receipt, eMailAutomation.subject);
+            final htmlContent = fillPlaceholder(receipt, eMailAutomation.htmlContent);
+            final generatedPdf = await PdfReceiptGenerator.generate(receipt: receipt, logoUrl: marketplace.logoUrl);
+            final attachment = base64Encode(generatedPdf);
+            final isSuccessfull = await sendEmail(
+              to: receipt.receiptCustomer.email,
+              from: eMailAutomation.fromEmail,
+              subject: subject,
+              html: htmlContent,
+              attachmentBase64: attachment,
+              filename: receipt.invoiceNumberAsString,
+            );
+            isSuccess = isSuccessfull;
+          }
+          break;
+        }
+    }
+  }
+  return isSuccess;
+}
+
+Future<bool> sendEmail({
+  required String to,
+  required String from,
+  required String subject,
+  String? text,
+  required String html,
+  String? bcc,
+  String? attachmentBase64,
+  String? filename,
+}) async {
+  bool isSuccess = false;
+  HttpsCallable callable = FirebaseFunctions.instance.httpsCallable('sendEmail');
+
+  try {
+    final response = await callable.call({
+      'to': to,
+      'from': from,
+      'subject': subject,
+      // 'text': text,
+      'html': html,
+      'bcc': bcc,
+      'attachment': attachmentBase64,
+      'filename': filename ?? 'attachment.pdf',
+    });
+    print('E-Mail gesendet: ${response.data}');
+    isSuccess = true;
+  } catch (e) {
+    print('Fehler beim Senden der E-Mail: $e');
+    isSuccess = false;
+  }
+  return isSuccess;
 }
 
 ReceiptProduct generateReceiptProduct({

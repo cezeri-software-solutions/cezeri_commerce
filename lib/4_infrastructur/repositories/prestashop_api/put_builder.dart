@@ -63,6 +63,30 @@ XmlDocument productUpdater({
   } else {
     if (name != null) nameElement.findAllElements('language').first.innerText = product.name;
   }
+  final List<Multilanguage>? descriptionMultilanguage = productPresta.descriptionMultilanguage;
+  final List<ProductLanguage> listOfDescription = product.listOfDescription;
+  final String? description = productPresta.description;
+  var descriptionElement = productElement.findAllElements('description').first;
+  if (descriptionMultilanguage != null && descriptionMultilanguage.isNotEmpty) {
+    if (marketplaceLanguages != null && marketplaceLanguages.isNotEmpty) {
+      for (final valueLanguage in descriptionMultilanguage) {
+        final languagePresta = marketplaceLanguages.where((lang) => lang.id.toString() == valueLanguage.id).firstOrNull;
+        if (languagePresta != null) {
+          final productLanguage = listOfDescription.where((e) => e.isoCode.toUpperCase() == languagePresta.isoCode.toUpperCase()).firstOrNull;
+          if (productLanguage != null) {
+            var languageElement =
+                descriptionElement.findElements('language').where((element) => element.getAttribute('id') == languagePresta.id.toString()).firstOrNull;
+            if (languageElement != null) {
+              final value = languagePresta.isoCode.toUpperCase() == 'DE' ? product.description : productLanguage.value;
+              languageElement.innerText = value;
+            }
+          }
+        }
+      }
+    }
+  } else {
+    if (description != null) descriptionElement.findAllElements('language').first.innerText = product.description;
+  }
 
   //* #################################################################
   //* Elements to be removed

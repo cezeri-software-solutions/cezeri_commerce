@@ -34,10 +34,10 @@ XmlBuilder? productBuilder({
   bool isAnyFailure = false;
   final marketplaceProductPresta = productMarketplace.marketplaceProduct as MarketplaceProductPresta;
   final marketplaceLanguages = productPresta.marketplaceLanguages;
-  void valueBuilder(String? value, List<Multilanguage>? valuesMultilanguage, List<ProductLanguage> listOfProductLanguages) {
+  void valueBuilder(String? value, List<Multilanguage>? valuesMultilanguage, List<ProductLanguage> listOfProductLanguages, String fieldName) {
     if (valuesMultilanguage != null && valuesMultilanguage.isNotEmpty) {
       if (marketplaceLanguages != null && marketplaceLanguages.isNotEmpty) {
-        builder.element('name', nest: () {
+        builder.element(fieldName, nest: () {
           for (final valueLanguage in valuesMultilanguage) {
             final languagePresta = marketplaceLanguages.where((lang) => lang.id.toString() == valueLanguage.id).firstOrNull;
             if (languagePresta != null) {
@@ -55,7 +55,7 @@ XmlBuilder? productBuilder({
       }
     } else {
       if (value == null) isAnyFailure = true;
-      return builder.element('name', nest: value);
+      return builder.element(fieldName, nest: value);
     }
   }
 
@@ -75,7 +75,8 @@ XmlBuilder? productBuilder({
       builder.element('unity', nest: product.unity);
       builder.element('unit_price_ratio', nest: product.netPrice / product.unitPrice);
       builder.element('active', nest: marketplaceProductPresta.active);
-      valueBuilder(product.name, productPresta.nameMultilanguage, product.listOfName);
+      valueBuilder(product.name, productPresta.nameMultilanguage, product.listOfName, 'name');
+      valueBuilder(product.description, productPresta.descriptionMultilanguage, product.listOfDescription, 'description');
     });
   });
   if (isAnyFailure) return null;

@@ -1,8 +1,10 @@
 import 'package:json_annotation/json_annotation.dart';
 
+import '../e_mail_automation.dart';
+
 part 'marketplace_settings.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class MarketplaceSettings {
   final String id;
   final int nextIdToImport;
@@ -11,6 +13,7 @@ class MarketplaceSettings {
   final int statusIdAfterShipping;
   final int statusIdAfterCancellation;
   final int statusIdAfterDelete;
+  final List<EMailAutomation> listOfEMailAutomations;
 
   const MarketplaceSettings({
     required this.id,
@@ -20,6 +23,7 @@ class MarketplaceSettings {
     required this.statusIdAfterShipping,
     required this.statusIdAfterCancellation,
     required this.statusIdAfterDelete,
+    required this.listOfEMailAutomations,
   });
 
   factory MarketplaceSettings.fromJson(Map<String, dynamic> json) => _$MarketplaceSettingsFromJson(json);
@@ -35,6 +39,7 @@ class MarketplaceSettings {
       statusIdAfterShipping: 0,
       statusIdAfterCancellation: 0,
       statusIdAfterDelete: 0,
+      listOfEMailAutomations: [],
     );
   }
 
@@ -46,6 +51,7 @@ class MarketplaceSettings {
     int? statusIdAfterShipping,
     int? statusIdAfterCancellation,
     int? statusIdAfterDelete,
+    List<EMailAutomation>? listOfEMailAutomations,
   }) {
     return MarketplaceSettings(
       id: id ?? this.id,
@@ -55,11 +61,12 @@ class MarketplaceSettings {
       statusIdAfterShipping: statusIdAfterShipping ?? this.statusIdAfterShipping,
       statusIdAfterCancellation: statusIdAfterCancellation ?? this.statusIdAfterCancellation,
       statusIdAfterDelete: statusIdAfterDelete ?? this.statusIdAfterDelete,
+      listOfEMailAutomations: listOfEMailAutomations ?? this.listOfEMailAutomations,
     );
   }
 
   @override
   String toString() {
-    return 'MarketplaceSettings(id: $id, nextIdToImport: $nextIdToImport, orderStatusIdsToImport: $orderStatusIdsToImport, statusIdAfterImport: $statusIdAfterImport, statusIdAfterShipping: $statusIdAfterShipping, statusIdAfterCancellation: $statusIdAfterCancellation, statusIdAfterDelete: $statusIdAfterDelete)';
+    return 'MarketplaceSettings(id: $id, nextIdToImport: $nextIdToImport, orderStatusIdsToImport: $orderStatusIdsToImport, statusIdAfterImport: $statusIdAfterImport, statusIdAfterShipping: $statusIdAfterShipping, statusIdAfterCancellation: $statusIdAfterCancellation, statusIdAfterDelete: $statusIdAfterDelete, listOfEMailAutomations: $listOfEMailAutomations)';
   }
 }

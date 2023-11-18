@@ -26,21 +26,25 @@ class WeightAndDimensionsCard extends StatelessWidget {
                 MyTextFormFieldSmall(
                   labelText: 'Gewicht',
                   controller: state.weightController,
+                  onChanged: (_) => productBloc.add(OnProductControllerChangedEvent()),
                 ),
                 Gaps.h16,
                 MyTextFormFieldSmall(
                   labelText: 'Breite cm',
                   controller: state.widthController,
+                  onChanged: (_) => productBloc.add(OnProductControllerChangedEvent()),
                 ),
                 Gaps.h16,
                 MyTextFormFieldSmall(
                   labelText: 'Höhe cm',
                   controller: state.heightController,
+                  onChanged: (_) => productBloc.add(OnProductControllerChangedEvent()),
                 ),
                 Gaps.h16,
                 MyTextFormFieldSmall(
                   labelText: 'Tiefe cm',
                   controller: state.depthController,
+                  onChanged: (_) => productBloc.add(OnProductControllerChangedEvent()),
                 ),
               ],
             ),

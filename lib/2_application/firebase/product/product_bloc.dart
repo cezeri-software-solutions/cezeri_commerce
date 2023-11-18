@@ -5,9 +5,11 @@ import 'package:cezeri_commerce/core/firebase_failures.dart';
 import 'package:cezeri_commerce/core/presta_failure.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
+import 'package:html_editor_enhanced/html_editor.dart';
 
 import '../../../3_domain/entities/marketplace/marketplace.dart';
 import '../../../3_domain/entities/product/product.dart';
+import '../../../3_domain/entities/product/product_image.dart';
 import '../../../3_domain/entities_presta/product_presta.dart';
 import '../../../3_domain/repositories/firebase/product_repository.dart';
 
@@ -86,6 +88,7 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
         widthController: TextEditingController(text: event.product.width.toMyCurrencyStringToShow()),
         heightController: TextEditingController(text: event.product.height.toMyCurrencyStringToShow()),
         depthController: TextEditingController(text: event.product.depth.toMyCurrencyStringToShow()),
+        listOfProductImages: List.from(event.product.listOfProductImages),
       ));
     });
 
@@ -127,30 +130,52 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
 
 //? #########################################################################
 
+    on<OnProductControllerChangedEvent>((event, emit) {
+      emit(state.copyWith(
+        product: state.product!.copyWith(
+          articleNumber: state.articleNumberController.text,
+          ean: state.eanController.text,
+          name: state.nameController.text,
+          wholesalePrice: state.wholesalePriceController.text.toMyDouble(),
+          supplier: state.supplierController.text,
+          supplierArticleNumber: state.supplierArticleNumberController.text,
+          manufacturer: state.manufacturerController.text,
+          netPrice: state.netPriceController.text.toMyDouble(),
+          grossPrice: state.grossPriceController.text.toMyDouble(),
+          recommendedRetailPrice: state.recommendedRetailPriceController.text.toMyDouble(),
+          unity: state.unityController.text,
+          unitPrice: state.unitPriceController.text.toMyDouble(),
+          weight: state.weightController.text.toMyDouble(),
+          width: state.widthController.text.toMyDouble(),
+          height: state.heightController.text.toMyDouble(),
+          depth: state.depthController.text.toMyDouble(),
+        ),
+      ));
+    });
+
+//? #########################################################################
+
+    on<OnProductDescriptionChangedEvent>((event, emit) {
+      bool isChanged = true;
+      if (state.isDescriptionSetFirstTime) isChanged = false;
+      if (event.content != null && state.product != null && event.content == state.product!.description) isChanged = false;
+      emit(state.copyWith(isDescriptionChanged: isChanged, isDescriptionSetFirstTime: false));
+    });
+
+//? #########################################################################
+
+    on<OnSaveProductDescriptionEvent>((event, emit) async {
+      final newDescription = await state.descriptionCcontroller.getText();
+      emit(state.copyWith(isDescriptionChanged: false, product: state.product!.copyWith(description: newDescription)));
+    });
+
+//? #########################################################################
+
     on<UpdateProductEvent>((event, emit) async {
       emit(state.copyWith(isLoadingProductOnUpdate: true));
 
-      final updatedProduct = state.product!.copyWith(
-        articleNumber: state.articleNumberController.text,
-        ean: state.eanController.text,
-        name: state.nameController.text,
-        wholesalePrice: state.wholesalePriceController.text.toMyDouble(),
-        supplier: state.supplierController.text,
-        supplierArticleNumber: state.supplierArticleNumberController.text,
-        manufacturer: state.manufacturerController.text,
-        netPrice: state.netPriceController.text.toMyDouble(),
-        grossPrice: state.grossPriceController.text.toMyDouble(),
-        recommendedRetailPrice: state.recommendedRetailPriceController.text.toMyDouble(),
-        unity: state.unityController.text,
-        unitPrice: state.unitPriceController.text.toMyDouble(),
-        weight: state.weightController.text.toMyDouble(),
-        width: state.widthController.text.toMyDouble(),
-        height: state.heightController.text.toMyDouble(),
-        depth: state.depthController.text.toMyDouble(),
-      );
-
       bool isUpdateInFirestoreSucceeded = false;
-      final failureOrSuccess = await productRepository.updateProduct(updatedProduct);
+      final failureOrSuccess = await productRepository.updateProduct(state.product!);
       failureOrSuccess.fold(
         (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
         (unit) {
@@ -159,7 +184,7 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
         },
       );
 
-      if (isUpdateInFirestoreSucceeded) add(OnEditProductInPresta(product: updatedProduct));
+      if (isUpdateInFirestoreSucceeded) add(OnEditProductInPresta(product: state.product!));
 
       emit(state.copyWith(
         isLoadingProductOnUpdate: false,
@@ -252,6 +277,26 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
         products.add(event.product);
       }
       emit(state.copyWith(selectedProducts: products));
+    });
+
+//? #########################################################################
+
+    on<OnReorderProductImagesEvent>((event, emit) async {
+      List<ProductImage> listOfProductImages = List.from(state.listOfProductImages);
+
+      int newIndex = event.newIndex;
+      int oldIndex = event.oldIndex;
+      if (newIndex > oldIndex) {
+        newIndex -= 1;
+      }
+      final item = listOfProductImages.removeAt(oldIndex);
+      listOfProductImages.insert(newIndex, item);
+
+      for (int i = 0; i < listOfProductImages.length; i++) {
+        listOfProductImages[i] = listOfProductImages[i].copyWith(sortId: i + 1, isDefault: i == 0 ? true : false);
+      }
+
+      emit(state.copyWith(listOfProductImages: listOfProductImages, product: state.product!.copyWith(listOfProductImages: listOfProductImages)));
     });
 
 //? #########################################################################

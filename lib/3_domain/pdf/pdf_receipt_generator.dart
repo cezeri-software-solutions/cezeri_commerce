@@ -79,13 +79,15 @@ class PdfReceiptGenerator {
             buildAppointmentInformations(receipt),
             pw.SizedBox(height: 30),
             buildPositions(receipt),
-            pw.Divider(thickness: 0.5),
-            buildTotalAmount(receipt),
-            pw.SizedBox(height: 10),
-            buildPaymentTermText(receipt),
-            if (receipt.isSmallBusiness) ...[
+            if (receipt.receiptTyp != ReceiptTyp.deliveryNote) ...[
+              pw.Divider(thickness: 0.5),
+              buildTotalAmount(receipt),
               pw.SizedBox(height: 10),
-              buildSmallBusinessText(),
+              buildPaymentTermText(receipt),
+              if (receipt.isSmallBusiness) ...[
+                pw.SizedBox(height: 10),
+                buildSmallBusinessText(),
+              ],
             ],
             pw.SizedBox(height: 10),
             buildDocumentText(receipt),
@@ -188,8 +190,7 @@ class PdfReceiptGenerator {
                   mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                   children: [
                     PdfText('Kundennummer:'),
-                    // TODO: customerNumber muss her statt name
-                    PdfText(receipt.receiptCustomer.name.toString()),
+                    PdfText(receipt.receiptCustomer.customerNumber.toString()),
                   ],
                 ),
               ],
@@ -199,28 +200,42 @@ class PdfReceiptGenerator {
       );
 
   static pw.Widget buildPositions(Receipt receipt) {
-    final headers = [
-      'Pos.',
-      'Artikelnummer / Bezeichnung',
-      'Steuer', // NEU
-      'Menge',
-      'Netto Stk.', //NEU
-      'Brutto Stk.', //NEU
-      'Brutto Ges.', //NEU
-    ];
+    final headers = switch (receipt.receiptTyp) {
+      ReceiptTyp.deliveryNote => [
+          'Pos.',
+          'Artikelnummer / Bezeichnung',
+          'Menge',
+        ],
+      _ => [
+          'Pos.',
+          'Artikelnummer / Bezeichnung',
+          'Steuer',
+          'Menge',
+          'Netto Stk.',
+          'Brutto Stk.',
+          'Brutto Ges.',
+        ],
+    };
 
     final data = [[]];
     int pos = 1;
     for (int i = 0; i < receipt.listOfReceiptProduct.length; i++) {
-      final entry = [
-        pos,
-        '${receipt.listOfReceiptProduct[i].articleNumber}\n${receipt.listOfReceiptProduct[i].name}',
-        '${receipt.listOfReceiptProduct[i].tax.taxRate}%',
-        '${receipt.listOfReceiptProduct[i].quantity} Stk.',
-        '${receipt.listOfReceiptProduct[i].unitPriceNet.toMyCurrencyStringToShow()} ${receipt.currency}',
-        '${receipt.listOfReceiptProduct[i].unitPriceGross.toMyCurrencyStringToShow()} ${receipt.currency}',
-        '${(receipt.listOfReceiptProduct[i].quantity * receipt.listOfReceiptProduct[i].unitPriceGross).toMyCurrencyStringToShow()} ${receipt.currency}',
-      ];
+      final entry = switch (receipt.receiptTyp) {
+        ReceiptTyp.deliveryNote => [
+            pos,
+            '${receipt.listOfReceiptProduct[i].articleNumber}\n${receipt.listOfReceiptProduct[i].name}',
+            '${receipt.listOfReceiptProduct[i].quantity} Stk.',
+          ],
+        _ => [
+            pos,
+            '${receipt.listOfReceiptProduct[i].articleNumber}\n${receipt.listOfReceiptProduct[i].name}',
+            '${receipt.listOfReceiptProduct[i].tax.taxRate}%',
+            '${receipt.listOfReceiptProduct[i].quantity} Stk.',
+            '${receipt.listOfReceiptProduct[i].unitPriceNet.toMyCurrencyStringToShow()} ${receipt.currency}',
+            '${receipt.listOfReceiptProduct[i].unitPriceGross.toMyCurrencyStringToShow()} ${receipt.currency}',
+            '${(receipt.listOfReceiptProduct[i].quantity * receipt.listOfReceiptProduct[i].unitPriceGross).toMyCurrencyStringToShow()} ${receipt.currency}',
+          ],
+      };
       pos = pos + 1;
       data.add(entry);
     }
@@ -233,23 +248,53 @@ class PdfReceiptGenerator {
       headerDecoration: const pw.BoxDecoration(color: PdfColors.grey300),
       headerAlignment: pw.Alignment.centerLeft,
       cellStyle: const pw.TextStyle(fontSize: 8),
-      columnWidths: {
-        0: const pw.FlexColumnWidth(6),
-        1: const pw.FlexColumnWidth(54),
-        2: const pw.FlexColumnWidth(8),
-        3: const pw.FlexColumnWidth(8),
-        4: const pw.FlexColumnWidth(8),
-        5: const pw.FlexColumnWidth(8),
-        6: const pw.FlexColumnWidth(8),
+      columnWidths: switch (receipt.receiptTyp) {
+        ReceiptTyp.deliveryNote => {
+            0: const pw.FlexColumnWidth(4),
+            1: const pw.FlexColumnWidth(54),
+            3: const pw.FlexColumnWidth(10),
+          },
+        _ => {
+            0: const pw.FlexColumnWidth(6),
+            1: const pw.FlexColumnWidth(54),
+            2: const pw.FlexColumnWidth(8),
+            3: const pw.FlexColumnWidth(8),
+            4: const pw.FlexColumnWidth(8),
+            5: const pw.FlexColumnWidth(8),
+            6: const pw.FlexColumnWidth(8),
+          },
       },
-      cellAlignments: {
-        0: pw.Alignment.topCenter,
-        1: pw.Alignment.topLeft,
-        2: pw.Alignment.topRight,
-        3: pw.Alignment.topLeft,
-        4: pw.Alignment.topLeft,
-        5: pw.Alignment.topLeft,
-        6: pw.Alignment.topRight,
+      headerAlignments: switch (receipt.receiptTyp) {
+        ReceiptTyp.deliveryNote => {
+            0: pw.Alignment.topLeft,
+            1: pw.Alignment.topLeft,
+            3: pw.Alignment.topRight,
+          },
+        _ => {
+            0: pw.Alignment.topCenter,
+            1: pw.Alignment.topLeft,
+            2: pw.Alignment.topRight,
+            3: pw.Alignment.topLeft,
+            4: pw.Alignment.topLeft,
+            5: pw.Alignment.topLeft,
+            6: pw.Alignment.topRight,
+          },
+      },
+      cellAlignments: switch (receipt.receiptTyp) {
+        ReceiptTyp.deliveryNote => {
+            0: pw.Alignment.topLeft,
+            1: pw.Alignment.topLeft,
+            3: pw.Alignment.topRight,
+          },
+        _ => {
+            0: pw.Alignment.topLeft,
+            1: pw.Alignment.topLeft,
+            2: pw.Alignment.topRight,
+            3: pw.Alignment.topRight,
+            4: pw.Alignment.topRight,
+            5: pw.Alignment.topRight,
+            6: pw.Alignment.topRight,
+          },
       },
     );
   }
@@ -423,7 +468,7 @@ class PdfReceiptGenerator {
       return pw.RichText(
         text: pw.TextSpan(
           text: 'Zahlungsziel: ',
-          style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+          style: pw.TextStyle(fontSize: 8, fontWeight: pw.FontWeight.bold),
           children: [
             pw.TextSpan(
               text: ' ab Belegdatum, ${appointment.termOfPayment.toString()} Tage netto.',
