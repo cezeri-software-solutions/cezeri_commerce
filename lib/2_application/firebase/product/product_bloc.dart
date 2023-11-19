@@ -1,10 +1,14 @@
+import 'dart:io';
+
 import 'package:bloc/bloc.dart';
 import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.dart';
 import 'package:cezeri_commerce/3_domain/repositories/prestashop/product/product_edit_repository.dart';
 import 'package:cezeri_commerce/core/firebase_failures.dart';
 import 'package:cezeri_commerce/core/presta_failure.dart';
 import 'package:dartz/dartz.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:html_editor_enhanced/html_editor.dart';
 
 import '../../../3_domain/entities/marketplace/marketplace.dart';
@@ -278,6 +282,105 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
       }
       emit(state.copyWith(selectedProducts: products));
     });
+
+//? #########################################################################
+
+    on<OnPickNewProductPictureEvent>((event, emit) async {
+      List<File> imageFiles = [];
+      try {
+        final FilePickerResult? result = await FilePicker.platform.pickFiles(allowMultiple: true);
+        if (result == null) return;
+        print('Neues Artikelbild erfolgreich gepickt');
+        for (final image in result.files) {
+          imageFiles.add(File(image.path!));
+        }
+      } on PlatformException {
+        print('Fehler beim auswählen des Produktbildes');
+      }
+
+      if (imageFiles.isEmpty) return;
+      emit(state.copyWith(isLoadingProductOnUpdateImages: true));
+
+      bool isUpdateInFirestoreSucceeded = false;
+      final failureOrSuccess = await productRepository.updateProductAddImages(state.product!, imageFiles);
+      failureOrSuccess.fold(
+        (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
+        (updatedProduct) {
+          emit(state.copyWith(
+            listOfProductImages: updatedProduct.listOfProductImages,
+            product: updatedProduct,
+            firebaseFailure: null,
+            isAnyFailure: false,
+          ));
+          isUpdateInFirestoreSucceeded = true;
+        },
+      );
+
+      // if (isUpdateInFirestoreSucceeded) add(OnEditProductInPresta(product: state.product!));
+
+      emit(state.copyWith(
+        isLoadingProductOnUpdateImages: false,
+        fosProductOnUpdateImagesOption: optionOf(failureOrSuccess),
+      ));
+      emit(state.copyWith(fosProductOnUpdateImagesOption: none()));
+    });
+
+//? #########################################################################
+
+    on<OnProductImageSelectedEvent>((event, emit) async {
+      List<ProductImage> selectedProductImages = List.from(state.selectedProductImages);
+      if (selectedProductImages.any((e) => e.fileUrl == event.image.fileUrl)) {
+        selectedProductImages.removeWhere((e) => e.fileUrl == event.image.fileUrl);
+      } else {
+        selectedProductImages.add(event.image);
+      }
+
+      final isSelectedAllImages = selectedProductImages.length == state.selectedProductImages.length;
+
+      emit(state.copyWith(selectedProductImages: selectedProductImages, isSelectedAllImages: isSelectedAllImages));
+    });
+
+//? #########################################################################
+
+    on<OnAllProdcutImagesSelectedEvent>((event, emit) async {
+      List<ProductImage> selectedProductImages = switch (event.value) {
+        true => List.from(state.listOfProductImages),
+        false => [],
+      };
+
+      emit(state.copyWith(selectedProductImages: selectedProductImages, isSelectedAllImages: event.value));
+    });
+
+//? #########################################################################
+
+    on<RemoveSelectedProductImages>((event, emit) async {
+      emit(state.copyWith(isLoadingProductOnUpdateImages: true));
+
+      bool isUpdateInFirestoreSucceeded = false;
+      final failureOrSuccess = await productRepository.updateProductRemoveImages(state.product!, state.selectedProductImages);
+      failureOrSuccess.fold(
+        (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
+        (updatedProduct) {
+          emit(state.copyWith(
+            listOfProductImages: updatedProduct.listOfProductImages,
+            product: updatedProduct,
+            firebaseFailure: null,
+            isAnyFailure: false,
+          ));
+          isUpdateInFirestoreSucceeded = true;
+        },
+      );
+
+      // if (isUpdateInFirestoreSucceeded) add(OnEditProductInPresta(product: state.product!));
+
+      emit(state.copyWith(
+        isLoadingProductOnUpdateImages: false,
+        fosProductOnUpdateImagesOption: optionOf(failureOrSuccess),
+      ));
+      emit(state.copyWith(fosProductOnUpdateImagesOption: none()));
+    });
+
+    // emit(state.copyWith(selectedProductImages: selectedProductImages, isSelectedAllImages: event.value));
 
 //? #########################################################################
 

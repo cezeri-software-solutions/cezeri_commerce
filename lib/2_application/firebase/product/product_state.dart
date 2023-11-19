@@ -12,11 +12,13 @@ class ProductState {
   final bool isLoadingProductsOnObserve;
   final bool isLoadingProductOnCreate;
   final bool isLoadingProductOnUpdate;
+  final bool isLoadingProductOnUpdateImages;
   final bool isLoadingProductOnDelete;
   final Option<Either<FirebaseFailure, Product>> fosProductOnObserveOption;
   final Option<Either<FirebaseFailure, List<Product>>> fosProductsOnObserveOption;
   final Option<Either<FirebaseFailure, Product>> fosProductOnCreateOption;
   final Option<Either<FirebaseFailure, Unit>> fosProductOnUpdateOption;
+  final Option<Either<FirebaseFailure, Product>> fosProductOnUpdateImagesOption;
   final Option<Either<FirebaseFailure, Unit>> fosProductOnDeleteOption;
 
   final bool isLoadingOnMassEditActivateProductMarketplace;
@@ -29,6 +31,9 @@ class ProductState {
   final String productSearchText;
   final bool isDescriptionSetFirstTime;
   final bool isDescriptionChanged;
+  //* Product Images
+  final bool isSelectedAllImages;
+  final List<ProductImage> selectedProductImages;
   final List<ProductImage> listOfProductImages;
   //* Controllers
   final TextEditingController articleNumberController;
@@ -61,11 +66,13 @@ class ProductState {
     required this.isLoadingProductsOnObserve,
     required this.isLoadingProductOnCreate,
     required this.isLoadingProductOnUpdate,
+    required this.isLoadingProductOnUpdateImages,
     required this.isLoadingProductOnDelete,
     required this.fosProductOnObserveOption,
     required this.fosProductsOnObserveOption,
     required this.fosProductOnCreateOption,
     required this.fosProductOnUpdateOption,
+    required this.fosProductOnUpdateImagesOption,
     required this.fosProductOnDeleteOption,
     required this.isLoadingOnMassEditActivateProductMarketplace,
     required this.fosProductOnUpdateQuantityOption,
@@ -74,6 +81,8 @@ class ProductState {
     required this.productSearchText,
     required this.isDescriptionSetFirstTime,
     required this.isDescriptionChanged,
+    required this.isSelectedAllImages,
+    required this.selectedProductImages,
     required this.listOfProductImages,
     required this.articleNumberController,
     required this.eanController,
@@ -106,11 +115,13 @@ class ProductState {
       isLoadingProductsOnObserve: true,
       isLoadingProductOnCreate: false,
       isLoadingProductOnUpdate: false,
+      isLoadingProductOnUpdateImages: false,
       isLoadingProductOnDelete: false,
       fosProductOnObserveOption: none(),
       fosProductsOnObserveOption: none(),
       fosProductOnCreateOption: none(),
       fosProductOnUpdateOption: none(),
+      fosProductOnUpdateImagesOption: none(),
       fosProductOnDeleteOption: none(),
       isLoadingOnMassEditActivateProductMarketplace: false,
       fosProductOnUpdateQuantityOption: none(),
@@ -119,6 +130,8 @@ class ProductState {
       productSearchText: '',
       isDescriptionSetFirstTime: true,
       isDescriptionChanged: false,
+      isSelectedAllImages: false,
+      selectedProductImages: const [],
       listOfProductImages: const [],
       articleNumberController: TextEditingController(),
       eanController: TextEditingController(),
@@ -151,11 +164,13 @@ class ProductState {
     bool? isLoadingProductsOnObserve,
     bool? isLoadingProductOnCreate,
     bool? isLoadingProductOnUpdate,
+    bool? isLoadingProductOnUpdateImages,
     bool? isLoadingProductOnDelete,
     Option<Either<FirebaseFailure, Product>>? fosProductOnObserveOption,
     Option<Either<FirebaseFailure, List<Product>>>? fosProductsOnObserveOption,
     Option<Either<FirebaseFailure, Product>>? fosProductOnCreateOption,
     Option<Either<FirebaseFailure, Unit>>? fosProductOnUpdateOption,
+    Option<Either<FirebaseFailure, Product>>? fosProductOnUpdateImagesOption,
     Option<Either<FirebaseFailure, Unit>>? fosProductOnDeleteOption,
     bool? isLoadingOnMassEditActivateProductMarketplace,
     Option<Either<FirebaseFailure, Product>>? fosProductOnUpdateQuantityOption,
@@ -164,6 +179,8 @@ class ProductState {
     String? productSearchText,
     bool? isDescriptionSetFirstTime,
     bool? isDescriptionChanged,
+    bool? isSelectedAllImages,
+    List<ProductImage>? selectedProductImages,
     List<ProductImage>? listOfProductImages,
     TextEditingController? articleNumberController,
     TextEditingController? eanController,
@@ -194,11 +211,13 @@ class ProductState {
       isLoadingProductsOnObserve: isLoadingProductsOnObserve ?? this.isLoadingProductsOnObserve,
       isLoadingProductOnCreate: isLoadingProductOnCreate ?? this.isLoadingProductOnCreate,
       isLoadingProductOnUpdate: isLoadingProductOnUpdate ?? this.isLoadingProductOnUpdate,
+      isLoadingProductOnUpdateImages: isLoadingProductOnUpdateImages ?? this.isLoadingProductOnUpdateImages,
       isLoadingProductOnDelete: isLoadingProductOnDelete ?? this.isLoadingProductOnDelete,
       fosProductOnObserveOption: fosProductOnObserveOption ?? this.fosProductOnObserveOption,
       fosProductsOnObserveOption: fosProductsOnObserveOption ?? this.fosProductsOnObserveOption,
       fosProductOnCreateOption: fosProductOnCreateOption ?? this.fosProductOnCreateOption,
       fosProductOnUpdateOption: fosProductOnUpdateOption ?? this.fosProductOnUpdateOption,
+      fosProductOnUpdateImagesOption: fosProductOnUpdateImagesOption ?? this.fosProductOnUpdateImagesOption,
       fosProductOnDeleteOption: fosProductOnDeleteOption ?? this.fosProductOnDeleteOption,
       isLoadingOnMassEditActivateProductMarketplace:
           isLoadingOnMassEditActivateProductMarketplace ?? this.isLoadingOnMassEditActivateProductMarketplace,
@@ -208,6 +227,8 @@ class ProductState {
       productSearchText: productSearchText ?? this.productSearchText,
       isDescriptionSetFirstTime: isDescriptionSetFirstTime ?? this.isDescriptionSetFirstTime,
       isDescriptionChanged: isDescriptionChanged ?? this.isDescriptionChanged,
+      isSelectedAllImages: isSelectedAllImages ?? this.isSelectedAllImages,
+      selectedProductImages: selectedProductImages ?? this.selectedProductImages,
       listOfProductImages: listOfProductImages ?? this.listOfProductImages,
       articleNumberController: articleNumberController ?? this.articleNumberController,
       eanController: eanController ?? this.eanController,

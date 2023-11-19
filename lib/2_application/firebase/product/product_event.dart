@@ -64,6 +64,22 @@ class OnProductSelectedEvent extends ProductEvent {
   OnProductSelectedEvent({required this.product});
 }
 
+class RemoveSelectedProductImages extends ProductEvent {}
+
+class OnPickNewProductPictureEvent extends ProductEvent {}
+
+class OnProductImageSelectedEvent extends ProductEvent {
+  final ProductImage image;
+
+  OnProductImageSelectedEvent({required this.image});
+}
+
+class OnAllProdcutImagesSelectedEvent extends ProductEvent {
+  final bool value;
+
+  OnAllProdcutImagesSelectedEvent({required this.value});
+}
+
 class OnReorderProductImagesEvent extends ProductEvent {
   final int oldIndex;
   final int newIndex;

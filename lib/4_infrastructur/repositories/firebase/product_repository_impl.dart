@@ -36,7 +36,8 @@ class ProductRepositoryImpl implements ProductRepository {
 
       if (productPresta != null && productPresta.imageFiles != null) {
         final firebaseStoragePath = '$currentUserUid/ProductImages/${docRef.id}';
-        final List<ProductImage> listOfProductImages = await uploadImageFilesToStorage(productPresta.imageFiles, firebaseStoragePath);
+        final List<ProductImage> listOfProductImages =
+            await uploadImageFilesToStorageFromProductPrestaImage(productPresta.imageFiles, firebaseStoragePath);
 
         toCreateProduct = product.copyWith(id: docRef.id, listOfProductImages: listOfProductImages);
 
@@ -136,6 +137,69 @@ class ProductRepositoryImpl implements ProductRepository {
       await docRef.update(product.toJson());
 
       return right(unit);
+    } on FirebaseException {
+      return left(GeneralFailure());
+    }
+  }
+
+  @override
+  Future<Either<FirebaseFailure, Product>> updateProductAddImages(Product product, List<File> imageFiles) async {
+    final isConnected = await checkInternetConnection();
+    if (!isConnected) return left(NoConnectionFailure());
+
+    final currentUserUid = firebaseAuth.currentUser!.uid;
+    final docRef = db.collection(currentUserUid).doc(currentUserUid).collection('Products').doc(product.id);
+
+    try {
+      final firebaseStoragePath = '$currentUserUid/ProductImages/${docRef.id}';
+      final List<ProductImage> listOfProductImages =
+          await uploadImageFilesToStorageFromFlutter(product.listOfProductImages, imageFiles, firebaseStoragePath);
+
+      final List<ProductImage> newListOfProductImages = List.from(product.listOfProductImages);
+      newListOfProductImages.addAll(listOfProductImages);
+
+      final updatedProduct = product.copyWith(listOfProductImages: newListOfProductImages);
+
+      await docRef.update(updatedProduct.toJson());
+
+      return right(updatedProduct);
+    } on FirebaseException {
+      return left(GeneralFailure());
+    }
+  }
+
+  @override
+  Future<Either<FirebaseFailure, Product>> updateProductRemoveImages(
+    Product product,
+    List<ProductImage> listOfProductImages,
+  ) async {
+    final isConnected = await checkInternetConnection();
+    if (!isConnected) return left(NoConnectionFailure());
+
+    final currentUserUid = firebaseAuth.currentUser!.uid;
+    final docRef = db.collection(currentUserUid).doc(currentUserUid).collection('Products').doc(product.id);
+
+    final FirebaseStorage storage = FirebaseStorage.instance;
+
+    try {
+      final List<ProductImage> updatedListOfProductImages = List.from(product.listOfProductImages);
+      for (final image in listOfProductImages) {
+        final firebaseStoragePathToDelete = storage.refFromURL(image.fileUrl);
+        await firebaseStoragePathToDelete.delete();
+        updatedListOfProductImages.removeWhere((e) => e.fileUrl == image.fileUrl);
+      }
+
+      final List<ProductImage> newListOfProductImages = [];
+      for (int i = 0; i < updatedListOfProductImages.length; i++) {
+        final productImage = updatedListOfProductImages[i].copyWith(isDefault: i == 0 ? true : false, sortId: i + 1);
+        newListOfProductImages.add(productImage);
+      }
+
+      final updatedProduct = product.copyWith(listOfProductImages: newListOfProductImages);
+
+      await docRef.update(updatedProduct.toJson());
+
+      return right(updatedProduct);
     } on FirebaseException {
       return left(GeneralFailure());
     }
@@ -288,10 +352,9 @@ class ProductRepositoryImpl implements ProductRepository {
   }
 }
 
-Future<List<ProductImage>> uploadImageFilesToStorage(List<ProductPrestaImage?>? imageFiles, String firebaseStoragePath) async {
+Future<List<ProductImage>> uploadImageFilesToStorageFromProductPrestaImage(List<ProductPrestaImage?>? imageFiles, String firebaseStoragePath) async {
   final FirebaseStorage storage = FirebaseStorage.instance;
 
-  final List<String> fileUrls = [];
   final List<ProductImage> listOfProductImages = [];
 
   int sortId = 0;
@@ -312,7 +375,6 @@ Future<List<ProductImage>> uploadImageFilesToStorage(List<ProductPrestaImage?>? 
     await firebaseStorageRef.putData(bytes);
     // Speichere die URL des hochgeladenen Bildes in Firestore
     final String fileUrl = await firebaseStorageRef.getDownloadURL();
-    fileUrls.add(fileUrl);
     final imageFile = ProductImage.empty().copyWith(
       fileName: fileName,
       fileUrl: fileUrl,
@@ -322,4 +384,40 @@ Future<List<ProductImage>> uploadImageFilesToStorage(List<ProductPrestaImage?>? 
     listOfProductImages.add(imageFile);
   }
   return listOfProductImages;
+}
+
+Future<List<ProductImage>> uploadImageFilesToStorageFromFlutter(
+  List<ProductImage> listOfProductImages,
+  List<File> imageFiles,
+  String firebaseStoragePath,
+) async {
+  final FirebaseStorage storage = FirebaseStorage.instance;
+
+  final List<ProductImage> newListOfProductImages = [];
+
+  int sortId = listOfProductImages.length;
+
+  for (final myFile in imageFiles) {
+    sortId++;
+
+    final File file = myFile;
+    // Erstelle einen eindeutigen Dateinamen, um Kollisionen zu vermeiden
+    final fileName = basename(file.path);
+    // Erstelle einen Verweis auf den Firebase Cloud Storage-Pfad, an dem das Bild gespeichert werden soll
+    final Reference firebaseStorageRef = storage.ref().child('$firebaseStoragePath/$fileName');
+    // Erstelle einen Byte-Datenstrom aus der Datei
+    final bytes = await file.readAsBytes();
+    // Lade die Byte-Daten in Firebase Cloud Storage hoch
+    await firebaseStorageRef.putData(bytes);
+    // Speichere die URL des hochgeladenen Bildes in Firestore
+    final String fileUrl = await firebaseStorageRef.getDownloadURL();
+    final imageFile = ProductImage.empty().copyWith(
+      fileName: fileName,
+      fileUrl: fileUrl,
+      sortId: sortId,
+      isDefault: listOfProductImages.isEmpty && sortId == 1 ? true : false,
+    );
+    newListOfProductImages.add(imageFile);
+  }
+  return newListOfProductImages;
 }

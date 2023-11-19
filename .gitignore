@@ -30,12 +30,7 @@ migrate_working_dir/
 .packages
 .pub-cache/
 .pub/
-# /build/ So war es standarmäßig 
-/build/94e3776ddd941d6008fd7e6079fc2fee/
-/build/flutter_assets/
-/build/ios/
-/build/macos/
-/build/d1e25e033e83e0237fd5ee906d81ede1.cache.dill.track
+/build/
 
 # Symbolication related
 app.*.symbols

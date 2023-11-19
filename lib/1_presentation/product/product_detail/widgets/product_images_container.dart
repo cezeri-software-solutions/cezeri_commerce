@@ -1,0 +1,103 @@
+import 'package:auto_route/auto_route.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../../../../2_application/firebase/product/product_bloc.dart';
+import '../../../../3_domain/entities/product/product_image.dart';
+import '../../../../constants.dart';
+import '../../../core/widgets/my_avatar.dart';
+import '../../../core/widgets/my_circular_progress_indicator.dart';
+import '../../../core/widgets/my_delete_dialog.dart';
+import '../../../core/widgets/my_outlined_button.dart';
+
+class ProductImagesContainer extends StatelessWidget {
+  final ProductBloc productBloc;
+
+  const ProductImagesContainer({super.key, required this.productBloc});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<ProductBloc, ProductState>(
+      bloc: productBloc,
+      builder: (context, state) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Divider(),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    const Text('Bilder', style: TextStyles.h2Bold),
+                    Gaps.w16,
+                    IconButton(
+                      onPressed: () => showDialog(
+                        context: context,
+                        builder: (context) => MyDeleteDialog(
+                          content: 'Willst du wirklich alle ausgewählten Artikelbilder unwiederruflich löschen?',
+                          onConfirm: () {
+                            productBloc.add(RemoveSelectedProductImages());
+                            context.router.pop();
+                          },
+                        ),
+                      ),
+                      icon: state.isLoadingProductOnUpdateImages
+                          ? const MyCircularProgressIndicator(color: Colors.red)
+                          : const Icon(Icons.delete, color: Colors.red),
+                    ),
+                  ],
+                ),
+                MyOutlinedButton(
+                  buttonText: 'Hochladen',
+                  onPressed: () {},
+                ),
+              ],
+            ),
+            Checkbox.adaptive(
+              value: state.isSelectedAllImages,
+              onChanged: (value) => productBloc.add(OnAllProdcutImagesSelectedEvent(value: value!)),
+            ),
+            ReorderableListView.builder(
+              physics: const NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
+              itemCount: state.listOfProductImages.length,
+              itemBuilder: (context, index) {
+                List<ProductImage> images = List.from(state.listOfProductImages);
+                //images.sort((a, b) => a.sortId.compareTo(b.sortId));
+                final image = images[index];
+                return Column(
+                  key: ValueKey(image),
+                  children: [
+                    if (index == 0) const Divider(color: CustomColors.backgroundLightGrey),
+                    Row(
+                      children: [
+                        Checkbox.adaptive(
+                          value: state.selectedProductImages.any((e) => e.fileUrl == image.fileUrl),
+                          onChanged: (_) => productBloc.add(OnProductImageSelectedEvent(image: image)),
+                        ),
+                        SizedBox(
+                          width: 60,
+                          child: MyAvatar(name: image.fileName, imageUrl: image.fileUrl, shape: BoxShape.rectangle),
+                        ),
+                        Gaps.w8,
+                        Text(image.fileName, style: image.isDefault ? TextStyles.defaultBold : TextStyles.defaultt),
+                      ],
+                    ),
+                    const Divider(color: CustomColors.backgroundLightGrey),
+                  ],
+                );
+              },
+              onReorder: (oldIndex, newIndex) => productBloc.add(OnReorderProductImagesEvent(oldIndex: oldIndex, newIndex: newIndex)),
+            ),
+            TextButton.icon(
+              onPressed: () async => productBloc.add(OnPickNewProductPictureEvent()),
+              icon: const Icon(Icons.add, color: Colors.green),
+              label: const Text('Bild/er hinzufügen'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}

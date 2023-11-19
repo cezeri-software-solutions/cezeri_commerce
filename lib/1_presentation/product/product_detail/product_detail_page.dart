@@ -1,4 +1,3 @@
-import 'package:cezeri_commerce/1_presentation/core/widgets/my_avatar.dart';
 import 'package:cezeri_commerce/1_presentation/core/widgets/my_outlined_button.dart';
 import 'package:cezeri_commerce/constants.dart';
 import 'package:flutter/material.dart';
@@ -7,11 +6,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../2_application/firebase/product/product_bloc.dart';
 import '../../../3_domain/entities/product/marketplace_product_presta.dart';
 import '../../../3_domain/entities/product/product.dart';
-import '../../../3_domain/entities/product/product_image.dart';
 import '../../../3_domain/enums/enums.dart';
 import 'product_detail_screen.dart';
 import 'widgets/edit_product_marketplace.dart';
 import 'widgets/product_detail_widgets.dart';
+import 'widgets/product_images_container.dart';
 
 class ProductDetailPage extends StatelessWidget {
   final Product? product;
@@ -92,36 +91,7 @@ class ProductDetailPage extends StatelessWidget {
                               ),
                             ],
                           ),
-                          const Divider(),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Text('Bilder', style: TextStyles.h2Bold),
-                              MyOutlinedButton(
-                                buttonText: 'Hochladen',
-                                onPressed: () {},
-                              ),
-                            ],
-                          ),
-                          ReorderableListView.builder(
-                            physics: const NeverScrollableScrollPhysics(),
-                            shrinkWrap: true,
-                            itemCount: state.listOfProductImages.length,
-                            itemBuilder: (context, index) {
-                              List<ProductImage> images = List.from(state.listOfProductImages);
-                              images.sort((a, b) => a.sortId.compareTo(b.sortId));
-                              final image = images[index];
-                              return ListTile(
-                                key: ValueKey(image),
-                                leading: SizedBox(
-                                  width: 60,
-                                  child: MyAvatar(name: image.fileName, imageUrl: image.fileUrl, shape: BoxShape.rectangle),
-                                ),
-                                title: Text(image.fileName, style: image.isDefault ? TextStyles.defaultBold : TextStyles.defaultt),
-                              );
-                            },
-                            onReorder: (oldIndex, newIndex) => productBloc.add(OnReorderProductImagesEvent(oldIndex: oldIndex, newIndex: newIndex)),
-                          ),
+                          ProductImagesContainer(productBloc: productBloc),
                           ProductDetailMarketplaces(productBloc: productBloc),
                           Gaps.h16,
                         ],
@@ -139,6 +109,8 @@ class ProductDetailPage extends StatelessWidget {
                         SellingCard(productBloc: productBloc),
                         Gaps.h16,
                         WeightAndDimensionsCard(productBloc: productBloc),
+                        Gaps.h16,
+                        ProductImagesContainer(productBloc: productBloc),
                         Gaps.h16,
                         ProductDetailMarketplaces(productBloc: productBloc),
                         Gaps.h16,
