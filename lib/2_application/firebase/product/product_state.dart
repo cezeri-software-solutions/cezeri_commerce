@@ -13,12 +13,14 @@ class ProductState {
   final bool isLoadingProductOnCreate;
   final bool isLoadingProductOnUpdate;
   final bool isLoadingProductOnUpdateImages;
+  final bool isLoadingProductOnUploadImages;
   final bool isLoadingProductOnDelete;
   final Option<Either<FirebaseFailure, Product>> fosProductOnObserveOption;
   final Option<Either<FirebaseFailure, List<Product>>> fosProductsOnObserveOption;
   final Option<Either<FirebaseFailure, Product>> fosProductOnCreateOption;
   final Option<Either<FirebaseFailure, Unit>> fosProductOnUpdateOption;
   final Option<Either<FirebaseFailure, Product>> fosProductOnUpdateImagesOption;
+  final Option<Either<PrestaFailure, Unit>> fosProductOnUploadImagesOption;
   final Option<Either<FirebaseFailure, Unit>> fosProductOnDeleteOption;
 
   final bool isLoadingOnMassEditActivateProductMarketplace;
@@ -32,6 +34,7 @@ class ProductState {
   final bool isDescriptionSetFirstTime;
   final bool isDescriptionChanged;
   //* Product Images
+  final bool isProductImagesEdited;
   final bool isSelectedAllImages;
   final List<ProductImage> selectedProductImages;
   final List<ProductImage> listOfProductImages;
@@ -67,12 +70,14 @@ class ProductState {
     required this.isLoadingProductOnCreate,
     required this.isLoadingProductOnUpdate,
     required this.isLoadingProductOnUpdateImages,
+    required this.isLoadingProductOnUploadImages,
     required this.isLoadingProductOnDelete,
     required this.fosProductOnObserveOption,
     required this.fosProductsOnObserveOption,
     required this.fosProductOnCreateOption,
     required this.fosProductOnUpdateOption,
     required this.fosProductOnUpdateImagesOption,
+    required this.fosProductOnUploadImagesOption,
     required this.fosProductOnDeleteOption,
     required this.isLoadingOnMassEditActivateProductMarketplace,
     required this.fosProductOnUpdateQuantityOption,
@@ -81,6 +86,7 @@ class ProductState {
     required this.productSearchText,
     required this.isDescriptionSetFirstTime,
     required this.isDescriptionChanged,
+    required this.isProductImagesEdited,
     required this.isSelectedAllImages,
     required this.selectedProductImages,
     required this.listOfProductImages,
@@ -116,12 +122,14 @@ class ProductState {
       isLoadingProductOnCreate: false,
       isLoadingProductOnUpdate: false,
       isLoadingProductOnUpdateImages: false,
+      isLoadingProductOnUploadImages: false,
       isLoadingProductOnDelete: false,
       fosProductOnObserveOption: none(),
       fosProductsOnObserveOption: none(),
       fosProductOnCreateOption: none(),
       fosProductOnUpdateOption: none(),
       fosProductOnUpdateImagesOption: none(),
+      fosProductOnUploadImagesOption: none(),
       fosProductOnDeleteOption: none(),
       isLoadingOnMassEditActivateProductMarketplace: false,
       fosProductOnUpdateQuantityOption: none(),
@@ -130,6 +138,7 @@ class ProductState {
       productSearchText: '',
       isDescriptionSetFirstTime: true,
       isDescriptionChanged: false,
+      isProductImagesEdited: false,
       isSelectedAllImages: false,
       selectedProductImages: const [],
       listOfProductImages: const [],
@@ -165,12 +174,14 @@ class ProductState {
     bool? isLoadingProductOnCreate,
     bool? isLoadingProductOnUpdate,
     bool? isLoadingProductOnUpdateImages,
+    bool? isLoadingProductOnUploadImages,
     bool? isLoadingProductOnDelete,
     Option<Either<FirebaseFailure, Product>>? fosProductOnObserveOption,
     Option<Either<FirebaseFailure, List<Product>>>? fosProductsOnObserveOption,
     Option<Either<FirebaseFailure, Product>>? fosProductOnCreateOption,
     Option<Either<FirebaseFailure, Unit>>? fosProductOnUpdateOption,
     Option<Either<FirebaseFailure, Product>>? fosProductOnUpdateImagesOption,
+    Option<Either<PrestaFailure, Unit>>? fosProductOnUploadImagesOption,
     Option<Either<FirebaseFailure, Unit>>? fosProductOnDeleteOption,
     bool? isLoadingOnMassEditActivateProductMarketplace,
     Option<Either<FirebaseFailure, Product>>? fosProductOnUpdateQuantityOption,
@@ -179,6 +190,7 @@ class ProductState {
     String? productSearchText,
     bool? isDescriptionSetFirstTime,
     bool? isDescriptionChanged,
+    bool? isProductImagesEdited,
     bool? isSelectedAllImages,
     List<ProductImage>? selectedProductImages,
     List<ProductImage>? listOfProductImages,
@@ -212,21 +224,23 @@ class ProductState {
       isLoadingProductOnCreate: isLoadingProductOnCreate ?? this.isLoadingProductOnCreate,
       isLoadingProductOnUpdate: isLoadingProductOnUpdate ?? this.isLoadingProductOnUpdate,
       isLoadingProductOnUpdateImages: isLoadingProductOnUpdateImages ?? this.isLoadingProductOnUpdateImages,
+      isLoadingProductOnUploadImages: isLoadingProductOnUploadImages ?? this.isLoadingProductOnUploadImages,
       isLoadingProductOnDelete: isLoadingProductOnDelete ?? this.isLoadingProductOnDelete,
       fosProductOnObserveOption: fosProductOnObserveOption ?? this.fosProductOnObserveOption,
       fosProductsOnObserveOption: fosProductsOnObserveOption ?? this.fosProductsOnObserveOption,
       fosProductOnCreateOption: fosProductOnCreateOption ?? this.fosProductOnCreateOption,
       fosProductOnUpdateOption: fosProductOnUpdateOption ?? this.fosProductOnUpdateOption,
       fosProductOnUpdateImagesOption: fosProductOnUpdateImagesOption ?? this.fosProductOnUpdateImagesOption,
+      fosProductOnUploadImagesOption: fosProductOnUploadImagesOption ?? this.fosProductOnUploadImagesOption,
       fosProductOnDeleteOption: fosProductOnDeleteOption ?? this.fosProductOnDeleteOption,
-      isLoadingOnMassEditActivateProductMarketplace:
-          isLoadingOnMassEditActivateProductMarketplace ?? this.isLoadingOnMassEditActivateProductMarketplace,
+      isLoadingOnMassEditActivateProductMarketplace: isLoadingOnMassEditActivateProductMarketplace ?? this.isLoadingOnMassEditActivateProductMarketplace,
       fosProductOnUpdateQuantityOption: fosProductOnUpdateQuantityOption ?? this.fosProductOnUpdateQuantityOption,
       fosMassEditActivateProductMarketplaceOption: fosMassEditActivateProductMarketplaceOption ?? this.fosMassEditActivateProductMarketplaceOption,
       fosProductOnEditQuantityPrestaOption: fosProductOnEditQuantityPrestaOption ?? this.fosProductOnEditQuantityPrestaOption,
       productSearchText: productSearchText ?? this.productSearchText,
       isDescriptionSetFirstTime: isDescriptionSetFirstTime ?? this.isDescriptionSetFirstTime,
       isDescriptionChanged: isDescriptionChanged ?? this.isDescriptionChanged,
+      isProductImagesEdited: isProductImagesEdited ?? this.isProductImagesEdited,
       isSelectedAllImages: isSelectedAllImages ?? this.isSelectedAllImages,
       selectedProductImages: selectedProductImages ?? this.selectedProductImages,
       listOfProductImages: listOfProductImages ?? this.listOfProductImages,

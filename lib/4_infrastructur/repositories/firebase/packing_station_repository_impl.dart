@@ -4,6 +4,7 @@ import 'package:cezeri_commerce/core/firebase_failures.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:logger/logger.dart';
 
 import '../../../1_presentation/core/functions/check_internet_connection.dart';
 import '../../../3_domain/entities/picklist/picklist_product.dart';
@@ -129,11 +130,12 @@ class PackingStationRepositoryImpl implements PackingStationRepository {
 
   @override
   Future<Either<FirebaseFailure, List<Picklist>>> getListOfPicklists() async {
+    final logger = Logger();
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
 
     final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRef = db.collection(currentUserUid).doc(currentUserUid).collection('Picklists').orderBy('creationDate', descending: true).limit(20);
+    final docRef = db.collection(currentUserUid).doc(currentUserUid).collection('Picklists'); //.orderBy('creationDate', descending: true).limit(20);
 
     try {
       final listOfPicklists = await docRef.get().then((value) => value.docs.map((querySnapshot) => Picklist.fromJson(querySnapshot.data())).toList());
@@ -141,8 +143,6 @@ class PackingStationRepositoryImpl implements PackingStationRepository {
       return right(listOfPicklists);
     } on FirebaseException {
       return left(GeneralFailure());
-    } catch (_) {
-      return left(GeneralFailure());
-    }
+    } 
   }
 }

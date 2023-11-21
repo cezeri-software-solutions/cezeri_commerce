@@ -117,3 +117,5 @@ class OnEditProductInPresta extends ProductEvent {
 
   OnEditProductInPresta({required this.product});
 }
+
+class UploadProductImageToPrestaEvent extends ProductEvent {}

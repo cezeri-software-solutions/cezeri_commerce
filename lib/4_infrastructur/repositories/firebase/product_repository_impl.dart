@@ -211,12 +211,21 @@ class ProductRepositoryImpl implements ProductRepository {
     if (!isConnected) return left(NoConnectionFailure());
 
     final currentUserUid = firebaseAuth.currentUser!.uid;
+    final docRef = db.collection(currentUserUid).doc(currentUserUid).collection('Products').doc(id);
+    final FirebaseStorage storage = FirebaseStorage.instance;
 
     try {
-      final docRef = db.collection(currentUserUid).doc(currentUserUid).collection('Products').doc(id);
-
-      await docRef.delete();
-
+      await db.runTransaction((transaction) async {
+        final dsProduct = await transaction.get(docRef);
+        if (!dsProduct.exists) return left(GeneralFailure());
+        final product = Product.fromJson(dsProduct.data()!);
+        final List<ProductImage> listOfProductImages = List.from(product.listOfProductImages);
+        for (final image in listOfProductImages) {
+          final firebaseStoragePathToDelete = storage.refFromURL(image.fileUrl);
+          await firebaseStoragePathToDelete.delete();
+        }
+        await docRef.delete();
+      });
       return right(unit);
     } on FirebaseException {
       return left(GeneralFailure());

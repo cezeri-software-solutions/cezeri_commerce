@@ -1,9 +1,12 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:cezeri_commerce/1_presentation/core/extensions/string_to_int.dart';
 import 'package:cezeri_commerce/3_domain/entities/marketplace/marketplace.dart';
 import 'package:http/http.dart';
+import 'package:http_parser/http_parser.dart';
+import 'package:logger/logger.dart';
 import 'package:loggy/loggy.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:quiver/core.dart';
@@ -175,6 +178,82 @@ class PrestashopApi with UiLoggy {
 //? ################################## PATCH START ###################################################################################
 
   Future<bool> patchProductQuantity(final int marketplaceProductPrestaId, final int quantity, final Marketplace marketplace) async {
+    final optionalProductPresta = await getProduct(marketplaceProductPrestaId, marketplace);
+    if (optionalProductPresta.isNotPresent) return false;
+    final productPresta = optionalProductPresta.value;
+    final stockAvailableId = productPresta.associations.associationsStockAvailables!.first.id;
+    bool payload = false;
+    if (marketplace.isPresta8) {
+      final builder = stockAvailableBuilder(stockAvailableId, quantity);
+      final payloadDoPatch = await _doPatch(
+        '${_conf.webserviceUrl}stock_availables/$stockAvailableId',
+        builder,
+      );
+      payload = payloadDoPatch;
+    } else {
+      final optionaStockAvailableAsXml = await getStockAvailableAsXml(stockAvailableId.toMyInt());
+      if (optionaStockAvailableAsXml.isNotPresent) return false;
+      final stockAvailableAsXml = optionaStockAvailableAsXml.value;
+      final updatedDocument = stockAvailableUpdater(stockAvailableAsXml, quantity);
+      final payloadDoPut = await _doPut(
+        '${_conf.webserviceUrl}stock_availables/$stockAvailableId',
+        updatedDocument,
+      );
+      payload = payloadDoPut;
+    }
+
+    return payload;
+  }
+
+  Future<bool> uploadProductImageFromUrl(String productID, String imageUrl) async {
+    final logger = Logger();
+    String url = '${_conf.webserviceUrl}images/products/$productID/';
+    String base64Auth = base64Encode(utf8.encode('${_conf.apiKey}:'));
+
+    // Herunterladen des Bildes von der URL
+    Response imageResponse = await get(Uri.parse(imageUrl));
+    Uint8List imageData = imageResponse.bodyBytes;
+
+    // Erstellen des MultipartRequest
+    var request = MultipartRequest('POST', Uri.parse(url))
+      ..headers.addAll({'Authorization': 'Basic $base64Auth'})
+      ..files.add(MultipartFile.fromBytes('image', imageData,
+          filename: 'product_image.jpg', // Ein Dateiname für das Bild
+          contentType: MediaType('image', 'jpeg') // Passen Sie den Typ basierend auf Ihrem Bildtyp an
+          ));
+
+    var response = await request.send();
+
+    if (response.statusCode == 200) {
+      logger.i('Image uploaded successfully');
+      return true;
+    } else {
+      logger.e('Failed to upload image');
+      return false;
+    }
+  }
+
+  Future<bool> deleteProductImage(String productID, String imageID) async {
+    final logger = Logger();
+    String url = '${_conf.webserviceUrl}images/products/$productID/$imageID';
+    String base64Auth = base64Encode(utf8.encode('${_conf.apiKey}:'));
+
+    var response = await delete(
+      Uri.parse(url),
+      headers: {'Authorization': 'Basic $base64Auth'},
+    );
+
+    if (response.statusCode == 200) {
+      logger.i('Image deleted successfully');
+      return true;
+    } else {
+      logger.e('Failed to delete image');
+      return false;
+    }
+  }
+
+  Future<bool> patchProductImages(final int marketplaceProductPrestaId, final int quantity, final Marketplace marketplace) async {
+    // #################################################################################################
     final optionalProductPresta = await getProduct(marketplaceProductPrestaId, marketplace);
     if (optionalProductPresta.isNotPresent) return false;
     final productPresta = optionalProductPresta.value;

@@ -1,4 +1,5 @@
 import 'package:cezeri_commerce/3_domain/entities/product/product.dart';
+import 'package:cezeri_commerce/3_domain/entities/product/product_image.dart';
 import 'package:cezeri_commerce/core/presta_failure.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
@@ -67,6 +68,57 @@ class ProductEditRepositoryImpl implements ProductEditRepository {
 
       final isSuccess = await api.patchProductQuantity(marketplaceProduct.id, newQuantity, marketplace);
       if (isSuccess) return right(unit);
+    }
+
+    return left(PrestaGeneralFailure());
+  }
+
+  @override
+  Future<Either<PrestaFailure, Unit>> uploadProductImages(Product product, List<ProductImage> productImages) async {
+    final isConnected = await checkInternetConnection();
+    if (!isConnected) return left(PrestaGeneralFailure());
+
+    final currentUserUid = firebaseAuth.currentUser!.uid;
+
+    for (ProductMarketplace productMarketplace in product.productMarketplaces) {
+      // TODO: if (!productMarketplace.active!) continue;
+      final docRef = db.collection(currentUserUid).doc(currentUserUid).collection('Marketetplaces').doc(productMarketplace.idMarketplace);
+
+      final marketplaceSnapshot = await docRef.get();
+      if (!marketplaceSnapshot.exists) return left(PrestaGeneralFailure());
+      final marketplace = Marketplace.fromJson(marketplaceSnapshot.data()!);
+
+      final api = PrestashopApi(Client(), PrestashopApiConfig(apiKey: marketplace.key, webserviceUrl: marketplace.fullUrl));
+
+      if (productMarketplace.marketplaceProduct == null) return left(ProductHasNoMarketplaceFailure());
+      final marketplaceProduct = switch (productMarketplace.marketplaceProduct!.marketplaceType) {
+        MarketplaceType.prestashop => productMarketplace.marketplaceProduct as MarketplaceProductPresta,
+        _ => throw Error(),
+      };
+
+      final optionalProductPresta = await api.getProduct(marketplaceProduct.id, marketplace);
+      if (optionalProductPresta.isNotPresent) return left(PrestaGeneralFailure());
+      final productPresta = optionalProductPresta.value;
+
+      bool isSuccessOnDelete = false;
+      if (productPresta.associations.associationsImages != null && productPresta.associations.associationsImages!.isNotEmpty) {
+        for (final image in productPresta.associations.associationsImages!) {
+          isSuccessOnDelete = await api.deleteProductImage(productPresta.id.toString(), image.id);
+        }
+      } else {
+        isSuccessOnDelete = true;
+      }
+
+      bool isSuccessOnCreate = false;
+      if (productImages.isNotEmpty) {
+        for (final image in productImages) {
+          isSuccessOnCreate = await api.uploadProductImageFromUrl(marketplaceProduct.id.toString(), image.fileUrl);
+        }
+      } else {
+        isSuccessOnCreate = true;
+      }
+
+      if (isSuccessOnDelete && isSuccessOnCreate) return right(unit);
     }
 
     return left(PrestaGeneralFailure());

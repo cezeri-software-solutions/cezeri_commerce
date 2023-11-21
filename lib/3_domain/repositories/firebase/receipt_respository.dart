@@ -6,7 +6,7 @@ import '../../entities/receipt/receipt_product.dart';
 
 abstract class ReceiptRepository {
   Future<Either<FirebaseFailure, Receipt>> getAppointment(Receipt receipt);
-  Future<Either<FirebaseFailure, List<Receipt>>> loadNewAppointments();
+  Future<Either<FirebaseFailure, List<Receipt>>> loadNewAppointmentsFromMarketplaces();
   Future<Either<FirebaseFailure, List<Receipt>>> getListOfReceipts(int value, ReceiptTyp receiptTyp);
   Future<Either<FirebaseFailure, Unit>> updateAppointment(
     Receipt appointment,

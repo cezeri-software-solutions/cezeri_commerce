@@ -88,7 +88,7 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
     on<GetNewAppointmentsFromPrestaEvent>((event, emit) async {
       emit(state.copyWith(isLoadingAppointmentsFromPrestaOnObserve: true));
 
-      final failureOrSuccess = await receiptRepository.loadNewAppointments();
+      final failureOrSuccess = await receiptRepository.loadNewAppointmentsFromMarketplaces();
       failureOrSuccess.fold(
         (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
         (listOfAppointments) {

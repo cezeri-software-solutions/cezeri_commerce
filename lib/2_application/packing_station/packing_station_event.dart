@@ -93,7 +93,11 @@ class PackingStationfindSmallestPackagingBoxEvent extends PackingStationEvent {}
 //* #################################### Picklist ###################################################
 //* #################################################################################################
 
-class PicklistOnCreatePicklistEvent extends PackingStationEvent {}
+class PicklistOnCreatePicklistEvent extends PackingStationEvent {
+  final BuildContext context;
+
+  PicklistOnCreatePicklistEvent({required this.context});
+}
 
 class PicklistOnSetPicklistEvent extends PackingStationEvent {
   final Picklist picklist;

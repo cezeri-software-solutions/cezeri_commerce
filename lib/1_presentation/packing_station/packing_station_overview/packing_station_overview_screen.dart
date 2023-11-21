@@ -98,7 +98,7 @@ class PackingStationOverviewScreen extends StatelessWidget {
                             buttonText: 'Pickliste erstellen',
                             isLoading: state.isLoadingPicklistOnCreate,
                             buttonBackgroundColor: Colors.green,
-                            onPressed: () => packingStationBloc.add(PicklistOnCreatePicklistEvent()),
+                            onPressed: () => packingStationBloc.add(PicklistOnCreatePicklistEvent(context: context)),
                           ),
                           Gaps.w8,
                           MyOutlinedButton(

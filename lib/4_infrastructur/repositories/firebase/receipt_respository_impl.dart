@@ -195,7 +195,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
   }
 
   @override
-  Future<Either<FirebaseFailure, List<Receipt>>> loadNewAppointments() async {
+  Future<Either<FirebaseFailure, List<Receipt>>> loadNewAppointmentsFromMarketplaces() async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
     final logger = Logger();

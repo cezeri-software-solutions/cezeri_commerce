@@ -66,7 +66,16 @@ class DashboardRepositoryImpl implements DashboardRepository {
     if (!isConnected) return left(NoConnectionFailure());
 
     final DateTime now = DateTime.now();
-    final DateTime today = DateTime(now.year, now.month, now.day - 1);
+    final DateTime today = DateTime(
+      now.year,
+      now.month,
+      now.day -
+          switch (now.weekday) {
+            DateTime.monday => 3,
+            DateTime.sunday => 2,
+            _ => 1,
+          },
+    );
     final DateTime tomorrow = DateTime(now.year, now.month, now.day + 2);
 
     final currentUserUid = firebaseAuth.currentUser!.uid;

@@ -93,6 +93,8 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
         heightController: TextEditingController(text: event.product.height.toMyCurrencyStringToShow()),
         depthController: TextEditingController(text: event.product.depth.toMyCurrencyStringToShow()),
         listOfProductImages: List.from(event.product.listOfProductImages),
+        selectedProductImages: [],
+        isSelectedAllImages: false,
       ));
     });
 
@@ -309,6 +311,7 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
           emit(state.copyWith(
             listOfProductImages: updatedProduct.listOfProductImages,
             product: updatedProduct,
+            isProductImagesEdited: true,
             firebaseFailure: null,
             isAnyFailure: false,
           ));
@@ -364,6 +367,7 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
           emit(state.copyWith(
             listOfProductImages: updatedProduct.listOfProductImages,
             product: updatedProduct,
+            isProductImagesEdited: true,
             firebaseFailure: null,
             isAnyFailure: false,
           ));
@@ -399,7 +403,11 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
         listOfProductImages[i] = listOfProductImages[i].copyWith(sortId: i + 1, isDefault: i == 0 ? true : false);
       }
 
-      emit(state.copyWith(listOfProductImages: listOfProductImages, product: state.product!.copyWith(listOfProductImages: listOfProductImages)));
+      emit(state.copyWith(
+        listOfProductImages: listOfProductImages,
+        isProductImagesEdited: true,
+        product: state.product!.copyWith(listOfProductImages: listOfProductImages),
+      ));
     });
 
 //? #########################################################################
@@ -447,10 +455,26 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
         (unit) => emit(state.copyWith(firebaseFailure: null, isAnyFailure: false)),
       );
 
-      emit(state.copyWith(
-        fosProductOnEditQuantityPrestaOption: optionOf(failureOrSuccess),
-      ));
+      emit(state.copyWith(fosProductOnEditQuantityPrestaOption: optionOf(failureOrSuccess)));
       emit(state.copyWith(fosProductOnEditQuantityPrestaOption: none()));
+
+      if (state.isProductImagesEdited) add(UploadProductImageToPrestaEvent());
+    });
+
+    on<UploadProductImageToPrestaEvent>((event, emit) async {
+      emit(state.copyWith(isLoadingProductOnUploadImages: true));
+
+      final failureOrSuccess = await productEditRepository.uploadProductImages(state.product!, state.listOfProductImages);
+      failureOrSuccess.fold(
+        (failure) => emit(state.copyWith()), // TODO: handle Presta Failure
+        (unit) => emit(state.copyWith(firebaseFailure: null, isAnyFailure: false)),
+      );
+
+      emit(state.copyWith(
+        isLoadingProductOnUploadImages: false,
+        fosProductOnUploadImagesOption: optionOf(failureOrSuccess),
+      ));
+      emit(state.copyWith(fosProductOnUploadImagesOption: none()));
     });
   }
 }
