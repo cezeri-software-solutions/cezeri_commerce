@@ -19,6 +19,7 @@ class AppointmentState {
   final Option<Either<FirebaseFailure, Receipt>> fosReceiptOnObserveOption;
   final Option<Either<FirebaseFailure, List<Receipt>>> fosReceiptsOnObserveOption;
   final Option<Either<FirebaseFailure, List<Receipt>>> fosAppointmentsOnObserveFromPrestaOption;
+  final Option<Either<AbstractFailure, Unit>> fosAppointmentsOnObserveFromMarketplacesOption;
   final Option<Either<FirebaseFailure, Receipt>> fosReceiptOnCreateOption;
   final Option<Either<FirebaseFailure, Unit>> fosReceiptOnUpdateOption;
   final Option<Either<FirebaseFailure, Unit>> fosReceiptOnDeleteOption;
@@ -30,6 +31,11 @@ class AppointmentState {
   final String receiptSearchText;
   final int tabValue;
   final ReceiptTyp receiptTyp;
+
+  //* --- load Appointments from Marketplace helper --- *//
+  final int numberOfToLoadAppointments;
+  final int loadedAppointments;
+  final String loadingText;
 
   const AppointmentState({
     this.receipt,
@@ -49,6 +55,7 @@ class AppointmentState {
     required this.fosReceiptOnObserveOption,
     required this.fosReceiptsOnObserveOption,
     required this.fosAppointmentsOnObserveFromPrestaOption,
+    required this.fosAppointmentsOnObserveFromMarketplacesOption,
     required this.fosReceiptOnCreateOption,
     required this.fosReceiptOnUpdateOption,
     required this.fosReceiptOnDeleteOption,
@@ -58,6 +65,9 @@ class AppointmentState {
     required this.receiptSearchText,
     required this.tabValue,
     required this.receiptTyp,
+    required this.numberOfToLoadAppointments,
+    required this.loadedAppointments,
+    required this.loadingText,
   });
 
   factory AppointmentState.initial() => AppointmentState(
@@ -78,6 +88,7 @@ class AppointmentState {
         fosReceiptOnObserveOption: none(),
         fosReceiptsOnObserveOption: none(),
         fosAppointmentsOnObserveFromPrestaOption: none(),
+        fosAppointmentsOnObserveFromMarketplacesOption: none(),
         fosReceiptOnCreateOption: none(),
         fosReceiptOnUpdateOption: none(),
         fosReceiptOnDeleteOption: none(),
@@ -87,6 +98,9 @@ class AppointmentState {
         receiptSearchText: '',
         tabValue: 0,
         receiptTyp: ReceiptTyp.appointment,
+        numberOfToLoadAppointments: 0,
+        loadedAppointments: 0,
+        loadingText: '',
       );
 
   AppointmentState copyWith({
@@ -107,6 +121,7 @@ class AppointmentState {
     Option<Either<FirebaseFailure, Receipt>>? fosReceiptOnObserveOption,
     Option<Either<FirebaseFailure, List<Receipt>>>? fosReceiptsOnObserveOption,
     Option<Either<FirebaseFailure, List<Receipt>>>? fosAppointmentsOnObserveFromPrestaOption,
+    Option<Either<AbstractFailure, Unit>>? fosAppointmentsOnObserveFromMarketplacesOption,
     Option<Either<FirebaseFailure, Receipt>>? fosReceiptOnCreateOption,
     Option<Either<FirebaseFailure, Unit>>? fosReceiptOnUpdateOption,
     Option<Either<FirebaseFailure, Unit>>? fosReceiptOnDeleteOption,
@@ -116,6 +131,9 @@ class AppointmentState {
     String? receiptSearchText,
     int? tabValue,
     ReceiptTyp? receiptTyp,
+    int? numberOfToLoadAppointments,
+    int? loadedAppointments,
+    String? loadingText,
   }) {
     return AppointmentState(
       receipt: receipt ?? this.receipt,
@@ -135,6 +153,7 @@ class AppointmentState {
       fosReceiptOnObserveOption: fosReceiptOnObserveOption ?? this.fosReceiptOnObserveOption,
       fosReceiptsOnObserveOption: fosReceiptsOnObserveOption ?? this.fosReceiptsOnObserveOption,
       fosAppointmentsOnObserveFromPrestaOption: fosAppointmentsOnObserveFromPrestaOption ?? this.fosAppointmentsOnObserveFromPrestaOption,
+      fosAppointmentsOnObserveFromMarketplacesOption: fosAppointmentsOnObserveFromMarketplacesOption ?? this.fosAppointmentsOnObserveFromMarketplacesOption,
       fosReceiptOnCreateOption: fosReceiptOnCreateOption ?? this.fosReceiptOnCreateOption,
       fosReceiptOnUpdateOption: fosReceiptOnUpdateOption ?? this.fosReceiptOnUpdateOption,
       fosReceiptOnDeleteOption: fosReceiptOnDeleteOption ?? this.fosReceiptOnDeleteOption,
@@ -144,6 +163,9 @@ class AppointmentState {
       receiptSearchText: receiptSearchText ?? this.receiptSearchText,
       tabValue: tabValue ?? this.tabValue,
       receiptTyp: receiptTyp ?? this.receiptTyp,
+      numberOfToLoadAppointments: numberOfToLoadAppointments ?? this.numberOfToLoadAppointments,
+      loadedAppointments: loadedAppointments ?? this.loadedAppointments,
+      loadingText: loadingText ?? this.loadingText,
     );
   }
 }

@@ -1,14 +1,17 @@
 import 'package:bloc/bloc.dart';
 import 'package:dartz/dartz.dart';
+import 'package:logger/logger.dart';
 import 'package:meta/meta.dart';
 
 import '../../../3_domain/entities/carrier/carrier_product.dart';
 import '../../../3_domain/entities/customer/customer.dart';
+import '../../../3_domain/entities/receipt/load_appointments_helper/to_load_appointments_from_marketplace.dart';
 import '../../../3_domain/entities/receipt/receipt.dart';
 import '../../../3_domain/entities/receipt/receipt_carrier.dart';
 import '../../../3_domain/entities/receipt/receipt_product.dart';
 import '../../../3_domain/entities/settings/payment_method.dart';
 import '../../../3_domain/repositories/firebase/receipt_respository.dart';
+import '../../../core/abstract_failure.dart';
 import '../../../core/firebase_failures.dart';
 
 part 'appointment_event.dart';
@@ -46,7 +49,7 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
 //? #########################################################################
 
     on<SetAppointmentEvent>((event, emit) async {
-      emit(state.copyWith(receipt: event.appointment));
+      emit(state.copyWith(receipt: event.appointment, isAnyFailure: false, firebaseFailure: null));
     });
 
 //? #########################################################################
@@ -86,38 +89,125 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
 //? #########################################################################
 
     on<GetNewAppointmentsFromPrestaEvent>((event, emit) async {
-      emit(state.copyWith(isLoadingAppointmentsFromPrestaOnObserve: true));
+      final logger = Logger();
+      bool isSuccess = true;
+      emit(state.copyWith(isLoadingAppointmentsFromPrestaOnObserve: true, loadedAppointments: 0, numberOfToLoadAppointments: 0, loadingText: ''));
 
-      final failureOrSuccess = await receiptRepository.loadNewAppointmentsFromMarketplaces();
-      failureOrSuccess.fold(
-        (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
-        (listOfAppointments) {
-          if (listOfAppointments.isNotEmpty) {
-            List<Receipt> listWithNewAppointments = List.from(state.listOfAllReceipts ?? []);
-            listWithNewAppointments.addAll(listOfAppointments);
-            listWithNewAppointments.sort((a, b) => switch (listOfAppointments.first.receiptTyp) {
-                  ReceiptTyp.offer => b.offerId.compareTo(a.offerId),
-                  ReceiptTyp.appointment => b.appointmentId.compareTo(a.appointmentId),
-                  ReceiptTyp.deliveryNote => b.deliveryNoteId.compareTo(a.deliveryNoteId),
-                  ReceiptTyp.invoice || ReceiptTyp.credit => b.invoiceId.compareTo(a.invoiceId),
-                });
-            emit(state.copyWith(
-              listOfAllReceipts: listWithNewAppointments,
-              isExpanded: List<bool>.filled(listWithNewAppointments.length, false),
-              firebaseFailure: null,
-              isAnyFailure: false,
-            ));
+      // final failureOrSuccess = await receiptRepository.loadNewAppointmentsFromMarketplaces();
+      // failureOrSuccess.fold(
+      //   (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
+      //   (listOfAppointments) {
+      //     if (listOfAppointments.isNotEmpty) {
+      //       List<Receipt> listWithNewAppointments = List.from(state.listOfAllReceipts ?? []);
+      //       listWithNewAppointments.addAll(listOfAppointments);
+      //       listWithNewAppointments.sort((a, b) => switch (listOfAppointments.first.receiptTyp) {
+      //             ReceiptTyp.offer => b.offerId.compareTo(a.offerId),
+      //             ReceiptTyp.appointment => b.appointmentId.compareTo(a.appointmentId),
+      //             ReceiptTyp.deliveryNote => b.deliveryNoteId.compareTo(a.deliveryNoteId),
+      //             ReceiptTyp.invoice || ReceiptTyp.credit => b.invoiceId.compareTo(a.invoiceId),
+      //           });
+      //       emit(state.copyWith(
+      //         listOfAllReceipts: listWithNewAppointments,
+      //         isExpanded: List<bool>.filled(listWithNewAppointments.length, false),
+      //         firebaseFailure: null,
+      //         isAnyFailure: false,
+      //       ));
+      //     }
+      //   },
+      // );
+
+      List<ToLoadAppointmentsFromMarketplace>? toLoadAppointmentsFromMarketplace;
+      final fosToLoadAppointments = await receiptRepository.getToLoadAppointmentsFromMarketplaces();
+      fosToLoadAppointments.fold(
+        (failure) {
+          isSuccess = false;
+          emit(state.copyWith(isLoadingAppointmentsFromPrestaOnObserve: false));
+          return;
+        },
+        (success) {
+          toLoadAppointmentsFromMarketplace = success;
+          int number = 0;
+          for (final element in success) {
+            number += (element.lastIdToImport - element.nextIdToImport + 1);
           }
+          emit(state.copyWith(numberOfToLoadAppointments: number));
         },
       );
+
+      emit(state.copyWith(loadedAppointments: 0, loadingText: 'Lädt Bestellungen vom Marktplatz...'));
+
+      List<LoadedOrderFromMarketplace> listOfLoadedOrderFromMarketplace = [];
+      for (final toLoadAppointment in toLoadAppointmentsFromMarketplace!) {
+        for (int i = toLoadAppointment.nextIdToImport; i < toLoadAppointment.lastIdToImport + 1; i++) {
+          final toLoadOrderFromMarketplace = ToLoadAppointmentFromMarketplace(marketplace: toLoadAppointment.marketplace, orderId: i);
+          final fosLoadedAppointmentFromMarketplace = await receiptRepository.loadAppointmentsFromMarketplace(toLoadOrderFromMarketplace);
+          fosLoadedAppointmentFromMarketplace.fold(
+            (failure) {
+              logger.e(failure);
+              isSuccess = false;
+            },
+            (loadedOrderFromMarketplace) {
+              listOfLoadedOrderFromMarketplace.add(loadedOrderFromMarketplace);
+              emit(state.copyWith(loadedAppointments: state.loadedAppointments + 1));
+            },
+          );
+        }
+      }
+
+      emit(state.copyWith(loadedAppointments: 0, loadingText: 'Lädt Bestellungen zu Cezeri Commerce hoch...'));
+
+      List<Receipt> listWithNewAppointments = List.from(state.listOfAllReceipts ?? []);
+      for (final toUploadAppointment in listOfLoadedOrderFromMarketplace) {
+        final fosLoadedAppointment = await receiptRepository.uploadLoadedAppointmentToFirestore(toUploadAppointment);
+        fosLoadedAppointment.fold(
+          (failure) {
+            logger.e(failure);
+            isSuccess = false;
+          },
+          (loadedAppointment) {
+            listWithNewAppointments.add(loadedAppointment);
+            emit(state.copyWith(loadedAppointments: state.loadedAppointments + 1));
+          },
+        );
+      }
+
+      // List<Receipt> listWithNewAppointments = List.from(state.listOfAllReceipts ?? []);
+      // for (final toLoadAppointment in toLoadAppointmentsFromMarketplace!) {
+      //   for (int i = toLoadAppointment.nextIdToImport; i < toLoadAppointment.lastIdToImport + 1; i++) {
+      //     final fosLoadedAppointment = await receiptRepository.loadAppointmentFromMarketplaceAndUploadToFirestore(toLoadAppointment.marketplace, i);
+      //     fosLoadedAppointment.fold(
+      //       (failure) {
+      //         logger.e(failure);
+      //         isSuccess = false;
+      //       },
+      //       (loadedAppointment) {
+      //         listWithNewAppointments.add(loadedAppointment);
+      //         emit(state.copyWith(loadedAppointments: state.loadedAppointments + 1));
+      //       },
+      //     );
+      //   }
+      // }
+
+      listWithNewAppointments.sort((a, b) => switch (listWithNewAppointments.first.receiptTyp) {
+            ReceiptTyp.offer => b.offerId.compareTo(a.offerId),
+            ReceiptTyp.appointment => b.appointmentId.compareTo(a.appointmentId),
+            ReceiptTyp.deliveryNote => b.deliveryNoteId.compareTo(a.deliveryNoteId),
+            ReceiptTyp.invoice || ReceiptTyp.credit => b.invoiceId.compareTo(a.invoiceId),
+          });
+      emit(state.copyWith(
+        listOfAllReceipts: listWithNewAppointments,
+        isExpanded: List<bool>.filled(listWithNewAppointments.length, false),
+        firebaseFailure: null,
+        isAnyFailure: false,
+      ));
 
       add(OnSearchFieldSubmittedAppointmentsEvent());
 
       emit(state.copyWith(
         isLoadingAppointmentsFromPrestaOnObserve: false,
-        fosAppointmentsOnObserveFromPrestaOption: optionOf(failureOrSuccess),
+        fosAppointmentsOnObserveFromMarketplacesOption: isSuccess ? const Some(Right(unit)) : const None(),
       ));
-      emit(state.copyWith(fosAppointmentsOnObserveFromPrestaOption: none()));
+      emit(state.copyWith(fosAppointmentsOnObserveFromMarketplacesOption: none()));
     });
 
 //? #########################################################################

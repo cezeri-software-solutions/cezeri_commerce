@@ -1,6 +1,9 @@
 import 'package:dartz/dartz.dart';
 
+import '../../../core/abstract_failure.dart';
 import '../../../core/firebase_failures.dart';
+import '../../entities/marketplace/marketplace.dart';
+import '../../entities/receipt/load_appointments_helper/to_load_appointments_from_marketplace.dart';
 import '../../entities/receipt/receipt.dart';
 import '../../entities/receipt/receipt_product.dart';
 
@@ -29,4 +32,9 @@ abstract class ReceiptRepository {
     bool generateInvoice,
   );
   Future<Either<FirebaseFailure, Unit>> sendEmails();
+  //* ###### Load Appointments from Marketplaces #####
+  Future<Either<AbstractFailure, List<ToLoadAppointmentsFromMarketplace>>> getToLoadAppointmentsFromMarketplaces();
+  Future<Either<AbstractFailure, LoadedOrderFromMarketplace>> loadAppointmentsFromMarketplace(ToLoadAppointmentFromMarketplace toLoadAppointment);
+  Future<Either<AbstractFailure, Receipt>> uploadLoadedAppointmentToFirestore(LoadedOrderFromMarketplace loadedAppointmentFromMarketplace);
+  Future<Either<AbstractFailure, Receipt>> loadAppointmentFromMarketplaceAndUploadToFirestore(Marketplace marketplace, int toLoadOrderId);
 }

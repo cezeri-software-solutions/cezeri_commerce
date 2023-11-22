@@ -1,4 +1,11 @@
-abstract class PrestaFailure {}
+import 'abstract_failure.dart';
 
-class PrestaGeneralFailure extends PrestaFailure {}
+abstract class PrestaFailure extends AbstractFailure {}
+
+class PrestaGeneralFailure extends PrestaFailure {
+  final String? errorMessage;
+
+  PrestaGeneralFailure({this.errorMessage});
+}
+
 class ProductHasNoMarketplaceFailure extends PrestaFailure {}

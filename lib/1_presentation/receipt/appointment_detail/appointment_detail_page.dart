@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../2_application/firebase/appointment/appointment_bloc.dart';
 import '../../../2_application/firebase/receipt_detail/receipt_detail_bloc.dart';
 import '../../../3_domain/entities/marketplace/marketplace.dart';
+import '../../../3_domain/entities/receipt/receipt.dart';
 import '../../../3_domain/enums/enums.dart';
 import '../../../constants.dart';
 import '../../core/widgets/my_info_dialog.dart';
@@ -44,7 +45,13 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
         final responsiveness = screenWidth > 700 ? Responsiveness.isTablet : Responsiveness.isMobil;
 
         final appBar = AppBar(
-          title: Text('Auftrag: ${state.receipt!.appointmentNumberAsString}'),
+          title: switch (state.receipt!.receiptTyp) {
+            ReceiptTyp.offer => Text('Angebot: ${state.receipt!.offerNumberAsString}'),
+            ReceiptTyp.appointment => Text('Auftrag: ${state.receipt!.appointmentNumberAsString}'),
+            ReceiptTyp.deliveryNote => Text('Lieferschein: ${state.receipt!.deliveryNoteNumberAsString}'),
+            ReceiptTyp.invoice => Text('Rechnung: ${state.receipt!.invoiceNumberAsString}'),
+            ReceiptTyp.credit => Text('Guschrift: ${state.receipt!.invoiceNumberAsString}'),
+          },
           centerTitle: responsiveness == Responsiveness.isTablet ? true : false,
           actions: [
             if (widget.receiptCreateOrEdit == ReceiptCreateOrEdit.edit)

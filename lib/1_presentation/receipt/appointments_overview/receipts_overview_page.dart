@@ -141,83 +141,87 @@ class __AppointmentContainerState extends State<_AppointmentContainer> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Checkbox.adaptive(
-                    value: state.selectedReceipts.any((e) => e.id == widget.receipt.id),
-                    onChanged: (_) => widget.appointmentBloc.add(OnAppointmentSelectedEvent(appointment: widget.receipt)),
-                  ),
-                  SizedBox(
-                    width: 60,
-                    child: Column(
-                      children: [
-                        widget.receipt.listOfReceiptProduct.length > 1
-                            ? Container(
-                                height: 20,
-                                width: 20,
-                                decoration: const BoxDecoration(
-                                  color: CustomColors.backgroundLightGreen,
-                                  borderRadius: BorderRadius.all(Radius.circular(20)),
-                                ),
-                                child: Center(child: Text(widget.receipt.listOfReceiptProduct.length.toString())),
-                              )
-                            : const SizedBox(),
-                        //Gaps.h10,
-                        IconButton(
-                          padding: EdgeInsets.zero,
-                          onPressed: () => widget.appointmentBloc.add(SetAppointmentIsExpandedEvent(index: widget.index)),
-                          icon: switch (state.isExpanded[widget.index]) {
-                            true => const Icon(Icons.arrow_drop_down_circle, size: 30, color: CustomColors.primaryColor),
-                            false => Transform.rotate(
-                                angle: -pi / 2,
-                                child: const Icon(Icons.arrow_drop_down_circle, size: 30, color: Colors.grey, grade: 25),
-                              ),
-                          },
-                        ),
-                        ConstrainedBox(
-                          constraints: const BoxConstraints(maxHeight: 30),
-                          child: IconButton(
-                            padding: EdgeInsets.zero,
-                            onPressed: () async => await _onPdfPressed(marketplace: marketplace),
-                            icon: _isLoadingPdf ? const MyCircularProgressIndicator() : const Icon(Icons.picture_as_pdf, color: Colors.red),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(
-                    width: 150,
-                    child: Column(
-                      children: [
-                        TextButton(
-                          onPressed: () {
-                            context.read<AppointmentBloc>().add(GetAppointmentEvent(appointment: widget.receipt));
-                            context.router.push(
-                              AppointmentDetailRoute(
-                                appointmentBloc: widget.appointmentBloc,
-                                listOfMarketplaces: widget.listOfMarketplaces,
-                                receiptCreateOrEdit: ReceiptCreateOrEdit.edit,
-                              ),
-                            );
-                          },
-                          child: Text(switch (widget.receipt.receiptTyp) {
-                            ReceiptTyp.offer => 'Angebot ${widget.receipt.offerNumberAsString}',
-                            ReceiptTyp.appointment => 'Auftrag ${widget.receipt.appointmentNumberAsString}',
-                            ReceiptTyp.deliveryNote => 'Lieferschein ${widget.receipt.deliveryNoteNumberAsString}',
-                            ReceiptTyp.invoice => 'Rechnung ${widget.receipt.invoiceNumberAsString}',
-                            ReceiptTyp.credit => 'Gutschrift ${widget.receipt.invoiceNumberAsString}',
-                          }),
-                        ),
-                        Text(DateFormat('dd.MM.yyy', 'de').format(widget.receipt.creationDate)),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                  Row(
+                    children: [
+                      Checkbox.adaptive(
+                        value: state.selectedReceipts.any((e) => e.id == widget.receipt.id),
+                        onChanged: (_) => widget.appointmentBloc.add(OnAppointmentSelectedEvent(appointment: widget.receipt)),
+                      ),
+                      SizedBox(
+                        width: 60,
+                        child: Column(
                           children: [
-                            const Icon(Icons.watch_later_outlined, size: 16),
-                            const Text(' '),
-                            Text(DateFormat('Hm', 'de').format(widget.receipt.creationDate)),
+                            widget.receipt.listOfReceiptProduct.length > 1
+                                ? Container(
+                                    height: 20,
+                                    width: 20,
+                                    decoration: const BoxDecoration(
+                                      color: CustomColors.backgroundLightGreen,
+                                      borderRadius: BorderRadius.all(Radius.circular(20)),
+                                    ),
+                                    child: Center(child: Text(widget.receipt.listOfReceiptProduct.length.toString())),
+                                  )
+                                : const SizedBox(),
+                            //Gaps.h10,
+                            IconButton(
+                              padding: EdgeInsets.zero,
+                              onPressed: () => widget.appointmentBloc.add(SetAppointmentIsExpandedEvent(index: widget.index)),
+                              icon: switch (state.isExpanded[widget.index]) {
+                                true => const Icon(Icons.arrow_drop_down_circle, size: 30, color: CustomColors.primaryColor),
+                                false => Transform.rotate(
+                                    angle: -pi / 2,
+                                    child: const Icon(Icons.arrow_drop_down_circle, size: 30, color: Colors.grey, grade: 25),
+                                  ),
+                              },
+                            ),
+                            ConstrainedBox(
+                              constraints: const BoxConstraints(maxHeight: 30),
+                              child: IconButton(
+                                padding: EdgeInsets.zero,
+                                onPressed: () async => await _onPdfPressed(marketplace: marketplace),
+                                icon: _isLoadingPdf ? const MyCircularProgressIndicator() : const Icon(Icons.picture_as_pdf, color: Colors.red),
+                              ),
+                            ),
                           ],
                         ),
-                        Text('${widget.receipt.totalGross.toMyCurrencyStringToShow()} €', style: TextStyles.defaultBold)
-                      ],
-                    ),
+                      ),
+                      SizedBox(
+                        width: 150,
+                        child: Column(
+                          children: [
+                            TextButton(
+                              onPressed: () {
+                                context.read<AppointmentBloc>().add(GetAppointmentEvent(appointment: widget.receipt));
+                                context.router.push(
+                                  AppointmentDetailRoute(
+                                    appointmentBloc: widget.appointmentBloc,
+                                    listOfMarketplaces: widget.listOfMarketplaces,
+                                    receiptCreateOrEdit: ReceiptCreateOrEdit.edit,
+                                  ),
+                                );
+                              },
+                              child: Text(switch (widget.receipt.receiptTyp) {
+                                ReceiptTyp.offer => 'Angebot ${widget.receipt.offerNumberAsString}',
+                                ReceiptTyp.appointment => 'Auftrag ${widget.receipt.appointmentNumberAsString}',
+                                ReceiptTyp.deliveryNote => 'Lieferschein ${widget.receipt.deliveryNoteNumberAsString}',
+                                ReceiptTyp.invoice => 'Rechnung ${widget.receipt.invoiceNumberAsString}',
+                                ReceiptTyp.credit => 'Gutschrift ${widget.receipt.invoiceNumberAsString}',
+                              }),
+                            ),
+                            Text(DateFormat('dd.MM.yyy', 'de').format(widget.receipt.creationDate)),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(Icons.watch_later_outlined, size: 16),
+                                const Text(' '),
+                                Text(DateFormat('Hm', 'de').format(widget.receipt.creationDate)),
+                              ],
+                            ),
+                            Text('${widget.receipt.totalGross.toMyCurrencyStringToShow()} €', style: TextStyles.defaultBold)
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                   SizedBox(
                     width: 220,

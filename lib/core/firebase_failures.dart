@@ -1,4 +1,6 @@
-abstract class FirebaseFailure {}
+import 'abstract_failure.dart';
+
+abstract class FirebaseFailure extends AbstractFailure {}
 
 class NoFailure extends FirebaseFailure {}
 

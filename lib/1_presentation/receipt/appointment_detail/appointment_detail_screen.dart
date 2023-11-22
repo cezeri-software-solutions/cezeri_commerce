@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:cezeri_commerce/3_domain/entities/receipt/receipt.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -99,11 +100,20 @@ class AppointmentDetailScreen extends StatelessWidget {
         child: BlocBuilder<AppointmentBloc, AppointmentState>(
           bloc: appointmentBloc,
           builder: (context, state) {
-            final appBar = AppBar(title: const Text('Auftrag'));
+            final appBar = AppBar(
+              title: state.receipt == null
+                  ? const Text('Dokument:')
+                  : switch (state.receipt!.receiptTyp) {
+                      ReceiptTyp.offer => const Text('Angebot'),
+                      ReceiptTyp.appointment => const Text('Auftrag'),
+                      ReceiptTyp.deliveryNote => const Text('Lieferschein'),
+                      ReceiptTyp.invoice => const Text('Rechnung'),
+                      ReceiptTyp.credit => const Text('Gutschrift'),
+                    },
+            );
 
             if (state.isLoadingReceiptOnObserve) return Scaffold(appBar: appBar, body: const Center(child: CircularProgressIndicator()));
-            if ((state.firebaseFailure != null && state.isAnyFailure) ||
-                (receiptCreateOrEdit == ReceiptCreateOrEdit.edit && state.receipt == null)) {
+            if ((state.firebaseFailure != null && state.isAnyFailure) || (receiptCreateOrEdit == ReceiptCreateOrEdit.edit && state.receipt == null)) {
               return Scaffold(appBar: appBar, body: const Center(child: Text('Ein Fehler ist aufgetreten')));
             }
             return AppointmentDetailPage(

@@ -1,4 +1,6 @@
-abstract class AuthFailure {}
+import 'abstract_failure.dart';
+
+abstract class AuthFailure extends AbstractFailure {}
 
 // ############### SignIn Failures #################
 

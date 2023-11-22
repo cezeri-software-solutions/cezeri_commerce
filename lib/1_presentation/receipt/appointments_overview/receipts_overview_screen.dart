@@ -63,13 +63,19 @@ class ReceiptsOverviewScreen extends StatelessWidget {
             },
           ),
           BlocListener<AppointmentBloc, AppointmentState>(
-            listenWhen: (p, c) => p.fosAppointmentsOnObserveFromPrestaOption != c.fosAppointmentsOnObserveFromPrestaOption,
+            listenWhen: (p, c) => p.fosAppointmentsOnObserveFromMarketplacesOption != c.fosAppointmentsOnObserveFromMarketplacesOption,
             listener: (context, state) {
-              state.fosAppointmentsOnObserveFromPrestaOption.fold(
+              state.fosAppointmentsOnObserveFromMarketplacesOption.fold(
                 () => null,
                 (a) => a.fold(
-                  (failure) => myScaffoldMessenger(context, failure, null, null, null),
-                  (listOfProducts) => myScaffoldMessenger(context, null, null, 'Aufträge erfolgreich aus den Marktplätzen geladen', null),
+                  (failure) {
+                    context.router.popTop();
+                    myScaffoldMessenger(context, null, null, null, 'Beim Laden von mindestens einer Bestellung ist etwas schief gegangen');
+                  },
+                  (unit) {
+                    context.router.popTop();
+                    myScaffoldMessenger(context, null, null, 'Aufträge erfolgreich aus den Marktplätzen geladen', null);
+                  },
                 ),
               );
             },
@@ -131,6 +137,7 @@ class ReceiptsOverviewScreen extends StatelessWidget {
                   },
                 ),
                 actions: [
+                  Text('${state.loadedAppointments} / ${state.numberOfToLoadAppointments}'),
                   IconButton(onPressed: () => appointmentBloc.add(SendEmailToCustomerReceiptEvent()), icon: const Icon(Icons.mail)),
                   Tooltip(
                     message: 'Senden',
@@ -159,6 +166,7 @@ class ReceiptsOverviewScreen extends StatelessWidget {
                             appointmentBloc: appointmentBloc,
                             customerBloc: customerBloc,
                             marketplaceBloc: marketplaceBloc,
+                            receiptTyp: receiptTyp,
                           ),
                         ),
                       );
@@ -200,7 +208,16 @@ class ReceiptsOverviewScreen extends StatelessWidget {
                   ),
                   if (receiptTyp == ReceiptTyp.appointment)
                     IconButton(
-                      onPressed: () => context.read<AppointmentBloc>().add(GetNewAppointmentsFromPrestaEvent()),
+                      onPressed: () {
+                        context.read<AppointmentBloc>().add(GetNewAppointmentsFromPrestaEvent());
+                        showDialog(
+                          context: context,
+                          builder: (context) => BlocProvider.value(
+                            value: appointmentBloc,
+                            child: _MyLoadingDialogOnLoadingAppointments(appointmentBloc: appointmentBloc),
+                          ),
+                        );
+                      },
                       icon: state.isLoadingAppointmentsFromPrestaOnObserve ? const MyCircularProgressIndicator() : const Icon(Icons.download),
                     )
                 ],
@@ -386,8 +403,9 @@ class _SelectCustomerDialog extends StatefulWidget {
   final AppointmentBloc appointmentBloc;
   final CustomerBloc customerBloc;
   final MarketplaceBloc marketplaceBloc;
+  final ReceiptTyp receiptTyp;
 
-  const _SelectCustomerDialog({required this.appointmentBloc, required this.customerBloc, required this.marketplaceBloc});
+  const _SelectCustomerDialog({required this.appointmentBloc, required this.customerBloc, required this.marketplaceBloc, required this.receiptTyp});
 
   @override
   State<_SelectCustomerDialog> createState() => _SelectCustomerDialogState();
@@ -464,6 +482,7 @@ class _SelectCustomerDialogState extends State<_SelectCustomerDialog> {
                                 addressDelivery: customer.listOfAddress.where((e) => e.addressType == AddressType.delivery && e.isDefault).first,
                                 tax: customer.tax,
                                 listOfReceiptProduct: [ReceiptProduct.empty()],
+                                receiptTyp: widget.receiptTyp,
                               );
                               widget.appointmentBloc.add(SetAppointmentEvent(appointment: newAppointment));
                               context.router.push(
@@ -482,6 +501,40 @@ class _SelectCustomerDialogState extends State<_SelectCustomerDialog> {
                   ),
                 ),
               ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _MyLoadingDialogOnLoadingAppointments extends StatelessWidget {
+  final AppointmentBloc appointmentBloc;
+
+  const _MyLoadingDialogOnLoadingAppointments({required this.appointmentBloc});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<AppointmentBloc, AppointmentState>(
+      bloc: appointmentBloc,
+      builder: (context, state) {
+        return Dialog(
+          child: SizedBox(
+            width: 250,
+            height: 250,
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const CircularProgressIndicator(),
+                  Gaps.h24,
+                  Text('${state.loadedAppointments} / ${state.numberOfToLoadAppointments}', style: TextStyles.h2Bold),
+                  Gaps.h24,
+                  Text(state.loadingText, textAlign: TextAlign.center, style: TextStyles.h3),
+                ],
+              ),
             ),
           ),
         );
