@@ -19,8 +19,15 @@ class AppointmentDetailScreen extends StatelessWidget {
   final AppointmentBloc appointmentBloc;
   final List<Marketplace> listOfMarketplaces;
   final ReceiptCreateOrEdit receiptCreateOrEdit;
+  final ReceiptTyp receiptTyp;
 
-  const AppointmentDetailScreen({super.key, required this.appointmentBloc, required this.listOfMarketplaces, required this.receiptCreateOrEdit});
+  const AppointmentDetailScreen({
+    super.key,
+    required this.appointmentBloc,
+    required this.listOfMarketplaces,
+    required this.receiptCreateOrEdit,
+    required this.receiptTyp,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -73,7 +80,19 @@ class AppointmentDetailScreen extends StatelessWidget {
                 () => null,
                 (a) => a.fold(
                   (failure) => myScaffoldMessenger(context, failure, null, null, null),
-                  (receipt) => myScaffoldMessenger(context, null, null, 'Dokument erfolgreich erstellt', null),
+                  (receipt) {
+                    myScaffoldMessenger(context, null, null, 'Dokument erfolgreich erstellt', null);
+                    context.router.pop();
+                    appointmentBloc.add(GetAppointmentEvent(appointment: receipt));
+                    context.router.push(
+                      AppointmentDetailRoute(
+                        appointmentBloc: appointmentBloc,
+                        listOfMarketplaces: listOfMarketplaces,
+                        receiptCreateOrEdit: ReceiptCreateOrEdit.edit,
+                        receiptTyp: receiptTyp,
+                      ),
+                    );
+                  },
                 ),
               );
             },
@@ -121,6 +140,7 @@ class AppointmentDetailScreen extends StatelessWidget {
               receiptDetailBloc: receiptDetailBloc,
               listOfMarketplaces: listOfMarketplaces,
               receiptCreateOrEdit: receiptCreateOrEdit,
+              receiptTyp: receiptTyp,
             );
           },
         ),

@@ -17,16 +17,23 @@ class ProductDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final appBar = AppBar(title: const Text('Artikel'));
-    return BlocBuilder<ProductBloc, ProductState>(
+    return BlocListener<ProductBloc, ProductState>(
       bloc: productBloc,
-      builder: (context, state) {
-        if (state.isLoadingProductOnObserve) return Scaffold(appBar: appBar, body: const Center(child: CircularProgressIndicator()));
-        if ((state.firebaseFailure != null && state.isAnyFailure) || (productCreateOrEdit == ProductCreateOrEdit.edit && state.product == null)) {
-          return Scaffold(appBar: appBar, body: const Center(child: Text('Ein Fehler ist aufgetreten')));
-        }
-
-        return ProductDetailPage(product: state.product, productBloc: productBloc, productCreateOrEdit: productCreateOrEdit);
+      listenWhen: (p, c) => p.triggerPop != c.triggerPop && c.triggerPop,
+      listener: (context, state) {
+        context.router.popTop();
       },
+      child: BlocBuilder<ProductBloc, ProductState>(
+        bloc: productBloc,
+        builder: (context, state) {
+          if (state.isLoadingProductOnObserve) return Scaffold(appBar: appBar, body: const Center(child: CircularProgressIndicator()));
+          if ((state.firebaseFailure != null && state.isAnyFailure) || (productCreateOrEdit == ProductCreateOrEdit.edit && state.product == null)) {
+            return Scaffold(appBar: appBar, body: const Center(child: Text('Ein Fehler ist aufgetreten')));
+          }
+
+          return ProductDetailPage(product: state.product, productBloc: productBloc, productCreateOrEdit: productCreateOrEdit);
+        },
+      ),
     );
   }
 }

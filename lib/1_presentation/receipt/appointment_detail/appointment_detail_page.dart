@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../2_application/firebase/appointment/appointment_bloc.dart';
+import '../../../2_application/firebase/main_settings/main_settings_bloc.dart';
 import '../../../2_application/firebase/receipt_detail/receipt_detail_bloc.dart';
 import '../../../3_domain/entities/marketplace/marketplace.dart';
 import '../../../3_domain/entities/receipt/receipt.dart';
@@ -22,6 +23,7 @@ class AppointmentDetailPage extends StatefulWidget {
   final ReceiptDetailBloc receiptDetailBloc;
   final List<Marketplace> listOfMarketplaces;
   final ReceiptCreateOrEdit receiptCreateOrEdit;
+  final ReceiptTyp receiptTyp;
 
   const AppointmentDetailPage({
     super.key,
@@ -29,6 +31,7 @@ class AppointmentDetailPage extends StatefulWidget {
     required this.receiptDetailBloc,
     required this.listOfMarketplaces,
     required this.receiptCreateOrEdit,
+    required this.receiptTyp,
   });
 
   @override
@@ -41,6 +44,7 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
     return BlocBuilder<AppointmentBloc, AppointmentState>(
       bloc: widget.appointmentBloc,
       builder: (context, state) {
+        final mainSettings = context.read<MainSettingsBloc>().state.mainSettings!;
         final screenWidth = MediaQuery.sizeOf(context).width;
         final responsiveness = screenWidth > 700 ? Responsiveness.isTablet : Responsiveness.isMobil;
 
@@ -74,9 +78,11 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
                         //* Also Änderungen die oberhalb passieren bevor die Produkte anfangen
                         listOfReceiptProduct: stateReceiptDetail.listOfReceiptProducts,
                         marketplaceId: state.receipt!.marketplaceId,
+                        receiptMarketplace: state.receipt!.receiptMarketplace,
                         paymentMethod: state.receipt!.paymentMethod,
                         paymentStatus: state.receipt!.paymentStatus,
                         receiptCarrier: state.receipt!.receiptCarrier,
+                        lastEditingDate: DateTime.now(),
                       );
                       widget.appointmentBloc.add(UpdateAppointmentEvent(
                         appointment: updatedAppointment,
@@ -84,14 +90,19 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
                         newListOfReceiptProducts: stateReceiptDetail.listOfReceiptProducts,
                       ));
                     } else {
-                      final toCreateAppointment = stateReceiptDetail.receipt.copyWith(
+                      final toCreateReceipt = stateReceiptDetail.receipt.copyWith(
                         listOfReceiptProduct: stateReceiptDetail.listOfReceiptProducts,
                         marketplaceId: state.receipt!.marketplaceId,
+                        receiptMarketplace: state.receipt!.receiptMarketplace,
                         paymentMethod: state.receipt!.paymentMethod,
                         paymentStatus: state.receipt!.paymentStatus,
                         receiptCarrier: state.receipt!.receiptCarrier,
+                        lastEditingDate: DateTime.now(),
+                        creationDate: DateTime.now(),
+                        receiptTyp: widget.receiptTyp,
+                        currency: mainSettings.currency,
                       );
-                      widget.appointmentBloc.add(CreateNewAppointmentManuallyEvent(receipt: toCreateAppointment));
+                      widget.appointmentBloc.add(CreateNewAppointmentManuallyEvent(receipt: toCreateReceipt));
                     }
                   },
                   isLoading: state.isLoadingReceiptOnUpdate,

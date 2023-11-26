@@ -24,7 +24,7 @@ class ProductImportScreen extends StatefulWidget {
 
 class _ProductImportScreenState extends State<ProductImportScreen> {
   int _index = 0;
-  int _selectedMarketplaceIndex = 0;
+  final int _selectedMarketplaceIndex = 0;
   Marketplace _selectedMarketplace = Marketplace.empty();
 
   final productImportBloc = sl<ProductImportBloc>();
@@ -59,6 +59,58 @@ class _ProductImportScreenState extends State<ProductImportScreen> {
               );
             },
           ),
+          BlocListener<ProductImportBloc, ProductImportState>(
+            listenWhen: (p, c) => p.fosProductsPrestaOnObserveOption != c.fosProductsPrestaOnObserveOption,
+            listener: (context, state) {
+              state.fosProductsPrestaOnObserveOption.fold(
+                () => null,
+                (a) => a.fold(
+                  (failure) {
+                    context.router.popTop();
+                    myScaffoldMessenger(context, null, null, null, failure.toString());
+                  },
+                  (unit) {
+                    context.router.popTop();
+                    myScaffoldMessenger(context, null, null, 'Artikel erfolgreich importiert', null);
+                  },
+                ),
+              );
+            },
+          ),
+          BlocListener<ProductImportBloc, ProductImportState>(
+            listenWhen: (p, c) => p.fosProductOnCreateOption != c.fosProductOnCreateOption,
+            listener: (context, state) {
+              state.fosProductOnCreateOption.fold(
+                () => null,
+                (a) => a.fold(
+                  (failure) {
+                    myScaffoldMessenger(context, null, null, null, failure.toString());
+                  },
+                  (unit) {
+                    myScaffoldMessenger(context, null, null, 'Artikel erfolgreich importiert', null);
+                  },
+                ),
+              );
+            },
+          ),
+          BlocListener<ProductImportBloc, ProductImportState>(
+            listenWhen: (p, c) => p.fosProductsOnCreateOption != c.fosProductsOnCreateOption,
+            listener: (context, state) {
+              state.fosProductsOnCreateOption.fold(
+                () => null,
+                (a) => a.fold(
+                  (failure) {
+                    context.router.popTop();
+                    myScaffoldMessenger(context, null, null, null, failure.toString());
+                  },
+                  (unit) {
+                    context.router.popTop();
+                    myScaffoldMessenger(context, null, null, 'Artikel erfolgreich importiert', null);
+                  },
+                ),
+              );
+            },
+          ),
           BlocListener<ProductBloc, ProductState>(
             listenWhen: (p, c) => p.fosProductOnCreateOption != c.fosProductOnCreateOption,
             listener: (context, state) {
@@ -78,7 +130,7 @@ class _ProductImportScreenState extends State<ProductImportScreen> {
                 () => null,
                 (a) => a.fold(
                   (failure) => myScaffoldMessenger(context, failure, null, null, null),
-                  (listMarketplace) => null,
+                  (listMarketplace) => productImportBloc.add(SetSelectedMarketplaceProductImportEvent(marketplace: listMarketplace.first)),
                 ),
               );
             },
@@ -107,16 +159,13 @@ class _ProductImportScreenState extends State<ProductImportScreen> {
                   _OneOrMultipleProductImportTabbar(onTabTapped: _onTabTapped),
                   _SelectMarketplace(
                     listOfMarketplace: stateMarketplace.listOfMarketplace!,
-                    selectedMarketplaceIndex: _selectedMarketplaceIndex,
-                    onMarketplaceSelected: _onMarketplaceSelected,
+                    productImportBloc: productImportBloc,
                   ),
                   Expanded(
                     child: _index == 0
                         ? ProductImportPage(
                             productImportBloc: productImportBloc,
                             marketplace: stateMarketplace.listOfMarketplace![_selectedMarketplaceIndex],
-                            importProductById: _importProductById,
-                            importProductByIdAsJson: _importProductByIdAsJson,
                           )
                         : ProductsImportPage(productImportBloc: productImportBloc),
                   ),
@@ -135,16 +184,6 @@ class _ProductImportScreenState extends State<ProductImportScreen> {
       1 => setState(() => _index = 1),
       (_) => null,
     };
-  }
-
-  void _onMarketplaceSelected(int index) => setState(() => _selectedMarketplaceIndex = index);
-
-  void _importProductById(int id) {
-    productImportBloc.add(GetProductByIdFromPrestaEvent(id: id, marketplace: _selectedMarketplace));
-  }
-
-  void _importProductByIdAsJson(int id) {
-    productImportBloc.add(GetProductByIdAsJsonFromPrestaEvent(id: id, marketplace: _selectedMarketplace));
   }
 }
 
@@ -177,32 +216,37 @@ class _OneOrMultipleProductImportTabbar extends StatelessWidget {
 
 class _SelectMarketplace extends StatelessWidget {
   final List<Marketplace> listOfMarketplace;
-  final int selectedMarketplaceIndex;
-  final void Function(int index) onMarketplaceSelected;
+  final ProductImportBloc productImportBloc;
 
-  const _SelectMarketplace({required this.listOfMarketplace, required this.selectedMarketplaceIndex, required this.onMarketplaceSelected});
+  const _SelectMarketplace({required this.listOfMarketplace, required this.productImportBloc});
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 100,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        physics: const BouncingScrollPhysics(),
-        itemCount: listOfMarketplace.length,
-        itemBuilder: (context, index) {
-          return InkWell(
-            onTap: () => onMarketplaceSelected(index),
-            child: Card(
-              color: selectedMarketplaceIndex == index ? Colors.orange : Colors.orange[50],
-              child: Padding(
-                padding: const EdgeInsets.all(10),
-                child: Text(listOfMarketplace[index].name),
-              ),
-            ),
-          );
-        },
-      ),
+    return BlocBuilder<ProductImportBloc, ProductImportState>(
+      bloc: productImportBloc,
+      builder: (context, state) {
+        return SizedBox(
+          height: 100,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            physics: const BouncingScrollPhysics(),
+            itemCount: listOfMarketplace.length,
+            itemBuilder: (context, index) {
+              final marketplace = listOfMarketplace[index];
+              return InkWell(
+                onTap: () => productImportBloc.add(SetSelectedMarketplaceProductImportEvent(marketplace: marketplace)),
+                child: Card(
+                  color: marketplace.id == state.selectedMarketplace!.id ? Colors.orange : Colors.orange[50],
+                  child: Padding(
+                    padding: const EdgeInsets.all(10),
+                    child: Text(listOfMarketplace[index].name),
+                  ),
+                ),
+              );
+            },
+          ),
+        );
+      },
     );
   }
 }

@@ -213,6 +213,23 @@ class Receipt {
 
   Map<String, dynamic> toJson() => _$ReceiptToJson(this);
 
+  factory Receipt.fromOfferGenAppointment({
+    required Receipt offer,
+    required MainSettings settings,
+    required int nextAppointmentNumber,
+  }) {
+    final now = DateTime.now();
+    return offer.copyWith(
+      appointmentId: nextAppointmentNumber,
+      appointmentNumberAsString: settings.appointmentPraefix + nextAppointmentNumber.toString(),
+      receiptTyp: ReceiptTyp.appointment,
+      receiptDocumentText: settings.appointmentDocumentText,
+      creationDate: now,
+      creationDateInt: now.microsecondsSinceEpoch,
+      lastEditingDate: now,
+    );
+  }
+
   factory Receipt.fromAppointmentGenDeliveryNote({
     required Receipt appointment,
     required MainSettings settings,
@@ -253,6 +270,23 @@ class Receipt {
       receiptTyp: ReceiptTyp.invoice,
       appointmentStatus: AppointmentStatus.completed,
       receiptDocumentText: settings.invoiceDocumentText,
+      creationDate: now,
+      creationDateInt: now.microsecondsSinceEpoch,
+      lastEditingDate: now,
+    );
+  }
+
+  factory Receipt.fromInvoiceGenCredit({
+    required Receipt invoice,
+    required MainSettings settings,
+    required int nextInvoiceNumber,
+  }) {
+    final now = DateTime.now();
+    return invoice.copyWith(
+      invoiceId: nextInvoiceNumber,
+      invoiceNumberAsString: settings.creditPraefix + nextInvoiceNumber.toString(),
+      receiptTyp: ReceiptTyp.credit,
+      receiptDocumentText: settings.creditDocumentText,
       creationDate: now,
       creationDateInt: now.microsecondsSinceEpoch,
       lastEditingDate: now,

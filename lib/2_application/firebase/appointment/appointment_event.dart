@@ -60,12 +60,16 @@ class SetSearchFieldTextAppointmentsEvent extends AppointmentEvent {
 
 class OnSearchFieldSubmittedAppointmentsEvent extends AppointmentEvent {}
 
+class OnGenerateFromOfferNewAppointmentEvent extends AppointmentEvent {}
+
 class OnGenerateFromAppointmentEvent extends AppointmentEvent {
   final bool generateDeliveryNote;
   final bool generateInvoice;
 
   OnGenerateFromAppointmentEvent({required this.generateDeliveryNote, required this.generateInvoice});
 }
+
+class OnGenerateFromInvoiceNewCreditEvent extends AppointmentEvent {}
 
 //* --- helper --- *//
 class SetAppointmentIsExpandedEvent extends AppointmentEvent {
@@ -87,9 +91,9 @@ class OnAppointmentSelectedEvent extends AppointmentEvent {
 }
 
 class OnAppointmentMarketplaceChangedEvent extends AppointmentEvent {
-  final String marketplaceId;
+  final Marketplace marketplace;
 
-  OnAppointmentMarketplaceChangedEvent({required this.marketplaceId});
+  OnAppointmentMarketplaceChangedEvent({required this.marketplace});
 }
 
 class OnAppointmentPaymentMethodChangedEvent extends AppointmentEvent {
@@ -117,6 +121,3 @@ class OnAppointmentCarrierProductChangedEvent extends AppointmentEvent {
 }
 
 class SendEmailToCustomerReceiptEvent extends AppointmentEvent {}
-
-
-

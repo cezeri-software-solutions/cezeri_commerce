@@ -33,6 +33,7 @@ class ProductState {
   final String productSearchText;
   final bool isDescriptionSetFirstTime;
   final bool isDescriptionChanged;
+  final bool triggerPop;
   //* Product Images
   final bool isProductImagesEdited;
   final bool isSelectedAllImages;
@@ -56,7 +57,7 @@ class ProductState {
   final TextEditingController heightController;
   final TextEditingController depthController;
 
-  final HtmlEditorController descriptionCcontroller;
+  final HtmlEditorController descriptionController;
 
   const ProductState({
     required this.product,
@@ -86,6 +87,7 @@ class ProductState {
     required this.productSearchText,
     required this.isDescriptionSetFirstTime,
     required this.isDescriptionChanged,
+    required this.triggerPop,
     required this.isProductImagesEdited,
     required this.isSelectedAllImages,
     required this.selectedProductImages,
@@ -106,7 +108,7 @@ class ProductState {
     required this.widthController,
     required this.heightController,
     required this.depthController,
-    required this.descriptionCcontroller,
+    required this.descriptionController,
   });
 
   factory ProductState.initial() {
@@ -138,6 +140,7 @@ class ProductState {
       productSearchText: '',
       isDescriptionSetFirstTime: true,
       isDescriptionChanged: false,
+      triggerPop: false,
       isProductImagesEdited: false,
       isSelectedAllImages: false,
       selectedProductImages: const [],
@@ -158,7 +161,7 @@ class ProductState {
       widthController: TextEditingController(),
       heightController: TextEditingController(),
       depthController: TextEditingController(),
-      descriptionCcontroller: HtmlEditorController(),
+      descriptionController: HtmlEditorController(),
     );
   }
 
@@ -190,6 +193,7 @@ class ProductState {
     String? productSearchText,
     bool? isDescriptionSetFirstTime,
     bool? isDescriptionChanged,
+    bool? triggerPop,
     bool? isProductImagesEdited,
     bool? isSelectedAllImages,
     List<ProductImage>? selectedProductImages,
@@ -210,7 +214,7 @@ class ProductState {
     TextEditingController? widthController,
     TextEditingController? heightController,
     TextEditingController? depthController,
-    HtmlEditorController? descriptionCcontroller,
+    HtmlEditorController? descriptionController,
   }) {
     return ProductState(
       product: product ?? this.product,
@@ -233,13 +237,15 @@ class ProductState {
       fosProductOnUpdateImagesOption: fosProductOnUpdateImagesOption ?? this.fosProductOnUpdateImagesOption,
       fosProductOnUploadImagesOption: fosProductOnUploadImagesOption ?? this.fosProductOnUploadImagesOption,
       fosProductOnDeleteOption: fosProductOnDeleteOption ?? this.fosProductOnDeleteOption,
-      isLoadingOnMassEditActivateProductMarketplace: isLoadingOnMassEditActivateProductMarketplace ?? this.isLoadingOnMassEditActivateProductMarketplace,
+      isLoadingOnMassEditActivateProductMarketplace:
+          isLoadingOnMassEditActivateProductMarketplace ?? this.isLoadingOnMassEditActivateProductMarketplace,
       fosProductOnUpdateQuantityOption: fosProductOnUpdateQuantityOption ?? this.fosProductOnUpdateQuantityOption,
       fosMassEditActivateProductMarketplaceOption: fosMassEditActivateProductMarketplaceOption ?? this.fosMassEditActivateProductMarketplaceOption,
       fosProductOnEditQuantityPrestaOption: fosProductOnEditQuantityPrestaOption ?? this.fosProductOnEditQuantityPrestaOption,
       productSearchText: productSearchText ?? this.productSearchText,
       isDescriptionSetFirstTime: isDescriptionSetFirstTime ?? this.isDescriptionSetFirstTime,
       isDescriptionChanged: isDescriptionChanged ?? this.isDescriptionChanged,
+      triggerPop: triggerPop ?? this.triggerPop,
       isProductImagesEdited: isProductImagesEdited ?? this.isProductImagesEdited,
       isSelectedAllImages: isSelectedAllImages ?? this.isSelectedAllImages,
       selectedProductImages: selectedProductImages ?? this.selectedProductImages,
@@ -260,7 +266,7 @@ class ProductState {
       widthController: widthController ?? this.widthController,
       heightController: heightController ?? this.heightController,
       depthController: depthController ?? this.depthController,
-      descriptionCcontroller: descriptionCcontroller ?? this.descriptionCcontroller,
+      descriptionController: descriptionController ?? this.descriptionController,
     );
   }
 }

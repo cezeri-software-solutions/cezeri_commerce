@@ -89,7 +89,7 @@ Future<void> incrementStatDashboardOnDeleteReceipt(
 }
 
 Future<void> createOrIncrementStatDashboardOnGenerateFromOfferNewAppointment(
-  Receipt receipt,
+  Receipt offer,
   DocumentReference<Map<String, dynamic>> docRefStatDashboardToUpdate,
   DocumentReference<Map<String, dynamic>> docRefStatDashboardToCreate,
   DocumentSnapshot<Map<String, dynamic>>? statDashboardToUpdate,
@@ -101,23 +101,23 @@ Future<void> createOrIncrementStatDashboardOnGenerateFromOfferNewAppointment(
     if (statDashboardToCreate.exists) {
       final StatDashboard phToEditStatDashboard = StatDashboard.fromJson(statDashboardToCreate.data()!);
       final StatDashboard toEditStatDashboard = phToEditStatDashboard.copyWith(
-        offerVolume: phToEditStatDashboard.offerVolume - receipt.totalNet,
-        incomingOrders: phToEditStatDashboard.incomingOrders + receipt.totalNet,
+        offerVolume: phToEditStatDashboard.offerVolume - offer.totalNet,
+        incomingOrders: phToEditStatDashboard.incomingOrders + offer.totalNet,
       );
       transaction.update(docRefStatDashboardToCreate, toEditStatDashboard.toJson());
     }
   } else {
     if (statDashboardToUpdate.exists) {
-      transaction.update(docRefStatDashboardToUpdate, {'offerVolume': FieldValue.increment(-receipt.totalNet)});
+      transaction.update(docRefStatDashboardToUpdate, {'offerVolume': FieldValue.increment(-offer.totalNet)});
     }
     if (statDashboardToCreate.exists) {
-      transaction.update(docRefStatDashboardToCreate, {'incomingOrders': FieldValue.increment(receipt.totalNet)});
+      transaction.update(docRefStatDashboardToCreate, {'incomingOrders': FieldValue.increment(offer.totalNet)});
     } else {
       final StatDashboard phStatDashboard = StatDashboard.empty();
       final StatDashboard statDashboard = phStatDashboard.copyWith(
         statDashboardId: docRefStatDashboardToCreate.id,
         dateTime: now,
-        incomingOrders: receipt.totalNet,
+        incomingOrders: offer.totalNet,
       );
       transaction.set(docRefStatDashboardToCreate, statDashboard.toJson());
     }

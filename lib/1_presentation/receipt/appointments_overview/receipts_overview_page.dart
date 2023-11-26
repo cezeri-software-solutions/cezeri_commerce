@@ -30,8 +30,9 @@ import '../appointment_detail/appointment_detail_screen.dart';
 class ReceiptsOverviewPage extends StatefulWidget {
   final AppointmentBloc appointmentBloc;
   final MarketplaceBloc marketplaceBloc;
+  final ReceiptTyp receiptTyp;
 
-  const ReceiptsOverviewPage({super.key, required this.appointmentBloc, required this.marketplaceBloc});
+  const ReceiptsOverviewPage({super.key, required this.appointmentBloc, required this.marketplaceBloc, required this.receiptTyp});
 
   @override
   State<ReceiptsOverviewPage> createState() => _ReceiptsOverviewPageState();
@@ -84,6 +85,7 @@ class _ReceiptsOverviewPageState extends State<ReceiptsOverviewPage> {
                           index: index,
                           appointmentBloc: widget.appointmentBloc,
                           listOfMarketplaces: stateMarketplace.listOfMarketplace!,
+                          receiptTyp: widget.receiptTyp,
                         ),
                       ],
                     );
@@ -93,6 +95,7 @@ class _ReceiptsOverviewPageState extends State<ReceiptsOverviewPage> {
                     index: index,
                     appointmentBloc: widget.appointmentBloc,
                     listOfMarketplaces: stateMarketplace.listOfMarketplace!,
+                    receiptTyp: widget.receiptTyp,
                   );
                 },
                 separatorBuilder: (context, index) => const Divider(),
@@ -110,12 +113,14 @@ class _AppointmentContainer extends StatefulWidget {
   final int index;
   final AppointmentBloc appointmentBloc;
   final List<Marketplace> listOfMarketplaces;
+  final ReceiptTyp receiptTyp;
 
   const _AppointmentContainer({
     required this.receipt,
     required this.index,
     required this.appointmentBloc,
     required this.listOfMarketplaces,
+    required this.receiptTyp,
   });
 
   @override
@@ -197,6 +202,7 @@ class __AppointmentContainerState extends State<_AppointmentContainer> {
                                     appointmentBloc: widget.appointmentBloc,
                                     listOfMarketplaces: widget.listOfMarketplaces,
                                     receiptCreateOrEdit: ReceiptCreateOrEdit.edit,
+                                    receiptTyp: widget.receiptTyp,
                                   ),
                                 );
                               },
@@ -387,8 +393,7 @@ class __AppointmentContainerState extends State<_AppointmentContainer> {
       ReceiptTyp.offer => widget.receipt.offerNumberAsString,
       ReceiptTyp.appointment => widget.receipt.appointmentNumberAsString,
       ReceiptTyp.deliveryNote => widget.receipt.deliveryNoteNumberAsString,
-      ReceiptTyp.invoice => widget.receipt.invoiceNumberAsString,
-      ReceiptTyp.credit => widget.receipt.creditNumberAsString,
+      ReceiptTyp.invoice || ReceiptTyp.credit => widget.receipt.invoiceNumberAsString,
     };
     final generatedPdf = await PdfReceiptGenerator.generate(
       receipt: widget.receipt,

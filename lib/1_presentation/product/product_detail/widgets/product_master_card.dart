@@ -54,7 +54,7 @@ class ProductMasterCard extends StatelessWidget {
                       ),
                     ),
                     IconButton(
-                      onPressed: () => showDialog(
+                      onPressed: () async => await showDialog(
                         context: context,
                         barrierDismissible: false,
                         builder: (_) => BlocProvider.value(

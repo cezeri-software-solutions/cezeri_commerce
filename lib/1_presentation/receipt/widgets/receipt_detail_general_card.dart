@@ -105,7 +105,7 @@ class _ReceiptDetailGeneralCardState extends State<ReceiptDetailGeneralCard> {
               onChanged: (marketplaceName) {
                 //selectedMarketplaceName = marketplaceName!;
                 widget.appointmentBloc.add(
-                  OnAppointmentMarketplaceChangedEvent(marketplaceId: widget.listOfMarketplaces.where((e) => e.name == marketplaceName).first.id),
+                  OnAppointmentMarketplaceChangedEvent(marketplace: widget.listOfMarketplaces.where((e) => e.name == marketplaceName).first),
                 );
               },
               items: marketplaceNames,

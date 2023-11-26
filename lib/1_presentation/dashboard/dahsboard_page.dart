@@ -20,7 +20,7 @@ class DashboardPage extends StatelessWidget {
       bloc: dashboardBloc,
       builder: (context, state) {
         final screenWidth = MediaQuery.sizeOf(context).width;
-        final defStatContainerWidth = screenWidth / 4 - 20;
+        final defStatContainerWidth = screenWidth / 5 - 20;
 
         return SingleChildScrollView(
           child: Padding(
@@ -31,13 +31,18 @@ class DashboardPage extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     StatContainer(
-                      title: 'Offene Aufträge seit gestern',
+                      title: 'Offene Aufträge seit letztem Werktag',
                       body: state.listOfAppointments!.length.toString(),
                       width: defStatContainerWidth,
                     ),
                     StatContainer(
-                      title: 'Offene & bezahlte Aufträge seit gestern',
+                      title: 'Offene & bezahlte Aufträge seit letztem Werktag',
                       body: state.listOfAppointments!.where((e) => e.paymentStatus == PaymentStatus.paid).toList().length.toString(),
+                      width: defStatContainerWidth,
+                    ),
+                    StatContainer(
+                      title: 'Offene Angebote akt. Monat',
+                      body: '${state.curStatDashboard!.offerVolume.toMyCurrencyStringToShow()} €',
                       width: defStatContainerWidth,
                     ),
                     StatContainer(

@@ -129,6 +129,23 @@ class MainSettingsBloc extends Bloc<MainSettingsEvent, MainSettingsState> {
     });
 
 //? ##############################################################################
+
+    on<AddEditPaymentMethodMarketplaceNameEvent>((event, emit) async {
+      List<PaymentMethod> paymentMethods = List.from(state.mainSettings!.paymentMethods);
+
+      final index = paymentMethods.indexWhere((e) => e.name == event.paymentMethod.name);
+      if (index != -1) {
+        paymentMethods[index] = paymentMethods[index].copyWith(nameInMarketplace: event.value);
+      } else {
+        return;
+      }
+
+      MainSettings updatedMainSettings = state.mainSettings!.copyWith(paymentMethods: paymentMethods);
+
+      add(UpdateMainSettingsEvent(mainSettings: updatedMainSettings));
+    });
+
+//? ##############################################################################
 //? ########################## Packaging Boxes ###################################
 
     on<PackagingBoxMainSettingsAddEvent>((event, emit) async {

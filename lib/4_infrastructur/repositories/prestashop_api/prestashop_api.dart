@@ -22,6 +22,7 @@ import '../../../3_domain/entities_presta/customer_presta.dart';
 import '../../../3_domain/entities_presta/language_presta.dart';
 import '../../../3_domain/entities_presta/order_id_presta.dart';
 import '../../../3_domain/entities_presta/order_presta.dart';
+import '../../../3_domain/entities_presta/product_id_presta.dart';
 import '../../../3_domain/entities_presta/product_presta.dart';
 import '../../../3_domain/entities_presta/product_presta_image.dart';
 import '../../../3_domain/entities_presta/stock_available_presta.dart';
@@ -131,6 +132,22 @@ class PrestashopApi with UiLoggy {
   }
 
   //* Products */
+  Future<List<ProductIdPresta>> getProductIds() async {
+    final payload = await _doGetJson(
+      '${_conf.webserviceUrl}products?ws_key=${_conf.apiKey}&output_format=JSON',
+    );
+
+    return ProductsIdPresta.fromJson(payload).items;
+  }
+
+  Future<List<ProductIdPresta>> getProductIdsOnlyActive() async {
+    final payload = await _doGetJson(
+      '${_conf.webserviceUrl}products?ws_key=${_conf.apiKey}&filter[active]=[1]&output_format=JSON',
+    );
+
+    return ProductsIdPresta.fromJson(payload).items;
+  }
+
   Future<Optional<ProductPresta>> getProduct(final int id, final Marketplace marketplace) async {
     final payload = await _doGetJson(
       '${_conf.webserviceUrl}products?ws_key=${_conf.apiKey}&filter[id]=[$id]&output_format=JSON&display=full',
@@ -420,6 +437,9 @@ class PrestashopApi with UiLoggy {
     );
 
     if (response.statusCode == 200) {
+      print('#################################################################################');
+      print(response.body);
+      print('#################################################################################');
       return true;
     }
     loggy.error(response);
@@ -434,6 +454,7 @@ class PrestashopApi with UiLoggy {
     StockAvailablePresta? stockAvailablesPresta;
     List<LanguagePresta> listOfLanguagesPresta = [];
 
+    // TODO: Wenn Variantenartikel importiert werden können ENTFERNEN
     final isVariantProduct = phProductPresta.associations.associationsStockAvailables!.length > 1;
     if (isVariantProduct) return throw PrestashopApiException;
 

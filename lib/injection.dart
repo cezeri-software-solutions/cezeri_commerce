@@ -42,7 +42,7 @@ final sl = GetIt.I;
 
 Future<void> init() async {
   //! state management
-  sl.registerFactory(() => ProductImportBloc(productImportRepository: sl()));
+  sl.registerFactory(() => ProductImportBloc(productImportRepository: sl(), mainSettingsRepository: sl()));
   sl.registerFactory(() => ProductBloc(productRepository: sl(), productEditRepository: sl()));
   sl.registerFactory(() => AuthBloc(authRepository: sl(), clientRepository: sl()));
   sl.registerFactory(() => SignInFormBloc(authRepository: sl()));
@@ -77,7 +77,7 @@ Future<void> init() async {
   sl.registerLazySingleton<DashboardRepository>(() => DashboardRepositoryImpl(db: sl(), firebaseAuth: sl()));
 
   //! repositories Prestashop
-  sl.registerLazySingleton<ProductImportRepository>(() => ProductImportRepositoryImpl());
+  sl.registerLazySingleton<ProductImportRepository>(() => ProductImportRepositoryImpl(db: sl(), firebaseAuth: sl(), productRepository: sl()));
   sl.registerLazySingleton<ProductEditRepository>(() => ProductEditRepositoryImpl(db: sl(), firebaseAuth: sl()));
 
   //! extern

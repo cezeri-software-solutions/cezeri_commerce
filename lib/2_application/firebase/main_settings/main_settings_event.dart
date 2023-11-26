@@ -44,6 +44,13 @@ class EnableOrDisablePaymentMethodEvent extends MainSettingsEvent {
   EnableOrDisablePaymentMethodEvent({required this.value, required this.paymentMethod});
 }
 
+class AddEditPaymentMethodMarketplaceNameEvent extends MainSettingsEvent {
+  final String value;
+  final PaymentMethod paymentMethod;
+
+  AddEditPaymentMethodMarketplaceNameEvent({required this.value, required this.paymentMethod});
+}
+
 //? ################################################################
 //? ########################## Packaging Boxes #####################
 

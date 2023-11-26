@@ -114,6 +114,24 @@ class ReceiptsOverviewScreen extends StatelessWidget {
                     context.router.popTop();
                   },
                   (unit) {
+                    myScaffoldMessenger(context, null, null, 'Dokument wurde erfolgreich generiert', null);
+                    context.router.popTop();
+                  },
+                ),
+              );
+            },
+          ),
+          BlocListener<AppointmentBloc, AppointmentState>(
+            listenWhen: (p, c) => p.fosReceiptsOnGenerateOption != c.fosReceiptsOnGenerateOption,
+            listener: (context, state) {
+              state.fosReceiptsOnGenerateOption.fold(
+                () => null,
+                (a) => a.fold(
+                  (failure) {
+                    myScaffoldMessenger(context, failure, null, null, null);
+                    context.router.popTop();
+                  },
+                  (unit) {
                     myScaffoldMessenger(context, null, null, 'Dokumente wurden erfolgreich generiert', null);
                     context.router.popTop();
                   },
@@ -124,6 +142,7 @@ class ReceiptsOverviewScreen extends StatelessWidget {
         ],
         child: BlocBuilder<AppointmentBloc, AppointmentState>(
           builder: (context, state) {
+            print(receiptTyp);
             return Scaffold(
               drawer: const AppDrawer(),
               appBar: AppBar(
@@ -146,7 +165,16 @@ class ReceiptsOverviewScreen extends StatelessWidget {
                         context: context,
                         builder: (_) => BlocProvider.value(
                           value: appointmentBloc,
-                          child: _GenerateDialog(listOfReceipts: state.selectedReceipts, appointmentBloc: appointmentBloc),
+                          child: switch (receiptTyp) {
+                            ReceiptTyp.offer =>
+                              _GenerateFromOfferNewAppointmentDialog(listOfReceipts: state.selectedReceipts, appointmentBloc: appointmentBloc),
+                            ReceiptTyp.appointment =>
+                              _GenerateFromAppointmentDialog(listOfReceipts: state.selectedReceipts, appointmentBloc: appointmentBloc),
+                            ReceiptTyp.invoice => state.selectedReceipts.length > 1
+                                ? const MyInfoDialog(title: 'Achtug', content: 'Du darfst maximal eine Rechnung auswählen, zum generieren einer Gutschrift')
+                                : _GenerateFromInvoiceNewCreditDialog(listOfReceipts: state.selectedReceipts, appointmentBloc: appointmentBloc),
+                            _ => const Dialog(),
+                          },
                         ),
                       ),
                       icon: const Icon(Icons.send, color: CustomColors.primaryColor),
@@ -284,7 +312,7 @@ class ReceiptsOverviewScreen extends StatelessWidget {
                         ),
                       ),
                   },
-                  ReceiptsOverviewPage(appointmentBloc: appointmentBloc, marketplaceBloc: marketplaceBloc),
+                  ReceiptsOverviewPage(appointmentBloc: appointmentBloc, marketplaceBloc: marketplaceBloc, receiptTyp: receiptTyp),
                 ],
               ),
             );
@@ -305,17 +333,67 @@ class ReceiptsOverviewScreen extends StatelessWidget {
   }
 }
 
-class _GenerateDialog extends StatefulWidget {
+class _GenerateFromOfferNewAppointmentDialog extends StatefulWidget {
   final AppointmentBloc appointmentBloc;
   final List<Receipt> listOfReceipts;
 
-  const _GenerateDialog({required this.appointmentBloc, required this.listOfReceipts});
+  const _GenerateFromOfferNewAppointmentDialog({required this.appointmentBloc, required this.listOfReceipts});
 
   @override
-  State<_GenerateDialog> createState() => __GenerateDialogState();
+  State<_GenerateFromOfferNewAppointmentDialog> createState() => _GenerateFromOfferNewAppointmentDialogState();
 }
 
-class __GenerateDialogState extends State<_GenerateDialog> {
+class _GenerateFromOfferNewAppointmentDialogState extends State<_GenerateFromOfferNewAppointmentDialog> {
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<AppointmentBloc, AppointmentState>(
+      builder: (context, state) {
+        return Dialog(
+          child: SizedBox(
+            width: 600,
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text('Versenden', style: TextStyles.h1),
+                  const Divider(),
+                  Gaps.h24,
+                  Text('Ausgewählte Belege: ${widget.listOfReceipts.length}', style: TextStyles.h3BoldPrimary),
+                  Gaps.h42,
+                  const Text('Generiert Aufträge aus den ausgewählten Angeboten.', style: TextStyles.h3Bold),
+                  Gaps.h54,
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: MyOutlinedButton(
+                      buttonText: 'Anlegen',
+                      buttonBackgroundColor: Colors.green,
+                      isLoading: state.isLoadingReceiptOnGenerate,
+                      onPressed: () => widget.appointmentBloc.add(OnGenerateFromOfferNewAppointmentEvent()),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _GenerateFromAppointmentDialog extends StatefulWidget {
+  final AppointmentBloc appointmentBloc;
+  final List<Receipt> listOfReceipts;
+
+  const _GenerateFromAppointmentDialog({super.key, required this.appointmentBloc, required this.listOfReceipts});
+
+  @override
+  State<_GenerateFromAppointmentDialog> createState() => __GenerateFromAppointmentDialogState();
+}
+
+class __GenerateFromAppointmentDialogState extends State<_GenerateFromAppointmentDialog> {
   bool _generateDeliveryNote = true;
   bool _printDeliveryNote = false;
   bool _generateInvoice = true;
@@ -387,6 +465,56 @@ class __GenerateDialogState extends State<_GenerateDialog> {
                         generateDeliveryNote: _generateDeliveryNote,
                         generateInvoice: _generateInvoice,
                       )),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _GenerateFromInvoiceNewCreditDialog extends StatefulWidget {
+  final AppointmentBloc appointmentBloc;
+  final List<Receipt> listOfReceipts;
+
+  const _GenerateFromInvoiceNewCreditDialog({required this.appointmentBloc, required this.listOfReceipts});
+
+  @override
+  State<_GenerateFromInvoiceNewCreditDialog> createState() => _GenerateFromInvoiceNewCreditDialogState();
+}
+
+class _GenerateFromInvoiceNewCreditDialogState extends State<_GenerateFromInvoiceNewCreditDialog> {
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<AppointmentBloc, AppointmentState>(
+      builder: (context, state) {
+        return Dialog(
+          child: SizedBox(
+            width: 600,
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text('Versenden', style: TextStyles.h1),
+                  const Divider(),
+                  Gaps.h24,
+                  Text('Ausgewählte Belege: ${widget.listOfReceipts.length}', style: TextStyles.h3BoldPrimary),
+                  Gaps.h42,
+                  const Text('Generiert eine Gutschrift aus der ausgewählten Rechnung.', style: TextStyles.h3Bold),
+                  Gaps.h54,
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: MyOutlinedButton(
+                      buttonText: 'Anlegen',
+                      buttonBackgroundColor: Colors.green,
+                      isLoading: state.isLoadingReceiptOnGenerate,
+                      onPressed: () => widget.appointmentBloc.add(OnGenerateFromInvoiceNewCreditEvent()),
                     ),
                   ),
                 ],
@@ -490,6 +618,7 @@ class _SelectCustomerDialogState extends State<_SelectCustomerDialog> {
                                   appointmentBloc: widget.appointmentBloc,
                                   listOfMarketplaces: widget.marketplaceBloc.state.listOfMarketplace!,
                                   receiptCreateOrEdit: ReceiptCreateOrEdit.create,
+                                  receiptTyp: widget.receiptTyp,
                                 ),
                               );
                             },

@@ -56,6 +56,12 @@ XmlDocument productUpdater({
               final value = languagePresta.isoCode.toUpperCase() == 'DE' ? product.name : productLanguage.value;
               languageElement.innerText = value;
             }
+          } else {
+            if (languagePresta.isoCode.toUpperCase() == 'DE') {
+              var languageElement =
+                  nameElement.findElements('language').where((element) => element.getAttribute('id') == languagePresta.id.toString()).firstOrNull;
+              if (languageElement != null) languageElement.innerText = product.name;
+            }
           }
         }
       }
@@ -74,11 +80,21 @@ XmlDocument productUpdater({
         if (languagePresta != null) {
           final productLanguage = listOfDescription.where((e) => e.isoCode.toUpperCase() == languagePresta.isoCode.toUpperCase()).firstOrNull;
           if (productLanguage != null) {
-            var languageElement =
-                descriptionElement.findElements('language').where((element) => element.getAttribute('id') == languagePresta.id.toString()).firstOrNull;
+            var languageElement = descriptionElement
+                .findElements('language')
+                .where((element) => element.getAttribute('id') == languagePresta.id.toString())
+                .firstOrNull;
             if (languageElement != null) {
               final value = languagePresta.isoCode.toUpperCase() == 'DE' ? product.description : productLanguage.value;
               languageElement.innerText = value;
+            }
+          } else {
+            if (languagePresta.isoCode.toUpperCase() == 'DE') {
+              var languageElement = descriptionElement
+                  .findElements('language')
+                  .where((element) => element.getAttribute('id') == languagePresta.id.toString())
+                  .firstOrNull;
+              if (languageElement != null) languageElement.innerText = product.description;
             }
           }
         }

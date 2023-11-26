@@ -23,7 +23,8 @@ class AppointmentState {
   final Option<Either<FirebaseFailure, Receipt>> fosReceiptOnCreateOption;
   final Option<Either<FirebaseFailure, Unit>> fosReceiptOnUpdateOption;
   final Option<Either<FirebaseFailure, Unit>> fosReceiptOnDeleteOption;
-  final Option<Either<FirebaseFailure, List<Receipt>>> fosReceiptOnGenerateOption;
+  final Option<Either<FirebaseFailure, Receipt>> fosReceiptOnGenerateOption;
+  final Option<Either<FirebaseFailure, List<Receipt>>> fosReceiptsOnGenerateOption;
 
   //* --- helper --- *//
   final bool isAllReceiptsSeledcted;
@@ -60,6 +61,7 @@ class AppointmentState {
     required this.fosReceiptOnUpdateOption,
     required this.fosReceiptOnDeleteOption,
     required this.fosReceiptOnGenerateOption,
+    required this.fosReceiptsOnGenerateOption,
     required this.isAllReceiptsSeledcted,
     required this.isExpanded,
     required this.receiptSearchText,
@@ -93,6 +95,7 @@ class AppointmentState {
         fosReceiptOnUpdateOption: none(),
         fosReceiptOnDeleteOption: none(),
         fosReceiptOnGenerateOption: none(),
+        fosReceiptsOnGenerateOption: none(),
         isAllReceiptsSeledcted: false,
         isExpanded: const [],
         receiptSearchText: '',
@@ -125,7 +128,8 @@ class AppointmentState {
     Option<Either<FirebaseFailure, Receipt>>? fosReceiptOnCreateOption,
     Option<Either<FirebaseFailure, Unit>>? fosReceiptOnUpdateOption,
     Option<Either<FirebaseFailure, Unit>>? fosReceiptOnDeleteOption,
-    Option<Either<FirebaseFailure, List<Receipt>>>? fosReceiptOnGenerateOption,
+    Option<Either<FirebaseFailure, Receipt>>? fosReceiptOnGenerateOption,
+    Option<Either<FirebaseFailure, List<Receipt>>>? fosReceiptsOnGenerateOption,
     bool? isAllReceiptsSeledcted,
     List<bool>? isExpanded,
     String? receiptSearchText,
@@ -153,11 +157,13 @@ class AppointmentState {
       fosReceiptOnObserveOption: fosReceiptOnObserveOption ?? this.fosReceiptOnObserveOption,
       fosReceiptsOnObserveOption: fosReceiptsOnObserveOption ?? this.fosReceiptsOnObserveOption,
       fosAppointmentsOnObserveFromPrestaOption: fosAppointmentsOnObserveFromPrestaOption ?? this.fosAppointmentsOnObserveFromPrestaOption,
-      fosAppointmentsOnObserveFromMarketplacesOption: fosAppointmentsOnObserveFromMarketplacesOption ?? this.fosAppointmentsOnObserveFromMarketplacesOption,
+      fosAppointmentsOnObserveFromMarketplacesOption:
+          fosAppointmentsOnObserveFromMarketplacesOption ?? this.fosAppointmentsOnObserveFromMarketplacesOption,
       fosReceiptOnCreateOption: fosReceiptOnCreateOption ?? this.fosReceiptOnCreateOption,
       fosReceiptOnUpdateOption: fosReceiptOnUpdateOption ?? this.fosReceiptOnUpdateOption,
       fosReceiptOnDeleteOption: fosReceiptOnDeleteOption ?? this.fosReceiptOnDeleteOption,
       fosReceiptOnGenerateOption: fosReceiptOnGenerateOption ?? this.fosReceiptOnGenerateOption,
+      fosReceiptsOnGenerateOption: fosReceiptsOnGenerateOption ?? this.fosReceiptsOnGenerateOption,
       isAllReceiptsSeledcted: isAllReceiptsSeledcted ?? this.isAllReceiptsSeledcted,
       isExpanded: isExpanded ?? this.isExpanded,
       receiptSearchText: receiptSearchText ?? this.receiptSearchText,

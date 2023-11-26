@@ -1,0 +1,259 @@
+{
+  "products": [
+    {
+      "id": 23,
+      "id_manufacturer": "0",
+      "id_supplier": "0",
+      "id_category_default": "38",
+      "new": null,
+      "cache_default_attribute": "0",
+      "id_default_image": "5123",
+      "id_default_combination": 0,
+      "id_tax_rules_group": "58",
+      "position_in_category": "1",
+      "manufacturer_name": false,
+      "quantity": "0",
+      "type": "simple",
+      "id_shop_default": "1",
+      "reference": "303_FA_319001",
+      "supplier_reference": "",
+      "location": "",
+      "width": "0.000000",
+      "height": "0.000000",
+      "depth": "0.000000",
+      "weight": "2.000000",
+      "quantity_discount": "0",
+      "ean13": "1239810481047",
+      "isbn": "",
+      "upc": "",
+      "mpn": "",
+      "cache_is_pack": "0",
+      "cache_has_attachments": "0",
+      "is_virtual": "0",
+      "state": "1",
+      "additional_delivery_times": "0",
+      "delivery_in_stock": [
+        {
+          "id": "1",
+          "value": ""
+        },
+        {
+          "id": "2",
+          "value": ""
+        },
+        {
+          "id": "3",
+          "value": ""
+        }
+      ],
+      "delivery_out_stock": [
+        {
+          "id": "1",
+          "value": ""
+        },
+        {
+          "id": "2",
+          "value": ""
+        },
+        {
+          "id": "3",
+          "value": ""
+        }
+      ],
+      "product_type": "",
+      "on_sale": "0",
+      "online_only": "0",
+      "ecotax": "0.000000",
+      "minimal_quantity": "0",
+      "low_stock_threshold": "0",
+      "low_stock_alert": "0",
+      "price": "48.208333",
+      "wholesale_price": "28.210000",
+      "unity": "",
+      "unit_price_ratio": "0.000000",
+      "additional_shipping_cost": "0.000000",
+      "customizable": "0",
+      "text_fields": "0",
+      "uploadable_files": "0",
+      "active": "1",
+      "redirect_type": "404",
+      "id_type_redirected": "0",
+      "available_for_order": "1",
+      "available_date": "0000-00-00",
+      "show_condition": "0",
+      "condition": "new",
+      "show_price": "1",
+      "indexed": "1",
+      "visibility": "both",
+      "advanced_stock_management": "0",
+      "date_add": "2021-12-23 09:16:28",
+      "date_upd": "2023-03-21 08:21:22",
+      "pack_stock_type": "0",
+      "meta_description": [
+        {
+          "id": "1",
+          "value": "Die perfekte Kombination zum Pflegen Ihres Autos."
+        },
+        {
+          "id": "2",
+          "value": "Die perfekte Kombination zum Pflegen Ihres Autos."
+        },
+        {
+          "id": "3",
+          "value": "Die perfekte Kombination zum Pflegen Ihres Autos."
+        }
+      ],
+      "meta_keywords": [
+        {
+          "id": "1",
+          "value": ""
+        },
+        {
+          "id": "2",
+          "value": ""
+        },
+        {
+          "id": "3",
+          "value": ""
+        }
+      ],
+      "meta_title": [
+        {
+          "id": "1",
+          "value": ""
+        },
+        {
+          "id": "2",
+          "value": ""
+        },
+        {
+          "id": "3",
+          "value": ""
+        }
+      ],
+      "link_rewrite": [
+        {
+          "id": "1",
+          "value": "solo-vario-foam-303fa-koch-chemie-protectorwax"
+        },
+        {
+          "id": "2",
+          "value": "solo-vario-foam-303fa-koch-chemie-protectorwax"
+        },
+        {
+          "id": "3",
+          "value": "solo-vario-foam-303fa-koch-chemie-protectorwax"
+        }
+      ],
+      "name": [
+        {
+          "id": "1",
+          "value": "SOLO Vario Foam 303FA + Koch Chemie ProtectorWax"
+        },
+        {
+          "id": "2",
+          "value": "SOLO Vario Foam 303FA + Koch Chemie ProtectorWax"
+        },
+        {
+          "id": "3",
+          "value": "SOLO Vario Foam 303FA + Koch Chemie ProtectorWax"
+        }
+      ],
+      "description": [
+        {
+          "id": "1",
+          "value": "<h2>SOLO Vario Foam + Koch Chemie ProtectorWax</h2>\n<h2><br /></h2>\n<h2>SOLO - CLEANLine Vario Foam 303FA - Foam Sprayer</h2>\n<h2><br /></h2>\n<p>SOLO - CLEANLine Vario Foam 303FA is the new innovation of foam sprayers. This foam sprayer makes it possible to adjust the foam pattern individually WITHOUT changing the nozzle attachment. This is made possible by the blue turning wheel on the Foamer. The user has the possibility to adjust between very thick and thin foam steplessly. </p>\n<p>You will never have to worry again about the foam pattern not meeting your requirements.</p>\n<p>Furthermore, this foam sprayer produces a very wide foam pattern, so the car can be fully foamed from top to bottom in just one pass.</p>\n<p>Due to its PH resistance of pH 1 - 7, the Vario Foam 303FA can also be used without hesitation in combination with the Koch Chemie - ProtectorWax can be applied.</p>\n<p><br /></p>\n<p><span style=\"text-decoration:underline;\"><strong>Features:</strong></span></p>\n<ul><li>Individual foam adjustment through varioFOAM</li>\n<li>Lightweight, stable and robust container</li>\n<li>Container with clearly visible scale and large opening</li>\n<li>Safe stand due to 3 standing feet</li>\n<li>FKM sealing material for agents in the pH range 1-7</li>\n<li>Nominal volume 1.25 liters</li>\n<li>Maximum operating pressure 3 bar</li>\n<li>Special flat jet nozzle with foaming function</li>\n<li>Safety valve for pressure reduction when emptying</li>\n<li>Smooth-running, encapsulated pump with large pump handle for efficient and fast pressure build-up up to max. 3 bar</li>\n</ul><p><br /></p>\n\n<h2>Koch Chemie - ProtectorWax - Premium Preservative Wax P - 1L</h2>\n<p>Koch Chemie ProtectorWax 1L is a premium preservative wax which gives the vehicle high gloss, beading effect and intensive protection.</p>\n<p>The innovative premium preservierungswachs sets new standards in terms of protection, durability, extreme deep gloss, long-term hydrophobicity (Abpereffekt), easy to clean performance, velvety soft feel and microbead-free vehicle drying.</p><p>\n</p><p>The use of polyfunctional reactive components in conjunction with the highest quality care components, which bond firmly as a network with the surfaces, guarantee perfect and long-lasting high-gloss preservation and improved visibility in the rain (good drip drive).</p><p>\n</p><p>With regular use, the gloss protection effect increases, fine scratches are covered and all rubber and plastic parts as well as convertible roof materials are impregnated and thus protected against fading and embrittlement. </p>\n<p>ProtectorWax thus makes a significant contribution to maintaining the value of vehicles.</p>\n<p>Can be used as hot, cold and foam wax (by machine and manually).</p>\n<p>Even with high conductivity values of the service water and with difficult blower geometries provide optimal drying results.</p>\n<p>Special fragrances provide a fruity scent.</p>\n<p>Perfectly suitable for all filter systems and biological industrial water treatment systems.</p>\n<p>Contains no mineral oil hydrocarbons. </p>\n<p>VDA compliant Class A.</p>\n<p><br /></p>\n<p><span style=\"text-decoration:underline;\"><strong>Applications:</strong></span></p>\n<p>Gantry car washes, car washes, self-service car washes, foam gun, etc.</p>\n<p><br /></p>\n<p><span style=\"text-decoration:underline;\"><strong>Application recommendation:</strong></span></p>\n<p><strong>1. Machine application:</strong></p>\n<p>Apply via metering pump neat to 1:2.</p>\n<p><span style=\"text-decoration:underline;\">Recommended consumption per car:</span></p>\n<p>- Hot/cold wax: 13 - 19 ml</p>\n<p>- Foam wax: 13 19 ml</p>\n<p>- Premium wax: 16 23 ml</p>\n<p>To avoid limescale stains discard residual water using a cloth if no blower or osmosis water after-treatment is available. </p>\n<p>VDA compliant class A</p>\n<p><br /></p>\n<p><strong>2. manual application:</strong></p>\n<p>Add approx. 30ml ProtectorWax to 1L water and apply to the cleaned, still wet vehicle using a foam sprayer or pump sprayer and allow to act for a short time.</p><p>\n</p><p>Rinse off the product with a high-pressure cleaner to avoid stains.</p><p>\n</p><p>When applying with a ubic cannon, adjust pre-dilution accordingly.</p>\n<p>Dry off any remaining water.</p>\n<p>Mix product for one application at a time and do not store.</p>\n<p><br /></p>"
+        },
+        {
+          "id": "2",
+          "value": "<h2>SOLO Vario Foam + Koch Chemie ProtectorWax</h2>\n<h2><br /></h2>\n<h2>SOLO - CLEANLine Vario Foam 303FA - Schaumsprüher</h2>\n<h2><br /></h2>\n<p>SOLO - CLEANLine Vario Foam 303FA ist die neue Innovation der Schaumsprüher. Dieser Schaumsprüher ermöglicht es das Schaumbild individiuell einzustellen OHNE den Düsenaufsatz zu wechseln. Dies wird durch das blaue Drehrad am Foamer ermöglicht. Der Nutzer hat die Möglichkeit zwischen sehr dickflüssigen und dünnflüssigen Schaum stufenlos einzustellen. </p>\n<p>Sie brauchen sich nie mehr wider Sorgen machen, dass das Schaumbild nicht Ihren Anforderungen entspricht.</p>\n<p>Außerdem erzeugt dieser Schaumsprüher ein sehr breites Schaumbild, sodass das Auto von oben bis unten in nur einem Durchgang vollgeschäumt werden kann.</p>\n<p>Durch seine PH Beständigkeit von pH 1 - 7 kann der Vario Foam 303FA bedenkenlos auch in Kombination mit dem Koch Chemie - ProtectorWax angewandt werden.</p>\n<p><br /></p>\n<p><span style=\"text-decoration:underline;\"><strong>EIGENSCHAFTEN:</strong></span></p>\n<ul><li>Individuelle Schaumeinstellung durch varioFOAM</li>\n<li>Leichter, stabiler und robuster Behälter</li>\n<li>Behälter mit gut sichtbarer Skala und großer Öffnung</li>\n<li>Sicherer Stand durch 3 Stehfüße </li>\n<li>FKM Dichtungsmaterial für Mittel im pH-Bereich 1-7</li>\n<li>Nennvolumen 1,25 Liter</li>\n<li>Maximaler Betriebsdruck 3 bar</li>\n<li>Spezielle Flachstrahldüse mit Schäumfunktion</li>\n<li>Sicherheitsventil zum Druckabbau bei Entleerung </li>\n<li>Leichtgängige, gekapselte Pumpe mit großem Pumpengriff für effizienten und schnellen Druckaufbau bis max. 3 bar</li>\n</ul><p><br /></p>\n<p><br /></p>\n<h2>Koch Chemie - ProtectorWax - Premium-Konservierungswachs P - 1L</h2>\n<p>Koch Chemie ProtectorWax 1L ist ein  Premium-Konservierungswachs welches dem Fahrzeug Hochglanz, Abperleffekt und intensiven Schutz verleiht.</p>\n<p>Das innovative Premium-Konservierungswachs setzt in Sachen Schutz, Beständigkeit, extremer Tiefenglanz, Langzeit-Hydrophobierung (Abpereffekt), easy to clean Performance, samtweicher Haptik und mikroperlenfreier Fahrzeugtrocknung neue Maßstäbe.</p>\n<p>Der Einsatz von polyfunktionalen Reaktivkomponenten im Zusammenwirken mit hochwertigsten Pflegekomponenten, welche sich fest als Netzwerk mit den Oberflächen verbinden, garantieren eine perfekte und langanhaltende Hochglanzkonservierung und eine verbesserte Sicht bei Regen (guter Tropfentrieb).</p>\n<p>Bei regelmäßiger Anwendung erhöht sich die Glanz-Schutzwirkung, feine Kratzer werden abgedeckt und alle Gummi- und Kunststoffteile sowie Cabriodachmaterialien werden imprägniert und so vor Ausbleichen und Verspröden geschützt. </p>\n<p>ProtectorWax trägt somit maßgeblich zur Werterhaltung der Fahrzeuge bei.</p>\n<p>Als Heiß-, Kalt- und Schaumwachs einsetzbar (maschinell und manuell).</p>\n<p>Erzielt selbst bei hohen Leitwerten des Brauchwassers und bei schwierigen Gebläsegeometrien optimale Trocknungsergebnisse.</p>\n<p>Für eine fruchtige Beduftung sorgen Spezialduftstoffe.</p>\n<p>Für alle Filtersysteme und biologische Brauchwasseraufbereitungs-Systeme optimal geeignet.</p>\n<p>Enthält keine Mineralölkohlenwasserstoffe. </p>\n<p>VDA-konform Klasse A.</p>\n<p><br /></p>\n<p><span style=\"text-decoration:underline;\"><strong>Anwendungsgebiete:</strong></span></p>\n<p>Portalwaschanlagen, Waschstraßen, SB-Anlagen, Schaumkanone etc.</p>\n<p><br /></p>\n<p><span style=\"text-decoration:underline;\"><strong>Anwendungsempfehlung:</strong></span></p>\n<p><strong>1. Maschinelle Anwendung:</strong></p>\n<p>Über Dosierpumpe pur bis 1:2 auftragen.</p>\n<p><span style=\"text-decoration:underline;\">Empfohlener Verbrauch pro PKW:</span></p>\n<p>- Heiß-/Kaltwachs: 13 - 19 ml</p>\n<p>- Schaumwachs: 13 19 ml</p>\n<p>- Premiumwachs: 16 23 ml</p>\n<p>Um Kalkflecken zu vermeiden Restwasser mittels Tuch abledern falls kein Gebläse oder keine Osmosewassernachbehandlung vorhanden ist. </p>\n<p>VDA-konform Klasse A</p>\n<p><br /></p>\n<p><strong>2. Manuelle Anwendung:</strong></p>\n<p>Ca. 30ml ProtectorWax auf 1L Wasser geben und mittels Schaumsprüher oder Pumpzersträuber auf das gereinigte, noch nasse Fahrzeug auftragen und kurz einwirken lassen.</p>\n<p>Das Produkt mittels Hochdruckreiniger abspülen um Flecken zu vermeiden.</p>\n<p>Bei Anwendung mittels Schamkanone Vorverdünnung entsprechend anpassen.</p>\n<p>Restwasser abtrocknen.</p>\n<p>Produkt nur jeweils für eine Anwendung anmischen und nicht lagern.</p>\n<p><br /></p>"
+        },
+        {
+          "id": "3",
+          "value": "<h2>SOLO Vario Foam + Koch Chemie ProtectorWax</h2>\n<h2><br /></h2>\n<h2>SOLO - CLEANLine Vario Foam 303FA - Spruzzatore di schiuma</h2>\n<h2><br /></h2>\n<p>SOLO - CLEANLine Vario Foam 303FA è la nuova innovazione degli spruzzatori di schiuma. Questo spruzzatore di schiuma permette di regolare individualmente il modello di schiuma SENZA cambiare l'attacco dell'ugello. Ciò è reso possibile dalla rotella blu che gira sul Foamer. L'utente ha la possibilità di regolare tra la schiuma molto spessa e quella sottile in modo continuo. </p>\n<p>Non dovrete mai più preoccuparvi che il modello di schiuma non soddisfi le vostre esigenze.</p>\n<p>Inoltre, questo spruzzatore di schiuma produce un modello di schiuma molto ampio, così l'auto può essere completamente schiumata da cima a fondo in un solo passaggio.</p>\n<p>Grazie alla sua resistenza al PH 1 - 7, il Vario Foam 303FA può essere utilizzato senza esitazione anche in combinazione con la Koch Chemie - ProtectorWax può essere applicato.</p>\n<p><br /></p>\n<p><span style=\"text-decoration:underline;\"><strong>Caratteristiche:</strong></span></p>\n<ul><li>Individoppia regolazione della schiuma tramite varioFOAM</li>\n<li>Contenitore leggero, stabile e robusto</li>\n<li>Contenitore con scala ben visibile e grande apertura</li>\n<li>Supporto sicuro grazie a 3 piedi di appoggio</li>\n<li>Materiale di tenuta FKM per agenti nella gamma di pH 1-7</li>\n<li>Volume nominale 1,25 litri</li>\n<li>Pressione massima di esercizio 3 bar</li>\n<li>Speciale ugello a getto piatto con funzione schiumogena</li>\n<li>Valvola di sicurezza per la riduzione della pressione durante lo svuotamento</li>\n<li>Pompa incapsulata a funzionamento regolare con grande manico per un'efficiente e veloce aumento della pressione fino a max. 3 bar</li></ul><p><br /></p>\n<h2>Koch Chemie - ProtectorWax - Cera conservante Premium P - 1L</h2>\n<p>Koch Chemie ProtectorWax 1L è una cera conservante premium che conferisce al veicolo un'elevata brillantezza, effetto perlante e protezione intensiva.\n</p><p>L'innovativo premium preservierungswachs stabilisce nuovi standard in termini di protezione, durata, estrema brillantezza profonda, idrofobicità a lungo termine (Abpereffekt), facile da pulire prestazioni, sensazione di morbidezza vellutata e asciugatura del veicolo senza microsfere.</p><p>\n</p><p>L'uso di componenti reattivi polifunzionali in combinazione con componenti curativi di altissima qualità, che si legano saldamente in rete con le superfici, garantiscono una perfetta e duratura conservazione della brillantezza e una migliore visibilità sotto la pioggia (buona guida antigoccia).</p><p>\n</p><p>Con l'uso regolare, l'effetto di protezione della lucentezza aumenta, i graffi fini vengono coperti e tutte le parti in gomma e plastica e i materiali del tetto convertibile vengono impregnati e quindi protetti dallo sbiadimento e dall'infragilimento. </p>\n<p>ProtectorWax contribuisce così in modo significativo al mantenimento del valore dei veicoli.</p>\n<p>Può essere utilizzata come cera a caldo, a freddo e in schiuma (a macchina e manualmente).</p>\n<p>Anche con alti valori di conducibilità dell'acqua di servizio e con geometrie di soffiatori difficili fornisce risultati di asciugatura ottimali.</p>\n<p>Speciali fragranze forniscono un profumo fruttato.</p>\n<p>Perfettamente adatto a tutti i sistemi di filtraggio e biologiciai sistemi di trattamento delle acque industriali.</p>\n<p>Non contiene idrocarburi di oli minerali. </p>\n<p>Conforme alle norme VDA Classe A.</p>\n<p><br /></p>\n<p><span style=\"text-decoration:underline;\"><strong>Applicazioni:</strong></span></p>\n<p>Lavaggi auto a portale, autolavaggi, autolavaggi self-service, pistola a schiuma, ecc.</p>\n<p><br /></p>\n<p><span style=\"text-decoration:underline;\"><strong>Raccomandazione di applicazione:</strong></span></p>\n<p><strong>1. Applicazione a macchina:</strong></p>\n<p>Applicare tramite pompa dosatrice ordinata a 1:2.</p>\n<p><span style=\"text-decoration:underline;\">Consumo consigliato per auto:</span></p>\n<p>- Cera calda/fredda: 13 - 19 ml</p>\n<p>- Cera schiuma: 13 19 ml</p>\n<p>- Cera premium: 16 23 ml</p>\n<p>Per evitare macchie di calcare scartare l'acqua residua con un panno se non si dispone di un soffiatore o di un post-trattamento dell'acqua di osmosi. </p>\n<p>Compatibile con la classe A della VDA</p>\n<p><br /></p>\n<p><strong>2. applicazione manuale:</strong></p>\n<p>Aggiungere circa 30ml di ProtectorWax a 1L di acqua e applicare sul veicolo pulito e ancora bagnato con una schiuma spruzzatore o spruzzatore a pompa e lasciare agire per un breve periodo.</p><p>\n</p><p>Risciacquare il prodotto con un pulitore ad alta pressione per evitare macchie.</p><p>\n</p><p>Quando si applica con un cannone pubico, regolare la pre-diluizione di conseguenza.</p>\n<p>Asciuga ogni residuo d'acqua.</p>\n<p>Miscelare il prodotto per un'applicazione alla volta e non conservare.</p>\n<p><br /></p>"
+        }
+      ],
+      "description_short": [
+        {
+          "id": "1",
+          "value": "<p>The perfect combination to care for your car.</p>"
+        },
+        {
+          "id": "2",
+          "value": "<p>Die perfekte Kombination zum Pflegen Ihres Autos.</p>"
+        },
+        {
+          "id": "3",
+          "value": "<p>La combinazione perfetta per la cura della tua auto.</p>"
+        }
+      ],
+      "available_now": [
+        {
+          "id": "1",
+          "value": ""
+        },
+        {
+          "id": "2",
+          "value": ""
+        },
+        {
+          "id": "3",
+          "value": ""
+        }
+      ],
+      "available_later": [
+        {
+          "id": "1",
+          "value": ""
+        },
+        {
+          "id": "2",
+          "value": ""
+        },
+        {
+          "id": "3",
+          "value": ""
+        }
+      ],
+      "associations": {
+        "categories": [
+          {
+            "id": "2"
+          },
+          {
+            "id": "4"
+          },
+          {
+            "id": "33"
+          },
+          {
+            "id": "35"
+          },
+          {
+            "id": "38"
+          },
+          {
+            "id": "59"
+          },
+          {
+            "id": "79"
+          },
+          {
+            "id": "106"
+          }
+        ],
+        "images": [
+          {
+            "id": "5123"
+          }
+        ],
+        "stock_availables": [
+          {
+            "id": "62",
+            "id_product_attribute": "0"
+          }
+        ]
+      }
+    }
+  ]
+}

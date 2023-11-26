@@ -96,6 +96,7 @@ abstract class $AppRouter extends _i32.RootStackRouter {
           appointmentBloc: args.appointmentBloc,
           listOfMarketplaces: args.listOfMarketplaces,
           receiptCreateOrEdit: args.receiptCreateOrEdit,
+          receiptTyp: args.receiptTyp,
         ),
       );
     },
@@ -345,6 +346,7 @@ class AppointmentDetailRoute
     required _i34.AppointmentBloc appointmentBloc,
     required List<_i35.Marketplace> listOfMarketplaces,
     required _i1.ReceiptCreateOrEdit receiptCreateOrEdit,
+    required _i36.ReceiptTyp receiptTyp,
     List<_i32.PageRouteInfo>? children,
   }) : super(
           AppointmentDetailRoute.name,
@@ -353,6 +355,7 @@ class AppointmentDetailRoute
             appointmentBloc: appointmentBloc,
             listOfMarketplaces: listOfMarketplaces,
             receiptCreateOrEdit: receiptCreateOrEdit,
+            receiptTyp: receiptTyp,
           ),
           initialChildren: children,
         );
@@ -369,6 +372,7 @@ class AppointmentDetailRouteArgs {
     required this.appointmentBloc,
     required this.listOfMarketplaces,
     required this.receiptCreateOrEdit,
+    required this.receiptTyp,
   });
 
   final _i33.Key? key;
@@ -379,9 +383,11 @@ class AppointmentDetailRouteArgs {
 
   final _i1.ReceiptCreateOrEdit receiptCreateOrEdit;
 
+  final _i36.ReceiptTyp receiptTyp;
+
   @override
   String toString() {
-    return 'AppointmentDetailRouteArgs{key: $key, appointmentBloc: $appointmentBloc, listOfMarketplaces: $listOfMarketplaces, receiptCreateOrEdit: $receiptCreateOrEdit}';
+    return 'AppointmentDetailRouteArgs{key: $key, appointmentBloc: $appointmentBloc, listOfMarketplaces: $listOfMarketplaces, receiptCreateOrEdit: $receiptCreateOrEdit, receiptTyp: $receiptTyp}';
   }
 }
 

@@ -5,14 +5,21 @@ abstract class ProductImportEvent {}
 
 class SetProducImportStateToInitialEvent extends ProductImportEvent {}
 
-class GetAllProductsFromPrestaEvent extends ProductImportEvent {}
-
-class GetProductByIdFromPrestaEvent extends ProductImportEvent {
-  final int id;
+class SetSelectedMarketplaceProductImportEvent extends ProductImportEvent {
   final Marketplace marketplace;
 
-  GetProductByIdFromPrestaEvent({required this.id, required this.marketplace});
+  SetSelectedMarketplaceProductImportEvent({required this.marketplace});
 }
+
+class GetAllProductsFromPrestaEvent extends ProductImportEvent {
+  final bool onlyActive;
+
+  GetAllProductsFromPrestaEvent({required this.onlyActive});
+}
+
+class OnUploadProductToFirestoreEvent extends ProductImportEvent {}
+
+class OnUploadAllProductsToFirestoreEvent extends ProductImportEvent {}
 
 class GetProductByIdAsJsonFromPrestaEvent extends ProductImportEvent {
   final int id;

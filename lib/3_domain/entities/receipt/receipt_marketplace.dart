@@ -1,6 +1,7 @@
 import 'package:json_annotation/json_annotation.dart';
 
 import '../address.dart';
+import '../marketplace/marketplace.dart';
 import '../settings/bank_details.dart';
 
 part 'receipt_marketplace.g.dart';
@@ -22,7 +23,19 @@ class ReceiptMarketplace {
   Map<String, dynamic> toJson() => _$ReceiptMarketplaceToJson(this);
 
   factory ReceiptMarketplace.empty() {
-    return ReceiptMarketplace(address: Address.empty(), bankDetails: BankDetails.empty(), url: '');
+    return ReceiptMarketplace(
+      address: Address.empty(),
+      bankDetails: BankDetails.empty(),
+      url: '',
+    );
+  }
+
+  factory ReceiptMarketplace.fromMarketplace(Marketplace marketplace) {
+    return ReceiptMarketplace(
+      address: marketplace.address,
+      bankDetails: marketplace.bankDetails,
+      url: marketplace.url,
+    );
   }
 
   ReceiptMarketplace copyWith({

@@ -35,6 +35,7 @@ import '../../../3_domain/repositories/prestashop/product/product_import_reposit
 import '../prestashop_api/prestashop_api.dart';
 import '../shipping_methods/austrian_post/austrian_post_api.dart';
 import 'receipt_respository_helper.dart';
+import 'repository_impl_helper.dart';
 
 class ReceiptRespositoryImpl implements ReceiptRepository {
   final FirebaseFirestore db;
@@ -70,8 +71,8 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
   }
 
   @override
-  Future<Either<FirebaseFailure, Unit>> updateAppointment(
-    Receipt appointment,
+  Future<Either<FirebaseFailure, Unit>> updateReceipt(
+    Receipt receipt,
     List<ReceiptProduct> oldListOfReceiptProducts,
     List<ReceiptProduct> newListOfReceiptProducts,
   ) async {
@@ -79,12 +80,12 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
     if (!isConnected) return left(NoConnectionFailure());
 
     final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRef = db.collection(currentUserUid).doc(currentUserUid).collection('Appointments').doc(appointment.id);
+    final docRef = getColRef(currentUserUid, receipt.receiptTyp).doc(receipt.id);
     final docRefStatDashboard = db
         .collection(currentUserUid)
         .doc(currentUserUid)
         .collection('StatDashboard')
-        .doc('${appointment.creationDateMarektplace.year}${appointment.creationDateMarektplace.month}');
+        .doc('${receipt.creationDateMarektplace.year}${receipt.creationDateMarektplace.month}');
 
     try {
       await db.runTransaction((transaction) async {
@@ -143,8 +144,8 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
           }
         }
 
-        await incrementStatDashboardOnUpdateReceipt(appointment, appointmentBeforeUpdate, docRefStatDashboard, dsStatDashboard, transaction);
-        transaction.update(docRef, appointment.toJson());
+        await incrementStatDashboardOnUpdateReceipt(receipt, appointmentBeforeUpdate, docRefStatDashboard, dsStatDashboard, transaction);
+        transaction.update(docRef, receipt.toJson());
       });
       return right(unit);
     } on FirebaseException {
@@ -153,7 +154,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
   }
 
   @override
-  Future<Either<FirebaseFailure, Receipt>> createAppointmentManually(Receipt receipt) async {
+  Future<Either<FirebaseFailure, Receipt>> createReceiptManually(Receipt receipt) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
     final logger = Logger();
@@ -274,7 +275,14 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
             final quantity = int.parse(orderProductPresta.productQuantity);
             final tax = calcTaxPercent((orderProductPresta.unitPriceTaxIncl).toMyDouble(), (orderProductPresta.unitPriceTaxExcl).toMyDouble());
 
-            final productFirestore = await getProductByArticleNumber(orderProductPresta.productReference, marketplace, mainSettings);
+            final productFirestore = await getProductFromFirestoreIfExists(
+              orderProductPresta.productReference,
+              orderProductPresta.productEan13,
+              orderProductPresta.productName,
+              marketplace,
+              mainSettings,
+              productRepository,
+            );
             if (productFirestore == null) {
               final productPresta = await getProductByIdFromPrestashop(int.parse(orderProductPresta.productId), marketplace);
               if (productPresta == null) return left(GeneralFailure as FirebaseFailure);
@@ -288,6 +296,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
                 productPresta,
                 marketplace,
                 mainSettings,
+                productRepository,
               );
               if (createdProductFirestore == null) return left(GeneralFailure as FirebaseFailure);
               appointmentProduct = createdProductFirestore;
@@ -408,7 +417,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
     final colRef = value != 0
         ? getColRef(currentUserUid, receiptTyp)
         : switch (receiptTyp) {
-            ReceiptTyp.offer => getColRef(currentUserUid, receiptTyp).where('offerStatus', isEqualTo: OfferStatus.closed.name),
+            ReceiptTyp.offer => getColRef(currentUserUid, receiptTyp).where('offerStatus', isEqualTo: OfferStatus.open.name),
             ReceiptTyp.appointment => getColRef(currentUserUid, receiptTyp)
                 .where('appointmentStatus', whereIn: [AppointmentStatus.open.name, AppointmentStatus.partiallyCompleted.name]),
             ReceiptTyp.deliveryNote =>
@@ -496,6 +505,121 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
 
       return right(unit);
     } on FirebaseException {
+      return left(GeneralFailure());
+    }
+  }
+
+  @override
+  Future<Either<FirebaseFailure, List<Receipt>>> generateFromListOfOffersNewAppointments(List<Receipt> listOfOffers) async {
+    final isConnected = await checkInternetConnection();
+    if (!isConnected) return left(NoConnectionFailure());
+    final logger = Logger();
+
+    final now = DateTime.now();
+    final curYear = now.year;
+    final curMonth = now.month;
+
+    final currentUserUid = firebaseAuth.currentUser!.uid;
+    final docRefSettings = db.collection(currentUserUid).doc(currentUserUid).collection('Settings').doc(currentUserUid);
+    final docRefStatDashboardToCreate = db.collection(currentUserUid).doc(currentUserUid).collection('StatDashboard').doc('$curYear$curMonth');
+
+    List<Receipt> generatedAppointments = [];
+
+    try {
+      final settingsSnapshot = await docRefSettings.get();
+      final settings = MainSettings.fromJson(settingsSnapshot.data()!);
+      int nextAppointmentNumber = settings.nextAppointmentNumber;
+
+      final dsStatDashboardToCreate = await docRefStatDashboardToCreate.get();
+
+      Marketplace? marketplace;
+
+      for (final offer in listOfOffers) {
+        final docRefStatDashboardToUpdate = db
+            .collection(currentUserUid)
+            .doc(currentUserUid)
+            .collection('StatDashboard')
+            .doc('${offer.creationDate.year}${offer.creationDate.month}');
+        await db.runTransaction((transaction) async {
+          final docRefMarketplace = db.collection(currentUserUid).doc(currentUserUid).collection('Marketetplaces').doc(offer.marketplaceId);
+          if (marketplace == null) {
+            final dsMarketplace = await docRefMarketplace.get();
+            if (dsMarketplace.exists) marketplace = Marketplace.fromJson(dsMarketplace.data()!);
+          } else {
+            if (offer.marketplaceId != marketplace!.id) {
+              final dsMarketplace = await docRefMarketplace.get();
+              if (dsMarketplace.exists) marketplace = Marketplace.fromJson(dsMarketplace.data()!);
+            }
+          }
+
+          DocumentSnapshot<Map<String, dynamic>>? dsStatDashboardToUpdate;
+          if (DateTime(offer.creationDate.year, offer.creationDate.month) != DateTime(now.year, now.month)) {
+            dsStatDashboardToUpdate = await transaction.get(docRefStatDashboardToUpdate);
+          }
+
+          Receipt? generatedAppointmentFromThisOffer;
+
+          Receipt updatedOffer = offer.copyWith(
+            offerStatus: OfferStatus.closed,
+            lastEditingDate: DateTime.now(),
+          );
+          final phAppointment = Receipt.fromOfferGenAppointment(
+            offer: updatedOffer,
+            settings: settings,
+            nextAppointmentNumber: nextAppointmentNumber,
+          );
+          final docRefApp = getColRef(currentUserUid, phAppointment.receiptTyp).doc();
+          final appointment = phAppointment.copyWith(id: docRefApp.id);
+          transaction.set(docRefApp, appointment.toJson());
+          nextAppointmentNumber += 1;
+          generatedAppointments.add(appointment);
+          generatedAppointmentFromThisOffer = appointment;
+          updatedOffer = updatedOffer.copyWith(
+            appointmentId: appointment.appointmentId,
+            appointmentNumberAsString: appointment.appointmentNumberAsString,
+          );
+
+          generatedAppointmentFromThisOffer = appointment;
+
+          await createOrIncrementStatDashboardOnGenerateFromOfferNewAppointment(
+            offer,
+            docRefStatDashboardToUpdate,
+            docRefStatDashboardToCreate,
+            dsStatDashboardToUpdate,
+            dsStatDashboardToCreate,
+            transaction,
+          );
+
+          transaction.update(getColRef(currentUserUid, updatedOffer.receiptTyp).doc(updatedOffer.id), updatedOffer.toJson());
+
+          for (final receiptProduct in offer.listOfReceiptProduct) {
+            if (!receiptProduct.isFromDatabase) continue;
+            Product? product;
+            final fosProduct = await productRepository.getProduct(receiptProduct.productId);
+            fosProduct.fold(
+              (failure) {
+                logger.e('Artikel ${receiptProduct.name} kontte nicht aus Firestore geladen werden: $failure');
+                return left(GeneralFailure());
+              },
+              (productFromFirestore) => product = productFromFirestore,
+            );
+            await updateProductAvailableQuantityIncremental(
+              transaction: transaction,
+              db: db,
+              currentUserUid: currentUserUid,
+              product: product!,
+              newQuantityIncremental: receiptProduct.quantity * -1,
+            );
+          }
+          if (marketplace != null) await sendCustomerEmails([generatedAppointmentFromThisOffer], marketplace!);
+        });
+      }
+      final updatedMainSettings = settings.copyWith(nextAppointmentNumber: nextAppointmentNumber);
+      await docRefSettings.update(updatedMainSettings.toJson());
+      return right(generatedAppointments);
+    } on FirebaseException {
+      return left(GeneralFailure());
+    } catch (e) {
       return left(GeneralFailure());
     }
   }
@@ -798,6 +922,111 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
     }
   }
 
+  @override
+  Future<Either<FirebaseFailure, Receipt>> generateFromInvoiceNewCredit(Receipt invoice) async {
+    final isConnected = await checkInternetConnection();
+    if (!isConnected) return left(NoConnectionFailure());
+    final logger = Logger();
+
+    final now = DateTime.now();
+    final curYear = now.year;
+    final curMonth = now.month;
+
+    final currentUserUid = firebaseAuth.currentUser!.uid;
+    final docRefSettings = db.collection(currentUserUid).doc(currentUserUid).collection('Settings').doc(currentUserUid);
+    final docRefStatDashboardToCreate = db.collection(currentUserUid).doc(currentUserUid).collection('StatDashboard').doc('$curYear$curMonth');
+
+    Receipt? generatedCredit;
+
+    try {
+      final settingsSnapshot = await docRefSettings.get();
+      final settings = MainSettings.fromJson(settingsSnapshot.data()!);
+      int nextInvoiceNumber = settings.nextInvoiceNumber;
+
+      final dsStatDashboardToCreate = await docRefStatDashboardToCreate.get();
+
+      Marketplace? marketplace;
+
+      final docRefStatDashboardToUpdate = db
+          .collection(currentUserUid)
+          .doc(currentUserUid)
+          .collection('StatDashboard')
+          .doc('${invoice.creationDate.year}${invoice.creationDate.month}');
+      await db.runTransaction((transaction) async {
+        final docRefMarketplace = db.collection(currentUserUid).doc(currentUserUid).collection('Marketetplaces').doc(invoice.marketplaceId);
+        if (marketplace == null) {
+          final dsMarketplace = await docRefMarketplace.get();
+          if (dsMarketplace.exists) marketplace = Marketplace.fromJson(dsMarketplace.data()!);
+        } else {
+          if (invoice.marketplaceId != marketplace!.id) {
+            final dsMarketplace = await docRefMarketplace.get();
+            if (dsMarketplace.exists) marketplace = Marketplace.fromJson(dsMarketplace.data()!);
+          }
+        }
+
+        DocumentSnapshot<Map<String, dynamic>>? dsStatDashboardToUpdate;
+        if (DateTime(invoice.creationDate.year, invoice.creationDate.month) != DateTime(now.year, now.month)) {
+          dsStatDashboardToUpdate = await transaction.get(docRefStatDashboardToUpdate);
+        }
+
+        Receipt? generatedAppointmentFromThisOffer;
+
+        Receipt updatedInvoice = invoice.copyWith(lastEditingDate: DateTime.now());
+        final phCredit = Receipt.fromInvoiceGenCredit(
+          invoice: updatedInvoice,
+          settings: settings,
+          nextInvoiceNumber: nextInvoiceNumber,
+        );
+        final docRefCredit = getColRef(currentUserUid, phCredit.receiptTyp).doc();
+        final credit = phCredit.copyWith(id: docRefCredit.id);
+        transaction.set(docRefCredit, credit.toJson());
+        nextInvoiceNumber += 1;
+        generatedCredit = credit;
+        generatedAppointmentFromThisOffer = credit;
+
+        await createOrIncrementStatDashboardOnGenerateFromInvoiceNewCredit(
+          invoice,
+          docRefStatDashboardToUpdate,
+          docRefStatDashboardToCreate,
+          dsStatDashboardToUpdate,
+          dsStatDashboardToCreate,
+          transaction,
+        );
+
+        transaction.update(getColRef(currentUserUid, updatedInvoice.receiptTyp).doc(updatedInvoice.id), updatedInvoice.toJson());
+
+        for (final receiptProduct in invoice.listOfReceiptProduct) {
+          if (!receiptProduct.isFromDatabase) continue;
+          Product? product;
+          final fosProduct = await productRepository.getProduct(receiptProduct.productId);
+          fosProduct.fold(
+            (failure) {
+              logger.e('Artikel ${receiptProduct.name} kontte nicht aus Firestore geladen werden: $failure');
+              return left(GeneralFailure());
+            },
+            (productFromFirestore) => product = productFromFirestore,
+          );
+          await updateProductAvailableQuantityIncremental(
+            transaction: transaction,
+            db: db,
+            currentUserUid: currentUserUid,
+            product: product!,
+            newQuantityIncremental: receiptProduct.quantity * -1,
+          );
+        }
+        if (marketplace != null) await sendCustomerEmails([generatedAppointmentFromThisOffer], marketplace!);
+      });
+
+      final updatedMainSettings = settings.copyWith(nextInvoiceNumber: nextInvoiceNumber);
+      await docRefSettings.update(updatedMainSettings.toJson());
+      return right(generatedCredit!);
+    } on FirebaseException {
+      return left(GeneralFailure());
+    } catch (e) {
+      return left(GeneralFailure());
+    }
+  }
+
   CollectionReference<Map<String, dynamic>> getColRef(String currentUserUid, ReceiptTyp receiptTyp) {
     return switch (receiptTyp) {
       ReceiptTyp.offer => db.collection(currentUserUid).doc(currentUserUid).collection('Offers'),
@@ -805,18 +1034,6 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
       ReceiptTyp.deliveryNote => db.collection(currentUserUid).doc(currentUserUid).collection('DeliveryNotes'),
       ReceiptTyp.invoice || ReceiptTyp.credit => db.collection(currentUserUid).doc(currentUserUid).collection('Invoices'),
     };
-  }
-
-  Future<Product?> getProductByArticleNumber(String articleNumber, Marketplace marketplace, MainSettings mainSettings) async {
-    final logger = Logger();
-    Product? product;
-    final fosProduct = await productRepository.getProductByArticleNumber(articleNumber);
-    fosProduct.fold(
-      (failure) => logger.i('Artikel $articleNumber nicht in der Firestore Datenbank'),
-      (productFirestore) => product = productFirestore,
-    );
-
-    return product;
   }
 
   Future<ProductPresta?> getProductByIdFromPrestashop(int id, Marketplace marketplace) async {
@@ -833,32 +1050,13 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
     return productPresta;
   }
 
-  Future<Product?> createProductInFirestore(Product product, ProductPresta? productPresta, Marketplace marketplace, MainSettings mainSettings) async {
-    final logger = Logger();
-    Product? createdProduct;
-    final fosProduct = await productRepository.createProduct(
-      Product.fromProductPresta(
-        productPresta: productPresta!,
-        marketplace: marketplace,
-        mainSettings: mainSettings,
-      ),
-      productPresta,
-    );
-    fosProduct.fold(
-      (failure) => logger.e('Artikel: ${product.name} konte nicht in der Firestore Datenbank angelegt werden. \n Error: $failure'),
-      (productFirestore) => createdProduct = productFirestore,
-    );
-
-    return createdProduct;
-  }
-
   Future<Customer?> getCustomerByMarketplaceId(String marketplaceId, int customerIdMarketplace) async {
     final logger = Logger();
     Customer? loadedCustomer;
     final fosCustomer = await customerRepository.getCustomerByCustomerIdInMarketplace(marketplaceId, customerIdMarketplace);
     fosCustomer.fold(
       (failure) =>
-          logger.e('Kunde mit der Marktplatz ID: $customerIdMarketplace konte nicht in der Firestore Datenbank gefunden werden. \n Error: $failure'),
+          logger.i('Kunde mit der Marktplatz ID: $customerIdMarketplace konte nicht in der Firestore Datenbank gefunden werden. \n Error: $failure'),
       (customer) => loadedCustomer = customer,
     );
 
@@ -1069,7 +1267,14 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
         final quantity = int.parse(orderProductPresta.productQuantity);
         final tax = calcTaxPercent((orderProductPresta.unitPriceTaxIncl).toMyDouble(), (orderProductPresta.unitPriceTaxExcl).toMyDouble());
 
-        final productFirestore = await getProductByArticleNumber(orderProductPresta.productReference, marketplace, mainSettings);
+        final productFirestore = await getProductFromFirestoreIfExists(
+          orderProductPresta.productReference,
+          orderProductPresta.productEan13,
+          orderProductPresta.productName,
+          marketplace,
+          mainSettings,
+          productRepository,
+        );
         if (productFirestore == null) {
           final optionalProductPresta = await api.getProduct(int.parse(orderProductPresta.productId), marketplace);
           if (optionalProductPresta.isNotPresent) {
@@ -1086,6 +1291,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
             productPresta,
             marketplace,
             mainSettings,
+            productRepository,
           );
           if (createdProductFirestore == null) return left(GeneralFailure as FirebaseFailure);
           appointmentProduct = createdProductFirestore;
@@ -1247,7 +1453,14 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
         final quantity = int.parse(orderProductPresta.productQuantity);
         final tax = calcTaxPercent((orderProductPresta.unitPriceTaxIncl).toMyDouble(), (orderProductPresta.unitPriceTaxExcl).toMyDouble());
 
-        final productFirestore = await getProductByArticleNumber(orderProductPresta.productReference, marketplace, mainSettings);
+        final productFirestore = await getProductFromFirestoreIfExists(
+          orderProductPresta.productReference,
+          orderProductPresta.productEan13,
+          orderProductPresta.productName,
+          marketplace,
+          mainSettings,
+          productRepository,
+        );
         if (productFirestore == null) {
           final optionalProductPresta = await api.getProduct(int.parse(orderProductPresta.productId), marketplace);
           if (optionalProductPresta.isNotPresent) {
@@ -1264,6 +1477,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
             productPresta,
             marketplace,
             mainSettings,
+            productRepository,
           );
           if (createdProductFirestore == null) return left(GeneralFailure as FirebaseFailure);
           appointmentProduct = createdProductFirestore;
@@ -1463,20 +1677,22 @@ Future<bool> sendCustomerEmails(List<Receipt> listOfReceipts, Marketplace market
         }
       case ReceiptTyp.deliveryNote:
         {
-          final index = marketplace.marketplaceSettings.listOfEMailAutomations.indexWhere(
-            (e) => e.eMailAutomationType == EMailAutomationType.shipmentTracking,
-          );
-          if (index != -1 && marketplace.marketplaceSettings.listOfEMailAutomations[index].isActive) {
-            final eMailAutomation = marketplace.marketplaceSettings.listOfEMailAutomations[index];
-            final subject = fillPlaceholder(receipt, eMailAutomation.subject);
-            final htmlContent = fillPlaceholder(receipt, eMailAutomation.htmlContent);
-            final isSuccessfull = await sendEmail(
-              to: receipt.receiptCustomer.email,
-              from: eMailAutomation.fromEmail,
-              subject: subject,
-              html: htmlContent,
+          if (receipt.receiptCarrier.carrierProduct.productName != '' && receipt.listOfParcelTracking.isNotEmpty) {
+            final index = marketplace.marketplaceSettings.listOfEMailAutomations.indexWhere(
+              (e) => e.eMailAutomationType == EMailAutomationType.shipmentTracking,
             );
-            isSuccess = isSuccessfull;
+            if (index != -1 && marketplace.marketplaceSettings.listOfEMailAutomations[index].isActive) {
+              final eMailAutomation = marketplace.marketplaceSettings.listOfEMailAutomations[index];
+              final subject = fillPlaceholder(receipt, eMailAutomation.subject);
+              final htmlContent = fillPlaceholder(receipt, eMailAutomation.htmlContent);
+              final isSuccessfull = await sendEmail(
+                to: receipt.receiptCustomer.email,
+                from: eMailAutomation.fromEmail,
+                subject: subject,
+                html: htmlContent,
+              );
+              isSuccess = isSuccessfull;
+            }
           }
           break;
         }

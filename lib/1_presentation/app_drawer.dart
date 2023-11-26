@@ -79,6 +79,7 @@ class AppDrawer extends StatelessWidget {
                     ExpansionTile(
                       title: const Text('Dokumente'),
                       leading: const Icon(Icons.receipt),
+                      childrenPadding: const EdgeInsets.only(left: 20),
                       children: [
                         ListTile(
                           leading: const Icon(Icons.receipt),
@@ -140,6 +141,7 @@ class AppDrawer extends StatelessWidget {
                     ExpansionTile(
                       leading: const Icon(FontAwesomeIcons.cartShopping),
                       title: const Text('E-Commerce'),
+                      childrenPadding: const EdgeInsets.only(left: 20),
                       children: [
                         ListTile(
                           leading: const Icon(Icons.import_export),
@@ -179,6 +181,7 @@ class AppDrawer extends StatelessWidget {
                     ExpansionTile(
                       leading: const Icon(Icons.settings),
                       title: const Text('Einstellungen'),
+                      childrenPadding: const EdgeInsets.only(left: 20),
                       children: [
                         ListTile(
                           leading: const Icon(Icons.percent),

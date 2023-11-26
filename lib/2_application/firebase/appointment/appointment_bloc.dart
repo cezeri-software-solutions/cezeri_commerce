@@ -5,9 +5,11 @@ import 'package:meta/meta.dart';
 
 import '../../../3_domain/entities/carrier/carrier_product.dart';
 import '../../../3_domain/entities/customer/customer.dart';
+import '../../../3_domain/entities/marketplace/marketplace.dart';
 import '../../../3_domain/entities/receipt/load_appointments_helper/to_load_appointments_from_marketplace.dart';
 import '../../../3_domain/entities/receipt/receipt.dart';
 import '../../../3_domain/entities/receipt/receipt_carrier.dart';
+import '../../../3_domain/entities/receipt/receipt_marketplace.dart';
 import '../../../3_domain/entities/receipt/receipt_product.dart';
 import '../../../3_domain/entities/settings/payment_method.dart';
 import '../../../3_domain/repositories/firebase/receipt_respository.dart';
@@ -215,7 +217,7 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
     on<CreateNewAppointmentManuallyEvent>((event, emit) async {
       emit(state.copyWith(isLoadingReceiptOnCreate: true));
 
-      final failureOrSuccess = await receiptRepository.createAppointmentManually(event.receipt);
+      final failureOrSuccess = await receiptRepository.createReceiptManually(event.receipt);
       failureOrSuccess.fold(
         (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
         (receipt) => emit(state.copyWith(firebaseFailure: null, isAnyFailure: false)),
@@ -225,7 +227,7 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
         isLoadingReceiptOnCreate: false,
         fosReceiptOnCreateOption: optionOf(failureOrSuccess),
       ));
-      emit(state.copyWith(fosReceiptOnUpdateOption: none()));
+      emit(state.copyWith(fosReceiptOnCreateOption: none()));
     });
 
 //? #########################################################################
@@ -235,7 +237,7 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
 
       final newAppointment = event.appointment.copyWith(listOfReceiptProduct: event.newListOfReceiptProducts);
 
-      final failureOrSuccess = await receiptRepository.updateAppointment(
+      final failureOrSuccess = await receiptRepository.updateReceipt(
         newAppointment,
         event.oldListOfReceiptProducts,
         event.newListOfReceiptProducts,
@@ -327,6 +329,27 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
 
 //? #########################################################################
 
+    on<OnGenerateFromOfferNewAppointmentEvent>((event, emit) async {
+      emit(state.copyWith(isLoadingReceiptOnGenerate: true));
+
+      final failureOrSuccess = await receiptRepository.generateFromListOfOffersNewAppointments(state.selectedReceipts);
+      failureOrSuccess.fold(
+        (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
+        (receipt) {
+          emit(state.copyWith(selectedReceipts: [], firebaseFailure: null, isAnyFailure: false));
+          add(GetReceiptsEvent(tabValue: state.tabValue, receiptTyp: state.receiptTyp));
+        },
+      );
+
+      emit(state.copyWith(
+        isLoadingReceiptOnGenerate: false,
+        fosReceiptsOnGenerateOption: optionOf(failureOrSuccess),
+      ));
+      emit(state.copyWith(fosReceiptsOnGenerateOption: none()));
+    });
+
+//? #########################################################################
+
     on<OnGenerateFromAppointmentEvent>((event, emit) async {
       emit(state.copyWith(isLoadingReceiptOnGenerate: true));
 
@@ -335,6 +358,27 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
         event.generateDeliveryNote,
         event.generateInvoice,
       );
+      failureOrSuccess.fold(
+        (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
+        (receipt) {
+          emit(state.copyWith(selectedReceipts: [], firebaseFailure: null, isAnyFailure: false));
+          add(GetReceiptsEvent(tabValue: state.tabValue, receiptTyp: state.receiptTyp));
+        },
+      );
+
+      emit(state.copyWith(
+        isLoadingReceiptOnGenerate: false,
+        fosReceiptsOnGenerateOption: optionOf(failureOrSuccess),
+      ));
+      emit(state.copyWith(fosReceiptsOnGenerateOption: none()));
+    });
+
+//? #########################################################################
+
+    on<OnGenerateFromInvoiceNewCreditEvent>((event, emit) async {
+      emit(state.copyWith(isLoadingReceiptOnGenerate: true));
+
+      final failureOrSuccess = await receiptRepository.generateFromInvoiceNewCredit(state.selectedReceipts.first);
       failureOrSuccess.fold(
         (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
         (receipt) {
@@ -389,7 +433,12 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
 //? #########################################################################
 
     on<OnAppointmentMarketplaceChangedEvent>((event, emit) async {
-      emit(state.copyWith(receipt: state.receipt!.copyWith(marketplaceId: event.marketplaceId)));
+      emit(state.copyWith(
+        receipt: state.receipt!.copyWith(
+          marketplaceId: event.marketplace.id,
+          receiptMarketplace: ReceiptMarketplace.fromMarketplace(event.marketplace),
+        ),
+      ));
     });
 
 //? #########################################################################

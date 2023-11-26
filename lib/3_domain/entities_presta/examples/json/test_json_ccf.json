@@ -1,0 +1,131 @@
+{
+  "products": [
+    {
+      "id": 5,
+      "id_manufacturer": "1",
+      "id_supplier": "0",
+      "id_category_default": "132",
+      "new": null,
+      "cache_default_attribute": "0",
+      "id_default_image": "7482",
+      "id_default_combination": 0,
+      "id_tax_rules_group": "11",
+      "position_in_category": "3",
+      "manufacturer_name": "Koch Chemie",
+      "quantity": "0",
+      "type": "simple",
+      "id_shop_default": "1",
+      "reference": "77705750",
+      "supplier_reference": "",
+      "location": "",
+      "width": "7.250000",
+      "height": "22.500000",
+      "depth": "7.250000",
+      "weight": "0.820000",
+      "quantity_discount": "0",
+      "ean13": "4260188680050",
+      "isbn": "",
+      "upc": "",
+      "mpn": "",
+      "cache_is_pack": "0",
+      "cache_has_attachments": "0",
+      "is_virtual": "0",
+      "state": "1",
+      "additional_delivery_times": "0",
+      "delivery_in_stock": "",
+      "delivery_out_stock": "",
+      "product_type": "",
+      "on_sale": "0",
+      "online_only": "0",
+      "ecotax": "0.000000",
+      "minimal_quantity": "1",
+      "low_stock_threshold": "10",
+      "low_stock_alert": "0",
+      "price": "7.420000",
+      "wholesale_price": "4.750000",
+      "unity": "",
+      "unit_price": "0.000000",
+      "unit_price_ratio": "0.000000",
+      "additional_shipping_cost": "0.000000",
+      "customizable": "0",
+      "text_fields": "0",
+      "uploadable_files": "0",
+      "active": "1",
+      "redirect_type": "404",
+      "id_type_redirected": "0",
+      "available_for_order": "1",
+      "available_date": "0000-00-00",
+      "show_condition": "0",
+      "condition": "new",
+      "show_price": "1",
+      "indexed": "1",
+      "visibility": "both",
+      "advanced_stock_management": "0",
+      "date_add": "2023-06-08 12:57:04",
+      "date_upd": "2023-11-15 20:48:52",
+      "pack_stock_type": "0",
+      "meta_description": "Entfernt gründlich und schonend starke Verschmutzungen an Polstersitzen, Stoffbezügen, Himmeln, Böden, Kunststoffverkleidungen, etc. Der Schmutz wird porentief entfernt und ein frischer Duft lässt den Fahrzeuginnenraum neu erstrahlen.",
+      "meta_keywords": "",
+      "meta_title": "",
+      "link_rewrite": "koch-chemie-multi-interior-cleaner-innenraumreiniger-750ml",
+      "name": "Koch Chemie - Multi Interior Cleaner - Innenraumreiniger 750ml",
+      "description": "<h2>Koch Chemie - Multi Interior Cleaner - Innenraumreiniger 750ml</h2>\n<h2><br /></h2>\n<p class=\"MsoNormal\"><span style=\"font-size:8.5pt;line-height:107%;font-family:Verdana, sans-serif;\">Entfernt gründlich und schonend starke Verschmutzungen an Polstersitzen, Stoffbezügen, Himmeln, Böden, Kunststoffverkleidungen, etc. Der Schmutz wird porentief entfernt und ein frischer Duft lässt den Fahrzeuginnenraum neu erstrahlen.</span></p>\n\n<p class=\"MsoNormal\"><span style=\"font-size:8.5pt;line-height:107%;font-family:Verdana, sans-serif;\"><strong><span style=\"text-decoration:underline;\">Anwendungsempfehlung</span></strong></span></p>\n<p class=\"MsoNormal\"><span style=\"font-size:8.5pt;line-height:107%;font-family:Verdana, sans-serif;\">Verschmutzte Stelle einsprühen und kurz einwirken lassen. Anschließend mit Tuch oder weicher Bürste bearbeiten. Mit klarem Wasser und sauberem Tuch nachbearbeiten.</span></p>\n\n<p class=\"MsoNormal\"><span style=\"font-size:8.5pt;line-height:107%;font-family:Verdana, sans-serif;\"><strong><span style=\"text-decoration:underline;\">Highlights</span></strong></span></p>\n<ul>\n    <li><span style=\"font-size:8.5pt;line-height:107%;font-family:Verdana, sans-serif;\">Enorme Reinigungskraft</span></li>\n    <li><span style=\"font-size:8.5pt;line-height:107%;font-family:Verdana, sans-serif;\">Frischer Duft</span></li>\n    <li><span style=\"font-size:8.5pt;line-height:107%;font-family:Verdana, sans-serif;\">Universal einsetzbar</span></li>\n</ul>",
+      "description_short": "<p>Entfernt gründlich und schonend starke Verschmutzungen an Polstersitzen, Stoffbezügen, Himmeln, Böden, Kunststoffverkleidungen, etc. Der Schmutz wird porentief entfernt und ein frischer Duft lässt den Fahrzeuginnenraum neu erstrahlen.</p>",
+      "available_now": "",
+      "available_later": "",
+      "associations": {
+        "categories": [
+          {
+            "id": "2"
+          },
+          {
+            "id": "4"
+          },
+          {
+            "id": "21"
+          },
+          {
+            "id": "132"
+          }
+        ],
+        "images": [
+          {
+            "id": "7482"
+          }
+        ],
+        "tags": [
+          {
+            "id": "16"
+          },
+          {
+            "id": "17"
+          },
+          {
+            "id": "19"
+          },
+          {
+            "id": "404"
+          },
+          {
+            "id": "405"
+          },
+          {
+            "id": "406"
+          },
+          {
+            "id": "407"
+          },
+          {
+            "id": "408"
+          }
+        ],
+        "stock_availables": [
+          {
+            "id": "8358",
+            "id_product_attribute": "0"
+          }
+        ]
+      }
+    }
+  ]
+}

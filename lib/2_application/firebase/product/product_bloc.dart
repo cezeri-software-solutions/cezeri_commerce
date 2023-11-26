@@ -171,8 +171,9 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
 //? #########################################################################
 
     on<OnSaveProductDescriptionEvent>((event, emit) async {
-      final newDescription = await state.descriptionCcontroller.getText();
-      emit(state.copyWith(isDescriptionChanged: false, product: state.product!.copyWith(description: newDescription)));
+      final newDescription = await state.descriptionController.getText();
+      emit(state.copyWith(isDescriptionChanged: false, product: state.product!.copyWith(description: newDescription), triggerPop: true));
+      emit(state.copyWith(triggerPop: false));
     });
 
 //? #########################################################################

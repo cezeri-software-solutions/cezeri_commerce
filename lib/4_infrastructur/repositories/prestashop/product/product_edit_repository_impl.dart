@@ -26,7 +26,9 @@ class ProductEditRepositoryImpl implements ProductEditRepository {
 
     final currentUserUid = firebaseAuth.currentUser!.uid;
 
-    for (ProductMarketplace productMarketplace in product.productMarketplaces) {
+    bool isSuccess = true;
+
+    for (final productMarketplace in product.productMarketplaces) {
       print(product.toJson());
       // TODO: if (!productMarketplace.active!) continue;
       final docRef = db.collection(currentUserUid).doc(currentUserUid).collection('Marketetplaces').doc(productMarketplace.idMarketplace);
@@ -37,10 +39,9 @@ class ProductEditRepositoryImpl implements ProductEditRepository {
       final api = PrestashopApi(Client(), PrestashopApiConfig(apiKey: marketplace.key, webserviceUrl: marketplace.fullUrl));
 
       final marketplaceProduct = productMarketplace.marketplaceProduct as MarketplaceProductPresta;
-      final isSuccess = await api.patchProduct(marketplaceProduct.id, product, productMarketplace, marketplace);
-      if (isSuccess) return right(unit);
+      isSuccess = await api.patchProduct(marketplaceProduct.id, product, productMarketplace, marketplace);
     }
-
+    if (isSuccess) return right(unit);
     return left(PrestaGeneralFailure());
   }
 
@@ -80,6 +81,7 @@ class ProductEditRepositoryImpl implements ProductEditRepository {
 
     final currentUserUid = firebaseAuth.currentUser!.uid;
 
+    bool isSuccess = true;
     for (ProductMarketplace productMarketplace in product.productMarketplaces) {
       // TODO: if (!productMarketplace.active!) continue;
       final docRef = db.collection(currentUserUid).doc(currentUserUid).collection('Marketetplaces').doc(productMarketplace.idMarketplace);
@@ -118,9 +120,10 @@ class ProductEditRepositoryImpl implements ProductEditRepository {
         isSuccessOnCreate = true;
       }
 
-      if (isSuccessOnDelete && isSuccessOnCreate) return right(unit);
+      isSuccess = isSuccessOnDelete && isSuccessOnCreate;
     }
 
+    if (isSuccess) return right(unit);
     return left(PrestaGeneralFailure());
   }
 

@@ -29,7 +29,7 @@ class DescriptionDialog extends StatelessWidget {
                   Gaps.h16,
                   Expanded(
                     child: MyHtmlEditor(
-                      controller: state.descriptionCcontroller,
+                      controller: state.descriptionController,
                       initialText: state.product!.description,
                       onChangeContent: (content) => productBloc.add(OnProductDescriptionChangedEvent(content: content)),
                     ),
@@ -49,7 +49,7 @@ class DescriptionDialog extends StatelessWidget {
                         buttonBackgroundColor: state.isDescriptionChanged ? Colors.green : CustomColors.primaryColor,
                         onPressed: () {
                           productBloc.add(OnSaveProductDescriptionEvent());
-                          context.router.pop();
+                          // context.router.pop();
                         },
                       ),
                     ],

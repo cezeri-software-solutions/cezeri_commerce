@@ -11,15 +11,16 @@ abstract class ReceiptRepository {
   Future<Either<FirebaseFailure, Receipt>> getAppointment(Receipt receipt);
   Future<Either<FirebaseFailure, List<Receipt>>> loadNewAppointmentsFromMarketplaces();
   Future<Either<FirebaseFailure, List<Receipt>>> getListOfReceipts(int value, ReceiptTyp receiptTyp);
-  Future<Either<FirebaseFailure, Unit>> updateAppointment(
-    Receipt appointment,
+  Future<Either<FirebaseFailure, Unit>> updateReceipt(
+    Receipt receipt,
     List<ReceiptProduct> oldListOfReceiptProducts,
     List<ReceiptProduct> newListOfReceiptProducts,
   );
-  Future<Either<FirebaseFailure, Receipt>> createAppointmentManually(Receipt receipt);
+  Future<Either<FirebaseFailure, Receipt>> createReceiptManually(Receipt receipt);
   Future<Either<FirebaseFailure, Unit>> deleteAppointment(String id);
   Future<Either<FirebaseFailure, Unit>> deleteListOfReceipts(List<Receipt> listOfReceipts);
   //* ###### Generate Receipts #####
+  Future<Either<FirebaseFailure, List<Receipt>>> generateFromListOfOffersNewAppointments(List<Receipt> listOfOffers);
   Future<Either<FirebaseFailure, List<Receipt>>> generateFromListOfAppointments(
     List<Receipt> listOfReceipts,
     bool generateDeliveryNote,
@@ -31,10 +32,12 @@ abstract class ReceiptRepository {
     bool generateDeliveryNote,
     bool generateInvoice,
   );
+  Future<Either<FirebaseFailure, Receipt>> generateFromInvoiceNewCredit(Receipt invoice);
   Future<Either<FirebaseFailure, Unit>> sendEmails();
   //* ###### Load Appointments from Marketplaces #####
   Future<Either<AbstractFailure, List<ToLoadAppointmentsFromMarketplace>>> getToLoadAppointmentsFromMarketplaces();
   Future<Either<AbstractFailure, LoadedOrderFromMarketplace>> loadAppointmentsFromMarketplace(ToLoadAppointmentFromMarketplace toLoadAppointment);
   Future<Either<AbstractFailure, Receipt>> uploadLoadedAppointmentToFirestore(LoadedOrderFromMarketplace loadedAppointmentFromMarketplace);
+  //! Wird nicht mehr genutzt
   Future<Either<AbstractFailure, Receipt>> loadAppointmentFromMarketplaceAndUploadToFirestore(Marketplace marketplace, int toLoadOrderId);
 }

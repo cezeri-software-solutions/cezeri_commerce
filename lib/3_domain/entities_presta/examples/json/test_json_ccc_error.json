@@ -1,0 +1,299 @@
+{
+  "products": [
+    {
+      "id": 165,
+      "id_manufacturer": "2",
+      "id_supplier": "0",
+      "id_category_default": "2",
+      "new": null,
+      "cache_default_attribute": "41",
+      "id_default_image": "4740",
+      "id_default_combination": "41",
+      "id_tax_rules_group": "58",
+      "position_in_category": "123",
+      "manufacturer_name": "Chemical Guys",
+      "quantity": "0",
+      "type": "simple",
+      "id_shop_default": "1",
+      "reference": "BUFX_111_HEX6",
+      "supplier_reference": "",
+      "location": "",
+      "width": "0.000000",
+      "height": "0.000000",
+      "depth": "0.000000",
+      "weight": "0.030000",
+      "quantity_discount": "0",
+      "ean13": "811339025059",
+      "isbn": "",
+      "upc": "",
+      "mpn": "",
+      "cache_is_pack": "0",
+      "cache_has_attachments": "0",
+      "is_virtual": "0",
+      "state": "1",
+      "additional_delivery_times": "0",
+      "delivery_in_stock": [
+        {
+          "id": "1",
+          "value": ""
+        },
+        {
+          "id": "2",
+          "value": ""
+        },
+        {
+          "id": "3",
+          "value": ""
+        }
+      ],
+      "delivery_out_stock": [
+        {
+          "id": "1",
+          "value": ""
+        },
+        {
+          "id": "2",
+          "value": ""
+        },
+        {
+          "id": "3",
+          "value": ""
+        }
+      ],
+      "product_type": "combinations",
+      "on_sale": "0",
+      "online_only": "0",
+      "ecotax": "0.000000",
+      "minimal_quantity": "0",
+      "low_stock_threshold": "0",
+      "low_stock_alert": "0",
+      "price": "14.920000",
+      "wholesale_price": "8.900000",
+      "unity": "pro 1 Stück",
+      "unit_price_ratio": "0.000000",
+      "additional_shipping_cost": "0.000000",
+      "customizable": "0",
+      "text_fields": "0",
+      "uploadable_files": "0",
+      "active": "1",
+      "redirect_type": "404",
+      "id_type_redirected": "0",
+      "available_for_order": "1",
+      "available_date": "0000-00-00",
+      "show_condition": "0",
+      "condition": "new",
+      "show_price": "1",
+      "indexed": "1",
+      "visibility": "both",
+      "advanced_stock_management": "0",
+      "date_add": "2021-12-25 08:50:42",
+      "date_upd": "2022-12-10 21:59:14",
+      "pack_stock_type": "0",
+      "meta_description": [
+        {
+          "id": "1",
+          "value": "ChemicalGuys Gelbe Hex Logic Quantum Heavy Cutting Polierpads beseitigen extreme Hologramme, Kratzer, Oxidation, Wasserflecken vom Lack."
+        },
+        {
+          "id": "2",
+          "value": "ChemicalGuys Gelbe Hex Logic Quantum Heavy Cutting Polierpads beseitigen extreme Hologramme, Kratzer, Oxidation, Wasserflecken vom Lack."
+        },
+        {
+          "id": "3",
+          "value": "ChemicalGuys Gelbe Hex Logic Quantum Heavy Cutting Polierpads beseitigen extreme Hologramme, Kratzer, Oxidation, Wasserflecken vom Lack."
+        }
+      ],
+      "meta_keywords": [
+        {
+          "id": "1",
+          "value": ""
+        },
+        {
+          "id": "2",
+          "value": ""
+        },
+        {
+          "id": "3",
+          "value": ""
+        }
+      ],
+      "meta_title": [
+        {
+          "id": "1",
+          "value": ""
+        },
+        {
+          "id": "2",
+          "value": ""
+        },
+        {
+          "id": "3",
+          "value": ""
+        }
+      ],
+      "link_rewrite": [
+        {
+          "id": "1",
+          "value": "chemical-guys-hex-logic-quantum-heavy-cutting-pad-yellow-65-inch-165mm"
+        },
+        {
+          "id": "2",
+          "value": "chemical-guys-hex-logic-quantum-heavy-cutting-pad-yellow-65-inch-165mm"
+        },
+        {
+          "id": "3",
+          "value": "chemical-guys-hex-logic-quantum-heavy-cutting-pad-giallo-65-inch-165mm"
+        }
+      ],
+      "name": [
+        {
+          "id": "1",
+          "value": "Chemical Guys - HEX LOGIC QUANTUM HEAVY CUTTING PAD YELLOW 6.5 INCH - 165mm"
+        },
+        {
+          "id": "2",
+          "value": "Chemical Guys - HEX LOGIC QUANTUM HEAVY CUTTING PAD YELLOW 6,5 INCH - 165mm"
+        },
+        {
+          "id": "3",
+          "value": "Chemical Guys - HEX LOGIC QUANTUM HEAVY CUTTING PAD GIALLO 6.5 INCH - 165mm"
+        }
+      ],
+      "description": [
+        {
+          "id": "1",
+          "value": "<p><strong>Why buy this product?</strong></p>\n<ul><li><span style=\"font-size:12px;\">Yellow Quantum Pads eliminate extreme holograms, scratches, oxidation, and water spots from painted surfaces.</span></li>\n</ul><ul><li><span style=\"font-size:12px;\">Use yellow pads with strong polishes such as V32 and V34.</span></li>\n</ul><ul><li>Quantum Physics Design<span style=\"font-size:12px;\"> maximizes </span>surface contact<span style=\"font-size:12px;\">, </span>reduces heat<span style=\"font-size:12px;\">between pad and paint, and </span>carries less<span style=\"font-size:12px;\">off the pad.</span></li>\n</ul><ul><li><span style=\"font-size:12px;\">The </span>Race Face profile<span style=\"font-size:12px;\">allows the pad to function </span>stably<span style=\"font-size:12px;\">and </span>prevents ext erosion.rem<span style=\"font-size:12px;\">.</span></li>\n</ul><ul><li>Precision port hole<span style=\"font-size:12px;\"> in the pad dissipates heat and reduces pressure in the center of the pad.</span></li>\n</ul><ul><li>Air venting rear<span style=\"font-size:12px;\">which</span>reduces<span style=\"font-size:12px;\">heat.</span></li>\n</ul><ul><li>Hex-Logic structure<span style=\"font-size:12px;\">in the pad </span>allows the product to spread evenly<span style=\"font-size:12px;\">while polishing.</span></li>\n</ul><p><br /></p>\n<p><br /></p>\n<p><span style=\"font-size:12px;\">Note: Price is for 1 pad.</span></p>\n<p><br /></p>\n\n<p><span style=\"font-size:12px;\"><strong>About Hex-Logic Quantum Pads</strong></span></p>\n<p><br /></p>\n<p><strong><br /><img src=\"https://www.chemicalguys.eu/media/wysiwyg/Chemical-Guys-Hex-Logic-Quantum-Buffing-Pad-Yellow-001.jpg\" alt=\"\" />|</strong></p>\n<h3>Quantum Hex-Logic polishing pads change physics to deliver better results</h3><p>.\n</p><p>Yellow Heavy - Cutting Quantum pads are perfect for removing scratches, swirls, water spots and oxidation with any dual action (eccentric) Polisher or Rotary Polisher. The new Quantum design is a major advancement in polishing pad technology. Innovative foam pads bring the power from the polisher to the paint and reduce heat and abrasion. Quantum pads are designed for dual action (eccentric) polishers with large and small strokes and for rotary polishers. Quantum Hex-Logic pads combine new geometry with familiar Hex-Logic properties for maximum polishing results. The new Quantum pads are equipped with a solid and breathable velcro which is more adhesive than other pads. The precise cut technology delivers an even profile with minimal abrasion to the pad. Improved technology and materials make these Quantum Hex Logic pads more durable and show better polishing results. To get \"polishing\" right, Quantum Hex Logic pad engineers have improved durability and efficiency with the Precision Port hole. The venting of the pad reduces the pressure on the the material and thus allows less heat to develop. Quantum polishing pads are available in all colors like the original Hex-Logic polishing pads. The right pad is available for every paint correction. Use Quantum Hex-Logic polishing pads for better polishing results.<br /><strong><br />Use yellow Quantum pads for extreme paint correction</strong><strong>en</strong></p><p>.\n</p><p><strong>The yellow cutting pad is the strongest in the Quantum range</strong>.</p>\n<p>The Heavy Cutting Pad removes extreme holograms, scratches, water spots and oxidation to bring back shine and reflection to painted surfaces. Detailers start with a test program to find out which combination of pad and polish gives the best results. The heavy cut of the yellow Quantum pads with strong polishes like the V34 Hybrid Compound or V32 Extreme Compound with a rotary or dual action (eccentric) polisher. If not you can use a microfiber polishing pad or lambskin.. When the holograms and scratches are removed you can start finishing with e.g. a white pad.  </p>\n<p><br /></p>\n<p><strong><img src=\"https://www.chemicalguys.eu/media/wysiwyg/Chemical-Guys-Hex-Logic-Quantum-Buffing-Pad-Yellow-002.jpg\" alt=\"\" /></strong></p>\n<p><strong>Pads which reduce heat</strong><span style=\"font-size:12px;\">The design of</span>regular polishing pads<span style=\"font-size:12px;\">are often not strong enough for the performance from the polisher. R</span>regular foam pads<span style=\"font-size:12px;\"> are deficient at erasing the </span>velcro<span style=\"font-size:12px;\">, from </span>foam<span style=\"font-size:12px;\"> and from the </span>edge when polishing<span style=\"font-size:12px;\"> at </span>higher speed<span style=\"font-size:12px;\">. </span>Old - skool polishers<span style=\"font-size:12px;\"> are rotary and rotate on an axis, bringing the pressure to </span>Polishing pads<span style=\"font-size:12px;\">. </span>Dual Action<span style=\"font-size:12px;\"> (</span>Eccentric<span style=\"font-size:12px;\">) </span>Polishers<span style=\"font-size:12px;\"> do besides the </span>rotating movement<span style=\"font-size:12px;\"> also do an </span>eccentric stroke<span style=\"font-size:12px;\">, creating even </span>more pressure<span style=\"font-size:12px;\">. The </span>Dual Action - Mechanismuss<span style=\"font-size:12px;\"> lets the pads move between </span>2mm and 26mm<span style=\"font-size:12px;\">. Here with, the </span>friction and pressure<span style=\"font-size:12px;\"> is tremendous. </span>Quantum<span style=\"font-size:12px;\"> Engineers have developed these pads with </span>Precision Port technology<span style=\"font-size:12px;\">. The </span>hole in the middle<span style=\"font-size:12px;\"> allows this </span>simply and perfectly<span style=\"font-size:12px;\"> centered and mounted on the S</span>support plate<span style=\"font-size:12px;\">. and it </span>reduces additional heat<span style=\"font-size:12px;\"> through the hole in the middle. In the </span>center of the polishing pad<span style=\"font-size:12px;\"> the most heat is built up. It is then important that the </span>polishing pad<span style=\"font-size:12px;\"> is then also cooled here to prevent cracking and other </span>defects<span style=\"font-size:12px;\">.  The new </span>Velcro - System<span style=\"font-size:12px;\"> is </span>equipped with air ducts<span style=\"font-size:12px;\"> which with the </span>TORQ support plates<span style=\"font-size:12px;\"> allow a </span>venting airflow<span style=\"font-size:12px;\">.</span>Quantum pads<span style=\"font-size:12px;\"> are designed with a s</span>lant edge<span style=\"font-size:12px;\"> so that the S</span>backing pad<span style=\"font-size:12px;\"> cannot touch the surface when </span>polishing<span style=\"font-size:12px;\">. </span>Quantum Polishing Pads<span style=\"font-size:12px;\">Are designed as</span>the best polishing pad<span style=\"font-size:12px;\">for</span>professional - vehicle reconditioners and enthusiasts<span style=\"font-size:12px;\">. </span></p>\n<p><span style=\"font-size:12px;\"><br /></span><br /><strong><img src=\"https://www.chemicalguys.eu/media/wysiwyg/Chemical-Guys-Hex-Logic-Quantum-Buffing-Pad-Yellow-003.jpg\" alt=\"\" /></strong><br /><br /><span style=\"font-size:12px;\"><strong>Fast Working Pads</strong></span></p><p>.\n</p><h3><span style=\"font-size:12px;\">When polishing, a controlled friction is created which eliminates paint defects and creates a shiny surface. </span></h3>\n<p><br /></p>\n<p><span style=\"font-size:12px;\">The combination of a polishing pad, with the speed of a machine and a polish is the basis of how much heat is generated. The new Quantum polishing pads are designed to polish with maximum efficiency and safety using ahe dual action (eccentric) or rotary polisher. Quantum pads eliminate holograms, scratches and oxidation. Quantum polishing pads are also great for adding shine and depth to any paint. Regular polishing pads generate a lot of heat if used incorrectly. This can damage paint and the pads. Quantum pads are equipped with an advanced Velcro system where cooled air is forced into the polishing pad. Quantum polishing pads are the new standard for foam polishing pads.</span></p><p>.\n</p><p><br /><br /><strong><img src=\"https://www.chemicalguys.eu/media/wysiwyg/Chemical-Guys-Hex-Logic-Quantum-Buffing-Pad-Yellow-004.jpg\" alt=\"\" /></strong><strong><br /></strong></p>\n<p><strong><strong>Keeps your polishing pads clean</strong></strong></p><p>.\n</p><h3>Polishing pads should be cleaned after use to keep them clean and long lasting</h3><p>.\n</p><p>We offer several products to clean your polishing pads to keep them perfectly clean.e performance in every application. Our Polishing Pad Cleaner and Rejuvenator cleans and restores polishing pads and sponges. The ergonomic Foam Pad Conditioning Brush cleans wax and polishes from the foam and restores the original texture.</p>\n<p><br /></p>\n<table border=\"0\"><tbody><tr><td><img src=\"https://www.chemicalguys.eu/media/wysiwyg/BUFX111HEX5-1.jpg\" alt=\"\" /></td>\n<td><img src=\"https://www.chemicalguys.eu/media/wysiwyg/BUFX112HEX5-1.jpg\" alt=\"\" /></td>\n<td><img src=\"https://www.chemicalguys.eu/media/wysiwyg/BUFX113HEX5-1.jpg\" alt=\"\" /></td>\n<td><img src=\"https://www.chemicalguys.eu/media/wysiwyg/BUFX114HEX5-1.jpg\" alt=\"\" /></td>\n</tr><tr><td>Heavy Cutting</td>\n<td>Medium Cutting</td>\n<td>Heavy Polishing</td>\n<td>Light-Medium Polishing</td>\n</tr><tr><td><img src=\"https://www.chemicalguys.eu/media/wysiwyg/BUFX115HEX5-1.jpg\" alt=\"\" /></td>\n<td><a href=\"https://ccf-autopflege.at/zubehor/polierpads/hex-logic-quantum-black-165mm\"><img src=\"https://www.chemicalguys.eu/media/wysiwyg/BUFX116HEX5-1.jpg\" alt=\"\" /></a></td>\n<td><img src=\"https://www.chemicalguys.eu/media/wysiwyg/BUFX117HEX5-1.jpg\" alt=\"\" /></td>\n<td><img src=\"https://www.chemicalguys.eu/media/wysiwyg/BUF_333_16-1.jpg\" alt=\"\" /></td>\n</tr><tr><td>Light Polishing/Finishing</td>\n<td>Finishing</td>\n<td>Ultra Light Finishing</td>\n<td>Polishing Pad Cleaner</td>\n</tr></tbody></table><p><br /></p>\n<p> </p>\n<p><br /></p>\n<table style=\"width:352px;\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\"><colgroup><col width=\"93\" /><col width=\"259\" /></colgroup><tbody><tr><td class=\"xl67\" colspan=\"2\" width=\"352\" height=\"21\"><strong>Specifications</strong></td>\n</tr><tr><td class=\"xl65\" width=\"93\" height=\"21\">Article number</td>\n<td class=\"xl66\" width=\"259\">BUFX_111_HEX6</td>\n</tr><tr><td class=\"xl65\" width=\"93\" height=\"21\">UPC</td>\n<td class=\"xl69\" width=\"259\">811339025059</td>\n</tr><tr><td class=\"xl65\" width=\"93\" height=\"21\">Size</td>\n<td class=\"xl66\" width=\"259\">6.5 inches (150mm Velcro / 165mm Outside)</td>\n</tr><tr><td class=\"xl65\" width=\"93\" height=\"21\">Color</td>\n<td class=\"xl66\" width=\"259\">Yellow</td>\n</tr><tr><td class=\"xl65\" width=\"93\" height=\"21\">Application</td>\n<td class=\"xl66\" width=\"259\">Loops</td>\n</tr><tr><td class=\"xl65\" width=\"93\" height=\"21\">Material</td>\n<td class=\"xl66\" width=\"259\">Foam</td>\n</tr><tr><td class=\"xl65\" width=\"93\" height=\"33\">Self-centering</td>\n<td class=\"xl66\" width=\"259\">No</td>\n</tr><tr><td class=\"xl65\" width=\"93\" height=\"21\">Polisher Type</td>\n<td class=\"xl66\" width=\"259\">Rotation and Dual Action (Eccentric)</td>\n</tr></tbody></table><p><br /></p>\n<h2>Additional information</h2>\n<p><br /></p>\n<table class=\"data-table\" id=\"product-attribute-specs-table\"><colgroup><col style=\"width:25%;\" /><col /></colgroup><tbody><tr class=\"first last odd\"><th class=\"label\">Part number</th>\n<td class=\"data last\">BUFX_111_HEX6</td>\n</tr></tbody></table><p><br /></p>"
+        },
+        {
+          "id": "2",
+          "value": "<p><strong>Warum dieses Produkt kaufen?</strong></p>\n<ul><li><span style=\"font-size:12px;\">Gelbe Quantum Pads beseitigen extreme Hologramme, Kratzer, Oxidation und Wasserflecken von lackierten Oberflächen.</span></li>\n</ul><ul><li><span style=\"font-size:12px;\"> Nutz gelbe Pads mit starken Polituren wie V32 und V34.</span></li>\n</ul><ul><li>Quantum Physics Design<span style=\"font-size:12px;\"> maximiert den </span>Oberflächenkontakt<span style=\"font-size:12px;\">, </span>reduziert Wärme<span style=\"font-size:12px;\"> zwischen Pad und Lack und </span>trägt weniger<span style=\"font-size:12px;\"> vom Pad ab.</span></li>\n</ul><ul><li><span style=\"font-size:12px;\">Das </span>Race Face Profil<span style=\"font-size:12px;\"> lässt das Pad </span>stabil funktionieren<span style=\"font-size:12px;\"> und </span>verhindert die Abtragung extrem<span style=\"font-size:12px;\">.</span></li>\n</ul><ul><li>Precision Port Loch<span style=\"font-size:12px;\"> im Pad führt Wärme ab und reduziert den Druck in der Mitte von dem Pad.</span></li>\n</ul><ul><li>Luftentlassende Hinterseite<span style=\"font-size:12px;\"> welche </span>Wärme reduziert<span style=\"font-size:12px;\">.</span></li>\n</ul><ul><li>Hex-Logic Struktur<span style=\"font-size:12px;\"> in dem Pad </span>lässt das Product gleichmässig spreiden<span style=\"font-size:12px;\"> beim polieren.</span></li>\n</ul><p><br /></p>\n<p><br /></p>\n<p><span style=\"font-size:12px;\">Achtung: Preis ist für 1 Pad.</span></p>\n\n\n<p><span style=\"font-size:12px;\"><strong>Über Hex-Logic Quantum Pads</strong></span></p>\n<p><br /></p>\n<p><strong><br /><img src=\"https://www.chemicalguys.eu/media/wysiwyg/Chemical-Guys-Hex-Logic-Quantum-Buffing-Pad-Yellow-001.jpg\" alt=\"\" />|</strong></p>\n<h3>Quantum Hex-Logic Polierpads ändern die Physik um bessere Ergebnisse zu liefern.</h3>\n<p>Gelbe Heavy – Cutting Quantum Pads sind perfekt um Kratzer, Swirls, Wasserflecken und Oxidation zu entfernen mit jedem Dual Action (Exzenter) Polierer oder Rotationspolierer. Das neue Quantum Design ist ein grosser Fortschritt in der Polierpad – Technologie. Innovatieve Schaumpads bringen die Leistung vom Polierer auf den Lack und reduzieren Wärme und Abtragung. Quantum Pads sind entwickelt für Dual Action (Exzenter) Polierer mit grossen und kleinem Hub und für Rotationspolierer. Quantum Hex-Logic Pads kombinieren neue Geometrie mit den bekannten Hex-Logic Eigenschaften für maximale Polierergebnisse. Die neue Quantum Pads sind ausgerüstet mit einer soliden und atmenden velcro welcher stärker haftet als andere Pads. Die genaue Cut – Technologie liefert ein gleichmässiges Profil mit minimaler Abtragung an dem Pad. Verbesserte Technik und Material macht diese Quantum Hex Logic Pads dauerhafter und zeigt bessere Polierergebnisse. Um “Polieren” richtig zu verstehen haben die Quantum Hex Logic Pad Engineers die Dauerhaftigkeit und Effizienz verbessert mit dem Precision Port Loch. Die Entlüftung von dem Pad reduziert den Druck auf das Material und lässt so weniger Wärme entwickeln. Quantum Polierpads sind verfügbar in allen Farben wie die originalen Hex-Logic Polierpads. Für jede Lackkorrektur ist das richtige Pad verfügbar. Nutz Quantum Hex-Logic Polierpads für bessere Polierergebnisse.<br /><strong><br />Nutz gelbe Quantum Pads für extreme Lackkorrektur</strong><strong>en</strong></p>\n<p><strong>Der gelbe Cutting Pad ist der stärkste aus dem Quantum Programm</strong>.</p>\n<p>Der Heavy Cutting Pad beseitigt extreme Hologramme, Kratzer, Wasserflecken und Oxidation um so Glanz und Reflektion zurück zu bringen auf lackierte Oberflächen. Detailer fangen an mit einem Testprogramm um herauszufinden welche Kombination an Pad und Politur das beste Ergebnis bringt. Den Heavy Cut von den gelben Quantum Pads mit starken Polituren wie den V34 Hybrid Compound oder V32 Extreme Compound mit einem Rootationspolierer oder Dual Action (Exzenter) Polierer. Wenn nicht kannst du einen Mikrofaser Polierpad oder Lamfell nutzen. Wenn die Hologramme und Kratzer beseitigt sind kannst du anfangen mit Finishing mit z.B. einem weissen Pad.  </p>\n<p><br /></p>\n<p><strong><img src=\"https://www.chemicalguys.eu/media/wysiwyg/Chemical-Guys-Hex-Logic-Quantum-Buffing-Pad-Yellow-002.jpg\" alt=\"\" /></strong></p>\n<p><strong>Pads welche Wärme reduzieren</strong><span style=\"font-size:12px;\">Das Design von </span>regulären Polierpads<span style=\"font-size:12px;\"> sind oft nicht stark genug für die Leistung vom Polierer. R</span>eguläre Schaumpads<span style=\"font-size:12px;\"> sind mangelhaft beim Löschen von den </span>Velcro<span style=\"font-size:12px;\">, von </span>Schaum<span style=\"font-size:12px;\"> und von dem </span>Rand beim Polieren<span style=\"font-size:12px;\"> bei </span>höherer Geschwindigkeit<span style=\"font-size:12px;\">. </span>Old – skool Polierer<span style=\"font-size:12px;\"> sind rotativ und drehen auf einer Achse und bringen so den Druck auf </span>Polierpads<span style=\"font-size:12px;\">. </span>Dual Action<span style=\"font-size:12px;\"> (</span>Exzenter<span style=\"font-size:12px;\">) </span>Polierer<span style=\"font-size:12px;\"> machen neben der </span>drehenden Bewegung<span style=\"font-size:12px;\"> auch noch ein </span>exzentrisches Hub<span style=\"font-size:12px;\"> und erzeugen so noch </span>mehr Druck<span style=\"font-size:12px;\">. Das </span>Dual Action – Mechanismuss<span style=\"font-size:12px;\"> lässt das Pads bewegen zwischen </span>2mm und 26mm<span style=\"font-size:12px;\">. Hier mit ist die </span>Reibung und Druck<span style=\"font-size:12px;\"> enorm. </span>Quantum<span style=\"font-size:12px;\"> Engineers haben diese Pads entwickelt mit </span>Precision Port Technologie<span style=\"font-size:12px;\">. Durch das </span>Loch in der Mitte<span style=\"font-size:12px;\"> kann dieser </span>einfach und perfekt<span style=\"font-size:12px;\"> zentriert und auf den S</span>tützteller<span style=\"font-size:12px;\"> montiert werden und es </span>reduziert zusätzlich durch das Loch in der Mitte Wärme<span style=\"font-size:12px;\">. Im </span>Zentrum vom Polierpad<span style=\"font-size:12px;\"> wird die meiste Wärme aufgebaut. Es ist dann wichtig dass das </span>Polierpad<span style=\"font-size:12px;\"> dann auch hier gekühlt wird um Reissen und andere </span>Defekten zu verhindern<span style=\"font-size:12px;\">.  Das neue </span>Velcro – System<span style=\"font-size:12px;\"> ist </span>ausgerüstet mit Luftkanälen<span style=\"font-size:12px;\"> welche mit den </span>TORQ Stütztellern<span style=\"font-size:12px;\"> einen </span>entlüftenden Luftstrohm ermöglichen<span style=\"font-size:12px;\">.</span>Quantum Pads<span style=\"font-size:12px;\"> sind entwickelt mit einem s</span>chrägen Rand<span style=\"font-size:12px;\"> damit der S</span>tützteller<span style=\"font-size:12px;\"> nicht die Oberfläche berühren kann beim </span>Polieren<span style=\"font-size:12px;\">. </span>Quantum Polierpads<span style=\"font-size:12px;\"> sind entwickelt als </span>beste Polierpad<span style=\"font-size:12px;\"> für </span>Profi – Fahrzeug Aufbereiter und Enthusiasten<span style=\"font-size:12px;\">. </span></p>\n<p><span style=\"font-size:12px;\"><br /></span><br /> <strong><img src=\"https://www.chemicalguys.eu/media/wysiwyg/Chemical-Guys-Hex-Logic-Quantum-Buffing-Pad-Yellow-003.jpg\" alt=\"\" /></strong><br /><br /><span style=\"font-size:12px;\"><strong>Schnell funktionierende Pads</strong></span></p>\n<h3><span style=\"font-size:12px;\">Beim Polieren entsteht eine kontrollierte Reibung welcher Lackdefekte beseitigt und eine glänzende Oberfläche entsteht. </span></h3>\n<p><br /></p>\n<p><span style=\"font-size:12px;\">Die Kombination von einem Polierpad, mit der Geschwindigkeit von einer Maschine und einer Politur ist die Basis dafür wieviel Wärme erzeugt wird. Die neue Quantum Polierpads sind entwickelt um mit maximaler Efficienz und Sicherheit zu polieren mit einer Dual Action (Exzenter) oder Rotationspolierer. Quantum Pads beseitigen Hologramme, Kratzer und Oxidation. Quantum Polierpads sind auch gut geeignet um Glanz und Tiefe an jede Farbe zu bringen. Reguläre Polierpads erzeugen viel Wärme bei falscher Anwendung. Dies kann Lack und die Pads beschädigen. Quantum Pads sind ausgerüstet mit einem fortgeschrittenen Velcro – System wo gekühlte Luft in das Polierpad gefürht wird. Quantum Polierpads sind das neue Standard für Schaum Polierpads.</span></p>\n<p><br /><br /><strong><img src=\"https://www.chemicalguys.eu/media/wysiwyg/Chemical-Guys-Hex-Logic-Quantum-Buffing-Pad-Yellow-004.jpg\" alt=\"\" /></strong><strong><strong><br /></strong></strong></p>\n<p><strong><strong>Hält deine Polierpads sauber</strong></strong></p>\n<h3>Polierpads sollen nach der Anwendung gereinigt werden um diese sauber und langlebig zu behalten.</h3>\n<p>Wir bieten verschiedene Produkte an um deine Polierpads zu Reinigen um so perfekte Leistungen bei jeder Anwendung zu liefern. Unser Polishing Pad Cleaner und Rejuvenator reinigt und stellt Polierpads und Polierschwämme weider her. Der ergonomische Foam Pad Conditioning Brush reinigt Wachs und Polituren aus dem Schaum und stellt die originale Textur wieder her.</p>\n<p><br /></p>\n<table border=\"0\"><tbody><tr><td><img src=\"https://www.chemicalguys.eu/media/wysiwyg/BUFX111HEX5-1.jpg\" alt=\"\" /></td>\n<td><img src=\"https://www.chemicalguys.eu/media/wysiwyg/BUFX112HEX5-1.jpg\" alt=\"\" /></td>\n<td><img src=\"https://www.chemicalguys.eu/media/wysiwyg/BUFX113HEX5-1.jpg\" alt=\"\" /></td>\n<td><img src=\"https://www.chemicalguys.eu/media/wysiwyg/BUFX114HEX5-1.jpg\" alt=\"\" /></td>\n</tr><tr><td>Heavy Cutting</td>\n<td>Medium Cutting</td>\n<td>Heavy Polishing</td>\n<td>Light-Medium Polishing</td>\n</tr><tr><td><img src=\"https://www.chemicalguys.eu/media/wysiwyg/BUFX115HEX5-1.jpg\" alt=\"\" /></td>\n<td><img src=\"https://www.chemicalguys.eu/media/wysiwyg/BUFX116HEX5-1.jpg\" alt=\"\" /></td>\n<td><img src=\"https://www.chemicalguys.eu/media/wysiwyg/BUFX117HEX5-1.jpg\" alt=\"\" /></td>\n<td><img src=\"https://www.chemicalguys.eu/media/wysiwyg/BUF_333_16-1.jpg\" alt=\"\" /></td>\n</tr><tr><td>Light Polishing/Finishing</td>\n<td>Finishing</td>\n<td>Ultra Light Finishing</td>\n<td>Polishing Pad Cleaner</td>\n</tr></tbody></table><p><br /></p>\n<p> </p>\n<p><br /></p>\n<table style=\"width:352px;\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\"><colgroup><col width=\"93\" /><col width=\"259\" /></colgroup><tbody><tr><td class=\"xl67\" colspan=\"2\" width=\"352\" height=\"21\"><strong>Spezifikationen</strong></td>\n</tr><tr><td class=\"xl65\" width=\"93\" height=\"21\">Artikel Nummer</td>\n<td class=\"xl66\" width=\"259\">BUFX_111_HEX6</td>\n</tr><tr><td class=\"xl65\" width=\"93\" height=\"21\">UPC </td>\n<td class=\"xl69\" width=\"259\">811339025059</td>\n</tr><tr><td class=\"xl65\" width=\"93\" height=\"21\">Grösse</td>\n<td class=\"xl66\" width=\"259\">6.5 Inch (150mm Velcro / 165mm Aussen)</td>\n</tr><tr><td class=\"xl65\" width=\"93\" height=\"21\">Farbe</td>\n<td class=\"xl66\" width=\"259\">Gelb</td>\n</tr><tr><td class=\"xl65\" width=\"93\" height=\"21\">Anwendung</td>\n<td class=\"xl66\" width=\"259\">Schleifen </td>\n</tr><tr><td class=\"xl65\" width=\"93\" height=\"21\">Material</td>\n<td class=\"xl66\" width=\"259\">Schaum</td>\n</tr><tr><td class=\"xl65\" width=\"93\" height=\"33\">Selbstzentrierend</td>\n<td class=\"xl66\" width=\"259\">Nein</td>\n</tr><tr><td class=\"xl65\" width=\"93\" height=\"21\">Polierer Type</td>\n<td class=\"xl66\" width=\"259\">Rotation und Dual Action (Exzenter)</td>\n</tr></tbody></table><p><br /></p>\n<h2>Zusatzinformation</h2>\n<p><br /></p>\n<table class=\"data-table\" id=\"product-attribute-specs-table\"><colgroup><col style=\"width:25%;\" /><col /></colgroup><tbody><tr class=\"first last odd\"><th class=\"label\">Artikelnummer</th>\n<td class=\"data last\">BUFX_111_HEX6</td>\n</tr></tbody></table><p><br /></p>"
+        },
+        {
+          "id": "3",
+          "value": "<p><strong>Perché comprare questo prodotto? </strong></p>\n<ul><li><span style=\"font-size:12px;\">I tamponi Quantum gialli eliminano ologrammi estremi, graffi, ossidazione e macchie d'acqua dalle superfici verniciate.</span></li>\n</ul><ul><li><span style=\"font-size:12px;\">Utilizzare tamponi gialli con smalti forti come V32 e V34.</span></li></ul><ul><li>Quantum Physics Design<span style=\"font-size:12px;\"> massimizza </span>il contatto della superficie<span style=\"font-size:12px;\">, </span>riduce il calore<span style=\"font-size:12px;\">tra pad e vernice e </span>trasporta meno<span style=\"font-size:12px;\">dal pad.</span></li>\n</ul><ul><li><span style=\"font-size:12px;\">Il profilo </span>Race Face<span style=\"font-size:12px;\">permette al pad di funzionare in modo </span>stabile<span style=\"font-size:12px;\">e </span>previene l'erosione dell'ext.rem<span style=\"font-size:12px;\">.</span></li>\n</ul><ul><li>Precision port hole<span style=\"font-size:12px;\"> nel pad dissipa il calore e riduce la pressione al centro del pad.</span></li></ul><ul><li>Sfiato d'aria posteriore<span style=\"font-size:12px;\">che</span> riduceil calore.</li>\n</ul><ul><li>La struttura Hex-Logic<span style=\"font-size:12px;\">nel pad </span>permette al prodotto di diffondersi uniformemente<span style=\"font-size:12px;\">mentre si lucida.</span></li>\n</ul><p><br /></p>\n<p><br /></p>\n<p><span style=\"font-size:12px;\">Nota: Il prezzo è per 1 pad.</span></p>\n<p><br /></p>\n<p><span style=\"text-decoration:underline;\"><strong><span style=\"font-size:12px;\">Può essere utilizzato con, per esempio, i seguenti prodotti</span></strong></span></p>\n<p><span style=\"font-size:12px;\"><strong>Informazioni su Hex-Logic Quantum Pads</strong></span></p>\n<p><br /></p>\n<p><strong><br /><img src=\"https://www.chemicalguys.eu/media/wysiwyg/Chemical-Guys-Hex-Logic-Quantum-Buffing-Pad-Yellow-001.jpg\" alt=\"\" /></strong></p>\n<h3>I tamponi di lucidatura Quantum Hex-Logic cambiano la fisica per offrire risultati migliori</h3><p>.\n</p><p>Giallo pesante - I tamponi Quantum Cutting sono perfetti per rimuovere graffi, swirls, macchie d'acqua e ossidazione con qualsiasi Dual Action (eccentrico) Lucidatrice o lucidatrice rotativa. Il nuovo design Quantum è un importante progresso nella tecnologia dei pad di lucidatura. Gli innovativi pad in schiuma trasferiscono la potenza dalla lucidatrice alla vernice e riducono il calore e l'abrasione. I tamponi Quantum sono progettati per le lucidatrici a doppia azione (eccentriche) con corse grandi e piccole e per le lucidatrici rotative. I tamponi Quantum Hex-Logic combinano una nuova geometria con le ben note proprietà Hex-Logic per i massimi risultati di lucidatura. I nuovi pad Quantum sono dotati di un velcro solido e traspirante che è più adesivo di altri pad. La tecnologia di taglio preciso offre un profilo uniforme con un'abrasione minima del pad. La tecnologia e i materiali migliorati rendono questi pad Quantum Hex Logic più durevoli e mostrano migliori risultati di lucidatura. Per ottenere la \"lucidatura\" giusta, gli ingegneri del pad Quantum Hex Logic hanno migliorato la durata e l'efficienza con il foro Precision Port. Lo sfiato del pad riduce la pressione sul il materiale e quindi permette di sviluppare meno calore. I tamponi di lucidatura Quantum sono disponibili in tutti i colori come i tamponi di lucidatura originali Hex-Logic. Il pad giusto è disponibile per ogni correzione della vernice. Usa i tamponi di lucidatura Quantum Hex-Logic per ottenere migliori risultati di lucidatura.<br /><strong><br />Usa i tamponi Quantum gialli per la correzione estrema della vernice</strong><strong>it</strong></p><p>.\n</p><p><strong>Il Cutting Pad giallo è il più forte della gamma Quantum</strong>.</p><p>.\n</p><p>Il pad da taglio pesante rimuove ologrammi estremi, graffi, segni d'acqua e ossidazione per riportare lucentezza e riflessione alle superfici verniciate. I detailer iniziano con un programma di prova per scoprire quale combinazione di pad e polish dà il miglior risultato. Il taglio pesante dei tamponi Quantum gialli con lucidanti forti come il V34 Hybrid Compound o il V32 Extreme Compound con una lucidatrice rotativa o a doppia azione (eccentrica). In caso contrario, si può usare un tampone di lucidatura in microfibra o una pelle d'agnello.. Quando gli ologrammi e i graffi sono stati rimossi, si può iniziare la finitura con, ad esempio, un tampone bianco.  </p>\n<p><br /></p>\n<p><strong><img src=\"https://www.chemicalguys.eu/media/wysiwyg/Chemical-Guys-Hex-Logic-Quantum-Buffing-Pad-Yellow-002.jpg\" alt=\"\" /></strong></p>\n<p><strong>Pad che riducono il calore</strong><span style=\"font-size:12px;\">Il design dei</span> normali pad di lucidatura<span style=\"font-size:12px;\">spesso non sono abbastanza forti per le prestazioni della lucidatrice. R</span>I tamponi di schiuma regolari<span style=\"font-size:12px;\"> sono carenti nel cancellare il </span>velcro<span style=\"font-size:12px;\">, del </span>schiuma<span style=\"font-size:12px;\"> e del </span>bordo quando si lucida<span style=\"font-size:12px;\"> a </span>velocità più elevate<span style=\"font-size:12px;\">. </span>Le vecchie lucidatrici<span style=\"font-size:12px;\"> sono rotanti e ruotano su un asse, portando la pressione a </span>Tamponi di lucidatura<span style=\"font-size:12px;\">. </span>Dual Action<span style=\"font-size:12px;\"> (</span>Eccentrico<span style=\"font-size:12px;\">) </span>Polishers<span style=\"font-size:12px;\"> fanno oltre al </span>movimento rotatorio<span style=\"font-size:12px;\">anche un tratto </span>eccentrico<span style=\"font-size:12px;\"> e quindi creare ancora </span>più pressione<span style=\"font-size:12px;\">. Il meccanismo a doppia azione<span style=\"font-size:12px;\"> permette ai cuscinetti di muoversi tra 2mm e 26mm<span style=\"font-size:12px;\">. Qui con l'</span>attrito e la pressione<span style=\"font-size:12px;\">è enorme. </span>Quantum<span style=\"font-size:12px;\"> Gli ingegneri hanno sviluppato questi cuscinetti con la tecnologia </span>Precision Port<span style=\"font-size:12px;\">. Il </span>foro al centro<span style=\"font-size:12px;\"> lo rende </span>facile e perfetto<span style=\"font-size:12px;\"> per centrare e montare sulla piastra di supporto S</span>. e </span>inoltre riduce il calore<span style=\"font-size:12px;\">attraverso il foro nel mezzo. Nel </span>centro del pad di lucidatura<span style=\"font-size:12px;\">si accumula la maggior parte del calore. È poi importante che il tampone di lucidatura sia qui raffreddato per evitare crepe e altri difetti<span style=\"font-size:12px;\">.  Il nuovo </span>Velcro - System<span style=\"font-size:12px;\"> è </span>dotato di condotti d'aria<span style=\"font-size:12px;\"> che, insieme alle piastre di supporto </span>TORQ<span style=\"font-size:12px;\"> permettono un </span>flusso d'aria ventilante<span style=\"font-size:12px;\">.</span>I tamponi Quantum<span style=\"font-size:12px;\"> sono progettati con un bordo s</span>lant<span style=\"font-size:12px;\"> in modo che il tampone S</span> di supporto<span style=\"font-size:12px;\"> non possa toccare la superficie quando</span> si lucida<span style=\"font-size:12px;\">. </span>Padroni di lucidatura Quantum<span style=\"font-size:12px;\">sono progettati come</span> i migliori tamponi di lucidatura<span style=\"font-size:12px;\">per</span> professionisti - restauratori di veicoli e appassionati<span style=\"font-size:12px;\">. </span></span></span></p><p>.\n</p><p><span style=\"font-size:12px;\"><br /></span><br /><strong><img src=\"https://www.chemicalguys.eu/media/wysiwyg/Chemical-Guys-Hex-Logic-Quantum-Buffing-Pad-Yellow-003.jpg\" alt=\"\" /></strong><br /><br /><br /><span style=\"font-size:12px;\"><strong>Padroni di lavoro veloci</strong></span></p><p>.\n</p><h3><span style=\"font-size:12px;\">Quando si lucida, si crea una frizione controllata che rimuove i difetti della vernice e crea una superficie brillante. </span></h3>\n<p><br /></p>\n<p><span style=\"font-size:12px;\">La combinazione di un tampone di lucidatura, con la velocità di una macchina e una lucidatura è la base di quanto calore viene generato. I nuovi tamponi di lucidatura Quantum sono progettati per lucidare con la massima efficienza e sicurezza utilizzando una lucidatrice a doppia azione (eccentrica) o rotativa. I tamponi Quantum rimuovono ologrammi, graffi e ossidazione. I tamponi di lucidatura Quantum sono anche buoni per aggiungere lucentezza e profondità a qualsiasi colore. I normali tamponi di lucidatura generano molto calore se usati in modo scorretto. Questo può danneggiare la vernice e i cuscinetti. I pad Quantum sono dotati di un sistema avanzato di velcro in cui l'aria raffreddata viene forzata nel pad di lucidatura. I tamponi di lucidatura Quantum sono il nuovo standard per i tamponi di lucidatura in schiuma.\n</span></p><p><br /><br /><strong><img src=\"https://www.chemicalguys.eu/media/wysiwyg/Chemical-Guys-Hex-Logic-Quantum-Buffing-Pad-Yellow-004.jpg\" alt=\"\" /></strong><strong><br /></strong></p><p>.\n</p><p><strong><strong>Mantiene puliti i tuoi tamponi di lucidatura</strong></strong></p><p>.\n</p><h3>I tamponi di lucidatura devono essere puliti dopo l'uso per mantenerli puliti e duraturi</h3><p>.\n</p><p>Noi offriamo diversi prodotti per pulire i vostri tamponi di lucidatura per mantenerli perfettamente puliti.e prestazioni in ogni applicazione. Il nostro Polishing Pad Cleaner and Rejuvenator pulisce e ripristina i tamponi e le spugne di lucidatura. L'ergonomico Foam Pad Conditioning Brush pulisce la cera e il lucido dalla schiuma e ripristina la consistenza originale.\n</p><p><br /></p>\n<table border=\"0\"><tbody><tr><td><img src=\"https://www.chemicalguys.eu/media/wysiwyg/BUFX111HEX5-1.jpg\" alt=\"\" /></td>\n<td><img src=\"https://www.chemicalguys.eu/media/wysiwyg/BUFX112HEX5-1.jpg\" alt=\"\" /></td>\n<td><img src=\"https://www.chemicalguys.eu/media/wysiwyg/BUFX113HEX5-1.jpg\" alt=\"\" /></td>\n<td><img src=\"https://www.chemicalguys.eu/media/wysiwyg/BUFX114HEX5-1.jpg\" alt=\"\" /></td>\n</tr><tr><td>Taglio pesante</td>\n<td>Taglio medio</td>\n<td>Lucidatura pesante</td>\n<td>Leggera-Media Lucidatura</td>\n</tr><tr><td><img src=\"https://www.chemicalguys.eu/media/wysiwyg/BUFX115HEX5-1.jpg\" alt=\"\" /></td>\n<td><img src=\"https://www.chemicalguys.eu/media/wysiwyg/BUFX116HEX5-1.jpg\" alt=\"\" /></td>\n<td><img src=\"https://www.chemicalguys.eu/media/wysiwyg/BUFX117HEX5-1.jpg\" alt=\"\" /></td>\n<td><img src=\"https://www.chemicalguys.eu/media/wysiwyg/BUF_333_16-1.jpg\" alt=\"\" /></td>\n</tr><tr><td>Leggera lucidatura/finitura</td>\n<td>Finitura</td>\n<td>Finitura ultra leggera</td>\n<td>Pulitore per lucidatura</td>\n</tr></tbody></table><p><br /></p>\n<p> </p>\n<p><br /></p>\n<table style=\"width:352px;\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\"><colgroup><col width=\"93\" /><col width=\"259\" /></colgroup><tbody><tr><td class=\"xl67\" colspan=\"2\" width=\"352\" height=\"21\"><strong>Specifiche</strong></td>\n</tr><tr><td class=\"xl65\" width=\"93\" height=\"21\">Numero articolo</td>\n<td class=\"xl66\" width=\"259\">BUFX_111_HEX6</td>\n</tr><tr><td class=\"xl65\" width=\"93\" height=\"21\">UPC</td>\n<td class=\"xl69\" width=\"259\">811339025059</td>\n</tr><tr><td class=\"xl65\" width=\"93\" height=\"21\">Dimensione</td>\n<td class=\"xl66\" width=\"259\">6.5 pollici (150mm velcro / 165mm esterno)</td>\n</tr><tr><td class=\"xl65\" width=\"93\" height=\"21\">Colore</td>\n<td class=\"xl66\" width=\"259\">Giallo</td>\n</tr><tr><td class=\"xl65\" width=\"93\" height=\"21\">Applicazione</td>\n<td class=\"xl66\" width=\"259\">Loop</td>\n</tr><tr><td class=\"xl65\" width=\"93\" height=\"21\">Materiale</td>\n<td class=\"xl66\" width=\"259\">Schiuma</td>\n</tr><tr><td class=\"xl65\" width=\"93\" height=\"33\">Autocentrarsi</td>\n<td class=\"xl66\" width=\"259\">No</td>\n</tr><tr><td class=\"xl65\" width=\"93\" height=\"21\">Tipo di lucidatore</td>\n<td class=\"xl66\" width=\"259\">Rotazione e doppia azione (eccentrica)</td>\n</tr></tbody></table><p><br /></p>\n<h2>Informazioni supplementari</h2>\n<p><br /></p>\n<table class=\"data-table\" id=\"product-attribute-specs-table\"><colgroup><col style=\"width:25%;\" /><col /></colgroup><tbody><tr class=\"first last odd\"><th class=\"label\">Numero articolo</th>\n<td class=\"data last\">BUFX_111_HEX6</td>\n</tr></tbody></table><p><br /></p>"
+        }
+      ],
+      "description_short": [
+        {
+          "id": "1",
+          "value": "<p>ChemicalGuys Yellow Hex Logic Quantum Heavy Cutting Polishing Pads remove extreme holograms, scratches, oxidation, water spots from paint.</p>."
+        },
+        {
+          "id": "2",
+          "value": "<p>ChemicalGuys Gelbe Hex Logic Quantum Heavy Cutting Polierpads beseitigen extreme Hologramme, Kratzer, Oxidation, Wasserflecken vom Lack.</p>"
+        },
+        {
+          "id": "3",
+          "value": "<p>ChemicalGuys Giallo Hex Logic Quantum Heavy Cutting Polishing Pads rimuovono ologrammi estremi, graffi, ossidazione, macchie d'acqua dalla vernice.</p>"
+        }
+      ],
+      "available_now": [
+        {
+          "id": "1",
+          "value": ""
+        },
+        {
+          "id": "2",
+          "value": ""
+        },
+        {
+          "id": "3",
+          "value": ""
+        }
+      ],
+      "available_later": [
+        {
+          "id": "1",
+          "value": ""
+        },
+        {
+          "id": "2",
+          "value": ""
+        },
+        {
+          "id": "3",
+          "value": ""
+        }
+      ],
+      "associations": {
+        "categories": [
+          {
+            "id": "2"
+          },
+          {
+            "id": "5"
+          },
+          {
+            "id": "9"
+          },
+          {
+            "id": "26"
+          },
+          {
+            "id": "45"
+          }
+        ],
+        "images": [
+          {
+            "id": "4740"
+          },
+          {
+            "id": "4741"
+          },
+          {
+            "id": "4742"
+          },
+          {
+            "id": "4743"
+          },
+          {
+            "id": "4744"
+          },
+          {
+            "id": "4745"
+          },
+          {
+            "id": "4746"
+          },
+          {
+            "id": "4747"
+          }
+        ],
+        "combinations": [
+          {
+            "id": "41"
+          }
+        ],
+        "product_option_values": [
+          {
+            "id": "22"
+          }
+        ],
+        "product_features": [
+          {
+            "id": "3",
+            "id_feature_value": "13"
+          }
+        ],
+        "stock_availables": [
+          {
+            "id": "215",
+            "id_product_attribute": "0"
+          },
+          {
+            "id": "217",
+            "id_product_attribute": "41"
+          }
+        ],
+        "accessories": [
+          {
+            "id": "78"
+          },
+          {
+            "id": "79"
+          }
+        ]
+      }
+    }
+  ]
+}

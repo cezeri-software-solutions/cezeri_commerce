@@ -7,6 +7,7 @@ import '../../../3_domain/entities/settings/payment_method.dart';
 import '../../../constants.dart';
 import '../../app_drawer.dart';
 import '../../core/functions/my_scaffold_messanger.dart';
+import 'widgets/add_edti_payment_method_marketplace_name.dart';
 
 class PaymentMethodPage extends StatefulWidget {
   const PaymentMethodPage({super.key});
@@ -107,6 +108,10 @@ class _PaymentMethodListTile extends StatelessWidget {
               value: mainSettings.paymentMethods.any((e) => e.name == paymentMethod.name),
               onChanged: (value) =>
                   context.read<MainSettingsBloc>().add(EnableOrDisablePaymentMethodEvent(value: value, paymentMethod: paymentMethod)),
+            ),
+            onTap: () => showModalBottomSheet(
+              context: context,
+              builder: (context) => AddEditPaymentMethodMarketplaceName(paymentMethod: paymentMethod),
             ),
           ),
         ),
