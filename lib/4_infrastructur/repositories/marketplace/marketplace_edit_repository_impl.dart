@@ -1,5 +1,6 @@
 import 'package:cezeri_commerce/3_domain/entities/product/product.dart';
 import 'package:cezeri_commerce/3_domain/entities/product/product_image.dart';
+import 'package:cezeri_commerce/3_domain/enums/enums.dart';
 import 'package:cezeri_commerce/core/presta_failure.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
@@ -10,14 +11,14 @@ import '../../../../1_presentation/core/functions/check_internet_connection.dart
 import '../../../../3_domain/entities/marketplace/marketplace.dart';
 import '../../../../3_domain/entities/product/marketplace_product_presta.dart';
 import '../../../../3_domain/entities/product/product_marketplace.dart';
-import '../../../../3_domain/repositories/prestashop/product/product_edit_repository.dart';
-import '../../prestashop_api/prestashop_api.dart';
+import '../../../../3_domain/repositories/marketplace/marketplace_edit_repository.dart';
+import '../prestashop_api/prestashop_api.dart';
 
-class ProductEditRepositoryImpl implements ProductEditRepository {
+class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
   final FirebaseFirestore db;
   final FirebaseAuth firebaseAuth;
 
-  ProductEditRepositoryImpl({required this.db, required this.firebaseAuth});
+  MarketplaceEditRepositoryImpl({required this.db, required this.firebaseAuth});
 
   @override
   Future<Either<PrestaFailure, Unit>> editProdcutPresta(Product product) async {
@@ -127,18 +128,33 @@ class ProductEditRepositoryImpl implements ProductEditRepository {
     return left(PrestaGeneralFailure());
   }
 
-  // void updateXmlElementText(XmlElement element, String newText) {
-  //   final cdataNode = element.children.whereType<XmlCDATA>().firstOrNull;
-  //   if (cdataNode != null) cdataNode.text = newText;
-  // }
+  @override
+  Future<Either<PrestaFailure, Unit>> setOrderStatus(
+    Marketplace marketplace,
+    int orderId,
+    OrderStatusUpdateType orderStatusUpdateType,
+  ) async {
+    if (orderId == 0) return right(unit);
+    final isConnected = await checkInternetConnection();
+    if (!isConnected) return left(PrestaGeneralFailure());
 
-  // void updateXmlElementCDATAContent(XmlElement element, String newText) {
-  //   // Finden Sie den CDATA-Knoten innerhalb des Elements
-  //   final cdataNode = element.children.whereType<XmlCDATA>().firstOrNull;
+    bool isSuccess = true;
 
-  //   if (cdataNode != null) {
-  //     // Ersetzen Sie den Inhalt des CDATA-Knotens
-  //     cdataNode.text = newText;
-  //   }
-  // }
+    if (marketplace.marketplaceType == MarketplaceType.prestashop) {
+      final api = PrestashopApi(Client(), PrestashopApiConfig(apiKey: marketplace.key, webserviceUrl: marketplace.fullUrl));
+
+      final statusId = switch (orderStatusUpdateType) {
+        OrderStatusUpdateType.onImport => marketplace.marketplaceSettings.statusIdAfterImport,
+        OrderStatusUpdateType.onShipping => marketplace.marketplaceSettings.statusIdAfterShipping,
+        OrderStatusUpdateType.onCancel => marketplace.marketplaceSettings.statusIdAfterCancellation,
+        OrderStatusUpdateType.onDelete => marketplace.marketplaceSettings.statusIdAfterDelete,
+      };
+
+      isSuccess = await api.patchOrderStatus(orderId, statusId, marketplace.isPresta8);
+      if (isSuccess) return right(unit);
+    }
+
+    if (isSuccess) return right(unit);
+    return left(PrestaGeneralFailure());
+  }
 }

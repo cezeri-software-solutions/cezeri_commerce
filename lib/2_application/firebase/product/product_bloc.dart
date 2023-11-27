@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:bloc/bloc.dart';
 import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.dart';
-import 'package:cezeri_commerce/3_domain/repositories/prestashop/product/product_edit_repository.dart';
 import 'package:cezeri_commerce/core/firebase_failures.dart';
 import 'package:cezeri_commerce/core/presta_failure.dart';
 import 'package:dartz/dartz.dart';
@@ -16,13 +15,14 @@ import '../../../3_domain/entities/product/product.dart';
 import '../../../3_domain/entities/product/product_image.dart';
 import '../../../3_domain/entities_presta/product_presta.dart';
 import '../../../3_domain/repositories/firebase/product_repository.dart';
+import '../../../3_domain/repositories/marketplace/marketplace_edit_repository.dart';
 
 part 'product_event.dart';
 part 'product_state.dart';
 
 class ProductBloc extends Bloc<ProductEvent, ProductState> {
   final ProductRepository productRepository;
-  final ProductEditRepository productEditRepository;
+  final MarketplaceEditRepository productEditRepository;
 
   ProductBloc({required this.productRepository, required this.productEditRepository}) : super(ProductState.initial()) {
 //? #########################################################################

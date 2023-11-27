@@ -7,6 +7,20 @@ import '../../../3_domain/entities/product/product_language.dart';
 import '../../../3_domain/entities/product/product_marketplace.dart';
 import '../../../3_domain/entities_presta/product_presta.dart';
 
+//* Order
+XmlBuilder orderStatusBuilder(final int orderId, final int statusId) {
+  final builder = XmlBuilder();
+  builder.processing('xml', 'version="1.0" encoding="UTF-8"');
+  builder.element('prestashop', attributes: {'xmlns:xlink': 'http://www.w3.org/1999/xlink'}, nest: () {
+    builder.element('order', nest: () {
+      builder.element('id', nest: orderId);
+      builder.element('current_state', nest: statusId);
+    });
+  });
+  return builder;
+}
+
+//* Product
 XmlBuilder stockAvailableBuilder(String id, int quantity) {
   final builder = XmlBuilder();
   builder.processing('xml', 'version="1.0" encoding="UTF-8"');

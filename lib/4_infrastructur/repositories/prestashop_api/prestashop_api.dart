@@ -193,7 +193,21 @@ class PrestashopApi with UiLoggy {
 //? ################################## GET ENDE ######################################################################################
 //? ##################################################################################################################################
 //? ################################## PATCH START ###################################################################################
+  //* Order
+  Future<bool> patchOrderStatus(final int orderId, final int statusId, final bool isPresta8) async {
+    bool payload = false;
+    if (isPresta8) {
+      final builder = orderStatusBuilder(orderId, statusId);
+      final payloadDoPatch = await _doPatch(
+        '${_conf.webserviceUrl}orders/$orderId',
+        builder,
+      );
+      payload = payloadDoPatch;
+    }
+    return payload;
+  }
 
+  //* Product
   Future<bool> patchProductQuantity(final int marketplaceProductPrestaId, final int quantity, final Marketplace marketplace) async {
     final optionalProductPresta = await getProduct(marketplaceProductPrestaId, marketplace);
     if (optionalProductPresta.isNotPresent) return false;

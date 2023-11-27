@@ -33,17 +33,19 @@ class ProductOverviewPage extends StatelessWidget {
         }
 
         return Expanded(
-          child: ListView.builder(
-            itemCount: state.listOfFilteredProducts!.length,
-            itemBuilder: (context, index) {
-              final curProduct = state.listOfFilteredProducts![index];
-              return Column(
-                children: [
-                  _ProductContainer(product: curProduct, index: index, productBloc: productBloc),
-                  const Divider(),
-                ],
-              );
-            },
+          child: Scrollbar(
+            child: ListView.builder(
+              itemCount: state.listOfFilteredProducts!.length,
+              itemBuilder: (context, index) {
+                final curProduct = state.listOfFilteredProducts![index];
+                return Column(
+                  children: [
+                    _ProductContainer(product: curProduct, index: index, productBloc: productBloc),
+                    const Divider(),
+                  ],
+                );
+              },
+            ),
           ),
         );
       },
@@ -116,7 +118,8 @@ class _ProductContainer extends StatelessWidget {
                       Text('EK: ${product.wholesalePrice.toMyCurrencyStringToShow()}'),
                       Text('VK-Netto: ${product.netPrice.toMyCurrencyStringToShow()}'),
                       Text('VK-Brutto: ${product.grossPrice.toMyCurrencyStringToShow()}'),
-                      Text((product.netPrice - product.wholesalePrice).toMyCurrencyStringToShow(), style: TextStyles.defaultBold.copyWith(color: Colors.green))
+                      Text((product.netPrice - product.wholesalePrice).toMyCurrencyStringToShow(),
+                          style: TextStyles.defaultBold.copyWith(color: Colors.green))
                     ],
                   ),
                 ),
@@ -142,7 +145,7 @@ class _ProductContainer extends StatelessWidget {
                     itemCount: product.productMarketplaces.length,
                     itemBuilder: (context, index) {
                       final productMarketplace = product.productMarketplaces[index];
-                      return Text(productMarketplace.shortNameMarketplace!);
+                      return Text(productMarketplace.shortNameMarketplace);
                     },
                   ),
                 ),

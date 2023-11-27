@@ -11,46 +11,19 @@ import '../../../../3_domain/entities/product/product_marketplace.dart';
 import '../../../../3_domain/entities/settings/main_settings.dart';
 import '../../../../3_domain/entities_presta/product_presta.dart';
 import '../../../../3_domain/repositories/firebase/product_repository.dart';
-import '../../../../3_domain/repositories/prestashop/product/product_import_repository.dart';
+import '../../../../3_domain/repositories/marketplace/marketplace_import_repository.dart';
 import '../../../../core/abstract_failure.dart';
 import '../../../../core/firebase_failures.dart';
 import '../../../../core/presta_failure.dart';
-import '../../firebase/repository_impl_helper.dart';
-import '../../prestashop_api/prestashop_api.dart';
+import '../firebase/repository_impl_helper.dart';
+import '../prestashop_api/prestashop_api.dart';
 
-class ProductImportRepositoryImpl implements ProductImportRepository {
+class MarketplaceImportRepositoryImpl implements MarketplaceImportRepository {
   final FirebaseFirestore db;
   final FirebaseAuth firebaseAuth;
   final ProductRepository productRepository;
 
-  ProductImportRepositoryImpl({required this.db, required this.firebaseAuth, required this.productRepository});
-
-  @override
-  Future<Either<PrestaFailure, List<ProductPresta>>> getAllProductsFromPrestashop() async {
-    // try {
-    //   final response = await http.get(
-    //     Uri.parse('https://ccf-autopflege.at/api/products?ws_key=L2YILL715KNNT469R5L1GU9MMLAVNGYG'),
-    //     headers: {'Content-Type': 'application/xml'},
-    //   );
-
-    //   final document = XmlDocument.parse(response.body);
-    //   final productsXml = document.findAllElements('product');
-
-    //   List<ProductPrestaOld> products = [];
-    //   for (int i = 0; i < 20; i++) {
-    //     final href = productsXml.elementAt(i).getAttribute('xlink:href') ?? '';
-    //     print('Produktdetails URL: $href');
-    //     final productDetails = await fetchDetailsOfMultipleProducts('$href&ws_key=L2YILL715KNNT469R5L1GU9MMLAVNGYG');
-
-    //     products.add(productDetails);
-    //   }
-    //   return right(products);
-    // } catch (e) {
-    //   print(e);
-    //   return left(PrestaGeneralFailure());
-    // }
-    throw UnimplementedError();
-  }
+  MarketplaceImportRepositoryImpl({required this.db, required this.firebaseAuth, required this.productRepository});
 
   @override
   Future<Either<AbstractFailure, List<int>>> getToLoadProductsFromMarketplace(Marketplace marketplace, bool onlyActive) async {
@@ -178,12 +151,3 @@ class ProductImportRepositoryImpl implements ProductImportRepository {
     }
   }
 }
-
-
-  //   final uri = '${marketplace.fullUrl}products/$id';
-  //   // final uriStock = '${marketplace.fullUrl}stocks?filter[id_product]=$id&ws_key=${marketplace.key}:';
-  //   // final uriStock = 'https://ccf-autopflege.at/api/stocks/?filter[id_product]=$id';
-  //   // final uriStock = 'https://ccf-autopflege.at/api/stocks?filter[id_product]=$id';
-  //   // final uriStock = '${marketplace.fullUrl}stock_availables?filter[id_product]=$id';
-  //   final uriStock = '${marketplace.fullUrl}stock_availables/8264';
-  //   // final uriStock = '${marketplace.fullUrl}images/products/$id';

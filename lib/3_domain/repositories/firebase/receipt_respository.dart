@@ -2,14 +2,12 @@ import 'package:dartz/dartz.dart';
 
 import '../../../core/abstract_failure.dart';
 import '../../../core/firebase_failures.dart';
-import '../../entities/marketplace/marketplace.dart';
 import '../../entities/receipt/load_appointments_helper/to_load_appointments_from_marketplace.dart';
 import '../../entities/receipt/receipt.dart';
 import '../../entities/receipt/receipt_product.dart';
 
 abstract class ReceiptRepository {
   Future<Either<FirebaseFailure, Receipt>> getAppointment(Receipt receipt);
-  Future<Either<FirebaseFailure, List<Receipt>>> loadNewAppointmentsFromMarketplaces();
   Future<Either<FirebaseFailure, List<Receipt>>> getListOfReceipts(int value, ReceiptTyp receiptTyp);
   Future<Either<FirebaseFailure, Unit>> updateReceipt(
     Receipt receipt,
@@ -17,7 +15,6 @@ abstract class ReceiptRepository {
     List<ReceiptProduct> newListOfReceiptProducts,
   );
   Future<Either<FirebaseFailure, Receipt>> createReceiptManually(Receipt receipt);
-  Future<Either<FirebaseFailure, Unit>> deleteAppointment(String id);
   Future<Either<FirebaseFailure, Unit>> deleteListOfReceipts(List<Receipt> listOfReceipts);
   //* ###### Generate Receipts #####
   Future<Either<FirebaseFailure, List<Receipt>>> generateFromListOfOffersNewAppointments(List<Receipt> listOfOffers);
@@ -38,6 +35,4 @@ abstract class ReceiptRepository {
   Future<Either<AbstractFailure, List<ToLoadAppointmentsFromMarketplace>>> getToLoadAppointmentsFromMarketplaces();
   Future<Either<AbstractFailure, LoadedOrderFromMarketplace>> loadAppointmentsFromMarketplace(ToLoadAppointmentFromMarketplace toLoadAppointment);
   Future<Either<AbstractFailure, Receipt>> uploadLoadedAppointmentToFirestore(LoadedOrderFromMarketplace loadedAppointmentFromMarketplace);
-  //! Wird nicht mehr genutzt
-  Future<Either<AbstractFailure, Receipt>> loadAppointmentFromMarketplaceAndUploadToFirestore(Marketplace marketplace, int toLoadOrderId);
 }

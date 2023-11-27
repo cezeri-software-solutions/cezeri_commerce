@@ -25,8 +25,8 @@ import '3_domain/repositories/firebase/main_settings_respository.dart';
 import '3_domain/repositories/firebase/marketplace_repository.dart';
 import '3_domain/repositories/firebase/packing_station_repository.dart';
 import '3_domain/repositories/firebase/product_repository.dart';
-import '3_domain/repositories/prestashop/product/product_edit_repository.dart';
-import '3_domain/repositories/prestashop/product/product_import_repository.dart';
+import '3_domain/repositories/marketplace/marketplace_edit_repository.dart';
+import '3_domain/repositories/marketplace/marketplace_import_repository.dart';
 import '4_infrastructur/repositories/firebase/auth_repository_impl.dart';
 import '4_infrastructur/repositories/firebase/client_repository_impl.dart';
 import '4_infrastructur/repositories/firebase/customer_repository_impl.dart';
@@ -35,8 +35,8 @@ import '4_infrastructur/repositories/firebase/main_settings_respository_impl.dar
 import '4_infrastructur/repositories/firebase/marketplace_repository_impl.dart';
 import '4_infrastructur/repositories/firebase/packing_station_repository_impl.dart';
 import '4_infrastructur/repositories/firebase/product_repository_impl.dart';
-import '4_infrastructur/repositories/prestashop/product/product_edit_repository_impl.dart';
-import '4_infrastructur/repositories/prestashop/product/product_import_repository_impl.dart';
+import '4_infrastructur/repositories/marketplace/marketplace_edit_repository_impl.dart';
+import '4_infrastructur/repositories/marketplace/marketplace_import_repository_impl.dart';
 
 final sl = GetIt.I;
 
@@ -70,6 +70,7 @@ Future<void> init() async {
       productImportRepository: sl(),
       customerRepository: sl(),
       mainSettingsRepository: sl(),
+      marketplaceEditRepository: sl(),
     ),
   );
   sl.registerLazySingleton<CustomerRepository>(() => CustomerRepositoryImpl(db: sl(), firebaseAuth: sl()));
@@ -77,8 +78,8 @@ Future<void> init() async {
   sl.registerLazySingleton<DashboardRepository>(() => DashboardRepositoryImpl(db: sl(), firebaseAuth: sl()));
 
   //! repositories Prestashop
-  sl.registerLazySingleton<ProductImportRepository>(() => ProductImportRepositoryImpl(db: sl(), firebaseAuth: sl(), productRepository: sl()));
-  sl.registerLazySingleton<ProductEditRepository>(() => ProductEditRepositoryImpl(db: sl(), firebaseAuth: sl()));
+  sl.registerLazySingleton<MarketplaceImportRepository>(() => MarketplaceImportRepositoryImpl(db: sl(), firebaseAuth: sl(), productRepository: sl()));
+  sl.registerLazySingleton<MarketplaceEditRepository>(() => MarketplaceEditRepositoryImpl(db: sl(), firebaseAuth: sl()));
 
   //! extern
   final firebaseAuth = FirebaseAuth.instance;

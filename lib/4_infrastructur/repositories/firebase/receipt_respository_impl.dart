@@ -24,6 +24,7 @@ import '../../../3_domain/entities/customer/customer.dart';
 import '../../../3_domain/entities/e_mail_automation.dart';
 import '../../../3_domain/entities/marketplace/marketplace.dart';
 import '../../../3_domain/entities/product/product.dart';
+import '../../../3_domain/entities/product/product_marketplace.dart';
 import '../../../3_domain/entities/settings/main_settings.dart';
 import '../../../3_domain/entities_presta/order_presta.dart';
 import '../../../3_domain/entities_presta/product_presta.dart';
@@ -31,7 +32,8 @@ import '../../../3_domain/enums/enums.dart';
 import '../../../3_domain/pdf/pdf_receipt_generator.dart';
 import '../../../3_domain/repositories/firebase/main_settings_respository.dart';
 import '../../../3_domain/repositories/firebase/product_repository.dart';
-import '../../../3_domain/repositories/prestashop/product/product_import_repository.dart';
+import '../../../3_domain/repositories/marketplace/marketplace_edit_repository.dart';
+import '../../../3_domain/repositories/marketplace/marketplace_import_repository.dart';
 import '../prestashop_api/prestashop_api.dart';
 import '../shipping_methods/austrian_post/austrian_post_api.dart';
 import 'receipt_respository_helper.dart';
@@ -41,9 +43,10 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
   final FirebaseFirestore db;
   final FirebaseAuth firebaseAuth;
   final ProductRepository productRepository;
-  final ProductImportRepository productImportRepository;
+  final MarketplaceImportRepository productImportRepository;
   final CustomerRepository customerRepository;
   final MainSettingsRepository mainSettingsRepository;
+  final MarketplaceEditRepository marketplaceEditRepository;
 
   const ReceiptRespositoryImpl({
     required this.db,
@@ -52,6 +55,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
     required this.productImportRepository,
     required this.customerRepository,
     required this.mainSettingsRepository,
+    required this.marketplaceEditRepository,
   });
 
   @override
@@ -224,191 +228,6 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
   }
 
   @override
-  Future<Either<FirebaseFailure, List<Receipt>>> loadNewAppointmentsFromMarketplaces() async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(NoConnectionFailure());
-    final logger = Logger();
-
-    final now = DateTime.now();
-    final curYear = now.year;
-    final curMonth = now.month;
-
-    final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRefMainSettings = db.collection(currentUserUid).doc(currentUserUid).collection('Settings').doc(currentUserUid);
-    final docRefMarketplaces = db.collection(currentUserUid).doc(currentUserUid).collection('Marketetplaces');
-    final docRefStatDashboard = db.collection(currentUserUid).doc(currentUserUid).collection('StatDashboard').doc('$curYear$curMonth');
-
-    List<OrderPresta>? listOfOrderPresta;
-    List<Receipt> listOfReceiptToReturn = [];
-
-    try {
-      final listOfActiveMarketplaces = await docRefMarketplaces.get().then(
-            (value) => value.docs.map((querySnapshot) => Marketplace.fromJson(querySnapshot.data())).toList(),
-          );
-
-      for (final marketplace in listOfActiveMarketplaces) {
-        final api = PrestashopApi(Client(), PrestashopApiConfig(apiKey: marketplace.key, webserviceUrl: marketplace.fullUrl));
-        if (!marketplace.isActive) continue;
-
-        final orderIdsPresta = await api.getOrderIds();
-        final allOrderIds = orderIdsPresta.map((e) => e.id).toList();
-        allOrderIds.sort((a, b) => a.compareTo(b));
-
-        listOfOrderPresta = await api.getOrdersFilterIdInterval(marketplace.marketplaceSettings.nextIdToImport, allOrderIds.last);
-
-        for (final orderPresta in listOfOrderPresta) {
-          final docRefReceipt = db.collection(currentUserUid).doc(currentUserUid).collection('Appointments').where(
-                'receiptMarketplaceId',
-                isEqualTo: orderPresta.id,
-              );
-          final appointmentListFirestore =
-              await docRefReceipt.get().then((value) => value.docs.map((querySnapshot) => Receipt.fromJson(querySnapshot.data())).toList());
-          if (appointmentListFirestore.isNotEmpty) continue;
-
-          final dsMainSettings = await docRefMainSettings.get();
-          final mainSettings = MainSettings.fromJson(dsMainSettings.data()!);
-
-          List<ReceiptProduct> listOfReceiptproduct = [];
-
-          for (final orderProductPresta in orderPresta.associations!.orderRows) {
-            Product? appointmentProduct;
-            final quantity = int.parse(orderProductPresta.productQuantity);
-            final tax = calcTaxPercent((orderProductPresta.unitPriceTaxIncl).toMyDouble(), (orderProductPresta.unitPriceTaxExcl).toMyDouble());
-
-            final productFirestore = await getProductFromFirestoreIfExists(
-              orderProductPresta.productReference,
-              orderProductPresta.productEan13,
-              orderProductPresta.productName,
-              marketplace,
-              mainSettings,
-              productRepository,
-            );
-            if (productFirestore == null) {
-              final productPresta = await getProductByIdFromPrestashop(int.parse(orderProductPresta.productId), marketplace);
-              if (productPresta == null) return left(GeneralFailure as FirebaseFailure);
-
-              final createdProductFirestore = await createProductInFirestore(
-                Product.fromProductPresta(
-                  productPresta: productPresta,
-                  marketplace: marketplace,
-                  mainSettings: mainSettings,
-                ),
-                productPresta,
-                marketplace,
-                mainSettings,
-                productRepository,
-              );
-              if (createdProductFirestore == null) return left(GeneralFailure as FirebaseFailure);
-              appointmentProduct = createdProductFirestore;
-              await productRepository.updateWarehouseQuantityOfProductIncremental(createdProductFirestore, quantity);
-            } else {
-              appointmentProduct = productFirestore;
-              await productRepository.updateAvailableQuantityOfProductInremental(productFirestore, quantity * -1);
-            }
-
-            final receiptProduct = generateReceiptProduct(
-              product: appointmentProduct,
-              orderProductPresta: orderProductPresta,
-              mainSettings: mainSettings,
-              quantity: quantity,
-              tax: tax,
-            );
-            listOfReceiptproduct.add(receiptProduct);
-          }
-
-          final optionalCurrency = await api.getCurrency(int.parse(orderPresta.idCurrency));
-          final currency = optionalCurrency.value;
-          final optionalCarrier = await api.getCarrier(int.parse(orderPresta.idCarrier));
-          final carrier = optionalCarrier.value;
-          final optionalCustomer = await api.getCustomer(int.parse(orderPresta.idCustomer));
-          final customer = optionalCustomer.value;
-          final optionalAddressInvoice = await api.getAddress(int.parse(orderPresta.idAddressInvoice));
-          final addressInvoice = optionalAddressInvoice.value;
-          final optionalAddressDelivery = await api.getAddress(int.parse(orderPresta.idAddressDelivery));
-          final addressDelivery = optionalAddressDelivery.value;
-          final optionalCountryInvoice = await api.getCountry(int.parse(addressInvoice.idCountry));
-          final countryInvoice = optionalCountryInvoice.value;
-          final optionalCountryDelivery = await api.getCountry(int.parse(addressDelivery.idCountry));
-          final countryDelivery = optionalCountryDelivery.value;
-
-          final loadedCustomerFromFirestore = await getCustomerByMarketplaceId(marketplace.id, customer.id);
-          Customer? customerFirestore;
-          int nextCustomerNumber = mainSettings.nextCustomerNumber;
-          if (loadedCustomerFromFirestore == null) {
-            double getTotalNet() =>
-                (orderPresta.totalProducts).toMyDouble() +
-                (orderPresta.totalShippingTaxExcl).toMyDouble() +
-                (orderPresta.totalWrappingTaxExcl).toMyDouble() -
-                (orderPresta.totalDiscountsTaxExcl).toMyDouble();
-            double getTotalGross() =>
-                (orderPresta.totalProductsWt).toMyDouble() +
-                (orderPresta.totalShippingTaxIncl).toMyDouble() +
-                (orderPresta.totalWrappingTaxIncl).toMyDouble() -
-                (orderPresta.totalDiscountsTaxIncl).toMyDouble();
-            final tax = mainSettings.taxes.where((e) => e.taxRate.round() == calcTaxPercent(getTotalGross(), getTotalNet()).round()).first;
-            final createdCustomerInFirestore = await createCustomerFromMarketplace(
-              Customer.fromPresta(customer, nextCustomerNumber, marketplace, addressInvoice, addressDelivery, countryInvoice, countryDelivery, tax),
-            );
-            customerFirestore = createdCustomerInFirestore;
-            nextCustomerNumber += 1;
-          } else {
-            final invoiceAddress = Address.fromPresta(addressInvoice, countryInvoice, AddressType.invoice);
-            final deliveryAddress = Address.fromPresta(addressDelivery, countryDelivery, AddressType.delivery);
-            final checkedCustomer = await checkCustomerAddressIsUpToDateOrUpdateThem(loadedCustomerFromFirestore, invoiceAddress, deliveryAddress);
-            customerFirestore = checkedCustomer;
-          }
-          //* Wenn der Kunde nicht geladen werden kann und auch nicht erstellt werden kann, soll diese Bestellung übersprungen werden.
-          if (customerFirestore == null) continue; // TODO: implemnt log error to firestore
-
-          final phAppointment = Receipt.fromOrderPresta(
-            marketplace: marketplace,
-            mainSettings: mainSettings,
-            listOfReceiptproduct: listOfReceiptproduct,
-            orderPresta: orderPresta,
-            currencyPresta: currency,
-            customerPresta: customer,
-            addressInvoicePresta: addressInvoice,
-            addressDeliveryPresta: addressDelivery,
-            countryInvoicePresta: countryInvoice,
-            countryDeliveryPresta: countryDelivery,
-            carrierPresta: carrier,
-            customer: customerFirestore,
-          );
-
-          try {
-            await db.runTransaction((transaction) async {
-              final dsStatDashboard = await transaction.get(docRefStatDashboard);
-
-              final docRefAppointment = db.collection(currentUserUid).doc(currentUserUid).collection('Appointments').doc();
-              final appointment = phAppointment.copyWith(id: docRefAppointment.id, receiptId: docRefAppointment.id);
-              transaction.set(docRefAppointment, appointment.toJson());
-              listOfReceiptToReturn.add(appointment);
-
-              await createOrIncrementStatDashboardOnCreateReceipt(appointment, docRefStatDashboard, dsStatDashboard, transaction);
-
-              final nextAppointmentNumber = mainSettings.nextAppointmentNumber + 1;
-              final updatedMainSettings = mainSettings.copyWith(nextAppointmentNumber: nextAppointmentNumber, nextCustomerNumber: nextCustomerNumber);
-              transaction.update(docRefMainSettings, updatedMainSettings.toJson());
-            });
-          } on FirebaseException {
-            return left(GeneralFailure());
-          }
-        }
-        final updatedMarketplace = marketplace.copyWith(
-          marketplaceSettings: marketplace.marketplaceSettings.copyWith(nextIdToImport: allOrderIds.last + 1),
-        );
-        final docRefMarketplace = db.collection(currentUserUid).doc(currentUserUid).collection('Marketetplaces').doc(updatedMarketplace.id);
-        await docRefMarketplace.update(updatedMarketplace.toJson());
-      }
-
-      return right(listOfReceiptToReturn);
-    } on FirebaseException catch (e) {
-      logger.e('code: ${e.code} | message: ${e.message}');
-      return left(GeneralFailure());
-    }
-  }
-
-  @override
   Future<Either<FirebaseFailure, List<Receipt>>> getListOfReceipts(int value, ReceiptTyp receiptTyp) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
@@ -442,24 +261,6 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
 
       if (listOfAppointments.isEmpty) return left(EmptyFailure());
       return right(listOfAppointments);
-    } on FirebaseException {
-      return left(GeneralFailure());
-    }
-  }
-
-  @override
-  Future<Either<FirebaseFailure, Unit>> deleteAppointment(String id) async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(NoConnectionFailure());
-
-    final currentUserUid = firebaseAuth.currentUser!.uid;
-
-    try {
-      final docRef = db.collection(currentUserUid).doc(currentUserUid).collection('Appointments').doc(id);
-
-      await docRef.delete();
-
-      return right(unit);
     } on FirebaseException {
       return left(GeneralFailure());
     }
@@ -741,6 +542,19 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
           }
           if (marketplace != null) await sendCustomerEmails(generatedReceiptsFromThisReceipt, marketplace!);
         });
+
+        //* Neuen Bestellstatus im Marktplatz setzen
+        if (marketplace != null) {
+          final fosOrderStatus = await marketplaceEditRepository.setOrderStatus(
+            marketplace!,
+            receipt.receiptMarketplaceId,
+            OrderStatusUpdateType.onShipping,
+          );
+          fosOrderStatus.fold(
+            (failure) => logger.e('Bestellstatus für Bestellung mit der ID: ${receipt.receiptMarketplaceId} konnte nicht gesetzt werden'),
+            (unit) => logger.i('Bestellstatus für die Bestellung mit der ID: ${receipt.receiptMarketplaceId} wurde erfolgreich aktualisiert'),
+          );
+        }
       }
       final updatedMainSettings = settings.copyWith(nextDeliveryNoteNumber: nextDeliveryNoteNumber, nextInvoiceNumber: nextInvoiceNumber);
       await docRefSettings.update(updatedMainSettings.toJson());
@@ -914,6 +728,18 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
       } else {
         logger.e('Eine oder meherer E-Mails konnten nicht verschickt werden!');
       }
+
+      //* Neuen Bestellstatus im Marktplatz setzen
+      final fosOrderStatus = await marketplaceEditRepository.setOrderStatus(
+        marketplace,
+        originalAppointment.receiptMarketplaceId,
+        OrderStatusUpdateType.onShipping,
+      );
+      fosOrderStatus.fold(
+        (failure) => logger.e('Bestellstatus für Bestellung mit der ID: ${originalAppointment.receiptMarketplaceId} konnte nicht gesetzt werden'),
+        (unit) => logger.i('Bestellstatus für die Bestellung mit der ID: ${originalAppointment.receiptMarketplaceId} wurde erfolgreich aktualisiert'),
+      );
+
       return right(generatedReceipts);
     } on FirebaseException {
       return left(GeneralFailure());
@@ -1297,8 +1123,24 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
           appointmentProduct = createdProductFirestore;
           await productRepository.updateWarehouseQuantityOfProductIncremental(createdProductFirestore, quantity);
         } else {
-          appointmentProduct = productFirestore;
-          await productRepository.updateAvailableQuantityOfProductInremental(productFirestore, quantity * -1);
+          if (!productFirestore.productMarketplaces.any((e) => e.idMarketplace == marketplace.id)) {
+            final optionalProductPresta = await api.getProduct(int.parse(orderProductPresta.productId), marketplace);
+            if (optionalProductPresta.isNotPresent) {
+              return left(MixedFailure(errorMessage: 'Artikel aus Bestellung konnte beim Bestellimport nicht aus Marktplatz geladen werden'));
+            }
+            final productPresta = optionalProductPresta.value;
+            final productMarketplace = ProductMarketplace.fromProductPresta(productPresta, marketplace);
+            List<ProductMarketplace> productMarketplaces = List.from(productFirestore.productMarketplaces);
+            productMarketplaces.add(productMarketplace);
+            final updatedProduct = productFirestore.copyWith(productMarketplaces: productMarketplaces);
+            appointmentProduct = updatedProduct;
+
+            await productRepository.updateProduct(updatedProduct);
+            await productRepository.updateAvailableQuantityOfProductInremental(updatedProduct, quantity * -1);
+          } else {
+            appointmentProduct = productFirestore;
+            await productRepository.updateAvailableQuantityOfProductInremental(productFirestore, quantity * -1);
+          }
         }
 
         final receiptProduct = generateReceiptProduct(
@@ -1310,6 +1152,19 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
         );
         listOfReceiptproduct.add(receiptProduct);
       }
+
+      //* Neuen Bestellstatus im Marktplatz setzen
+      final fosOrderStatus = await marketplaceEditRepository.setOrderStatus(
+        marketplace,
+        loadedAppointmentFromMarketplace.orderMarketplaceId,
+        OrderStatusUpdateType.onImport,
+      );
+      fosOrderStatus.fold(
+        (failure) =>
+            logger.e('Bestellstatus für Bestellung mit der ID: ${loadedAppointmentFromMarketplace.orderMarketplaceId} konnte nicht gesetzt werden'),
+        (unit) => logger
+            .i('Bestellstatus für die Bestellung mit der ID: ${loadedAppointmentFromMarketplace.orderMarketplaceId} wurde erfolgreich aktualisiert'),
+      );
 
       final optionalCurrency = await api.getCurrency(int.parse(orderPresta.idCurrency));
       final currency = optionalCurrency.value;
@@ -1406,192 +1261,6 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
       return left(PrestaGeneralFailure(errorMessage: 'Fehler beim hochladen der Aufträge zu Firestore: $e'));
     }
   }
-
-  @override
-  Future<Either<AbstractFailure, Receipt>> loadAppointmentFromMarketplaceAndUploadToFirestore(
-    Marketplace marketplace,
-    int toLoadOrderId,
-  ) async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(NoConnectionFailure());
-    final logger = Logger();
-
-    final now = DateTime.now();
-    final curYear = now.year;
-    final curMonth = now.month;
-
-    final currentUserUid = firebaseAuth.currentUser!.uid;
-    final api = PrestashopApi(Client(), PrestashopApiConfig(apiKey: marketplace.key, webserviceUrl: marketplace.fullUrl));
-    final docRefMainSettings = db.collection(currentUserUid).doc(currentUserUid).collection('Settings').doc(currentUserUid);
-    final docRefStatDashboard = db.collection(currentUserUid).doc(currentUserUid).collection('StatDashboard').doc('$curYear$curMonth');
-    final docRefMarketplace = db.collection(currentUserUid).doc(currentUserUid).collection('Marketetplaces').doc(marketplace.id);
-
-    Receipt? receiptToReturn;
-    try {
-      final optionalOrderPresta = await api.getOrder(toLoadOrderId);
-      if (optionalOrderPresta.isNotPresent) return left(PrestaGeneralFailure(errorMessage: 'Fehler beim Laden der Bestellung aus Prestashop'));
-      final orderPresta = optionalOrderPresta.value;
-
-      //* Überprüft, ob die aus dem Marktplatz geladene Bestellung bereits in Firebase Firestore hinterlegt ist
-      final docRefReceipt = db.collection(currentUserUid).doc(currentUserUid).collection('Appointments').where(
-            'receiptMarketplaceId',
-            isEqualTo: orderPresta.id,
-          );
-      final appointmentListFirestore =
-          await docRefReceipt.get().then((value) => value.docs.map((querySnapshot) => Receipt.fromJson(querySnapshot.data())).toList());
-      if (appointmentListFirestore.isNotEmpty) {
-        return left(MixedFailure(errorMessage: 'Vom Marktplatz geladene Bestellung ist bereits in Firestore gespeicher'));
-      }
-
-      final dsMainSettings = await docRefMainSettings.get();
-      if (!dsMainSettings.exists) return left(MixedFailure(errorMessage: 'MainSettings konnte nicht aus Firestore geladen werden'));
-      final mainSettings = MainSettings.fromJson(dsMainSettings.data()!);
-
-      List<ReceiptProduct> listOfReceiptproduct = [];
-      for (final orderProductPresta in orderPresta.associations!.orderRows) {
-        Product? appointmentProduct;
-        final quantity = int.parse(orderProductPresta.productQuantity);
-        final tax = calcTaxPercent((orderProductPresta.unitPriceTaxIncl).toMyDouble(), (orderProductPresta.unitPriceTaxExcl).toMyDouble());
-
-        final productFirestore = await getProductFromFirestoreIfExists(
-          orderProductPresta.productReference,
-          orderProductPresta.productEan13,
-          orderProductPresta.productName,
-          marketplace,
-          mainSettings,
-          productRepository,
-        );
-        if (productFirestore == null) {
-          final optionalProductPresta = await api.getProduct(int.parse(orderProductPresta.productId), marketplace);
-          if (optionalProductPresta.isNotPresent) {
-            return left(MixedFailure(errorMessage: 'Artikel aus Bestellung konnte beim Bestellimport nicht aus Marktplatz geladen werden'));
-          }
-          final productPresta = optionalProductPresta.value;
-
-          final createdProductFirestore = await createProductInFirestore(
-            Product.fromProductPresta(
-              productPresta: productPresta,
-              marketplace: marketplace,
-              mainSettings: mainSettings,
-            ),
-            productPresta,
-            marketplace,
-            mainSettings,
-            productRepository,
-          );
-          if (createdProductFirestore == null) return left(GeneralFailure as FirebaseFailure);
-          appointmentProduct = createdProductFirestore;
-          await productRepository.updateWarehouseQuantityOfProductIncremental(createdProductFirestore, quantity);
-        } else {
-          appointmentProduct = productFirestore;
-          await productRepository.updateAvailableQuantityOfProductInremental(productFirestore, quantity * -1);
-        }
-
-        final receiptProduct = generateReceiptProduct(
-          product: appointmentProduct,
-          orderProductPresta: orderProductPresta,
-          mainSettings: mainSettings,
-          quantity: quantity,
-          tax: tax,
-        );
-        listOfReceiptproduct.add(receiptProduct);
-      }
-
-      final optionalCurrency = await api.getCurrency(int.parse(orderPresta.idCurrency));
-      final currency = optionalCurrency.value;
-      final optionalCarrier = await api.getCarrier(int.parse(orderPresta.idCarrier));
-      final carrier = optionalCarrier.value;
-      final optionalCustomer = await api.getCustomer(int.parse(orderPresta.idCustomer));
-      final customer = optionalCustomer.value;
-      final optionalAddressInvoice = await api.getAddress(int.parse(orderPresta.idAddressInvoice));
-      final addressInvoice = optionalAddressInvoice.value;
-      final optionalAddressDelivery = await api.getAddress(int.parse(orderPresta.idAddressDelivery));
-      final addressDelivery = optionalAddressDelivery.value;
-      final optionalCountryInvoice = await api.getCountry(int.parse(addressInvoice.idCountry));
-      final countryInvoice = optionalCountryInvoice.value;
-      final optionalCountryDelivery = await api.getCountry(int.parse(addressDelivery.idCountry));
-      final countryDelivery = optionalCountryDelivery.value;
-
-      final loadedCustomerFromFirestore = await getCustomerByMarketplaceId(marketplace.id, customer.id);
-      Customer? customerFirestore;
-      int nextCustomerNumber = mainSettings.nextCustomerNumber;
-      if (loadedCustomerFromFirestore == null) {
-        double getTotalNet() =>
-            (orderPresta.totalProducts).toMyDouble() +
-            (orderPresta.totalShippingTaxExcl).toMyDouble() +
-            (orderPresta.totalWrappingTaxExcl).toMyDouble() -
-            (orderPresta.totalDiscountsTaxExcl).toMyDouble();
-        double getTotalGross() =>
-            (orderPresta.totalProductsWt).toMyDouble() +
-            (orderPresta.totalShippingTaxIncl).toMyDouble() +
-            (orderPresta.totalWrappingTaxIncl).toMyDouble() -
-            (orderPresta.totalDiscountsTaxIncl).toMyDouble();
-        final tax = mainSettings.taxes.where((e) => e.taxRate.round() == calcTaxPercent(getTotalGross(), getTotalNet()).round()).first;
-        final createdCustomerInFirestore = await createCustomerFromMarketplace(
-          Customer.fromPresta(customer, nextCustomerNumber, marketplace, addressInvoice, addressDelivery, countryInvoice, countryDelivery, tax),
-        );
-        customerFirestore = createdCustomerInFirestore;
-        nextCustomerNumber += 1;
-      } else {
-        final invoiceAddress = Address.fromPresta(addressInvoice, countryInvoice, AddressType.invoice);
-        final deliveryAddress = Address.fromPresta(addressDelivery, countryDelivery, AddressType.delivery);
-        final checkedCustomer = await checkCustomerAddressIsUpToDateOrUpdateThem(loadedCustomerFromFirestore, invoiceAddress, deliveryAddress);
-        customerFirestore = checkedCustomer;
-      }
-      //* Wenn der Kunde nicht geladen werden kann und auch nicht erstellt werden kann, soll diese Bestellung übersprungen werden.
-      if (customerFirestore == null) {
-        return left(MixedFailure(
-            errorMessage: 'Kunde aus Bestellung von Marktplatz konnte weder in Firestore erstellt werden, noch in Firestore gespeichert werden'));
-      }
-
-      final phAppointment = Receipt.fromOrderPresta(
-        marketplace: marketplace,
-        mainSettings: mainSettings,
-        listOfReceiptproduct: listOfReceiptproduct,
-        orderPresta: orderPresta,
-        currencyPresta: currency,
-        customerPresta: customer,
-        addressInvoicePresta: addressInvoice,
-        addressDeliveryPresta: addressDelivery,
-        countryInvoicePresta: countryInvoice,
-        countryDeliveryPresta: countryDelivery,
-        carrierPresta: carrier,
-        customer: customerFirestore,
-      );
-
-      try {
-        await db.runTransaction((transaction) async {
-          final dsStatDashboard = await transaction.get(docRefStatDashboard);
-
-          final docRefAppointment = db.collection(currentUserUid).doc(currentUserUid).collection('Appointments').doc();
-          final appointment = phAppointment.copyWith(id: docRefAppointment.id, receiptId: docRefAppointment.id);
-          transaction.set(docRefAppointment, appointment.toJson());
-          receiptToReturn = appointment;
-
-          await createOrIncrementStatDashboardOnCreateReceipt(appointment, docRefStatDashboard, dsStatDashboard, transaction);
-
-          final nextAppointmentNumber = mainSettings.nextAppointmentNumber + 1;
-          final updatedMainSettings = mainSettings.copyWith(nextAppointmentNumber: nextAppointmentNumber, nextCustomerNumber: nextCustomerNumber);
-          transaction.update(docRefMainSettings, updatedMainSettings.toJson());
-
-          final updatedMarketplace = marketplace.copyWith(
-            marketplaceSettings: marketplace.marketplaceSettings.copyWith(nextIdToImport: toLoadOrderId + 1),
-          );
-          transaction.update(docRefMarketplace, updatedMarketplace.toJson());
-        });
-      } on FirebaseException catch (e) {
-        return left(MixedFailure(errorMessage: e.message));
-      }
-
-      if (receiptToReturn == null) {
-        return left(MixedFailure(errorMessage: 'Bestellung wurde aus Marktplatz geladen werden, aber nicht in Firestore gespeichert werden'));
-      }
-      return right(receiptToReturn!);
-    } catch (e) {
-      logger.e('Fehler beim laden der Aufträge von Marktplätzen: $e');
-      return left(PrestaGeneralFailure(errorMessage: 'Fehler beim laden der Aufträge von Marktplätzen: $e'));
-    }
-  }
 }
 
 String fillPlaceholder(Receipt receipt, String value) {
@@ -1646,7 +1315,7 @@ Future<bool> sendCustomerEmails(List<Receipt> listOfReceipts, Marketplace market
               subject: subject,
               html: htmlContent,
               attachmentBase64: attachment,
-              filename: receipt.invoiceNumberAsString,
+              filename: '${receipt.offerNumberAsString}.pdf',
             );
             isSuccess = isSuccessfull;
           }
@@ -1669,7 +1338,7 @@ Future<bool> sendCustomerEmails(List<Receipt> listOfReceipts, Marketplace market
               subject: subject,
               html: htmlContent,
               attachmentBase64: attachment,
-              filename: receipt.invoiceNumberAsString,
+              filename: '${receipt.appointmentNumberAsString}.pdf',
             );
             isSuccess = isSuccessfull;
           }
@@ -1713,7 +1382,7 @@ Future<bool> sendCustomerEmails(List<Receipt> listOfReceipts, Marketplace market
               subject: subject,
               html: htmlContent,
               attachmentBase64: attachment,
-              filename: receipt.invoiceNumberAsString,
+              filename: '${receipt.invoiceNumberAsString}.pdf',
             );
             isSuccess = isSuccessfull;
           }
@@ -1736,7 +1405,7 @@ Future<bool> sendCustomerEmails(List<Receipt> listOfReceipts, Marketplace market
               subject: subject,
               html: htmlContent,
               attachmentBase64: attachment,
-              filename: receipt.invoiceNumberAsString,
+              filename: '${receipt.invoiceNumberAsString}.pdf',
             );
             isSuccess = isSuccessfull;
           }

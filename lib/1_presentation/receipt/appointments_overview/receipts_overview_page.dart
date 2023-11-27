@@ -135,8 +135,13 @@ class __AppointmentContainerState extends State<_AppointmentContainer> {
     final screenWidth = MediaQuery.sizeOf(context).width;
     final responsiveness = screenWidth > 700 ? Responsiveness.isTablet : Responsiveness.isMobil;
     final marketplace = widget.listOfMarketplaces.where((e) => e.id == widget.receipt.marketplaceId).first;
-    final deliveryAddress = widget.receipt.receiptCustomer.listOfAddress.where((e) => e.addressType == AddressType.delivery && e.isDefault).first;
-    final invoiceAddress = widget.receipt.receiptCustomer.listOfAddress.where((e) => e.addressType == AddressType.invoice && e.isDefault).first;
+    Address? deliveryAddress =
+        widget.receipt.receiptCustomer.listOfAddress.where((e) => e.addressType == AddressType.delivery && e.isDefault).firstOrNull;
+    deliveryAddress ??=
+        widget.receipt.receiptCustomer.listOfAddress.isNotEmpty ? widget.receipt.receiptCustomer.listOfAddress.first : Address.empty();
+    Address? invoiceAddress =
+        widget.receipt.receiptCustomer.listOfAddress.where((e) => e.addressType == AddressType.invoice && e.isDefault).firstOrNull;
+    invoiceAddress ??= widget.receipt.receiptCustomer.listOfAddress.isNotEmpty ? widget.receipt.receiptCustomer.listOfAddress.first : Address.empty();
     return BlocBuilder<AppointmentBloc, AppointmentState>(
       builder: (context, state) {
         return Container(
@@ -234,7 +239,7 @@ class __AppointmentContainerState extends State<_AppointmentContainer> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        if (deliveryAddress.companyName != '') Text(deliveryAddress.companyName),
+                        if (deliveryAddress!.companyName != '') Text(deliveryAddress.companyName),
                         Text(deliveryAddress.name),
                         Text(deliveryAddress.street),
                         Text.rich(
@@ -289,7 +294,7 @@ class __AppointmentContainerState extends State<_AppointmentContainer> {
                       children: [
                         if (widget.receipt.receiptCustomer.company != null) Text(widget.receipt.receiptCustomer.company!),
                         Text(widget.receipt.receiptCustomer.name),
-                        Text(invoiceAddress.street),
+                        Text(invoiceAddress!.street),
                         Text.rich(
                           TextSpan(
                             children: [

@@ -17,3 +17,6 @@ enum PicklistStatus { open, partiallyCompleted, completed }
 enum PositionTo { up, down }
 
 enum ChartType { incomingOrder, salesVolume }
+
+//* Auftragsstaus im Marktplatz nach Importieren und Verschicken der Aufträge
+enum OrderStatusUpdateType { onImport, onShipping, onCancel, onDelete }

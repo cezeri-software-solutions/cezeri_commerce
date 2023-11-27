@@ -7,7 +7,7 @@ import '../../../3_domain/entities/marketplace/marketplace.dart';
 import '../../../3_domain/entities/settings/main_settings.dart';
 import '../../../3_domain/entities_presta/product_presta.dart';
 import '../../../3_domain/repositories/firebase/main_settings_respository.dart';
-import '../../../3_domain/repositories/prestashop/product/product_import_repository.dart';
+import '../../../3_domain/repositories/marketplace/marketplace_import_repository.dart';
 import '../../../core/abstract_failure.dart';
 import '../../../core/presta_failure.dart';
 
@@ -15,7 +15,7 @@ part 'product_import_event.dart';
 part 'product_import_state.dart';
 
 class ProductImportBloc extends Bloc<ProductImportEvent, ProductImportState> {
-  final ProductImportRepository productImportRepository;
+  final MarketplaceImportRepository productImportRepository;
   final MainSettingsRepository mainSettingsRepository;
 
   ProductImportBloc({required this.productImportRepository, required this.mainSettingsRepository}) : super(ProductImportState.initial()) {
