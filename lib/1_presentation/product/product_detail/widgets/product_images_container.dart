@@ -71,22 +71,29 @@ class ProductImagesContainer extends StatelessWidget {
                 return Column(
                   key: ValueKey(image),
                   children: [
-                    if (index == 0) const Divider(color: CustomColors.backgroundLightGrey),
+                    if (index == 0) const Divider(color: CustomColors.backgroundLightGrey, height: 0),
                     Row(
                       children: [
                         Checkbox.adaptive(
                           value: state.selectedProductImages.any((e) => e.fileUrl == image.fileUrl),
                           onChanged: (_) => productBloc.add(OnProductImageSelectedEvent(image: image)),
                         ),
-                        SizedBox(
+                        Container(
                           width: 60,
-                          child: MyAvatar(name: image.fileName, imageUrl: image.fileUrl, shape: BoxShape.rectangle),
+                          decoration: const BoxDecoration(
+                            border: Border(
+                              left: BorderSide(color: CustomColors.backgroundLightGrey),
+                              right: BorderSide(color: CustomColors.backgroundLightGrey),
+                            ),
+                          ),
+                          child:
+                              MyAvatar(name: image.fileName, radius: 30, imageUrl: image.fileUrl, shape: BoxShape.rectangle, fit: BoxFit.scaleDown),
                         ),
                         Gaps.w8,
                         Text(image.fileName, style: image.isDefault ? TextStyles.defaultBold : TextStyles.defaultt, overflow: TextOverflow.ellipsis),
                       ],
                     ),
-                    const Divider(color: CustomColors.backgroundLightGrey),
+                    const Divider(color: CustomColors.backgroundLightGrey, height: 0),
                   ],
                 );
               },

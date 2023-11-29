@@ -45,8 +45,6 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
         },
       );
 
-      add(OnSearchFieldSubmittedEvent());
-
       emit(state.copyWith(
         isLoadingProductsOnObserve: false,
         fosProductsOnObserveOption: optionOf(failureOrSuccess),
@@ -252,24 +250,27 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
 
 //? #########################################################################
 
-    on<SetSearchFieldTextEvent>((event, emit) async {
-      emit(state.copyWith(productSearchText: event.searchText));
+    on<OnProductSearchControllerClearedEvent>((event, emit) async {
+      emit(state.copyWith(productSearchController: TextEditingController()));
 
       add(OnSearchFieldSubmittedEvent());
     });
 
     on<OnSearchFieldSubmittedEvent>((event, emit) async {
-      final listOfProducts = switch (state.productSearchText) {
+      List<Product>? listOfProducts = switch (state.productSearchController.text) {
         '' => state.listOfAllProducts,
         (_) => state.listOfAllProducts!
             .where((element) =>
-                element.name.toLowerCase().contains(state.productSearchText.toLowerCase()) ||
-                element.ean.toLowerCase().contains(state.productSearchText.toLowerCase()) ||
-                element.supplier.toLowerCase().contains(state.productSearchText.toLowerCase()) ||
-                element.articleNumber.toLowerCase().contains(state.productSearchText.toLowerCase()))
+                element.name.toLowerCase().contains(state.productSearchController.text.toLowerCase()) ||
+                element.ean.toLowerCase().contains(state.productSearchController.text.toLowerCase()) ||
+                element.supplier.toLowerCase().contains(state.productSearchController.text.toLowerCase()) ||
+                element.articleNumber.toLowerCase().contains(state.productSearchController.text.toLowerCase()))
             .toList()
       };
+
       if (listOfProducts != null && listOfProducts.isNotEmpty) listOfProducts.sort((a, b) => a.name.compareTo(b.name));
+      // if (listOfProducts != null && listOfProducts.length > 20) listOfProducts = listOfProducts.sublist(0, 20);
+
       emit(state.copyWith(listOfFilteredProducts: listOfProducts));
     });
 
@@ -436,7 +437,7 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
 
     on<OnEditQuantityInMarketplacesEvent>((event, emit) async {
       // TODO: add isLoading
-      final failureOrSuccess = await productEditRepository.setProdcutPrestaQuantity(event.product, event.newQuantity);
+      final failureOrSuccess = await productEditRepository.setProdcutPrestaQuantity(event.product, event.newQuantity, null);
       failureOrSuccess.fold(
         (failure) => emit(state.copyWith()), // TODO: handle Presta Failure
         (unit) => emit(state.copyWith(firebaseFailure: null, isAnyFailure: false)),

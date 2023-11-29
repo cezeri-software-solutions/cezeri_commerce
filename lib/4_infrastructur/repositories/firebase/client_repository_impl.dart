@@ -16,9 +16,9 @@ class ClientRepositoryImpl implements ClientRepository {
   Future<Either<FirebaseFailure, Unit>> createClient(Client client) async {
     final currentUserUid = firebaseAuth.currentUser!.uid;
     try {
-      final docRef = db.collection(currentUserUid).doc(currentUserUid);
+      final docRef = db.collection('Users').doc(currentUserUid);
 
-      final Client editedConditioner = client.copyWith(id: currentUserUid);
+      final Client editedConditioner = client.copyWith(id: currentUserUid, ownerId: currentUserUid);
 
       await docRef.set(editedConditioner.toJson());
 

@@ -59,7 +59,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
   });
 
   @override
-  Future<Either<FirebaseFailure, Receipt>> getAppointment(Receipt receipt) async {
+  Future<Either<FirebaseFailure, Receipt>> getReceipt(Receipt receipt) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
 

@@ -4,9 +4,14 @@ import '../enums/enums.dart';
 
 part 'client.g.dart';
 
+enum ClientType { employee, user, admin }
+
+enum ClientRights { level3, level2, level1 }
+
 @JsonSerializable(explicitToJson: true)
 class Client {
   final String id;
+  final String ownerId;
   final String email;
   final Gender gender;
   final String companyName;
@@ -19,11 +24,14 @@ class Client {
   final String postCode;
   final String city;
   final String country;
+  final ClientType clientType;
+  final ClientRights clientRights;
   final DateTime creationDate;
   final DateTime lastEditingDate;
 
   Client({
     required this.id,
+    required this.ownerId,
     required this.email,
     required this.gender,
     required this.companyName,
@@ -36,6 +44,8 @@ class Client {
     required this.postCode,
     required this.city,
     required this.country,
+    required this.clientType,
+    required this.clientRights,
     required this.creationDate,
     required this.lastEditingDate,
   });
@@ -47,6 +57,7 @@ class Client {
   factory Client.empty() {
     return Client(
       id: '',
+      ownerId: '',
       email: '',
       gender: Gender.empty,
       companyName: '',
@@ -59,6 +70,8 @@ class Client {
       postCode: '',
       city: '',
       country: '',
+      clientType: ClientType.employee,
+      clientRights: ClientRights.level3,
       creationDate: DateTime.now(),
       lastEditingDate: DateTime.now(),
     );
@@ -66,6 +79,7 @@ class Client {
 
   Client copyWith({
     String? id,
+    String? ownerId,
     String? email,
     Gender? gender,
     String? companyName,
@@ -78,11 +92,14 @@ class Client {
     String? postCode,
     String? city,
     String? country,
+    ClientType? clientType,
+    ClientRights? clientRights,
     DateTime? creationDate,
     DateTime? lastEditingDate,
   }) {
     return Client(
       id: id ?? this.id,
+      ownerId: ownerId ?? this.ownerId,
       email: email ?? this.email,
       gender: gender ?? this.gender,
       companyName: companyName ?? this.companyName,
@@ -95,6 +112,8 @@ class Client {
       postCode: postCode ?? this.postCode,
       city: city ?? this.city,
       country: country ?? this.country,
+      clientType: clientType ?? this.clientType,
+      clientRights: clientRights ?? this.clientRights,
       creationDate: creationDate ?? this.creationDate,
       lastEditingDate: lastEditingDate ?? this.lastEditingDate,
     );
@@ -102,6 +121,6 @@ class Client {
 
   @override
   String toString() {
-    return 'Client(id: $id, email: $email, gender: $gender, companyName: $companyName, firstName: $firstName, lastName: $lastName, name: $name, tel1: $tel1, tel2: $tel2, street: $street, postCode: $postCode, city: $city, country: $country, creationDate: $creationDate, lastEditingDate: $lastEditingDate)';
+    return 'Client(id: $id, ownerId: $ownerId, email: $email, gender: $gender, companyName: $companyName, firstName: $firstName, lastName: $lastName, name: $name, tel1: $tel1, tel2: $tel2, street: $street, postCode: $postCode, city: $city, country: $country, clientType: $clientType, clientRights: $clientRights, creationDate: $creationDate, lastEditingDate: $lastEditingDate)';
   }
 }

@@ -50,11 +50,7 @@ class DeleteSelectedProductsEvent extends ProductEvent {
   DeleteSelectedProductsEvent({required this.selectedProducts});
 }
 
-class SetSearchFieldTextEvent extends ProductEvent {
-  final String searchText;
-
-  SetSearchFieldTextEvent({required this.searchText});
-}
+class OnProductSearchControllerClearedEvent extends ProductEvent {}
 
 class OnSearchFieldSubmittedEvent extends ProductEvent {}
 

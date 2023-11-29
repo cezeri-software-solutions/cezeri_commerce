@@ -34,7 +34,7 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
     on<GetAppointmentEvent>((event, emit) async {
       emit(state.copyWith(isLoadingReceiptOnObserve: true));
 
-      final failureOrSuccess = await receiptRepository.getAppointment(event.appointment);
+      final failureOrSuccess = await receiptRepository.getReceipt(event.appointment);
       failureOrSuccess.fold(
         (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
         (loadedAppointment) => emit(state.copyWith(receipt: loadedAppointment, firebaseFailure: null, isAnyFailure: false)),

@@ -28,7 +28,7 @@ class ReceiptDetailProductsCard extends StatefulWidget {
 }
 
 class _ReceiptDetailProductsCardState extends State<ReceiptDetailProductsCard> {
-  final productBloc = sl<ProductBloc>();
+  final productBloc = sl<ProductBloc>() /* ..add(GetAllProductsEvent()) */;
   String _errorMessageEanNotFound = '';
 
   FocusNode scannerFocusNode = FocusNode();
@@ -37,27 +37,58 @@ class _ReceiptDetailProductsCardState extends State<ReceiptDetailProductsCard> {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => productBloc,
-      child: BlocListener<ProductBloc, ProductState>(
-        bloc: productBloc,
-        listenWhen: (p, c) => p.fosProductOnObserveOption != c.fosProductOnObserveOption,
-        listener: (context, state) {
-          state.fosProductOnObserveOption.fold(
-            () => null,
-            (a) => a.fold(
-              (failure) {
-                if (failure.runtimeType == EmptyFailure) {
-                  setState(() => _errorMessageEanNotFound = 'Artikel konnte nicht in der Datenbank gefunden werden');
-                } else {
-                  setState(() => _errorMessageEanNotFound = 'Artikel konnten nicht aus der Datenbank geladen werden');
-                }
-              },
-              (product) {
-                widget.receiptDetailBloc.add(AddProductToReceiptProductsEvent(receiptProduct: ReceiptProduct.fromProduct(product)));
-                setState(() => _errorMessageEanNotFound = '');
-              },
-            ),
-          );
-        },
+      child: MultiBlocListener(
+        listeners: [
+          BlocListener<ProductBloc, ProductState>(
+            bloc: productBloc,
+            listenWhen: (p, c) => p.fosProductOnObserveOption != c.fosProductOnObserveOption,
+            listener: (context, state) {
+              state.fosProductOnObserveOption.fold(
+                () => null,
+                (a) => a.fold(
+                  (failure) {
+                    if (failure.runtimeType == EmptyFailure) {
+                      setState(() => _errorMessageEanNotFound = 'Artikel konnte nicht in der Datenbank gefunden werden');
+                    } else {
+                      setState(() => _errorMessageEanNotFound = 'Artikel konnten nicht aus der Datenbank geladen werden');
+                    }
+                  },
+                  (product) {
+                    widget.receiptDetailBloc.add(AddProductToReceiptProductsEvent(receiptProduct: ReceiptProduct.fromProduct(product)));
+                    setState(() => _errorMessageEanNotFound = '');
+                  },
+                ),
+              );
+            },
+          ),
+          BlocListener<ProductBloc, ProductState>(
+            bloc: productBloc,
+            listenWhen: (p, c) => p.fosProductsOnObserveOption != c.fosProductsOnObserveOption,
+            listener: (context, state) {
+              state.fosProductsOnObserveOption.fold(
+                () => null,
+                (a) => a.fold(
+                  (failure) {},
+                  (products) => showDialog(
+                    context: context,
+                    builder: (context) {
+                      final screenHeight = MediaQuery.sizeOf(context).height;
+                      final screenWidth = MediaQuery.sizeOf(context).width;
+                      return BlocProvider.value(
+                        value: productBloc,
+                        child: _SelectProductDialog(
+                            receiptDetailBloc: widget.receiptDetailBloc,
+                            productBloc: productBloc,
+                            screenHeight: screenHeight,
+                            screenWidth: screenWidth),
+                      );
+                    },
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
         child: BlocBuilder<ReceiptDetailBloc, ReceiptDetailState>(
           bloc: widget.receiptDetailBloc,
           builder: (context, state) {
@@ -247,7 +278,7 @@ class _ReceiptDetailProductsCardState extends State<ReceiptDetailProductsCard> {
                                           context: context,
                                           builder: (context) => MyDeleteDialog(
                                             content:
-                                                'Bist du sicher, dass du den Artikel "${state.listOfReceiptProducts[index].name}" unwiederruflich löschen willst?',
+                                                'Bist du sicher, dass du den Artikel "//${state.listOfReceiptProducts[index].name}" unwiederruflich löschen willst?',
                                             onConfirm: () {
                                               widget.receiptDetailBloc.add(RemoveProductFromReceiptProductsEvent(index: index));
                                               context.router.pop();
@@ -271,25 +302,29 @@ class _ReceiptDetailProductsCardState extends State<ReceiptDetailProductsCard> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
-                            TextButton.icon(
-                              onPressed: () => showDialog(
-                                context: context,
-                                builder: (context) {
-                                  final screenHeight = MediaQuery.sizeOf(context).height;
-                                  final screenWidth = MediaQuery.sizeOf(context).width;
-                                  return BlocProvider.value(
-                                    value: productBloc,
-                                    child: _SelectProductDialog(
-                                        receiptDetailBloc: widget.receiptDetailBloc,
-                                        productBloc: productBloc,
-                                        screenHeight: screenHeight,
-                                        screenWidth: screenWidth),
-                                  );
-                                },
-                              ),
-                              icon: const Icon(Icons.add, color: Colors.green),
-                              label: const Text('Aus Artikelliste'),
-                            ),
+                            stateProduct.isLoadingProductsOnObserve
+                                ? const MyCircularProgressIndicator()
+                                : TextButton.icon(
+                                    onPressed: () => stateProduct.listOfAllProducts == null
+                                        ? productBloc.add(GetAllProductsEvent())
+                                        : showDialog(
+                                            context: context,
+                                            builder: (context) {
+                                              final screenHeight = MediaQuery.sizeOf(context).height;
+                                              final screenWidth = MediaQuery.sizeOf(context).width;
+                                              return BlocProvider.value(
+                                                value: productBloc,
+                                                child: _SelectProductDialog(
+                                                    receiptDetailBloc: widget.receiptDetailBloc,
+                                                    productBloc: productBloc,
+                                                    screenHeight: screenHeight,
+                                                    screenWidth: screenWidth),
+                                              );
+                                            },
+                                          ),
+                                    icon: const Icon(Icons.add, color: Colors.green),
+                                    label: const Text('Aus Artikelliste'),
+                                  ),
                             TextButton.icon(
                               onPressed: () => widget.receiptDetailBloc.add(AddProductToReceiptProductsEvent(receiptProduct: ReceiptProduct.empty())),
                               icon: const Icon(Icons.add, color: Colors.green),
@@ -335,7 +370,7 @@ class _ReceiptDetailProductsCardState extends State<ReceiptDetailProductsCard> {
   }
 }
 
-class _SelectProductDialog extends StatefulWidget {
+class _SelectProductDialog extends StatelessWidget {
   final ReceiptDetailBloc receiptDetailBloc;
   final ProductBloc productBloc;
   final double screenHeight;
@@ -344,18 +379,11 @@ class _SelectProductDialog extends StatefulWidget {
   const _SelectProductDialog({required this.receiptDetailBloc, required this.productBloc, required this.screenHeight, required this.screenWidth});
 
   @override
-  State<_SelectProductDialog> createState() => __SelectProductDialogState();
-}
-
-class __SelectProductDialogState extends State<_SelectProductDialog> {
-  final _controller = TextEditingController();
-
-  @override
   Widget build(BuildContext context) {
     return BlocBuilder<ProductBloc, ProductState>(
-      bloc: widget.productBloc,
+      bloc: productBloc,
       builder: (context, state) {
-        if (state.listOfAllProducts == null) widget.productBloc.add(GetAllProductsEvent());
+        if (state.listOfAllProducts == null) productBloc.add(GetAllProductsEvent());
 
         if (state.firebaseFailure != null && state.isAnyFailure) {
           return Dialog(child: SizedBox(width: 600, height: 1200, child: Center(child: Text(state.firebaseFailure.toString()))));
@@ -364,20 +392,12 @@ class __SelectProductDialogState extends State<_SelectProductDialog> {
           return const Dialog(child: SizedBox(width: 600, height: 1200, child: Center(child: CircularProgressIndicator())));
         }
 
-        List<Product> productList = state.listOfAllProducts!;
-        if (_controller.text.isNotEmpty) {
-          productList = productList
-              .where((e) =>
-                  e.name.toLowerCase().contains(_controller.text.toLowerCase()) ||
-                  e.articleNumber.toLowerCase().contains(_controller.text.toLowerCase()) ||
-                  e.ean.toLowerCase().contains(_controller.text.toLowerCase()))
-              .toList();
-        }
+        List<Product> productList = state.listOfFilteredProducts!;
 
         return Dialog(
           child: SizedBox(
-            height: widget.screenHeight > 1200 ? 1200 : widget.screenHeight,
-            width: widget.screenWidth > 600 ? 600 : widget.screenWidth,
+            height: screenHeight > 1200 ? 1200 : screenHeight,
+            width: screenWidth > 600 ? 600 : screenWidth,
             child: Column(
               children: [
                 Padding(
@@ -386,9 +406,9 @@ class __SelectProductDialogState extends State<_SelectProductDialog> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       CupertinoSearchTextField(
-                        controller: _controller,
-                        onChanged: (value) => setState(() {}),
-                        onSuffixTap: () => setState(() => _controller.clear()),
+                        controller: state.productSearchController,
+                        onChanged: (value) => context.read<ProductBloc>().add(OnSearchFieldSubmittedEvent()),
+                        onSuffixTap: () => context.read<ProductBloc>().add(OnProductSearchControllerClearedEvent()),
                       ),
                     ],
                   ),
@@ -417,16 +437,16 @@ class __SelectProductDialogState extends State<_SelectProductDialog> {
                             title: Text(product.name, style: TextStyles.defaultt),
                             trailing: IconButton(
                               onPressed: () =>
-                                  widget.receiptDetailBloc.add(AddProductToReceiptProductsEvent(receiptProduct: ReceiptProduct.fromProduct(product))),
+                                  receiptDetailBloc.add(AddProductToReceiptProductsEvent(receiptProduct: ReceiptProduct.fromProduct(product))),
                               icon: const Icon(
                                 Icons.arrow_forward_ios,
                                 color: Colors.green,
                               ),
                             ),
                             onTap: () {
-                              _controller.clear();
-                              widget.receiptDetailBloc.add(AddProductToReceiptProductsEvent(receiptProduct: ReceiptProduct.fromProduct(product)));
+                              context.read<ProductBloc>().add(OnProductSearchControllerClearedEvent());
                               context.router.pop();
+                              receiptDetailBloc.add(AddProductToReceiptProductsEvent(receiptProduct: ReceiptProduct.fromProduct(product)));
                             },
                           ),
                           const Divider(height: 0),

@@ -25,11 +25,16 @@ class ProductOverviewPage extends StatelessWidget {
         if (state.isLoadingProductsOnObserve) {
           return const Expanded(child: Center(child: CircularProgressIndicator()));
         }
+
         if (state.firebaseFailure != null && state.isAnyFailure) {
           return switch (state.firebaseFailure.runtimeType) {
             EmptyFailure => const Expanded(child: Center(child: Text('Du hast noch keine Artikel angelegt oder importiert!'))),
             (_) => const Expanded(child: Center(child: Text('Ein Fehler ist aufgetreten!'))),
           };
+        }
+
+        if (state.listOfAllProducts == null) {
+          return const Expanded(child: Center(child: CircularProgressIndicator()));
         }
 
         return Expanded(

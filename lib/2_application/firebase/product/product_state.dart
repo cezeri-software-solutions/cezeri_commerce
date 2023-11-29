@@ -30,7 +30,7 @@ class ProductState {
   //* Prestashop States
   final Option<Either<PrestaFailure, Unit>> fosProductOnEditQuantityPrestaOption;
   //* Helpers
-  final String productSearchText;
+  final TextEditingController productSearchController;
   final bool isDescriptionSetFirstTime;
   final bool isDescriptionChanged;
   final bool triggerPop;
@@ -84,7 +84,7 @@ class ProductState {
     required this.fosProductOnUpdateQuantityOption,
     required this.fosMassEditActivateProductMarketplaceOption,
     required this.fosProductOnEditQuantityPrestaOption,
-    required this.productSearchText,
+    required this.productSearchController,
     required this.isDescriptionSetFirstTime,
     required this.isDescriptionChanged,
     required this.triggerPop,
@@ -120,7 +120,7 @@ class ProductState {
       firebaseFailure: null,
       isAnyFailure: false,
       isLoadingProductOnObserve: false,
-      isLoadingProductsOnObserve: true,
+      isLoadingProductsOnObserve: false,
       isLoadingProductOnCreate: false,
       isLoadingProductOnUpdate: false,
       isLoadingProductOnUpdateImages: false,
@@ -137,7 +137,7 @@ class ProductState {
       fosProductOnUpdateQuantityOption: none(),
       fosMassEditActivateProductMarketplaceOption: none(),
       fosProductOnEditQuantityPrestaOption: none(),
-      productSearchText: '',
+      productSearchController: TextEditingController(),
       isDescriptionSetFirstTime: true,
       isDescriptionChanged: false,
       triggerPop: false,
@@ -174,6 +174,7 @@ class ProductState {
     bool? isAnyFailure,
     bool? isLoadingProductOnObserve,
     bool? isLoadingProductsOnObserve,
+    bool? isLoadingProductsSubSearchOnObserve,
     bool? isLoadingProductOnCreate,
     bool? isLoadingProductOnUpdate,
     bool? isLoadingProductOnUpdateImages,
@@ -190,7 +191,7 @@ class ProductState {
     Option<Either<FirebaseFailure, Product>>? fosProductOnUpdateQuantityOption,
     Option<Either<FirebaseFailure, Unit>>? fosMassEditActivateProductMarketplaceOption,
     Option<Either<PrestaFailure, Unit>>? fosProductOnEditQuantityPrestaOption,
-    String? productSearchText,
+    TextEditingController? productSearchController,
     bool? isDescriptionSetFirstTime,
     bool? isDescriptionChanged,
     bool? triggerPop,
@@ -242,7 +243,7 @@ class ProductState {
       fosProductOnUpdateQuantityOption: fosProductOnUpdateQuantityOption ?? this.fosProductOnUpdateQuantityOption,
       fosMassEditActivateProductMarketplaceOption: fosMassEditActivateProductMarketplaceOption ?? this.fosMassEditActivateProductMarketplaceOption,
       fosProductOnEditQuantityPrestaOption: fosProductOnEditQuantityPrestaOption ?? this.fosProductOnEditQuantityPrestaOption,
-      productSearchText: productSearchText ?? this.productSearchText,
+      productSearchController: productSearchController ?? this.productSearchController,
       isDescriptionSetFirstTime: isDescriptionSetFirstTime ?? this.isDescriptionSetFirstTime,
       isDescriptionChanged: isDescriptionChanged ?? this.isDescriptionChanged,
       triggerPop: triggerPop ?? this.triggerPop,

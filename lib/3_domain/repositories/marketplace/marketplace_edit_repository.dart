@@ -8,7 +8,7 @@ import '../../enums/enums.dart';
 
 abstract class MarketplaceEditRepository {
   //* Product
-  Future<Either<PrestaFailure, Unit>> setProdcutPrestaQuantity(Product prodcut, int newQuantity);
+  Future<Either<PrestaFailure, Unit>> setProdcutPrestaQuantity(Product prodcut, int newQuantity, Marketplace? marketplaceToSkip);
   Future<Either<PrestaFailure, Unit>> editProdcutPresta(Product product);
   Future<Either<PrestaFailure, Unit>> uploadProductImages(Product product, List<ProductImage> productImages);
 

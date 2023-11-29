@@ -25,8 +25,6 @@ class ProductsOverviewScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final productBloc = sl<ProductBloc>()..add(GetAllProductsEvent());
 
-    final searchController = TextEditingController();
-
     return BlocProvider<ProductBloc>(
       create: (context) => productBloc,
       child: MultiBlocListener(
@@ -131,14 +129,10 @@ class ProductsOverviewScreen extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.only(left: 20, right: 20, bottom: 10),
                     child: CupertinoSearchTextField(
-                      controller: searchController,
-                      onChanged: (value) => context.read<ProductBloc>().add(SetSearchFieldTextEvent(searchText: value)),
+                      controller: state.productSearchController,
+                      onChanged: (value) => context.read<ProductBloc>().add(OnSearchFieldSubmittedEvent()),
                       onSubmitted: (value) => context.read<ProductBloc>().add(OnSearchFieldSubmittedEvent()),
-                      onSuffixTap: () {
-                        searchController.clear();
-                        context.read<ProductBloc>().add(SetSearchFieldTextEvent(searchText: ''));
-                        context.read<ProductBloc>().add(OnSearchFieldSubmittedEvent());
-                      },
+                      onSuffixTap: () => context.read<ProductBloc>().add(OnProductSearchControllerClearedEvent()),
                     ),
                   ),
                   ProductOverviewPage(productBloc: productBloc),

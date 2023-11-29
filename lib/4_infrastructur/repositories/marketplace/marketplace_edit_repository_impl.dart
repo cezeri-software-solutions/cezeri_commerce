@@ -21,6 +21,36 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
   MarketplaceEditRepositoryImpl({required this.db, required this.firebaseAuth});
 
   @override
+  Future<Either<PrestaFailure, Unit>> setProdcutPrestaQuantity(Product product, int newQuantity, Marketplace? marketplaceToSkip) async {
+    final isConnected = await checkInternetConnection();
+    if (!isConnected) return left(PrestaGeneralFailure());
+
+    final currentUserUid = firebaseAuth.currentUser!.uid;
+
+    for (ProductMarketplace productMarketplace in product.productMarketplaces) {
+      // TODO: if (!productMarketplace.active!) continue;
+      if (marketplaceToSkip != null && productMarketplace.idMarketplace == marketplaceToSkip.id) continue;
+      final docRef = db.collection(currentUserUid).doc(currentUserUid).collection('Marketetplaces').doc(productMarketplace.idMarketplace);
+
+      final marketplaceSnapshot = await docRef.get();
+      final marketplace = Marketplace.fromJson(marketplaceSnapshot.data()!);
+
+      final api = PrestashopApi(Client(), PrestashopApiConfig(apiKey: marketplace.key, webserviceUrl: marketplace.fullUrl));
+
+      if (productMarketplace.marketplaceProduct == null) return left(ProductHasNoMarketplaceFailure());
+      final marketplaceProduct = switch (productMarketplace.marketplaceProduct!.marketplaceType) {
+        MarketplaceType.prestashop => productMarketplace.marketplaceProduct as MarketplaceProductPresta,
+        _ => throw Error(),
+      };
+
+      final isSuccess = await api.patchProductQuantity(marketplaceProduct.id, newQuantity, marketplace);
+      if (isSuccess) return right(unit);
+    }
+
+    return left(PrestaGeneralFailure());
+  }
+
+  @override
   Future<Either<PrestaFailure, Unit>> editProdcutPresta(Product product) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(PrestaGeneralFailure());
@@ -43,35 +73,6 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
       isSuccess = await api.patchProduct(marketplaceProduct.id, product, productMarketplace, marketplace);
     }
     if (isSuccess) return right(unit);
-    return left(PrestaGeneralFailure());
-  }
-
-  @override
-  Future<Either<PrestaFailure, Unit>> setProdcutPrestaQuantity(Product product, int newQuantity) async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(PrestaGeneralFailure());
-
-    final currentUserUid = firebaseAuth.currentUser!.uid;
-
-    for (ProductMarketplace productMarketplace in product.productMarketplaces) {
-      // TODO: if (!productMarketplace.active!) continue;
-      final docRef = db.collection(currentUserUid).doc(currentUserUid).collection('Marketetplaces').doc(productMarketplace.idMarketplace);
-
-      final marketplaceSnapshot = await docRef.get();
-      final marketplace = Marketplace.fromJson(marketplaceSnapshot.data()!);
-
-      final api = PrestashopApi(Client(), PrestashopApiConfig(apiKey: marketplace.key, webserviceUrl: marketplace.fullUrl));
-
-      if (productMarketplace.marketplaceProduct == null) return left(ProductHasNoMarketplaceFailure());
-      final marketplaceProduct = switch (productMarketplace.marketplaceProduct!.marketplaceType) {
-        MarketplaceType.prestashop => productMarketplace.marketplaceProduct as MarketplaceProductPresta,
-        _ => throw Error(),
-      };
-
-      final isSuccess = await api.patchProductQuantity(marketplaceProduct.id, newQuantity, marketplace);
-      if (isSuccess) return right(unit);
-    }
-
     return left(PrestaGeneralFailure());
   }
 
