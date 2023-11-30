@@ -3,7 +3,7 @@ import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 
 import '../../../3_domain/entities/receipt/receipt.dart';
-import '../../../3_domain/entities/stat_dashboard.dart';
+import '../../../3_domain/entities/statistic/stat_dashboard.dart';
 import '../../../3_domain/repositories/firebase/dashboard_repository.dart';
 import '../../../3_domain/repositories/firebase/receipt_respository.dart';
 import '../../../core/firebase_failures.dart';

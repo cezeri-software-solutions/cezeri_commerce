@@ -36,7 +36,7 @@ class _TaxRulesPageState extends State<TaxRulesPage> {
           return Scaffold(appBar: appBar, drawer: drawer, body: Center(child: Text(mapFirebaseFailureMessage(state.firebaseFailure!))));
         }
 
-        final taxRuleDefault = state.mainSettings!.taxes.where((e) => e.isDefault == true).first;
+        final taxRuleDefault = state.mainSettings!.taxes.where((e) => e.isDefault == true).firstOrNull;
         final taxRulesRest = state.mainSettings!.taxes.where((e) => e.isDefault == false).toList();
         return Scaffold(
           appBar: appBar,
@@ -57,7 +57,7 @@ class _TaxRulesPageState extends State<TaxRulesPage> {
                       ),
                   ],
                 ),
-                if (state.mainSettings!.taxes.isNotEmpty)
+                if (taxRuleDefault != null && state.mainSettings!.taxes.isNotEmpty)
                   _TaxRuleListTile(
                     taxRule: taxRuleDefault,
                     isDefault: true,

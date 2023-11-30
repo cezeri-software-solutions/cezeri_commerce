@@ -419,6 +419,7 @@ class _MainSettingsPageState extends State<MainSettingsPage> {
       nextAppointmentNumber: int.parse(_nextAppointmentNumberController.text),
       nextDeliveryNoteNumber: int.parse(_nextDeliveryNoteNumberController.text),
       nextInvoiceNumber: int.parse(_nextInvoiceNumberController.text),
+      nextCustomerNumber: int.parse(_nextCustomerNumberController.text),
       termOfPayment: int.parse(_termOfPaymentController.text),
       isSmallBusiness: _isSmallBusiness,
       paymentMethods: _paymentMethods,

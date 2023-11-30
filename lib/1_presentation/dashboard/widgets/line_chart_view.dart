@@ -2,7 +2,7 @@ import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.da
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
-import '../../../3_domain/entities/stat_dashboard.dart';
+import '../../../3_domain/entities/statistic/stat_dashboard.dart';
 import '../../../3_domain/enums/enums.dart';
 import '../../../constants.dart';
 

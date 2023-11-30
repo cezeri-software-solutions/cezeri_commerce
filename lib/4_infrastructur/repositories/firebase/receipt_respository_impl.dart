@@ -86,7 +86,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
     final currentUserUid = firebaseAuth.currentUser!.uid;
     final docRef = getColRef(currentUserUid, receipt.receiptTyp).doc(receipt.id);
     final docRefStatDashboard = db
-        .collection(currentUserUid)
+        .collection('StatDashboard')
         .doc(currentUserUid)
         .collection('StatDashboard')
         .doc('${receipt.creationDateMarektplace.year}${receipt.creationDateMarektplace.month}');
@@ -106,13 +106,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
             // Erhöhen Sie den Bestand von oldProduct in Firestore
             Product? toUpdateProduct = await loadProductToUpdate(oldProduct);
             if (toUpdateProduct == null) return left(GeneralFailure());
-            await updateProductAvailableQuantityIncremental(
-              transaction: transaction,
-              db: db,
-              currentUserUid: currentUserUid,
-              product: toUpdateProduct,
-              newQuantityIncremental: oldProduct.quantity,
-            );
+            await productRepository.updateAvailableQuantityOfProductInremental(toUpdateProduct, oldProduct.quantity, null);
           } else {
             // Überprüfen Sie, ob sich die Menge geändert hat
             final quantityDifference = oldProduct.quantity - newProduct.quantity;
@@ -120,13 +114,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
               // Anpassen des Bestands in Firestore basierend auf quantityDifference
               Product? toUpdateProduct = await loadProductToUpdate(oldProduct);
               if (toUpdateProduct == null) return left(GeneralFailure());
-              await updateProductAvailableQuantityIncremental(
-                transaction: transaction,
-                db: db,
-                currentUserUid: currentUserUid,
-                product: toUpdateProduct,
-                newQuantityIncremental: quantityDifference,
-              );
+              await productRepository.updateAvailableQuantityOfProductInremental(toUpdateProduct, quantityDifference, null);
             }
           }
         }
@@ -138,13 +126,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
             // Verringern Sie den Bestand von newProduct in Firestore
             Product? toUpdateProduct = await loadProductToUpdate(newProduct);
             if (toUpdateProduct == null) return left(GeneralFailure());
-            await updateProductAvailableQuantityIncremental(
-              transaction: transaction,
-              db: db,
-              currentUserUid: currentUserUid,
-              product: toUpdateProduct,
-              newQuantityIncremental: newProduct.quantity * -1,
-            );
+            await productRepository.updateAvailableQuantityOfProductInremental(toUpdateProduct, newProduct.quantity * -1, null);
           }
         }
 
@@ -168,9 +150,9 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
     final curMonth = now.month;
 
     final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRefSettings = db.collection(currentUserUid).doc(currentUserUid).collection('Settings').doc(currentUserUid);
+    final docRefSettings = db.collection('Settings').doc(currentUserUid).collection('Settings').doc(currentUserUid);
     final docRef = getColRef(currentUserUid, receipt.receiptTyp).doc();
-    final docRefStatDashboard = db.collection(currentUserUid).doc(currentUserUid).collection('StatDashboard').doc('$curYear$curMonth');
+    final docRefStatDashboard = db.collection('StatDashboard').doc(currentUserUid).collection('StatDashboard').doc('$curYear$curMonth');
 
     try {
       Receipt toCreateReceipt = Receipt.empty();
@@ -217,6 +199,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
         transaction.set(docRef, toCreateReceipt.toJson());
 
         await createOrIncrementStatDashboardOnCreateReceipt(toCreateReceipt, docRefStatDashboard, dsStatDashboard, transaction);
+        await createOrIncrementStatProductOnCreateReceipt(toCreateReceipt, currentUserUid, db);
       });
       return right(toCreateReceipt);
     } on FirebaseException {
@@ -280,7 +263,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
         if (listOfProducts == null) continue;
 
         final docRefStatDashboard = db
-            .collection(currentUserUid)
+            .collection('StatDashboard')
             .doc(currentUserUid)
             .collection('StatDashboard')
             .doc('${receipt.creationDateMarektplace.year}${receipt.creationDateMarektplace.month}');
@@ -289,12 +272,10 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
           final dsStatDashboard = await transaction.get(docRefStatDashboard);
 
           for (final product in listOfProducts) {
-            await updateProductAvailableQuantityIncremental(
-              transaction: transaction,
-              db: db,
-              currentUserUid: currentUserUid,
-              product: product,
-              newQuantityIncremental: receipt.listOfReceiptProduct.where((e) => e.productId == product.id).first.quantity,
+            await productRepository.updateAvailableQuantityOfProductInremental(
+              product,
+              receipt.listOfReceiptProduct.where((e) => e.productId == product.id).first.quantity,
+              null,
             );
           }
           // TODO: update quantity in marketplaces triggern
@@ -321,8 +302,8 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
     final curMonth = now.month;
 
     final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRefSettings = db.collection(currentUserUid).doc(currentUserUid).collection('Settings').doc(currentUserUid);
-    final docRefStatDashboardToCreate = db.collection(currentUserUid).doc(currentUserUid).collection('StatDashboard').doc('$curYear$curMonth');
+    final docRefSettings = db.collection('Settings').doc(currentUserUid).collection('Settings').doc(currentUserUid);
+    final docRefStatDashboardToCreate = db.collection('StatDashboard').doc(currentUserUid).collection('StatDashboard').doc('$curYear$curMonth');
 
     List<Receipt> generatedAppointments = [];
 
@@ -337,12 +318,12 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
 
       for (final offer in listOfOffers) {
         final docRefStatDashboardToUpdate = db
-            .collection(currentUserUid)
+            .collection('StatDashboard')
             .doc(currentUserUid)
             .collection('StatDashboard')
             .doc('${offer.creationDate.year}${offer.creationDate.month}');
         await db.runTransaction((transaction) async {
-          final docRefMarketplace = db.collection(currentUserUid).doc(currentUserUid).collection('Marketetplaces').doc(offer.marketplaceId);
+          final docRefMarketplace = db.collection('Marketetplaces').doc(currentUserUid).collection('Marketetplaces').doc(offer.marketplaceId);
           if (marketplace == null) {
             final dsMarketplace = await docRefMarketplace.get();
             if (dsMarketplace.exists) marketplace = Marketplace.fromJson(dsMarketplace.data()!);
@@ -390,6 +371,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
             dsStatDashboardToCreate,
             transaction,
           );
+          await createOrIncrementStatProductOnCreateReceipt(appointment, currentUserUid, db);
 
           transaction.update(getColRef(currentUserUid, updatedOffer.receiptTyp).doc(updatedOffer.id), updatedOffer.toJson());
 
@@ -404,13 +386,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
               },
               (productFromFirestore) => product = productFromFirestore,
             );
-            await updateProductAvailableQuantityIncremental(
-              transaction: transaction,
-              db: db,
-              currentUserUid: currentUserUid,
-              product: product!,
-              newQuantityIncremental: receiptProduct.quantity * -1,
-            );
+            await productRepository.updateAvailableQuantityOfProductInremental(product!, receiptProduct.quantity * -1, null);
           }
           if (marketplace != null) await sendCustomerEmails([generatedAppointmentFromThisOffer], marketplace!);
         });
@@ -440,8 +416,8 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
     final curMonth = now.month;
 
     final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRefSettings = db.collection(currentUserUid).doc(currentUserUid).collection('Settings').doc(currentUserUid);
-    final docRefStatDashboard = db.collection(currentUserUid).doc(currentUserUid).collection('StatDashboard').doc('$curYear$curMonth');
+    final docRefSettings = db.collection('Settings').doc(currentUserUid).collection('Settings').doc(currentUserUid);
+    final docRefStatDashboard = db.collection('StatDashboard').doc(currentUserUid).collection('StatDashboard').doc('$curYear$curMonth');
 
     List<Receipt> generatedReceipts = [];
 
@@ -457,7 +433,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
 
       for (final receipt in listOfReceipts) {
         await db.runTransaction((transaction) async {
-          final docRefMarketplace = db.collection(currentUserUid).doc(currentUserUid).collection('Marketetplaces').doc(receipt.marketplaceId);
+          final docRefMarketplace = db.collection('Marketetplaces').doc(currentUserUid).collection('Marketetplaces').doc(receipt.marketplaceId);
           if (marketplace == null) {
             final dsMarketplace = await docRefMarketplace.get();
             if (dsMarketplace.exists) marketplace = Marketplace.fromJson(dsMarketplace.data()!);
@@ -517,6 +493,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
             );
 
             await createOrIncrementStatDashboardOnCreateReceipt(invoice, docRefStatDashboard, dsStatDashboard, transaction);
+            await createOrIncrementStatProductOnCreateReceipt(invoice, currentUserUid, db);
           }
 
           transaction.update(getColRef(currentUserUid, appointment.receiptTyp).doc(appointment.id), appointment.toJson());
@@ -582,9 +559,9 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
     final curMonth = now.month;
 
     final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRefSettings = db.collection(currentUserUid).doc(currentUserUid).collection('Settings').doc(currentUserUid);
-    final docRefStatDashboard = db.collection(currentUserUid).doc(currentUserUid).collection('StatDashboard').doc('$curYear$curMonth');
-    final docRefMarketplace = db.collection(currentUserUid).doc(currentUserUid).collection('Marketetplaces').doc(originalAppointment.marketplaceId);
+    final docRefSettings = db.collection('Settings').doc(currentUserUid).collection('Settings').doc(currentUserUid);
+    final docRefStatDashboard = db.collection('StatDashboard').doc(currentUserUid).collection('StatDashboard').doc('$curYear$curMonth');
+    final docRefMarketplace = db.collection('Marketetplaces').doc(currentUserUid).collection('Marketetplaces').doc(originalAppointment.marketplaceId);
 
     List<Receipt> generatedReceipts = [];
 
@@ -691,6 +668,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
           );
 
           await createOrIncrementStatDashboardOnCreateReceipt(invoice, docRefStatDashboard, dsStatDashboard, transaction);
+          await createOrIncrementStatProductOnCreateReceipt(invoice, currentUserUid, db);
         }
 
         transaction.update(
@@ -759,8 +737,8 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
     final curMonth = now.month;
 
     final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRefSettings = db.collection(currentUserUid).doc(currentUserUid).collection('Settings').doc(currentUserUid);
-    final docRefStatDashboardToCreate = db.collection(currentUserUid).doc(currentUserUid).collection('StatDashboard').doc('$curYear$curMonth');
+    final docRefSettings = db.collection('Settings').doc(currentUserUid).collection('Settings').doc(currentUserUid);
+    final docRefStatDashboardToCreate = db.collection('StatDashboard').doc(currentUserUid).collection('StatDashboard').doc('$curYear$curMonth');
 
     Receipt? generatedCredit;
 
@@ -774,12 +752,12 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
       Marketplace? marketplace;
 
       final docRefStatDashboardToUpdate = db
-          .collection(currentUserUid)
+          .collection('StatDashboard')
           .doc(currentUserUid)
           .collection('StatDashboard')
           .doc('${invoice.creationDate.year}${invoice.creationDate.month}');
       await db.runTransaction((transaction) async {
-        final docRefMarketplace = db.collection(currentUserUid).doc(currentUserUid).collection('Marketetplaces').doc(invoice.marketplaceId);
+        final docRefMarketplace = db.collection('Marketetplaces').doc(currentUserUid).collection('Marketetplaces').doc(invoice.marketplaceId);
         if (marketplace == null) {
           final dsMarketplace = await docRefMarketplace.get();
           if (dsMarketplace.exists) marketplace = Marketplace.fromJson(dsMarketplace.data()!);
@@ -832,13 +810,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
             },
             (productFromFirestore) => product = productFromFirestore,
           );
-          await updateProductAvailableQuantityIncremental(
-            transaction: transaction,
-            db: db,
-            currentUserUid: currentUserUid,
-            product: product!,
-            newQuantityIncremental: receiptProduct.quantity * -1,
-          );
+          await productRepository.updateAvailableQuantityOfProductInremental(product!, receiptProduct.quantity * -1, null);
         }
         if (marketplace != null) await sendCustomerEmails([generatedAppointmentFromThisOffer], marketplace!);
       });
@@ -855,10 +827,10 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
 
   CollectionReference<Map<String, dynamic>> getColRef(String currentUserUid, ReceiptTyp receiptTyp) {
     return switch (receiptTyp) {
-      ReceiptTyp.offer => db.collection(currentUserUid).doc(currentUserUid).collection('Offers'),
-      ReceiptTyp.appointment => db.collection(currentUserUid).doc(currentUserUid).collection('Appointments'),
-      ReceiptTyp.deliveryNote => db.collection(currentUserUid).doc(currentUserUid).collection('DeliveryNotes'),
-      ReceiptTyp.invoice || ReceiptTyp.credit => db.collection(currentUserUid).doc(currentUserUid).collection('Invoices'),
+      ReceiptTyp.offer => db.collection('Receipts').doc(currentUserUid).collection('Offers'),
+      ReceiptTyp.appointment => db.collection('Receipts').doc(currentUserUid).collection('Appointments'),
+      ReceiptTyp.deliveryNote => db.collection('Receipts').doc(currentUserUid).collection('DeliveryNotes'),
+      ReceiptTyp.invoice || ReceiptTyp.credit => db.collection('Receipts').doc(currentUserUid).collection('Invoices'),
     };
   }
 
@@ -988,7 +960,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
     final logger = Logger();
 
     final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRefMarketplaces = db.collection(currentUserUid).doc(currentUserUid).collection('Marketetplaces').where('isActive', isEqualTo: true);
+    final docRefMarketplaces = db.collection('Marketetplaces').doc(currentUserUid).collection('Marketetplaces').where('isActive', isEqualTo: true);
 
     try {
       List<ToLoadAppointmentsFromMarketplace> listOfToLoadAppointmentsFromMarketplace = [];
@@ -1064,19 +1036,19 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
     final currentUserUid = firebaseAuth.currentUser!.uid;
     final marketplace = loadedAppointmentFromMarketplace.marketplace;
     final api = PrestashopApi(Client(), PrestashopApiConfig(apiKey: marketplace.key, webserviceUrl: marketplace.fullUrl));
-    final docRefMainSettings = db.collection(currentUserUid).doc(currentUserUid).collection('Settings').doc(currentUserUid);
-    final docRefStatDashboard = db.collection(currentUserUid).doc(currentUserUid).collection('StatDashboard').doc('$curYear$curMonth');
-    final docRefMarketplace = db.collection(currentUserUid).doc(currentUserUid).collection('Marketetplaces').doc(marketplace.id);
+    final docRefMainSettings = db.collection('Settings').doc(currentUserUid).collection('Settings').doc(currentUserUid);
+    final docRefStatDashboard = db.collection('StatDashboard').doc(currentUserUid).collection('StatDashboard').doc('$curYear$curMonth');
+    final docRefMarketplace = db.collection('Marketetplaces').doc(currentUserUid).collection('Marketetplaces').doc(marketplace.id);
 
     final orderPresta = loadedAppointmentFromMarketplace.orderPresta;
 
     Receipt? receiptToReturn;
     try {
       //* Überprüft, ob die aus dem Marktplatz geladene Bestellung bereits in Firebase Firestore hinterlegt ist
-      final docRefReceipt = db.collection(currentUserUid).doc(currentUserUid).collection('Appointments').where(
-            'receiptMarketplaceId',
-            isEqualTo: orderPresta.id,
-          );
+      final docRefReceipt = getColRef(currentUserUid, ReceiptTyp.appointment).where(
+        'receiptMarketplaceId',
+        isEqualTo: orderPresta.id,
+      );
       final appointmentListFirestore =
           await docRefReceipt.get().then((value) => value.docs.map((querySnapshot) => Receipt.fromJson(querySnapshot.data())).toList());
       if (appointmentListFirestore.isNotEmpty) {
@@ -1136,10 +1108,10 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
             appointmentProduct = updatedProduct;
 
             await productRepository.updateProduct(updatedProduct);
-            await productRepository.updateAvailableQuantityOfProductInremental(updatedProduct, quantity * -1);
+            await productRepository.updateAvailableQuantityOfProductInremental(updatedProduct, quantity * -1, null);
           } else {
             appointmentProduct = productFirestore;
-            await productRepository.updateAvailableQuantityOfProductInremental(productFirestore, quantity * -1);
+            await productRepository.updateAvailableQuantityOfProductInremental(productFirestore, quantity * -1, null);
           }
         }
 
@@ -1232,12 +1204,13 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
         await db.runTransaction((transaction) async {
           final dsStatDashboard = await transaction.get(docRefStatDashboard);
 
-          final docRefAppointment = db.collection(currentUserUid).doc(currentUserUid).collection('Appointments').doc();
+          final docRefAppointment = getColRef(currentUserUid, ReceiptTyp.appointment).doc();
           final appointment = phAppointment.copyWith(id: docRefAppointment.id, receiptId: docRefAppointment.id);
           transaction.set(docRefAppointment, appointment.toJson());
           receiptToReturn = appointment;
 
           await createOrIncrementStatDashboardOnCreateReceipt(appointment, docRefStatDashboard, dsStatDashboard, transaction);
+          await createOrIncrementStatProductOnCreateReceipt(appointment, currentUserUid, db);
 
           final nextAppointmentNumber = mainSettings.nextAppointmentNumber + 1;
           final updatedMainSettings = mainSettings.copyWith(nextAppointmentNumber: nextAppointmentNumber, nextCustomerNumber: nextCustomerNumber);
@@ -1494,7 +1467,7 @@ Future<List<Product>?> getListOfProducts({
     final listOfProductsInDatabase = receipt.listOfReceiptProduct.where((e) => e.isFromDatabase).toList();
     logger.i(listOfProductsInDatabase.map((e) => e.productId));
     final docRefProducts = db
-        .collection(currentUserUid)
+        .collection('Products')
         .doc(currentUserUid)
         .collection('Products')
         .where('id', whereIn: listOfProductsInDatabase.map((e) => e.productId).toList());
@@ -1508,24 +1481,6 @@ Future<List<Product>?> getListOfProducts({
   }
 }
 
-Future<void> updateProductAvailableQuantityIncremental({
-  required Transaction transaction,
-  required FirebaseFirestore db,
-  required String currentUserUid,
-  required Product product,
-  required int newQuantityIncremental,
-}) async {
-  final logger = Logger();
-  final docRefProduct = db.collection(currentUserUid).doc(currentUserUid).collection('Products').doc(product.id);
-
-  try {
-    final updatedProduct = product.copyWith(availableStock: product.availableStock + newQuantityIncremental);
-    transaction.update(docRefProduct, updatedProduct.toJson());
-  } catch (error) {
-    logger.e('Error on updating product quantity in firebase: $error');
-  }
-}
-
 Future<void> updateProductWarehouseQuantityIncremental({
   required Transaction transaction,
   required FirebaseFirestore db,
@@ -1534,7 +1489,7 @@ Future<void> updateProductWarehouseQuantityIncremental({
   required int newQuantityIncremental,
 }) async {
   final logger = Logger();
-  final docRefProduct = db.collection(currentUserUid).doc(currentUserUid).collection('Products').doc(product.id);
+  final docRefProduct = db.collection('Products').doc(currentUserUid).collection('Products').doc(product.id);
 
   try {
     final updatedProduct = product.copyWith(warehouseStock: product.warehouseStock + newQuantityIncremental);

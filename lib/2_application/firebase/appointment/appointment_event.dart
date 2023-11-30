@@ -30,6 +30,13 @@ class GetReceiptsEvent extends AppointmentEvent {
   GetReceiptsEvent({required this.tabValue, required this.receiptTyp});
 }
 
+class GetNewAppointmentByIdFromPrestaEvent extends AppointmentEvent {
+  final int id;
+  final Marketplace marketplace;
+
+  GetNewAppointmentByIdFromPrestaEvent({required this.id, required this.marketplace});
+}
+
 class GetNewAppointmentsFromPrestaEvent extends AppointmentEvent {}
 
 class CreateNewAppointmentManuallyEvent extends AppointmentEvent {

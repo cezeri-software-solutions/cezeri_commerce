@@ -59,7 +59,7 @@ Future<void> init() async {
   //! repositories Firebase
   sl.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl(firebaseAuth: sl()));
   sl.registerLazySingleton<ClientRepository>(() => ClientRepositoryImpl(db: sl(), firebaseAuth: sl()));
-  sl.registerLazySingleton<ProductRepository>(() => ProductRepositoryImpl(db: sl(), firebaseAuth: sl()));
+  sl.registerLazySingleton<ProductRepository>(() => ProductRepositoryImpl(db: sl(), firebaseAuth: sl(), marketplaceEditRepository: sl()));
   sl.registerLazySingleton<MarketplaceRepository>(() => MarketplaceRepositoryImpl(db: sl(), firebaseAuth: sl()));
   sl.registerLazySingleton<MainSettingsRepository>(() => MainSettingsRepositoryImpl(db: sl(), firebaseAuth: sl()));
   sl.registerLazySingleton<ReceiptRepository>(

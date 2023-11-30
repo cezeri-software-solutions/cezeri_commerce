@@ -11,6 +11,7 @@ class EMailAutomation {
   final EMailAutomationType eMailAutomationType;
   final String fromEmail;
   final String subject;
+  final String bcc;
   final String htmlContent;
 
   EMailAutomation({
@@ -19,6 +20,7 @@ class EMailAutomation {
     required this.eMailAutomationType,
     required this.fromEmail,
     required this.subject,
+    required this.bcc,
     required this.htmlContent,
   });
 
@@ -32,6 +34,7 @@ class EMailAutomation {
       eMailAutomationType: EMailAutomationType.appointment,
       fromEmail: '',
       subject: '',
+      bcc: '',
       htmlContent: '',
     );
   }
@@ -42,6 +45,7 @@ class EMailAutomation {
     EMailAutomationType? eMailAutomationType,
     String? fromEmail,
     String? subject,
+    String? bcc,
     String? htmlContent,
   }) {
     return EMailAutomation(
@@ -50,6 +54,7 @@ class EMailAutomation {
       eMailAutomationType: eMailAutomationType ?? this.eMailAutomationType,
       fromEmail: fromEmail ?? this.fromEmail,
       subject: subject ?? this.subject,
+      bcc: bcc ?? this.bcc,
       htmlContent: htmlContent ?? this.htmlContent,
     );
   }

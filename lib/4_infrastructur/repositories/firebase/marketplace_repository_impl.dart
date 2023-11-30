@@ -27,7 +27,7 @@ class MarketplaceRepositoryImpl implements MarketplaceRepository {
     final currentUserUid = firebaseAuth.currentUser!.uid;
 
     try {
-      final docRef = db.collection(currentUserUid).doc(currentUserUid).collection('Marketetplaces').doc();
+      final docRef = db.collection('Marketetplaces').doc(currentUserUid).collection('Marketetplaces').doc();
 
       Marketplace toCreateMarketplace;
       //* Marktplatzlogo erstellen START
@@ -50,49 +50,6 @@ class MarketplaceRepositoryImpl implements MarketplaceRepository {
   }
 
   @override
-  Future<Either<FirebaseFailure, List<Marketplace>>> getListOfMarketplaces() async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(NoConnectionFailure());
-
-    final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRef = db.collection(currentUserUid).doc(currentUserUid).collection('Marketetplaces');
-
-    try {
-      final listOfMarketplaces = await docRef.get().then(
-            (value) => value.docs.map((querySnapshot) => Marketplace.fromJson(querySnapshot.data())).toList(),
-          );
-
-      //* Zum hinzufügen von neuen Attributen.
-      // for (final marketplace in listOfMarketplaces) {
-      //   final docRefMp = db.collection(currentUserUid).doc(currentUserUid).collection('Marketetplaces').doc(marketplace.id);
-      //   final updatedMp = marketplace.copyWith(address: Address.empty(), bankDetails: BankDetails.empty());
-      //   await docRefMp.update(updatedMp.toJson());
-      // }
-
-      if (listOfMarketplaces.isEmpty) return left(EmptyFailure());
-      return right(listOfMarketplaces);
-    } on FirebaseException {
-      return left(GeneralFailure());
-    }
-  }
-
-  @override
-  Future<Either<FirebaseFailure, Marketplace>> getMarketplace(String id) async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(NoConnectionFailure());
-
-    final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRef = db.collection(currentUserUid).doc(currentUserUid).collection('Marketetplaces').doc(id);
-
-    try {
-      final marketplace = await docRef.get();
-      return right(Marketplace.fromJson(marketplace.data()!));
-    } on FirebaseException {
-      return left(GeneralFailure());
-    }
-  }
-
-  @override
   Future<Either<FirebaseFailure, Unit>> updateMarketplace(Marketplace marketplace, File? imageFile) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
@@ -100,7 +57,7 @@ class MarketplaceRepositoryImpl implements MarketplaceRepository {
     final currentUserUid = firebaseAuth.currentUser!.uid;
 
     try {
-      final docRef = db.collection(currentUserUid).doc(currentUserUid).collection('Marketetplaces').doc(marketplace.id);
+      final docRef = db.collection('Marketetplaces').doc(currentUserUid).collection('Marketetplaces').doc(marketplace.id);
 
       Marketplace toUpdateMarketplace;
       //* Marktplatzlogo erstellen oder updaten START
@@ -134,11 +91,54 @@ class MarketplaceRepositoryImpl implements MarketplaceRepository {
     final currentUserUid = firebaseAuth.currentUser!.uid;
 
     try {
-      final docRef = db.collection(currentUserUid).doc(currentUserUid).collection('Marketetplaces').doc(id);
+      final docRef = db.collection('Marketetplaces').doc(currentUserUid).collection('Marketetplaces').doc(id);
 
       await docRef.delete();
 
       return right(unit);
+    } on FirebaseException {
+      return left(GeneralFailure());
+    }
+  }
+
+  @override
+  Future<Either<FirebaseFailure, Marketplace>> getMarketplace(String id) async {
+    final isConnected = await checkInternetConnection();
+    if (!isConnected) return left(NoConnectionFailure());
+
+    final currentUserUid = firebaseAuth.currentUser!.uid;
+    final docRef = db.collection('Marketetplaces').doc(currentUserUid).collection('Marketetplaces').doc(id);
+
+    try {
+      final marketplace = await docRef.get();
+      return right(Marketplace.fromJson(marketplace.data()!));
+    } on FirebaseException {
+      return left(GeneralFailure());
+    }
+  }
+
+  @override
+  Future<Either<FirebaseFailure, List<Marketplace>>> getListOfMarketplaces() async {
+    final isConnected = await checkInternetConnection();
+    if (!isConnected) return left(NoConnectionFailure());
+
+    final currentUserUid = firebaseAuth.currentUser!.uid;
+    final docRef = db.collection('Marketetplaces').doc(currentUserUid).collection('Marketetplaces');
+
+    try {
+      final listOfMarketplaces = await docRef.get().then(
+            (value) => value.docs.map((querySnapshot) => Marketplace.fromJson(querySnapshot.data())).toList(),
+          );
+
+      //* Zum hinzufügen von neuen Attributen.
+      // for (final marketplace in listOfMarketplaces) {
+      //   final docRefMp = db.collection('Marketetplaces').doc(currentUserUid).collection('Marketetplaces').doc(marketplace.id);
+      //   final updatedMp = marketplace.copyWith(address: Address.empty(), bankDetails: BankDetails.empty());
+      //   await docRefMp.update(updatedMp.toJson());
+      // }
+
+      if (listOfMarketplaces.isEmpty) return left(EmptyFailure());
+      return right(listOfMarketplaces);
     } on FirebaseException {
       return left(GeneralFailure());
     }
@@ -150,7 +150,7 @@ class MarketplaceRepositoryImpl implements MarketplaceRepository {
     if (!isConnected) return left(NoConnectionFailure());
 
     final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRef = db.collection(currentUserUid).doc(currentUserUid).collection('Marketetplaces').doc(marketplace.id);
+    final docRef = db.collection('Marketetplaces').doc(currentUserUid).collection('Marketetplaces').doc(marketplace.id);
 
     try {
       final dsMarketplace = await docRef.get();
@@ -178,7 +178,7 @@ class MarketplaceRepositoryImpl implements MarketplaceRepository {
     if (!isConnected) return left(NoConnectionFailure());
 
     final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRef = db.collection(currentUserUid).doc(currentUserUid).collection('Marketetplaces').doc(marketplace.id);
+    final docRef = db.collection('Marketetplaces').doc(currentUserUid).collection('Marketetplaces').doc(marketplace.id);
 
     try {
       final dsMarketplace = await docRef.get();

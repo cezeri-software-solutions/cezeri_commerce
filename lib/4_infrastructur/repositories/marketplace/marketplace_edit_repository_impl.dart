@@ -30,7 +30,7 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
     for (ProductMarketplace productMarketplace in product.productMarketplaces) {
       // TODO: if (!productMarketplace.active!) continue;
       if (marketplaceToSkip != null && productMarketplace.idMarketplace == marketplaceToSkip.id) continue;
-      final docRef = db.collection(currentUserUid).doc(currentUserUid).collection('Marketetplaces').doc(productMarketplace.idMarketplace);
+      final docRef = db.collection('Marketetplaces').doc(currentUserUid).collection('Marketetplaces').doc(productMarketplace.idMarketplace);
 
       final marketplaceSnapshot = await docRef.get();
       final marketplace = Marketplace.fromJson(marketplaceSnapshot.data()!);
@@ -62,7 +62,7 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
     for (final productMarketplace in product.productMarketplaces) {
       print(product.toJson());
       // TODO: if (!productMarketplace.active!) continue;
-      final docRef = db.collection(currentUserUid).doc(currentUserUid).collection('Marketetplaces').doc(productMarketplace.idMarketplace);
+      final docRef = db.collection('Marketetplaces').doc(currentUserUid).collection('Marketetplaces').doc(productMarketplace.idMarketplace);
 
       final marketplaceSnapshot = await docRef.get();
       final marketplace = Marketplace.fromJson(marketplaceSnapshot.data()!);
@@ -86,7 +86,7 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
     bool isSuccess = true;
     for (ProductMarketplace productMarketplace in product.productMarketplaces) {
       // TODO: if (!productMarketplace.active!) continue;
-      final docRef = db.collection(currentUserUid).doc(currentUserUid).collection('Marketetplaces').doc(productMarketplace.idMarketplace);
+      final docRef = db.collection('Marketetplaces').doc(currentUserUid).collection('Marketetplaces').doc(productMarketplace.idMarketplace);
 
       final marketplaceSnapshot = await docRef.get();
       if (!marketplaceSnapshot.exists) return left(PrestaGeneralFailure());

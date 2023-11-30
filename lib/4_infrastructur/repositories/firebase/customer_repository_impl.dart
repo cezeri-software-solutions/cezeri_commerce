@@ -21,7 +21,7 @@ class CustomerRepositoryImpl implements CustomerRepository {
     final currentUserUid = firebaseAuth.currentUser!.uid;
 
     try {
-      final docRef = db.collection(currentUserUid).doc(currentUserUid).collection('Customers').doc();
+      final docRef = db.collection('Customers').doc(currentUserUid).collection('Customers').doc();
 
       Customer toCreateCustomer = customer.copyWith(id: docRef.id);
 
@@ -34,24 +34,12 @@ class CustomerRepositoryImpl implements CustomerRepository {
   }
 
   @override
-  Future<Either<FirebaseFailure, Unit>> deleteCustomer(String id) {
-    // TODO: implement deleteCustomer
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<Either<FirebaseFailure, Unit>> deleteListOfCustomers(List<Customer> customers) {
-    // TODO: implement deleteListOfCustomers
-    throw UnimplementedError();
-  }
-
-  @override
   Future<Either<FirebaseFailure, Customer>> getCustomer(Customer customer) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
 
     final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRef = db.collection(currentUserUid).doc(currentUserUid).collection('Customers').doc(customer.id);
+    final docRef = db.collection('Customers').doc(currentUserUid).collection('Customers').doc(customer.id);
 
     try {
       final customer = await docRef.get();
@@ -67,33 +55,11 @@ class CustomerRepositoryImpl implements CustomerRepository {
     if (!isConnected) return left(NoConnectionFailure());
 
     final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRef = db.collection(currentUserUid).doc(currentUserUid).collection('Customers').doc(id);
+    final docRef = db.collection('Customers').doc(currentUserUid).collection('Customers').doc(id);
 
     try {
       final customer = await docRef.get();
       return right(Customer.fromJson(customer.data()!));
-    } on FirebaseException {
-      return left(GeneralFailure());
-    }
-  }
-
-  @override
-  Future<Either<FirebaseFailure, Customer>> getCustomerByCustomerIdInMarketplace(String marketplaceId, int customerIdMarketplace) async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(NoConnectionFailure());
-
-    final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRef = db
-        .collection(currentUserUid)
-        .doc(currentUserUid)
-        .collection('Customers')
-        .where('customerMarketplace.marketplaceId', isEqualTo: marketplaceId)
-        .where('customerMarketplace.customerIdMarketplace', isEqualTo: customerIdMarketplace);
-
-    try {
-      final customer = await docRef.get().then((value) => value.docs.map((docSs) => Customer.fromJson(docSs.data())).toList().firstOrNull);
-      if (customer == null) return left(EmptyFailure());
-      return right(customer);
     } on FirebaseException {
       return left(GeneralFailure());
     }
@@ -105,7 +71,7 @@ class CustomerRepositoryImpl implements CustomerRepository {
     if (!isConnected) return left(NoConnectionFailure());
 
     final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRef = db.collection(currentUserUid).doc(currentUserUid).collection('Customers');
+    final docRef = db.collection('Customers').doc(currentUserUid).collection('Customers');
 
     try {
       final listOfCustomers = await docRef.get().then((value) => value.docs.map((querySnapshot) => Customer.fromJson(querySnapshot.data())).toList());
@@ -125,10 +91,44 @@ class CustomerRepositoryImpl implements CustomerRepository {
     final currentUserUid = firebaseAuth.currentUser!.uid;
 
     try {
-      final docRef = db.collection(currentUserUid).doc(currentUserUid).collection('Customers').doc(customer.id);
+      final docRef = db.collection('Customers').doc(currentUserUid).collection('Customers').doc(customer.id);
 
       await docRef.update(customer.toJson());
 
+      return right(customer);
+    } on FirebaseException {
+      return left(GeneralFailure());
+    }
+  }
+
+  @override
+  Future<Either<FirebaseFailure, Unit>> deleteCustomer(String id) {
+    // TODO: implement deleteCustomer
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<Either<FirebaseFailure, Unit>> deleteListOfCustomers(List<Customer> customers) {
+    // TODO: implement deleteListOfCustomers
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<Either<FirebaseFailure, Customer>> getCustomerByCustomerIdInMarketplace(String marketplaceId, int customerIdMarketplace) async {
+    final isConnected = await checkInternetConnection();
+    if (!isConnected) return left(NoConnectionFailure());
+
+    final currentUserUid = firebaseAuth.currentUser!.uid;
+    final docRef = db
+        .collection('Customers')
+        .doc(currentUserUid)
+        .collection('Customers')
+        .where('customerMarketplace.marketplaceId', isEqualTo: marketplaceId)
+        .where('customerMarketplace.customerIdMarketplace', isEqualTo: customerIdMarketplace);
+
+    try {
+      final customer = await docRef.get().then((value) => value.docs.map((docSs) => Customer.fromJson(docSs.data())).toList().firstOrNull);
+      if (customer == null) return left(EmptyFailure());
       return right(customer);
     } on FirebaseException {
       return left(GeneralFailure());

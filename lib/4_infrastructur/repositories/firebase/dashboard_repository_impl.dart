@@ -4,7 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../../1_presentation/core/functions/check_internet_connection.dart';
 import '../../../3_domain/entities/receipt/receipt.dart';
-import '../../../3_domain/entities/stat_dashboard.dart';
+import '../../../3_domain/entities/statistic/stat_dashboard.dart';
 import '../../../3_domain/repositories/firebase/dashboard_repository.dart';
 import '../../../core/firebase_failures.dart';
 
@@ -25,7 +25,7 @@ class DashboardRepositoryImpl implements DashboardRepository {
     final curMonth = now.month;
 
     final currentUserUid = firebaseAuth.currentUser!.uid;
-    var docRef = db.collection(currentUserUid).doc(currentUserUid).collection('StatDashboard').doc('$curYear$curMonth');
+    var docRef = db.collection('StatDashboard').doc(currentUserUid).collection('StatDashboard').doc('$curYear$curMonth');
 
     try {
       var statDashboard = await docRef.get();
@@ -45,7 +45,7 @@ class DashboardRepositoryImpl implements DashboardRepository {
     if (!isConnected) return left(NoConnectionFailure());
 
     final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRef = db.collection(currentUserUid).doc(currentUserUid).collection('StatDashboard').orderBy('dateTime', descending: true).limit(13);
+    final docRef = db.collection('StatDashboard').doc(currentUserUid).collection('StatDashboard').orderBy('dateTime', descending: true).limit(13);
 
     try {
       final listOfStatDashboards = await docRef.get().then((value) => value.docs.map((document) => StatDashboard.fromJson(document.data())).toList());
@@ -80,7 +80,7 @@ class DashboardRepositoryImpl implements DashboardRepository {
 
     final currentUserUid = firebaseAuth.currentUser!.uid;
     var docRef = db
-        .collection(currentUserUid)
+        .collection('Appointments')
         .doc(currentUserUid)
         .collection('Appointments')
         .where('creationDateMarektplace', isGreaterThanOrEqualTo: today.toIso8601String())

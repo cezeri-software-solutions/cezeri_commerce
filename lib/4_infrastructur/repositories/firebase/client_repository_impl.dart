@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+import '../../../3_domain/entities/settings/main_settings.dart';
 import '../../../3_domain/repositories/firebase/client_repository.dart';
 
 class ClientRepositoryImpl implements ClientRepository {
@@ -17,10 +18,13 @@ class ClientRepositoryImpl implements ClientRepository {
     final currentUserUid = firebaseAuth.currentUser!.uid;
     try {
       final docRef = db.collection('Users').doc(currentUserUid);
+      final docRefSettings = db.collection('Settings').doc(currentUserUid).collection('Settings').doc(currentUserUid);
 
-      final Client editedConditioner = client.copyWith(id: currentUserUid, ownerId: currentUserUid);
+      final newClient = client.copyWith(id: currentUserUid, ownerId: currentUserUid);
+      final newSettings = MainSettings.empty().copyWith(settingsId: docRefSettings.id);
 
-      await docRef.set(editedConditioner.toJson());
+      await docRef.set(newClient.toJson());
+      await docRefSettings.set(newSettings.toJson());
 
       return right(unit);
     } on FirebaseAuthException {
@@ -31,7 +35,7 @@ class ClientRepositoryImpl implements ClientRepository {
   @override
   Future<Either<FirebaseFailure, Client>> getCurClient() async {
     final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRef = db.collection(currentUserUid).doc(currentUserUid);
+    final docRef = db.collection('Users').doc(currentUserUid);
     try {
       final client = await docRef.get();
       if (client.data() == null) return left(EmptyFailure());

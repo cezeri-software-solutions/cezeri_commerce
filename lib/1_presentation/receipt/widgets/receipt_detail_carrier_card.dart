@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../2_application/firebase/appointment/appointment_bloc.dart';
 import '../../../2_application/firebase/main_settings/main_settings_bloc.dart';
+import '../../../3_domain/entities/carrier/carrier.dart';
 import '../../../3_domain/entities/carrier/carrier_product.dart';
 import '../../../3_domain/entities/receipt/receipt_carrier.dart';
 import '../../../constants.dart';
@@ -15,7 +16,8 @@ class ReceiptDetailCarrierCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final carrierItems = context.read<MainSettingsBloc>().state.mainSettings!.listOfCarriers.map((e) => ReceiptCarrier.fromCarrier(e)).toList();
+    final mainSettings = context.read<MainSettingsBloc>().state.mainSettings!;
+    final carrierItems = mainSettings.listOfCarriers.map((e) => ReceiptCarrier.fromCarrier(e)).toList();
     carrierItems.add(ReceiptCarrier.empty());
 
     return BlocBuilder<AppointmentBloc, AppointmentState>(
@@ -25,13 +27,16 @@ class ReceiptDetailCarrierCard extends StatelessWidget {
           carrierItems.add(state.receipt!.receiptCarrier);
         }
 
-        final selectedCarrierFromSettings = context
-            .read<MainSettingsBloc>()
-            .state
-            .mainSettings!
-            .listOfCarriers
-            .where((e) => e.carrierTyp == state.receipt!.receiptCarrier.carrierTyp)
-            .first;
+        print('Recipt CarrierType: ${state.receipt!.receiptCarrier.carrierTyp}');
+        for (final carrier in mainSettings.listOfCarriers) {
+          int index = 1;
+          print('$index Carrier: $carrier');
+          index++;
+        }
+
+        Carrier? selectedCarrierFromSettings =
+            mainSettings.listOfCarriers.where((e) => e.carrierTyp == state.receipt!.receiptCarrier.carrierTyp).firstOrNull;
+        selectedCarrierFromSettings ??= mainSettings.listOfCarriers.where((e) => e.isDefault).first;
 
         final List<CarrierProduct> carrierProductItems = [CarrierProduct.empty()];
         for (final carrierProduct in selectedCarrierFromSettings.carrierAutomations) {

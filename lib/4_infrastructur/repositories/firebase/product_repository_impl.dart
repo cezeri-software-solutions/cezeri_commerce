@@ -14,12 +14,14 @@ import '../../../3_domain/entities/product/product.dart';
 import '../../../3_domain/entities/product/product_image.dart';
 import '../../../3_domain/entities_presta/product_presta.dart';
 import '../../../3_domain/repositories/firebase/product_repository.dart';
+import '../../../3_domain/repositories/marketplace/marketplace_edit_repository.dart';
 
 class ProductRepositoryImpl implements ProductRepository {
   final FirebaseFirestore db;
   final FirebaseAuth firebaseAuth;
+  final MarketplaceEditRepository marketplaceEditRepository;
 
-  const ProductRepositoryImpl({required this.db, required this.firebaseAuth});
+  const ProductRepositoryImpl({required this.db, required this.firebaseAuth, required this.marketplaceEditRepository});
 
   @override
   Future<Either<FirebaseFailure, Product>> createProduct(Product product, ProductPresta? productPresta) async {
@@ -29,7 +31,7 @@ class ProductRepositoryImpl implements ProductRepository {
     final currentUserUid = firebaseAuth.currentUser!.uid;
 
     try {
-      final docRef = db.collection(currentUserUid).doc(currentUserUid).collection('Products').doc();
+      final docRef = db.collection('Products').doc(currentUserUid).collection('Products').doc();
 
       Product toCreateProduct;
       //* Artikelbilder erstellen START
@@ -60,7 +62,7 @@ class ProductRepositoryImpl implements ProductRepository {
     if (!isConnected) return left(NoConnectionFailure());
 
     final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRef = db.collection(currentUserUid).doc(currentUserUid).collection('Products');
+    final docRef = db.collection('Products').doc(currentUserUid).collection('Products');
 
     try {
       final listOfProducts = await docRef.get().then(
@@ -80,7 +82,7 @@ class ProductRepositoryImpl implements ProductRepository {
     if (!isConnected) return left(NoConnectionFailure());
 
     final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRef = db.collection(currentUserUid).doc(currentUserUid).collection('Products').doc(id);
+    final docRef = db.collection('Products').doc(currentUserUid).collection('Products').doc(id);
 
     try {
       final product = await docRef.get();
@@ -96,7 +98,7 @@ class ProductRepositoryImpl implements ProductRepository {
     if (!isConnected) return left(NoConnectionFailure());
 
     final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRef = db.collection(currentUserUid).doc(currentUserUid).collection('Products').where('articleNumber', isEqualTo: articleNumber);
+    final docRef = db.collection('Products').doc(currentUserUid).collection('Products').where('articleNumber', isEqualTo: articleNumber);
 
     try {
       final product = await docRef.get().then((value) => value.docs.map((docSs) => Product.fromJson(docSs.data())).toList().firstOrNull);
@@ -113,7 +115,7 @@ class ProductRepositoryImpl implements ProductRepository {
     if (!isConnected) return left(NoConnectionFailure());
 
     final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRef = db.collection(currentUserUid).doc(currentUserUid).collection('Products').where('ean', isEqualTo: ean);
+    final docRef = db.collection('Products').doc(currentUserUid).collection('Products').where('ean', isEqualTo: ean);
 
     try {
       final product = await docRef.get().then((value) => value.docs.map((docSs) => Product.fromJson(docSs.data())).toList().firstOrNull);
@@ -130,7 +132,7 @@ class ProductRepositoryImpl implements ProductRepository {
     if (!isConnected) return left(NoConnectionFailure());
 
     final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRef = db.collection(currentUserUid).doc(currentUserUid).collection('Products').where('name', isEqualTo: name);
+    final docRef = db.collection('Products').doc(currentUserUid).collection('Products').where('name', isEqualTo: name);
 
     try {
       final product = await docRef.get().then((value) => value.docs.map((docSs) => Product.fromJson(docSs.data())).toList().firstOrNull);
@@ -149,7 +151,7 @@ class ProductRepositoryImpl implements ProductRepository {
     final currentUserUid = firebaseAuth.currentUser!.uid;
 
     try {
-      final docRef = db.collection(currentUserUid).doc(currentUserUid).collection('Products').doc(product.id);
+      final docRef = db.collection('Products').doc(currentUserUid).collection('Products').doc(product.id);
 
       await docRef.update(product.toJson());
 
@@ -165,7 +167,7 @@ class ProductRepositoryImpl implements ProductRepository {
     if (!isConnected) return left(NoConnectionFailure());
 
     final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRef = db.collection(currentUserUid).doc(currentUserUid).collection('Products').doc(product.id);
+    final docRef = db.collection('Products').doc(currentUserUid).collection('Products').doc(product.id);
 
     try {
       final firebaseStoragePath = '$currentUserUid/ProductImages/${docRef.id}';
@@ -194,7 +196,7 @@ class ProductRepositoryImpl implements ProductRepository {
     if (!isConnected) return left(NoConnectionFailure());
 
     final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRef = db.collection(currentUserUid).doc(currentUserUid).collection('Products').doc(product.id);
+    final docRef = db.collection('Products').doc(currentUserUid).collection('Products').doc(product.id);
 
     final FirebaseStorage storage = FirebaseStorage.instance;
 
@@ -228,7 +230,7 @@ class ProductRepositoryImpl implements ProductRepository {
     if (!isConnected) return left(NoConnectionFailure());
 
     final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRef = db.collection(currentUserUid).doc(currentUserUid).collection('Products').doc(id);
+    final docRef = db.collection('Products').doc(currentUserUid).collection('Products').doc(id);
     final FirebaseStorage storage = FirebaseStorage.instance;
 
     try {
@@ -258,7 +260,7 @@ class ProductRepositoryImpl implements ProductRepository {
 
     try {
       for (final product in products) {
-        final docRef = db.collection(currentUserUid).doc(currentUserUid).collection('Products').doc(product.id);
+        final docRef = db.collection('Products').doc(currentUserUid).collection('Products').doc(product.id);
         await docRef.delete();
 
         //* Delete product images from FirebaseStorage
@@ -308,7 +310,7 @@ class ProductRepositoryImpl implements ProductRepository {
     //       if (!productMarketplaces.any((e) => e.idMarketplace == productMarketplace.idMarketplace)) {
     //         productMarketplaces.add(productMarketplace);
     //       }
-    //       final docRef = db.collection(currentUserUid).doc(currentUserUid).collection('Products').doc(product.id);
+    //       final docRef = db.collection('Products').doc(currentUserUid).collection('Products').doc(product.id);
     //       final updatedProdukt = product.copyWith(productMarketplaces: productMarketplaces);
     //       await docRef.update(updatedProdukt.toJson());
     //     }
@@ -321,17 +323,17 @@ class ProductRepositoryImpl implements ProductRepository {
   }
 
   @override
-  Future<Either<FirebaseFailure, Product>> updateQuantityOfProductAbsolut(Product product, int newQuantity) async {
+  Future<Either<FirebaseFailure, Product>> updateAvailableQuantityOfProductAbsolut(Product product, int newQuantity) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
 
     final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRefProduct = db.collection(currentUserUid).doc(currentUserUid).collection('Products').doc(product.id);
+    final docRefProduct = db.collection('Products').doc(currentUserUid).collection('Products').doc(product.id);
 
     try {
       final updatedProduct = product.copyWith(
-        availableStock: product.availableStock - (product.availableStock - newQuantity),
-        warehouseStock: product.warehouseStock - (product.warehouseStock - newQuantity),
+        availableStock: newQuantity,
+        warehouseStock: product.warehouseStock - (product.availableStock - newQuantity),
       );
       await docRefProduct.update(updatedProduct.toJson());
 
@@ -342,17 +344,40 @@ class ProductRepositoryImpl implements ProductRepository {
   }
 
   @override
-  Future<Either<FirebaseFailure, Product>> updateAvailableQuantityOfProductInremental(Product product, int newQuantityIncremental) async {
+  Future<Either<FirebaseFailure, Product>> updateWarehouseQuantityOfProductAbsolut(Product product, int newQuantity) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
 
     final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRefProduct = db.collection(currentUserUid).doc(currentUserUid).collection('Products').doc(product.id);
+    final docRefProduct = db.collection('Products').doc(currentUserUid).collection('Products').doc(product.id);
+
+    try {
+      final updatedProduct = product.copyWith(warehouseStock: product.warehouseStock - (product.warehouseStock - newQuantity));
+      await docRefProduct.update(updatedProduct.toJson());
+
+      return right(updatedProduct);
+    } on FirebaseException {
+      return left(GeneralFailure());
+    }
+  }
+
+  @override
+  Future<Either<FirebaseFailure, Product>> updateAvailableQuantityOfProductInremental(
+    Product product,
+    int newQuantityIncremental,
+    Marketplace? marketplaceToSkip,
+  ) async {
+    final isConnected = await checkInternetConnection();
+    if (!isConnected) return left(NoConnectionFailure());
+
+    final currentUserUid = firebaseAuth.currentUser!.uid;
+    final docRefProduct = db.collection('Products').doc(currentUserUid).collection('Products').doc(product.id);
 
     try {
       final updatedProduct = product.copyWith(availableStock: product.availableStock + newQuantityIncremental);
       await docRefProduct.update(updatedProduct.toJson());
 
+      await marketplaceEditRepository.setProdcutPrestaQuantity(updatedProduct, updatedProduct.availableStock, marketplaceToSkip);
       return right(updatedProduct);
     } on FirebaseException {
       return left(GeneralFailure());
@@ -365,7 +390,7 @@ class ProductRepositoryImpl implements ProductRepository {
     if (!isConnected) return left(NoConnectionFailure());
 
     final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRefProduct = db.collection(currentUserUid).doc(currentUserUid).collection('Products').doc(product.id);
+    final docRefProduct = db.collection('Products').doc(currentUserUid).collection('Products').doc(product.id);
 
     try {
       final updatedProduct = product.copyWith(warehouseStock: product.warehouseStock + newQuantityIncremental);

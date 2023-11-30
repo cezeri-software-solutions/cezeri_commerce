@@ -14,6 +14,7 @@ EMailAutomation _$EMailAutomationFromJson(Map<String, dynamic> json) =>
           _$EMailAutomationTypeEnumMap, json['eMailAutomationType']),
       fromEmail: json['fromEmail'] as String,
       subject: json['subject'] as String,
+      bcc: json['bcc'] as String,
       htmlContent: json['htmlContent'] as String,
     );
 
@@ -25,6 +26,7 @@ Map<String, dynamic> _$EMailAutomationToJson(EMailAutomation instance) =>
           _$EMailAutomationTypeEnumMap[instance.eMailAutomationType]!,
       'fromEmail': instance.fromEmail,
       'subject': instance.subject,
+      'bcc': instance.bcc,
       'htmlContent': instance.htmlContent,
     };
 

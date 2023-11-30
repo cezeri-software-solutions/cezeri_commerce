@@ -1,7 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../../3_domain/entities/receipt/receipt.dart';
-import '../../../3_domain/entities/stat_dashboard.dart';
+import '../../../3_domain/entities/statistic/stat_dashboard.dart';
+import '../../../3_domain/entities/statistic/stat_product.dart';
+import '../../../3_domain/entities/statistic/stat_product_detail.dart';
+
+//? ###########################################################################################################################
+//? #################################################### STAT PRODUCT #########################################################
+//? ###########################################################################################################################
 
 Future<void> createOrIncrementStatDashboardOnCreateReceipt(
   Receipt receipt,
@@ -159,6 +165,45 @@ Future<void> createOrIncrementStatDashboardOnGenerateFromInvoiceNewCredit(
   } else {
     if (statDashboardToUpdate.exists) {
       transaction.update(docRefStatDashboardToUpdate, {'salesVolume': FieldValue.increment(-receipt.totalNet)});
+    }
+  }
+}
+
+//? ###########################################################################################################################
+//? #################################################### STAT PRODUCT #########################################################
+//? ###########################################################################################################################
+
+Future<void> createOrIncrementStatProductOnCreateReceipt(
+  Receipt receipt,
+  String currentUserUid,
+  FirebaseFirestore db,
+) async {
+  final now = DateTime.now();
+  final curYear = now.year;
+  final curMonth = now.month;
+
+  for (final receiptProduct in receipt.listOfReceiptProduct) {
+    if (!receiptProduct.isFromDatabase) continue;
+    final docRefStatProduct = db.collection('StatProducts').doc(currentUserUid).collection(receiptProduct.productId).doc('$curYear$curMonth');
+    DocumentSnapshot<Map<String, dynamic>> dsStatProduct = await docRefStatProduct.get();
+    if (!dsStatProduct.exists) {
+      final StatProduct statProduct = StatProduct.empty().copyWith(
+        statDashboardId: docRefStatProduct.id,
+        name: receiptProduct.name,
+        articleNumber: receiptProduct.articleNumber,
+        ean: receiptProduct.ean,
+        listOfStatProductDetail: [StatProductDetail.fromReceitProduct(receipt, receiptProduct)],
+        lastEditingDate: DateTime.now(),
+        creationDate: DateTime.now(),
+      );
+      docRefStatProduct.set(statProduct.toJson());
+    } else {
+      final phStatProduct = StatProduct.fromJson(dsStatProduct.data()!);
+      StatProduct statProduct = phStatProduct.copyWith(
+        listOfStatProductDetail: phStatProduct.listOfStatProductDetail..add(StatProductDetail.fromReceitProduct(receipt, receiptProduct)),
+        lastEditingDate: now,
+      );
+      docRefStatProduct.update(statProduct.toJson());
     }
   }
 }

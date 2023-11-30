@@ -11,6 +11,7 @@ class AppointmentState {
   final bool isAnyFailure;
   final bool isLoadingReceiptOnObserve;
   final bool isLoadingReceiptsOnObserve;
+  final bool isLoadingAppointmentFromPrestaOnObserve;
   final bool isLoadingAppointmentsFromPrestaOnObserve;
   final bool isLoadingReceiptOnCreate;
   final bool isLoadingReceiptOnUpdate;
@@ -18,7 +19,7 @@ class AppointmentState {
   final bool isLoadingReceiptOnGenerate;
   final Option<Either<FirebaseFailure, Receipt>> fosReceiptOnObserveOption;
   final Option<Either<FirebaseFailure, List<Receipt>>> fosReceiptsOnObserveOption;
-  final Option<Either<FirebaseFailure, List<Receipt>>> fosAppointmentsOnObserveFromPrestaOption;
+  final Option<Either<AbstractFailure, Unit>> fosAppointmentOnObserveFromMarketplacesOption;
   final Option<Either<AbstractFailure, Unit>> fosAppointmentsOnObserveFromMarketplacesOption;
   final Option<Either<FirebaseFailure, Receipt>> fosReceiptOnCreateOption;
   final Option<Either<FirebaseFailure, Unit>> fosReceiptOnUpdateOption;
@@ -48,6 +49,7 @@ class AppointmentState {
     required this.isAnyFailure,
     required this.isLoadingReceiptOnObserve,
     required this.isLoadingReceiptsOnObserve,
+    required this.isLoadingAppointmentFromPrestaOnObserve,
     required this.isLoadingAppointmentsFromPrestaOnObserve,
     required this.isLoadingReceiptOnCreate,
     required this.isLoadingReceiptOnUpdate,
@@ -55,7 +57,7 @@ class AppointmentState {
     required this.isLoadingReceiptOnGenerate,
     required this.fosReceiptOnObserveOption,
     required this.fosReceiptsOnObserveOption,
-    required this.fosAppointmentsOnObserveFromPrestaOption,
+    required this.fosAppointmentOnObserveFromMarketplacesOption,
     required this.fosAppointmentsOnObserveFromMarketplacesOption,
     required this.fosReceiptOnCreateOption,
     required this.fosReceiptOnUpdateOption,
@@ -82,6 +84,7 @@ class AppointmentState {
         isAnyFailure: false,
         isLoadingReceiptOnObserve: false,
         isLoadingReceiptsOnObserve: true,
+        isLoadingAppointmentFromPrestaOnObserve: false,
         isLoadingAppointmentsFromPrestaOnObserve: false,
         isLoadingReceiptOnCreate: false,
         isLoadingReceiptOnUpdate: false,
@@ -89,7 +92,7 @@ class AppointmentState {
         isLoadingReceiptOnGenerate: false,
         fosReceiptOnObserveOption: none(),
         fosReceiptsOnObserveOption: none(),
-        fosAppointmentsOnObserveFromPrestaOption: none(),
+        fosAppointmentOnObserveFromMarketplacesOption: none(),
         fosAppointmentsOnObserveFromMarketplacesOption: none(),
         fosReceiptOnCreateOption: none(),
         fosReceiptOnUpdateOption: none(),
@@ -116,6 +119,7 @@ class AppointmentState {
     bool? isAnyFailure,
     bool? isLoadingReceiptOnObserve,
     bool? isLoadingReceiptsOnObserve,
+    bool? isLoadingAppointmentFromPrestaOnObserve,
     bool? isLoadingAppointmentsFromPrestaOnObserve,
     bool? isLoadingReceiptOnCreate,
     bool? isLoadingReceiptOnUpdate,
@@ -123,7 +127,7 @@ class AppointmentState {
     bool? isLoadingReceiptOnGenerate,
     Option<Either<FirebaseFailure, Receipt>>? fosReceiptOnObserveOption,
     Option<Either<FirebaseFailure, List<Receipt>>>? fosReceiptsOnObserveOption,
-    Option<Either<FirebaseFailure, List<Receipt>>>? fosAppointmentsOnObserveFromPrestaOption,
+    Option<Either<AbstractFailure, Unit>>? fosAppointmentOnObserveFromMarketplacesOption,
     Option<Either<AbstractFailure, Unit>>? fosAppointmentsOnObserveFromMarketplacesOption,
     Option<Either<FirebaseFailure, Receipt>>? fosReceiptOnCreateOption,
     Option<Either<FirebaseFailure, Unit>>? fosReceiptOnUpdateOption,
@@ -149,6 +153,7 @@ class AppointmentState {
       isAnyFailure: isAnyFailure ?? this.isAnyFailure,
       isLoadingReceiptOnObserve: isLoadingReceiptOnObserve ?? this.isLoadingReceiptOnObserve,
       isLoadingReceiptsOnObserve: isLoadingReceiptsOnObserve ?? this.isLoadingReceiptsOnObserve,
+      isLoadingAppointmentFromPrestaOnObserve: isLoadingAppointmentFromPrestaOnObserve ?? this.isLoadingAppointmentFromPrestaOnObserve,
       isLoadingAppointmentsFromPrestaOnObserve: isLoadingAppointmentsFromPrestaOnObserve ?? this.isLoadingAppointmentsFromPrestaOnObserve,
       isLoadingReceiptOnCreate: isLoadingReceiptOnCreate ?? this.isLoadingReceiptOnCreate,
       isLoadingReceiptOnUpdate: isLoadingReceiptOnUpdate ?? this.isLoadingReceiptOnUpdate,
@@ -156,7 +161,8 @@ class AppointmentState {
       isLoadingReceiptOnGenerate: isLoadingReceiptOnGenerate ?? this.isLoadingReceiptOnGenerate,
       fosReceiptOnObserveOption: fosReceiptOnObserveOption ?? this.fosReceiptOnObserveOption,
       fosReceiptsOnObserveOption: fosReceiptsOnObserveOption ?? this.fosReceiptsOnObserveOption,
-      fosAppointmentsOnObserveFromPrestaOption: fosAppointmentsOnObserveFromPrestaOption ?? this.fosAppointmentsOnObserveFromPrestaOption,
+      fosAppointmentOnObserveFromMarketplacesOption:
+          fosAppointmentOnObserveFromMarketplacesOption ?? this.fosAppointmentOnObserveFromMarketplacesOption,
       fosAppointmentsOnObserveFromMarketplacesOption:
           fosAppointmentsOnObserveFromMarketplacesOption ?? this.fosAppointmentsOnObserveFromMarketplacesOption,
       fosReceiptOnCreateOption: fosReceiptOnCreateOption ?? this.fosReceiptOnCreateOption,

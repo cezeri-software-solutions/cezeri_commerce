@@ -23,7 +23,7 @@ class PackingStationRepositoryImpl implements PackingStationRepository {
     if (!isConnected) return left(NoConnectionFailure());
 
     final currentUserUid = firebaseAuth.currentUser!.uid;
-    final colRef = db.collection(currentUserUid).doc(currentUserUid).collection('Products');
+    final colRef = db.collection('Products').doc(currentUserUid).collection('Products');
 
     List<Product> listOfProducts = [];
 
@@ -49,7 +49,7 @@ class PackingStationRepositoryImpl implements PackingStationRepository {
     if (!isConnected) return left(NoConnectionFailure());
 
     final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRef = db.collection(currentUserUid).doc(currentUserUid).collection('Picklists').doc();
+    final docRef = db.collection('Picklists').doc(currentUserUid).collection('Picklists').doc();
     final picklist = Picklist.fromListOfAppointments(listOfAppointments);
     final phToCreatePicklist = picklist.copyWith(id: docRef.id);
 
@@ -73,7 +73,7 @@ class PackingStationRepositoryImpl implements PackingStationRepository {
       List<Product> products = [];
       for (var idsChunk in splitProductIds) {
         var chunkProducts = await db
-            .collection(currentUserUid)
+            .collection('Products')
             .doc(currentUserUid)
             .collection('Products')
             .where('id', whereIn: idsChunk)
@@ -97,7 +97,7 @@ class PackingStationRepositoryImpl implements PackingStationRepository {
       await db.runTransaction((transaction) async {
         for (final appointment in listOfAppointments) {
           final updatedAppointment = appointment.copyWith(isPicked: true);
-          final docRefAppointment = db.collection(currentUserUid).doc(currentUserUid).collection('Appointments').doc(appointment.id);
+          final docRefAppointment = db.collection('Appointments').doc(currentUserUid).collection('Appointments').doc(appointment.id);
           transaction.update(docRefAppointment, updatedAppointment.toJson());
         }
         transaction.set(docRef, toCreatePicklist.toJson());
@@ -115,7 +115,7 @@ class PackingStationRepositoryImpl implements PackingStationRepository {
     if (!isConnected) return left(NoConnectionFailure());
 
     final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRef = db.collection(currentUserUid).doc(currentUserUid).collection('Picklists').doc(picklist.id);
+    final docRef = db.collection('Picklists').doc(currentUserUid).collection('Picklists').doc(picklist.id);
     final toUpdatePicklist = picklist.copyWith(lastEditingDate: DateTime.now());
 
     try {
@@ -135,7 +135,7 @@ class PackingStationRepositoryImpl implements PackingStationRepository {
     if (!isConnected) return left(NoConnectionFailure());
 
     final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRef = db.collection(currentUserUid).doc(currentUserUid).collection('Picklists'); //.orderBy('creationDate', descending: true).limit(20);
+    final docRef = db.collection('Picklists').doc(currentUserUid).collection('Picklists'); //.orderBy('creationDate', descending: true).limit(20);
 
     try {
       final listOfPicklists = await docRef.get().then((value) => value.docs.map((querySnapshot) => Picklist.fromJson(querySnapshot.data())).toList());
@@ -143,6 +143,6 @@ class PackingStationRepositoryImpl implements PackingStationRepository {
       return right(listOfPicklists);
     } on FirebaseException {
       return left(GeneralFailure());
-    } 
+    }
   }
 }

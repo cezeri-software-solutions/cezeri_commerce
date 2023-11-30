@@ -1,5 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:cezeri_commerce/1_presentation/app_drawer.dart';
+import 'package:cezeri_commerce/1_presentation/core/extensions/string_to_int.dart';
+import 'package:cezeri_commerce/1_presentation/core/widgets/my_dropdown_button_form_field.dart';
 import 'package:cezeri_commerce/3_domain/entities/receipt/receipt_product.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -10,6 +12,7 @@ import '../../../2_application/firebase/customer/customer_bloc.dart';
 import '../../../2_application/firebase/marketplace/marketplace_bloc.dart';
 import '../../../3_domain/entities/address.dart';
 import '../../../3_domain/entities/customer/customer.dart';
+import '../../../3_domain/entities/marketplace/marketplace.dart';
 import '../../../3_domain/entities/receipt/receipt.dart';
 import '../../../3_domain/entities/receipt/receipt_customer.dart';
 import '../../../constants.dart';
@@ -18,7 +21,9 @@ import '../../../routes/router.gr.dart';
 import '../../core/functions/my_scaffold_messanger.dart';
 import '../../core/widgets/my_circular_progress_indicator.dart';
 import '../../core/widgets/my_delete_dialog.dart';
+import '../../core/widgets/my_form_field_small.dart';
 import '../../core/widgets/my_info_dialog.dart';
+import '../../core/widgets/my_modal_scrollable.dart';
 import '../../core/widgets/my_outlined_button.dart';
 import '../appointment_detail/appointment_detail_screen.dart';
 import 'receipts_overview_page.dart';
@@ -58,6 +63,24 @@ class ReceiptsOverviewScreen extends StatelessWidget {
                 (a) => a.fold(
                   (failure) => myScaffoldMessenger(context, failure, null, null, null),
                   (listOfAppointments) => null,
+                ),
+              );
+            },
+          ),
+          BlocListener<AppointmentBloc, AppointmentState>(
+            listenWhen: (p, c) => p.fosAppointmentOnObserveFromMarketplacesOption != c.fosAppointmentOnObserveFromMarketplacesOption,
+            listener: (context, state) {
+              state.fosAppointmentOnObserveFromMarketplacesOption.fold(
+                () => null,
+                (a) => a.fold(
+                  (failure) {
+                    context.router.popTop();
+                    myScaffoldMessenger(context, null, null, null, 'Beim Laden der Bestellung ist etwas schief gegangen');
+                  },
+                  (unit) {
+                    context.router.popTop();
+                    myScaffoldMessenger(context, null, null, 'Auftrag erfolgreich aus den Marktplätzen geladen', null);
+                  },
                 ),
               );
             },
@@ -171,7 +194,8 @@ class ReceiptsOverviewScreen extends StatelessWidget {
                             ReceiptTyp.appointment =>
                               _GenerateFromAppointmentDialog(listOfReceipts: state.selectedReceipts, appointmentBloc: appointmentBloc),
                             ReceiptTyp.invoice => state.selectedReceipts.length > 1
-                                ? const MyInfoDialog(title: 'Achtug', content: 'Du darfst maximal eine Rechnung auswählen, zum generieren einer Gutschrift')
+                                ? const MyInfoDialog(
+                                    title: 'Achtug', content: 'Du darfst maximal eine Rechnung auswählen, zum generieren einer Gutschrift')
                                 : _GenerateFromInvoiceNewCreditDialog(listOfReceipts: state.selectedReceipts, appointmentBloc: appointmentBloc),
                             _ => const Dialog(),
                           },
@@ -234,7 +258,20 @@ class ReceiptsOverviewScreen extends StatelessWidget {
                         ? const MyCircularProgressIndicator(color: Colors.red)
                         : const Icon(Icons.delete, color: Colors.red),
                   ),
-                  if (receiptTyp == ReceiptTyp.appointment)
+                  if (receiptTyp == ReceiptTyp.appointment) ...[
+                    if (marketplaceBloc.state.listOfMarketplace != null && marketplaceBloc.state.listOfMarketplace!.isNotEmpty)
+                      IconButton(
+                        onPressed: () {
+                          showModalBottomSheet(
+                            context: context,
+                            builder: (_) => _SelectToLoadAppointmentFromMarketplaceSheet(
+                              appointmentBloc: appointmentBloc,
+                              listOfMarketplaces: marketplaceBloc.state.listOfMarketplace!,
+                            ),
+                          );
+                        },
+                        icon: state.isLoadingAppointmentsFromPrestaOnObserve ? const MyCircularProgressIndicator() : const Icon(Icons.downloading),
+                      ),
                     IconButton(
                       onPressed: () {
                         context.read<AppointmentBloc>().add(GetNewAppointmentsFromPrestaEvent());
@@ -247,7 +284,8 @@ class ReceiptsOverviewScreen extends StatelessWidget {
                         );
                       },
                       icon: state.isLoadingAppointmentsFromPrestaOnObserve ? const MyCircularProgressIndicator() : const Icon(Icons.download),
-                    )
+                    ),
+                  ],
                 ],
               ),
               body: Column(
@@ -668,6 +706,70 @@ class _MyLoadingDialogOnLoadingAppointments extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+class _SelectToLoadAppointmentFromMarketplaceSheet extends StatefulWidget {
+  final AppointmentBloc appointmentBloc;
+  final List<Marketplace> listOfMarketplaces;
+
+  const _SelectToLoadAppointmentFromMarketplaceSheet({super.key, required this.appointmentBloc, required this.listOfMarketplaces});
+
+  @override
+  State<_SelectToLoadAppointmentFromMarketplaceSheet> createState() => _SelectToLoadAppointmentFromMarketplaceSheetState();
+}
+
+class _SelectToLoadAppointmentFromMarketplaceSheetState extends State<_SelectToLoadAppointmentFromMarketplaceSheet> {
+  List<Marketplace> listOfMarketplaces = [];
+  Marketplace selectedMarketplace = Marketplace.empty();
+  final _controller = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    listOfMarketplaces = widget.listOfMarketplaces..insert(0, Marketplace.empty());
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final items = listOfMarketplaces.map((e) => e.name).toList();
+    print(selectedMarketplace);
+
+    return MyModalScrollable(
+      title: 'Bestellung Laden',
+      keyboardDismiss: KeyboardDissmiss.onTab,
+      children: [
+        Gaps.h24,
+        MyDropdownButtonFormField(
+          labelText: 'Marktplatz wählen',
+          value: selectedMarketplace.name,
+          onChanged: (marketplaceName) => setState(() => selectedMarketplace = listOfMarketplaces.where((e) => e.name == marketplaceName!).first),
+          items: items,
+        ),
+        Gaps.h24,
+        MyTextFormFieldSmall(
+          labelText: 'ID aus Marktplatz',
+          controller: _controller,
+          keyboardType: TextInputType.number,
+        ),
+        Gaps.h24,
+        MyOutlinedButton(
+          buttonText: 'Bestellung Laden',
+          onPressed: () {
+            context.router.popTop();
+            widget.appointmentBloc.add(GetNewAppointmentByIdFromPrestaEvent(id: _controller.text.toMyInt(), marketplace: selectedMarketplace));
+            showDialog(
+              context: context,
+              builder: (context) => BlocProvider.value(
+                value: widget.appointmentBloc,
+                child: _MyLoadingDialogOnLoadingAppointments(appointmentBloc: widget.appointmentBloc),
+              ),
+            );
+          },
+        ),
+        Gaps.h42,
+      ],
     );
   }
 }

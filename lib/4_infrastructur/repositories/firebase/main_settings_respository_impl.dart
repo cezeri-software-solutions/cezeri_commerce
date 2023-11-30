@@ -20,7 +20,7 @@ class MainSettingsRepositoryImpl implements MainSettingsRepository {
     if (!isConnected) return left(NoConnectionFailure());
 
     final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRef = db.collection(currentUserUid).doc(currentUserUid).collection('Settings').doc(currentUserUid);
+    final docRef = db.collection('Settings').doc(currentUserUid).collection('Settings').doc(currentUserUid);
 
     try {
       final settings = await docRef.get();
@@ -41,7 +41,7 @@ class MainSettingsRepositoryImpl implements MainSettingsRepository {
     if (!isConnected) return left(NoConnectionFailure());
 
     final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRef = db.collection(currentUserUid).doc(currentUserUid).collection('Settings').doc(currentUserUid);
+    final docRef = db.collection('Settings').doc(currentUserUid).collection('Settings').doc(currentUserUid);
 
     try {
       await docRef.update(settings.toJson());
@@ -57,7 +57,7 @@ class MainSettingsRepositoryImpl implements MainSettingsRepository {
     if (!isConnected) return left(NoConnectionFailure());
 
     final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRef = db.collection(currentUserUid).doc(currentUserUid).collection('Settings').doc(currentUserUid);
+    final docRef = db.collection('Settings').doc(currentUserUid).collection('Settings').doc(currentUserUid);
 
     final toCreateSettings = MainSettings.empty().copyWith(settingsId: currentUserUid);
 
@@ -75,7 +75,7 @@ class MainSettingsRepositoryImpl implements MainSettingsRepository {
     if (!isConnected) return left(NoConnectionFailure());
 
     final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRef = db.collection(currentUserUid).doc(currentUserUid).collection('Settings').doc(currentUserUid);
+    final docRef = db.collection('Settings').doc(currentUserUid).collection('Settings').doc(currentUserUid);
 
     try {
       MainSettings? updatedSettings;

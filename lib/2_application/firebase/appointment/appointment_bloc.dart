@@ -90,6 +90,72 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
 
 //? #########################################################################
 
+    on<GetNewAppointmentByIdFromPrestaEvent>((event, emit) async {
+      final logger = Logger();
+      bool isSuccess = true;
+      emit(state.copyWith(
+        isLoadingAppointmentFromPrestaOnObserve: true,
+        loadedAppointments: 0,
+        numberOfToLoadAppointments: 1,
+        loadingText: 'Bestellung wird geladen',
+      ));
+
+      List<LoadedOrderFromMarketplace> listOfLoadedOrderFromMarketplace = [];
+
+      final toLoadOrderFromMarketplace = ToLoadAppointmentFromMarketplace(marketplace: event.marketplace, orderId: event.id);
+      final fosLoadedAppointmentFromMarketplace = await receiptRepository.loadAppointmentsFromMarketplace(toLoadOrderFromMarketplace);
+      fosLoadedAppointmentFromMarketplace.fold(
+        (failure) {
+          logger.e(failure);
+          isSuccess = false;
+        },
+        (loadedOrderFromMarketplace) {
+          listOfLoadedOrderFromMarketplace.add(loadedOrderFromMarketplace);
+          emit(state.copyWith(loadedAppointments: state.loadedAppointments + 1));
+        },
+      );
+
+      emit(state.copyWith(loadedAppointments: 0, loadingText: 'Lädt Bestellungen zu Cezeri Commerce hoch...'));
+
+      List<Receipt> listWithNewAppointments = List.from(state.listOfAllReceipts ?? []);
+      for (final toUploadAppointment in listOfLoadedOrderFromMarketplace) {
+        final fosLoadedAppointment = await receiptRepository.uploadLoadedAppointmentToFirestore(toUploadAppointment);
+        fosLoadedAppointment.fold(
+          (failure) {
+            logger.e(failure);
+            isSuccess = false;
+          },
+          (loadedAppointment) {
+            listWithNewAppointments.add(loadedAppointment);
+            emit(state.copyWith(loadedAppointments: state.loadedAppointments + 1));
+          },
+        );
+      }
+
+      listWithNewAppointments.sort((a, b) => switch (listWithNewAppointments.first.receiptTyp) {
+            ReceiptTyp.offer => b.offerId.compareTo(a.offerId),
+            ReceiptTyp.appointment => b.appointmentId.compareTo(a.appointmentId),
+            ReceiptTyp.deliveryNote => b.deliveryNoteId.compareTo(a.deliveryNoteId),
+            ReceiptTyp.invoice || ReceiptTyp.credit => b.invoiceId.compareTo(a.invoiceId),
+          });
+      emit(state.copyWith(
+        listOfAllReceipts: listWithNewAppointments,
+        isExpanded: List<bool>.filled(listWithNewAppointments.length, false),
+        firebaseFailure: null,
+        isAnyFailure: false,
+      ));
+
+      add(OnSearchFieldSubmittedAppointmentsEvent());
+
+      emit(state.copyWith(
+        isLoadingAppointmentFromPrestaOnObserve: false,
+        fosAppointmentOnObserveFromMarketplacesOption: isSuccess ? const Some(Right(unit)) : const None(),
+      ));
+      emit(state.copyWith(fosAppointmentOnObserveFromMarketplacesOption: none()));
+    });
+
+//? #########################################################################
+
     on<GetNewAppointmentsFromPrestaEvent>((event, emit) async {
       final logger = Logger();
       bool isSuccess = true;
