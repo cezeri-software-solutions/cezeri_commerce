@@ -1506,6 +1506,8 @@ Future<ParcelTracking?> getParcelTracking(Receipt receipt, MainSettings ms, int 
   if (carrier == null) return null;
   final cCredentials = carrier.carrierKey;
 
+  final recipientAddress = receipt.receiptCustomer.listOfAddress.where((e) => e.addressType == AddressType.delivery && e.isDefault).first;
+
   final service = AustrianPostApi(
     AustrianPostApiConfig(
       clientId: cCredentials.clientId,
@@ -1517,6 +1519,12 @@ Future<ParcelTracking?> getParcelTracking(Receipt receipt, MainSettings ms, int 
       labelSize: carrier.labelSize,
       printerLanguage: carrier.printerLanguage,
     ),
+    receipt.receiptCarrier.carrierProduct.id,
+    receipt.weight,
+    recipientAddress,
+    receipt.receiptCustomer.email,
+    receipt.receiptMarketplace.address,
+    receipt.receiptMarketplace.bankDetails.paypalEmail,
     false,
   );
 

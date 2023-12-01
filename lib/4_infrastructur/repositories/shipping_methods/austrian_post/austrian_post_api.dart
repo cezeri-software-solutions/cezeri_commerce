@@ -2,6 +2,8 @@ import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
 import 'package:xml/xml.dart';
 
+import '../../../../3_domain/entities/address.dart';
+
 class AustrianPostApiConfig {
   final String clientId;
   final String orgUnitId;
@@ -19,12 +21,28 @@ class AustrianPostApiSettings {
 }
 
 class AustrianPostApi {
-  final String _baseUrl = 'https://abn-plc.post.at/DataService/Post.Webservice/ShippingService.svc/secure';
+  final String _baseUrl = 'https://plc.post.at/Post.Webservice/ShippingService.svc/secure';
   final AustrianPostApiConfig _config;
   final AustrianPostApiSettings _settings;
+  final String _carrierProductId;
+  final double _weight;
+  final Address _recipientAddress;
+  final String _recipientEMail;
+  final Address _shipperAddress;
+  final String _shipperEMail;
   final bool _isReturn;
 
-  AustrianPostApi(this._config, this._settings, this._isReturn);
+  AustrianPostApi(
+    this._config,
+    this._settings,
+    this._carrierProductId,
+    this._weight,
+    this._recipientAddress,
+    this._recipientEMail,
+    this._shipperAddress,
+    this._shipperEMail,
+    this._isReturn,
+  );
 
   Future<String> createShipment(String soapRequest) async {
     final logger = Logger();
@@ -47,6 +65,9 @@ class AustrianPostApi {
   }
 
   String generateSoapRequest() {
+    print(_config.clientId);
+    print(_config.orgUnitGuide);
+    print(_config.orgUnitId);
     final builder = XmlBuilder();
 
     builder.element('soapenv:Envelope', nest: () {
@@ -60,28 +81,32 @@ class AustrianPostApi {
             builder.element('post:ClientID', nest: _config.clientId);
             builder.element('post:ColloList', nest: () {
               builder.element('post:ColloRow', nest: () {
-                builder.element('post:Weight', nest: '17');
+                builder.element('post:Weight', nest: _weight);
               });
             });
             builder.element('post:CustomDataBit1', nest: 'false');
-            builder.element('post:DeliveryServiceThirdPartyID', nest: '10');
+            builder.element('post:DeliveryServiceThirdPartyID', nest: _carrierProductId);
             builder.element('post:OURecipientAddress', nest: () {
-              builder.element('post:AddressLine1', nest: 'Teststrasse');
-              builder.element('post:AddressLine2');
-              builder.element('post:City', nest: 'Wien');
-              builder.element('post:CountryID', nest: 'AT');
-              builder.element('post:Email');
-              builder.element('post:HouseNumber', nest: '1');
-              builder.element('post:Name1', nest: 'Test Recipient');
-              builder.element('post:PostalCode', nest: '1030');
+              builder.element('post:AddressLine1', nest: _recipientAddress.street);
+              builder.element('post:AddressLine2', nest: _recipientAddress.street2);
+              builder.element('post:City', nest: _recipientAddress.city);
+              builder.element('post:CountryID', nest: _recipientAddress.country.isoCode);
+              builder.element('post:Email', nest: _recipientEMail);
+              builder.element('post:Name1', nest: _recipientAddress.companyName);
+              builder.element('post:Name2', nest: _recipientAddress.name);
+              builder.element('post:PostalCode', nest: _recipientAddress.postcode);
+              builder.element('post:Tel1', nest: _recipientAddress.phone);
+              builder.element('post:Tel2', nest: _recipientAddress.phoneMobile);
             });
             builder.element('post:OUShipperAddress', nest: () {
-              builder.element('post:AddressLine1', nest: 'Musergasse');
-              builder.element('post:City', nest: 'Wien');
-              builder.element('post:CountryID', nest: 'AT');
-              builder.element('post:Name1', nest: 'test & test');
+              builder.element('post:AddressLine1', nest: _shipperAddress.street);
+              builder.element('post:City', nest: _shipperAddress.city);
+              builder.element('post:CountryID', nest: _shipperAddress.country.isoCode);
+              builder.element('post:Email', nest: _shipperEMail);
+              builder.element('post:Name1', nest: _shipperAddress.companyName);
               builder.element('post:Name2');
-              builder.element('post:PostalCode', nest: '1010');
+              builder.element('post:PostalCode', nest: _shipperAddress.postcode);
+              builder.element('post:Tel1', nest: _shipperAddress.phone);
             });
             builder.element('post:OrgUnitGuid', nest: _config.orgUnitGuide);
             builder.element('post:OrgUnitID', nest: _config.orgUnitId);
