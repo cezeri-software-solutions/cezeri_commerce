@@ -65,9 +65,9 @@ class AustrianPostApi {
   }
 
   String generateSoapRequest() {
-    print(_config.clientId);
-    print(_config.orgUnitGuide);
-    print(_config.orgUnitId);
+    final name1 =
+        _recipientAddress.companyName.isEmpty || _recipientAddress.companyName == '' ? _recipientAddress.name : _recipientAddress.companyName;
+    final name2 = _recipientAddress.companyName.isEmpty || _recipientAddress.companyName == '' ? '' : _recipientAddress.name;
     final builder = XmlBuilder();
 
     builder.element('soapenv:Envelope', nest: () {
@@ -92,8 +92,8 @@ class AustrianPostApi {
               builder.element('post:City', nest: _recipientAddress.city);
               builder.element('post:CountryID', nest: _recipientAddress.country.isoCode);
               builder.element('post:Email', nest: _recipientEMail);
-              builder.element('post:Name1', nest: _recipientAddress.companyName);
-              builder.element('post:Name2', nest: _recipientAddress.name);
+              builder.element('post:Name1', nest: name1);
+              builder.element('post:Name2', nest: name2);
               builder.element('post:PostalCode', nest: _recipientAddress.postcode);
               builder.element('post:Tel1', nest: _recipientAddress.phone);
               builder.element('post:Tel2', nest: _recipientAddress.phoneMobile);

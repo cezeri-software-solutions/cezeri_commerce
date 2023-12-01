@@ -56,7 +56,7 @@ class PackingStationRepositoryImpl implements PackingStationRepository {
     final productIds = phToCreatePicklist.listOfPicklistProducts.map((e) => e.productId).toList();
     final uniqueProductIds = productIds.toSet().where((id) => id.isNotEmpty).toList();
 
-    // Funktion zum Aufteilen der Liste
+    //* Funktion zum Aufteilen der Liste
     List<List<T>> splitList<T>(List<T> list, int chunkSize) {
       List<List<T>> chunks = [];
       for (int i = 0; i < list.length; i += chunkSize) {
@@ -66,7 +66,7 @@ class PackingStationRepositoryImpl implements PackingStationRepository {
       return chunks;
     }
 
-    // Teilen der Liste in Teillisten mit maximal 30 Einträgen
+    //* Teilen der Liste in Teillisten mit maximal 30 Einträgen
     List<List<String>> splitProductIds = splitList(uniqueProductIds, 30);
 
     try {
@@ -97,7 +97,7 @@ class PackingStationRepositoryImpl implements PackingStationRepository {
       await db.runTransaction((transaction) async {
         for (final appointment in listOfAppointments) {
           final updatedAppointment = appointment.copyWith(isPicked: true);
-          final docRefAppointment = db.collection('Appointments').doc(currentUserUid).collection('Appointments').doc(appointment.id);
+          final docRefAppointment = db.collection('Receipts').doc(currentUserUid).collection('Appointments').doc(appointment.id);
           transaction.update(docRefAppointment, updatedAppointment.toJson());
         }
         transaction.set(docRef, toCreatePicklist.toJson());
