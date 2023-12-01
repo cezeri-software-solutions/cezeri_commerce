@@ -161,6 +161,7 @@ class _EMailAutomationDialogState extends State<_EMailAutomationDialog> {
   final _toEmailController = TextEditingController();
   TextEditingController _fromEmailController = TextEditingController();
   TextEditingController _subjectController = TextEditingController();
+  TextEditingController _bccController = TextEditingController();
 
   final FocusNode _subjectFocusNode = FocusNode();
 
@@ -173,10 +174,12 @@ class _EMailAutomationDialogState extends State<_EMailAutomationDialog> {
     if (widget.eMailAutomation != null) {
       _fromEmailController = TextEditingController(text: widget.eMailAutomation!.fromEmail);
       _subjectController = TextEditingController(text: widget.eMailAutomation!.subject);
+      _bccController = TextEditingController(text: widget.eMailAutomation!.bcc);
       isActive = widget.eMailAutomation!.isActive;
     } else {
       _fromEmailController = TextEditingController();
       _subjectController = TextEditingController();
+      _bccController = TextEditingController();
       isActive = false;
     }
   }
@@ -213,10 +216,12 @@ class _EMailAutomationDialogState extends State<_EMailAutomationDialog> {
                   ),
                 ],
               ),
-              if (widget.eMailAutomation != null) ...[
-                Gaps.h8,
-                Row(
-                  children: [
+              Gaps.h8,
+              Row(
+                children: [
+                  Expanded(child: MyTextFormFieldSmall(labelText: 'Bcc:', controller: _bccController)),
+                  if (widget.eMailAutomation != null) ...[
+                    Gaps.w16,
                     Expanded(child: MyTextFormFieldSmall(labelText: 'Empfänger E-Mail zum Testen:', controller: _toEmailController)),
                     TextButton(
                       onPressed: () async {
@@ -225,15 +230,16 @@ class _EMailAutomationDialogState extends State<_EMailAutomationDialog> {
                           to: _toEmailController.text,
                           from: _fromEmailController.text,
                           subject: _subjectController.text,
+                          bcc: _bccController.text,
                           html: html,
                           text: 'Hallo das ist eine Test E-Mail',
                         );
                       },
                       child: const Text('Testmail verschicken'),
-                    )
+                    ),
                   ],
-                ),
-              ],
+                ],
+              ),
               Gaps.h16,
               Expanded(
                 child: MyHtmlEditor(
@@ -301,6 +307,7 @@ class _EMailAutomationDialogState extends State<_EMailAutomationDialog> {
                                   eMailAutomationType: widget.eMailAutomationType,
                                   fromEmail: _fromEmailController.text,
                                   subject: _subjectController.text,
+                                  bcc: _bccController.text,
                                   htmlContent: htmlContent,
                                 ),
                               ),
@@ -314,6 +321,7 @@ class _EMailAutomationDialogState extends State<_EMailAutomationDialog> {
                                   eMailAutomationType: widget.eMailAutomationType,
                                   fromEmail: _fromEmailController.text,
                                   subject: _subjectController.text,
+                                  bcc: _bccController.text,
                                   htmlContent: htmlContent,
                                 ),
                               ),

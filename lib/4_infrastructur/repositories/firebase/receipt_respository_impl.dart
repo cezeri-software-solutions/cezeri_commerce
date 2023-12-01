@@ -1287,6 +1287,7 @@ Future<bool> sendCustomerEmails(List<Receipt> listOfReceipts, Marketplace market
               from: eMailAutomation.fromEmail,
               subject: subject,
               html: htmlContent,
+              bcc: eMailAutomation.bcc,
               attachmentBase64: attachment,
               filename: '${receipt.offerNumberAsString}.pdf',
             );
@@ -1310,6 +1311,7 @@ Future<bool> sendCustomerEmails(List<Receipt> listOfReceipts, Marketplace market
               from: eMailAutomation.fromEmail,
               subject: subject,
               html: htmlContent,
+              bcc: eMailAutomation.bcc,
               attachmentBase64: attachment,
               filename: '${receipt.appointmentNumberAsString}.pdf',
             );
@@ -1332,6 +1334,7 @@ Future<bool> sendCustomerEmails(List<Receipt> listOfReceipts, Marketplace market
                 from: eMailAutomation.fromEmail,
                 subject: subject,
                 html: htmlContent,
+                bcc: eMailAutomation.bcc,
               );
               isSuccess = isSuccessfull;
             }
@@ -1354,6 +1357,7 @@ Future<bool> sendCustomerEmails(List<Receipt> listOfReceipts, Marketplace market
               from: eMailAutomation.fromEmail,
               subject: subject,
               html: htmlContent,
+              bcc: eMailAutomation.bcc,
               attachmentBase64: attachment,
               filename: '${receipt.invoiceNumberAsString}.pdf',
             );
@@ -1377,6 +1381,7 @@ Future<bool> sendCustomerEmails(List<Receipt> listOfReceipts, Marketplace market
               from: eMailAutomation.fromEmail,
               subject: subject,
               html: htmlContent,
+              bcc: eMailAutomation.bcc,
               attachmentBase64: attachment,
               filename: '${receipt.invoiceNumberAsString}.pdf',
             );
