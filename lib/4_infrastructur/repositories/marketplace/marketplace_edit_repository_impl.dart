@@ -116,7 +116,7 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
       bool isSuccessOnCreate = false;
       if (productImages.isNotEmpty) {
         for (final image in productImages) {
-          isSuccessOnCreate = await api.uploadProductImageFromUrl(marketplaceProduct.id.toString(), image.fileUrl);
+          isSuccessOnCreate = await api.uploadProductImageFromUrl(marketplaceProduct.id.toString(), image);
         }
       } else {
         isSuccessOnCreate = true;

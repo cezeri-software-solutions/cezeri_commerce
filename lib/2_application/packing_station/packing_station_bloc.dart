@@ -314,6 +314,7 @@ class PackingStationBloc extends Bloc<PackingStationEvent, PackingStationState> 
 
       PackagingBox? findSmallestPackagingBox(List<Product>? products, List<PackagingBox> boxes, {Function(double)? remainingVolumePercentCallback}) {
         if (products == null) return null;
+        print('1: ${products.length}');
 
         double totalVolumeOfProducts = products.fold(0, (sum, item) => sum + item.volume);
         boxes.sort((a, b) => a.dimensionsInside.volume.compareTo(b.dimensionsInside.volume));
@@ -330,12 +331,24 @@ class PackingStationBloc extends Bloc<PackingStationEvent, PackingStationState> 
         return null;
       }
 
+      List<Product> getListOfFirestoreProductsPartial(List<Product> products, List<ReceiptProduct> receiptProducts) {
+        List<Product> toReturnProducts = [];
+        for (final receiptProduct in receiptProducts) {
+          final product = products.where((e) => e.id == receiptProduct.productId).firstOrNull;
+          if (product == null) continue;
+          for (int i = 0; i < (receiptProduct.quantity - receiptProduct.shippedQuantity); i++) {
+            toReturnProducts.add(product);
+          }
+        }
+        return toReturnProducts;
+      }
+
       List<Product> getListOfFirestoreProducts(List<Product> products, List<ReceiptProduct> receiptProducts) {
         List<Product> toReturnProducts = [];
         for (final receiptProduct in receiptProducts) {
           final product = products.where((e) => e.id == receiptProduct.productId).firstOrNull;
           if (product == null) continue;
-          for (int i = 0; i < receiptProduct.shippedQuantity; i++) {
+          for (int i = 0; i < receiptProduct.quantity; i++) {
             toReturnProducts.add(product);
           }
         }
@@ -347,11 +360,13 @@ class PackingStationBloc extends Bloc<PackingStationEvent, PackingStationState> 
         _ => switch (state.appointment) {
             null => null,
             _ => switch (state.appointment!.listOfReceiptProduct.every((e) => e.shippedQuantity == 0)) {
-                true => state.listOfProducts,
-                _ => getListOfFirestoreProducts(state.listOfProducts!, state.appointment!.listOfReceiptProduct),
+                true => getListOfFirestoreProducts(state.listOfProducts!, state.appointment!.listOfReceiptProduct),
+                _ => getListOfFirestoreProductsPartial(state.listOfProducts!, state.appointment!.listOfReceiptProduct),
               }
           }
       };
+
+      if (toCalculateProducts != null) print(toCalculateProducts.length);
 
       double remainingVolumePercent = 0;
       final smallesPackagingBox =

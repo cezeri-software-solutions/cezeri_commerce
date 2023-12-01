@@ -13,6 +13,7 @@ import 'package:quiver/core.dart';
 import 'package:xml/xml.dart';
 
 import '../../../3_domain/entities/product/product.dart';
+import '../../../3_domain/entities/product/product_image.dart';
 import '../../../3_domain/entities/product/product_marketplace.dart';
 import '../../../3_domain/entities_presta/address_presta.dart';
 import '../../../3_domain/entities_presta/carrier_presta.dart';
@@ -236,30 +237,41 @@ class PrestashopApi with UiLoggy {
     return payload;
   }
 
-  Future<bool> uploadProductImageFromUrl(String productID, String imageUrl) async {
+  Future<bool> uploadProductImageFromUrl(String productID, ProductImage productImage) async {
     final logger = Logger();
     String url = '${_conf.webserviceUrl}images/products/$productID/';
     String base64Auth = base64Encode(utf8.encode('${_conf.apiKey}:'));
 
-    // Herunterladen des Bildes von der URL
-    Response imageResponse = await get(Uri.parse(imageUrl));
+    Response imageResponse = await get(Uri.parse(productImage.fileUrl));
+
     Uint8List imageData = imageResponse.bodyBytes;
+
+    String getFileExtensionFromFilename(String filename) {
+      int lastDot = filename.lastIndexOf('.');
+      if (lastDot != -1 && lastDot != filename.length - 1) {
+        return filename.substring(lastDot + 1);
+      }
+      return 'unknown';
+    }
+
+    final fileExtension = getFileExtensionFromFilename(productImage.fileName);
+    logger.i(fileExtension);
 
     // Erstellen des MultipartRequest
     var request = MultipartRequest('POST', Uri.parse(url))
       ..headers.addAll({'Authorization': 'Basic $base64Auth'})
       ..files.add(MultipartFile.fromBytes('image', imageData,
-          filename: 'product_image.jpg', // Ein Dateiname für das Bild
-          contentType: MediaType('image', 'jpeg') // Passen Sie den Typ basierend auf Ihrem Bildtyp an
+          filename: productImage.fileName, // Ein Dateiname für das Bild
+          contentType: MediaType('image', fileExtension) // Passen Sie den Typ basierend auf Ihrem Bildtyp an
           ));
 
     var response = await request.send();
 
     if (response.statusCode == 200) {
-      logger.i('Image uploaded successfully');
+      logger.i('Image (${productImage.fileName}) uploaded successfully');
       return true;
     } else {
-      logger.e('Failed to upload image');
+      logger.e('Failed to upload image: (${productImage.fileName})');
       return false;
     }
   }
