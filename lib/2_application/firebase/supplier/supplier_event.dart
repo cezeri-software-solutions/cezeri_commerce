@@ -1,0 +1,72 @@
+part of 'supplier_bloc.dart';
+
+@immutable
+abstract class SupplierEvent {}
+
+class SetSupplierStateToInitialEvent extends SupplierEvent {}
+
+class GetAllSuppliersEvenet extends SupplierEvent {}
+
+class GetSupplierEvent extends SupplierEvent {
+  final Supplier supplier;
+
+  GetSupplierEvent({required this.supplier});
+}
+
+class CreateSupplierEvent extends SupplierEvent {
+  final Supplier supplier;
+
+  CreateSupplierEvent({required this.supplier});
+}
+
+class UpdateSupplierEvent extends SupplierEvent {
+  final Supplier supplier;
+
+  UpdateSupplierEvent({required this.supplier});
+}
+
+class DeleteSelectedSuppliersEvent extends SupplierEvent {
+  final List<Supplier> selectedSuppliers;
+
+  DeleteSelectedSuppliersEvent({required this.selectedSuppliers});
+}
+
+class SetSearchFieldTextEvent extends SupplierEvent {
+  final String searchText;
+
+  SetSearchFieldTextEvent({required this.searchText});
+}
+
+class OnSearchFieldSubmittedEvent extends SupplierEvent {}
+
+class OnSupplierSelectedEvent extends SupplierEvent {
+  final Supplier supplier;
+
+  OnSupplierSelectedEvent({required this.supplier});
+}
+
+class SetSupplierTaxEvent extends SupplierEvent {
+  final Tax tax;
+
+  SetSupplierTaxEvent({required this.tax});
+}
+
+//* --- helper --- *//
+
+class OnSelectAllSuppliersEvent extends SupplierEvent {
+  final bool isSelected;
+
+  OnSelectAllSuppliersEvent({required this.isSelected});
+}
+
+class OnSupplierselectedEvent extends SupplierEvent {
+  final Supplier appointment;
+
+  OnSupplierselectedEvent({required this.appointment});
+}
+
+//* --- Controller --- *//
+
+class SetSupplierControllerEvnet extends SupplierEvent {}
+
+class OnSupplierControllerChangedEvent extends SupplierEvent {}

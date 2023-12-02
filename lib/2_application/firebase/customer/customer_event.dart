@@ -45,6 +45,12 @@ class OnCustomerSelectedEvent extends CustomerEvent {
   OnCustomerSelectedEvent({required this.customer});
 }
 
+class SetCustomerTaxEvent extends CustomerEvent {
+  final Tax tax;
+
+  SetCustomerTaxEvent({required this.tax});
+}
+
 //* --- helper --- *//
 
 class OnSelectAllCustomersEvent extends CustomerEvent {

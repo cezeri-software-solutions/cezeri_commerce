@@ -15,6 +15,7 @@ import '2_application/firebase/main_settings/main_settings_bloc.dart';
 import '2_application/firebase/marketplace/marketplace_bloc.dart';
 import '2_application/firebase/product/product_bloc.dart';
 import '2_application/firebase/receipt_detail/receipt_detail_bloc.dart';
+import '2_application/firebase/supplier/supplier_bloc.dart';
 import '2_application/packing_station/packing_station_bloc.dart';
 import '2_application/prestashop/product_import/product_import_bloc.dart';
 import '3_domain/repositories/firebase/auth_repository.dart';
@@ -25,6 +26,7 @@ import '3_domain/repositories/firebase/main_settings_respository.dart';
 import '3_domain/repositories/firebase/marketplace_repository.dart';
 import '3_domain/repositories/firebase/packing_station_repository.dart';
 import '3_domain/repositories/firebase/product_repository.dart';
+import '3_domain/repositories/firebase/supplier_repository.dart';
 import '3_domain/repositories/marketplace/marketplace_edit_repository.dart';
 import '3_domain/repositories/marketplace/marketplace_import_repository.dart';
 import '4_infrastructur/repositories/firebase/auth_repository_impl.dart';
@@ -35,6 +37,7 @@ import '4_infrastructur/repositories/firebase/main_settings_respository_impl.dar
 import '4_infrastructur/repositories/firebase/marketplace_repository_impl.dart';
 import '4_infrastructur/repositories/firebase/packing_station_repository_impl.dart';
 import '4_infrastructur/repositories/firebase/product_repository_impl.dart';
+import '4_infrastructur/repositories/firebase/supplier_repository_impl.dart';
 import '4_infrastructur/repositories/marketplace/marketplace_edit_repository_impl.dart';
 import '4_infrastructur/repositories/marketplace/marketplace_import_repository_impl.dart';
 
@@ -53,6 +56,7 @@ Future<void> init() async {
   sl.registerFactory(() => AppointmentBloc(receiptRepository: sl()));
   sl.registerFactory(() => PackingStationBloc(receiptRepository: sl(), customerRepository: sl(), packingStationRepository: sl()));
   sl.registerFactory(() => CustomerBloc(customerRepository: sl()));
+  sl.registerFactory(() => SupplierBloc(supplierRepository: sl()));
   sl.registerFactory(() => DashboardBloc(dashboardRepository: sl(), receiptRepository: sl()));
   sl.registerFactory(() => ReceiptDetailBloc());
 
@@ -74,6 +78,7 @@ Future<void> init() async {
     ),
   );
   sl.registerLazySingleton<CustomerRepository>(() => CustomerRepositoryImpl(db: sl(), firebaseAuth: sl()));
+  sl.registerLazySingleton<SupplierRepository>(() => SupplierRepositoryImpl(db: sl(), firebaseAuth: sl()));
   sl.registerLazySingleton<PackingStationRepository>(() => PackingStationRepositoryImpl(db: sl(), firebaseAuth: sl()));
   sl.registerLazySingleton<DashboardRepository>(() => DashboardRepositoryImpl(db: sl(), firebaseAuth: sl()));
 

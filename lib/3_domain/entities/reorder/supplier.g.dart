@@ -9,7 +9,7 @@ part of 'supplier.dart';
 Supplier _$SupplierFromJson(Map<String, dynamic> json) => Supplier(
       id: json['id'] as String,
       supplierNumber: json['supplierNumber'] as int,
-      company: json['company'] as String?,
+      company: json['company'] as String,
       firstName: json['firstName'] as String,
       lastName: json['lastName'] as String,
       name: json['name'] as String,

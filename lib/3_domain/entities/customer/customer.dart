@@ -95,6 +95,16 @@ class Customer {
     CountryPresta countryDeliveryPresta,
     Tax tax,
   ) {
+    String? getCompany() {
+      if (customerPresta.company != null && customerPresta.company is String && customerPresta.company != '') {
+        return customerPresta.company!;
+      }
+      if (addressInvoicePresta.company != '') {
+        return addressInvoicePresta.company;
+      }
+      return null;
+    }
+
     String getUidNumber(String uidFromAddressInvoice, String uidFromAddressDelivery) {
       if (uidFromAddressInvoice != '') return uidFromAddressInvoice;
       if (uidFromAddressDelivery != '') return uidFromAddressDelivery;
@@ -117,7 +127,7 @@ class Customer {
       id: '',
       customerNumber: customerNumber,
       customerMarketplace: CustomerMarketplace.fromPresta(customerPresta, marketplace),
-      company: customerPresta.company != null ? addressInvoicePresta.company : null,
+      company: getCompany(),
       firstName: customerPresta.firstname,
       lastName: customerPresta.lastname,
       name: '${customerPresta.firstname} ${customerPresta.lastname}',

@@ -4,6 +4,7 @@ import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 
 import '../../../3_domain/entities/customer/customer.dart';
+import '../../../3_domain/entities/settings/tax.dart';
 import '../../../3_domain/repositories/firebase/customer_repository.dart';
 
 part 'customer_event.dart';
@@ -46,7 +47,7 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
     on<GetCustomerEvent>((event, emit) async {
       emit(state.copyWith(isLoadingCustomerOnObserve: true));
 
-      final failureOrSuccess = await customerRepository.getCustomer(event.customer);
+      final failureOrSuccess = await customerRepository.getCustomer(event.customer.id);
       failureOrSuccess.fold(
         (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
         (customer) => emit(state.copyWith(customer: customer, firebaseFailure: null, isAnyFailure: false)),
@@ -127,6 +128,12 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
             state.isAllCustomersSelected && customers.length < state.selectedCustomers.length ? false : state.isAllCustomersSelected,
         selectedCustomers: customers,
       ));
+    });
+
+//? #########################################################################
+
+    on<SetCustomerTaxEvent>((event, emit) async {
+      emit(state.copyWith(customer: state.customer!.copyWith(tax: event.tax)));
     });
 
 //? #########################################################################

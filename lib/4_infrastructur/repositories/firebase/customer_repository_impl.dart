@@ -34,23 +34,7 @@ class CustomerRepositoryImpl implements CustomerRepository {
   }
 
   @override
-  Future<Either<FirebaseFailure, Customer>> getCustomer(Customer customer) async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(NoConnectionFailure());
-
-    final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRef = db.collection('Customers').doc(currentUserUid).collection('Customers').doc(customer.id);
-
-    try {
-      final customer = await docRef.get();
-      return right(Customer.fromJson(customer.data()!));
-    } on FirebaseException {
-      return left(GeneralFailure());
-    }
-  }
-
-  @override
-  Future<Either<FirebaseFailure, Customer>> getCustomerById(String id) async {
+  Future<Either<FirebaseFailure, Customer>> getCustomer(String id) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
 

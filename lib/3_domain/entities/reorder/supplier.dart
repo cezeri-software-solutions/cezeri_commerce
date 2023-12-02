@@ -9,7 +9,7 @@ part 'supplier.g.dart';
 class Supplier {
   final String id;
   final int supplierNumber;
-  final String? company;
+  final String company;
   final String firstName;
   final String lastName;
   final String name;
@@ -56,7 +56,7 @@ class Supplier {
     return Supplier(
       id: '',
       supplierNumber: 0,
-      company: null,
+      company: '',
       firstName: '',
       lastName: '',
       name: '',

@@ -60,7 +60,7 @@ class PackingStationBloc extends Bloc<PackingStationEvent, PackingStationState> 
 
       Customer? customer;
       if (state.originalAppointment != null) {
-        final fosCustomer = await customerRepository.getCustomerById(state.originalAppointment!.customerId);
+        final fosCustomer = await customerRepository.getCustomer(state.originalAppointment!.customerId);
         if (fosCustomer.isRight()) {
           customer = fosCustomer.foldRight(customer, (r, previous) => customer = r);
         }

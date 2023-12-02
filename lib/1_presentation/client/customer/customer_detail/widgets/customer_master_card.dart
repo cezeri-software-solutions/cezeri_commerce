@@ -5,7 +5,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../../2_application/firebase/customer/customer_bloc.dart';
 import '../../../../../3_domain/entities/customer/customer.dart';
 import '../../../../../constants.dart';
+import '../../../../core/widgets/my_country_flag.dart';
 import '../../../../core/widgets/my_form_field_small.dart';
+import 'customer_select_tax_dialog.dart';
 
 class CustomerMasterCard extends StatelessWidget {
   final CustomerBloc customerBloc;
@@ -23,6 +25,7 @@ class CustomerMasterCard extends StatelessWidget {
         };
 
         final invoiceTypeItems = ['Stand- Einzelrechnung', 'Sammelrechnung'];
+        print('TAX: ${state.customer!.tax}');
 
         return Card(
           child: Padding(
@@ -50,7 +53,7 @@ class CustomerMasterCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                Gaps.h4,
+                Gaps.h8,
                 Row(
                   children: [
                     Expanded(
@@ -68,12 +71,12 @@ class CustomerMasterCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                Gaps.h4,
+                Gaps.h8,
                 MyTextFormFieldSmall(
                   labelText: 'E-Mail',
                   controller: state.emailController,
                 ),
-                Gaps.h4,
+                Gaps.h8,
                 Row(
                   children: [
                     Expanded(
@@ -91,7 +94,7 @@ class CustomerMasterCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                Gaps.h4,
+                Gaps.h8,
                 Row(
                   children: [
                     Expanded(
@@ -109,7 +112,7 @@ class CustomerMasterCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                Gaps.h4,
+                Gaps.h16,
                 MyDropdownButtonSmall(
                   value: invoiceTypeValue,
                   onChanged: (type) => customerBloc.add(OnCustomerInvoiceTypeChangedEvent(
@@ -121,7 +124,37 @@ class CustomerMasterCard extends StatelessWidget {
                   )),
                   items: invoiceTypeItems,
                 ),
-                Gaps.h4,
+                Gaps.h16,
+                GestureDetector(
+                  onTap: () => showDialog(
+                    context: context,
+                    builder: (_) => BlocProvider.value(
+                      value: customerBloc,
+                      child: CustomerSelectTaxDialog(customerBloc: customerBloc),
+                    ),
+                  ),
+                  child: Container(
+                    height: 28,
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(6),
+                      border: Border.all(color: CustomColors.borderColorLight),
+                    ),
+                    child: Row(
+                      children: [
+                        MyCountryFlag(country: state.customer!.tax.country),
+                        Gaps.w8,
+                        Text(
+                          state.customer!.tax.taxName,
+                          style: const TextStyle(fontSize: 13),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                Gaps.h16,
               ],
             ),
           ),
