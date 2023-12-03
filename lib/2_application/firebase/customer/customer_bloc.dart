@@ -177,6 +177,7 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
       final index = state.customer!.listOfAddress.indexWhere((e) => e.id == event.address.id);
 
       if (index == -1) {
+        //* if new Address (Add Address)
         List<Address> newListOfAddress = state.customer!.listOfAddress..add(event.address);
         if (event.address.isDefault && state.customer!.listOfAddress.any((e) => e.isDefault)) {
           final idOfOldDefault = state.customer!.listOfAddress.where((e) => e.isDefault).first.id;
@@ -185,7 +186,19 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
           newListOfAddress[indexOfOldDefault] = newListOfAddress[indexOfOldDefault].copyWith(isDefault: false);
         }
         emit(state.copyWith(customer: state.customer!.copyWith(listOfAddress: newListOfAddress)));
-      } //TODO:
+      } else {
+        //* if edit Address
+        List<Address> newListOfAddress = List.from(state.customer!.listOfAddress);
+        newListOfAddress[index] = event.address;
+        final listOfAddressIsDefault = newListOfAddress.where((e) => e.isDefault).toList();
+        if (event.address.isDefault && listOfAddressIsDefault.length > 1) {
+          for (int i = 0; i < newListOfAddress.length; i++) {
+            if (newListOfAddress[i].id == event.address.id) continue;
+            newListOfAddress[i] = newListOfAddress[i].copyWith(isDefault: false);
+          }
+        }
+        emit(state.copyWith(customer: state.customer!.copyWith(listOfAddress: newListOfAddress)));
+      }
     });
 
 //? #########################################################################

@@ -96,9 +96,7 @@ class _CustomerDetailCustomerAddressContainer extends StatelessWidget {
                 context: context,
                 builder: (context) => MyAddressUpdateSheet(
                   address: address,
-                  onSave: (newAddress) {
-                    // customerBloc.add(OnEditAddressCustomerDetailEvent(address: newAddress));
-                  },
+                  onSave: (newAddress) => customerBloc.add(OnAddEditCustomerAddressEvent(address: newAddress)),
                 ),
               ),
               icon: address != null ? const Icon(Icons.edit, color: CustomColors.primaryColor) : const Icon(Icons.add, color: Colors.green),

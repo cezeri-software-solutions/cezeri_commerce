@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:logger/logger.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '../../../2_application/firebase/main_settings/main_settings_bloc.dart';
@@ -22,25 +23,38 @@ import '../../core/widgets/my_info_dialog.dart';
 import '../../core/widgets/my_text.dart';
 import '../../core/widgets/my_text_form_field_small_double.dart';
 
-final FocusNode _scannerFocusNode = FocusNode();
 final ItemScrollController _itemScrollController = ItemScrollController();
 final ItemPositionsListener _itemPositionsListener = ItemPositionsListener.create();
 
-class PackingStationDetailPage extends StatelessWidget {
+class PackingStationDetailPage extends StatefulWidget {
   final PackingStationBloc packingStationBloc;
   final Marketplace marketplace;
 
   const PackingStationDetailPage({super.key, required this.packingStationBloc, required this.marketplace});
 
   @override
+  State<PackingStationDetailPage> createState() => _PackingStationDetailPageState();
+}
+
+class _PackingStationDetailPageState extends State<PackingStationDetailPage> {
+  final FocusNode _scannerFocusNode = FocusNode();
+
+  @override
+  void dispose() {
+    _scannerFocusNode.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final logger = Logger();
     return BlocListener<PackingStationBloc, PackingStationState>(
-      bloc: packingStationBloc,
+      bloc: widget.packingStationBloc,
       listener: (context, state) {
         if (!_scannerFocusNode.hasFocus) _scannerFocusNode.requestFocus();
       },
       child: BlocBuilder<PackingStationBloc, PackingStationState>(
-        bloc: packingStationBloc,
+        bloc: widget.packingStationBloc,
         builder: (context, state) {
           if (state.isLoadingAppointmentOnObserve || state.isLoadingProductsOnObserve) {
             return const Center(child: MyCircularProgressIndicator());
@@ -56,7 +70,10 @@ class PackingStationDetailPage extends StatelessWidget {
           final appointment = state.appointment!;
           final carrier = Carrier.carrierList.where((e) => e.carrierTyp == appointment.receiptCarrier.carrierTyp).first;
 
-          if (!_scannerFocusNode.hasFocus) _scannerFocusNode.requestFocus();
+          if (!_scannerFocusNode.hasFocus) {
+            logger.i('Fokus neu gesetzt weil verloren');
+            _scannerFocusNode.requestFocus();
+          }
 
           final listOfPackagingBoxes = context.read<MainSettingsBloc>().state.mainSettings!.listOfPackagingBoxes;
           final listOfPackagingBoxItems = listOfPackagingBoxes.map((e) => e.name).toList();
@@ -71,7 +88,7 @@ class PackingStationDetailPage extends StatelessWidget {
                     _PackingStationDetailInfoContainer(
                       appointment: appointment,
                       carrier: carrier,
-                      marketplace: marketplace,
+                      marketplace: widget.marketplace,
                       customer: state.customer,
                     ),
                     Gaps.h8,
@@ -88,13 +105,13 @@ class PackingStationDetailPage extends StatelessWidget {
                             value,
                             state.listOfProducts!,
                             appointment.listOfReceiptProduct,
-                            packingStationBloc,
+                            widget.packingStationBloc,
                           ),
                         ),
                         Gaps.w16,
                         Checkbox.adaptive(
                           value: state.isPartiallyEnabled,
-                          onChanged: (_) => packingStationBloc.add(PackingStationIsPartiallyEnabledEvent()),
+                          onChanged: (_) => widget.packingStationBloc.add(PackingStationIsPartiallyEnabledEvent()),
                         ),
                         Gaps.w8,
                         const Text('Teillieferung möglich?')
@@ -117,7 +134,7 @@ class PackingStationDetailPage extends StatelessWidget {
                           receiptProduct: product,
                           listOfProducts: state.listOfProducts!,
                           index: index,
-                          packingStationBloc: packingStationBloc,
+                          packingStationBloc: widget.packingStationBloc,
                         ),
                         const Divider(height: 2),
                       ],
@@ -156,7 +173,7 @@ class PackingStationDetailPage extends StatelessWidget {
                     labelText: 'Verpackungskarton:',
                     maxWidth: 200,
                     value: state.packagingBox.name,
-                    onChanged: (value) => packingStationBloc.add(PackingStationOnPackagingBoxChangedEvent(packagingBoxName: value!)),
+                    onChanged: (value) => widget.packingStationBloc.add(PackingStationOnPackagingBoxChangedEvent(packagingBoxName: value!)),
                     items: state.listOfPackagingBoxes.map((e) => e.name).toList(),
                   ),
                   Gaps.w16,
@@ -164,11 +181,11 @@ class PackingStationDetailPage extends StatelessWidget {
                     labelText: 'Gewicht:',
                     maxWidth: 100,
                     controller: state.weightController,
-                    onChanged: (value) => packingStationBloc.add(PackingStationOnWeightControllerChangedEvent()),
+                    onChanged: (value) => widget.packingStationBloc.add(PackingStationOnWeightControllerChangedEvent()),
                   ),
                   Gaps.w16,
                   InkWell(
-                    onTap: () => packingStationBloc.add(PackingStationOnPickAllEvent()),
+                    onTap: () => widget.packingStationBloc.add(PackingStationOnPickAllEvent()),
                     child: Container(
                       height: 60,
                       width: 160,
@@ -183,7 +200,7 @@ class PackingStationDetailPage extends StatelessWidget {
                       context: context,
                       listOfReceiptProducts: state.appointment!.listOfReceiptProduct,
                       isPartiallyEnabled: state.isPartiallyEnabled,
-                      packingStationBloc: packingStationBloc,
+                      packingStationBloc: widget.packingStationBloc,
                       customer: state.customer,
                     ),
                     child: Container(
@@ -252,6 +269,11 @@ class PackingStationDetailPage extends StatelessWidget {
       packingStationBloc.add(PackingStationOnPickingQuantityChanged(index: index, isSubtract: false, pickCompletely: false));
       packingStationBloc.add(PackingStationClearControllerEvent());
     }
+    Future.delayed(const Duration(milliseconds: 100), () {
+      if (!_scannerFocusNode.hasFocus) {
+        _scannerFocusNode.requestFocus();
+      }
+    });
   }
 
   void _onSendPressed({
