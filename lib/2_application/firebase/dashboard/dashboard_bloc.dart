@@ -76,6 +76,7 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
           isAnyFailureReceipts: true,
         )),
         (listOfAppointments) {
+          print(listOfAppointments.length);
           DateTime now = DateTime.now();
           emit(state.copyWith(
             listOfAppointments: listOfAppointments,

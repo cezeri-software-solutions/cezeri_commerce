@@ -127,4 +127,10 @@ class OnAppointmentCarrierProductChangedEvent extends AppointmentEvent {
   OnAppointmentCarrierProductChangedEvent({required this.receiptCarrierProduct});
 }
 
+class OnEditAddressReceiptDetailEvent extends AppointmentEvent {
+  final Address address;
+
+  OnEditAddressReceiptDetailEvent({required this.address});
+}
+
 class SendEmailToCustomerReceiptEvent extends AppointmentEvent {}

@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../../2_application/firebase/customer/customer_bloc.dart';
 import '../../../../../3_domain/entities/customer/customer.dart';
 import '../../../../../constants.dart';
+import '../../../../core/widgets/my_button_small.dart';
 import '../../../../core/widgets/my_country_flag.dart';
 import '../../../../core/widgets/my_form_field_small.dart';
 import 'customer_select_tax_dialog.dart';
@@ -25,7 +26,6 @@ class CustomerMasterCard extends StatelessWidget {
         };
 
         final invoiceTypeItems = ['Stand- Einzelrechnung', 'Sammelrechnung'];
-        print('TAX: ${state.customer!.tax}');
 
         return Card(
           child: Padding(
@@ -49,6 +49,7 @@ class CustomerMasterCard extends StatelessWidget {
                       child: MyTextFormFieldSmall(
                         labelText: 'Firmenname',
                         controller: state.companyNameController,
+                        onChanged: (_) => customerBloc.add(OnCustomerControllerChangedEvent()),
                       ),
                     ),
                   ],
@@ -60,6 +61,7 @@ class CustomerMasterCard extends StatelessWidget {
                       child: MyTextFormFieldSmall(
                         labelText: 'Vorname',
                         controller: state.firstNameController,
+                        onChanged: (_) => customerBloc.add(OnCustomerControllerChangedEvent()),
                       ),
                     ),
                     Gaps.w8,
@@ -67,6 +69,7 @@ class CustomerMasterCard extends StatelessWidget {
                       child: MyTextFormFieldSmall(
                         labelText: 'Nachname',
                         controller: state.lastNameController,
+                        onChanged: (_) => customerBloc.add(OnCustomerControllerChangedEvent()),
                       ),
                     ),
                   ],
@@ -75,6 +78,7 @@ class CustomerMasterCard extends StatelessWidget {
                 MyTextFormFieldSmall(
                   labelText: 'E-Mail',
                   controller: state.emailController,
+                  onChanged: (_) => customerBloc.add(OnCustomerControllerChangedEvent()),
                 ),
                 Gaps.h8,
                 Row(
@@ -83,6 +87,7 @@ class CustomerMasterCard extends StatelessWidget {
                       child: MyTextFormFieldSmall(
                         labelText: 'Telefonnummer',
                         controller: state.phoneController,
+                        onChanged: (_) => customerBloc.add(OnCustomerControllerChangedEvent()),
                       ),
                     ),
                     Gaps.w8,
@@ -90,6 +95,7 @@ class CustomerMasterCard extends StatelessWidget {
                       child: MyTextFormFieldSmall(
                         labelText: 'Telefonnummer Mobil',
                         controller: state.phoneMobileController,
+                        onChanged: (_) => customerBloc.add(OnCustomerControllerChangedEvent()),
                       ),
                     ),
                   ],
@@ -101,6 +107,7 @@ class CustomerMasterCard extends StatelessWidget {
                       child: MyTextFormFieldSmall(
                         labelText: 'UID-Nummer',
                         controller: state.uidNumberController,
+                        onChanged: (_) => customerBloc.add(OnCustomerControllerChangedEvent()),
                       ),
                     ),
                     Gaps.w8,
@@ -108,6 +115,7 @@ class CustomerMasterCard extends StatelessWidget {
                       child: MyTextFormFieldSmall(
                         labelText: 'Steuernummer',
                         controller: state.taxNumberController,
+                        onChanged: (_) => customerBloc.add(OnCustomerControllerChangedEvent()),
                       ),
                     ),
                   ],
@@ -130,18 +138,13 @@ class CustomerMasterCard extends StatelessWidget {
                     context: context,
                     builder: (_) => BlocProvider.value(
                       value: customerBloc,
-                      child: CustomerSelectTaxDialog(customerBloc: customerBloc),
+                      child: CustomerSelectTaxDialog(
+                        customerBloc: customerBloc,
+                        onChanged: (taxRule) => customerBloc.add(SetCustomerTaxEvent(tax: taxRule)),
+                      ),
                     ),
                   ),
-                  child: Container(
-                    height: 28,
-                    width: double.infinity,
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(6),
-                      border: Border.all(color: CustomColors.borderColorLight),
-                    ),
+                  child: MyButtonSmall(
                     child: Row(
                       children: [
                         MyCountryFlag(country: state.customer!.tax.country),

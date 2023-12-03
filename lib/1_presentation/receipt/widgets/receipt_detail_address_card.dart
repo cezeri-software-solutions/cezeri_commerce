@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
 
+import '../../../2_application/firebase/appointment/appointment_bloc.dart';
 import '../../../3_domain/entities/address.dart';
 import '../../../3_domain/entities/receipt/receipt.dart';
 import '../../../constants.dart';
+import '../../core/widgets/my_address_update_sheet.dart';
 
 enum ReceiptDetailAddressTyp { shipping, invoice }
 
 class ReceiptDetailAddressCard extends StatefulWidget {
+  final AppointmentBloc appointmentBloc;
   final Receipt receipt;
 
-  const ReceiptDetailAddressCard({super.key, required this.receipt});
+  const ReceiptDetailAddressCard({super.key, required this.receipt, required this.appointmentBloc});
 
   @override
   State<ReceiptDetailAddressCard> createState() => _ReceiptDetailAddressCardState();
@@ -20,12 +23,11 @@ class _ReceiptDetailAddressCardState extends State<ReceiptDetailAddressCard> {
 
   @override
   Widget build(BuildContext context) {
-    final deliveryAddress = widget.receipt.receiptCustomer.listOfAddress.where((e) => e.addressType == AddressType.delivery && e.isDefault).first;
-    final invoiceAddress = widget.receipt.receiptCustomer.listOfAddress.where((e) => e.addressType == AddressType.invoice && e.isDefault).first;
     final shownAddress = switch (_addressType) {
-      ReceiptDetailAddressTyp.shipping => deliveryAddress,
-      ReceiptDetailAddressTyp.invoice => invoiceAddress,
+      ReceiptDetailAddressTyp.shipping => widget.receipt.addressDelivery,
+      ReceiptDetailAddressTyp.invoice => widget.receipt.addressInvoice,
     };
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(8),
@@ -45,7 +47,7 @@ class _ReceiptDetailAddressCardState extends State<ReceiptDetailAddressCard> {
               ),
             ),
             Gaps.h16,
-            _ReceiptDetailCustomerAddressContainer(address: shownAddress)
+            _ReceiptDetailCustomerAddressContainer(address: shownAddress, appointmentBloc: widget.appointmentBloc)
           ],
         ),
       ),
@@ -54,25 +56,47 @@ class _ReceiptDetailAddressCardState extends State<ReceiptDetailAddressCard> {
 }
 
 class _ReceiptDetailCustomerAddressContainer extends StatelessWidget {
+  final AppointmentBloc appointmentBloc;
   final Address address;
 
-  const _ReceiptDetailCustomerAddressContainer({required this.address});
+  const _ReceiptDetailCustomerAddressContainer({required this.address, required this.appointmentBloc});
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(address.companyName),
-        Text(address.name),
-        Text(address.street),
-        Text(address.street2),
-        Text.rich(TextSpan(children: [
-          TextSpan(text: address.postcode),
-          const TextSpan(text: ' '),
-          TextSpan(text: address.city),
-        ])),
-        Text(address.country.name),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (address.companyName.isNotEmpty) Text(address.companyName),
+            if (address.name.isNotEmpty) Text(address.name),
+            if (address.street.isNotEmpty) Text(address.street),
+            if (address.street2.isNotEmpty) Text(address.street2),
+            if (address.postcode.isNotEmpty && address.city.isNotEmpty)
+              Text.rich(TextSpan(children: [
+                TextSpan(text: address.postcode),
+                const TextSpan(text: ' '),
+                TextSpan(text: address.city),
+              ])),
+            if (address.country.name.isNotEmpty) Text(address.country.name),
+          ],
+        ),
+        const Spacer(),
+        IconButton(
+          onPressed: () => showModalBottomSheet(
+            isScrollControlled: true,
+            context: context,
+            builder: (context) => MyAddressUpdateSheet(
+              address: address,
+              onSave: (newAddress) {
+                print('onSave ausgeführt');
+                appointmentBloc.add(OnEditAddressReceiptDetailEvent(address: newAddress));
+              },
+            ),
+          ),
+          icon: const Icon(Icons.edit, color: CustomColors.primaryColor),
+        ),
       ],
     );
   }

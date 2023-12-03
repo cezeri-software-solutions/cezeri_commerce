@@ -3,6 +3,7 @@ import 'package:dartz/dartz.dart';
 import 'package:logger/logger.dart';
 import 'package:meta/meta.dart';
 
+import '../../../3_domain/entities/address.dart';
 import '../../../3_domain/entities/carrier/carrier_product.dart';
 import '../../../3_domain/entities/customer/customer.dart';
 import '../../../3_domain/entities/marketplace/marketplace.dart';
@@ -546,6 +547,21 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
           ),
         ),
       ));
+    });
+
+//? #########################################################################
+
+    on<OnEditAddressReceiptDetailEvent>((event, emit) async {
+      if (event.address.addressType == AddressType.delivery) {
+        print('OnEditAddressReceiptDetailEvent: AddressType.delivery');
+        print(event.address);
+        emit(state.copyWith(receipt: state.receipt!.copyWith(addressDelivery: event.address)));
+      }
+
+      if (event.address.addressType == AddressType.invoice) {
+        print('OnEditAddressReceiptDetailEvent: AddressType.invoice');
+        emit(state.copyWith(receipt: state.receipt!.copyWith(addressInvoice: event.address)));
+      }
     });
 
 //? #########################################################################

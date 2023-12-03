@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:logger/logger.dart';
 
 import '../../../2_application/firebase/appointment/appointment_bloc.dart';
 import '../../../2_application/firebase/main_settings/main_settings_bloc.dart';
@@ -41,6 +42,7 @@ class AppointmentDetailPage extends StatefulWidget {
 class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
   @override
   Widget build(BuildContext context) {
+    final logger = Logger();
     return BlocBuilder<AppointmentBloc, AppointmentState>(
       bloc: widget.appointmentBloc,
       builder: (context, state) {
@@ -82,6 +84,8 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
                         paymentMethod: state.receipt!.paymentMethod,
                         paymentStatus: state.receipt!.paymentStatus,
                         receiptCarrier: state.receipt!.receiptCarrier,
+                        addressDelivery: state.receipt!.addressDelivery,
+                        addressInvoice: state.receipt!.addressInvoice,
                         lastEditingDate: DateTime.now(),
                       );
                       widget.appointmentBloc.add(UpdateAppointmentEvent(
@@ -97,6 +101,8 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
                         paymentMethod: state.receipt!.paymentMethod,
                         paymentStatus: state.receipt!.paymentStatus,
                         receiptCarrier: state.receipt!.receiptCarrier,
+                        addressDelivery: state.receipt!.addressDelivery,
+                        addressInvoice: state.receipt!.addressInvoice,
                         lastEditingDate: DateTime.now(),
                         creationDate: DateTime.now(),
                         receiptTyp: widget.receiptTyp,
@@ -114,6 +120,8 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
           ],
         );
 
+        logger.i(state.receipt!.addressDelivery);
+
         return Scaffold(
           appBar: appBar,
           body: SafeArea(
@@ -127,7 +135,7 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
                             mainAxisSize: MainAxisSize.min,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Expanded(child: ReceiptDetailAddressCard(receipt: state.receipt!)),
+                              Expanded(child: ReceiptDetailAddressCard(receipt: state.receipt!, appointmentBloc: widget.appointmentBloc)),
                               Gaps.w16,
                               Expanded(
                                 child: ReceiptDetailGeneralCard(
@@ -170,7 +178,7 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
                     padding: const EdgeInsets.all(8),
                     child: ListView(
                       children: [
-                        ReceiptDetailAddressCard(receipt: state.receipt!),
+                        ReceiptDetailAddressCard(receipt: state.receipt!, appointmentBloc: widget.appointmentBloc),
                         Gaps.h16,
                         ReceiptDetailGeneralCard(
                           receipt: state.receipt!,

@@ -27,13 +27,6 @@ class ReceiptDetailCarrierCard extends StatelessWidget {
           carrierItems.add(state.receipt!.receiptCarrier);
         }
 
-        print('Recipt CarrierType: ${state.receipt!.receiptCarrier.carrierTyp}');
-        for (final carrier in mainSettings.listOfCarriers) {
-          int index = 1;
-          print('$index Carrier: $carrier');
-          index++;
-        }
-
         Carrier? selectedCarrierFromSettings =
             mainSettings.listOfCarriers.where((e) => e.carrierTyp == state.receipt!.receiptCarrier.carrierTyp).firstOrNull;
         selectedCarrierFromSettings ??= mainSettings.listOfCarriers.where((e) => e.isDefault).first;

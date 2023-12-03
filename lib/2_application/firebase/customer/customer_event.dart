@@ -13,17 +13,15 @@ class GetCustomerEvent extends CustomerEvent {
   GetCustomerEvent({required this.customer});
 }
 
-class CreateCustomerEvent extends CustomerEvent {
+class SetCustomerEvent extends CustomerEvent {
   final Customer customer;
 
-  CreateCustomerEvent({required this.customer});
+  SetCustomerEvent({required this.customer});
 }
 
-class UpdateCustomerEvent extends CustomerEvent {
-  final Customer customer;
+class CreateCustomerEvent extends CustomerEvent {}
 
-  UpdateCustomerEvent({required this.customer});
-}
+class UpdateCustomerEvent extends CustomerEvent {}
 
 class DeleteSelectedCustomersEvent extends CustomerEvent {
   final List<Customer> selectedCustomers;
@@ -69,6 +67,12 @@ class OnCustomerInvoiceTypeChangedEvent extends CustomerEvent {
   final CustomerInvoiceType customerInvoiceType;
 
   OnCustomerInvoiceTypeChangedEvent({required this.customerInvoiceType});
+}
+
+class OnAddEditCustomerAddressEvent extends CustomerEvent {
+  final Address address;
+
+  OnAddEditCustomerAddressEvent({required this.address});
 }
 
 //* --- Controller --- *//

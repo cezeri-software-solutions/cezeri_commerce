@@ -5,10 +5,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../2_application/firebase/customer/customer_bloc.dart';
+import '../../../../2_application/firebase/main_settings/main_settings_bloc.dart';
+import '../../../../3_domain/entities/customer/customer.dart';
 import '../../../../injection.dart';
+import '../../../../routes/router.gr.dart';
 import '../../../core/functions/my_scaffold_messanger.dart';
 import '../../../core/widgets/my_delete_dialog.dart';
 import '../../../core/widgets/my_info_dialog.dart';
+import '../customer_detail/customer_detail_screen.dart';
 import 'customers_overview_page.dart';
 
 @RoutePage()
@@ -58,7 +62,14 @@ class CustomersOverviewScreen extends StatelessWidget {
                 title: const Text('Kunden'),
                 actions: [
                   IconButton(onPressed: () => context.read<CustomerBloc>().add(GetAllCustomersEvenet()), icon: const Icon(Icons.refresh)),
-                  IconButton(onPressed: () {}, icon: const Icon(Icons.add, color: Colors.green)),
+                  IconButton(
+                      onPressed: () {
+                        final newCustomer =
+                            Customer.empty().copyWith(customerNumber: context.read<MainSettingsBloc>().state.mainSettings!.nextCustomerNumber);
+                        customerBloc.add(SetCustomerEvent(customer: newCustomer));
+                        context.router.push(CustomerDetailRoute(customerBloc: customerBloc, customerCreateOrEdit: CustomerCreateOrEdit.create));
+                      },
+                      icon: const Icon(Icons.add, color: Colors.green)),
                   IconButton(
                     onPressed: () => showDialog(
                       context: context,

@@ -3,6 +3,7 @@ import 'package:cezeri_commerce/core/firebase_failures.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 
+import '../../../3_domain/entities/address.dart';
 import '../../../3_domain/entities/customer/customer.dart';
 import '../../../3_domain/entities/settings/tax.dart';
 import '../../../3_domain/repositories/firebase/customer_repository.dart';
@@ -50,7 +51,10 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
       final failureOrSuccess = await customerRepository.getCustomer(event.customer.id);
       failureOrSuccess.fold(
         (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
-        (customer) => emit(state.copyWith(customer: customer, firebaseFailure: null, isAnyFailure: false)),
+        (customer) {
+          emit(state.copyWith(customer: customer, firebaseFailure: null, isAnyFailure: false));
+          add(SetCustomerControllerEvnet());
+        },
       );
 
       emit(state.copyWith(
@@ -62,10 +66,35 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
 
 //? #########################################################################
 
+    on<SetCustomerEvent>((event, emit) async {
+      emit(state.copyWith(customer: event.customer));
+      add(SetCustomerControllerEvnet());
+    });
+
+//? #########################################################################
+
+    on<CreateCustomerEvent>((event, emit) async {
+      emit(state.copyWith(isLoadingCustomerOnCreate: true));
+
+      final failureOrSuccess = await customerRepository.createCustomer(state.customer!);
+      failureOrSuccess.fold(
+        (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
+        (customer) => emit(state.copyWith(customer: customer, firebaseFailure: null, isAnyFailure: false)),
+      );
+
+      emit(state.copyWith(
+        isLoadingCustomerOnCreate: false,
+        fosCustomerOnCreateOption: optionOf(failureOrSuccess),
+      ));
+      emit(state.copyWith(fosCustomerOnCreateOption: none()));
+    });
+
+//? #########################################################################
+
     on<UpdateCustomerEvent>((event, emit) async {
       emit(state.copyWith(isLoadingCustomerOnUpdate: true));
 
-      final failureOrSuccess = await customerRepository.updateCustomer(event.customer);
+      final failureOrSuccess = await customerRepository.updateCustomer(state.customer!);
       failureOrSuccess.fold(
         (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
         (customer) => emit(state.copyWith(customer: customer, firebaseFailure: null, isAnyFailure: false)),
@@ -140,6 +169,23 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
 
     on<OnCustomerInvoiceTypeChangedEvent>((event, emit) async {
       emit(state.copyWith(customer: state.customer!.copyWith(customerInvoiceType: event.customerInvoiceType)));
+    });
+
+//? #########################################################################
+
+    on<OnAddEditCustomerAddressEvent>((event, emit) async {
+      final index = state.customer!.listOfAddress.indexWhere((e) => e.id == event.address.id);
+
+      if (index == -1) {
+        List<Address> newListOfAddress = state.customer!.listOfAddress..add(event.address);
+        if (event.address.isDefault && state.customer!.listOfAddress.any((e) => e.isDefault)) {
+          final idOfOldDefault = state.customer!.listOfAddress.where((e) => e.isDefault).first.id;
+          final indexOfOldDefault = newListOfAddress.indexWhere((e) => e.id == idOfOldDefault);
+          if (indexOfOldDefault == -1) return;
+          newListOfAddress[indexOfOldDefault] = newListOfAddress[indexOfOldDefault].copyWith(isDefault: false);
+        }
+        emit(state.copyWith(customer: state.customer!.copyWith(listOfAddress: newListOfAddress)));
+      } //TODO:
     });
 
 //? #########################################################################

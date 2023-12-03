@@ -4,13 +4,15 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../../2_application/firebase/customer/customer_bloc.dart';
 import '../../../../../2_application/firebase/main_settings/main_settings_bloc.dart';
+import '../../../../../3_domain/entities/settings/tax.dart';
 import '../../../../../constants.dart';
 import '../../../../core/widgets/my_country_flag.dart';
 
 class CustomerSelectTaxDialog extends StatelessWidget {
   final CustomerBloc customerBloc;
+  final Function(Tax) onChanged;
 
-  const CustomerSelectTaxDialog({super.key, required this.customerBloc});
+  const CustomerSelectTaxDialog({super.key, required this.customerBloc, required this.onChanged});
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +49,7 @@ class CustomerSelectTaxDialog extends StatelessWidget {
                           subtitle: Text(taxRule.taxName),
                           onTap: () {
                             context.router.pop();
-                            customerBloc.add(SetCustomerTaxEvent(tax: taxRule));
+                            onChanged(taxRule);
                           },
                         ),
                         const Divider(height: 0),

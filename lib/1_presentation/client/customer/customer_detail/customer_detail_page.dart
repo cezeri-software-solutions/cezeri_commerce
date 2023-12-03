@@ -7,6 +7,7 @@ import '../../../../3_domain/enums/enums.dart';
 import '../../../../constants.dart';
 import '../../../core/widgets/my_outlined_button.dart';
 import 'customer_detail_screen.dart';
+import 'widgets/customer_address_card.dart';
 import 'widgets/customer_master_card.dart';
 
 class CustomerDetailPage extends StatelessWidget {
@@ -38,9 +39,9 @@ class CustomerDetailPage extends StatelessWidget {
               buttonText: 'Speichern',
               onPressed: () {
                 if (customerCreateOrEdit == CustomerCreateOrEdit.edit) {
-                  customerBloc.add(UpdateCustomerEvent(customer: state.customer!));
+                  customerBloc.add(UpdateCustomerEvent());
                 } else {
-                  // TODO: Handle create new product
+                  customerBloc.add(CreateCustomerEvent());
                 }
               },
               isLoading: state.isLoadingCustomerOnUpdate,
@@ -53,28 +54,38 @@ class CustomerDetailPage extends StatelessWidget {
         return Scaffold(
           appBar: appBar,
           body: SafeArea(
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(18),
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
+            child: responsiveness == Responsiveness.isTablet
+                ? SingleChildScrollView(
+                    child: Padding(
+                      padding: const EdgeInsets.all(18),
+                      child: Column(
+                        children: [
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: CustomerMasterCard(customerBloc: customerBloc),
+                              ),
+                              Gaps.w8,
+                              Expanded(
+                                child: CustomerAddressCard(customer: state.customer!, customerBloc: customerBloc),
+                              ),
+                            ],
+                          )
+                        ],
+                      ),
+                    ),
+                  )
+                : Padding(
+                    padding: const EdgeInsets.all(8),
+                    child: ListView(
                       children: [
-                        Expanded(
-                          child: CustomerMasterCard(customerBloc: customerBloc),
-                        ),
-                        Gaps.w8,
-                        Expanded(
-                          child: CustomerMasterCard(customerBloc: customerBloc),
-                        ),
+                        CustomerMasterCard(customerBloc: customerBloc),
+                        CustomerAddressCard(customer: state.customer!, customerBloc: customerBloc),
                       ],
-                    )
-                  ],
-                ),
-              ),
-            ),
+                    ),
+                  ),
           ),
         );
       },

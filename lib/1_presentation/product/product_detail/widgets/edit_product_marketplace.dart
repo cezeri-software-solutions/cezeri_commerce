@@ -17,7 +17,7 @@ class _EditProductMarketplaceState extends State<EditProductMarketplace> {
   @override
   Widget build(BuildContext context) {
     return MyModalScrollable(
-      title: widget.productMarketplace.nameMarketplace!,
+      title: widget.productMarketplace.nameMarketplace,
       keyboardDismiss: KeyboardDissmiss.onTab,
       children: const [
         MyTextFormField(labelText: 'Kategorien'),

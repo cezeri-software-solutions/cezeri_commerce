@@ -66,7 +66,7 @@ class DashboardRepositoryImpl implements DashboardRepository {
     if (!isConnected) return left(NoConnectionFailure());
 
     final DateTime now = DateTime.now();
-    final DateTime today = DateTime(
+    final DateTime dayFirst = DateTime(
       now.year,
       now.month,
       now.day -
@@ -76,14 +76,14 @@ class DashboardRepositoryImpl implements DashboardRepository {
             _ => 1,
           },
     );
-    final DateTime tomorrow = DateTime(now.year, now.month, now.day + 2);
+    // final DateTime dayLast = DateTime(now.year, now.month, now.day + 2);
 
     final currentUserUid = firebaseAuth.currentUser!.uid;
     var docRef = db
-        .collection('Appointments')
+        .collection('Receipts')
         .doc(currentUserUid)
         .collection('Appointments')
-        .where('creationDateMarektplace', isGreaterThanOrEqualTo: today.toIso8601String())
+        .where('creationDateMarektplace', isGreaterThanOrEqualTo: dayFirst.toIso8601String())
         //.where('creationDateMarektplace', isLessThan: tomorrow.toIso8601String())
         .where('appointmentStatus', whereIn: [AppointmentStatus.open.name, AppointmentStatus.partiallyCompleted.name]);
 

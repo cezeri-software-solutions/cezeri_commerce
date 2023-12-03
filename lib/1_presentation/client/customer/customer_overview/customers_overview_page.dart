@@ -77,8 +77,10 @@ class _CustomerContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final invoiceAddress = customer.listOfAddress.where((e) => e.addressType == AddressType.invoice && e.isDefault).first;
-    final deliveryAddress = customer.listOfAddress.where((e) => e.addressType == AddressType.delivery && e.isDefault).first;
+    Address? invoiceAddress = customer.listOfAddress.where((e) => e.addressType == AddressType.invoice && e.isDefault).firstOrNull;
+    invoiceAddress ??= Address.empty();
+    Address? deliveryAddress = customer.listOfAddress.where((e) => e.addressType == AddressType.delivery && e.isDefault).firstOrNull;
+    deliveryAddress ??= Address.empty();
     return BlocBuilder<CustomerBloc, CustomerState>(
       bloc: customerBloc,
       builder: (context, state) {
@@ -100,7 +102,7 @@ class _CustomerContainer extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(customer.customerNumber.toString()),
-                      if (invoiceAddress.companyName != '') Text(invoiceAddress.companyName),
+                      if (invoiceAddress!.companyName != '') Text(invoiceAddress.companyName),
                       Text(customer.name),
                       Text(DateFormat('dd.MM.yyy', 'de').format(customer.creationDate)),
                     ],

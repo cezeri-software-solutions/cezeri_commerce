@@ -44,7 +44,6 @@ class _AddEditTaxRulesState extends State<AddEditTaxRules> {
 
   @override
   Widget build(BuildContext context) {
-    print(_selectedCountry.name);
     return MyModalScrollable(
       title: widget.isDefault ? 'Steuerregel Inland' : 'Steuerregel',
       keyboardDismiss: KeyboardDissmiss.onTab,
