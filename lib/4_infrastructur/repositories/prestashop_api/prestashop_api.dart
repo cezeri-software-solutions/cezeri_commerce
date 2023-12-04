@@ -393,7 +393,10 @@ class PrestashopApi with UiLoggy {
   //* Utility methods */
   Future<dynamic> _doGetJson(String uri, {bool single = false}) async {
     loggy.debug('Fetching $uri');
-    final response = await _http.get(Uri.parse(uri));
+
+    final headers = {'Cache-Control': 'no-cache'};
+
+    final response = await _http.get(Uri.parse(uri), headers: headers);
     loggy.debug('Received response with code ${response.statusCode}');
 
     if (single && response.statusCode == 404) {

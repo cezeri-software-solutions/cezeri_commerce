@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:logger/logger.dart';
 import 'package:printing/printing.dart';
 
 import '../../../2_application/firebase/appointment/appointment_bloc.dart';
@@ -26,6 +27,7 @@ import '../../core/functions/mixed_functions.dart';
 import '../../core/widgets/my_avatar.dart';
 import '../../core/widgets/my_country_flag.dart';
 import '../appointment_detail/appointment_detail_screen.dart';
+import '../widgets/receipts_overview_carrier_bar.dart';
 
 class ReceiptsOverviewPage extends StatefulWidget {
   final AppointmentBloc appointmentBloc;
@@ -132,6 +134,7 @@ class __AppointmentContainerState extends State<_AppointmentContainer> {
 
   @override
   Widget build(BuildContext context) {
+    final logger = Logger();
     final screenWidth = MediaQuery.sizeOf(context).width;
     final responsiveness = screenWidth > 700 ? Responsiveness.isTablet : Responsiveness.isMobil;
     final marketplace = widget.listOfMarketplaces.where((e) => e.id == widget.receipt.marketplaceId).first;
@@ -212,12 +215,19 @@ class __AppointmentContainerState extends State<_AppointmentContainer> {
                                 );
                               },
                               child: Text(switch (widget.receipt.receiptTyp) {
-                                ReceiptTyp.offer => 'Angebot ${widget.receipt.offerNumberAsString}',
-                                ReceiptTyp.appointment => 'Auftrag ${widget.receipt.appointmentNumberAsString}',
-                                ReceiptTyp.deliveryNote => 'Lieferschein ${widget.receipt.deliveryNoteNumberAsString}',
-                                ReceiptTyp.invoice => 'Rechnung ${widget.receipt.invoiceNumberAsString}',
-                                ReceiptTyp.credit => 'Gutschrift ${widget.receipt.invoiceNumberAsString}',
+                                ReceiptTyp.offer => widget.receipt.offerNumberAsString,
+                                ReceiptTyp.appointment => widget.receipt.appointmentNumberAsString,
+                                ReceiptTyp.deliveryNote => widget.receipt.deliveryNoteNumberAsString,
+                                ReceiptTyp.invoice => widget.receipt.invoiceNumberAsString,
+                                ReceiptTyp.credit => widget.receipt.invoiceNumberAsString,
                               }),
+                              // Text(switch (widget.receipt.receiptTyp) {
+                              //   ReceiptTyp.offer => 'Angebot ${widget.receipt.offerNumberAsString}',
+                              //   ReceiptTyp.appointment => 'Auftrag ${widget.receipt.appointmentNumberAsString}',
+                              //   ReceiptTyp.deliveryNote => 'Lieferschein ${widget.receipt.deliveryNoteNumberAsString}',
+                              //   ReceiptTyp.invoice => 'Rechnung ${widget.receipt.invoiceNumberAsString}',
+                              //   ReceiptTyp.credit => 'Gutschrift ${widget.receipt.invoiceNumberAsString}',
+                              // }),
                             ),
                             Text(DateFormat('dd.MM.yyy', 'de').format(widget.receipt.creationDate)),
                             Row(
@@ -235,7 +245,7 @@ class __AppointmentContainerState extends State<_AppointmentContainer> {
                     ],
                   ),
                   SizedBox(
-                    width: 220,
+                    width: 200,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -288,7 +298,7 @@ class __AppointmentContainerState extends State<_AppointmentContainer> {
                     ),
                   ),
                   SizedBox(
-                    width: 220,
+                    width: 200,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -308,6 +318,7 @@ class __AppointmentContainerState extends State<_AppointmentContainer> {
                       ],
                     ),
                   ),
+                  ReceiptsOverviewCarrierBar(receipt: widget.receipt),
                   SizedBox(
                     width: 140,
                     child: Column(

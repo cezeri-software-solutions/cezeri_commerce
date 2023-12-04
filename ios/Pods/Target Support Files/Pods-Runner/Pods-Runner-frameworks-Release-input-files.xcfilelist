@@ -35,3 +35,4 @@ ${BUILT_PRODUCTS_DIR}/open_filex/open_filex.framework
 ${BUILT_PRODUCTS_DIR}/path_provider_foundation/path_provider_foundation.framework
 ${BUILT_PRODUCTS_DIR}/printing/printing.framework
 ${BUILT_PRODUCTS_DIR}/sqflite/sqflite.framework
+${BUILT_PRODUCTS_DIR}/url_launcher_ios/url_launcher_ios.framework
