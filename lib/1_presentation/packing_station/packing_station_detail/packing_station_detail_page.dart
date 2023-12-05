@@ -126,7 +126,8 @@ class _PackingStationDetailPageState extends State<PackingStationDetailPage> {
                 child: ScrollablePositionedList.builder(
                   itemCount: appointment.listOfReceiptProduct.length,
                   itemBuilder: (context, index) {
-                    final product = appointment.listOfReceiptProduct[index];
+                    final sortedListOfProducts = appointment.listOfReceiptProduct..sort((a, b) => a.name.compareTo(b.name));
+                    final product = sortedListOfProducts[index];
                     return Column(
                       children: [
                         if (index == 0) const Divider(height: 2),

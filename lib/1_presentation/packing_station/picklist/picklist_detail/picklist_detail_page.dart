@@ -22,7 +22,8 @@ class PicklistDetailPage extends StatelessWidget {
         return ListView.builder(
           itemCount: state.picklist!.listOfPicklistProducts.length,
           itemBuilder: (context, index) {
-            final picklistProduct = state.picklist!.listOfPicklistProducts[index];
+            final sortedListOfProducts = state.picklist!.listOfPicklistProducts..sort((a, b) => a.name.compareTo(b.name));
+            final picklistProduct = sortedListOfProducts[index];
             int totalQuantity = 0;
             for (final picklistProduct in state.picklist!.listOfPicklistProducts) {
               totalQuantity += picklistProduct.quantity;

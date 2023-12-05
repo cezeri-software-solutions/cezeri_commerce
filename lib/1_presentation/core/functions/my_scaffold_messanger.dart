@@ -55,7 +55,7 @@ void myScaffoldMessenger(
   } else if (successMessage != null) {
     message = successMessage;
     bgColor = Colors.green;
-    duration = const Duration(milliseconds: 2);
+    duration = const Duration(seconds: 2);
   } else if (failureMessage != null) {
     message = failureMessage;
     bgColor = Colors.redAccent;

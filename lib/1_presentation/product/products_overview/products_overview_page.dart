@@ -136,7 +136,7 @@ class _ProductContainer extends StatelessWidget {
                   TextButton(
                       onPressed: () => showDialog(
                             context: context,
-                            builder: (_) => BlocProvider.value(value: productBloc, child: MyDialog(product: product)),
+                            builder: (_) => BlocProvider.value(value: productBloc, child: _UpdateProductQuantityDialog(product: product)),
                           ),
                       child: Text(product.availableStock.toString())),
                 ],
@@ -165,16 +165,16 @@ class _ProductContainer extends StatelessWidget {
 
 enum QuantityUpdateWay { edit, set }
 
-class MyDialog extends StatefulWidget {
+class _UpdateProductQuantityDialog extends StatefulWidget {
   final Product product;
 
-  const MyDialog({super.key, required this.product});
+  const _UpdateProductQuantityDialog({super.key, required this.product});
 
   @override
-  State<MyDialog> createState() => _MyDialogState();
+  State<_UpdateProductQuantityDialog> createState() => _UpdateProductQuantityDialogState();
 }
 
-class _MyDialogState extends State<MyDialog> {
+class _UpdateProductQuantityDialogState extends State<_UpdateProductQuantityDialog> {
   QuantityUpdateWay _quantityUpdateWay = QuantityUpdateWay.edit;
   int quantity = 0;
   int editedQuantity = 0;

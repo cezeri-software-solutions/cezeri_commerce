@@ -12,6 +12,7 @@ import '../../../../3_domain/entities/marketplace/marketplace.dart';
 import '../../../../3_domain/entities/product/marketplace_product_presta.dart';
 import '../../../../3_domain/entities/product/product_marketplace.dart';
 import '../../../../3_domain/repositories/marketplace/marketplace_edit_repository.dart';
+import '../../../3_domain/entities/patch_marketplace_logger.dart';
 import '../prestashop_api/prestashop_api.dart';
 
 class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
@@ -22,6 +23,7 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
 
   @override
   Future<Either<PrestaFailure, Unit>> setProdcutPrestaQuantity(Product product, int newQuantity, Marketplace? marketplaceToSkip) async {
+    if (product.isSetArticle) return right(unit);
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(PrestaGeneralFailure());
 
@@ -44,7 +46,21 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
       };
 
       final isSuccess = await api.patchProductQuantity(marketplaceProduct.id, newQuantity, marketplace);
-      if (isSuccess) return right(unit);
+      if (isSuccess) {
+        return right(unit);
+      } else {
+        final patchMarketplaceLogger = PatchMarketplaceLogger.empty().copyWith(
+          loggerType: LoggerType.product,
+          loggerActionType: LoggerActionType.setStocks,
+          marketplaceId: productMarketplace.idMarketplace,
+          marketplaceName: productMarketplace.nameMarketplace,
+          productId: product.id,
+          productArticleNumber: product.articleNumber,
+          productName: product.name,
+          errorMessage: 'Beim aktualisieren des Bestandes ist ein Fehler aufgetreten. Funktion: setProdcutPrestaQuantity',
+        );
+        await createLogFile(db: db, firebaseAuth: firebaseAuth, patchMarketplaceLogger: patchMarketplaceLogger);
+      }
     }
 
     return left(PrestaGeneralFailure());
@@ -158,4 +174,18 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
     if (isSuccess) return right(unit);
     return left(PrestaGeneralFailure());
   }
+}
+
+Future<void> createLogFile({
+  required FirebaseFirestore db,
+  required FirebaseAuth firebaseAuth,
+  required PatchMarketplaceLogger patchMarketplaceLogger,
+}) async {
+  final currentUserUid = firebaseAuth.currentUser!.uid;
+
+  final docRef = db.collection('Logger').doc(currentUserUid).collection('Logger').doc();
+
+  final newPatchMarketplaceLogger = patchMarketplaceLogger.copyWith(id: docRef.id, creationDate: DateTime.now());
+
+  await docRef.set(newPatchMarketplaceLogger.toJson());
 }

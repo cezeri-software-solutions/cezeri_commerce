@@ -84,7 +84,7 @@ class ProductsOverviewScreen extends StatelessWidget {
             return Scaffold(
               drawer: const AppDrawer(),
               appBar: AppBar(
-                title: const Text('Artikel'),
+                title: state.listOfFilteredProducts != null ? Text('Artikel (${state.listOfFilteredProducts!.length})') : const Text('Artikel'),
                 actions: [
                   IconButton(onPressed: () => context.read<ProductBloc>().add(GetAllProductsEvent()), icon: const Icon(Icons.refresh)),
                   TextButton.icon(

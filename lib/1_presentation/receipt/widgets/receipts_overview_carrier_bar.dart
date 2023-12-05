@@ -30,26 +30,29 @@ class ReceiptsOverviewCarrierBar extends StatelessWidget {
       children: [
         Stack(
           children: [
-            IconButton(
-              onPressed: () async {
-                if (parcelCount == 0) return;
-                if (parcelCount == 1 && isLinkExists) {
-                  await _openTrackingLink(
-                    context,
-                    receipt.listOfParcelTracking.first.trackingUrl + receipt.listOfParcelTracking.first.trackingNumber,
-                  );
-                  return;
-                }
+            Tooltip(
+              message: 'Sendeverfolgungslink öffnen',
+              child: IconButton(
+                onPressed: () async {
+                  if (parcelCount == 0) return;
+                  if (parcelCount == 1 && isLinkExists) {
+                    await _openTrackingLink(
+                      context,
+                      receipt.listOfParcelTracking.first.trackingUrl + receipt.listOfParcelTracking.first.trackingNumber,
+                    );
+                    return;
+                  }
 
-                showDialog(
-                  context: context,
-                  builder: (context) => _TrackingListDialog(
-                    listOfParcelTracking: receipt.listOfParcelTracking,
-                    isPrinting: false,
-                  ),
-                );
-              },
-              icon: Icon(Icons.open_in_browser, color: isLinkExists ? Colors.green : null),
+                  showDialog(
+                    context: context,
+                    builder: (context) => _TrackingListDialog(
+                      listOfParcelTracking: receipt.listOfParcelTracking,
+                      isPrinting: false,
+                    ),
+                  );
+                },
+                icon: Icon(Icons.open_in_browser, color: isLinkExists ? Colors.green : null),
+              ),
             ),
             if (parcelCount > 1)
               Positioned(
@@ -62,23 +65,26 @@ class ReceiptsOverviewCarrierBar extends StatelessWidget {
               ),
           ],
         ),
-        IconButton(
-          onPressed: () async {
-            if (parcelCount == 0) return;
-            if (parcelCount == 1 && isPdfExists) {
-              await _openPrintingDialog(receipt.listOfParcelTracking.first.pdfString);
-              return;
-            }
+        Tooltip(
+          message: 'Versandetikett Drucken',
+          child: IconButton(
+            onPressed: () async {
+              if (parcelCount == 0) return;
+              if (parcelCount == 1 && isPdfExists) {
+                await _openPrintingDialog(receipt.listOfParcelTracking.first.pdfString);
+                return;
+              }
 
-            showDialog(
-              context: context,
-              builder: (context) => _TrackingListDialog(
-                listOfParcelTracking: receipt.listOfParcelTracking,
-                isPrinting: true,
-              ),
-            );
-          },
-          icon: Icon(Icons.print, color: isLinkExists ? Colors.green : null),
+              showDialog(
+                context: context,
+                builder: (context) => _TrackingListDialog(
+                  listOfParcelTracking: receipt.listOfParcelTracking,
+                  isPrinting: true,
+                ),
+              );
+            },
+            icon: Icon(Icons.print, color: isLinkExists ? Colors.green : null),
+          ),
         ),
       ],
     );

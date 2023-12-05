@@ -165,17 +165,19 @@ class ReceiptsOverviewScreen extends StatelessWidget {
         ],
         child: BlocBuilder<AppointmentBloc, AppointmentState>(
           builder: (context, state) {
-            print(receiptTyp);
             return Scaffold(
               drawer: const AppDrawer(),
               appBar: AppBar(
                 title: Text(
                   switch (receiptTyp) {
-                    ReceiptTyp.offer => 'Angebote',
-                    ReceiptTyp.appointment => 'Aufträge',
-                    ReceiptTyp.deliveryNote => 'Lieferscheine',
-                    ReceiptTyp.invoice => 'Rechnungen',
-                    ReceiptTyp.credit => 'Rechnungen',
+                    ReceiptTyp.offer => state.listOfFilteredReceipts != null ? 'Angebote (${state.listOfFilteredReceipts!.length})' : 'Angebote',
+                    ReceiptTyp.appointment =>
+                      state.listOfFilteredReceipts != null ? 'Aufträge (${state.listOfFilteredReceipts!.length})' : 'Aufträge',
+                    ReceiptTyp.deliveryNote =>
+                      state.listOfFilteredReceipts != null ? 'Lieferscheine (${state.listOfFilteredReceipts!.length})' : 'Lieferscheine',
+                    ReceiptTyp.invoice ||
+                    ReceiptTyp.credit =>
+                      state.listOfFilteredReceipts != null ? 'Rechnungen (${state.listOfFilteredReceipts!.length})' : 'Rechnungen',
                   },
                 ),
                 actions: [
