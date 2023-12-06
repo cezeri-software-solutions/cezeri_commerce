@@ -207,12 +207,12 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
       failureOrSuccess.fold(
         (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
         (product) {
-          List<Product> updatedProducts = state.listOfAllProducts!;
+          List<Product> updatedProducts = List.from(state.listOfAllProducts!);
           final index = updatedProducts.indexWhere((element) => element.id == product.id);
           updatedProducts[index] = product;
 
           emit(state.copyWith(listOfAllProducts: updatedProducts, firebaseFailure: null, isAnyFailure: false));
-
+          add(OnSearchFieldSubmittedEvent());
           add(OnEditQuantityInMarketplacesEvent(product: event.product, newQuantity: event.newQuantity));
         },
       );
@@ -221,7 +221,7 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
         isLoadingProductOnUpdate: false,
         fosProductOnUpdateQuantityOption: optionOf(failureOrSuccess),
       ));
-      emit(state.copyWith(fosProductOnUpdateOption: none()));
+      emit(state.copyWith(fosProductOnUpdateQuantityOption: none()));
     });
 
 //? #########################################################################

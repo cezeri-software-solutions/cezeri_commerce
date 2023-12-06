@@ -28,6 +28,7 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
     if (!isConnected) return left(PrestaGeneralFailure());
 
     final currentUserUid = firebaseAuth.currentUser!.uid;
+    bool isAllSuccess = false;
 
     for (ProductMarketplace productMarketplace in product.productMarketplaces) {
       // TODO: if (!productMarketplace.active!) continue;
@@ -47,7 +48,7 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
 
       final isSuccess = await api.patchProductQuantity(marketplaceProduct.id, newQuantity, marketplace);
       if (isSuccess) {
-        return right(unit);
+        isAllSuccess = true;
       } else {
         final patchMarketplaceLogger = PatchMarketplaceLogger.empty().copyWith(
           loggerType: LoggerType.product,
@@ -63,6 +64,7 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
       }
     }
 
+    if (isAllSuccess) return right(unit);
     return left(PrestaGeneralFailure());
   }
 
