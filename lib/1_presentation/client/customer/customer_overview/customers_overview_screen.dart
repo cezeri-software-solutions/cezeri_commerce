@@ -74,9 +74,9 @@ class CustomersOverviewScreen extends StatelessWidget {
                     onPressed: () => showDialog(
                       context: context,
                       builder: (_) => state.selectedCustomers.isEmpty
-                          ? const MyInfoDialog(title: 'Achtung!', content: 'Bitte wähle mindestens einen Artikel aus.')
+                          ? const MyInfoDialog(title: 'Achtung!', content: 'Bitte wähle mindestens einen Kunden aus.')
                           : MyDeleteDialog(
-                              content: 'Bist du sicher, dass du alle ausgewählten Artikel unwiederruflich löschen willst?',
+                              content: 'Bist du sicher, dass du alle ausgewählten Kunden unwiederruflich löschen willst?',
                               onConfirm: () {
                                 context.read<CustomerBloc>().add(DeleteSelectedCustomersEvent(selectedCustomers: state.selectedCustomers));
                                 context.router.pop();

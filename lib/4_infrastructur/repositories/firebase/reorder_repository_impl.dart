@@ -1,97 +1,97 @@
-import 'package:cezeri_commerce/3_domain/entities/reorder/supplier.dart';
+import 'package:cezeri_commerce/3_domain/entities/reorder/reorder.dart';
 import 'package:cezeri_commerce/core/firebase_failures.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../../1_presentation/core/functions/check_internet_connection.dart';
-import '../../../3_domain/repositories/firebase/supplier_repository.dart';
+import '../../../3_domain/repositories/firebase/reorder_repository.dart';
 
-class SupplierRepositoryImpl implements SupplierRepository {
+class ReorderRepositoryImpl implements ReorderRepository {
   final FirebaseFirestore db;
   final FirebaseAuth firebaseAuth;
 
-  SupplierRepositoryImpl({required this.db, required this.firebaseAuth});
+  ReorderRepositoryImpl({required this.db, required this.firebaseAuth});
 
   @override
-  Future<Either<FirebaseFailure, Supplier>> createSupplier(Supplier supplier) async {
+  Future<Either<FirebaseFailure, Reorder>> createReorder(Reorder reorder) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
 
     final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRef = db.collection('Suppliers').doc(currentUserUid).collection('Suppliers').doc();
+    final docRef = db.collection('Reorders').doc(currentUserUid).collection('Reorders').doc();
     final docRefSettings = db.collection('Settings').doc(currentUserUid).collection('Settings').doc(currentUserUid);
 
     try {
-      Supplier toCreateSupplier = supplier.copyWith(id: docRef.id);
-      await docRef.set(toCreateSupplier.toJson());
+      Reorder toCreateReorder = reorder.copyWith(id: docRef.id);
+      await docRef.set(toCreateReorder.toJson());
 
-      await docRefSettings.update({'nextSupplierNumber': FieldValue.increment(1)});
+      await docRefSettings.update({'nextReorderNumber': FieldValue.increment(1)});
 
-      return right(toCreateSupplier);
+      return right(toCreateReorder);
     } on FirebaseException {
       return left(GeneralFailure());
     }
   }
 
   @override
-  Future<Either<FirebaseFailure, Supplier>> getSupplier(String id) async {
+  Future<Either<FirebaseFailure, Reorder>> getReorder(String id) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
 
     final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRef = db.collection('Suppliers').doc(currentUserUid).collection('Suppliers').doc(id);
+    final docRef = db.collection('Reorders').doc(currentUserUid).collection('Reorders').doc(id);
 
     try {
-      final supplier = await docRef.get();
-      return right(Supplier.fromJson(supplier.data()!));
+      final reorder = await docRef.get();
+      return right(Reorder.fromJson(reorder.data()!));
     } on FirebaseException {
       return left(GeneralFailure());
     }
   }
 
   @override
-  Future<Either<FirebaseFailure, List<Supplier>>> getListOfSuppliers() async {
+  Future<Either<FirebaseFailure, List<Reorder>>> getListOfReorders() async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
 
     final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRef = db.collection('Suppliers').doc(currentUserUid).collection('Suppliers');
+    final docRef = db.collection('Reorders').doc(currentUserUid).collection('Reorders');
 
     try {
-      final listOfSuppliers = await docRef.get().then((value) => value.docs.map((querySnapshot) => Supplier.fromJson(querySnapshot.data())).toList());
+      final listOfReorders = await docRef.get().then((value) => value.docs.map((querySnapshot) => Reorder.fromJson(querySnapshot.data())).toList());
 
-      if (listOfSuppliers.isEmpty) return left(EmptyFailure());
-      return right(listOfSuppliers);
+      if (listOfReorders.isEmpty) return left(EmptyFailure());
+      return right(listOfReorders);
     } on FirebaseException {
       return left(GeneralFailure());
     }
   }
 
   @override
-  Future<Either<FirebaseFailure, Supplier>> updateSupplier(Supplier supplier) async {
+  Future<Either<FirebaseFailure, Reorder>> updateReorder(Reorder reorder) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
 
     final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRef = db.collection('Suppliers').doc(currentUserUid).collection('Suppliers').doc(supplier.id);
+    final docRef = db.collection('Reorders').doc(currentUserUid).collection('Reorders').doc(reorder.id);
 
     try {
-      await docRef.update(supplier.toJson());
+      await docRef.update(reorder.toJson());
 
-      return right(supplier);
+      return right(reorder);
     } on FirebaseException {
       return left(GeneralFailure());
     }
   }
 
   @override
-  Future<Either<FirebaseFailure, Unit>> deleteSupplier(String id) async {
+  Future<Either<FirebaseFailure, Unit>> deleteReorder(String id) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
 
     final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRef = db.collection('Suppliers').doc(currentUserUid).collection('Suppliers').doc(id);
+    final docRef = db.collection('Reorders').doc(currentUserUid).collection('Reorders').doc(id);
 
     try {
       await docRef.delete();

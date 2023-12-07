@@ -51,7 +51,10 @@ class SupplierBloc extends Bloc<SupplierEvent, SupplierState> {
       final failureOrSuccess = await supplierRepository.getSupplier(event.supplier.id);
       failureOrSuccess.fold(
         (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
-        (supplier) => emit(state.copyWith(supplier: supplier, firebaseFailure: null, isAnyFailure: false)),
+        (supplier) {
+          emit(state.copyWith(supplier: supplier, firebaseFailure: null, isAnyFailure: false));
+          add(SetSupplierControllerEvnet());
+        },
       );
 
       emit(state.copyWith(
@@ -184,7 +187,7 @@ class SupplierBloc extends Bloc<SupplierEvent, SupplierState> {
         emit(state.copyWith(supplier: Supplier.empty()));
       }
       emit(state.copyWith(
-        companyNameController: TextEditingController(text: supplier!.company ?? ''),
+        companyNameController: TextEditingController(text: supplier!.company),
         firstNameController: TextEditingController(text: supplier.firstName),
         lastNameController: TextEditingController(text: supplier.lastName),
         emailController: TextEditingController(text: supplier.email),

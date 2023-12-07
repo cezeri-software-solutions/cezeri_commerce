@@ -12,6 +12,8 @@ Reorder _$ReorderFromJson(Map<String, dynamic> json) => Reorder(
       reorderNumberInternal: json['reorderNumberInternal'] as String,
       closedManually: json['closedManually'] as bool,
       reorderStatus: $enumDecode(_$ReorderStatusEnumMap, json['reorderStatus']),
+      reorderSupplier: ReorderSupplier.fromJson(
+          json['reorderSupplier'] as Map<String, dynamic>),
       listOfReorderProducts: (json['listOfReorderProducts'] as List<dynamic>)
           .map((e) => ReorderProduct.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -33,6 +35,7 @@ Map<String, dynamic> _$ReorderToJson(Reorder instance) => <String, dynamic>{
       'reorderNumberInternal': instance.reorderNumberInternal,
       'closedManually': instance.closedManually,
       'reorderStatus': _$ReorderStatusEnumMap[instance.reorderStatus]!,
+      'reorderSupplier': instance.reorderSupplier.toJson(),
       'listOfReorderProducts':
           instance.listOfReorderProducts.map((e) => e.toJson()).toList(),
       'tax': instance.tax.toJson(),

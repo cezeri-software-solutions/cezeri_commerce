@@ -65,16 +65,34 @@ class AppDrawer extends StatelessWidget {
                         }
                       },
                     ),
-                    ListTile(
-                      leading: const Icon(Icons.person_4_outlined),
-                      title: const Text('Lieferant'),
-                      onTap: () {
-                        if (context.router.current.name == SuppliersOverviewRoute.name) {
-                          context.router.pop();
-                        } else {
-                          context.router.replaceAll([const SuppliersOverviewRoute()]);
-                        }
-                      },
+                    ExpansionTile(
+                      title: const Text('Einkauf / Buchhaltung'),
+                      leading: const Icon(Icons.account_balance),
+                      childrenPadding: const EdgeInsets.only(left: 20),
+                      children: [
+                        ListTile(
+                          leading: const Icon(Icons.person_4_outlined),
+                          title: const Text('Lieferanten'),
+                          onTap: () {
+                            if (context.router.current.name == SuppliersOverviewRoute.name) {
+                              context.router.pop();
+                            } else {
+                              context.router.replaceAll([const SuppliersOverviewRoute()]);
+                            }
+                          },
+                        ),
+                        ListTile(
+                          leading: const Icon(Icons.dashboard_customize_rounded),
+                          title: const Text('Bestellungen'),
+                          onTap: () {
+                            if (context.router.current.name == ReordersOverviewRoute.name) {
+                              context.router.pop();
+                            } else {
+                              context.router.replaceAll([const ReordersOverviewRoute()]);
+                            }
+                          },
+                        ),
+                      ],
                     ),
                     ListTile(
                       leading: const Icon(Icons.delivery_dining),

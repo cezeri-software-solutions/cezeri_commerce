@@ -83,9 +83,49 @@ class ReceiptsOverviewCarrierBar extends StatelessWidget {
                 ),
               );
             },
-            icon: Icon(Icons.print, color: isLinkExists ? Colors.green : null),
+            icon: Icon(Icons.print, color: isLinkExists ? CustomColors.primaryColor : null),
           ),
         ),
+        Row(
+          children: [
+            Container(
+              height: 10,
+              width: 10,
+              decoration: BoxDecoration(
+                color: receipt.offerId != 0 ? Colors.green : Colors.grey,
+                shape: BoxShape.circle,
+              ),
+            ),
+            Gaps.w2,
+            Container(
+              height: 10,
+              width: 10,
+              decoration: BoxDecoration(
+                color: receipt.appointmentId != 0 ? Colors.green : Colors.grey,
+                shape: BoxShape.circle,
+              ),
+            ),
+            Gaps.w2,
+            Container(
+              height: 10,
+              width: 10,
+              decoration: BoxDecoration(
+                color: receipt.deliveryNoteId != 0 ? Colors.green : Colors.grey,
+                shape: BoxShape.circle,
+              ),
+            ),
+            Gaps.w2,
+            Container(
+              height: 10,
+              width: 10,
+              decoration: BoxDecoration(
+                color: receipt.invoiceId != 0 ? Colors.green : Colors.grey,
+                shape: BoxShape.circle,
+              ),
+            ),
+            Gaps.w2,
+          ],
+        )
       ],
     );
   }

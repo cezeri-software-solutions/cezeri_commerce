@@ -9,5 +9,4 @@ abstract class SupplierRepository {
   Future<Either<FirebaseFailure, List<Supplier>>> getListOfSuppliers();
   Future<Either<FirebaseFailure, Supplier>> updateSupplier(Supplier supplier);
   Future<Either<FirebaseFailure, Unit>> deleteSupplier(String id);
-  Future<Either<FirebaseFailure, Unit>> deleteListOfSuppliers(List<Supplier> suppliers);
 }

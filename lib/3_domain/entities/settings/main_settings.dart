@@ -33,6 +33,7 @@ class MainSettings {
   final int nextBranchNumber;
   final int nextCustomerNumber;
   final int nextSupplierNumber;
+  final int nextReorderNumber;
   final int termOfPayment;
   final int countEmployees;
   final int countBranches;
@@ -69,6 +70,7 @@ class MainSettings {
     required this.nextBranchNumber,
     required this.nextCustomerNumber,
     required this.nextSupplierNumber,
+    required this.nextReorderNumber,
     required this.termOfPayment,
     required this.countEmployees,
     required this.countBranches,
@@ -111,6 +113,7 @@ class MainSettings {
       nextBranchNumber: 1,
       nextCustomerNumber: 1,
       nextSupplierNumber: 1,
+      nextReorderNumber: 1,
       termOfPayment: 14,
       countEmployees: 0,
       countBranches: 0,
@@ -149,6 +152,7 @@ class MainSettings {
     int? nextBranchNumber,
     int? nextCustomerNumber,
     int? nextSupplierNumber,
+    int? nextReorderNumber,
     int? termOfPayment,
     int? countEmployees,
     int? countBranches,
@@ -185,6 +189,7 @@ class MainSettings {
       nextBranchNumber: nextBranchNumber ?? this.nextBranchNumber,
       nextCustomerNumber: nextCustomerNumber ?? this.nextCustomerNumber,
       nextSupplierNumber: nextSupplierNumber ?? this.nextSupplierNumber,
+      nextReorderNumber: nextReorderNumber ?? this.nextReorderNumber,
       termOfPayment: termOfPayment ?? this.termOfPayment,
       countEmployees: countEmployees ?? this.countEmployees,
       countBranches: countBranches ?? this.countBranches,
@@ -202,6 +207,6 @@ class MainSettings {
 
   @override
   String toString() {
-    return 'MainSettings(settingsId: $settingsId, logoUrl: $logoUrl, offerPraefix: $offerPraefix, appointmentPraefix: $appointmentPraefix, deliveryNotePraefix: $deliveryNotePraefix, invoicePraefix: $invoicePraefix, creditPraefix: $creditPraefix, currency: $currency, smsMessage: $smsMessage, offerDocumentText: $offerDocumentText, appointmentDocumentText: $appointmentDocumentText, deliveryNoteDocumentText: $deliveryNoteDocumentText, invoiceDocumentText: $invoiceDocumentText, creditDocumentText: $creditDocumentText, taxes: $taxes, nextOfferNumber: $nextOfferNumber, nextAppointmentNumber: $nextAppointmentNumber, nextDeliveryNoteNumber: $nextDeliveryNoteNumber, nextInvoiceNumber: $nextInvoiceNumber, nextBranchNumber: $nextBranchNumber, nextCustomerNumber: $nextCustomerNumber, nextSupplierNumber: $nextSupplierNumber, termOfPayment: $termOfPayment, countEmployees: $countEmployees, countBranches: $countBranches, limitationNumberOfEmployees: $limitationNumberOfEmployees, limitationNumberOfBranches: $limitationNumberOfBranches, isSmallBusiness: $isSmallBusiness, isMainSettings: $isMainSettings, listOfCarriers: $listOfCarriers, paymentMethods: $paymentMethods, listOfPackagingBoxes: $listOfPackagingBoxes, bankDetails: $bankDetails, openingTimes: $openingTimes)';
+    return 'MainSettings(settingsId: $settingsId, logoUrl: $logoUrl, offerPraefix: $offerPraefix, appointmentPraefix: $appointmentPraefix, deliveryNotePraefix: $deliveryNotePraefix, invoicePraefix: $invoicePraefix, creditPraefix: $creditPraefix, currency: $currency, smsMessage: $smsMessage, offerDocumentText: $offerDocumentText, appointmentDocumentText: $appointmentDocumentText, deliveryNoteDocumentText: $deliveryNoteDocumentText, invoiceDocumentText: $invoiceDocumentText, creditDocumentText: $creditDocumentText, taxes: $taxes, nextOfferNumber: $nextOfferNumber, nextAppointmentNumber: $nextAppointmentNumber, nextDeliveryNoteNumber: $nextDeliveryNoteNumber, nextInvoiceNumber: $nextInvoiceNumber, nextBranchNumber: $nextBranchNumber, nextCustomerNumber: $nextCustomerNumber, nextSupplierNumber: $nextSupplierNumber, nextReorderNumber: $nextReorderNumber, termOfPayment: $termOfPayment, countEmployees: $countEmployees, countBranches: $countBranches, limitationNumberOfEmployees: $limitationNumberOfEmployees, limitationNumberOfBranches: $limitationNumberOfBranches, isSmallBusiness: $isSmallBusiness, isMainSettings: $isMainSettings, listOfCarriers: $listOfCarriers, paymentMethods: $paymentMethods, listOfPackagingBoxes: $listOfPackagingBoxes, bankDetails: $bankDetails, openingTimes: $openingTimes)';
   }
 }

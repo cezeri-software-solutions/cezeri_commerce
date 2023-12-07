@@ -74,9 +74,9 @@ class SuppliersOverviewScreen extends StatelessWidget {
                     onPressed: () => showDialog(
                       context: context,
                       builder: (_) => state.selectedSuppliers.isEmpty
-                          ? const MyInfoDialog(title: 'Achtung!', content: 'Bitte wähle mindestens einen Artikel aus.')
+                          ? const MyInfoDialog(title: 'Achtung!', content: 'Bitte wähle mindestens einen Lieferanten aus.')
                           : MyDeleteDialog(
-                              content: 'Bist du sicher, dass du alle ausgewählten Artikel unwiederruflich löschen willst?',
+                              content: 'Bist du sicher, dass du alle ausgewählten Lieferanten unwiederruflich löschen willst?',
                               onConfirm: () {
                                 context.read<SupplierBloc>().add(DeleteSelectedSuppliersEvent(selectedSuppliers: state.selectedSuppliers));
                                 context.router.pop();

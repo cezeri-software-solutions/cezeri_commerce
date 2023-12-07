@@ -37,12 +37,6 @@ class SetSearchFieldTextEvent extends SupplierEvent {
 
 class OnSearchFieldSubmittedEvent extends SupplierEvent {}
 
-class OnSupplierSelectedEvent extends SupplierEvent {
-  final Supplier supplier;
-
-  OnSupplierSelectedEvent({required this.supplier});
-}
-
 class SetSupplierTaxEvent extends SupplierEvent {
   final Tax tax;
 
@@ -57,10 +51,10 @@ class OnSelectAllSuppliersEvent extends SupplierEvent {
   OnSelectAllSuppliersEvent({required this.isSelected});
 }
 
-class OnSupplierselectedEvent extends SupplierEvent {
-  final Supplier appointment;
+class OnSupplierSelectedEvent extends SupplierEvent {
+  final Supplier supplier;
 
-  OnSupplierselectedEvent({required this.appointment});
+  OnSupplierSelectedEvent({required this.supplier});
 }
 
 class OnEditSupplierAddressEvent extends SupplierEvent {
