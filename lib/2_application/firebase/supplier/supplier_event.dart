@@ -13,17 +13,15 @@ class GetSupplierEvent extends SupplierEvent {
   GetSupplierEvent({required this.supplier});
 }
 
-class CreateSupplierEvent extends SupplierEvent {
+class SetSupplierEvent extends SupplierEvent {
   final Supplier supplier;
 
-  CreateSupplierEvent({required this.supplier});
+  SetSupplierEvent({required this.supplier});
 }
 
-class UpdateSupplierEvent extends SupplierEvent {
-  final Supplier supplier;
+class CreateSupplierEvent extends SupplierEvent {}
 
-  UpdateSupplierEvent({required this.supplier});
-}
+class UpdateSupplierEvent extends SupplierEvent {}
 
 class DeleteSelectedSuppliersEvent extends SupplierEvent {
   final List<Supplier> selectedSuppliers;
@@ -63,6 +61,12 @@ class OnSupplierselectedEvent extends SupplierEvent {
   final Supplier appointment;
 
   OnSupplierselectedEvent({required this.appointment});
+}
+
+class OnEditSupplierAddressEvent extends SupplierEvent {
+  final Address address;
+
+  OnEditSupplierAddressEvent({required this.address});
 }
 
 //* --- Controller --- *//

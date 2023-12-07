@@ -48,6 +48,7 @@ class _MainSettingsPageState extends State<MainSettingsPage> {
   late TextEditingController _nextDeliveryNoteNumberController = TextEditingController();
   late TextEditingController _nextInvoiceNumberController = TextEditingController();
   late TextEditingController _nextCustomerNumberController = TextEditingController();
+  late TextEditingController _nextSupplierNumberController = TextEditingController();
 
   late TextEditingController _bankNameController = TextEditingController();
   late TextEditingController _bankIbanController = TextEditingController();
@@ -79,6 +80,7 @@ class _MainSettingsPageState extends State<MainSettingsPage> {
     _nextDeliveryNoteNumberController = TextEditingController(text: widget.mSettings.nextDeliveryNoteNumber.toString());
     _nextInvoiceNumberController = TextEditingController(text: widget.mSettings.nextInvoiceNumber.toString());
     _nextCustomerNumberController = TextEditingController(text: widget.mSettings.nextCustomerNumber.toString());
+    _nextSupplierNumberController = TextEditingController(text: widget.mSettings.nextSupplierNumber.toString());
 
     _bankNameController = TextEditingController(text: widget.mSettings.bankDetails.bankName);
     _bankIbanController = TextEditingController(text: widget.mSettings.bankDetails.bankIban);
@@ -238,6 +240,15 @@ class _MainSettingsPageState extends State<MainSettingsPage> {
                             divider: false,
                             trailing: TextField(
                               controller: _nextCustomerNumberController,
+                              keyboardType: TextInputType.number,
+                            ),
+                            trailingWidth: 80,
+                          ),
+                          MySettingsListTile(
+                            title: 'Nächste Lieferantennummer.',
+                            divider: false,
+                            trailing: TextField(
+                              controller: _nextSupplierNumberController,
                               keyboardType: TextInputType.number,
                             ),
                             trailingWidth: 80,
@@ -420,6 +431,7 @@ class _MainSettingsPageState extends State<MainSettingsPage> {
       nextDeliveryNoteNumber: int.parse(_nextDeliveryNoteNumberController.text),
       nextInvoiceNumber: int.parse(_nextInvoiceNumberController.text),
       nextCustomerNumber: int.parse(_nextCustomerNumberController.text),
+      nextSupplierNumber: int.parse(_nextSupplierNumberController.text),
       termOfPayment: int.parse(_termOfPaymentController.text),
       isSmallBusiness: _isSmallBusiness,
       paymentMethods: _paymentMethods,

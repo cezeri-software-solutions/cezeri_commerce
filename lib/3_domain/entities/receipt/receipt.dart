@@ -495,7 +495,7 @@ class Receipt {
       final isAutomationGiven = carrier.carrierAutomations.any((e) => e.country.isoCode == countryDeliveryPresta.isoCode && !e.isReturn);
       return switch (isAutomationGiven) {
         true => carrier.carrierAutomations.where((e) => e.country.isoCode == countryDeliveryPresta.isoCode && !e.isReturn).first,
-        false => carrier.carrierAutomations.first,
+        false => carrier.carrierAutomations.where((e) => e.country.name == '').firstOrNull ?? carrier.carrierAutomations.first,
       };
     }
 

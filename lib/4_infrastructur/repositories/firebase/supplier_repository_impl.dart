@@ -19,13 +19,14 @@ class SupplierRepositoryImpl implements SupplierRepository {
     if (!isConnected) return left(NoConnectionFailure());
 
     final currentUserUid = firebaseAuth.currentUser!.uid;
+    final docRef = db.collection('Suppliers').doc(currentUserUid).collection('Suppliers').doc();
+    final docRefSettings = db.collection('Settings').doc(currentUserUid).collection('Settings').doc(currentUserUid);
 
     try {
-      final docRef = db.collection('Suppliers').doc(currentUserUid).collection('Suppliers').doc();
-
       Supplier toCreateSupplier = supplier.copyWith(id: docRef.id);
-
       await docRef.set(toCreateSupplier.toJson());
+
+      await docRefSettings.update({'nextSupplierNumber': FieldValue.increment(1)});
 
       return right(toCreateSupplier);
     } on FirebaseException {

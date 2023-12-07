@@ -7,8 +7,8 @@ import '../../../../../3_domain/entities/customer/customer.dart';
 import '../../../../../constants.dart';
 import '../../../../core/widgets/my_button_small.dart';
 import '../../../../core/widgets/my_country_flag.dart';
+import '../../../../core/widgets/my_dialog_taxes.dart';
 import '../../../../core/widgets/my_form_field_small.dart';
-import 'customer_select_tax_dialog.dart';
 
 class CustomerMasterCard extends StatelessWidget {
   final CustomerBloc customerBloc;
@@ -136,13 +136,7 @@ class CustomerMasterCard extends StatelessWidget {
                 GestureDetector(
                   onTap: () => showDialog(
                     context: context,
-                    builder: (_) => BlocProvider.value(
-                      value: customerBloc,
-                      child: CustomerSelectTaxDialog(
-                        customerBloc: customerBloc,
-                        onChanged: (taxRule) => customerBloc.add(SetCustomerTaxEvent(tax: taxRule)),
-                      ),
-                    ),
+                    builder: (_) => MyDialogTaxes(onChanged: (taxRule) => customerBloc.add(SetCustomerTaxEvent(tax: taxRule))),
                   ),
                   child: MyButtonSmall(
                     child: Row(

@@ -722,6 +722,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
     } on FirebaseException {
       return left(GeneralFailure());
     } catch (e) {
+      logger.e('Beim Generieren der Dokumente aus einem Auftrag ist ein Fehler aufgetreten: $e');
       return left(GeneralFailure());
     }
   }
@@ -1213,7 +1214,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
           await createOrIncrementStatProductOnCreateReceipt(appointment, currentUserUid, db);
 
           final nextAppointmentNumber = mainSettings.nextAppointmentNumber + 1;
-          final updatedMainSettings = mainSettings.copyWith(nextAppointmentNumber: nextAppointmentNumber, nextCustomerNumber: nextCustomerNumber);
+          final updatedMainSettings = mainSettings.copyWith(nextAppointmentNumber: nextAppointmentNumber);
           transaction.update(docRefMainSettings, updatedMainSettings.toJson());
 
           final updatedMarketplace = marketplace.copyWith(

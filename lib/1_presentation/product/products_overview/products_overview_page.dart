@@ -168,7 +168,7 @@ enum QuantityUpdateWay { edit, set }
 class _UpdateProductQuantityDialog extends StatefulWidget {
   final Product product;
 
-  const _UpdateProductQuantityDialog({super.key, required this.product});
+  const _UpdateProductQuantityDialog({required this.product});
 
   @override
   State<_UpdateProductQuantityDialog> createState() => _UpdateProductQuantityDialogState();
@@ -178,6 +178,7 @@ class _UpdateProductQuantityDialogState extends State<_UpdateProductQuantityDial
   QuantityUpdateWay _quantityUpdateWay = QuantityUpdateWay.edit;
   int quantity = 0;
   int editedQuantity = 0;
+  bool updateOnlyAvailableQuantity = false;
 
   @override
   void initState() {
@@ -200,7 +201,18 @@ class _UpdateProductQuantityDialogState extends State<_UpdateProductQuantityDial
                 children: [
                   Text(widget.product.articleNumber, style: TextStyles.defaultBold),
                   Text(widget.product.name, maxLines: 2, overflow: TextOverflow.ellipsis, textAlign: TextAlign.center),
-                  Gaps.h32,
+                  Gaps.h16,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Checkbox.adaptive(
+                        value: updateOnlyAvailableQuantity,
+                        onChanged: (value) => setState(() => updateOnlyAvailableQuantity = value!),
+                      ),
+                      const Text('Nur verfügbaren Bestand aktualisieren?'),
+                    ],
+                  ),
+                  Gaps.h16,
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
@@ -238,7 +250,11 @@ class _UpdateProductQuantityDialogState extends State<_UpdateProductQuantityDial
                   Gaps.h32,
                   MyOutlinedButton(
                     buttonText: 'Speichern',
-                    onPressed: () => context.read<ProductBloc>().add(UpdateQuantityOfProductEvent(product: widget.product, newQuantity: newQuantity)),
+                    onPressed: () => context.read<ProductBloc>().add(UpdateQuantityOfProductEvent(
+                          product: widget.product,
+                          newQuantity: newQuantity,
+                          updateOnlyAvailableQuantity: updateOnlyAvailableQuantity,
+                        )),
                     buttonBackgroundColor: Colors.green,
                     isLoading: state.isLoadingProductOnUpdate,
                   ),

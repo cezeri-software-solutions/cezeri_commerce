@@ -13,8 +13,9 @@ import 'my_outlined_button.dart';
 class MyAddressUpdateSheet extends StatefulWidget {
   final Address? address;
   final Function(Address) onSave;
+  final bool comeFromSupplier;
 
-  const MyAddressUpdateSheet({super.key, required this.address, required this.onSave});
+  const MyAddressUpdateSheet({super.key, required this.address, required this.onSave, this.comeFromSupplier = false});
 
   @override
   State<MyAddressUpdateSheet> createState() => _MyAddressUpdateSheetState();
@@ -63,23 +64,25 @@ class _MyAddressUpdateSheetState extends State<MyAddressUpdateSheet> {
       keyboardDismiss: KeyboardDissmiss.onTab,
       children: [
         Gaps.h16,
-        Row(
-          children: [
-            const Text('Standardadresse:'),
-            Switch.adaptive(value: _isDefault, onChanged: (value) => setState(() => _isDefault = value)),
-          ],
-        ),
-        Gaps.h16,
-        MyTextFormFieldSmall(labelText: 'Firmenname', controller: _companyNameController),
-        Gaps.h16,
-        Row(
-          children: [
-            Expanded(child: MyTextFormFieldSmall(labelText: 'Vorname', controller: _firstNameController)),
-            Gaps.w8,
-            Expanded(child: MyTextFormFieldSmall(labelText: 'Nachname', controller: _lastNameController)),
-          ],
-        ),
-        Gaps.h16,
+        if (!widget.comeFromSupplier) ...[
+          Row(
+            children: [
+              const Text('Standardadresse:'),
+              Switch.adaptive(value: _isDefault, onChanged: (value) => setState(() => _isDefault = value)),
+            ],
+          ),
+          Gaps.h16,
+          MyTextFormFieldSmall(labelText: 'Firmenname', controller: _companyNameController),
+          Gaps.h16,
+          Row(
+            children: [
+              Expanded(child: MyTextFormFieldSmall(labelText: 'Vorname', controller: _firstNameController)),
+              Gaps.w8,
+              Expanded(child: MyTextFormFieldSmall(labelText: 'Nachname', controller: _lastNameController)),
+            ],
+          ),
+          Gaps.h16,
+        ],
         Row(
           children: [
             Expanded(child: MyTextFormFieldSmall(labelText: 'Straße & Hausnummer', controller: _streetNameController)),
@@ -96,14 +99,16 @@ class _MyAddressUpdateSheetState extends State<MyAddressUpdateSheet> {
           ],
         ),
         Gaps.h16,
-        Row(
-          children: [
-            Expanded(child: MyTextFormFieldSmall(labelText: 'Tel. 1:', controller: _phoneNameController)),
-            Gaps.w8,
-            Expanded(child: MyTextFormFieldSmall(labelText: 'Tel. 2:', controller: _phoneMobileNameController)),
-          ],
-        ),
-        Gaps.h16,
+        if (!widget.comeFromSupplier) ...[
+          Row(
+            children: [
+              Expanded(child: MyTextFormFieldSmall(labelText: 'Tel. 1:', controller: _phoneNameController)),
+              Gaps.w8,
+              Expanded(child: MyTextFormFieldSmall(labelText: 'Tel. 2:', controller: _phoneMobileNameController)),
+            ],
+          ),
+          Gaps.h16,
+        ],
         MyDialogSelectCountry(
           labelText: 'Land',
           selectedCountry: _selectedCountry.name,

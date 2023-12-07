@@ -66,6 +66,17 @@ class AppDrawer extends StatelessWidget {
                       },
                     ),
                     ListTile(
+                      leading: const Icon(Icons.person_4_outlined),
+                      title: const Text('Lieferant'),
+                      onTap: () {
+                        if (context.router.current.name == SuppliersOverviewRoute.name) {
+                          context.router.pop();
+                        } else {
+                          context.router.replaceAll([const SuppliersOverviewRoute()]);
+                        }
+                      },
+                    ),
+                    ListTile(
                       leading: const Icon(Icons.delivery_dining),
                       title: const Text('Packstation'),
                       onTap: () {

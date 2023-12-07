@@ -132,6 +132,14 @@ class PrestashopApi with UiLoggy {
     return payload == null ? const Optional.absent() : Optional.of(OrdersPresta.fromJson(payload).items.single);
   }
 
+  Future<Optional<XmlDocument>> getOrderAsXml(final int id) async {
+    final payload = await _doGetJson(
+      '${_conf.webserviceUrl}orders/$id?ws_key=${_conf.apiKey}&display=full',
+      single: true,
+    );
+    return payload == null ? const Optional.absent() : Optional.of(payload as XmlDocument);
+  }
+
   //* Products */
   Future<List<ProductIdPresta>> getProductIds() async {
     final payload = await _doGetJson(
@@ -204,7 +212,18 @@ class PrestashopApi with UiLoggy {
         builder,
       );
       payload = payloadDoPatch;
-    }
+    } 
+    // else {
+    //   final optionalOrder = await getOrderAsXml(orderId);
+    //   if (optionalOrder.isNotPresent) return false;
+    //   final orderAsXml = optionalOrder.value;
+    //   final updatedDocument = orderStatusUpdater(orderAsXml, statusId);
+    //   final payloadDoPut = await _doPut(
+    //     '${_conf.webserviceUrl}orders/$orderId',
+    //     updatedDocument,
+    //   );
+    //   payload = payloadDoPut;
+    // }
     return payload;
   }
 

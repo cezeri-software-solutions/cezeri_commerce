@@ -543,6 +543,7 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
           receiptCarrier: state.receipt!.receiptCarrier.copyWith(
             carrierProduct: state.receipt!.receiptCarrier.carrierProduct.copyWith(
               productName: event.receiptCarrierProduct.productName,
+              id: event.receiptCarrierProduct.id,
             ),
           ),
         ),

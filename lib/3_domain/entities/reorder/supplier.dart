@@ -19,6 +19,7 @@ class Supplier {
   final String city;
   final Country country;
   final String email;
+  final String homepage;
   final String phone;
   final String phoneMobile;
   final String uidNumber;
@@ -40,6 +41,7 @@ class Supplier {
     required this.city,
     required this.country,
     required this.email,
+    required this.homepage,
     required this.phone,
     required this.phoneMobile,
     required this.uidNumber,
@@ -66,6 +68,7 @@ class Supplier {
       city: '',
       country: Country.empty(),
       email: '',
+      homepage: '',
       phone: '',
       phoneMobile: '',
       uidNumber: '',
@@ -89,6 +92,7 @@ class Supplier {
     String? city,
     Country? country,
     String? email,
+    String? homepage,
     String? phone,
     String? phoneMobile,
     String? uidNumber,
@@ -110,6 +114,7 @@ class Supplier {
       city: city ?? this.city,
       country: country ?? this.country,
       email: email ?? this.email,
+      homepage: homepage ?? this.homepage,
       phone: phone ?? this.phone,
       phoneMobile: phoneMobile ?? this.phoneMobile,
       uidNumber: uidNumber ?? this.uidNumber,
@@ -122,6 +127,6 @@ class Supplier {
 
   @override
   String toString() {
-    return 'Supplier(id: $id, supplierNumber: $supplierNumber, company: $company, firstName: $firstName, lastName: $lastName, name: $name, street: $street, street2: $street2, postcode: $postcode, city: $city, country: $country, email: $email, phone: $phone, phoneMobile: $phoneMobile, uidNumber: $uidNumber, taxNumber: $taxNumber, tax: $tax, creationDate: $creationDate, lastEditingDate: $lastEditingDate)';
+    return 'Supplier(id: $id, supplierNumber: $supplierNumber, company: $company, firstName: $firstName, lastName: $lastName, name: $name, street: $street, street2: $street2, postcode: $postcode, city: $city, country: $country, email: $email, homepage: $homepage, phone: $phone, phoneMobile: $phoneMobile, uidNumber: $uidNumber, taxNumber: $taxNumber, tax: $tax, creationDate: $creationDate, lastEditingDate: $lastEditingDate)';
   }
 }

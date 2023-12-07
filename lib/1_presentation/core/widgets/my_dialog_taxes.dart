@@ -2,17 +2,15 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../../2_application/firebase/customer/customer_bloc.dart';
-import '../../../../../2_application/firebase/main_settings/main_settings_bloc.dart';
-import '../../../../../3_domain/entities/settings/tax.dart';
-import '../../../../../constants.dart';
-import '../../../../core/widgets/my_country_flag.dart';
+import '../../../2_application/firebase/main_settings/main_settings_bloc.dart';
+import '../../../3_domain/entities/settings/tax.dart';
+import '../../../constants.dart';
+import 'my_country_flag.dart';
 
-class CustomerSelectTaxDialog extends StatelessWidget {
-  final CustomerBloc customerBloc;
+class MyDialogTaxes extends StatelessWidget {
   final Function(Tax) onChanged;
 
-  const CustomerSelectTaxDialog({super.key, required this.customerBloc, required this.onChanged});
+  const MyDialogTaxes({super.key, required this.onChanged});
 
   @override
   Widget build(BuildContext context) {

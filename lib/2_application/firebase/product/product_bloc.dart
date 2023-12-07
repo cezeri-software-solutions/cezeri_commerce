@@ -203,7 +203,10 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
     on<UpdateQuantityOfProductEvent>((event, emit) async {
       emit(state.copyWith(isLoadingProductOnUpdate: true));
 
-      final failureOrSuccess = await productRepository.updateAvailableQuantityOfProductAbsolut(event.product, event.newQuantity);
+      final failureOrSuccess = switch (event.updateOnlyAvailableQuantity) {
+        false => await productRepository.updateAllQuantityOfProductAbsolut(event.product, event.newQuantity),
+        true => await productRepository.updateAvailableQuantityOfProductAbsolut(event.product, event.newQuantity)
+      };
       failureOrSuccess.fold(
         (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
         (product) {

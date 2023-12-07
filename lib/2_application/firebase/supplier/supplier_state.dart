@@ -28,10 +28,9 @@ class SupplierState {
   final TextEditingController firstNameController;
   final TextEditingController lastNameController;
   final TextEditingController emailController;
+  final TextEditingController homepageController;
   final TextEditingController phoneController;
   final TextEditingController phoneMobileController;
-  final TextEditingController uidNumberController;
-  final TextEditingController taxNumberController;
 
   const SupplierState({
     required this.supplier,
@@ -56,10 +55,9 @@ class SupplierState {
     required this.firstNameController,
     required this.lastNameController,
     required this.emailController,
+    required this.homepageController,
     required this.phoneController,
     required this.phoneMobileController,
-    required this.uidNumberController,
-    required this.taxNumberController,
   });
 
   factory SupplierState.initial() {
@@ -86,10 +84,9 @@ class SupplierState {
       firstNameController: TextEditingController(),
       lastNameController: TextEditingController(),
       emailController: TextEditingController(),
+      homepageController: TextEditingController(),
       phoneController: TextEditingController(),
       phoneMobileController: TextEditingController(),
-      uidNumberController: TextEditingController(),
-      taxNumberController: TextEditingController(),
     );
   }
 
@@ -116,10 +113,9 @@ class SupplierState {
     TextEditingController? firstNameController,
     TextEditingController? lastNameController,
     TextEditingController? emailController,
+    TextEditingController? homepageController,
     TextEditingController? phoneController,
     TextEditingController? phoneMobileController,
-    TextEditingController? uidNumberController,
-    TextEditingController? taxNumberController,
   }) {
     return SupplierState(
       supplier: supplier ?? this.supplier,
@@ -144,10 +140,9 @@ class SupplierState {
       firstNameController: firstNameController ?? this.firstNameController,
       lastNameController: lastNameController ?? this.lastNameController,
       emailController: emailController ?? this.emailController,
+      homepageController: homepageController ?? this.homepageController,
       phoneController: phoneController ?? this.phoneController,
       phoneMobileController: phoneMobileController ?? this.phoneMobileController,
-      uidNumberController: uidNumberController ?? this.uidNumberController,
-      taxNumberController: taxNumberController ?? this.taxNumberController,
     );
   }
 }

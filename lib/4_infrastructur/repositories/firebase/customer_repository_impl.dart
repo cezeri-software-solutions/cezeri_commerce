@@ -19,13 +19,14 @@ class CustomerRepositoryImpl implements CustomerRepository {
     if (!isConnected) return left(NoConnectionFailure());
 
     final currentUserUid = firebaseAuth.currentUser!.uid;
+    final docRef = db.collection('Customers').doc(currentUserUid).collection('Customers').doc();
+    final docRefSettings = db.collection('Settings').doc(currentUserUid).collection('Settings').doc(currentUserUid);
 
     try {
-      final docRef = db.collection('Customers').doc(currentUserUid).collection('Customers').doc();
-
       Customer toCreateCustomer = customer.copyWith(id: docRef.id);
-
       await docRef.set(toCreateCustomer.toJson());
+
+      await docRefSettings.update({'nextCustomerNumber': FieldValue.increment(1)});
 
       return right(toCreateCustomer);
     } on FirebaseException {

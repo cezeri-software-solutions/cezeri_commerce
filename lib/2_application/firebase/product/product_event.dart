@@ -87,8 +87,9 @@ class OnReorderProductImagesEvent extends ProductEvent {
 class UpdateQuantityOfProductEvent extends ProductEvent {
   final Product product;
   final int newQuantity;
+  final bool updateOnlyAvailableQuantity;
 
-  UpdateQuantityOfProductEvent({required this.product, required this.newQuantity});
+  UpdateQuantityOfProductEvent({required this.product, required this.newQuantity, required this.updateOnlyAvailableQuantity});
 }
 
 //? Zum aktivieren von einem Marktplatz bei mehreren ausgewählten Artikeln

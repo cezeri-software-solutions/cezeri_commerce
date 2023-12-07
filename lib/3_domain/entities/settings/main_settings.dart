@@ -32,6 +32,7 @@ class MainSettings {
   final int nextInvoiceNumber;
   final int nextBranchNumber;
   final int nextCustomerNumber;
+  final int nextSupplierNumber;
   final int termOfPayment;
   final int countEmployees;
   final int countBranches;
@@ -67,6 +68,7 @@ class MainSettings {
     required this.nextInvoiceNumber,
     required this.nextBranchNumber,
     required this.nextCustomerNumber,
+    required this.nextSupplierNumber,
     required this.termOfPayment,
     required this.countEmployees,
     required this.countBranches,
@@ -108,6 +110,7 @@ class MainSettings {
       nextInvoiceNumber: 1,
       nextBranchNumber: 1,
       nextCustomerNumber: 1,
+      nextSupplierNumber: 1,
       termOfPayment: 14,
       countEmployees: 0,
       countBranches: 0,
@@ -145,6 +148,7 @@ class MainSettings {
     int? nextInvoiceNumber,
     int? nextBranchNumber,
     int? nextCustomerNumber,
+    int? nextSupplierNumber,
     int? termOfPayment,
     int? countEmployees,
     int? countBranches,
@@ -180,6 +184,7 @@ class MainSettings {
       nextInvoiceNumber: nextInvoiceNumber ?? this.nextInvoiceNumber,
       nextBranchNumber: nextBranchNumber ?? this.nextBranchNumber,
       nextCustomerNumber: nextCustomerNumber ?? this.nextCustomerNumber,
+      nextSupplierNumber: nextSupplierNumber ?? this.nextSupplierNumber,
       termOfPayment: termOfPayment ?? this.termOfPayment,
       countEmployees: countEmployees ?? this.countEmployees,
       countBranches: countBranches ?? this.countBranches,
@@ -197,6 +202,6 @@ class MainSettings {
 
   @override
   String toString() {
-    return 'MainSettings(settingsId: $settingsId, logoUrl: $logoUrl, offerPraefix: $offerPraefix, appointmentPraefix: $appointmentPraefix, deliveryNotePraefix: $deliveryNotePraefix, invoicePraefix: $invoicePraefix, creditPraefix: $creditPraefix, currency: $currency, smsMessage: $smsMessage, offerDocumentText: $offerDocumentText, appointmentDocumentText: $appointmentDocumentText, deliveryNoteDocumentText: $deliveryNoteDocumentText, invoiceDocumentText: $invoiceDocumentText, creditDocumentText: $creditDocumentText, taxes: $taxes, nextOfferNumber: $nextOfferNumber, nextAppointmentNumber: $nextAppointmentNumber, nextDeliveryNoteNumber: $nextDeliveryNoteNumber, nextInvoiceNumber: $nextInvoiceNumber, nextBranchNumber: $nextBranchNumber, nextCustomerNumber: $nextCustomerNumber, termOfPayment: $termOfPayment, countEmployees: $countEmployees, countBranches: $countBranches, limitationNumberOfEmployees: $limitationNumberOfEmployees, limitationNumberOfBranches: $limitationNumberOfBranches, isSmallBusiness: $isSmallBusiness, isMainSettings: $isMainSettings, listOfCarriers: $listOfCarriers, paymentMethods: $paymentMethods, listOfPackagingBoxes: $listOfPackagingBoxes, bankDetails: $bankDetails, openingTimes: $openingTimes)';
+    return 'MainSettings(settingsId: $settingsId, logoUrl: $logoUrl, offerPraefix: $offerPraefix, appointmentPraefix: $appointmentPraefix, deliveryNotePraefix: $deliveryNotePraefix, invoicePraefix: $invoicePraefix, creditPraefix: $creditPraefix, currency: $currency, smsMessage: $smsMessage, offerDocumentText: $offerDocumentText, appointmentDocumentText: $appointmentDocumentText, deliveryNoteDocumentText: $deliveryNoteDocumentText, invoiceDocumentText: $invoiceDocumentText, creditDocumentText: $creditDocumentText, taxes: $taxes, nextOfferNumber: $nextOfferNumber, nextAppointmentNumber: $nextAppointmentNumber, nextDeliveryNoteNumber: $nextDeliveryNoteNumber, nextInvoiceNumber: $nextInvoiceNumber, nextBranchNumber: $nextBranchNumber, nextCustomerNumber: $nextCustomerNumber, nextSupplierNumber: $nextSupplierNumber, termOfPayment: $termOfPayment, countEmployees: $countEmployees, countBranches: $countBranches, limitationNumberOfEmployees: $limitationNumberOfEmployees, limitationNumberOfBranches: $limitationNumberOfBranches, isSmallBusiness: $isSmallBusiness, isMainSettings: $isMainSettings, listOfCarriers: $listOfCarriers, paymentMethods: $paymentMethods, listOfPackagingBoxes: $listOfPackagingBoxes, bankDetails: $bankDetails, openingTimes: $openingTimes)';
   }
 }

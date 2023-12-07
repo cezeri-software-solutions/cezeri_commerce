@@ -2,6 +2,7 @@ import 'package:bloc/bloc.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 
+import '../../../3_domain/entities/address.dart';
 import '../../../3_domain/entities/reorder/supplier.dart';
 import '../../../3_domain/entities/settings/tax.dart';
 import '../../../3_domain/repositories/firebase/supplier_repository.dart';
@@ -62,10 +63,35 @@ class SupplierBloc extends Bloc<SupplierEvent, SupplierState> {
 
 //? #########################################################################
 
+    on<SetSupplierEvent>((event, emit) async {
+      emit(state.copyWith(supplier: event.supplier));
+      add(SetSupplierControllerEvnet());
+    });
+
+//? #########################################################################
+
+    on<CreateSupplierEvent>((event, emit) async {
+      emit(state.copyWith(isLoadingSupplierOnCreate: true));
+
+      final failureOrSuccess = await supplierRepository.createSupplier(state.supplier!);
+      failureOrSuccess.fold(
+        (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
+        (supplier) => emit(state.copyWith(supplier: supplier, firebaseFailure: null, isAnyFailure: false)),
+      );
+
+      emit(state.copyWith(
+        isLoadingSupplierOnCreate: false,
+        fosSupplierOnCreateOption: optionOf(failureOrSuccess),
+      ));
+      emit(state.copyWith(fosSupplierOnCreateOption: none()));
+    });
+
+//? #########################################################################
+
     on<UpdateSupplierEvent>((event, emit) async {
       emit(state.copyWith(isLoadingSupplierOnUpdate: true));
 
-      final failureOrSuccess = await supplierRepository.updateSupplier(event.supplier);
+      final failureOrSuccess = await supplierRepository.updateSupplier(state.supplier!);
       failureOrSuccess.fold(
         (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
         (supplier) => emit(state.copyWith(supplier: supplier, firebaseFailure: null, isAnyFailure: false)),
@@ -138,6 +164,20 @@ class SupplierBloc extends Bloc<SupplierEvent, SupplierState> {
 
 //? #########################################################################
 
+    on<OnEditSupplierAddressEvent>((event, emit) async {
+      emit(state.copyWith(
+        supplier: state.supplier!.copyWith(
+          street: event.address.street,
+          street2: event.address.street2,
+          postcode: event.address.postcode,
+          city: event.address.city,
+          country: event.address.country,
+        ),
+      ));
+    });
+
+//? #########################################################################
+
     on<SetSupplierControllerEvnet>((event, emit) async {
       Supplier? supplier = state.supplier;
       if (supplier == null) {
@@ -148,10 +188,9 @@ class SupplierBloc extends Bloc<SupplierEvent, SupplierState> {
         firstNameController: TextEditingController(text: supplier.firstName),
         lastNameController: TextEditingController(text: supplier.lastName),
         emailController: TextEditingController(text: supplier.email),
+        homepageController: TextEditingController(text: supplier.homepage),
         phoneController: TextEditingController(text: supplier.phone),
         phoneMobileController: TextEditingController(text: supplier.phoneMobile),
-        uidNumberController: TextEditingController(text: supplier.uidNumber),
-        taxNumberController: TextEditingController(text: supplier.taxNumber),
       ));
     });
 
@@ -169,10 +208,9 @@ class SupplierBloc extends Bloc<SupplierEvent, SupplierState> {
           lastName: state.lastNameController.text,
           name: '${state.firstNameController.text} ${state.lastNameController.text}',
           email: state.emailController.text,
+          homepage: state.homepageController.text,
           phone: state.phoneController.text,
           phoneMobile: state.phoneMobileController.text,
-          uidNumber: state.uidNumberController.text,
-          taxNumber: state.taxNumberController.text,
         ),
       ));
     });

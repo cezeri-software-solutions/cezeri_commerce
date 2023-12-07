@@ -8,6 +8,16 @@ import '../../../3_domain/entities/product/product_marketplace.dart';
 import '../../../3_domain/entities_presta/language_presta.dart';
 import '../../../3_domain/entities_presta/product_presta.dart';
 
+//* Order
+XmlDocument orderStatusUpdater(XmlDocument document, int statusId) {
+  var toUpdateDocument = document;
+  var currentStateElement = toUpdateDocument.findAllElements('order').first;
+  currentStateElement.findElements('current_state').first.innerText = statusId.toString();
+
+  return toUpdateDocument;
+}
+
+//* Product
 XmlDocument stockAvailableUpdater(XmlDocument document, int quantity) {
   var toUpdateDocument = document;
   var stockAvailableElement = toUpdateDocument.findAllElements('stock_available').first;
