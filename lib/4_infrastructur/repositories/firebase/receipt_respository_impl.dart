@@ -1221,7 +1221,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
           await createOrIncrementStatProductOnCreateReceipt(appointment, currentUserUid, db);
 
           final nextAppointmentNumber = mainSettings.nextAppointmentNumber + 1;
-          final updatedMainSettings = mainSettings.copyWith(nextAppointmentNumber: nextAppointmentNumber);
+          final updatedMainSettings = mainSettings.copyWith(nextAppointmentNumber: nextAppointmentNumber, nextCustomerNumber: nextCustomerNumber);
           transaction.update(docRefMainSettings, updatedMainSettings.toJson());
 
           final updatedMarketplace = marketplace.copyWith(
