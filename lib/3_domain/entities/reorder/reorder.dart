@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.dart';
 import 'package:json_annotation/json_annotation.dart';
 
@@ -20,6 +21,7 @@ class Reorder {
   final ReorderSupplier reorderSupplier;
   final List<ReorderProduct> listOfReorderProducts;
   final Tax tax;
+  final String currency;
   final double totalPriceNet;
   final double totalPriceGross;
   final double totalPriceTax;
@@ -55,6 +57,7 @@ class Reorder {
     required this.reorderSupplier,
     required this.listOfReorderProducts,
     required this.tax,
+    required this.currency,
     required this.shippingPriceNet,
     required this.additionalAmountNet,
     required this.discountAmountNet,
@@ -109,11 +112,13 @@ class Reorder {
         );
 
   static double _calcProductsTotalNet(List<ReorderProduct> reorderProducts) {
+    if (reorderProducts.isEmpty) return 0.0;
     return (reorderProducts.map((e) => (e.wholesalePriceNet * e.quantity).toMyRoundedDouble()).toList().reduce((value, element) => value + element))
         .toMyRoundedDouble();
   }
 
   static double _calcProductsTotalGross(List<ReorderProduct> reorderProducts) {
+    if (reorderProducts.isEmpty) return 0.0;
     return (reorderProducts.map((e) => (e.wholesalePriceGross * e.quantity).toMyRoundedDouble()).toList().reduce((value, element) => value + element))
         .toMyRoundedDouble();
   }
@@ -195,6 +200,7 @@ class Reorder {
       reorderSupplier: ReorderSupplier.empty(),
       listOfReorderProducts: [],
       tax: Tax.empty(),
+      currency: '€',
       shippingPriceNet: 0.0,
       additionalAmountNet: 0.0,
       discountAmountNet: 0.0,
@@ -214,6 +220,7 @@ class Reorder {
     ReorderSupplier? reorderSupplier,
     List<ReorderProduct>? listOfReorderProducts,
     Tax? tax,
+    String? currency,
     double? totalPriceNet,
     double? totalPriceGross,
     double? totalPriceTax,
@@ -249,6 +256,7 @@ class Reorder {
       reorderSupplier: reorderSupplier ?? this.reorderSupplier,
       listOfReorderProducts: listOfReorderProducts ?? this.listOfReorderProducts,
       tax: tax ?? this.tax,
+      currency: currency ?? this.currency,
       shippingPriceNet: shippingPriceNet ?? this.shippingPriceNet,
       additionalAmountNet: additionalAmountNet ?? this.additionalAmountNet,
       discountAmountNet: discountAmountNet ?? this.discountAmountNet,
@@ -261,6 +269,6 @@ class Reorder {
 
   @override
   String toString() {
-    return 'Reorder(id: $id, reorderNumber: $reorderNumber, reorderNumberInternal: $reorderNumberInternal, closedManually: $closedManually, reorderStatus: $reorderStatus, reorderSupplier: $reorderSupplier, listOfReorderProducts: $listOfReorderProducts, tax: $tax, totalPriceNet: $totalPriceNet, totalPriceGross: $totalPriceGross, totalPriceTax: $totalPriceTax, productsTotalNet: $productsTotalNet, productsTotalGross: $productsTotalGross, productsTotalTax: $productsTotalTax, shippingPriceNet: $shippingPriceNet, shippingPriceGross: $shippingPriceGross, shippingPriceTax: $shippingPriceTax, additionalAmountNet: $additionalAmountNet, additionalAmountGross: $additionalAmountGross, additionalAmountTax: $additionalAmountTax, discountTotalNet: $discountTotalNet, discountTotalGross: $discountTotalGross, discountTotalTax: $discountTotalTax, discountAmountNet: $discountAmountNet, discountAmountGross: $discountAmountGross, discountAmountTax: $discountAmountTax, discountPercent: $discountPercent, discountPercentAmountGross: $discountPercentAmountGross, discountPercentAmountNet: $discountPercentAmountNet, discountPercentAmountTax: $discountPercentAmountTax, creationDate: $creationDate, deliveryDate: $deliveryDate, lastEditingDate: $lastEditingDate)';
+    return 'Reorder(id: $id, reorderNumber: $reorderNumber, reorderNumberInternal: $reorderNumberInternal, closedManually: $closedManually, reorderStatus: $reorderStatus, reorderSupplier: $reorderSupplier, listOfReorderProducts: $listOfReorderProducts, tax: $tax, currency: $currency, totalPriceNet: $totalPriceNet, totalPriceGross: $totalPriceGross, totalPriceTax: $totalPriceTax, productsTotalNet: $productsTotalNet, productsTotalGross: $productsTotalGross, productsTotalTax: $productsTotalTax, shippingPriceNet: $shippingPriceNet, shippingPriceGross: $shippingPriceGross, shippingPriceTax: $shippingPriceTax, additionalAmountNet: $additionalAmountNet, additionalAmountGross: $additionalAmountGross, additionalAmountTax: $additionalAmountTax, discountTotalNet: $discountTotalNet, discountTotalGross: $discountTotalGross, discountTotalTax: $discountTotalTax, discountAmountNet: $discountAmountNet, discountAmountGross: $discountAmountGross, discountAmountTax: $discountAmountTax, discountPercent: $discountPercent, discountPercentAmountGross: $discountPercentAmountGross, discountPercentAmountNet: $discountPercentAmountNet, discountPercentAmountTax: $discountPercentAmountTax, creationDate: $creationDate, deliveryDate: $deliveryDate, lastEditingDate: $lastEditingDate)';
   }
 }

@@ -16,6 +16,7 @@ import '2_application/firebase/marketplace/marketplace_bloc.dart';
 import '2_application/firebase/product/product_bloc.dart';
 import '2_application/firebase/receipt_detail/receipt_detail_bloc.dart';
 import '2_application/firebase/reorder/reorder_bloc.dart';
+import '2_application/firebase/reorder_detail/reorder_detail_bloc.dart';
 import '2_application/firebase/supplier/supplier_bloc.dart';
 import '2_application/packing_station/packing_station_bloc.dart';
 import '2_application/prestashop/product_import/product_import_bloc.dart';
@@ -60,7 +61,8 @@ Future<void> init() async {
   sl.registerFactory(() => PackingStationBloc(receiptRepository: sl(), customerRepository: sl(), packingStationRepository: sl()));
   sl.registerFactory(() => CustomerBloc(customerRepository: sl()));
   sl.registerFactory(() => SupplierBloc(supplierRepository: sl()));
-  sl.registerFactory(() => ReorderBloc(reorderRepository: sl()));
+  sl.registerFactory(() => ReorderBloc(reorderRepository: sl(), supplierRepository: sl()));
+  sl.registerFactory(() => ReorderDetailBloc(reorderRepository: sl(), productRepository: sl(), mainSettingsRepository: sl()));
   sl.registerFactory(() => DashboardBloc(dashboardRepository: sl(), receiptRepository: sl()));
   sl.registerFactory(() => ReceiptDetailBloc());
 

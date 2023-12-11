@@ -239,7 +239,6 @@ class _MainSettingsPageState extends State<MainSettingsPage> {
                           ),
                           MySettingsListTile(
                             title: 'Nächste Kundennummer.',
-                            divider: false,
                             trailing: TextField(
                               controller: _nextCustomerNumberController,
                               keyboardType: TextInputType.number,
@@ -248,7 +247,6 @@ class _MainSettingsPageState extends State<MainSettingsPage> {
                           ),
                           MySettingsListTile(
                             title: 'Nächste Lieferantennummer.',
-                            divider: false,
                             trailing: TextField(
                               controller: _nextSupplierNumberController,
                               keyboardType: TextInputType.number,
@@ -257,7 +255,6 @@ class _MainSettingsPageState extends State<MainSettingsPage> {
                           ),
                           MySettingsListTile(
                             title: 'Nächste Nachbestellnummer.',
-                            divider: false,
                             trailing: TextField(
                               controller: _nextReorderNumberController,
                               keyboardType: TextInputType.number,

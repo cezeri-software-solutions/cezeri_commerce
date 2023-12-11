@@ -1,0 +1,82 @@
+import 'package:auto_route/auto_route.dart';
+import 'package:cezeri_commerce/core/firebase_failures.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:logger/logger.dart';
+
+import '../../../2_application/firebase/reorder_detail/reorder_detail_bloc.dart';
+import '../../../3_domain/entities/reorder/supplier.dart';
+import '../../../injection.dart';
+import '../../core/functions/my_scaffold_messanger.dart';
+import 'functions/show_reorder_detail_products_dialog.dart';
+import 'reorder_detail_page.dart';
+
+enum ReorderCreateOrEdit { create, edit }
+
+final logger = Logger();
+
+@RoutePage()
+class ReorderDetailScreen extends StatelessWidget {
+  final ReorderCreateOrEdit reorderCreateOrEdit;
+  final Supplier? supplier;
+  final String? reorderId;
+
+  const ReorderDetailScreen({super.key, required this.reorderCreateOrEdit, this.supplier, this.reorderId});
+
+  @override
+  Widget build(BuildContext context) {
+    final reorderDetailBloc = sl<ReorderDetailBloc>()
+      ..add(SetReorderDetailEvent(
+        supplier: supplier,
+        reorderCreateOrEdit: reorderCreateOrEdit,
+        reorderId: reorderId,
+      ));
+
+    final appBar = AppBar(title: const Text('Nachbestellung'));
+
+    return BlocProvider(
+      create: (context) => reorderDetailBloc,
+      child: MultiBlocListener(
+        listeners: [
+          BlocListener<ReorderDetailBloc, ReorderDetailState>(
+            listenWhen: (p, c) => p.fosReorderDetailOnObserveOption != c.fosReorderDetailOnObserveOption,
+            listener: (context, state) {
+              state.fosReorderDetailOnObserveOption.fold(
+                () => null,
+                (a) => a.fold(
+                  (failure) => myScaffoldMessenger(context, failure, null, null, null),
+                  (unit) => myScaffoldMessenger(context, null, null, 'Nachbestellung erfolgreich geladen', null),
+                ),
+              );
+            },
+          ),
+          BlocListener<ReorderDetailBloc, ReorderDetailState>(
+            listenWhen: (p, c) => p.fosReorderDetailOnObserveProductsOption != c.fosReorderDetailOnObserveProductsOption,
+            listener: (context, state) {
+              state.fosReorderDetailOnObserveProductsOption.fold(
+                () => null,
+                (a) => a.fold(
+                  (failure) => myScaffoldMessenger(context, failure, null, null, null),
+                  (listOfLoadedProducts) => showReorderDetailProductsDialog(context, reorderDetailBloc),
+                ),
+              );
+            },
+          ),
+        ],
+        child: BlocBuilder<ReorderDetailBloc, ReorderDetailState>(
+          bloc: reorderDetailBloc,
+          builder: (context, state) {
+            logger.i(state.reorder);
+            if (state.isLoadingReorderDetailOnObserve) return Scaffold(appBar: appBar, body: const Center(child: CircularProgressIndicator()));
+            if (state.firebaseFailure != null && state.firebaseFailure.runtimeType != EmptyFailure && state.isAnyFailure) {
+              return Scaffold(appBar: appBar, body: const Center(child: Text('Ein Fehler ist aufgetreten')));
+            }
+            if (state.reorder == null) return Scaffold(appBar: appBar, body: const Center(child: CircularProgressIndicator()));
+
+            return ReorderDetailPage(reorderDetailBloc: reorderDetailBloc, reorderCreateOrEdit: reorderCreateOrEdit, supplier: supplier);
+          },
+        ),
+      ),
+    );
+  }
+}

@@ -3,7 +3,9 @@ import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 
 import '../../../3_domain/entities/reorder/reorder.dart';
+import '../../../3_domain/entities/reorder/supplier.dart';
 import '../../../3_domain/repositories/firebase/reorder_repository.dart';
+import '../../../3_domain/repositories/firebase/supplier_repository.dart';
 import '../../../core/firebase_failures.dart';
 
 part 'reorder_event.dart';
@@ -11,8 +13,9 @@ part 'reorder_state.dart';
 
 class ReorderBloc extends Bloc<ReorderEvent, ReorderState> {
   final ReorderRepository reorderRepository;
+  final SupplierRepository supplierRepository;
 
-  ReorderBloc({required this.reorderRepository}) : super(ReorderState.initial()) {
+  ReorderBloc({required this.reorderRepository, required this.supplierRepository}) : super(ReorderState.initial()) {
 //? #########################################################################
 
     on<SetReorderStateToInitialEvent>((event, emit) {
@@ -39,6 +42,7 @@ class ReorderBloc extends Bloc<ReorderEvent, ReorderState> {
         isLoadingReordersOnObserve: false,
         fosReordersOnObserveOption: optionOf(failureOrSuccess),
       ));
+      emit(state.copyWith(fosReordersOnObserveOption: none()));
     });
 
 //? #########################################################################
@@ -88,6 +92,48 @@ class ReorderBloc extends Bloc<ReorderEvent, ReorderState> {
         isAllReordersSelected: state.isAllReordersSelected && reorders.length < state.selectedReorders.length ? false : state.isAllReordersSelected,
         selectedReorders: reorders,
       ));
+    });
+
+//? #########################################################################
+
+    on<OnReorderGetAllSuppliersEvent>((event, emit) async {
+      emit(state.copyWith(isLoadingReorderSuppliersOnObserve: true));
+
+      final failureOrSuccess = await supplierRepository.getListOfSuppliers();
+      failureOrSuccess.fold(
+        (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
+        (listOfSuppliers) {
+          emit(state.copyWith(listOfSuppliers: listOfSuppliers, selectedReorders: [], firebaseFailure: null, isAnyFailure: false));
+          add(OnReorderSetFilteredSuppliersEvent());
+        },
+      );
+
+      emit(state.copyWith(
+        isLoadingReorderSuppliersOnObserve: false,
+        fosReorderOnObserveSuppliersOption: optionOf(failureOrSuccess),
+      ));
+      emit(state.copyWith(fosReorderOnObserveSuppliersOption: none()));
+    });
+
+//? #########################################################################
+
+    on<OnReorderSetFilteredSuppliersEvent>((event, emit) async {
+      final listOfSuppliers = switch (state.supplierSearchController.text) {
+        '' => state.listOfSuppliers,
+        (_) => state.listOfSuppliers
+            .where((e) =>
+                e.company.toLowerCase().contains(state.supplierSearchController.text.toLowerCase()) ||
+                e.supplierNumber.toString().toLowerCase().contains(state.supplierSearchController.text.toLowerCase()))
+            .toList()
+      };
+      if (listOfSuppliers.isNotEmpty) listOfSuppliers.sort((a, b) => a.company.compareTo(b.company));
+      emit(state.copyWith(listOfFilteredSuppliers: listOfSuppliers));
+    });
+
+//? #########################################################################
+
+    on<OnReorderSupplierSearchTextClearedEvent>((event, emit) async {
+      add(OnReorderSetFilteredSuppliersEvent());
     });
 
 //? #########################################################################

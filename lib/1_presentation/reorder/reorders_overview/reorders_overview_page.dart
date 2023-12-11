@@ -1,3 +1,4 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -5,6 +6,8 @@ import '../../../2_application/firebase/reorder/reorder_bloc.dart';
 import '../../../3_domain/entities/reorder/reorder.dart';
 import '../../../constants.dart';
 import '../../../core/firebase_failures.dart';
+import '../../../routes/router.gr.dart';
+import '../reorder_detail/reorder_detail_screen.dart';
 
 class ReordersOverviewPage extends StatelessWidget {
   final ReorderBloc reorderBloc;
@@ -76,57 +79,25 @@ class _ReorderContainer extends StatelessWidget {
       bloc: reorderBloc,
       builder: (context, state) {
         return Container(
-            // color: Colors.white,
-            // child: Row(
-            //   children: [
-            //     Checkbox.adaptive(
-            //       value: state.selectedReorders.any((e) => e.id == reorder.id),
-            //       onChanged: (_) => reorderBloc.add(OnReorderSelectedEvent(reorder: reorder)),
-            //     ),
-            //     Expanded(
-            //       child: InkWell(
-            //         onTap: () {
-            //           reorderBloc.add(GetReorderEvent(reorder: reorder));
-            //           context.router.push(ReorderDetailRoute(reorderBloc: reorderBloc, reorderCreateOrEdit: ReorderCreateOrEdit.edit));
-            //         },
-            //         child: Column(
-            //           crossAxisAlignment: CrossAxisAlignment.start,
-            //           children: [
-            //             Text(reorder.reorderNumber.toString()),
-            //             Text(reorder.company),
-            //             Text(reorder.name),
-            //             Text(DateFormat('dd.MM.yyy', 'de').format(reorder.creationDate)),
-            //           ],
-            //         ),
-            //       ),
-            //     ),
-            //     Expanded(
-            //       child: Column(
-            //         crossAxisAlignment: CrossAxisAlignment.start,
-            //         children: [
-            //           Text(reorder.street),
-            //           Text.rich(
-            //             TextSpan(
-            //               children: [
-            //                 TextSpan(text: reorder.postcode),
-            //                 const TextSpan(text: ' '),
-            //                 TextSpan(text: reorder.city),
-            //               ],
-            //             ),
-            //           ),
-            //           Row(
-            //             children: [
-            //               Text(reorder.country.name),
-            //               Gaps.w8,
-            //               MyCountryFlag(country: reorder.country, size: 12),
-            //             ],
-            //           ),
-            //         ],
-            //       ),
-            //     ),
-            //   ],
-            // ),
-            );
+          color: Colors.white,
+          child: Row(
+            children: [
+              Checkbox.adaptive(
+                value: state.selectedReorders.any((e) => e.id == reorder.id),
+                onChanged: (_) => reorderBloc.add(OnReorderSelectedEvent(reorder: reorder)),
+              ),
+              Expanded(
+                child: InkWell(
+                  onTap: () => context.router.push(ReorderDetailRoute(reorderCreateOrEdit: ReorderCreateOrEdit.edit, reorderId: reorder.id)),
+                  child: Text(reorder.reorderNumber.toString()),
+                ),
+              ),
+              Expanded(
+                child: Text(reorder.reorderSupplier.name),
+              ),
+            ],
+          ),
+        );
       },
     );
   }

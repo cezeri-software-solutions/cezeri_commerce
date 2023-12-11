@@ -1053,11 +1053,15 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
       final appointmentListFirestore =
           await docRefReceipt.get().then((value) => value.docs.map((querySnapshot) => Receipt.fromJson(querySnapshot.data())).toList());
       if (appointmentListFirestore.isNotEmpty) {
+        logger.e('Vom Marktplatz geladene Bestellung ist bereits in Firestore gespeicher');
         return left(MixedFailure(errorMessage: 'Vom Marktplatz geladene Bestellung ist bereits in Firestore gespeicher'));
       }
 
       final dsMainSettings = await docRefMainSettings.get();
-      if (!dsMainSettings.exists) return left(MixedFailure(errorMessage: 'MainSettings konnte nicht aus Firestore geladen werden'));
+      if (!dsMainSettings.exists) {
+        logger.e('MainSettings konnte nicht aus Firestore geladen werden');
+        return left(MixedFailure(errorMessage: 'MainSettings konnte nicht aus Firestore geladen werden'));
+      }
       final mainSettings = MainSettings.fromJson(dsMainSettings.data()!);
 
       List<ReceiptProduct> listOfReceiptproduct = [];
@@ -1077,6 +1081,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
         if (productFirestore == null) {
           final optionalProductPresta = await api.getProduct(int.parse(orderProductPresta.productId), marketplace);
           if (optionalProductPresta.isNotPresent) {
+            logger.e('Artikel aus Bestellung konnte beim Bestellimport nicht aus Marktplatz geladen werden');
             return left(MixedFailure(errorMessage: 'Artikel aus Bestellung konnte beim Bestellimport nicht aus Marktplatz geladen werden'));
           }
           final productPresta = optionalProductPresta.value;
@@ -1099,6 +1104,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
           if (!productFirestore.productMarketplaces.any((e) => e.idMarketplace == marketplace.id)) {
             final optionalProductPresta = await api.getProduct(int.parse(orderProductPresta.productId), marketplace);
             if (optionalProductPresta.isNotPresent) {
+              logger.e('Artikel aus Bestellung konnte beim Bestellimport nicht aus Marktplatz geladen werden');
               return left(MixedFailure(errorMessage: 'Artikel aus Bestellung konnte beim Bestellimport nicht aus Marktplatz geladen werden'));
             }
             final productPresta = optionalProductPresta.value;
@@ -1182,6 +1188,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
       }
       //* Wenn der Kunde nicht geladen werden kann und auch nicht erstellt werden kann, soll diese Bestellung übersprungen werden.
       if (customerFirestore == null) {
+        logger.e('Kunde aus Bestellung von Marktplatz konnte weder in Firestore erstellt werden, noch in Firestore gespeichert werden');
         return left(MixedFailure(
             errorMessage: 'Kunde aus Bestellung von Marktplatz konnte weder in Firestore erstellt werden, noch in Firestore gespeichert werden'));
       }
@@ -1227,7 +1234,8 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
       }
 
       if (receiptToReturn == null) {
-        return left(MixedFailure(errorMessage: 'Bestellung wurde aus Marktplatz geladen werden, aber nicht in Firestore gespeichert werden'));
+        logger.e('Bestellung wurde aus Marktplatz geladen, konnten aber nicht in Firestore gespeichert werden');
+        return left(MixedFailure(errorMessage: 'Bestellung wurde aus Marktplatz geladen, konnten aber nicht in Firestore gespeichert werden'));
       }
       return right(receiptToReturn!);
     } catch (e) {
@@ -1512,7 +1520,9 @@ Future<ParcelTracking?> getParcelTracking(Receipt receipt, MainSettings ms, int 
   if (carrier == null) return null;
   final cCredentials = carrier.carrierKey;
 
-  final recipientAddress = receipt.receiptCustomer.listOfAddress.where((e) => e.addressType == AddressType.delivery && e.isDefault).first;
+  //TODO: Löschen wenn alles passt
+  // final recipientAddress = receipt.receiptCustomer.listOfAddress.where((e) => e.addressType == AddressType.delivery && e.isDefault).first;
+  final recipientAddress = receipt.addressDelivery;
 
   final service = AustrianPostApi(
     AustrianPostApiConfig(

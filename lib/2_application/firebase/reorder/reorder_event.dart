@@ -34,3 +34,11 @@ class OnReorderSelectedEvent extends ReorderEvent {
 
   OnReorderSelectedEvent({required this.reorder});
 }
+
+class OnReorderGetAllSuppliersEvent extends ReorderEvent {}
+
+//* --- controller ---*//
+
+class OnReorderSetFilteredSuppliersEvent extends ReorderEvent {}
+
+class OnReorderSupplierSearchTextClearedEvent extends ReorderEvent {}

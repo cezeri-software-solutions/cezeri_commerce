@@ -12,7 +12,6 @@ import 'package:printing/printing.dart';
 
 import '../../../2_application/firebase/appointment/appointment_bloc.dart';
 import '../../../2_application/firebase/marketplace/marketplace_bloc.dart';
-import '../../../3_domain/entities/address.dart';
 import '../../../3_domain/entities/marketplace/marketplace.dart';
 import '../../../3_domain/entities/receipt/receipt.dart';
 import '../../../3_domain/entities/receipt/receipt_product.dart';
@@ -138,13 +137,16 @@ class __AppointmentContainerState extends State<_AppointmentContainer> {
     final screenWidth = MediaQuery.sizeOf(context).width;
     final responsiveness = screenWidth > 700 ? Responsiveness.isTablet : Responsiveness.isMobil;
     final marketplace = widget.listOfMarketplaces.where((e) => e.id == widget.receipt.marketplaceId).first;
-    Address? deliveryAddress =
-        widget.receipt.receiptCustomer.listOfAddress.where((e) => e.addressType == AddressType.delivery && e.isDefault).firstOrNull;
-    deliveryAddress ??=
-        widget.receipt.receiptCustomer.listOfAddress.isNotEmpty ? widget.receipt.receiptCustomer.listOfAddress.first : Address.empty();
-    Address? invoiceAddress =
-        widget.receipt.receiptCustomer.listOfAddress.where((e) => e.addressType == AddressType.invoice && e.isDefault).firstOrNull;
-    invoiceAddress ??= widget.receipt.receiptCustomer.listOfAddress.isNotEmpty ? widget.receipt.receiptCustomer.listOfAddress.first : Address.empty();
+    //TODO: Löschen wenn alles passt
+    // Address? deliveryAddress =
+    //     widget.receipt.receiptCustomer.listOfAddress.where((e) => e.addressType == AddressType.delivery && e.isDefault).firstOrNull;
+    // deliveryAddress ??=
+    //     widget.receipt.receiptCustomer.listOfAddress.isNotEmpty ? widget.receipt.receiptCustomer.listOfAddress.first : Address.empty();
+    // Address? invoiceAddress =
+    //     widget.receipt.receiptCustomer.listOfAddress.where((e) => e.addressType == AddressType.invoice && e.isDefault).firstOrNull;
+    // invoiceAddress ??= widget.receipt.receiptCustomer.listOfAddress.isNotEmpty ? widget.receipt.receiptCustomer.listOfAddress.first : Address.empty();
+    final deliveryAddress = widget.receipt.addressDelivery;
+    final invoiceAddress = widget.receipt.addressInvoice;
     return BlocBuilder<AppointmentBloc, AppointmentState>(
       builder: (context, state) {
         return Container(
@@ -249,7 +251,7 @@ class __AppointmentContainerState extends State<_AppointmentContainer> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        if (deliveryAddress!.companyName != '') Text(deliveryAddress.companyName),
+                        if (deliveryAddress.companyName != '') Text(deliveryAddress.companyName),
                         Text(deliveryAddress.name),
                         Text(deliveryAddress.street),
                         Text.rich(
@@ -304,7 +306,7 @@ class __AppointmentContainerState extends State<_AppointmentContainer> {
                       children: [
                         if (widget.receipt.receiptCustomer.company != null) Text(widget.receipt.receiptCustomer.company!),
                         Text(widget.receipt.receiptCustomer.name),
-                        Text(invoiceAddress!.street),
+                        Text(invoiceAddress.street),
                         Text.rich(
                           TextSpan(
                             children: [

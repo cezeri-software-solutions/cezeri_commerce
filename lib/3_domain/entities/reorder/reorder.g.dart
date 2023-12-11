@@ -18,6 +18,7 @@ Reorder _$ReorderFromJson(Map<String, dynamic> json) => Reorder(
           .map((e) => ReorderProduct.fromJson(e as Map<String, dynamic>))
           .toList(),
       tax: Tax.fromJson(json['tax'] as Map<String, dynamic>),
+      currency: json['currency'] as String,
       shippingPriceNet: (json['shippingPriceNet'] as num).toDouble(),
       additionalAmountNet: (json['additionalAmountNet'] as num).toDouble(),
       discountAmountNet: (json['discountAmountNet'] as num).toDouble(),
@@ -39,6 +40,7 @@ Map<String, dynamic> _$ReorderToJson(Reorder instance) => <String, dynamic>{
       'listOfReorderProducts':
           instance.listOfReorderProducts.map((e) => e.toJson()).toList(),
       'tax': instance.tax.toJson(),
+      'currency': instance.currency,
       'shippingPriceNet': instance.shippingPriceNet,
       'additionalAmountNet': instance.additionalAmountNet,
       'discountAmountNet': instance.discountAmountNet,

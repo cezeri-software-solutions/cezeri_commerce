@@ -2,6 +2,7 @@ import 'package:bloc/bloc.dart';
 import 'package:cezeri_commerce/core/firebase_failures.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
+import 'package:logger/logger.dart';
 
 import '../../../3_domain/entities/address.dart';
 import '../../../3_domain/entities/customer/customer.dart';
@@ -10,6 +11,8 @@ import '../../../3_domain/repositories/firebase/customer_repository.dart';
 
 part 'customer_event.dart';
 part 'customer_state.dart';
+
+final logger = Logger();
 
 class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
   final CustomerRepository customerRepository;
@@ -175,15 +178,28 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
 
     on<OnAddEditCustomerAddressEvent>((event, emit) async {
       final index = state.customer!.listOfAddress.indexWhere((e) => e.id == event.address.id);
+      logger.i(event.address);
+      logger.i(state.customer!.listOfAddress);
 
       if (index == -1) {
         //* if new Address (Add Address)
-        List<Address> newListOfAddress = state.customer!.listOfAddress..add(event.address);
-        if (event.address.isDefault && state.customer!.listOfAddress.any((e) => e.isDefault)) {
+        Address newAddress = event.address;
+        List<Address> newListOfAddress = state.customer!.listOfAddress;
+        if (newAddress.isDefault && state.customer!.listOfAddress.any((e) => e.isDefault)) {
           final idOfOldDefault = state.customer!.listOfAddress.where((e) => e.isDefault).first.id;
           final indexOfOldDefault = newListOfAddress.indexWhere((e) => e.id == idOfOldDefault);
           if (indexOfOldDefault == -1) return;
+          if (newListOfAddress[indexOfOldDefault].addressType != newAddress.addressType) return;
           newListOfAddress[indexOfOldDefault] = newListOfAddress[indexOfOldDefault].copyWith(isDefault: false);
+        }
+        newListOfAddress = newListOfAddress..add(newAddress);
+        if (newAddress.addressType == AddressType.delivery &&
+            state.customer!.listOfAddress.where((e) => e.addressType == AddressType.invoice).firstOrNull == null) {
+          newListOfAddress.add(newAddress.copyWith(addressType: AddressType.invoice, isDefault: true));
+        }
+        if (newAddress.addressType == AddressType.invoice &&
+            state.customer!.listOfAddress.where((e) => e.addressType == AddressType.delivery).firstOrNull == null) {
+          newListOfAddress.add(newAddress.copyWith(addressType: AddressType.delivery, isDefault: true));
         }
         emit(state.copyWith(customer: state.customer!.copyWith(listOfAddress: newListOfAddress)));
       } else {
