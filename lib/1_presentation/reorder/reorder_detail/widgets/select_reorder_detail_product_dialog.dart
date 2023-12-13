@@ -1,3 +1,4 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -72,17 +73,16 @@ class SelectReorderDetailProductDialog extends StatelessWidget {
                             ),
                             title: Text(product.name, style: TextStyles.defaultt),
                             trailing: IconButton(
-                              onPressed: () {},
-                              //reorderDetailBloc.add(AddProductToReorderProductsEvent(reorderProduct: ReorderProduct.fromProduct(product))),
+                              onPressed: () => reorderDetailBloc.add(OnReorderDeatilAddProductEvent(product: product)),
                               icon: const Icon(
                                 Icons.arrow_forward_ios,
                                 color: Colors.green,
                               ),
                             ),
                             onTap: () {
-                              // context.read<ProductBloc>().add(OnProductSearchControllerClearedEvent());
-                              // context.router.pop();
-                              // reorderDetailBloc.add(AddProductToReorderProductsEvent(reorderProduct: ReorderProduct.fromProduct(product)));
+                              reorderDetailBloc.add(OnReorderDetailControllerClearedEvent());
+                              context.router.pop();
+                              reorderDetailBloc.add(OnReorderDeatilAddProductEvent(product: product));
                             },
                           ),
                           const Divider(height: 0),

@@ -1,5 +1,7 @@
 import 'package:bloc/bloc.dart';
+import 'package:cezeri_commerce/1_presentation/core/extensions/string_to_int.dart';
 import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.dart';
+import 'package:cezeri_commerce/1_presentation/core/functions/mixed_functions.dart';
 import 'package:cezeri_commerce/3_domain/entities/reorder/reorder_supplier.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
@@ -7,6 +9,7 @@ import 'package:flutter/material.dart';
 import '../../../1_presentation/reorder/reorder_detail/reorder_detail_screen.dart';
 import '../../../3_domain/entities/product/product.dart';
 import '../../../3_domain/entities/reorder/reorder.dart';
+import '../../../3_domain/entities/reorder/reorder_product.dart';
 import '../../../3_domain/entities/reorder/supplier.dart';
 import '../../../3_domain/entities/settings/main_settings.dart';
 import '../../../3_domain/entities/settings/tax.dart';
@@ -32,6 +35,42 @@ class ReorderDetailBloc extends Bloc<ReorderDetailEvent, ReorderDetailState> {
 
     on<SetReorderDetailStateToInitialEvent>((event, emit) {
       emit(ReorderDetailState.initial());
+    });
+
+//? #########################################################################
+
+    on<ReorderDetailCreateReorderEvent>((event, emit) async {
+      emit(state.copyWith(isLoadingOnCreateReorder: true));
+
+      final failureOrSuccess = await reorderRepository.createReorder(state.reorder!);
+      failureOrSuccess.fold(
+        (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
+        (reorder) => emit(state.copyWith(reorder: reorder, firebaseFailure: null, isAnyFailure: false)),
+      );
+
+      emit(state.copyWith(
+        isLoadingOnCreateReorder: false,
+        fosReorderDetailOnCreateOption: optionOf(failureOrSuccess),
+      ));
+      emit(state.copyWith(fosReorderDetailOnCreateOption: none()));
+    });
+
+//? #########################################################################
+
+    on<ReorderDetailUpdateReorderEvent>((event, emit) async {
+      emit(state.copyWith(isLoadingOnUpdateReorder: true));
+
+      final failureOrSuccess = await reorderRepository.updateReorder(state.reorder!);
+      failureOrSuccess.fold(
+        (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
+        (reorder) => emit(state.copyWith(reorder: reorder, firebaseFailure: null, isAnyFailure: false)),
+      );
+
+      emit(state.copyWith(
+        isLoadingOnUpdateReorder: false,
+        fosReorderDetailOnOUpdateOption: optionOf(failureOrSuccess),
+      ));
+      emit(state.copyWith(fosReorderDetailOnOUpdateOption: none()));
     });
 
 //? #########################################################################
@@ -79,6 +118,7 @@ class ReorderDetailBloc extends Bloc<ReorderDetailEvent, ReorderDetailState> {
 
       emit(state.copyWith(isLoadingReorderDetailOnObserve: false, reorder: reorderToSet!, firebaseFailure: null, isAnyFailure: false));
       add(SetReorderDetailControllersEvent());
+      add(ReorderDetailSetAllProductControllersEvent());
     });
 
 //? #########################################################################
@@ -104,12 +144,27 @@ class ReorderDetailBloc extends Bloc<ReorderDetailEvent, ReorderDetailState> {
 
 //? #########################################################################
 
+    on<OnReorderDetailClosedManuallyChangeEvent>((event, emit) async {
+      final newReorderStatus = event.value
+          ? ReorderStatus.completed
+          : state.reorder!.listOfReorderProducts.every((e) => e.bookedQuantity == 0)
+              ? ReorderStatus.open
+              : state.reorder!.listOfReorderProducts.every((e) => e.bookedQuantity == e.quantity)
+                  ? ReorderStatus.completed
+                  : ReorderStatus.partiallyCompleted;
+
+      emit(state.copyWith(reorder: state.reorder!.copyWith(closedManually: event.value, reorderStatus: newReorderStatus)));
+    });
+
+//? #########################################################################
+
     on<SetReorderDetailControllersEvent>((event, emit) {
       emit(state.copyWith(
         discountPercentController: TextEditingController(text: state.reorder!.discountPercent.toMyCurrencyString()),
         discountAmountGrossController: TextEditingController(text: state.reorder!.discountAmountGross.toMyCurrencyString()),
         additionalAmountGrossController: TextEditingController(text: state.reorder!.additionalAmountGross.toMyCurrencyString()),
         shippingPriceGrossController: TextEditingController(text: state.reorder!.shippingPriceGross.toMyCurrencyString()),
+        reorderNumberInternalController: TextEditingController(text: state.reorder!.reorderNumberInternal),
       ));
     });
 
@@ -119,11 +174,18 @@ class ReorderDetailBloc extends Bloc<ReorderDetailEvent, ReorderDetailState> {
       emit(state.copyWith(
         reorder: state.reorder!.copyWith(
           discountPercent: state.discountPercentController.text.toMyDouble(),
-          discountAmountGross: state.discountAmountGrossController.text.toMyDouble(),
-          additionalAmountGross: state.additionalAmountGrossController.text.toMyDouble(),
-          shippingPriceGross: state.shippingPriceGrossController.text.toMyDouble(),
+          discountAmountNet: state.discountAmountGrossController.text.toMyDouble() / taxToCalc(state.reorder!.tax.taxRate),
+          additionalAmountNet: state.additionalAmountGrossController.text.toMyDouble() / taxToCalc(state.reorder!.tax.taxRate),
+          shippingPriceNet: state.shippingPriceGrossController.text.toMyDouble() / taxToCalc(state.reorder!.tax.taxRate),
+          reorderNumberInternal: state.reorderNumberInternalController.text,
         ),
       ));
+    });
+
+//? #########################################################################
+
+    on<OnReorderDetailControllerClearedEvent>((event, emit) {
+      emit(state.copyWith(productSearchController: TextEditingController()));
     });
 
 //? #########################################################################
@@ -151,6 +213,16 @@ class ReorderDetailBloc extends Bloc<ReorderDetailEvent, ReorderDetailState> {
 //? #########################################################################
 
     on<OnReorderDeatilAddProductEvent>((event, emit) async {
+      List<ReorderProduct> newListOfReorderProducts = List.from(state.reorder!.listOfReorderProducts);
+
+      //* Falls es kein Artikel aus der Datenbank ist
+      // if (event.product.id.isEmpty) {
+      //   newListOfReorderProducts.add(ReorderProduct.fromProduct(event.product, newListOfReorderProducts.length + 1, state.reorder!.tax));
+      //   emit(state.copyWith(reorder: state.reorder!.copyWith(listOfReorderProducts: newListOfReorderProducts)));
+      //   add(ReorderDetailSetAllProductControllersEvent());
+      //   return;
+      // }
+
       int? index;
       for (int i = 0; i < state.reorder!.listOfReorderProducts.length; i++) {
         if (event.product.id == state.reorder!.listOfReorderProducts[i].productId &&
@@ -160,9 +232,29 @@ class ReorderDetailBloc extends Bloc<ReorderDetailEvent, ReorderDetailState> {
         }
       }
 
-      if(index != null) {
-
+      if (index != null && event.product.id.isNotEmpty) {
+        newListOfReorderProducts[index] = newListOfReorderProducts[index].copyWith(quantity: newListOfReorderProducts[index].quantity + 1);
+        List<TextEditingController> newListOfQuantityControllers = List.from(state.quantityControllers);
+        newListOfQuantityControllers[index] = TextEditingController(text: (newListOfQuantityControllers[index].text.toMyInt() + 1).toString());
+        emit(state.copyWith(
+          reorder: state.reorder!.copyWith(listOfReorderProducts: newListOfReorderProducts),
+          quantityControllers: newListOfQuantityControllers,
+        ));
+      } else {
+        newListOfReorderProducts.add(ReorderProduct.fromProduct(event.product, newListOfReorderProducts.length + 1, state.reorder!.tax));
+        emit(state.copyWith(reorder: state.reorder!.copyWith(listOfReorderProducts: newListOfReorderProducts)));
+        add(ReorderDetailSetAllProductControllersEvent());
       }
+    });
+
+//? #########################################################################
+
+    on<OnReorderDeatilRemoveProductEvent>((event, emit) async {
+      List<ReorderProduct> newListOfReorderProducts = List.from(state.reorder!.listOfReorderProducts);
+      newListOfReorderProducts.removeAt(event.index);
+
+      emit(state.copyWith(reorder: state.reorder!.copyWith(listOfReorderProducts: newListOfReorderProducts)));
+      add(ReorderDetailSetAllProductControllersEvent());
     });
 
 //? #########################################################################
@@ -173,40 +265,44 @@ class ReorderDetailBloc extends Bloc<ReorderDetailEvent, ReorderDetailState> {
       List<TextEditingController> articleNameControllers = [];
       List<Tax> taxRulesList = [];
       List<TextEditingController> quantityControllers = [];
-      List<TextEditingController> unitPriceNetControllers = [];
-      List<TextEditingController> posDiscountPercentControllers = [];
-      List<TextEditingController> unitPriceGrossControllers = [];
+      List<TextEditingController> wholesalePriceNetControllers = [];
 
-      // for (final product in event.listOfReceiptProducts == null ? state.listOfReceiptProducts : event.listOfReceiptProducts!) {
-      //   if (product.isFromDatabase) {
-      //     isEditable.add(false);
-      //   } else {
-      //     isEditable.add(true);
-      //   }
-      //   articleNumberControllers.add(TextEditingController(text: product.articleNumber));
-      //   articleNameControllers.add(TextEditingController(text: product.name));
-      //   if (event.listOfReceiptProducts == null) {
-      //     taxRulesList.add(state.taxRulesListFromSettings.where((e) => e.taxName == product.tax.taxName).first);
-      //   } else {
-      //     taxRulesList.add(state.taxRulesListFromSettings.where((e) => e.isDefault).first);
-      //   }
-      //   quantityControllers.add(TextEditingController(text: product.quantity.toString()));
-      //   unitPriceNetControllers.add(TextEditingController(text: product.unitPriceNet.toMyCurrencyStringToShow()));
-      //   posDiscountPercentControllers.add(TextEditingController(text: product.discountPercent.toString()));
-      //   unitPriceGrossControllers.add(TextEditingController(text: product.unitPriceGross.toMyCurrencyStringToShow()));
-      // }
-      // emit(state.copyWith(
-      //   isEditable: isEditable,
-      //   articleNumberControllers: articleNumberControllers,
-      //   articleNameControllers: articleNameControllers,
-      //   quantityControllers: quantityControllers,
-      //   unitPriceNetControllers: unitPriceNetControllers,
-      //   posDiscountPercentControllers: posDiscountPercentControllers,
-      //   unitPriceGrossControllers: unitPriceGrossControllers,
-      //   listOfReceiptProducts: event.listOfReceiptProducts ?? state.listOfReceiptProducts,
-      // ));
+      for (final product in state.reorder!.listOfReorderProducts) {
+        if (product.isFromDatabase) {
+          isEditable.add(false);
+        } else {
+          isEditable.add(true);
+        }
+        articleNumberControllers.add(TextEditingController(text: product.articleNumber));
+        articleNameControllers.add(TextEditingController(text: product.name));
+        taxRulesList.add(product.tax);
+        quantityControllers.add(TextEditingController(text: product.quantity.toString()));
+        wholesalePriceNetControllers.add(TextEditingController(text: product.wholesalePriceNet.toMyCurrencyStringToShow()));
+      }
+      emit(state.copyWith(
+        isEditable: isEditable,
+        articleNumberControllers: articleNumberControllers,
+        articleNameControllers: articleNameControllers,
+        quantityControllers: quantityControllers,
+        wholesalePriceNetControllers: wholesalePriceNetControllers,
+      ));
+    });
 
-      // add(OnReceiptDetailTotalControllerChangedEvent());
+//? #########################################################################
+
+    on<OnReorderDetailPosControllerChangedEvent>((event, emit) {
+      List<ReorderProduct> newListOfReorderProducts = List.from(state.reorder!.listOfReorderProducts);
+
+      for (int i = 0; i < state.reorder!.listOfReorderProducts.length; i++) {
+        newListOfReorderProducts[i] = newListOfReorderProducts[i].copyWith(
+          articleNumber: state.articleNumberControllers[i].text,
+          name: state.articleNameControllers[i].text,
+          quantity: state.quantityControllers[i].text.toMyInt(),
+          wholesalePriceNet: state.wholesalePriceNetControllers[i].text.toMyDouble(),
+        );
+      }
+
+      emit(state.copyWith(reorder: state.reorder!.copyWith(listOfReorderProducts: newListOfReorderProducts)));
     });
 
 //? #########################################################################

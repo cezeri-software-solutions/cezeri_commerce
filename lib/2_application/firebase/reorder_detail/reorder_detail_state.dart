@@ -21,14 +21,15 @@ class ReorderDetailState {
   final TextEditingController additionalAmountGrossController;
   final TextEditingController shippingPriceGrossController;
 
+  final TextEditingController reorderNumberInternalController;
+
   //* Controllers Products
   final List<bool> isEditable;
   final List<Tax> taxRulesList;
   final List<TextEditingController> articleNumberControllers;
   final List<TextEditingController> articleNameControllers;
   final List<TextEditingController> quantityControllers;
-  final List<TextEditingController> unitPriceNetControllers;
-  final List<TextEditingController> unitPriceGrossControllers;
+  final List<TextEditingController> wholesalePriceNetControllers;
 
   final TextEditingController productSearchController;
 
@@ -50,13 +51,13 @@ class ReorderDetailState {
     required this.discountAmountGrossController,
     required this.additionalAmountGrossController,
     required this.shippingPriceGrossController,
+    required this.reorderNumberInternalController,
     required this.isEditable,
     required this.taxRulesList,
     required this.articleNumberControllers,
     required this.articleNameControllers,
     required this.quantityControllers,
-    required this.unitPriceNetControllers,
-    required this.unitPriceGrossControllers,
+    required this.wholesalePriceNetControllers,
     required this.productSearchController,
   });
 
@@ -79,13 +80,13 @@ class ReorderDetailState {
       discountAmountGrossController: TextEditingController(),
       additionalAmountGrossController: TextEditingController(),
       shippingPriceGrossController: TextEditingController(),
+      reorderNumberInternalController: TextEditingController(),
       isEditable: [],
       taxRulesList: [],
       articleNumberControllers: [],
       articleNameControllers: [],
       quantityControllers: [],
-      unitPriceNetControllers: [],
-      unitPriceGrossControllers: [],
+      wholesalePriceNetControllers: [],
       productSearchController: TextEditingController(),
     );
   }
@@ -108,13 +109,13 @@ class ReorderDetailState {
     TextEditingController? discountAmountGrossController,
     TextEditingController? additionalAmountGrossController,
     TextEditingController? shippingPriceGrossController,
+    TextEditingController? reorderNumberInternalController,
     List<bool>? isEditable,
     List<Tax>? taxRulesList,
     List<TextEditingController>? articleNumberControllers,
     List<TextEditingController>? articleNameControllers,
     List<TextEditingController>? quantityControllers,
-    List<TextEditingController>? unitPriceNetControllers,
-    List<TextEditingController>? unitPriceGrossControllers,
+    List<TextEditingController>? wholesalePriceNetControllers,
     TextEditingController? productSearchController,
   }) {
     return ReorderDetailState(
@@ -135,13 +136,13 @@ class ReorderDetailState {
       discountAmountGrossController: discountAmountGrossController ?? this.discountAmountGrossController,
       additionalAmountGrossController: additionalAmountGrossController ?? this.additionalAmountGrossController,
       shippingPriceGrossController: shippingPriceGrossController ?? this.shippingPriceGrossController,
+      reorderNumberInternalController: reorderNumberInternalController ?? this.reorderNumberInternalController,
       isEditable: isEditable ?? this.isEditable,
       taxRulesList: taxRulesList ?? this.taxRulesList,
       articleNumberControllers: articleNumberControllers ?? this.articleNumberControllers,
       articleNameControllers: articleNameControllers ?? this.articleNameControllers,
       quantityControllers: quantityControllers ?? this.quantityControllers,
-      unitPriceNetControllers: unitPriceNetControllers ?? this.unitPriceNetControllers,
-      unitPriceGrossControllers: unitPriceGrossControllers ?? this.unitPriceGrossControllers,
+      wholesalePriceNetControllers: wholesalePriceNetControllers ?? this.wholesalePriceNetControllers,
       productSearchController: productSearchController ?? this.productSearchController,
     );
   }

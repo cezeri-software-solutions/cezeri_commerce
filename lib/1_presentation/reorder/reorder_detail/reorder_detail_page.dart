@@ -1,7 +1,9 @@
+import 'package:cezeri_commerce/1_presentation/core/widgets/my_info_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../2_application/firebase/reorder_detail/reorder_detail_bloc.dart';
+import '../../../3_domain/entities/reorder/reorder.dart';
 import '../../../3_domain/entities/reorder/supplier.dart';
 import '../../../3_domain/enums/enums.dart';
 import '../../../constants.dart';
@@ -44,10 +46,11 @@ class ReorderDetailPage extends StatelessWidget {
             MyOutlinedButton(
               buttonText: 'Speichern',
               onPressed: () {
+                if (!_validateReorder(context, state.reorder!)) return;
                 if (reorderCreateOrEdit == ReorderCreateOrEdit.edit) {
-                  // reorderBloc.add(UpdateReorderEvent());
+                  reorderDetailBloc.add(ReorderDetailUpdateReorderEvent());
                 } else {
-                  // reorderBloc.add(CreateReorderEvent());
+                  reorderDetailBloc.add(ReorderDetailCreateReorderEvent());
                 }
               },
               isLoading: state.isLoadingOnCreateReorder || state.isLoadingOnUpdateReorder,
@@ -88,6 +91,11 @@ class ReorderDetailPage extends StatelessWidget {
                     child: ListView(
                       children: [
                         ReorderDetailHeaderContainer(reorderDetailBloc: reorderDetailBloc),
+                        Gaps.h16,
+                        ReorderDetailProductsCard(reorderDetailBloc: reorderDetailBloc),
+                        Gaps.h16,
+                        ReorderDetailProductsTotalCard(reorderDetailBloc: reorderDetailBloc),
+                        Gaps.h16,
                       ],
                     ),
                   ),
@@ -95,5 +103,25 @@ class ReorderDetailPage extends StatelessWidget {
         );
       },
     );
+  }
+
+  bool _validateReorder(BuildContext context, Reorder reorder) {
+    if (reorder.listOfReorderProducts.any((e) => e.articleNumber.isEmpty)) {
+      showDialog(
+        context: context,
+        builder: (context) => const MyInfoDialog(title: 'Achtung', content: 'Es darf kein Artikel ohne Artikelnummer vorhanden sein'),
+      );
+      return false;
+    }
+
+    if (reorder.listOfReorderProducts.any((e) => e.name.isEmpty)) {
+      showDialog(
+        context: context,
+        builder: (context) => const MyInfoDialog(title: 'Achtung', content: 'Es darf kein Artikel ohne Artikelname vorhanden sein'),
+      );
+      return false;
+    }
+
+    return true;
   }
 }

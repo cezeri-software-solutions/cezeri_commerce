@@ -1,5 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:cezeri_commerce/core/firebase_failures.dart';
+import 'package:cezeri_commerce/routes/router.gr.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:logger/logger.dart';
@@ -58,6 +59,33 @@ class ReorderDetailScreen extends StatelessWidget {
                 (a) => a.fold(
                   (failure) => myScaffoldMessenger(context, failure, null, null, null),
                   (listOfLoadedProducts) => showReorderDetailProductsDialog(context, reorderDetailBloc),
+                ),
+              );
+            },
+          ),
+          BlocListener<ReorderDetailBloc, ReorderDetailState>(
+            listenWhen: (p, c) => p.fosReorderDetailOnCreateOption != c.fosReorderDetailOnCreateOption,
+            listener: (context, state) {
+              state.fosReorderDetailOnCreateOption.fold(
+                () => null,
+                (a) => a.fold(
+                  (failure) => myScaffoldMessenger(context, failure, null, null, null),
+                  (createdReorder) {
+                    context.router.popUntilRouteWithName(ReordersOverviewRoute.name);
+                    context.router.push(ReorderDetailRoute(reorderCreateOrEdit: ReorderCreateOrEdit.edit, reorderId: createdReorder.id));
+                  },
+                ),
+              );
+            },
+          ),
+          BlocListener<ReorderDetailBloc, ReorderDetailState>(
+            listenWhen: (p, c) => p.fosReorderDetailOnOUpdateOption != c.fosReorderDetailOnOUpdateOption,
+            listener: (context, state) {
+              state.fosReorderDetailOnOUpdateOption.fold(
+                () => null,
+                (a) => a.fold(
+                  (failure) => myScaffoldMessenger(context, failure, null, null, null),
+                  (updatedReorder) => myScaffoldMessenger(context, null, null, 'Nachbestellung wurde erfolgreich aktualisiert', null),
                 ),
               );
             },

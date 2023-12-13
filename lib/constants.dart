@@ -113,6 +113,20 @@ class RowWidthsROP {
   static const int quantity = 50;
 }
 
+//* ReorderDetailProductsCard
+class RowWidthsReOP {
+  RowWidthsReOP._();
+
+  static const int pos = 30;
+  static const int articleNumber = 160;
+  static const int articleName = 600;
+  static const int quantity = 50;
+  static const int openQuantity = 50;
+  static const int price = 55;
+  static const int totalPrice = 55;
+}
+
+//* ReceiptDetailProductsCard
 class RowWidthsRDP {
   RowWidthsRDP._();
 

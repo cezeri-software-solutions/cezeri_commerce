@@ -88,10 +88,10 @@ class ReorderBloc extends Bloc<ReorderEvent, ReorderState> {
       } else {
         reorders.add(event.reorder);
       }
-      emit(state.copyWith(
-        isAllReordersSelected: state.isAllReordersSelected && reorders.length < state.selectedReorders.length ? false : state.isAllReordersSelected,
-        selectedReorders: reorders,
-      ));
+
+      final isAllReordersSelected = state.listOfFilteredReorders!.every((e) => reorders.any((f) => f.id == e.id));
+
+      emit(state.copyWith(isAllReordersSelected: isAllReordersSelected, selectedReorders: reorders));
     });
 
 //? #########################################################################

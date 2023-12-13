@@ -1,6 +1,8 @@
 import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.dart';
+import 'package:cezeri_commerce/1_presentation/core/functions/mixed_functions.dart';
 import 'package:json_annotation/json_annotation.dart';
 
+import '../product/product.dart';
 import '../settings/tax.dart';
 
 part 'reorder_product.g.dart';
@@ -31,7 +33,7 @@ class ReorderProduct {
     required this.ean,
     required this.tax,
     required this.wholesalePriceNet,
-    required this.wholesalePriceGross,
+    // required this.wholesalePriceGross,
     // required this.wholesalePriceTax,
     // required this.totalPriceNet,
     // required this.totalPriceGross,
@@ -39,13 +41,32 @@ class ReorderProduct {
     required this.quantity,
     required this.bookedQuantity,
     required this.isFromDatabase,
-  })  : wholesalePriceTax = wholesalePriceGross - wholesalePriceNet,
+  })  : wholesalePriceGross = _calcWholeSalePriceGross(wholesalePriceNet, tax.taxRate),
+        wholesalePriceTax = _calcWholeSalePriceGross(wholesalePriceNet, tax.taxRate) - wholesalePriceNet,
         totalPriceNet = (wholesalePriceNet * quantity).toMyRoundedDouble(),
-        totalPriceGross = (wholesalePriceGross * quantity).toMyRoundedDouble(),
-        totalPriceTax = (wholesalePriceGross * quantity).toMyRoundedDouble() - (wholesalePriceNet * quantity).toMyRoundedDouble();
+        totalPriceGross = (_calcWholeSalePriceGross(wholesalePriceNet, tax.taxRate) * quantity).toMyRoundedDouble(),
+        totalPriceTax = (_calcWholeSalePriceGross(wholesalePriceNet, tax.taxRate) * quantity).toMyRoundedDouble() -
+            (wholesalePriceNet * quantity).toMyRoundedDouble();
+
+  static double _calcWholeSalePriceGross(double wholesalePriceNet, int taxRate) => wholesalePriceNet * taxToCalc(taxRate);
 
   factory ReorderProduct.fromJson(Map<String, dynamic> json) => _$ReorderProductFromJson(json);
   Map<String, dynamic> toJson() => _$ReorderProductToJson(this);
+
+  factory ReorderProduct.fromProduct(Product product, int pos, Tax tax) {
+    return ReorderProduct(
+      productId: product.id,
+      pos: pos,
+      name: product.name,
+      articleNumber: product.articleNumber,
+      ean: product.ean,
+      tax: tax,
+      wholesalePriceNet: product.wholesalePrice,
+      quantity: 1,
+      bookedQuantity: 0,
+      isFromDatabase: product.id.isEmpty ? false : true,
+    );
+  }
 
   factory ReorderProduct.empty() {
     return ReorderProduct(
@@ -56,7 +77,6 @@ class ReorderProduct {
       ean: '',
       tax: Tax.empty(),
       wholesalePriceNet: 0.0,
-      wholesalePriceGross: 0.0,
       quantity: 0,
       bookedQuantity: 0,
       isFromDatabase: false,
@@ -71,7 +91,6 @@ class ReorderProduct {
     String? ean,
     Tax? tax,
     double? wholesalePriceNet,
-    double? wholesalePriceGross,
     int? quantity,
     int? bookedQuantity,
     bool? isFromDatabase,
@@ -84,7 +103,6 @@ class ReorderProduct {
       ean: ean ?? this.ean,
       tax: tax ?? this.tax,
       wholesalePriceNet: wholesalePriceNet ?? this.wholesalePriceNet,
-      wholesalePriceGross: wholesalePriceGross ?? this.wholesalePriceGross,
       quantity: quantity ?? this.quantity,
       bookedQuantity: bookedQuantity ?? this.bookedQuantity,
       isFromDatabase: isFromDatabase ?? this.isFromDatabase,

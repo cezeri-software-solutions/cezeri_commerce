@@ -1,9 +1,14 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../2_application/firebase/reorder_detail/reorder_detail_bloc.dart';
+import '../../../../3_domain/entities/product/product.dart';
 import '../../../../constants.dart';
 import '../../../core/widgets/my_circular_progress_indicator.dart';
+import '../../../core/widgets/my_delete_dialog.dart';
+import '../../../core/widgets/my_form_field_small.dart';
+import '../../../core/widgets/my_text_form_field_small_double.dart';
 import '../functions/show_reorder_detail_products_dialog.dart';
 
 class ReorderDetailProductsCard extends StatelessWidget {
@@ -25,43 +30,38 @@ class ReorderDetailProductsCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     const Expanded(
-                      flex: RowWidthsRDP.articleNumber,
+                      flex: RowWidthsReOP.pos,
+                      child: Text('Pos.', style: TextStyles.s12Bold),
+                    ),
+                    Gaps.w8,
+                    const Expanded(
+                      flex: RowWidthsReOP.articleNumber,
                       child: Text('Artikelnr.', style: TextStyles.s12Bold),
                     ),
                     Gaps.w8,
                     const Expanded(
-                      flex: RowWidthsRDP.articleName,
+                      flex: RowWidthsReOP.articleName,
                       child: Text('Name', style: TextStyles.s12Bold),
                     ),
                     Gaps.w8,
                     const Expanded(
-                      flex: RowWidthsRDP.tax,
-                      child: Text('Steuer', style: TextStyles.s12Bold),
-                    ),
-                    Gaps.w8,
-                    const Expanded(
-                      flex: RowWidthsRDP.quantity,
+                      flex: RowWidthsReOP.quantity,
                       child: Text('Menge', style: TextStyles.s12Bold),
                     ),
                     Gaps.w8,
                     const Expanded(
-                      flex: RowWidthsRDP.unitPriceNet,
+                      flex: RowWidthsReOP.openQuantity,
+                      child: Text('Offene Menge', style: TextStyles.s12Bold),
+                    ),
+                    Gaps.w8,
+                    const Expanded(
+                      flex: RowWidthsReOP.price,
                       child: Text('Netto Stk.', style: TextStyles.s12Bold),
                     ),
                     Gaps.w8,
                     const Expanded(
-                      flex: RowWidthsRDP.discountGrossUnit,
-                      child: Text('Rabatt %', style: TextStyles.s12Bold),
-                    ),
-                    Gaps.w8,
-                    const Expanded(
-                      flex: RowWidthsRDP.unitPriceGross,
-                      child: Text('Brutto Stk.', style: TextStyles.s12Bold),
-                    ),
-                    Gaps.w8,
-                    const Expanded(
-                      flex: RowWidthsRDP.totalPriceGross,
-                      child: Text('Gesamt Brutto', style: TextStyles.s12Bold),
+                      flex: RowWidthsReOP.totalPrice,
+                      child: Text('Netto Ges.', style: TextStyles.s12Bold),
                     ),
                     ConstrainedBox(
                       constraints: const BoxConstraints(maxHeight: 28),
@@ -74,6 +74,112 @@ class ReorderDetailProductsCard extends StatelessWidget {
                       ),
                     ),
                   ],
+                ),
+                Gaps.h8,
+                ListView.builder(
+                  physics: const NeverScrollableScrollPhysics(),
+                  shrinkWrap: true,
+                  itemCount: state.reorder!.listOfReorderProducts.length,
+                  itemBuilder: (context, index) {
+                    final reorderProduct = state.reorder!.listOfReorderProducts[index];
+                    return Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              flex: RowWidthsReOP.pos,
+                              child: MyTextFormFieldSmallDouble(
+                                readOnly: true,
+                                hintText: reorderProduct.pos.toString(),
+                              ),
+                            ),
+                            Gaps.w8,
+                            Expanded(
+                              flex: RowWidthsReOP.articleNumber,
+                              child: MyTextFormFieldSmall(
+                                readOnly: !state.isEditable[index],
+                                controller: state.articleNumberControllers[index],
+                                onChanged: (_) => reorderDetailBloc.add(OnReorderDetailPosControllerChangedEvent()),
+                                onTapOutside: (_) => FocusScope.of(context).unfocus(),
+                              ),
+                            ),
+                            Gaps.w8,
+                            Expanded(
+                              flex: RowWidthsReOP.articleName,
+                              child: MyTextFormFieldSmall(
+                                readOnly: !state.isEditable[index],
+                                controller: state.articleNameControllers[index],
+                                onChanged: (_) => reorderDetailBloc.add(OnReorderDetailPosControllerChangedEvent()),
+                                onTapOutside: (_) => FocusScope.of(context).unfocus(),
+                              ),
+                            ),
+                            Gaps.w8,
+                            Expanded(
+                              flex: RowWidthsReOP.quantity,
+                              child: MyTextFormFieldSmall(
+                                controller: state.quantityControllers[index],
+                                onChanged: (_) => reorderDetailBloc.add(OnReorderDetailPosControllerChangedEvent()),
+                                onTapOutside: (_) => FocusScope.of(context).unfocus(),
+                              ),
+                            ),
+                            Gaps.w8,
+                            Expanded(
+                              flex: RowWidthsReOP.openQuantity,
+                              child: MyTextFormFieldSmall(
+                                readOnly: true,
+                                hintText: (state.reorder!.listOfReorderProducts[index].quantity -
+                                        state.reorder!.listOfReorderProducts[index].bookedQuantity)
+                                    .toString(),
+                                onChanged: (_) => reorderDetailBloc.add(OnReorderDetailPosControllerChangedEvent()),
+                                onTapOutside: (_) => FocusScope.of(context).unfocus(),
+                              ),
+                            ),
+                            Gaps.w8,
+                            Expanded(
+                              flex: RowWidthsReOP.price,
+                              child: MyTextFormFieldSmall(
+                                controller: state.wholesalePriceNetControllers[index],
+                                onChanged: (_) => reorderDetailBloc.add(OnReorderDetailPosControllerChangedEvent()),
+                                onTapOutside: (_) => FocusScope.of(context).unfocus(),
+                              ),
+                            ),
+                            Gaps.w8,
+                            Expanded(
+                              flex: RowWidthsReOP.totalPrice,
+                              child: MyTextFormFieldSmall(
+                                readOnly: true,
+                                hintText: state.reorder!.listOfReorderProducts[index].totalPriceNet.toDouble().toString(),
+                                onChanged: (_) => reorderDetailBloc.add(OnReorderDetailPosControllerChangedEvent()),
+                                onTapOutside: (_) => FocusScope.of(context).unfocus(),
+                              ),
+                            ),
+                            ConstrainedBox(
+                              constraints: const BoxConstraints(maxHeight: 28),
+                              child: IconButton(
+                                onPressed: () => showDialog(
+                                  context: context,
+                                  builder: (context) => MyDeleteDialog(
+                                    content:
+                                        'Bist du sicher, dass du den Artikel "//${state.reorder!.listOfReorderProducts[index].name}" löschen willst?',
+                                    onConfirm: () {
+                                      reorderDetailBloc.add(OnReorderDeatilRemoveProductEvent(index: index));
+                                      context.router.pop();
+                                    },
+                                  ),
+                                ),
+                                padding: EdgeInsets.zero,
+                                splashRadius: 0.0001,
+                                constraints: const BoxConstraints(),
+                                icon: const Icon(Icons.delete, color: Colors.red),
+                              ),
+                            ),
+                          ],
+                        ),
+                        Gaps.h8,
+                      ],
+                    );
+                  },
                 ),
                 Gaps.h8,
                 Row(
@@ -89,7 +195,7 @@ class ReorderDetailProductsCard extends StatelessWidget {
                             label: const Text('Aus Artikelliste'),
                           ),
                     TextButton.icon(
-                      onPressed: () {}, //widget.receiptDetailBloc.add(AddProductToReceiptProductsEvent(receiptProduct: ReceiptProduct.empty())),
+                      onPressed: () => reorderDetailBloc.add(OnReorderDeatilAddProductEvent(product: Product.empty())),
                       icon: const Icon(Icons.add, color: Colors.green),
                       label: const Text('Leeres Feld'),
                     ),

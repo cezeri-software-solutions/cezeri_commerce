@@ -4,6 +4,10 @@ abstract class ReorderDetailEvent {}
 
 class SetReorderDetailStateToInitialEvent extends ReorderDetailEvent {}
 
+class ReorderDetailCreateReorderEvent extends ReorderDetailEvent {}
+
+class ReorderDetailUpdateReorderEvent extends ReorderDetailEvent {}
+
 class SetReorderDetailEvent extends ReorderDetailEvent {
   final Supplier? supplier;
   final ReorderCreateOrEdit reorderCreateOrEdit;
@@ -14,11 +18,19 @@ class SetReorderDetailEvent extends ReorderDetailEvent {
 
 class OnReorderDetailGetProductsEvent extends ReorderDetailEvent {}
 
+class OnReorderDetailClosedManuallyChangeEvent extends ReorderDetailEvent {
+  final bool value;
+
+  OnReorderDetailClosedManuallyChangeEvent({required this.value});
+}
+
 //* Controllers
 
 class SetReorderDetailControllersEvent extends ReorderDetailEvent {}
 
 class OnReorderDetailControllerChangedEvent extends ReorderDetailEvent {}
+
+class OnReorderDetailControllerClearedEvent extends ReorderDetailEvent {}
 
 //* Products
 
@@ -32,4 +44,14 @@ class OnReorderDeatilAddProductEvent extends ReorderDetailEvent {
   OnReorderDeatilAddProductEvent({required this.product});
 }
 
+class OnReorderDeatilAddEmptyProductEvent extends ReorderDetailEvent {}
+
+class OnReorderDeatilRemoveProductEvent extends ReorderDetailEvent {
+  final int index;
+
+  OnReorderDeatilRemoveProductEvent({required this.index});
+}
+
 class ReorderDetailSetAllProductControllersEvent extends ReorderDetailEvent {}
+
+class OnReorderDetailPosControllerChangedEvent extends ReorderDetailEvent {}

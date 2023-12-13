@@ -1,6 +1,8 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 
 import '../../../2_application/firebase/reorder/reorder_bloc.dart';
 import '../../../3_domain/entities/reorder/reorder.dart';
@@ -31,6 +33,156 @@ class ReordersOverviewPage extends StatelessWidget {
         if (state.listOfAllReorders == null || state.listOfFilteredReorders == null) {
           return const Expanded(child: Center(child: CircularProgressIndicator()));
         }
+
+        final screenWidth = MediaQuery.sizeOf(context).width;
+
+        Table buildReorderTable(List<Reorder> reorderList) {
+          final paddingRight = screenWidth / 18;
+          final padding = EdgeInsets.only(top: 7, right: paddingRight);
+          const constraints = BoxConstraints(maxHeight: 32);
+          final List<Widget> rowChildren = [
+            const SizedBox.shrink(),
+            const SizedBox.shrink(),
+            const SizedBox.shrink(),
+            const SizedBox.shrink(),
+            const SizedBox.shrink(),
+            const SizedBox.shrink(),
+            const SizedBox.shrink(),
+            const SizedBox.shrink(),
+          ];
+
+          List<Widget> headers = [
+            ConstrainedBox(
+              constraints: constraints,
+              child: Checkbox.adaptive(
+                value: state.isAllReordersSelected,
+                onChanged: (value) => reorderBloc.add(OnSelectAllReordersEvent(isSelected: value!)),
+              ),
+            ),
+            Padding(padding: padding, child: const Text('Lieferant', style: TextStyle(fontWeight: FontWeight.bold))),
+            Padding(padding: padding, child: const Text('Bestellnummer', style: TextStyle(fontWeight: FontWeight.bold))),
+            Padding(padding: padding, child: const Text('Bestellnr. intern', style: TextStyle(fontWeight: FontWeight.bold))),
+            Padding(padding: padding, child: const Text('Dokmentdatum', style: TextStyle(fontWeight: FontWeight.bold))),
+            Padding(padding: padding, child: const Text('Nettobetrag', style: TextStyle(fontWeight: FontWeight.bold))),
+            Padding(padding: padding, child: const Text('Gesamtbetrag', style: TextStyle(fontWeight: FontWeight.bold))),
+            Padding(padding: padding, child: const Text('Status', style: TextStyle(fontWeight: FontWeight.bold))),
+          ];
+
+          List<TableRow> rows = [
+            TableRow(decoration: BoxDecoration(color: Colors.grey[200]), children: headers),
+          ];
+
+          rows.add(TableRow(
+            decoration: const BoxDecoration(
+              border: Border(
+                bottom: BorderSide(color: Colors.grey),
+              ),
+            ),
+            children: rowChildren,
+          ));
+
+          int rowIndex = 0;
+
+          for (final reorder in reorderList) {
+            BoxDecoration? rowDecoration;
+            if (rowIndex % 2 == 1) rowDecoration = const BoxDecoration(color: Color.fromARGB(255, 229, 244, 251));
+
+            // Datenzeile hinzufügen
+            rows.add(TableRow(
+              decoration: rowDecoration,
+              children: [
+                ConstrainedBox(
+                  constraints: constraints,
+                  child: Checkbox.adaptive(
+                    value: state.selectedReorders.any((e) => e.id == reorder.id),
+                    onChanged: (value) => reorderBloc.add(OnReorderSelectedEvent(reorder: reorder)),
+                  ),
+                ),
+                Padding(padding: padding, child: Text(reorder.reorderSupplier.company)),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Padding(
+                    padding: EdgeInsets.only(top: 0, right: paddingRight),
+                    child: ConstrainedBox(
+                      constraints: constraints,
+                      child: TextButton(
+                        onPressed: () {
+                          context.router.push(ReorderDetailRoute(reorderCreateOrEdit: ReorderCreateOrEdit.edit, reorderId: reorder.id));
+                        },
+                        child: Text(reorder.reorderNumber.toString()),
+                      ),
+                    ),
+                  ),
+                ),
+                Padding(padding: padding, child: Text(reorder.reorderNumberInternal)),
+                Padding(padding: padding, child: Text(DateFormat('dd.MM.yyy', 'de').format(reorder.creationDate))),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: Padding(padding: padding, child: Text('${reorder.productsTotalNet.toMyCurrencyStringToShow()} ${reorder.currency}')),
+                ),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: Padding(padding: padding, child: Text('${reorder.totalPriceGross.toMyCurrencyStringToShow()} ${reorder.currency}')),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(top: 4, right: paddingRight),
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxHeight: 24),
+                    child: Container(
+                      height: 30,
+                      decoration: BoxDecoration(
+                        color: switch (reorder.reorderStatus) {
+                          ReorderStatus.open => CustomColors.backgroundLightGrey,
+                          ReorderStatus.partiallyCompleted => CustomColors.backgroundLightOrange,
+                          ReorderStatus.completed => CustomColors.backgroundLightGreen,
+                        },
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        child: Center(
+                          child: switch (reorder.reorderStatus) {
+                            ReorderStatus.open => const Text('Offen'),
+                            ReorderStatus.partiallyCompleted => const Text('Teilweise offen'),
+                            ReorderStatus.completed => const Text('Geschlossen'),
+                          },
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ));
+
+            // Trennlinie als Zeilendekoration hinzufügen
+            rows.add(TableRow(
+              decoration: const BoxDecoration(
+                border: Border(
+                  bottom: BorderSide(color: Colors.grey),
+                ),
+              ),
+              children: rowChildren,
+            ));
+
+            rowIndex++;
+          }
+
+          return Table(
+            children: rows,
+            columnWidths: Map.fromIterable(
+              List.generate(headers.length, (index) => index),
+              value: (index) => const IntrinsicColumnWidth(),
+            ),
+          );
+        }
+
+        return SingleChildScrollView(
+          scrollDirection: Axis.vertical,
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: buildReorderTable(state.listOfFilteredReorders!),
+          ),
+        );
 
         return Expanded(
           child: ListView.separated(

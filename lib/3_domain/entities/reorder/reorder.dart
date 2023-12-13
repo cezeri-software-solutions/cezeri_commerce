@@ -1,4 +1,3 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.dart';
 import 'package:json_annotation/json_annotation.dart';
 
@@ -168,7 +167,7 @@ class Reorder {
   }
 
   static double _calcDiscountTotalGross(double discountPercentAmountGross, double discountAmountGross) {
-    return discountPercentAmountGross + discountPercentAmountGross;
+    return discountPercentAmountGross + discountAmountGross;
   }
 
   static double _calcDiscountTotalTax(double discountTotalGross, double discountTotalNet) {
@@ -221,28 +220,10 @@ class Reorder {
     List<ReorderProduct>? listOfReorderProducts,
     Tax? tax,
     String? currency,
-    double? totalPriceNet,
-    double? totalPriceGross,
-    double? totalPriceTax,
-    double? productsTotalNet,
-    double? productsTotalGross,
-    double? productsTotalTax,
     double? shippingPriceNet,
-    double? shippingPriceGross,
-    double? shippingPriceTax,
     double? additionalAmountNet,
-    double? additionalAmountGross,
-    double? additionalAmountTax,
-    double? discountTotalNet,
-    double? discountTotalGross,
-    double? discountTotalTax,
     double? discountAmountNet,
-    double? discountAmountGross,
-    double? discountAmountTax,
     double? discountPercent,
-    double? discountPercentAmountGross,
-    double? discountPercentAmountNet,
-    double? discountPercentAmountTax,
     DateTime? creationDate,
     DateTime? deliveryDate,
     DateTime? lastEditingDate,
