@@ -23,6 +23,7 @@ class ReorderProduct {
   final double totalPriceTax;
   final int quantity;
   final int bookedQuantity;
+  final int openQuantity;
   final bool isFromDatabase;
 
   ReorderProduct({
@@ -46,7 +47,8 @@ class ReorderProduct {
         totalPriceNet = (wholesalePriceNet * quantity).toMyRoundedDouble(),
         totalPriceGross = (_calcWholeSalePriceGross(wholesalePriceNet, tax.taxRate) * quantity).toMyRoundedDouble(),
         totalPriceTax = (_calcWholeSalePriceGross(wholesalePriceNet, tax.taxRate) * quantity).toMyRoundedDouble() -
-            (wholesalePriceNet * quantity).toMyRoundedDouble();
+            (wholesalePriceNet * quantity).toMyRoundedDouble(),
+        openQuantity = quantity - bookedQuantity;
 
   static double _calcWholeSalePriceGross(double wholesalePriceNet, int taxRate) => wholesalePriceNet * taxToCalc(taxRate);
 

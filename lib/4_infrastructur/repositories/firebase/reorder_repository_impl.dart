@@ -5,6 +5,7 @@ import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../../1_presentation/core/functions/check_internet_connection.dart';
+import '../../../3_domain/enums/enums.dart';
 import '../../../3_domain/repositories/firebase/reorder_repository.dart';
 
 class ReorderRepositoryImpl implements ReorderRepository {
@@ -51,12 +52,20 @@ class ReorderRepositoryImpl implements ReorderRepository {
   }
 
   @override
-  Future<Either<FirebaseFailure, List<Reorder>>> getListOfReorders() async {
+  Future<Either<FirebaseFailure, List<Reorder>>> getListOfReorders(GetReordersType getReordersType) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
 
     final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRef = db.collection('Reorders').doc(currentUserUid).collection('Reorders');
+    final docRef = switch (getReordersType) {
+      GetReordersType.open =>
+        db.collection('Reorders').doc(currentUserUid).collection('Reorders').where('reorderStatus', isEqualTo: ReorderStatus.open.name),
+      GetReordersType.partialOpen =>
+        db.collection('Reorders').doc(currentUserUid).collection('Reorders').where('reorderStatus', isEqualTo: ReorderStatus.partiallyCompleted.name),
+      GetReordersType.completed =>
+        db.collection('Reorders').doc(currentUserUid).collection('Reorders').where('reorderStatus', isEqualTo: ReorderStatus.completed.name),
+      GetReordersType.all => db.collection('Reorders').doc(currentUserUid).collection('Reorders'),
+    };
 
     try {
       final listOfReorders = await docRef.get().then((value) => value.docs.map((querySnapshot) => Reorder.fromJson(querySnapshot.data())).toList());

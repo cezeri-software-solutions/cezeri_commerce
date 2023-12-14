@@ -26,6 +26,7 @@ class ReorderState {
   //* Helpers
   final bool isAllReordersSelected;
   final String reorderSearchText;
+  final int tabValue;
 
   //* Controllers
   final TextEditingController supplierSearchController;
@@ -53,6 +54,7 @@ class ReorderState {
     required this.fosReorderOnObserveSuppliersOption,
     required this.isAllReordersSelected,
     required this.reorderSearchText,
+    required this.tabValue,
     required this.supplierSearchController,
   });
 
@@ -80,6 +82,7 @@ class ReorderState {
       fosReorderOnObserveSuppliersOption: none(),
       isAllReordersSelected: false,
       reorderSearchText: '',
+      tabValue: 0,
       supplierSearchController: TextEditingController(),
     );
   }
@@ -107,6 +110,7 @@ class ReorderState {
     Option<Either<FirebaseFailure, List<Supplier>>>? fosReorderOnObserveSuppliersOption,
     bool? isAllReordersSelected,
     String? reorderSearchText,
+    int? tabValue,
     TextEditingController? supplierSearchController,
   }) {
     return ReorderState(
@@ -132,6 +136,7 @@ class ReorderState {
       fosReorderOnObserveSuppliersOption: fosReorderOnObserveSuppliersOption ?? this.fosReorderOnObserveSuppliersOption,
       isAllReordersSelected: isAllReordersSelected ?? this.isAllReordersSelected,
       reorderSearchText: reorderSearchText ?? this.reorderSearchText,
+      tabValue: tabValue ?? this.tabValue,
       supplierSearchController: supplierSearchController ?? this.supplierSearchController,
     );
   }

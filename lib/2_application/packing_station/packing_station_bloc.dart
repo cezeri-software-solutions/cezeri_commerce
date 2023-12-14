@@ -448,7 +448,10 @@ class PackingStationBloc extends Bloc<PackingStationEvent, PackingStationState> 
       final failureOrSuccess = await packingStationRepository.getListOfPicklists();
       failureOrSuccess.fold(
         (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
-        (picklists) => emit(state.copyWith(listOfPicklists: picklists, firebaseFailure: null, isAnyFailure: false)),
+        (picklists) {
+          final sortedPicklist = picklists..sort((a, b) => b.creationDate.compareTo(a.creationDate));
+          emit(state.copyWith(listOfPicklists: sortedPicklist, firebaseFailure: null, isAnyFailure: false));
+        },
       );
 
       emit(state.copyWith(

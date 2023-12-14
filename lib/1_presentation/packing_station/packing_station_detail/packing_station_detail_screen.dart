@@ -47,6 +47,7 @@ class PackingStationDetailScreen extends StatelessWidget {
                 logoUrl: marketplace.logoUrl,
               );
               await Printing.layoutPdf(onLayout: (_) => generatedPdf);
+              await Future.delayed(const Duration(milliseconds: 500));
               if (deliveryNote.listOfParcelTracking.isNotEmpty && deliveryNote.listOfParcelTracking.first.pdfString != '') {
                 final pdfString = deliveryNote.listOfParcelTracking.first.pdfString;
                 final pdfBytes = base64.decode(pdfString);

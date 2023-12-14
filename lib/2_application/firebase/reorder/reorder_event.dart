@@ -5,7 +5,11 @@ abstract class ReorderEvent {}
 
 class SetReorderStateToInitialEvent extends ReorderEvent {}
 
-class GetAllReordersEvenet extends ReorderEvent {}
+class GetReordersEvenet extends ReorderEvent {
+  final int tabValue;
+
+  GetReordersEvenet({required this.tabValue});
+}
 
 class DeleteSelectedReordersEvent extends ReorderEvent {
   final List<Reorder> selectedReorders;

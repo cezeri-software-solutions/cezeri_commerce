@@ -20,3 +20,5 @@ enum ChartType { incomingOrder, salesVolume }
 
 //* Auftragsstaus im Marktplatz nach Importieren und Verschicken der Aufträge
 enum OrderStatusUpdateType { onImport, onShipping, onCancel, onDelete }
+
+enum GetReordersType { open, partialOpen, completed, all }

@@ -18,7 +18,7 @@ class ReordersOverviewScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final reorderBloc = sl<ReorderBloc>()..add(GetAllReordersEvenet());
+    final reorderBloc = sl<ReorderBloc>()..add(GetReordersEvenet(tabValue: 0));
 
     final searchController = TextEditingController();
 
@@ -70,7 +70,8 @@ class ReordersOverviewScreen extends StatelessWidget {
               appBar: AppBar(
                 title: Text(state.listOfFilteredReorders != null ? 'Nachbestellungen (${state.listOfFilteredReorders!.length})' : 'Nachbestellungen'),
                 actions: [
-                  IconButton(onPressed: () => context.read<ReorderBloc>().add(GetAllReordersEvenet()), icon: const Icon(Icons.refresh)),
+                  IconButton(
+                      onPressed: () => context.read<ReorderBloc>().add(GetReordersEvenet(tabValue: state.tabValue)), icon: const Icon(Icons.refresh)),
                   IconButton(
                       onPressed: () {
                         if (state.listOfSuppliers.isEmpty) {
@@ -112,6 +113,15 @@ class ReordersOverviewScreen extends StatelessWidget {
                         context.read<ReorderBloc>().add(SetSearchFieldTextEvent(searchText: ''));
                         context.read<ReorderBloc>().add(OnSearchFieldSubmittedEvent());
                       },
+                    ),
+                  ),
+                  DefaultTabController(
+                    length: 4,
+                    child: TabBar(
+                      tabs: const [Tab(text: 'Offen'), Tab(text: 'Teilweise offen'), Tab(text: 'Geschlossen'), Tab(text: 'Alle')],
+                      labelStyle: const TextStyle(fontWeight: FontWeight.bold),
+                      unselectedLabelStyle: const TextStyle(),
+                      onTap: (value) => reorderBloc.add(GetReordersEvenet(tabValue: value)),
                     ),
                   ),
                   ReordersOverviewPage(reorderBloc: reorderBloc),

@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:cezeri_commerce/3_domain/enums/enums.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 
@@ -24,10 +25,17 @@ class ReorderBloc extends Bloc<ReorderEvent, ReorderState> {
 
 //? #########################################################################
 
-    on<GetAllReordersEvenet>((event, emit) async {
+    on<GetReordersEvenet>((event, emit) async {
       emit(state.copyWith(isLoadingReordersOnObserve: true));
 
-      final failureOrSuccess = await reorderRepository.getListOfReorders();
+      final getReorderType = switch (event.tabValue) {
+        0 => GetReordersType.open,
+        1 => GetReordersType.partialOpen,
+        2 => GetReordersType.completed,
+        _ => GetReordersType.all,
+      };
+
+      final failureOrSuccess = await reorderRepository.getListOfReorders(getReorderType);
       failureOrSuccess.fold(
         (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
         (listOfReorder) {
