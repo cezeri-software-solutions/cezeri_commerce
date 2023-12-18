@@ -7,7 +7,7 @@ part of 'stat_product.dart';
 // **************************************************************************
 
 StatProduct _$StatProductFromJson(Map<String, dynamic> json) => StatProduct(
-      statDashboardId: json['statDashboardId'] as String,
+      statProductId: json['statProductId'] as String,
       name: json['name'] as String,
       articleNumber: json['articleNumber'] as String,
       ean: json['ean'] as String,
@@ -21,7 +21,7 @@ StatProduct _$StatProductFromJson(Map<String, dynamic> json) => StatProduct(
 
 Map<String, dynamic> _$StatProductToJson(StatProduct instance) =>
     <String, dynamic>{
-      'statDashboardId': instance.statDashboardId,
+      'statProductId': instance.statProductId,
       'name': instance.name,
       'articleNumber': instance.articleNumber,
       'ean': instance.ean,

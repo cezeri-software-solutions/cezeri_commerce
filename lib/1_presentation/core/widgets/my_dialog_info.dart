@@ -4,11 +4,11 @@ import 'package:flutter/material.dart';
 
 import '../../../constants.dart';
 
-class MyInfoDialog extends StatelessWidget {
+class MyDialogInfo extends StatelessWidget {
   final String title;
   final String content;
 
-  const MyInfoDialog({super.key, required this.title, required this.content});
+  const MyDialogInfo({super.key, required this.title, required this.content});
 
   @override
   Widget build(BuildContext context) {

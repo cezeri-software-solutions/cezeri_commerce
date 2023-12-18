@@ -1,5 +1,5 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:cezeri_commerce/1_presentation/core/widgets/my_delete_dialog.dart';
+import 'package:cezeri_commerce/1_presentation/core/widgets/my_dialog_delete.dart';
 import 'package:cezeri_commerce/1_presentation/core/widgets/my_text_form_field.dart';
 import 'package:cezeri_commerce/1_presentation/settings/settings/widgets/my_settings_list_tile.dart';
 import 'package:flutter/material.dart';
@@ -307,7 +307,7 @@ class _MainSettingsPageState extends State<MainSettingsPage> {
                                   onPressed: () {
                                     showDialog(
                                       context: context,
-                                      builder: (_) => MyDeleteDialog(
+                                      builder: (_) => MyDialogDelete(
                                         onConfirm: () {
                                           _removeFromPaymentMethods(index);
                                           context.router.pop();

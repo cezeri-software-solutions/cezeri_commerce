@@ -1,6 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:cezeri_commerce/1_presentation/app_drawer.dart';
-import 'package:cezeri_commerce/1_presentation/core/widgets/my_info_dialog.dart';
+import 'package:cezeri_commerce/1_presentation/core/widgets/my_dialog_info.dart';
 import 'package:cezeri_commerce/routes/router.gr.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -13,7 +13,7 @@ import '../../../3_domain/entities/marketplace/marketplace.dart';
 import '../../../constants.dart';
 import '../../../injection.dart';
 import '../../core/functions/my_scaffold_messanger.dart';
-import '../../core/widgets/my_delete_dialog.dart';
+import '../../core/widgets/my_dialog_delete.dart';
 import '../../core/widgets/my_outlined_button.dart';
 import 'products_overview_page.dart';
 
@@ -91,7 +91,7 @@ class ProductsOverviewScreen extends StatelessWidget {
                     onPressed: () => showDialog(
                       context: context,
                       builder: (_) => state.selectedProducts.isEmpty
-                          ? const MyInfoDialog(title: 'Achtung!', content: 'Bitte wähle mindestens einen Artikel aus.')
+                          ? const MyDialogInfo(title: 'Achtung!', content: 'Bitte wähle mindestens einen Artikel aus.')
                           : MarketplacesDialog(
                               onChanged: (marketplace) {
                                 context.read<ProductBloc>().add(MassEditActivateProductMarketplaceEvent(marketplace: marketplace!));
@@ -109,8 +109,8 @@ class ProductsOverviewScreen extends StatelessWidget {
                     onPressed: () => showDialog(
                       context: context,
                       builder: (_) => state.selectedProducts.isEmpty
-                          ? const MyInfoDialog(title: 'Achtung!', content: 'Bitte wähle mindestens einen Artikel aus.')
-                          : MyDeleteDialog(
+                          ? const MyDialogInfo(title: 'Achtung!', content: 'Bitte wähle mindestens einen Artikel aus.')
+                          : MyDialogDelete(
                               content: 'Bist du sicher, dass du alle ausgewählten Artikel unwiederruflich löschen willst?',
                               onConfirm: () {
                                 context.read<ProductBloc>().add(DeleteSelectedProductsEvent(selectedProducts: state.selectedProducts));

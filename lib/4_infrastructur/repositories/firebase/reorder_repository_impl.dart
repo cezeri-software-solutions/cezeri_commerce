@@ -62,6 +62,10 @@ class ReorderRepositoryImpl implements ReorderRepository {
         db.collection('Reorders').doc(currentUserUid).collection('Reorders').where('reorderStatus', isEqualTo: ReorderStatus.open.name),
       GetReordersType.partialOpen =>
         db.collection('Reorders').doc(currentUserUid).collection('Reorders').where('reorderStatus', isEqualTo: ReorderStatus.partiallyCompleted.name),
+      GetReordersType.openOrPartialOpen => db.collection('Reorders').doc(currentUserUid).collection('Reorders').where('reorderStatus', whereIn: [
+          ReorderStatus.open.name,
+          ReorderStatus.partiallyCompleted.name,
+        ]),
       GetReordersType.completed =>
         db.collection('Reorders').doc(currentUserUid).collection('Reorders').where('reorderStatus', isEqualTo: ReorderStatus.completed.name),
       GetReordersType.all => db.collection('Reorders').doc(currentUserUid).collection('Reorders'),

@@ -7,15 +7,20 @@ import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 
 import '../../../1_presentation/reorder/reorder_detail/reorder_detail_screen.dart';
+import '../../../3_domain/entities/marketplace/marketplace.dart';
 import '../../../3_domain/entities/product/product.dart';
+import '../../../3_domain/entities/receipt/receipt.dart';
 import '../../../3_domain/entities/reorder/reorder.dart';
 import '../../../3_domain/entities/reorder/reorder_product.dart';
 import '../../../3_domain/entities/reorder/supplier.dart';
 import '../../../3_domain/entities/settings/main_settings.dart';
 import '../../../3_domain/entities/settings/tax.dart';
+import '../../../3_domain/entities/statistic/stat_product_reorder.dart';
 import '../../../3_domain/repositories/firebase/main_settings_respository.dart';
+import '../../../3_domain/repositories/firebase/marketplace_repository.dart';
 import '../../../3_domain/repositories/firebase/product_repository.dart';
 import '../../../3_domain/repositories/firebase/reorder_repository.dart';
+import '../../../3_domain/repositories/firebase/stat_product_repository.dart';
 import '../../../core/firebase_failures.dart';
 
 part 'reorder_detail_event.dart';
@@ -25,11 +30,15 @@ class ReorderDetailBloc extends Bloc<ReorderDetailEvent, ReorderDetailState> {
   final ReorderRepository reorderRepository;
   final ProductRepository productRepository;
   final MainSettingsRepository mainSettingsRepository;
+  final MarketplaceRepository marketplaceRepository;
+  final StatProductRepository statProductRepository;
 
   ReorderDetailBloc({
     required this.reorderRepository,
     required this.productRepository,
     required this.mainSettingsRepository,
+    required this.marketplaceRepository,
+    required this.statProductRepository,
   }) : super(ReorderDetailState.initial()) {
 //? #########################################################################
 
@@ -135,6 +144,51 @@ class ReorderDetailBloc extends Bloc<ReorderDetailEvent, ReorderDetailState> {
         },
       );
 
+      if (state.statProductDateRange != null && state.listOfStatProductsInvoice == null && state.listOfStatProductsAppointment == null) {
+        final fosStatProducts = await statProductRepository.getAllStatProductsFromTo(state.statProductDateRange!);
+        fosStatProducts.fold(
+          (failure) => null,
+          (statProducts) {
+            List<StatProductReorder> statProductsReorderInvoice = [];
+            List<StatProductReorder> statProductsReorderAppointment = [];
+            for (final statProduct in statProducts) {
+              if (statProduct.articleNumber == 'ADBL_2303') {
+                logger.i('Dodger statProduct Länge: ${statProduct.listOfStatProductDetail.length}');
+                logger.i('Dodger: $statProduct');
+                logger.i('Dodger listOfStatProductDetail.first: ${statProduct.listOfStatProductDetail.first}');
+              }
+              for (final statProductDetail in statProduct.listOfStatProductDetail) {
+                if (!(statProductDetail.creationDate.isAfter(state.statProductDateRange!.start) &&
+                    statProductDetail.creationDate.isBefore(state.statProductDateRange!.end))) continue;
+
+                if (statProductDetail.receiptTyp == ReceiptTyp.invoice) {
+                  final index = statProductsReorderInvoice.indexWhere((e) => e.productId == statProductDetail.productId);
+                  if (index == -1) {
+                    statProductsReorderInvoice.add(StatProductReorder.fromStatProductDetail(statProductDetail));
+                  } else {
+                    statProductsReorderInvoice[index] =
+                        statProductsReorderInvoice[index].copyWith(quantity: statProductsReorderInvoice[index].quantity + statProductDetail.quantity);
+                  }
+                }
+                if (statProductDetail.receiptTyp == ReceiptTyp.appointment) {
+                  final index = statProductsReorderAppointment.indexWhere((e) => e.productId == statProductDetail.productId);
+                  if (index == -1) {
+                    statProductsReorderAppointment.add(StatProductReorder.fromStatProductDetail(statProductDetail));
+                  } else {
+                    statProductsReorderAppointment[index] = statProductsReorderAppointment[index]
+                        .copyWith(quantity: statProductsReorderAppointment[index].quantity + statProductDetail.quantity);
+                  }
+                }
+              }
+            }
+            emit(state.copyWith(
+              listOfStatProductsInvoice: statProductsReorderInvoice,
+              listOfStatProductsAppointment: statProductsReorderAppointment,
+            ));
+          },
+        );
+      }
+
       emit(state.copyWith(
         isLoadingOnObserveReorderDetailProducts: false,
         fosReorderDetailOnObserveProductsOption: optionOf(failureOrSuccess),
@@ -154,6 +208,35 @@ class ReorderDetailBloc extends Bloc<ReorderDetailEvent, ReorderDetailState> {
                   : ReorderStatus.partiallyCompleted;
 
       emit(state.copyWith(reorder: state.reorder!.copyWith(closedManually: event.value, reorderStatus: newReorderStatus)));
+    });
+
+//? #########################################################################
+
+    on<OnReorderDetailGetPdfDataEvent>((event, emit) async {
+      emit(state.copyWith(isLoadingPdfData: true));
+
+      final failureOrSuccess = await marketplaceRepository.getListOfMarketplaces();
+      failureOrSuccess.fold(
+        (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
+        (marketplaces) => emit(state.copyWith(listOfMarketplaces: marketplaces, firebaseFailure: null, isAnyFailure: false)),
+      );
+
+      emit(state.copyWith(
+        isLoadingPdfData: false,
+        fosReorderDetailOnPdfDataOption: optionOf(failureOrSuccess),
+      ));
+      emit(state.copyWith(fosReorderDetailOnPdfDataOption: none()));
+    });
+
+//? #########################################################################
+
+    on<OnReorderDetailSetStatProductFromDateEvent>((event, emit) async {
+      emit(state.copyWith(
+        statProductDateRange: DateTimeRange(
+          start: event.dateRange.start,
+          end: DateTime(event.dateRange.end.year, event.dateRange.end.month, event.dateRange.end.day + 1),
+        ),
+      ));
     });
 
 //? #########################################################################

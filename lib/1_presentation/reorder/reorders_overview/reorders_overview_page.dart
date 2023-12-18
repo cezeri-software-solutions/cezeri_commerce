@@ -183,36 +183,6 @@ class ReordersOverviewPage extends StatelessWidget {
             child: buildReorderTable(state.listOfFilteredReorders!),
           ),
         );
-
-        return Expanded(
-          child: ListView.separated(
-            itemCount: state.listOfFilteredReorders!.length,
-            itemBuilder: (context, index) {
-              final reorder = state.listOfFilteredReorders![index];
-              if (index == 0) {
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Checkbox.adaptive(
-                          value: state.isAllReordersSelected,
-                          onChanged: (value) => reorderBloc.add(OnSelectAllReordersEvent(isSelected: value!)),
-                        ),
-                        const Expanded(child: Text('Nachbestellung', style: TextStyles.h3Bold)),
-                        const Expanded(child: Text('Adresse', style: TextStyles.h3Bold)),
-                      ],
-                    ),
-                    _ReorderContainer(reorder: reorder, index: index, reorderBloc: reorderBloc),
-                  ],
-                );
-              } else {
-                return _ReorderContainer(reorder: reorder, index: index, reorderBloc: reorderBloc);
-              }
-            },
-            separatorBuilder: (context, index) => const Divider(),
-          ),
-        );
       },
     );
   }

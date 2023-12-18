@@ -10,8 +10,8 @@ import '../../../../3_domain/entities/reorder/supplier.dart';
 import '../../../../injection.dart';
 import '../../../../routes/router.gr.dart';
 import '../../../core/functions/my_scaffold_messanger.dart';
-import '../../../core/widgets/my_delete_dialog.dart';
-import '../../../core/widgets/my_info_dialog.dart';
+import '../../../core/widgets/my_dialog_delete.dart';
+import '../../../core/widgets/my_dialog_info.dart';
 import '../supplier_detail/supplier_detail_screen.dart';
 import 'suppliers_overview_page.dart';
 
@@ -74,8 +74,8 @@ class SuppliersOverviewScreen extends StatelessWidget {
                     onPressed: () => showDialog(
                       context: context,
                       builder: (_) => state.selectedSuppliers.isEmpty
-                          ? const MyInfoDialog(title: 'Achtung!', content: 'Bitte wähle mindestens einen Lieferanten aus.')
-                          : MyDeleteDialog(
+                          ? const MyDialogInfo(title: 'Achtung!', content: 'Bitte wähle mindestens einen Lieferanten aus.')
+                          : MyDialogDelete(
                               content: 'Bist du sicher, dass du alle ausgewählten Lieferanten unwiederruflich löschen willst?',
                               onConfirm: () {
                                 context.read<SupplierBloc>().add(DeleteSelectedSuppliersEvent(selectedSuppliers: state.selectedSuppliers));

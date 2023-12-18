@@ -10,7 +10,7 @@ import '../../../2_application/packing_station/packing_station_bloc.dart';
 import '../../../3_domain/entities/marketplace/marketplace.dart';
 import '../../../3_domain/pdf/pdf_receipt_generator.dart';
 import '../../../routes/router.gr.dart';
-import '../../core/widgets/my_info_dialog.dart';
+import '../../core/widgets/my_dialog_info.dart';
 import 'packing_station_detail_page.dart';
 
 @RoutePage()
@@ -31,14 +31,14 @@ class PackingStationDetailScreen extends StatelessWidget {
           (a) => a.fold(
             (failure) async => await showDialog(
               context: context,
-              builder: (context) => MyInfoDialog(title: 'FEHLER', content: 'Beim generieren der Dokumente ist ein Fehler aufgetreten:\n\n$failure'),
+              builder: (context) => MyDialogInfo(title: 'FEHLER', content: 'Beim generieren der Dokumente ist ein Fehler aufgetreten:\n\n$failure'),
             ),
             (listOfReceipts) async {
               final deliveryNote = listOfReceipts.where((e) => e.receiptTyp == ReceiptTyp.deliveryNote).firstOrNull;
               if (deliveryNote == null) {
                 await showDialog(
                   context: context,
-                  builder: (context) => const MyInfoDialog(title: 'FEHLER', content: 'Beim Erstellen der Lieferscheines ist ein Fehler aufgetreten'),
+                  builder: (context) => const MyDialogInfo(title: 'FEHLER', content: 'Beim Erstellen der Lieferscheines ist ein Fehler aufgetreten'),
                 );
                 if (context.mounted) context.router.popUntilRouteWithName(PackingStationOverviewRoute.name);
               }

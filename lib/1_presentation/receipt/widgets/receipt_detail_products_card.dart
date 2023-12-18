@@ -14,7 +14,7 @@ import '../../../3_domain/entities/product/product.dart';
 import '../../../constants.dart';
 import '../../../injection.dart';
 import '../../core/widgets/my_avatar.dart';
-import '../../core/widgets/my_delete_dialog.dart';
+import '../../core/widgets/my_dialog_delete.dart';
 import '../../core/widgets/my_text_form_field_small_double.dart';
 
 class ReceiptDetailProductsCard extends StatefulWidget {
@@ -276,7 +276,7 @@ class _ReceiptDetailProductsCardState extends State<ReceiptDetailProductsCard> {
                                       child: IconButton(
                                         onPressed: () => showDialog(
                                           context: context,
-                                          builder: (context) => MyDeleteDialog(
+                                          builder: (context) => MyDialogDelete(
                                             content:
                                                 'Bist du sicher, dass du den Artikel "//${state.listOfReceiptProducts[index].name}" unwiederruflich löschen willst?',
                                             onConfirm: () {

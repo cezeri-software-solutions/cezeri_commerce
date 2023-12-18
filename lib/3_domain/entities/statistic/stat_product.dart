@@ -9,7 +9,7 @@ part 'stat_product.g.dart';
 @JsonSerializable(explicitToJson: true)
 class StatProduct {
   // Wird durch Datum ermittelt
-  final String statDashboardId;
+  final String statProductId;
   final String name;
   final String articleNumber;
   final String ean;
@@ -26,7 +26,7 @@ class StatProduct {
   final DateTime creationDate;
 
   StatProduct({
-    required this.statDashboardId,
+    required this.statProductId,
     required this.name,
     required this.articleNumber,
     required this.ean,
@@ -56,7 +56,7 @@ class StatProduct {
 
   factory StatProduct.empty() {
     return StatProduct(
-      statDashboardId: '',
+      statProductId: '',
       name: '',
       articleNumber: '',
       ean: '',
@@ -71,7 +71,7 @@ class StatProduct {
   Map<String, dynamic> toJson() => _$StatProductToJson(this);
 
   StatProduct copyWith({
-    String? statDashboardId,
+    String? statProductId,
     String? name,
     String? articleNumber,
     String? ean,
@@ -80,7 +80,7 @@ class StatProduct {
     DateTime? creationDate,
   }) {
     return StatProduct(
-      statDashboardId: statDashboardId ?? this.statDashboardId,
+      statProductId: statProductId ?? this.statProductId,
       name: name ?? this.name,
       articleNumber: articleNumber ?? this.articleNumber,
       ean: ean ?? this.ean,
@@ -92,6 +92,6 @@ class StatProduct {
 
   @override
   String toString() {
-    return 'StatProduct(statDashboardId: $statDashboardId, name: $name, articleNumber: $articleNumber, ean: $ean, incomingOrders: $incomingOrders, salesVolume: $salesVolume, offerVolume: $offerVolume, profit: $profit, listOfStatProductDetail: $listOfStatProductDetail, lastEditingDate: $lastEditingDate, creationDate: $creationDate)';
+    return 'StatProduct(statProductId: $statProductId, name: $name, articleNumber: $articleNumber, ean: $ean, incomingOrders: $incomingOrders, salesVolume: $salesVolume, offerVolume: $offerVolume, profit: $profit, listOfStatProductDetail: $listOfStatProductDetail, lastEditingDate: $lastEditingDate, creationDate: $creationDate)';
   }
 }

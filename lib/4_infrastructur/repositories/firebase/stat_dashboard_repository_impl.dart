@@ -5,13 +5,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../../../1_presentation/core/functions/check_internet_connection.dart';
 import '../../../3_domain/entities/receipt/receipt.dart';
 import '../../../3_domain/entities/statistic/stat_dashboard.dart';
-import '../../../3_domain/repositories/firebase/dashboard_repository.dart';
+import '../../../3_domain/repositories/firebase/stat_dashboard_repository.dart';
 import '../../../core/firebase_failures.dart';
 
-class DashboardRepositoryImpl implements DashboardRepository {
+class StatDashboardRepositoryImpl implements StatDashboardRepository {
   final FirebaseFirestore db;
   final FirebaseAuth firebaseAuth;
-  DashboardRepositoryImpl({required this.db, required this.firebaseAuth});
+  StatDashboardRepositoryImpl({required this.db, required this.firebaseAuth});
 
   //? #######################################################################################################################################
 

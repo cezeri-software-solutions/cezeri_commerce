@@ -64,7 +64,7 @@ class PdfReceiptGenerator {
           children: [
             pw.Row(
               mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-              children: [buildTitle(receipt), isUrlValid ? buildBranchLogo(receipt, logoImage!) : pw.SizedBox(height: 100, width: 200)],
+              children: [buildTitle(receipt), isUrlValid ? buildBranchLogo(logoImage!) : pw.SizedBox(height: 100, width: 200)],
             ),
             pw.SizedBox(height: 40),
           ],
@@ -112,7 +112,7 @@ class PdfReceiptGenerator {
     };
   }
 
-  static pw.Widget buildBranchLogo(Receipt appointment, pw.MemoryImage url) => pw.SizedBox(height: 80, width: 160, child: pw.Image(url));
+  static pw.Widget buildBranchLogo(pw.MemoryImage url) => pw.SizedBox(height: 80, width: 160, child: pw.Image(url));
 
   static pw.Widget buildBranchAndCustomerAddress(Receipt receipt) {
     return pw.Column(

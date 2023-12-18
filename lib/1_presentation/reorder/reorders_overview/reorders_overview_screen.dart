@@ -7,8 +7,8 @@ import '../../../2_application/firebase/reorder/reorder_bloc.dart';
 import '../../../injection.dart';
 import '../../app_drawer.dart';
 import '../../core/functions/my_scaffold_messanger.dart';
-import '../../core/widgets/my_delete_dialog.dart';
-import '../../core/widgets/my_info_dialog.dart';
+import '../../core/widgets/my_dialog_delete.dart';
+import '../../core/widgets/my_dialog_info.dart';
 import 'reorders_overview_page.dart';
 import 'widgets/select_reorder_supplier_dialog.dart';
 
@@ -85,8 +85,8 @@ class ReordersOverviewScreen extends StatelessWidget {
                     onPressed: () => showDialog(
                       context: context,
                       builder: (_) => state.selectedReorders.isEmpty
-                          ? const MyInfoDialog(title: 'Achtung!', content: 'Bitte wähle mindestens einen Artikel aus.')
-                          : MyDeleteDialog(
+                          ? const MyDialogInfo(title: 'Achtung!', content: 'Bitte wähle mindestens einen Artikel aus.')
+                          : MyDialogDelete(
                               content: 'Bist du sicher, dass du alle ausgewählten Artikel unwiederruflich löschen willst?',
                               onConfirm: () {
                                 context.read<ReorderBloc>().add(DeleteSelectedReordersEvent(selectedReorders: state.selectedReorders));

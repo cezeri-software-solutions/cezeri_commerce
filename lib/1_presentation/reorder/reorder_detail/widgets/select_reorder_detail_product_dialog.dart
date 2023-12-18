@@ -2,11 +2,15 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:logger/logger.dart';
 
 import '../../../../2_application/firebase/reorder_detail/reorder_detail_bloc.dart';
 import '../../../../3_domain/entities/product/product.dart';
+import '../../../../3_domain/entities/statistic/stat_product_reorder.dart';
 import '../../../../constants.dart';
 import '../../../core/widgets/my_avatar.dart';
+
+final logger = Logger();
 
 class SelectReorderDetailProductDialog extends StatelessWidget {
   final ReorderDetailBloc reorderDetailBloc;
@@ -34,7 +38,7 @@ class SelectReorderDetailProductDialog extends StatelessWidget {
         return Dialog(
           child: SizedBox(
             height: screenHeight > 1200 ? 1200 : screenHeight,
-            width: screenWidth > 600 ? 600 : screenWidth,
+            width: screenWidth > 1000 ? 1000 : screenWidth,
             child: Column(
               children: [
                 Padding(
@@ -55,6 +59,12 @@ class SelectReorderDetailProductDialog extends StatelessWidget {
                     itemCount: productList.length,
                     itemBuilder: ((context, index) {
                       final product = productList[index];
+                      StatProductReorder? statProductReorderInvoice =
+                          state.listOfStatProductsInvoice?.where((e) => e.productId == product.id).firstOrNull;
+                      statProductReorderInvoice ??= StatProductReorder(productId: '', quantity: 0);
+                      StatProductReorder? statProductReorderAppointment =
+                          state.listOfStatProductsAppointment?.where((e) => e.productId == product.id).firstOrNull;
+                      statProductReorderAppointment ??= StatProductReorder(productId: '', quantity: 0);
                       return Column(
                         children: [
                           if (index == 0) Gaps.h10,
@@ -72,12 +82,31 @@ class SelectReorderDetailProductDialog extends StatelessWidget {
                               ),
                             ),
                             title: Text(product.name, style: TextStyles.defaultt),
-                            trailing: IconButton(
-                              onPressed: () => reorderDetailBloc.add(OnReorderDeatilAddProductEvent(product: product)),
-                              icon: const Icon(
-                                Icons.arrow_forward_ios,
-                                color: Colors.green,
-                              ),
+                            subtitle: state.statProductDateRange != null
+                                ? Text('${statProductReorderInvoice.quantity} / ${statProductReorderAppointment.quantity}')
+                                : null,
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                product.availableStock == product.warehouseStock
+                                    ? Text('${product.availableStock} / ${product.warehouseStock}', style: TextStyles.h3Bold)
+                                    : Text.rich(
+                                        TextSpan(
+                                          style: TextStyles.h3Bold,
+                                          children: [
+                                            TextSpan(text: '${product.availableStock}', style: const TextStyle(color: Colors.orange)),
+                                            TextSpan(text: ' / ${product.warehouseStock}'),
+                                          ],
+                                        ),
+                                      ),
+                                IconButton(
+                                  onPressed: () => reorderDetailBloc.add(OnReorderDeatilAddProductEvent(product: product)),
+                                  icon: const Icon(
+                                    Icons.arrow_forward_ios,
+                                    color: Colors.green,
+                                  ),
+                                ),
+                              ],
                             ),
                             onTap: () {
                               reorderDetailBloc.add(OnReorderDetailControllerClearedEvent());

@@ -241,6 +241,11 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
       //   await docRefReceipt.update(updatedReceipt.toJson());
       // }
       //* ENDE hinzufügen von neuen Attributen
+      // for (final receipt in listOfAppointments) {
+      //   if (value == 1 && (receipt.receiptTyp == ReceiptTyp.invoice || receipt.receiptTyp == ReceiptTyp.appointment)) {
+      //     await createOrIncrementStatProductOnCreateReceipt(receipt, currentUserUid, db);
+      //   }
+      // }
 
       if (listOfAppointments.isEmpty) return left(EmptyFailure());
       return right(listOfAppointments);

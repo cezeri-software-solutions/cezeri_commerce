@@ -24,6 +24,16 @@ class OnReorderDetailClosedManuallyChangeEvent extends ReorderDetailEvent {
   OnReorderDetailClosedManuallyChangeEvent({required this.value});
 }
 
+//* Helpers
+
+class OnReorderDetailGetPdfDataEvent extends ReorderDetailEvent {}
+
+class OnReorderDetailSetStatProductFromDateEvent extends ReorderDetailEvent {
+  final DateTimeRange dateRange;
+
+  OnReorderDetailSetStatProductFromDateEvent({required this.dateRange});
+}
+
 //* Controllers
 
 class SetReorderDetailControllersEvent extends ReorderDetailEvent {}

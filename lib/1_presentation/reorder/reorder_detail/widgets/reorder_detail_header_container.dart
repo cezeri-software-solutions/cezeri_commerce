@@ -5,8 +5,10 @@ import 'package:intl/intl.dart';
 import '../../../../2_application/firebase/reorder_detail/reorder_detail_bloc.dart';
 import '../../../../3_domain/entities/reorder/reorder.dart';
 import '../../../../constants.dart';
+import '../../../core/widgets/my_circular_progress_indicator.dart';
 import '../../../core/widgets/my_form_field_container.dart';
 import '../../../core/widgets/my_form_field_small.dart';
+import '../functions/on_pdf_pressed.dart';
 
 class ReorderDetailHeaderContainer extends StatelessWidget {
   final ReorderDetailBloc reorderDetailBloc;
@@ -79,22 +81,58 @@ class ReorderDetailHeaderContainer extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  SizedBox(
-                    width: 180,
-                    child: MyTextFormFieldSmall(
-                      labelText: 'Bestellnummer intern',
-                      controller: state.reorderNumberInternalController,
-                      onChanged: (_) => reorderDetailBloc.add(OnReorderDetailControllerChangedEvent()),
+                  Expanded(
+                    child: SizedBox(
+                      width: 180,
+                      child: MyTextFormFieldSmall(
+                        labelText: 'Bestellnummer intern',
+                        controller: state.reorderNumberInternalController,
+                        onChanged: (_) => reorderDetailBloc.add(OnReorderDetailControllerChangedEvent()),
+                      ),
                     ),
                   ),
-                  Column(
-                    children: [
-                      const Text('Manuell geschlossen'),
-                      Switch.adaptive(
-                        value: state.reorder!.closedManually,
-                        onChanged: (value) => reorderDetailBloc.add(OnReorderDetailClosedManuallyChangeEvent(value: value)),
-                      ),
-                    ],
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            IconButton(
+                              padding: EdgeInsets.zero,
+                              onPressed: state.listOfMarketplaces != null && state.listOfMarketplaces!.isNotEmpty
+                                  ? () async => await onPdfPressed(context: context, reorder: state.reorder!, marketplaces: state.listOfMarketplaces!)
+                                  : () => reorderDetailBloc.add(OnReorderDetailGetPdfDataEvent()),
+                              icon:
+                                  state.isLoadingPdfData ? const MyCircularProgressIndicator() : const Icon(Icons.picture_as_pdf, color: Colors.red),
+                            ),
+                            Gaps.w16,
+                            IconButton(
+                              padding: EdgeInsets.zero,
+                              onPressed: () async => await _showDateRangePicker(context, reorderDetailBloc),
+                              icon: const Icon(Icons.date_range, color: CustomColors.primaryColor),
+                            ),
+                          ],
+                        ),
+                        state.statProductDateRange != null && state.statProductDateRange != null
+                            ? Text(
+                                '${DateFormat('dd.MM.yyy', 'de').format(state.statProductDateRange!.start)} - ${DateFormat('dd.MM.yyy', 'de').format(DateTime(state.statProductDateRange!.end.year, state.statProductDateRange!.end.month, state.statProductDateRange!.end.day - 1))}',
+                                style: TextStyles.defaultBold,
+                              )
+                            : const Text(''),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    child: Column(
+                      children: [
+                        const Text('Manuell geschlossen'),
+                        Switch.adaptive(
+                          value: state.reorder!.closedManually,
+                          onChanged: (value) => reorderDetailBloc.add(OnReorderDetailClosedManuallyChangeEvent(value: value)),
+                        ),
+                      ],
+                    ),
                   )
                 ],
               )
@@ -103,5 +141,13 @@ class ReorderDetailHeaderContainer extends StatelessWidget {
         );
       },
     );
+  }
+
+  Future<void> _showDateRangePicker(BuildContext context, ReorderDetailBloc reorderDetailBloc) async {
+    final now = DateTime.now();
+
+    final newDateRange = await showDateRangePicker(context: context, firstDate: DateTime(now.year - 1), lastDate: now);
+
+    if (newDateRange != null) reorderDetailBloc.add(OnReorderDetailSetStatProductFromDateEvent(dateRange: newDateRange));
   }
 }

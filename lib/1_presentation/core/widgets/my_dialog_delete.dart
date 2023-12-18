@@ -4,12 +4,12 @@ import 'package:flutter/material.dart';
 
 import '../../../constants.dart';
 
-class MyDeleteDialog extends StatelessWidget {
+class MyDialogDelete extends StatelessWidget {
   final String? title;
   final String? content;
   final VoidCallback onConfirm;
 
-  const MyDeleteDialog({super.key, this.title, this.content, required this.onConfirm});
+  const MyDialogDelete({super.key, this.title, this.content, required this.onConfirm});
 
   @override
   Widget build(BuildContext context) {

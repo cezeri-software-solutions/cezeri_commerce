@@ -4,7 +4,7 @@ import '../../../core/firebase_failures.dart';
 import '../../entities/receipt/receipt.dart';
 import '../../entities/statistic/stat_dashboard.dart';
 
-abstract class DashboardRepository {
+abstract class StatDashboardRepository {
   Future<Either<FirebaseFailure, StatDashboard>> getStatDashboard();
 
   Future<Either<FirebaseFailure, List<StatDashboard>>> getLast13StatDashboards();

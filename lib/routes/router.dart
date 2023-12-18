@@ -40,6 +40,7 @@ class AppRouter extends $AppRouter {
         AutoRoute(page: PackingStationDetailRoute.page, path: '/packing_station_overview/packing_station_detail'),
         AutoRoute(page: PicklistsOverviewRoute.page, path: '/picklists_overview'),
         AutoRoute(page: PicklistDetailRoute.page, path: '/picklist_detail'),
+        AutoRoute(page: ProductsBookingRoute.page, path: '/products_booking'),
         //
         AutoRoute(page: MyFullscreenImageRoute.page, path: '/fullscreen_image'),
         AutoRoute(page: ShippingLabelRoute.page, path: '/shipping_label'),

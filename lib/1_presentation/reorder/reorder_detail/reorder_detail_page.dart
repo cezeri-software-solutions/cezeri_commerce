@@ -1,4 +1,4 @@
-import 'package:cezeri_commerce/1_presentation/core/widgets/my_info_dialog.dart';
+import 'package:cezeri_commerce/1_presentation/core/widgets/my_dialog_info.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -109,7 +109,7 @@ class ReorderDetailPage extends StatelessWidget {
     if (reorder.listOfReorderProducts.any((e) => e.articleNumber.isEmpty)) {
       showDialog(
         context: context,
-        builder: (context) => const MyInfoDialog(title: 'Achtung', content: 'Es darf kein Artikel ohne Artikelnummer vorhanden sein'),
+        builder: (context) => const MyDialogInfo(title: 'Achtung', content: 'Es darf kein Artikel ohne Artikelnummer vorhanden sein'),
       );
       return false;
     }
@@ -117,7 +117,7 @@ class ReorderDetailPage extends StatelessWidget {
     if (reorder.listOfReorderProducts.any((e) => e.name.isEmpty)) {
       showDialog(
         context: context,
-        builder: (context) => const MyInfoDialog(title: 'Achtung', content: 'Es darf kein Artikel ohne Artikelname vorhanden sein'),
+        builder: (context) => const MyDialogInfo(title: 'Achtung', content: 'Es darf kein Artikel ohne Artikelname vorhanden sein'),
       );
       return false;
     }

@@ -184,24 +184,24 @@ Future<void> createOrIncrementStatProductOnCreateReceipt(
 
   for (final receiptProduct in receipt.listOfReceiptProduct) {
     if (!receiptProduct.isFromDatabase) continue;
-    final docRefStatProduct = db.collection('StatProducts').doc(currentUserUid).collection(receiptProduct.productId).doc('$curYear$curMonth');
+    final docRefStatProduct = db.collection('StatProducts').doc(currentUserUid).collection('$curYear$curMonth').doc(receiptProduct.productId);
     DocumentSnapshot<Map<String, dynamic>> dsStatProduct = await docRefStatProduct.get();
     if (!dsStatProduct.exists) {
       final StatProduct statProduct = StatProduct.empty().copyWith(
-        statDashboardId: docRefStatProduct.id,
+        statProductId: docRefStatProduct.id,
         name: receiptProduct.name,
         articleNumber: receiptProduct.articleNumber,
         ean: receiptProduct.ean,
         listOfStatProductDetail: [StatProductDetail.fromReceitProduct(receipt, receiptProduct)],
-        lastEditingDate: DateTime.now(),
-        creationDate: DateTime.now(),
+        lastEditingDate: receipt.creationDate, //now,
+        creationDate: receipt.creationDate, //now,
       );
       docRefStatProduct.set(statProduct.toJson());
     } else {
       final phStatProduct = StatProduct.fromJson(dsStatProduct.data()!);
       StatProduct statProduct = phStatProduct.copyWith(
         listOfStatProductDetail: phStatProduct.listOfStatProductDetail..add(StatProductDetail.fromReceitProduct(receipt, receiptProduct)),
-        lastEditingDate: now,
+        lastEditingDate: receipt.creationDate, //now,
       );
       docRefStatProduct.update(statProduct.toJson());
     }

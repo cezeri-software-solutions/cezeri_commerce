@@ -8,24 +8,32 @@ part of 'stat_product_detail.dart';
 
 StatProductDetail _$StatProductDetailFromJson(Map<String, dynamic> json) =>
     StatProductDetail(
+      id: json['id'] as String,
+      productId: json['productId'] as String,
       receiptTyp: $enumDecode(_$ReceiptTypEnumMap, json['receiptTyp']),
       receiptId: json['receiptId'] as String,
       uniqueReceiptId: json['uniqueReceiptId'] as String,
+      receiptNumber: json['receiptNumber'] as int,
       profit: (json['profit'] as num).toDouble(),
       profitUnit: (json['profitUnit'] as num).toDouble(),
       unitPriceNet: (json['unitPriceNet'] as num).toDouble(),
       quantity: json['quantity'] as int,
+      creationDate: DateTime.parse(json['creationDate'] as String),
     );
 
 Map<String, dynamic> _$StatProductDetailToJson(StatProductDetail instance) =>
     <String, dynamic>{
+      'id': instance.id,
+      'productId': instance.productId,
       'receiptTyp': _$ReceiptTypEnumMap[instance.receiptTyp]!,
       'receiptId': instance.receiptId,
       'uniqueReceiptId': instance.uniqueReceiptId,
+      'receiptNumber': instance.receiptNumber,
       'profit': instance.profit,
       'profitUnit': instance.profitUnit,
       'unitPriceNet': instance.unitPriceNet,
       'quantity': instance.quantity,
+      'creationDate': instance.creationDate.toIso8601String(),
     };
 
 const _$ReceiptTypEnumMap = {

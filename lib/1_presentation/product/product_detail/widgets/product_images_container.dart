@@ -7,7 +7,7 @@ import '../../../../3_domain/entities/product/product_image.dart';
 import '../../../../constants.dart';
 import '../../../core/widgets/my_avatar.dart';
 import '../../../core/widgets/my_circular_progress_indicator.dart';
-import '../../../core/widgets/my_delete_dialog.dart';
+import '../../../core/widgets/my_dialog_delete.dart';
 import '../../../core/widgets/my_outlined_button.dart';
 
 class ProductImagesContainer extends StatelessWidget {
@@ -34,7 +34,7 @@ class ProductImagesContainer extends StatelessWidget {
                     IconButton(
                       onPressed: () => showDialog(
                         context: context,
-                        builder: (context) => MyDeleteDialog(
+                        builder: (context) => MyDialogDelete(
                           content: 'Willst du wirklich alle ausgewählten Artikelbilder unwiederruflich löschen?',
                           onConfirm: () {
                             productBloc.add(RemoveSelectedProductImages());

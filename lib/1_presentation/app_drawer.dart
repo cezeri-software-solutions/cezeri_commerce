@@ -94,6 +94,35 @@ class AppDrawer extends StatelessWidget {
                         ),
                       ],
                     ),
+                    ExpansionTile(
+                      title: const Text('Lager'),
+                      leading: const Icon(Icons.warehouse),
+                      childrenPadding: const EdgeInsets.only(left: 20),
+                      children: [
+                        ListTile(
+                          leading: const Icon(Icons.subdirectory_arrow_right),
+                          title: const Text('Warenausgang'),
+                          onTap: () {
+                            // if (context.router.current.name == SuppliersOverviewRoute.name) {
+                            //   context.router.pop();
+                            // } else {
+                            //   context.router.replaceAll([const SuppliersOverviewRoute()]);
+                            // }
+                          },
+                        ),
+                        ListTile(
+                          leading: const Icon(Icons.subdirectory_arrow_left),
+                          title: const Text('Wareneingang'),
+                          onTap: () {
+                            if (context.router.current.name == ProductsBookingRoute.name) {
+                              context.router.pop();
+                            } else {
+                              context.router.replaceAll([const ProductsBookingRoute()]);
+                            }
+                          },
+                        ),
+                      ],
+                    ),
                     ListTile(
                       leading: const Icon(Icons.delivery_dining),
                       title: const Text('Packstation'),

@@ -1,8 +1,23 @@
 part of 'products_booking_bloc.dart';
 
-sealed class ProductsBookingEvent extends Equatable {
-  const ProductsBookingEvent();
+abstract class ProductsBookingEvent {}
 
-  @override
-  List<Object> get props => [];
+class SetProductsBookingStateToInitialEvent extends ProductsBookingEvent {}
+
+class ProductsBookingGetReordersEvent extends ProductsBookingEvent {}
+
+class ProductsBookingFilterReordersEvent extends ProductsBookingEvent {}
+
+class OnProductsBookingSelectAllReorderProductsEvent extends ProductsBookingEvent {
+  final bool isSelected;
+
+  OnProductsBookingSelectAllReorderProductsEvent({required this.isSelected});
 }
+
+class OnProductsBookingSelectReorderProductEvent extends ProductsBookingEvent {
+  final BookingProduct bookingProduct;
+
+  OnProductsBookingSelectReorderProductEvent({required this.bookingProduct});
+}
+
+class OnProductsBookingSetBookingProductsFromReorderEvent extends ProductsBookingEvent {}

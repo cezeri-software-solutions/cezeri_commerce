@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:cezeri_commerce/1_presentation/reorder/reorder_detail/functions/on_pdf_pressed.dart';
 import 'package:cezeri_commerce/core/firebase_failures.dart';
 import 'package:cezeri_commerce/routes/router.gr.dart';
 import 'package:flutter/material.dart';
@@ -90,11 +91,22 @@ class ReorderDetailScreen extends StatelessWidget {
               );
             },
           ),
+          BlocListener<ReorderDetailBloc, ReorderDetailState>(
+            listenWhen: (p, c) => p.fosReorderDetailOnPdfDataOption != c.fosReorderDetailOnPdfDataOption,
+            listener: (context, state) {
+              state.fosReorderDetailOnPdfDataOption.fold(
+                () => null,
+                (a) => a.fold(
+                  (failure) => myScaffoldMessenger(context, failure, null, null, null),
+                  (marketplaces) => onPdfPressed(context: context, reorder: state.reorder!, marketplaces: marketplaces),
+                ),
+              );
+            },
+          ),
         ],
         child: BlocBuilder<ReorderDetailBloc, ReorderDetailState>(
           bloc: reorderDetailBloc,
           builder: (context, state) {
-            logger.i(state.reorder);
             if (state.isLoadingReorderDetailOnObserve) return Scaffold(appBar: appBar, body: const Center(child: CircularProgressIndicator()));
             if (state.firebaseFailure != null && state.firebaseFailure.runtimeType != EmptyFailure && state.isAnyFailure) {
               return Scaffold(appBar: appBar, body: const Center(child: Text('Ein Fehler ist aufgetreten')));

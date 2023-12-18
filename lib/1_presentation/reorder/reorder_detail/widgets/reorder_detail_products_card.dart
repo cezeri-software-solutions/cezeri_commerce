@@ -6,7 +6,7 @@ import '../../../../2_application/firebase/reorder_detail/reorder_detail_bloc.da
 import '../../../../3_domain/entities/product/product.dart';
 import '../../../../constants.dart';
 import '../../../core/widgets/my_circular_progress_indicator.dart';
-import '../../../core/widgets/my_delete_dialog.dart';
+import '../../../core/widgets/my_dialog_delete.dart';
 import '../../../core/widgets/my_form_field_small.dart';
 import '../../../core/widgets/my_text_form_field_small_double.dart';
 import '../functions/show_reorder_detail_products_dialog.dart';
@@ -159,7 +159,7 @@ class ReorderDetailProductsCard extends StatelessWidget {
                               child: IconButton(
                                 onPressed: () => showDialog(
                                   context: context,
-                                  builder: (context) => MyDeleteDialog(
+                                  builder: (context) => MyDialogDelete(
                                     content:
                                         'Bist du sicher, dass du den Artikel "//${state.reorder!.listOfReorderProducts[index].name}" löschen willst?',
                                     onConfirm: () {

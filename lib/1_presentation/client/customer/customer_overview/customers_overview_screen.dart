@@ -10,8 +10,8 @@ import '../../../../3_domain/entities/customer/customer.dart';
 import '../../../../injection.dart';
 import '../../../../routes/router.gr.dart';
 import '../../../core/functions/my_scaffold_messanger.dart';
-import '../../../core/widgets/my_delete_dialog.dart';
-import '../../../core/widgets/my_info_dialog.dart';
+import '../../../core/widgets/my_dialog_delete.dart';
+import '../../../core/widgets/my_dialog_info.dart';
 import '../customer_detail/customer_detail_screen.dart';
 import 'customers_overview_page.dart';
 
@@ -74,8 +74,8 @@ class CustomersOverviewScreen extends StatelessWidget {
                     onPressed: () => showDialog(
                       context: context,
                       builder: (_) => state.selectedCustomers.isEmpty
-                          ? const MyInfoDialog(title: 'Achtung!', content: 'Bitte wähle mindestens einen Kunden aus.')
-                          : MyDeleteDialog(
+                          ? const MyDialogInfo(title: 'Achtung!', content: 'Bitte wähle mindestens einen Kunden aus.')
+                          : MyDialogDelete(
                               content: 'Bist du sicher, dass du alle ausgewählten Kunden unwiederruflich löschen willst?',
                               onConfirm: () {
                                 context.read<CustomerBloc>().add(DeleteSelectedCustomersEvent(selectedCustomers: state.selectedCustomers));

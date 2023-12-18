@@ -16,10 +16,10 @@ import '../../../constants.dart';
 import '../../../core/firebase_failures.dart';
 import '../../core/widgets/my_avatar.dart';
 import '../../core/widgets/my_circular_progress_indicator.dart';
+import '../../core/widgets/my_dialog_info.dart';
 import '../../core/widgets/my_dropdown_button_small.dart';
 import '../../core/widgets/my_form_field_container.dart';
 import '../../core/widgets/my_form_field_small.dart';
-import '../../core/widgets/my_info_dialog.dart';
 import '../../core/widgets/my_text.dart';
 import '../../core/widgets/my_text_form_field_small_double.dart';
 
@@ -238,7 +238,7 @@ class _PackingStationDetailPageState extends State<PackingStationDetailPage> {
       if (product == null) {
         await showDialog(
           context: context,
-          builder: (context) => MyInfoDialog(title: 'Achtung', content: 'Kein Artikel mit der EAN: $value im Auftrag vorhanden!'),
+          builder: (context) => MyDialogInfo(title: 'Achtung', content: 'Kein Artikel mit der EAN: $value im Auftrag vorhanden!'),
         );
         packingStationBloc.add(PackingStationClearControllerEvent());
         return;
@@ -248,7 +248,7 @@ class _PackingStationDetailPageState extends State<PackingStationDetailPage> {
       if (receiptProduct == null) {
         await showDialog(
           context: context,
-          builder: (context) => MyInfoDialog(title: 'Achtung', content: 'Kein Artikel mit der EAN: $value im Auftrag vorhanden!'),
+          builder: (context) => MyDialogInfo(title: 'Achtung', content: 'Kein Artikel mit der EAN: $value im Auftrag vorhanden!'),
         );
         packingStationBloc.add(PackingStationClearControllerEvent());
         return;
@@ -260,7 +260,7 @@ class _PackingStationDetailPageState extends State<PackingStationDetailPage> {
         await showDialog(
           context: context,
           builder: (context) =>
-              MyInfoDialog(title: 'Achtung', content: 'Der Artikel \n\n${receiptProduct.name}\n\n ist bereits vollständig gepackt!'),
+              MyDialogInfo(title: 'Achtung', content: 'Der Artikel \n\n${receiptProduct.name}\n\n ist bereits vollständig gepackt!'),
         );
         packingStationBloc.add(PackingStationClearControllerEvent());
         return;
@@ -295,7 +295,7 @@ class _PackingStationDetailPageState extends State<PackingStationDetailPage> {
       await showDialog(
         context: context,
         builder: (context) =>
-            const MyInfoDialog(title: 'ACHTUNG', content: 'Du kannst keinen Auftrag absenden, ohne einen einzigen Artikel zu packen.'),
+            const MyDialogInfo(title: 'ACHTUNG', content: 'Du kannst keinen Auftrag absenden, ohne einen einzigen Artikel zu packen.'),
       );
     } else {
       if (isPartiallyEnabled) {
@@ -303,7 +303,7 @@ class _PackingStationDetailPageState extends State<PackingStationDetailPage> {
       } else {
         await showDialog(
           context: context,
-          builder: (context) => const MyInfoDialog(
+          builder: (context) => const MyDialogInfo(
               title: 'ACHTUNG',
               content:
                   'Du hast noch nicht den kompletten Auftrag gepackt.\nUm Teillieferungen zu ermöglichen, bitte\n\n"Teillieferung möglich?"\n\n aktivieren.'),

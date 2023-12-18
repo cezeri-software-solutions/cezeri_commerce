@@ -20,9 +20,9 @@ import '../../../injection.dart';
 import '../../../routes/router.gr.dart';
 import '../../core/functions/my_scaffold_messanger.dart';
 import '../../core/widgets/my_circular_progress_indicator.dart';
-import '../../core/widgets/my_delete_dialog.dart';
+import '../../core/widgets/my_dialog_delete.dart';
+import '../../core/widgets/my_dialog_info.dart';
 import '../../core/widgets/my_form_field_small.dart';
-import '../../core/widgets/my_info_dialog.dart';
 import '../../core/widgets/my_modal_scrollable.dart';
 import '../../core/widgets/my_outlined_button.dart';
 import '../appointment_detail/appointment_detail_screen.dart';
@@ -196,7 +196,7 @@ class ReceiptsOverviewScreen extends StatelessWidget {
                             ReceiptTyp.appointment =>
                               _GenerateFromAppointmentDialog(listOfReceipts: state.selectedReceipts, appointmentBloc: appointmentBloc),
                             ReceiptTyp.invoice => state.selectedReceipts.length > 1
-                                ? const MyInfoDialog(
+                                ? const MyDialogInfo(
                                     title: 'Achtug', content: 'Du darfst maximal eine Rechnung auswählen, zum generieren einer Gutschrift')
                                 : _GenerateFromInvoiceNewCreditDialog(listOfReceipts: state.selectedReceipts, appointmentBloc: appointmentBloc),
                             _ => const Dialog(),
@@ -231,7 +231,7 @@ class ReceiptsOverviewScreen extends StatelessWidget {
                     onPressed: () => showDialog(
                       context: context,
                       builder: (_) => state.selectedReceipts.isEmpty
-                          ? MyInfoDialog(
+                          ? MyDialogInfo(
                               title: 'Achtung!',
                               content: 'Bitte wähle mindestens ${switch (receiptTyp) {
                                 ReceiptTyp.offer => 'ein Angebot',
@@ -240,7 +240,7 @@ class ReceiptsOverviewScreen extends StatelessWidget {
                                 ReceiptTyp.invoice => 'eine Rechnungen',
                                 ReceiptTyp.credit => 'eine Rechnungen',
                               }} aus.')
-                          : MyDeleteDialog(
+                          : MyDialogDelete(
                               content: 'Bist du sicher, dass du alle ausgewählten ${switch (receiptTyp) {
                                 ReceiptTyp.offer => 'Angebote',
                                 ReceiptTyp.appointment => 'Aufträge',

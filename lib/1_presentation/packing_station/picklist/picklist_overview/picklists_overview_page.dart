@@ -73,7 +73,7 @@ class _PicklistsContainer extends StatelessWidget {
         }
 
         return ListTile(
-          title: Text(DateFormat('EE MM.dd.yyyy - HH:mm:ss', 'de').format(picklist.creationDate)),
+          title: Text(DateFormat('EE dd.MM.yyyy - HH:mm:ss', 'de').format(picklist.creationDate)),
           subtitle: Text('Artikel: ${picklist.listOfPicklistProducts.length} | Stückzahl: $totalQuantity'),
           trailing: Container(
             width: 30,
