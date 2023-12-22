@@ -55,6 +55,28 @@ class ReorderBloc extends Bloc<ReorderEvent, ReorderState> {
 
 //? #########################################################################
 
+    on<DeleteSelectedReordersEvent>((event, emit) async {
+      emit(state.copyWith(isLoadingReorderOnDelete: true));
+
+      final ids = state.selectedReorders.map((e) => e.id).toList();
+      final failureOrSuccess = await reorderRepository.deleteReorders(ids);
+      failureOrSuccess.fold(
+        (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
+        (unit) {
+          emit(state.copyWith(selectedReorders: [], firebaseFailure: null, isAnyFailure: false));
+          add(GetReordersEvenet(tabValue: state.tabValue));
+        },
+      );
+
+      emit(state.copyWith(
+        isLoadingReorderOnDelete: false,
+        fosReordersOnDeleteOption: optionOf(failureOrSuccess),
+      ));
+      emit(state.copyWith(fosReordersOnDeleteOption: none()));
+    });
+
+//? #########################################################################
+
     on<SetSearchFieldTextEvent>((event, emit) async {
       emit(state.copyWith(reorderSearchText: event.searchText));
 

@@ -2,6 +2,7 @@ import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.da
 import 'package:cezeri_commerce/1_presentation/core/functions/mixed_functions.dart';
 import 'package:json_annotation/json_annotation.dart';
 
+import '../id.dart';
 import '../product/product.dart';
 import '../settings/tax.dart';
 
@@ -57,7 +58,7 @@ class ReorderProduct {
 
   factory ReorderProduct.fromProduct(Product product, int pos, Tax tax) {
     return ReorderProduct(
-      productId: product.id,
+      productId: product.id.isEmpty ? '00000${UniqueID().value}' : product.id,
       pos: pos,
       name: product.name,
       articleNumber: product.articleNumber,

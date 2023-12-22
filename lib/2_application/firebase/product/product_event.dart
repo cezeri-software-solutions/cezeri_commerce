@@ -21,6 +21,12 @@ class SetProductControllerEvent extends ProductEvent {
 
 class OnProductControllerChangedEvent extends ProductEvent {}
 
+class OnProductSalesPriceControllerChangedEvent extends ProductEvent {
+  final bool isNet;
+
+  OnProductSalesPriceControllerChangedEvent({required this.isNet});
+}
+
 class OnProductDescriptionChangedEvent extends ProductEvent {
   final String? content;
 

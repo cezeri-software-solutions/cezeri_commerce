@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../2_application/firebase/products_booking/products_booking_bloc.dart';
 import '../../../constants.dart';
+import '../../core/widgets/my_circular_progress_indicator.dart';
 import '../../core/widgets/my_form_field_container.dart';
 import '../../core/widgets/my_outlined_button.dart';
 import 'widgets/products_booking_page_table.dart';
@@ -33,6 +34,7 @@ class ProductsBookingPage extends StatelessWidget {
                       if (state.listOfAllReorders == null || state.listOfAllReorders!.isEmpty) {
                         productsBookingBloc.add(ProductsBookingGetReordersEvent());
                       } else {
+                        productsBookingBloc.add(OnProductsBookingSetReorderFilterEvent(reorderNumber: ''));
                         showDialog(
                           context: context,
                           builder: (context) => BlocProvider.value(
@@ -55,6 +57,7 @@ class ProductsBookingPage extends StatelessWidget {
                     child: SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
                       child: productsBookingPageTable(
+                        context: context,
                         productsBookingBloc: productsBookingBloc,
                         state: state,
                         bookingProductsList: state.listOfSelectedProducts,
@@ -72,11 +75,19 @@ class ProductsBookingPage extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     InkWell(
+                      onTap: () => productsBookingBloc.add(OnProductsBookingSaveEvent()),
                       child: Container(
                         height: 60,
                         width: 160,
-                        color: Colors.green,
-                        child: const Center(child: Text('Senden', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white))),
+                        decoration: const BoxDecoration(
+                          color: Colors.green,
+                          borderRadius: BorderRadius.all(Radius.circular(12)),
+                        ),
+                        child: state.isLoadingProductsBookingOnUpdate
+                            ? const Center(child: MyCircularProgressIndicator(color: Colors.white))
+                            : const Center(
+                                child: Text('Speichern', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white)),
+                              ),
                       ),
                     ),
                   ],

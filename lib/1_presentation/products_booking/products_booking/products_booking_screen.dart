@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../2_application/firebase/products_booking/products_booking_bloc.dart';
 import '../../../injection.dart';
 import '../../app_drawer.dart';
+import '../../core/functions/my_scaffold_messanger.dart';
 import 'products_booking_page.dart';
 import 'widgets/products_booking_select_products_dialog.dart';
 
@@ -18,23 +19,39 @@ class ProductsBookingScreen extends StatelessWidget {
 
     return BlocProvider(
       create: (context) => productsBookingBloc,
-      child: BlocListener<ProductsBookingBloc, ProductsBookingState>(
-        listenWhen: (p, c) => p.fosProductsBookingReordersOnObserveOption != c.fosProductsBookingReordersOnObserveOption,
-        listener: (context, state) {
-          state.fosProductsBookingReordersOnObserveOption.fold(
-            () => null,
-            (a) => a.fold(
-              (l) => null,
-              (r) => showDialog(
-                context: context,
-                builder: (context) => BlocProvider.value(
-                  value: productsBookingBloc,
-                  child: ProductsBookingSelectProductsDialog(productsBookingBloc: productsBookingBloc),
+      child: MultiBlocListener(
+        listeners: [
+          BlocListener<ProductsBookingBloc, ProductsBookingState>(
+            listenWhen: (p, c) => p.fosProductsBookingReordersOnObserveOption != c.fosProductsBookingReordersOnObserveOption,
+            listener: (context, state) {
+              state.fosProductsBookingReordersOnObserveOption.fold(
+                () => null,
+                (a) => a.fold(
+                  (failure) => myScaffoldMessenger(context, failure, null, null, null),
+                  (listOfReorders) => showDialog(
+                    context: context,
+                    builder: (context) => BlocProvider.value(
+                      value: productsBookingBloc,
+                      child: ProductsBookingSelectProductsDialog(productsBookingBloc: productsBookingBloc),
+                    ),
+                  ),
                 ),
-              ),
-            ),
-          );
-        },
+              );
+            },
+          ),
+          BlocListener<ProductsBookingBloc, ProductsBookingState>(
+            listenWhen: (p, c) => p.fosProductsBookingOnUpdateOption != c.fosProductsBookingOnUpdateOption,
+            listener: (context, state) {
+              state.fosProductsBookingOnUpdateOption.fold(
+                () => null,
+                (a) => a.fold(
+                  (failure) => myScaffoldMessenger(context, failure, null, null, null),
+                  (unit) => myScaffoldMessenger(context, null, null, 'Nachbestellungen und Artikel erfolgreich aktualisiert', null),
+                ),
+              );
+            },
+          ),
+        ],
         child: Scaffold(
           drawer: const AppDrawer(),
           appBar: AppBar(title: const Text('Wareneingang')),

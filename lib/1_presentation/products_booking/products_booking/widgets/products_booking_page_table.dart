@@ -1,10 +1,16 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../2_application/firebase/products_booking/products_booking_bloc.dart';
 import '../../../../3_domain/entities/product/booking_product.dart';
+import '../../../../constants.dart';
+import '../../../core/widgets/my_circular_progress_indicator.dart';
+import '../../../core/widgets/my_dialog_delete.dart';
 import '../../../core/widgets/my_text_form_field_small_double.dart';
 
 Table productsBookingPageTable({
+  required BuildContext context,
   required ProductsBookingBloc productsBookingBloc,
   required ProductsBookingState state,
   required List<BookingProduct> bookingProductsList,
@@ -13,7 +19,24 @@ Table productsBookingPageTable({
   final paddingRight = bookingProductsList.isEmpty ? screenWidth / 10 : 20.0;
   final padding = EdgeInsets.only(top: 7, right: paddingRight, left: 8);
   const constraints = BoxConstraints(maxHeight: 32);
+
+  void showRemoveDialog(BookingProduct bookingProduct) {
+    showDialog(
+      context: context,
+      builder: (_) => BlocProvider.value(
+        value: productsBookingBloc,
+        child: MyDialogDelete(
+            content: 'Bist du sicher, dass du "${bookingProduct.name}" aus der Liste löschen willst?',
+            onConfirm: () {
+              productsBookingBloc.add(OnProductsBookingRemoveFromSelectedReorderProductsEvent(bookingProduct: bookingProduct));
+              context.popRoute();
+            }),
+      ),
+    );
+  }
+
   final List<Widget> rowChildren = [
+    const SizedBox.shrink(),
     const SizedBox.shrink(),
     const SizedBox.shrink(),
     const SizedBox.shrink(),
@@ -27,9 +50,19 @@ Table productsBookingPageTable({
     const SizedBox(),
     Padding(padding: padding, child: const Text('Artikelnummer', style: TextStyle(fontWeight: FontWeight.bold))),
     Padding(padding: padding, child: const Text('Name', style: TextStyle(fontWeight: FontWeight.bold))),
+    Tooltip(
+      message: 'Verfügbarer Bestand / Lagerbestand',
+      child: Padding(padding: padding, child: const Text('Akt. Bestand', style: TextStyle(fontWeight: FontWeight.bold))),
+    ),
+    Tooltip(
+      message: 'Anzahl die zum Bestand hinzugefügt werden soll',
+      child: Padding(padding: padding, child: const Text('Buchungsmenge', style: TextStyle(fontWeight: FontWeight.bold))),
+    ),
+    Tooltip(
+      message: 'Offene Menge / Nachbestellte Menge',
+      child: Padding(padding: padding, child: const Text('Menge', style: TextStyle(fontWeight: FontWeight.bold))),
+    ),
     Padding(padding: padding, child: const Text('EAN', style: TextStyle(fontWeight: FontWeight.bold))),
-    Padding(padding: padding, child: const Text('Akt. Bestand', style: TextStyle(fontWeight: FontWeight.bold))),
-    Padding(padding: padding, child: const Text('Menge', style: TextStyle(fontWeight: FontWeight.bold))),
     Padding(padding: padding, child: const Text('Bestellnummer', style: TextStyle(fontWeight: FontWeight.bold))),
   ];
 
@@ -48,30 +81,56 @@ Table productsBookingPageTable({
 
   int rowIndex = 0;
 
+  BoxDecoration? getRowColor(BookingProduct bookingProduct, int rowIndex) {
+    if (bookingProduct.productId.isEmpty || bookingProduct.productId.startsWith('00000')) {
+      return const BoxDecoration(color: Color.fromARGB(255, 252, 238, 199));
+    }
+    if (rowIndex % 2 == 1) return const BoxDecoration(color: Color.fromARGB(255, 229, 244, 251));
+    return null;
+  }
+
   for (final bookingProduct in bookingProductsList) {
-    BoxDecoration? rowDecoration;
-    if (rowIndex % 2 == 1) rowDecoration = const BoxDecoration(color: Color.fromARGB(255, 229, 244, 251));
+    final product = state.listOfAllProducts?.where((e) => e.id == bookingProduct.productId).firstOrNull;
+    final rowDecoration = getRowColor(bookingProduct, rowIndex);
 
     // Datenzeile hinzufügen
     rows.add(TableRow(
       decoration: rowDecoration,
       children: [
-        ConstrainedBox(
-          constraints: constraints,
-          child: InkWell(
-            onTap: () {},
-            child: const Icon(Icons.delete, color: Colors.red),
+        Padding(
+          padding: EdgeInsets.only(top: 5, bottom: 5, right: paddingRight, left: 8),
+          child: ConstrainedBox(
+            constraints: constraints,
+            child: InkWell(
+              onTap: () => showRemoveDialog(bookingProduct),
+              child: const Icon(Icons.delete, color: Colors.red),
+            ),
           ),
         ),
         Padding(padding: padding, child: Text(bookingProduct.articleNumber)),
         Padding(padding: padding, child: Text(bookingProduct.name)),
-        Padding(padding: padding, child: Text(bookingProduct.ean)),
-        Padding(padding: padding, child: const Text('')),
         Align(
           alignment: Alignment.centerRight,
-          child: Padding(padding: padding, child: MyTextFormFieldSmallDouble(hintText: bookingProduct.openQuantity.toString())),
+          child: Padding(
+            padding: padding,
+            child: state.isLoadingProductsBookingProductsOnObserve
+                ? const SizedBox(height: 20, width: 20, child: MyCircularProgressIndicator())
+                : Text(product != null ? '${product.availableStock} / ${product.warehouseStock}' : 'k.A.'),
+          ),
         ),
-        Padding(padding: padding, child: Text(bookingProduct.reorderId)),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2.5),
+          child: MyTextFormFieldSmallDouble(
+            controller: state.quantityControllers[rowIndex],
+            onChanged: (_) => productsBookingBloc.add(OnProductsBookingQuantityControllerChangedEvent()),
+          ),
+        ),
+        Align(
+          alignment: Alignment.centerRight,
+          child: Padding(padding: padding, child: Text('${bookingProduct.openQuantity} / ${bookingProduct.quantity}', style: TextStyles.defaultBold)),
+        ),
+        Padding(padding: padding, child: Text(bookingProduct.ean)),
+        Padding(padding: padding, child: Text(bookingProduct.reorderNumber)),
       ],
     ));
 

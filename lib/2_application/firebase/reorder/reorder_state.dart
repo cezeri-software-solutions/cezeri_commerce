@@ -21,6 +21,7 @@ class ReorderState {
   final Option<Either<FirebaseFailure, Reorder>> fosReorderOnCreateOption;
   final Option<Either<FirebaseFailure, Reorder>> fosReorderOnUpdateOption;
   final Option<Either<FirebaseFailure, Unit>> fosReorderOnDeleteOption;
+  final Option<Either<FirebaseFailure, Unit>> fosReordersOnDeleteOption;
   final Option<Either<FirebaseFailure, List<Supplier>>> fosReorderOnObserveSuppliersOption;
 
   //* Helpers
@@ -51,6 +52,7 @@ class ReorderState {
     required this.fosReorderOnCreateOption,
     required this.fosReorderOnUpdateOption,
     required this.fosReorderOnDeleteOption,
+    required this.fosReordersOnDeleteOption,
     required this.fosReorderOnObserveSuppliersOption,
     required this.isAllReordersSelected,
     required this.reorderSearchText,
@@ -79,6 +81,7 @@ class ReorderState {
       fosReorderOnCreateOption: none(),
       fosReorderOnUpdateOption: none(),
       fosReorderOnDeleteOption: none(),
+      fosReordersOnDeleteOption: none(),
       fosReorderOnObserveSuppliersOption: none(),
       isAllReordersSelected: false,
       reorderSearchText: '',
@@ -107,6 +110,7 @@ class ReorderState {
     Option<Either<FirebaseFailure, Reorder>>? fosReorderOnCreateOption,
     Option<Either<FirebaseFailure, Reorder>>? fosReorderOnUpdateOption,
     Option<Either<FirebaseFailure, Unit>>? fosReorderOnDeleteOption,
+    Option<Either<FirebaseFailure, Unit>>? fosReordersOnDeleteOption,
     Option<Either<FirebaseFailure, List<Supplier>>>? fosReorderOnObserveSuppliersOption,
     bool? isAllReordersSelected,
     String? reorderSearchText,
@@ -133,6 +137,7 @@ class ReorderState {
       fosReorderOnCreateOption: fosReorderOnCreateOption ?? this.fosReorderOnCreateOption,
       fosReorderOnUpdateOption: fosReorderOnUpdateOption ?? this.fosReorderOnUpdateOption,
       fosReorderOnDeleteOption: fosReorderOnDeleteOption ?? this.fosReorderOnDeleteOption,
+      fosReordersOnDeleteOption: fosReordersOnDeleteOption ?? this.fosReordersOnDeleteOption,
       fosReorderOnObserveSuppliersOption: fosReorderOnObserveSuppliersOption ?? this.fosReorderOnObserveSuppliersOption,
       isAllReordersSelected: isAllReordersSelected ?? this.isAllReordersSelected,
       reorderSearchText: reorderSearchText ?? this.reorderSearchText,

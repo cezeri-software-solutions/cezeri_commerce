@@ -159,6 +159,17 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
 
 //? #########################################################################
 
+    on<OnProductSalesPriceControllerChangedEvent>((event, emit) {
+      emit(state.copyWith(
+        product: state.product!.copyWith(
+          netPrice: state.netPriceController.text.toMyDouble(),
+          grossPrice: state.grossPriceController.text.toMyDouble(),
+        ),
+      ));
+    });
+
+//? #########################################################################
+
     on<OnProductDescriptionChangedEvent>((event, emit) {
       bool isChanged = true;
       if (state.isDescriptionSetFirstTime) isChanged = false;

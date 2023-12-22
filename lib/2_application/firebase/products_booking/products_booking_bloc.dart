@@ -1,6 +1,9 @@
 import 'package:bloc/bloc.dart';
+import 'package:cezeri_commerce/1_presentation/core/extensions/string_to_int.dart';
 import 'package:cezeri_commerce/3_domain/enums/enums.dart';
 import 'package:dartz/dartz.dart';
+import 'package:flutter/material.dart';
+import 'package:logger/logger.dart';
 
 import '../../../3_domain/entities/product/booking_product.dart';
 import '../../../3_domain/entities/product/product.dart';
@@ -11,6 +14,8 @@ import '../../../core/firebase_failures.dart';
 
 part 'products_booking_event.dart';
 part 'products_booking_state.dart';
+
+final logger = Logger();
 
 class ProductsBookingBloc extends Bloc<ProductsBookingEvent, ProductsBookingState> {
   final ProductRepository productRepository;
@@ -34,14 +39,25 @@ class ProductsBookingBloc extends Bloc<ProductsBookingEvent, ProductsBookingStat
         (listOfReorder) {
           emit(state.copyWith(listOfAllReorders: listOfReorder, selectedReorderProducts: [], firebaseFailure: null, isAnyFailure: false));
           add(ProductsBookingFilterReordersEvent());
+          if (state.listOfAllProducts == null || (state.listOfAllProducts != null && state.listOfAllProducts!.isEmpty)) {
+            add(ProductsBookingGetProductsEvent());
+          }
         },
       );
 
-      emit(state.copyWith(
-        isLoadingProductsBookingReordersOnObserve: false,
-        fosProductsBookingReordersOnObserveOption: optionOf(failureOrSuccess),
-      ));
-      emit(state.copyWith(fosProductsBookingReordersOnObserveOption: none()));
+      if (event.afterUpdate) {
+        emit(state.copyWith(
+          reorderFilter: '',
+          isLoadingProductsBookingReordersOnObserve: false,
+        ));
+      } else {
+        emit(state.copyWith(
+          reorderFilter: '',
+          isLoadingProductsBookingReordersOnObserve: false,
+          fosProductsBookingReordersOnObserveOption: optionOf(failureOrSuccess),
+        ));
+        emit(state.copyWith(fosProductsBookingReordersOnObserveOption: none()));
+      }
     });
 
 //? #########################################################################
@@ -54,6 +70,27 @@ class ProductsBookingBloc extends Bloc<ProductsBookingEvent, ProductsBookingStat
 
       if (listOfReorder != null && listOfReorder.isNotEmpty) listOfReorder.sort((a, b) => b.reorderNumber.compareTo(a.reorderNumber));
       emit(state.copyWith(listOfFilteredReorders: listOfReorder));
+    });
+
+//? #########################################################################
+
+    on<ProductsBookingGetProductsEvent>((event, emit) async {
+      emit(state.copyWith(isLoadingProductsBookingProductsOnObserve: true));
+
+      final productIds = state.listOfBookingProductsFromReorders.map((e) => e.productId).toList();
+      final failureOrSuccess = await productRepository.getListOfProductsByIds(productIds);
+      failureOrSuccess.fold(
+        (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
+        (listOfProducts) {
+          emit(state.copyWith(listOfAllProducts: listOfProducts, firebaseFailure: null, isAnyFailure: false));
+        },
+      );
+
+      emit(state.copyWith(
+        isLoadingProductsBookingProductsOnObserve: false,
+        fosProductsBookingProductsOnObserveOption: optionOf(failureOrSuccess),
+      ));
+      emit(state.copyWith(fosProductsBookingProductsOnObserveOption: none()));
     });
 
 //? #########################################################################
@@ -71,7 +108,7 @@ class ProductsBookingBloc extends Bloc<ProductsBookingEvent, ProductsBookingStat
 //? #########################################################################
 
     on<OnProductsBookingSelectReorderProductEvent>((event, emit) {
-      List<BookingProduct> bookingProducts = List.from(state.listOfBookingProductsFromReorders);
+      List<BookingProduct> bookingProducts = List.from(state.selectedReorderProducts);
       if (bookingProducts.any((e) => e.id == event.bookingProduct.id)) {
         bookingProducts.removeWhere((e) => e.id == event.bookingProduct.id);
       } else {
@@ -86,10 +123,77 @@ class ProductsBookingBloc extends Bloc<ProductsBookingEvent, ProductsBookingStat
 //? #########################################################################
 
     on<OnProductsBookingSetBookingProductsFromReorderEvent>((event, emit) {
-      emit(state.copyWith(listOfSelectedProducts: state.selectedReorderProducts));
+      List<TextEditingController> newQuantityControllers = [];
+      for (final reorderProduct in state.selectedReorderProducts) {
+        newQuantityControllers.add(TextEditingController(text: reorderProduct.toBookQuantity.toString()));
+      }
+      emit(state.copyWith(listOfSelectedProducts: state.selectedReorderProducts, quantityControllers: newQuantityControllers));
     });
 
 //? #########################################################################
+
+    on<OnProductsBookingQuantityControllerChangedEvent>((event, emit) {
+      List<BookingProduct> listOfSelectedProducts = List.from(state.listOfSelectedProducts);
+      for (int i = 0; i < listOfSelectedProducts.length; i++) {
+        listOfSelectedProducts[i] = listOfSelectedProducts[i].copyWith(toBookQuantity: state.quantityControllers[i].text.toMyInt());
+      }
+
+      for (var element in state.listOfSelectedProducts) {
+        print(element.toBookQuantity);
+      }
+
+      emit(state.copyWith(listOfSelectedProducts: listOfSelectedProducts));
+    });
+
+//? #########################################################################
+
+    on<OnProductsBookingRemoveFromSelectedReorderProductsEvent>((event, emit) {
+      List<TextEditingController> updatedQuantityControllers = List.from(state.quantityControllers);
+      List<BookingProduct> updatedSelectedReorderProducts = List.from(state.selectedReorderProducts);
+      final index = updatedSelectedReorderProducts.indexWhere((e) => e.id == event.bookingProduct.id);
+      if (index == -1) return;
+
+      updatedQuantityControllers.removeAt(index);
+      updatedSelectedReorderProducts.removeAt(index);
+
+      emit(state.copyWith(
+        listOfSelectedProducts: updatedSelectedReorderProducts,
+        selectedReorderProducts: updatedSelectedReorderProducts,
+        quantityControllers: updatedQuantityControllers,
+      ));
+    });
+
+//? #########################################################################
+
+    //? #########################################################################
+
+    on<OnProductsBookingSetReorderFilterEvent>((event, emit) {
+      emit(state.copyWith(reorderFilter: event.reorderNumber));
+      add(ProductsBookingFilterReordersEvent());
+    });
+
+//? #########################################################################
+
+    on<OnProductsBookingSaveEvent>((event, emit) async {
+      emit(state.copyWith(isLoadingProductsBookingOnUpdate: true));
+
+      final failureOrSuccess = await reorderRepository.updateReordersFromProductsBooking(state.listOfSelectedProducts);
+      failureOrSuccess.fold(
+        (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
+        (listOfReorder) {
+          emit(state.copyWith(selectedReorderProducts: [], listOfSelectedProducts: [], firebaseFailure: null, isAnyFailure: false));
+          add(ProductsBookingGetReordersEvent(afterUpdate: true));
+          add(ProductsBookingGetProductsEvent());
+        },
+      );
+
+      emit(state.copyWith(
+        reorderFilter: '',
+        isLoadingProductsBookingOnUpdate: false,
+        fosProductsBookingOnUpdateOption: optionOf(failureOrSuccess),
+      ));
+      emit(state.copyWith(fosProductsBookingOnUpdateOption: none()));
+    });
 
 //? #########################################################################
 

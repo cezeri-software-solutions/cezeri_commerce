@@ -10,17 +10,18 @@ class ProductsBookingState {
   final FirebaseFailure? firebaseFailure;
   final bool isAnyFailure;
   final bool isLoadingProductsBookingProductsOnObserve;
-  final bool isLoadingProductsBookingProductsOnUpdate;
   final bool isLoadingProductsBookingReordersOnObserve;
-  final bool isLoadingProductsBookingReordersOnUpdate;
+  final bool isLoadingProductsBookingOnUpdate;
   final Option<Either<FirebaseFailure, List<Product>>> fosProductsBookingProductsOnObserveOption;
-  final Option<Either<FirebaseFailure, List<Product>>> fosProductsBookingProductsOnUpdateOption;
   final Option<Either<FirebaseFailure, List<Reorder>>> fosProductsBookingReordersOnObserveOption;
-  final Option<Either<FirebaseFailure, List<Reorder>>> fosProductsBookingReordersOnUpdateOption;
+  final Option<Either<FirebaseFailure, Unit>> fosProductsBookingOnUpdateOption;
 
   //* Helpers
   final String reorderFilter;
   final bool isAllReorderProductsSelected;
+
+  //* Controllers
+  final List<TextEditingController> quantityControllers;
 
   ProductsBookingState({
     required this.listOfSelectedProducts,
@@ -31,15 +32,14 @@ class ProductsBookingState {
     required this.firebaseFailure,
     required this.isAnyFailure,
     required this.isLoadingProductsBookingProductsOnObserve,
-    required this.isLoadingProductsBookingProductsOnUpdate,
     required this.isLoadingProductsBookingReordersOnObserve,
-    required this.isLoadingProductsBookingReordersOnUpdate,
+    required this.isLoadingProductsBookingOnUpdate,
     required this.fosProductsBookingProductsOnObserveOption,
-    required this.fosProductsBookingProductsOnUpdateOption,
     required this.fosProductsBookingReordersOnObserveOption,
-    required this.fosProductsBookingReordersOnUpdateOption,
+    required this.fosProductsBookingOnUpdateOption,
     required this.reorderFilter,
     required this.isAllReorderProductsSelected,
+    required this.quantityControllers,
   }) : listOfBookingProductsFromReorders = _getListOfBookingProductsFromReorders(listOfFilteredReorders);
 
   static List<BookingProduct> _getListOfBookingProductsFromReorders(List<Reorder>? listOfFilteredReorders) {
@@ -48,7 +48,7 @@ class ProductsBookingState {
     List<BookingProduct> listOfBookingProducts = [];
     for (final reorder in listOfFilteredReorders) {
       for (final reorderProduct in reorder.listOfReorderProducts) {
-        listOfBookingProducts.add(BookingProduct.fromReorderProduct(reorder, reorderProduct));
+        if (reorderProduct.openQuantity > 0) listOfBookingProducts.add(BookingProduct.fromReorderProduct(reorder, reorderProduct));
       }
     }
 
@@ -73,15 +73,14 @@ class ProductsBookingState {
       firebaseFailure: null,
       isAnyFailure: false,
       isLoadingProductsBookingProductsOnObserve: false,
-      isLoadingProductsBookingProductsOnUpdate: false,
       isLoadingProductsBookingReordersOnObserve: false,
-      isLoadingProductsBookingReordersOnUpdate: false,
+      isLoadingProductsBookingOnUpdate: false,
       fosProductsBookingProductsOnObserveOption: none(),
-      fosProductsBookingProductsOnUpdateOption: none(),
       fosProductsBookingReordersOnObserveOption: none(),
-      fosProductsBookingReordersOnUpdateOption: none(),
+      fosProductsBookingOnUpdateOption: none(),
       reorderFilter: '',
       isAllReorderProductsSelected: false,
+      quantityControllers: [],
     );
   }
 
@@ -94,15 +93,14 @@ class ProductsBookingState {
     FirebaseFailure? firebaseFailure,
     bool? isAnyFailure,
     bool? isLoadingProductsBookingProductsOnObserve,
-    bool? isLoadingProductsBookingProductsOnUpdate,
     bool? isLoadingProductsBookingReordersOnObserve,
-    bool? isLoadingProductsBookingReordersOnUpdate,
+    bool? isLoadingProductsBookingOnUpdate,
     Option<Either<FirebaseFailure, List<Product>>>? fosProductsBookingProductsOnObserveOption,
-    Option<Either<FirebaseFailure, List<Product>>>? fosProductsBookingProductsOnUpdateOption,
     Option<Either<FirebaseFailure, List<Reorder>>>? fosProductsBookingReordersOnObserveOption,
-    Option<Either<FirebaseFailure, List<Reorder>>>? fosProductsBookingReordersOnUpdateOption,
+    Option<Either<FirebaseFailure, Unit>>? fosProductsBookingOnUpdateOption,
     String? reorderFilter,
     bool? isAllReorderProductsSelected,
+    List<TextEditingController>? quantityControllers,
   }) {
     return ProductsBookingState(
       listOfSelectedProducts: listOfSelectedProducts ?? this.listOfSelectedProducts,
@@ -113,15 +111,14 @@ class ProductsBookingState {
       firebaseFailure: firebaseFailure ?? this.firebaseFailure,
       isAnyFailure: isAnyFailure ?? this.isAnyFailure,
       isLoadingProductsBookingProductsOnObserve: isLoadingProductsBookingProductsOnObserve ?? this.isLoadingProductsBookingProductsOnObserve,
-      isLoadingProductsBookingProductsOnUpdate: isLoadingProductsBookingProductsOnUpdate ?? this.isLoadingProductsBookingProductsOnUpdate,
       isLoadingProductsBookingReordersOnObserve: isLoadingProductsBookingReordersOnObserve ?? this.isLoadingProductsBookingReordersOnObserve,
-      isLoadingProductsBookingReordersOnUpdate: isLoadingProductsBookingReordersOnUpdate ?? this.isLoadingProductsBookingReordersOnUpdate,
+      isLoadingProductsBookingOnUpdate: isLoadingProductsBookingOnUpdate ?? this.isLoadingProductsBookingOnUpdate,
       fosProductsBookingProductsOnObserveOption: fosProductsBookingProductsOnObserveOption ?? this.fosProductsBookingProductsOnObserveOption,
-      fosProductsBookingProductsOnUpdateOption: fosProductsBookingProductsOnUpdateOption ?? this.fosProductsBookingProductsOnUpdateOption,
       fosProductsBookingReordersOnObserveOption: fosProductsBookingReordersOnObserveOption ?? this.fosProductsBookingReordersOnObserveOption,
-      fosProductsBookingReordersOnUpdateOption: fosProductsBookingReordersOnUpdateOption ?? this.fosProductsBookingReordersOnUpdateOption,
+      fosProductsBookingOnUpdateOption: fosProductsBookingOnUpdateOption ?? this.fosProductsBookingOnUpdateOption,
       reorderFilter: reorderFilter ?? this.reorderFilter,
       isAllReorderProductsSelected: isAllReorderProductsSelected ?? this.isAllReorderProductsSelected,
+      quantityControllers: quantityControllers ?? this.quantityControllers,
     );
   }
 }

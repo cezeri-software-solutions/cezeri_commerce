@@ -85,11 +85,11 @@ class ReordersOverviewScreen extends StatelessWidget {
                     onPressed: () => showDialog(
                       context: context,
                       builder: (_) => state.selectedReorders.isEmpty
-                          ? const MyDialogInfo(title: 'Achtung!', content: 'Bitte wähle mindestens einen Artikel aus.')
+                          ? const MyDialogInfo(title: 'Achtung!', content: 'Bitte wähle mindestens eine Nachbestellung aus.')
                           : MyDialogDelete(
-                              content: 'Bist du sicher, dass du alle ausgewählten Artikel unwiederruflich löschen willst?',
+                              content: 'Bist du sicher, dass du alle ausgewählten Nachbestellungen unwiederruflich löschen willst?',
                               onConfirm: () {
-                                context.read<ReorderBloc>().add(DeleteSelectedReordersEvent(selectedReorders: state.selectedReorders));
+                                context.read<ReorderBloc>().add(DeleteSelectedReordersEvent());
                                 context.router.pop();
                               },
                             ),

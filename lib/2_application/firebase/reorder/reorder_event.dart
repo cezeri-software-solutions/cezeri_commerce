@@ -11,11 +11,7 @@ class GetReordersEvenet extends ReorderEvent {
   GetReordersEvenet({required this.tabValue});
 }
 
-class DeleteSelectedReordersEvent extends ReorderEvent {
-  final List<Reorder> selectedReorders;
-
-  DeleteSelectedReordersEvent({required this.selectedReorders});
-}
+class DeleteSelectedReordersEvent extends ReorderEvent {}
 
 class SetSearchFieldTextEvent extends ReorderEvent {
   final String searchText;

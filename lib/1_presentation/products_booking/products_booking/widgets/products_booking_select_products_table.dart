@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../../../2_application/firebase/products_booking/products_booking_bloc.dart';
 import '../../../../3_domain/entities/product/booking_product.dart';
-import '../../../core/widgets/my_text_form_field_small_double.dart';
+import '../../../../constants.dart';
+import '../../../core/widgets/my_circular_progress_indicator.dart';
 
 Table productsBookingSelectProductsTable({
   required ProductsBookingBloc productsBookingBloc,
@@ -24,12 +25,24 @@ Table productsBookingSelectProductsTable({
   ];
 
   List<Widget> headers = [
-    const SizedBox(),
+    ConstrainedBox(
+      constraints: constraints,
+      child: Checkbox.adaptive(
+        value: state.isAllReorderProductsSelected,
+        onChanged: (value) => productsBookingBloc.add(OnProductsBookingSelectAllReorderProductsEvent(isSelected: value!)),
+      ),
+    ),
     Padding(padding: padding, child: const Text('Artikelnummer', style: TextStyle(fontWeight: FontWeight.bold))),
     Padding(padding: padding, child: const Text('Name', style: TextStyle(fontWeight: FontWeight.bold))),
+    Tooltip(
+      message: 'Verfügbarer Bestand / Lagerbestand',
+      child: Padding(padding: padding, child: const Text('Akt. Bestand', style: TextStyle(fontWeight: FontWeight.bold))),
+    ),
+    Tooltip(
+      message: 'Offene Menge / Nachbestellte Menge',
+      child: Padding(padding: padding, child: const Text('Menge', style: TextStyle(fontWeight: FontWeight.bold))),
+    ),
     Padding(padding: padding, child: const Text('EAN', style: TextStyle(fontWeight: FontWeight.bold))),
-    Padding(padding: padding, child: const Text('Akt. Bestand', style: TextStyle(fontWeight: FontWeight.bold))),
-    Padding(padding: padding, child: const Text('Menge', style: TextStyle(fontWeight: FontWeight.bold))),
     Padding(padding: padding, child: const Text('Bestellnummer', style: TextStyle(fontWeight: FontWeight.bold))),
   ];
 
@@ -48,9 +61,17 @@ Table productsBookingSelectProductsTable({
 
   int rowIndex = 0;
 
+  BoxDecoration? getRowColor(BookingProduct bookingProduct, int rowIndex) {
+    if (bookingProduct.productId.isEmpty || bookingProduct.productId.startsWith('00000')) {
+      return const BoxDecoration(color: CustomColors.ultraLightOrange);
+    }
+    if (rowIndex % 2 == 1) return const BoxDecoration(color: Color.fromARGB(255, 229, 244, 251));
+    return null;
+  }
+
   for (final bookingProduct in listOfBookingProductsFromReorders) {
-    BoxDecoration? rowDecoration;
-    if (rowIndex % 2 == 1) rowDecoration = const BoxDecoration(color: Color.fromARGB(255, 229, 244, 251));
+    final product = state.listOfAllProducts?.where((e) => e.id == bookingProduct.productId).firstOrNull;
+    final rowDecoration = getRowColor(bookingProduct, rowIndex);
 
     // Datenzeile hinzufügen
     rows.add(TableRow(
@@ -58,20 +79,28 @@ Table productsBookingSelectProductsTable({
       children: [
         ConstrainedBox(
           constraints: constraints,
-          child: InkWell(
-            onTap: () {},
-            child: const Icon(Icons.delete, color: Colors.red),
+          child: Checkbox.adaptive(
+            value: state.selectedReorderProducts.any((e) => e.id == bookingProduct.id),
+            onChanged: (value) => productsBookingBloc.add(OnProductsBookingSelectReorderProductEvent(bookingProduct: bookingProduct)),
           ),
         ),
         Padding(padding: padding, child: Text(bookingProduct.articleNumber)),
         Padding(padding: padding, child: Text(bookingProduct.name)),
-        Padding(padding: padding, child: Text(bookingProduct.ean)),
-        Padding(padding: padding, child: const Text('')),
         Align(
           alignment: Alignment.centerRight,
-          child: Padding(padding: padding, child: MyTextFormFieldSmallDouble(hintText: bookingProduct.openQuantity.toString())),
+          child: Padding(
+            padding: padding,
+            child: state.isLoadingProductsBookingProductsOnObserve
+                ? const SizedBox(height: 20, width: 20, child: MyCircularProgressIndicator())
+                : Text(product != null ? '${product.availableStock} / ${product.warehouseStock}' : 'k.A.'),
+          ),
         ),
-        Padding(padding: padding, child: Text(bookingProduct.reorderId)),
+        Align(
+          alignment: Alignment.centerRight,
+          child: Padding(padding: padding, child: Text('${bookingProduct.openQuantity} / ${bookingProduct.quantity}', style: TextStyles.defaultBold)),
+        ),
+        Padding(padding: padding, child: Text(bookingProduct.ean)),
+        Padding(padding: padding, child: Text(bookingProduct.reorderNumber)),
       ],
     ));
 

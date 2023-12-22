@@ -47,6 +47,8 @@ class CustomColors {
   static const Color backgroundLightGreen = Color.fromARGB(255, 167, 251, 174);
   static const Color backgroundLightOrange = Color.fromARGB(255, 255, 200, 50);
 
+  static const Color ultraLightOrange = Color.fromARGB(255, 250, 240, 200);
+
   static const Color borderColorLight = Color.fromARGB(255, 224, 224, 224);
   static const Color borderColorDark = Color.fromARGB(255, 80, 80, 80);
 

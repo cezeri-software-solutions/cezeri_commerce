@@ -12,10 +12,12 @@ class BookingProduct {
   final String id;
   final String productId;
   final String reorderId;
+  final String reorderNumber;
   final String name;
   final String articleNumber;
   final String ean;
   final int quantity;
+  final int toBookQuantity;
   final int bookedQuantity;
   final int openQuantity;
   final int warehouseStock;
@@ -26,10 +28,12 @@ class BookingProduct {
     required this.id,
     required this.productId,
     required this.reorderId,
+    required this.reorderNumber,
     required this.name,
     required this.articleNumber,
     required this.ean,
     required this.quantity,
+    required this.toBookQuantity,
     required this.bookedQuantity,
     required this.warehouseStock,
     required this.availableStock,
@@ -44,10 +48,12 @@ class BookingProduct {
       id: UniqueID().value,
       productId: product.id,
       reorderId: '',
+      reorderNumber: '',
       name: product.name,
       articleNumber: product.articleNumber,
       ean: product.ean,
       quantity: 0,
+      toBookQuantity: 0,
       bookedQuantity: 0,
       warehouseStock: product.warehouseStock,
       availableStock: product.availableStock,
@@ -57,13 +63,15 @@ class BookingProduct {
 
   factory BookingProduct.fromReorderProduct(Reorder reorder, ReorderProduct reorderProduct) {
     return BookingProduct(
-      id: UniqueID().value,
+      id: reorder.id + reorderProduct.productId,
       productId: reorderProduct.productId,
       reorderId: reorder.id,
+      reorderNumber: reorder.reorderNumber.toString(),
       name: reorderProduct.name,
       articleNumber: reorderProduct.articleNumber,
       ean: reorderProduct.ean,
       quantity: reorderProduct.quantity,
+      toBookQuantity: reorderProduct.quantity - reorderProduct.bookedQuantity,
       bookedQuantity: reorderProduct.bookedQuantity,
       warehouseStock: 0,
       availableStock: 0,
@@ -76,10 +84,12 @@ class BookingProduct {
       id: UniqueID().value,
       productId: '',
       reorderId: '',
+      reorderNumber: '',
       name: '',
       articleNumber: '',
       ean: '',
       quantity: 0,
+      toBookQuantity: 0,
       bookedQuantity: 0,
       warehouseStock: 0,
       availableStock: 0,
@@ -91,10 +101,12 @@ class BookingProduct {
     String? id,
     String? productId,
     String? reorderId,
+    String? reorderNumber,
     String? name,
     String? articleNumber,
     String? ean,
     int? quantity,
+    int? toBookQuantity,
     int? bookedQuantity,
     int? warehouseStock,
     int? availableStock,
@@ -104,10 +116,12 @@ class BookingProduct {
       id: id ?? this.id,
       productId: productId ?? this.productId,
       reorderId: reorderId ?? this.reorderId,
+      reorderNumber: reorderNumber ?? this.reorderNumber,
       name: name ?? this.name,
       articleNumber: articleNumber ?? this.articleNumber,
       ean: ean ?? this.ean,
       quantity: quantity ?? this.quantity,
+      toBookQuantity: toBookQuantity ?? this.toBookQuantity,
       bookedQuantity: bookedQuantity ?? this.bookedQuantity,
       warehouseStock: warehouseStock ?? this.warehouseStock,
       availableStock: availableStock ?? this.availableStock,
@@ -117,6 +131,6 @@ class BookingProduct {
 
   @override
   String toString() {
-    return 'BookingProduct(id: $id, productId: $productId, reorderId: $reorderId, name: $name, articleNumber: $articleNumber, ean: $ean, quantity: $quantity, bookedQuantity: $bookedQuantity, openQuantity: $openQuantity, warehouseStock: $warehouseStock, availableStock: $availableStock, isFromDatabase: $isFromDatabase)';
+    return 'BookingProduct(id: $id, productId: $productId, reorderId: $reorderId, reorderNumber: $reorderNumber, name: $name, articleNumber: $articleNumber, ean: $ean, quantity: $quantity, toBookQuantity: $toBookQuantity, bookedQuantity: $bookedQuantity, openQuantity: $openQuantity, warehouseStock: $warehouseStock, availableStock: $availableStock, isFromDatabase: $isFromDatabase)';
   }
 }

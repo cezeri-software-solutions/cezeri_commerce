@@ -38,16 +38,40 @@ class ProductsBookingSelectProductsDialog extends StatelessWidget {
                       ),
                     ),
                   ),
+                  const Divider(height: 0, color: Colors.black),
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      TextButton(onPressed: () => context.popRoute(), child: const Text('Abbrechen')),
-                      Gaps.w16,
-                      MyOutlinedButton(
-                        buttonText: 'Übernehmen',
-                        onPressed: () {},
-                        buttonBackgroundColor: Colors.green,
+                      SizedBox(
+                        height: 70,
+                        child: ListView.builder(
+                          shrinkWrap: true,
+                          scrollDirection: Axis.horizontal,
+                          itemCount: state.listOfAllReorders!.length,
+                          itemBuilder: (context, index) {
+                            final reorder = state.listOfAllReorders![index];
+                            return _ReorderFilterContainer(
+                              productsBookingBloc: productsBookingBloc,
+                              reorderNumber: reorder.reorderNumber.toString(),
+                              isSelected: state.reorderFilter == reorder.reorderNumber.toString(),
+                            );
+                          },
+                        ),
                       ),
+                      Row(
+                        children: [
+                          TextButton(onPressed: () => context.popRoute(), child: const Text('Abbrechen')),
+                          Gaps.w16,
+                          MyOutlinedButton(
+                            buttonText: 'Übernehmen',
+                            onPressed: () {
+                              productsBookingBloc.add(OnProductsBookingSetBookingProductsFromReorderEvent());
+                              context.popRoute();
+                            },
+                            buttonBackgroundColor: Colors.green,
+                          ),
+                        ],
+                      )
                     ],
                   )
                 ],
@@ -56,6 +80,38 @@ class ProductsBookingSelectProductsDialog extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+class _ReorderFilterContainer extends StatelessWidget {
+  final ProductsBookingBloc productsBookingBloc;
+  final String reorderNumber;
+  final bool isSelected;
+
+  const _ReorderFilterContainer({required this.productsBookingBloc, required this.reorderNumber, required this.isSelected});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        InkWell(
+          onTap: () => productsBookingBloc.add(OnProductsBookingSetReorderFilterEvent(reorderNumber: isSelected ? '' : reorderNumber)),
+          child: Container(
+            height: 36,
+            decoration: BoxDecoration(
+              color: isSelected ? CustomColors.chipSelectedColor : CustomColors.chipBackgroundColor,
+              borderRadius: const BorderRadius.all(Radius.circular(20)),
+              border: Border.all(color: Colors.grey),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Center(child: Text(reorderNumber, style: TextStyles.defaultBold)),
+            ),
+          ),
+        ),
+        Gaps.w16,
+      ],
     );
   }
 }

@@ -21,6 +21,7 @@ class MyTextFormFieldSmallDouble extends StatelessWidget {
   final void Function()? onEditingComplete;
   final void Function(String)? onFieldSubmitted;
   final double maxWidth;
+  final Color? fillColor;
 
   const MyTextFormFieldSmallDouble({
     super.key,
@@ -40,10 +41,13 @@ class MyTextFormFieldSmallDouble extends StatelessWidget {
     this.onEditingComplete,
     this.onFieldSubmitted,
     this.maxWidth = double.infinity,
+    this.fillColor,
   });
 
   @override
   Widget build(BuildContext context) {
+    final fillColor = this.fillColor ?? Colors.white;
+
     return ConstrainedBox(
       constraints: BoxConstraints(maxHeight: 28, maxWidth: maxWidth),
       child: TextFormField(
@@ -65,7 +69,7 @@ class MyTextFormFieldSmallDouble extends StatelessWidget {
           labelStyle: const TextStyle().copyWith(letterSpacing: 0),
           hintText: hintText,
           hintStyle: const TextStyle().copyWith(letterSpacing: 0),
-          fillColor: Colors.white,
+          fillColor: fillColor,
           filled: true,
           contentPadding: const EdgeInsets.symmetric(horizontal: 6, vertical: 0),
           floatingLabelBehavior: FloatingLabelBehavior.always,

@@ -77,6 +77,29 @@ class ProductRepositoryImpl implements ProductRepository {
   }
 
   @override
+  Future<Either<FirebaseFailure, List<Product>>> getListOfProductsByIds(List<String> productIds) async {
+    final isConnected = await checkInternetConnection();
+    if (!isConnected) return left(NoConnectionFailure());
+
+    final currentUserUid = firebaseAuth.currentUser!.uid;
+
+    List<Product> listOfProducts = [];
+
+    try {
+      for (final productId in productIds) {
+        if (productId.isEmpty || productId.startsWith('00000')) continue;
+        final docRef = db.collection('Products').doc(currentUserUid).collection('Products').doc(productId);
+        final product = await docRef.get();
+        if (product.exists) listOfProducts.add(Product.fromJson(product.data()!));
+      }
+
+      return right(listOfProducts);
+    } on FirebaseException {
+      return left(GeneralFailure());
+    }
+  }
+
+  @override
   Future<Either<FirebaseFailure, Product>> getProduct(String id) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
