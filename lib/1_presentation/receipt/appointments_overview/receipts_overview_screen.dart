@@ -18,10 +18,9 @@ import '../../../3_domain/entities/receipt/receipt_customer.dart';
 import '../../../constants.dart';
 import '../../../injection.dart';
 import '../../../routes/router.gr.dart';
+import '../../core/functions/dialogs.dart';
 import '../../core/functions/my_scaffold_messanger.dart';
 import '../../core/widgets/my_circular_progress_indicator.dart';
-import '../../core/widgets/my_dialog_delete.dart';
-import '../../core/widgets/my_dialog_info.dart';
 import '../../core/widgets/my_form_field_small.dart';
 import '../../core/widgets/my_modal_scrollable.dart';
 import '../../core/widgets/my_outlined_button.dart';
@@ -196,7 +195,7 @@ class ReceiptsOverviewScreen extends StatelessWidget {
                             ReceiptTyp.appointment =>
                               _GenerateFromAppointmentDialog(listOfReceipts: state.selectedReceipts, appointmentBloc: appointmentBloc),
                             ReceiptTyp.invoice => state.selectedReceipts.length > 1
-                                ? const MyDialogInfo(
+                                ? const _ReceiptsAlertDialog(
                                     title: 'Achtug', content: 'Du darfst maximal eine Rechnung auswählen, zum generieren einer Gutschrift')
                                 : _GenerateFromInvoiceNewCreditDialog(listOfReceipts: state.selectedReceipts, appointmentBloc: appointmentBloc),
                             _ => const Dialog(),
@@ -228,19 +227,19 @@ class ReceiptsOverviewScreen extends StatelessWidget {
                     icon: const Icon(Icons.add, color: Colors.green),
                   ),
                   IconButton(
-                    onPressed: () => showDialog(
-                      context: context,
-                      builder: (_) => state.selectedReceipts.isEmpty
-                          ? MyDialogInfo(
-                              title: 'Achtung!',
-                              content: 'Bitte wähle mindestens ${switch (receiptTyp) {
-                                ReceiptTyp.offer => 'ein Angebot',
-                                ReceiptTyp.appointment => 'einen Auftrag',
-                                ReceiptTyp.deliveryNote => 'einen Lieferschein',
-                                ReceiptTyp.invoice => 'eine Rechnungen',
-                                ReceiptTyp.credit => 'eine Rechnungen',
-                              }} aus.')
-                          : MyDialogDelete(
+                    onPressed: state.selectedReceipts.isEmpty
+                        ? () => showMyDialogAlert(
+                            context: context,
+                            title: 'Achtung!',
+                            content: 'Bitte wähle mindestens ${switch (receiptTyp) {
+                              ReceiptTyp.offer => 'ein Angebot',
+                              ReceiptTyp.appointment => 'einen Auftrag',
+                              ReceiptTyp.deliveryNote => 'einen Lieferschein',
+                              ReceiptTyp.invoice => 'eine Rechnungen',
+                              ReceiptTyp.credit => 'eine Rechnungen',
+                            }} aus.')
+                        : () => showMyDialogDelete(
+                              context: context,
                               content: 'Bist du sicher, dass du alle ausgewählten ${switch (receiptTyp) {
                                 ReceiptTyp.offer => 'Angebote',
                                 ReceiptTyp.appointment => 'Aufträge',
@@ -255,7 +254,6 @@ class ReceiptsOverviewScreen extends StatelessWidget {
                                 context.router.pop();
                               },
                             ),
-                    ),
                     icon: state.isLoadingReceiptOnDelete
                         ? const MyCircularProgressIndicator(color: Colors.red)
                         : const Icon(Icons.delete, color: Colors.red),
@@ -563,6 +561,38 @@ class _GenerateFromInvoiceNewCreditDialogState extends State<_GenerateFromInvoic
           ),
         );
       },
+    );
+  }
+}
+
+class _ReceiptsAlertDialog extends StatelessWidget {
+  final String title;
+  final String content;
+
+  const _ReceiptsAlertDialog({required this.title, required this.content});
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      child: SizedBox(
+        width: 400,
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(title, style: TextStyles.h1),
+              Gaps.h16,
+              Text(content, style: TextStyles.h3, textAlign: TextAlign.center),
+              Gaps.h32,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [MyOutlinedButton(buttonText: 'OK', onPressed: () => context.router.pop())],
+              )
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

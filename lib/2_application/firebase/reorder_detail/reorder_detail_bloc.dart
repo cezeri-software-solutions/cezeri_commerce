@@ -296,6 +296,7 @@ class ReorderDetailBloc extends Bloc<ReorderDetailEvent, ReorderDetailState> {
 //? #########################################################################
 
     on<OnReorderDeatilAddProductEvent>((event, emit) async {
+      if (event.quantity == 0) return;
       List<ReorderProduct> newListOfReorderProducts = List.from(state.reorder!.listOfReorderProducts);
 
       //* Falls es kein Artikel aus der Datenbank ist
@@ -316,15 +317,17 @@ class ReorderDetailBloc extends Bloc<ReorderDetailEvent, ReorderDetailState> {
       }
 
       if (index != null && event.product.id.isNotEmpty) {
-        newListOfReorderProducts[index] = newListOfReorderProducts[index].copyWith(quantity: newListOfReorderProducts[index].quantity + 1);
+        newListOfReorderProducts[index] =
+            newListOfReorderProducts[index].copyWith(quantity: newListOfReorderProducts[index].quantity + event.quantity);
         List<TextEditingController> newListOfQuantityControllers = List.from(state.quantityControllers);
-        newListOfQuantityControllers[index] = TextEditingController(text: (newListOfQuantityControllers[index].text.toMyInt() + 1).toString());
+        newListOfQuantityControllers[index] =
+            TextEditingController(text: (newListOfQuantityControllers[index].text.toMyInt() + event.quantity).toString());
         emit(state.copyWith(
           reorder: state.reorder!.copyWith(listOfReorderProducts: newListOfReorderProducts),
           quantityControllers: newListOfQuantityControllers,
         ));
       } else {
-        newListOfReorderProducts.add(ReorderProduct.fromProduct(event.product, newListOfReorderProducts.length + 1, state.reorder!.tax));
+        newListOfReorderProducts.add(ReorderProduct.fromProduct(event.product, newListOfReorderProducts.length + event.quantity, state.reorder!.tax));
         emit(state.copyWith(reorder: state.reorder!.copyWith(listOfReorderProducts: newListOfReorderProducts)));
         add(ReorderDetailSetAllProductControllersEvent());
       }

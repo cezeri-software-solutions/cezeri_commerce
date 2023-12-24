@@ -70,6 +70,20 @@ class RemoveSelectedProductImages extends ProductEvent {}
 
 class OnPickNewProductPictureEvent extends ProductEvent {}
 
+class OnProductGetSuppliersEvent extends ProductEvent {}
+
+class OnProductSetSupplierEvent extends ProductEvent {
+  final String supplierName;
+
+  OnProductSetSupplierEvent({required this.supplierName});
+}
+
+class SetProductsWidthSearchEvent extends ProductEvent {
+  final bool value;
+
+  SetProductsWidthSearchEvent({required this.value});
+}
+
 class OnProductImageSelectedEvent extends ProductEvent {
   final ProductImage image;
 
@@ -98,6 +112,10 @@ class UpdateQuantityOfProductEvent extends ProductEvent {
   UpdateQuantityOfProductEvent({required this.product, required this.newQuantity, required this.updateOnlyAvailableQuantity});
 }
 
+// * #################################################################################################################################
+// * Massenbearbeitung
+
+//TODO: aktuell deaktiviert
 //? Zum aktivieren von einem Marktplatz bei mehreren ausgewählten Artikeln
 class MassEditActivateProductMarketplaceEvent extends ProductEvent {
   final Marketplace marketplace;
@@ -105,7 +123,63 @@ class MassEditActivateProductMarketplaceEvent extends ProductEvent {
   MassEditActivateProductMarketplaceEvent({required this.marketplace});
 }
 
-// *#################################################################
+class ProductsMassEditingPurchaceUpdatedEvent extends ProductEvent {
+  final List<Marketplace> selectedMarketplaces;
+  final double wholesalePrice;
+  final String manufacturer;
+  final Supplier supplier;
+  final int minimumReorderQuantity;
+  final int packagingUnitOnReorder;
+  final int minimumStock;
+  final bool isWholesalePriceSelected;
+  final bool isManufacturerSelected;
+  final bool isSupplierSelected;
+  final bool isMinimumReorderQuantitySelected;
+  final bool isPackagingUnitOnReorderSelected;
+  final bool isMinimumStockSelected;
+
+  ProductsMassEditingPurchaceUpdatedEvent({
+    required this.selectedMarketplaces,
+    required this.wholesalePrice,
+    required this.manufacturer,
+    required this.supplier,
+    required this.minimumReorderQuantity,
+    required this.packagingUnitOnReorder,
+    required this.minimumStock,
+    required this.isWholesalePriceSelected,
+    required this.isManufacturerSelected,
+    required this.isSupplierSelected,
+    required this.isMinimumReorderQuantitySelected,
+    required this.isPackagingUnitOnReorderSelected,
+    required this.isMinimumStockSelected,
+  });
+}
+
+class ProductsMassEditingWeightAndDimensionsUpdatedEvent extends ProductEvent {
+  final List<Marketplace> selectedMarketplaces;
+  final double weight;
+  final double height;
+  final double depth;
+  final double width;
+  final bool isWeightSelected;
+  final bool isHeightSelected;
+  final bool isDepthSelected;
+  final bool isWidthSelected;
+
+  ProductsMassEditingWeightAndDimensionsUpdatedEvent({
+    required this.selectedMarketplaces,
+    required this.weight,
+    required this.height,
+    required this.depth,
+    required this.width,
+    required this.isWeightSelected,
+    required this.isHeightSelected,
+    required this.isDepthSelected,
+    required this.isWidthSelected,
+  });
+}
+
+// * #################################################################################################################################
 // * Prestashop events
 
 class OnEditQuantityInMarketplacesEvent extends ProductEvent {

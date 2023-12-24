@@ -6,9 +6,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../2_application/firebase/reorder/reorder_bloc.dart';
 import '../../../injection.dart';
 import '../../app_drawer.dart';
+import '../../core/functions/dialogs.dart';
 import '../../core/functions/my_scaffold_messanger.dart';
-import '../../core/widgets/my_dialog_delete.dart';
-import '../../core/widgets/my_dialog_info.dart';
 import 'reorders_overview_page.dart';
 import 'widgets/select_reorder_supplier_dialog.dart';
 
@@ -82,18 +81,16 @@ class ReordersOverviewScreen extends StatelessWidget {
                       },
                       icon: const Icon(Icons.add, color: Colors.green)),
                   IconButton(
-                    onPressed: () => showDialog(
-                      context: context,
-                      builder: (_) => state.selectedReorders.isEmpty
-                          ? const MyDialogInfo(title: 'Achtung!', content: 'Bitte wähle mindestens eine Nachbestellung aus.')
-                          : MyDialogDelete(
+                    onPressed: state.selectedReorders.isEmpty
+                        ? () => showMyDialogAlert(context: context, title: 'Achtung!', content: 'Bitte wähle mindestens eine Nachbestellung aus.')
+                        : () => showMyDialogDelete(
+                              context: context,
                               content: 'Bist du sicher, dass du alle ausgewählten Nachbestellungen unwiederruflich löschen willst?',
                               onConfirm: () {
                                 context.read<ReorderBloc>().add(DeleteSelectedReordersEvent());
                                 context.router.pop();
                               },
                             ),
-                    ),
                     icon: state.isLoadingReorderOnDelete
                         ? const CircularProgressIndicator(color: Colors.red)
                         : const Icon(Icons.delete, color: Colors.red),

@@ -69,7 +69,7 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
   }
 
   @override
-  Future<Either<PrestaFailure, Unit>> editProdcutPresta(Product product) async {
+  Future<Either<PrestaFailure, Unit>> editProdcutPresta(Product product, List<Marketplace>? toEditMarketplaces) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(PrestaGeneralFailure());
 
@@ -78,8 +78,10 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
     bool isSuccess = true;
 
     for (final productMarketplace in product.productMarketplaces) {
-      print(product.toJson());
       // TODO: if (!productMarketplace.active!) continue;
+      //* Wenn "toEditMarketplaces" mitgegeben wird, dann sollen nur diese Marktplätze aktualisiert werden.
+      if (toEditMarketplaces != null && !toEditMarketplaces.any((e) => e.id == productMarketplace.idMarketplace)) continue;
+
       final docRef = db.collection('Marketetplaces').doc(currentUserUid).collection('Marketetplaces').doc(productMarketplace.idMarketplace);
 
       final marketplaceSnapshot = await docRef.get();

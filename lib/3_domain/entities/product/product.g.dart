@@ -42,6 +42,10 @@ Product _$ProductFromJson(Map<String, dynamic> json) => Product(
       manufacturer: json['manufacturer'] as String,
       warehouseStock: json['warehouseStock'] as int,
       availableStock: json['availableStock'] as int,
+      minimumStock: json['minimumStock'] as int?,
+      isUnderMinimumStock: json['isUnderMinimumStock'] as bool?,
+      minimumReorderQuantity: json['minimumReorderQuantity'] as int?,
+      packagingUnitOnReorder: json['packagingUnitOnReorder'] as int?,
       description: json['description'] as String,
       listOfDescription: (json['listOfDescription'] as List<dynamic>)
           .map((e) => ProductLanguage.fromJson(e as Map<String, dynamic>))
@@ -101,6 +105,10 @@ Map<String, dynamic> _$ProductToJson(Product instance) => <String, dynamic>{
       'manufacturer': instance.manufacturer,
       'warehouseStock': instance.warehouseStock,
       'availableStock': instance.availableStock,
+      'minimumStock': instance.minimumStock,
+      'isUnderMinimumStock': instance.isUnderMinimumStock,
+      'minimumReorderQuantity': instance.minimumReorderQuantity,
+      'packagingUnitOnReorder': instance.packagingUnitOnReorder,
       'description': instance.description,
       'listOfDescription':
           instance.listOfDescription.map((e) => e.toJson()).toList(),

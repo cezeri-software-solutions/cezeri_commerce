@@ -25,6 +25,8 @@ class TextStyles {
   static const TextStyle s10 = TextStyle(fontSize: 10);
   static const TextStyle s12 = TextStyle(fontSize: 12);
   static const TextStyle s12Bold = TextStyle(fontSize: 12, fontWeight: FontWeight.bold);
+  static const TextStyle s13 = TextStyle(fontSize: 13);
+  static const TextStyle s13Bold = TextStyle(fontSize: 13, fontWeight: FontWeight.bold);
 
   static const TextStyle modalHeadTitle = TextStyle(fontSize: 30);
 
@@ -48,6 +50,10 @@ class CustomColors {
   static const Color backgroundLightOrange = Color.fromARGB(255, 255, 200, 50);
 
   static const Color ultraLightOrange = Color.fromARGB(255, 250, 240, 200);
+  static const Color ultraLightOrange2 = Color.fromARGB(255, 255, 226, 110);
+  static const Color ultraLightGreen = Color.fromARGB(255, 210, 255, 215);
+  static const Color ultraLightYellow = Color.fromARGB(255, 255, 245, 160);
+  static const Color ultraLightRed = Color.fromARGB(255, 255, 214, 210);
 
   static const Color borderColorLight = Color.fromARGB(255, 224, 224, 224);
   static const Color borderColorDark = Color.fromARGB(255, 80, 80, 80);

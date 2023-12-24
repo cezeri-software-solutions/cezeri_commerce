@@ -33,9 +33,9 @@ class Product {
   final String brandName;
   final String unity; // z.B. pro 1 L
   final double unitPrice; // Preis pro Einheit
-  final double width;
-  final double height;
-  final double depth;
+  final double width; // Breite
+  final double height; // Höhe
+  final double depth; // Länge
   final double weight;
   final double netPrice;
   final double grossPrice;
@@ -43,12 +43,16 @@ class Product {
   final double recommendedRetailPrice;
   final bool haveVariants; // Gibt es eine Variante
   final bool isSetArticle;
-  final bool
-      isSetSelfQuantityManaged; // Wenn Set Artikle && true, dann wird der Bestand unabhängig von seinen Bestandteilen geführt, ansonsten wird der Bestand durch den niedrigsten Besteand der Besandteile ermittelt
+  // Wenn Set Artikle && true, dann wird der Bestand unabhängig von seinen Bestandteilen geführt, ansonsten wird der Bestand durch den niedrigsten Besteand der Besandteile ermittelt
+  final bool isSetSelfQuantityManaged;
   final String manufacturerNumber;
   final String manufacturer;
   final int warehouseStock;
   final int availableStock;
+  final int? minimumStock; // Mindestbestand vor Warnung zur Nachbestellung
+  final bool? isUnderMinimumStock; // Flag der gesetzt wird, damit nur diese Artikel geladen werden können
+  final int? minimumReorderQuantity; // Mindestnachbestellmenge
+  final int? packagingUnitOnReorder; // Verpackungseinheit bei Nachbestellung
   final String description;
   final List<ProductLanguage> listOfDescription;
   final String descriptionShort;
@@ -94,6 +98,10 @@ class Product {
     required this.manufacturer,
     required this.warehouseStock,
     required this.availableStock,
+    required this.minimumStock,
+    required this.isUnderMinimumStock,
+    required this.minimumReorderQuantity,
+    required this.packagingUnitOnReorder,
     required this.description,
     required this.listOfDescription,
     required this.descriptionShort,
@@ -141,6 +149,10 @@ class Product {
       manufacturer: '',
       warehouseStock: 0,
       availableStock: 0,
+      minimumStock: 0,
+      isUnderMinimumStock: false,
+      minimumReorderQuantity: 1,
+      packagingUnitOnReorder: 1,
       description: '',
       listOfDescription: [],
       descriptionShort: '',
@@ -250,7 +262,6 @@ class Product {
       listOfMetaTitle: listOfMetaTitle,
       metaDescription: metaDescription,
       listOfMetaDescription: listOfMetaDescription,
-      volume: (productPresta.width.toMyDouble() * productPresta.height.toMyDouble() * productPresta.depth.toMyDouble()),
       productMarketplaces: productMarketplaces,
     );
   }
@@ -291,6 +302,10 @@ class Product {
     String? manufacturer,
     int? warehouseStock,
     int? availableStock,
+    int? minimumStock,
+    bool? isUnderMinimumStock,
+    int? minimumReorderQuantity,
+    int? packagingUnitOnReorder,
     String? description,
     List<ProductLanguage>? listOfDescription,
     String? descriptionShort,
@@ -299,7 +314,6 @@ class Product {
     List<ProductLanguage>? listOfMetaTitle,
     String? metaDescription,
     List<ProductLanguage>? listOfMetaDescription,
-    double? volume,
     List<ProductImage>? listOfProductImages,
     List<SetProduct>? listOfSetProducts,
     List<ProductMarketplace>? productMarketplaces,
@@ -336,6 +350,10 @@ class Product {
       manufacturer: manufacturer ?? this.manufacturer,
       warehouseStock: warehouseStock ?? this.warehouseStock,
       availableStock: availableStock ?? this.availableStock,
+      minimumStock: minimumStock ?? this.minimumStock,
+      isUnderMinimumStock: isUnderMinimumStock ?? this.isUnderMinimumStock,
+      minimumReorderQuantity: minimumReorderQuantity ?? this.minimumReorderQuantity,
+      packagingUnitOnReorder: packagingUnitOnReorder ?? this.packagingUnitOnReorder,
       description: description ?? this.description,
       listOfDescription: listOfDescription ?? this.listOfDescription,
       descriptionShort: descriptionShort ?? this.descriptionShort,
@@ -352,6 +370,6 @@ class Product {
 
   @override
   String toString() {
-    return 'Product(id: $id, articleNumber: $articleNumber, supplierArticleNumber: $supplierArticleNumber, supplierNumber: $supplierNumber, supplier: $supplier, sku: $sku, ean: $ean, name: $name, listOfName: $listOfName, tax: $tax, imageUrls: $imageUrls, isActive: $isActive, ordered: $ordered, brandName: $brandName, unity: $unity, unitPrice: $unitPrice, width: $width, height: $height, depth: $depth, weight: $weight, netPrice: $netPrice, grossPrice: $grossPrice, wholesalePrice: $wholesalePrice, recommendedRetailPrice: $recommendedRetailPrice, haveVariants: $haveVariants, isSetArticle: $isSetArticle, isSetSelfQuantityManaged: $isSetSelfQuantityManaged, manufacturerNumber: $manufacturerNumber, manufacturer: $manufacturer, warehouseStock: $warehouseStock, availableStock: $availableStock, description: $description, listOfDescription: $listOfDescription, descriptionShort: $descriptionShort, listOfDescriptionShort: $listOfDescriptionShort, metaTitle: $metaTitle, listOfMetaTitle: $listOfMetaTitle, metaDescription: $metaDescription, listOfMetaDescription: $listOfMetaDescription, volume: $volume, listOfProductImages: $listOfProductImages, listOfSetProducts: $listOfSetProducts, productMarketplaces: $productMarketplaces)';
+    return 'Product(id: $id, articleNumber: $articleNumber, supplierArticleNumber: $supplierArticleNumber, supplierNumber: $supplierNumber, supplier: $supplier, sku: $sku, ean: $ean, name: $name, listOfName: $listOfName, tax: $tax, imageUrls: $imageUrls, isActive: $isActive, ordered: $ordered, brandName: $brandName, unity: $unity, unitPrice: $unitPrice, width: $width, height: $height, depth: $depth, weight: $weight, netPrice: $netPrice, grossPrice: $grossPrice, wholesalePrice: $wholesalePrice, recommendedRetailPrice: $recommendedRetailPrice, haveVariants: $haveVariants, isSetArticle: $isSetArticle, isSetSelfQuantityManaged: $isSetSelfQuantityManaged, manufacturerNumber: $manufacturerNumber, manufacturer: $manufacturer, warehouseStock: $warehouseStock, availableStock: $availableStock, minimumStock: $minimumStock, isUnderMinimumStock: $isUnderMinimumStock, minimumReorderQuantity: $minimumReorderQuantity, packagingUnitOnReorder: $packagingUnitOnReorder, description: $description, listOfDescription: $listOfDescription, descriptionShort: $descriptionShort, listOfDescriptionShort: $listOfDescriptionShort, metaTitle: $metaTitle, listOfMetaTitle: $listOfMetaTitle, metaDescription: $metaDescription, listOfMetaDescription: $listOfMetaDescription, volume: $volume, listOfProductImages: $listOfProductImages, listOfSetProducts: $listOfSetProducts, productMarketplaces: $productMarketplaces)';
   }
 }

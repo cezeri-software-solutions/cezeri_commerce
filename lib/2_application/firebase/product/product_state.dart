@@ -6,6 +6,9 @@ class ProductState {
   final List<Product>? listOfAllProducts;
   final List<Product>? listOfFilteredProducts; // Der State, der im presentation layer ausgegeben wird, egal ob Suchfeld leer oder nicht
   final List<Product> selectedProducts; // Ausgewählte Produkte zum löschen oder für Massenbearbeitung
+  final List<Supplier>? listOfSuppliers;
+  final List<Product> listOfNotUpdatedProductsOnMassEditing;
+  final MainSettings? mainSettings;
   final FirebaseFailure? firebaseFailure;
   final bool isAnyFailure;
   final bool isLoadingProductOnObserve;
@@ -15,6 +18,8 @@ class ProductState {
   final bool isLoadingProductOnUpdateImages;
   final bool isLoadingProductOnUploadImages;
   final bool isLoadingProductOnDelete;
+  final bool isLoadingProductSuppliersOnObseve;
+  final bool isLoadingProductOnMassEditing;
   final Option<Either<FirebaseFailure, Product>> fosProductOnObserveOption;
   final Option<Either<FirebaseFailure, List<Product>>> fosProductsOnObserveOption;
   final Option<Either<FirebaseFailure, Product>> fosProductOnCreateOption;
@@ -22,10 +27,12 @@ class ProductState {
   final Option<Either<FirebaseFailure, Product>> fosProductOnUpdateImagesOption;
   final Option<Either<PrestaFailure, Unit>> fosProductOnUploadImagesOption;
   final Option<Either<FirebaseFailure, Unit>> fosProductOnDeleteOption;
+  final Option<Either<FirebaseFailure, List<Supplier>>> fosProductSuppliersOnObserveOption;
 
   final bool isLoadingOnMassEditActivateProductMarketplace;
   final Option<Either<FirebaseFailure, Product>> fosProductOnUpdateQuantityOption;
   final Option<Either<FirebaseFailure, Unit>> fosMassEditActivateProductMarketplaceOption;
+  final Option<Either<FirebaseFailure, Unit>> fosMassEditProductsOption;
 
   //* Prestashop States
   final Option<Either<PrestaFailure, Unit>> fosProductOnEditQuantityPrestaOption;
@@ -34,6 +41,7 @@ class ProductState {
   final bool isDescriptionSetFirstTime;
   final bool isDescriptionChanged;
   final bool triggerPop;
+  final bool isWidthSearchActive;
   //* Product Images
   final bool isProductImagesEdited;
   final bool isSelectedAllImages;
@@ -44,9 +52,11 @@ class ProductState {
   final TextEditingController eanController;
   final TextEditingController nameController;
   final TextEditingController wholesalePriceController;
-  final TextEditingController supplierController;
   final TextEditingController supplierArticleNumberController;
   final TextEditingController manufacturerController;
+  final TextEditingController minimumStockController;
+  final TextEditingController minimumReorderQuantityController;
+  final TextEditingController packagingUnitOnReorderController;
   final TextEditingController netPriceController;
   final TextEditingController grossPriceController;
   final TextEditingController recommendedRetailPriceController;
@@ -64,6 +74,9 @@ class ProductState {
     required this.listOfAllProducts,
     required this.listOfFilteredProducts,
     required this.selectedProducts,
+    required this.listOfSuppliers,
+    required this.listOfNotUpdatedProductsOnMassEditing,
+    required this.mainSettings,
     required this.firebaseFailure,
     required this.isAnyFailure,
     required this.isLoadingProductOnObserve,
@@ -73,6 +86,8 @@ class ProductState {
     required this.isLoadingProductOnUpdateImages,
     required this.isLoadingProductOnUploadImages,
     required this.isLoadingProductOnDelete,
+    required this.isLoadingProductSuppliersOnObseve,
+    required this.isLoadingProductOnMassEditing,
     required this.fosProductOnObserveOption,
     required this.fosProductsOnObserveOption,
     required this.fosProductOnCreateOption,
@@ -80,14 +95,17 @@ class ProductState {
     required this.fosProductOnUpdateImagesOption,
     required this.fosProductOnUploadImagesOption,
     required this.fosProductOnDeleteOption,
+    required this.fosProductSuppliersOnObserveOption,
     required this.isLoadingOnMassEditActivateProductMarketplace,
     required this.fosProductOnUpdateQuantityOption,
     required this.fosMassEditActivateProductMarketplaceOption,
+    required this.fosMassEditProductsOption,
     required this.fosProductOnEditQuantityPrestaOption,
     required this.productSearchController,
     required this.isDescriptionSetFirstTime,
     required this.isDescriptionChanged,
     required this.triggerPop,
+    required this.isWidthSearchActive,
     required this.isProductImagesEdited,
     required this.isSelectedAllImages,
     required this.selectedProductImages,
@@ -96,9 +114,11 @@ class ProductState {
     required this.eanController,
     required this.nameController,
     required this.wholesalePriceController,
-    required this.supplierController,
     required this.supplierArticleNumberController,
     required this.manufacturerController,
+    required this.minimumStockController,
+    required this.minimumReorderQuantityController,
+    required this.packagingUnitOnReorderController,
     required this.netPriceController,
     required this.grossPriceController,
     required this.recommendedRetailPriceController,
@@ -117,6 +137,9 @@ class ProductState {
       listOfAllProducts: null,
       listOfFilteredProducts: null,
       selectedProducts: const [],
+      listOfSuppliers: null,
+      listOfNotUpdatedProductsOnMassEditing: const [],
+      mainSettings: null,
       firebaseFailure: null,
       isAnyFailure: false,
       isLoadingProductOnObserve: false,
@@ -126,6 +149,8 @@ class ProductState {
       isLoadingProductOnUpdateImages: false,
       isLoadingProductOnUploadImages: false,
       isLoadingProductOnDelete: false,
+      isLoadingProductSuppliersOnObseve: false,
+      isLoadingProductOnMassEditing: false,
       fosProductOnObserveOption: none(),
       fosProductsOnObserveOption: none(),
       fosProductOnCreateOption: none(),
@@ -133,14 +158,17 @@ class ProductState {
       fosProductOnUpdateImagesOption: none(),
       fosProductOnUploadImagesOption: none(),
       fosProductOnDeleteOption: none(),
+      fosProductSuppliersOnObserveOption: none(),
       isLoadingOnMassEditActivateProductMarketplace: false,
       fosProductOnUpdateQuantityOption: none(),
       fosMassEditActivateProductMarketplaceOption: none(),
+      fosMassEditProductsOption: none(),
       fosProductOnEditQuantityPrestaOption: none(),
       productSearchController: TextEditingController(),
       isDescriptionSetFirstTime: true,
       isDescriptionChanged: false,
       triggerPop: false,
+      isWidthSearchActive: false,
       isProductImagesEdited: false,
       isSelectedAllImages: false,
       selectedProductImages: const [],
@@ -149,9 +177,11 @@ class ProductState {
       eanController: TextEditingController(),
       nameController: TextEditingController(),
       wholesalePriceController: TextEditingController(),
-      supplierController: TextEditingController(),
       supplierArticleNumberController: TextEditingController(),
       manufacturerController: TextEditingController(),
+      minimumStockController: TextEditingController(),
+      minimumReorderQuantityController: TextEditingController(),
+      packagingUnitOnReorderController: TextEditingController(),
       netPriceController: TextEditingController(),
       grossPriceController: TextEditingController(),
       recommendedRetailPriceController: TextEditingController(),
@@ -170,16 +200,20 @@ class ProductState {
     List<Product>? listOfAllProducts,
     List<Product>? listOfFilteredProducts,
     List<Product>? selectedProducts,
+    List<Supplier>? listOfSuppliers,
+    List<Product>? listOfNotUpdatedProductsOnMassEditing,
+    MainSettings? mainSettings,
     FirebaseFailure? firebaseFailure,
     bool? isAnyFailure,
     bool? isLoadingProductOnObserve,
     bool? isLoadingProductsOnObserve,
-    bool? isLoadingProductsSubSearchOnObserve,
     bool? isLoadingProductOnCreate,
     bool? isLoadingProductOnUpdate,
     bool? isLoadingProductOnUpdateImages,
     bool? isLoadingProductOnUploadImages,
     bool? isLoadingProductOnDelete,
+    bool? isLoadingProductSuppliersOnObseve,
+    bool? isLoadingProductOnMassEditing,
     Option<Either<FirebaseFailure, Product>>? fosProductOnObserveOption,
     Option<Either<FirebaseFailure, List<Product>>>? fosProductsOnObserveOption,
     Option<Either<FirebaseFailure, Product>>? fosProductOnCreateOption,
@@ -187,14 +221,17 @@ class ProductState {
     Option<Either<FirebaseFailure, Product>>? fosProductOnUpdateImagesOption,
     Option<Either<PrestaFailure, Unit>>? fosProductOnUploadImagesOption,
     Option<Either<FirebaseFailure, Unit>>? fosProductOnDeleteOption,
+    Option<Either<FirebaseFailure, List<Supplier>>>? fosProductSuppliersOnObserveOption,
     bool? isLoadingOnMassEditActivateProductMarketplace,
     Option<Either<FirebaseFailure, Product>>? fosProductOnUpdateQuantityOption,
     Option<Either<FirebaseFailure, Unit>>? fosMassEditActivateProductMarketplaceOption,
+    Option<Either<FirebaseFailure, Unit>>? fosMassEditProductsOption,
     Option<Either<PrestaFailure, Unit>>? fosProductOnEditQuantityPrestaOption,
     TextEditingController? productSearchController,
     bool? isDescriptionSetFirstTime,
     bool? isDescriptionChanged,
     bool? triggerPop,
+    bool? isWidthSearchActive,
     bool? isProductImagesEdited,
     bool? isSelectedAllImages,
     List<ProductImage>? selectedProductImages,
@@ -203,9 +240,11 @@ class ProductState {
     TextEditingController? eanController,
     TextEditingController? nameController,
     TextEditingController? wholesalePriceController,
-    TextEditingController? supplierController,
     TextEditingController? supplierArticleNumberController,
     TextEditingController? manufacturerController,
+    TextEditingController? minimumStockController,
+    TextEditingController? minimumReorderQuantityController,
+    TextEditingController? packagingUnitOnReorderController,
     TextEditingController? netPriceController,
     TextEditingController? grossPriceController,
     TextEditingController? recommendedRetailPriceController,
@@ -222,6 +261,9 @@ class ProductState {
       listOfAllProducts: listOfAllProducts ?? this.listOfAllProducts,
       listOfFilteredProducts: listOfFilteredProducts ?? this.listOfFilteredProducts,
       selectedProducts: selectedProducts ?? this.selectedProducts,
+      listOfSuppliers: listOfSuppliers ?? this.listOfSuppliers,
+      listOfNotUpdatedProductsOnMassEditing: listOfNotUpdatedProductsOnMassEditing ?? this.listOfNotUpdatedProductsOnMassEditing,
+      mainSettings: mainSettings ?? this.mainSettings,
       firebaseFailure: firebaseFailure ?? this.firebaseFailure,
       isAnyFailure: isAnyFailure ?? this.isAnyFailure,
       isLoadingProductOnObserve: isLoadingProductOnObserve ?? this.isLoadingProductOnObserve,
@@ -231,6 +273,8 @@ class ProductState {
       isLoadingProductOnUpdateImages: isLoadingProductOnUpdateImages ?? this.isLoadingProductOnUpdateImages,
       isLoadingProductOnUploadImages: isLoadingProductOnUploadImages ?? this.isLoadingProductOnUploadImages,
       isLoadingProductOnDelete: isLoadingProductOnDelete ?? this.isLoadingProductOnDelete,
+      isLoadingProductSuppliersOnObseve: isLoadingProductSuppliersOnObseve ?? this.isLoadingProductSuppliersOnObseve,
+      isLoadingProductOnMassEditing: isLoadingProductOnMassEditing ?? this.isLoadingProductOnMassEditing,
       fosProductOnObserveOption: fosProductOnObserveOption ?? this.fosProductOnObserveOption,
       fosProductsOnObserveOption: fosProductsOnObserveOption ?? this.fosProductsOnObserveOption,
       fosProductOnCreateOption: fosProductOnCreateOption ?? this.fosProductOnCreateOption,
@@ -238,15 +282,18 @@ class ProductState {
       fosProductOnUpdateImagesOption: fosProductOnUpdateImagesOption ?? this.fosProductOnUpdateImagesOption,
       fosProductOnUploadImagesOption: fosProductOnUploadImagesOption ?? this.fosProductOnUploadImagesOption,
       fosProductOnDeleteOption: fosProductOnDeleteOption ?? this.fosProductOnDeleteOption,
+      fosProductSuppliersOnObserveOption: fosProductSuppliersOnObserveOption ?? this.fosProductSuppliersOnObserveOption,
       isLoadingOnMassEditActivateProductMarketplace:
           isLoadingOnMassEditActivateProductMarketplace ?? this.isLoadingOnMassEditActivateProductMarketplace,
       fosProductOnUpdateQuantityOption: fosProductOnUpdateQuantityOption ?? this.fosProductOnUpdateQuantityOption,
       fosMassEditActivateProductMarketplaceOption: fosMassEditActivateProductMarketplaceOption ?? this.fosMassEditActivateProductMarketplaceOption,
+      fosMassEditProductsOption: fosMassEditProductsOption ?? this.fosMassEditProductsOption,
       fosProductOnEditQuantityPrestaOption: fosProductOnEditQuantityPrestaOption ?? this.fosProductOnEditQuantityPrestaOption,
       productSearchController: productSearchController ?? this.productSearchController,
       isDescriptionSetFirstTime: isDescriptionSetFirstTime ?? this.isDescriptionSetFirstTime,
       isDescriptionChanged: isDescriptionChanged ?? this.isDescriptionChanged,
       triggerPop: triggerPop ?? this.triggerPop,
+      isWidthSearchActive: isWidthSearchActive ?? this.isWidthSearchActive,
       isProductImagesEdited: isProductImagesEdited ?? this.isProductImagesEdited,
       isSelectedAllImages: isSelectedAllImages ?? this.isSelectedAllImages,
       selectedProductImages: selectedProductImages ?? this.selectedProductImages,
@@ -255,9 +302,11 @@ class ProductState {
       eanController: eanController ?? this.eanController,
       nameController: nameController ?? this.nameController,
       wholesalePriceController: wholesalePriceController ?? this.wholesalePriceController,
-      supplierController: supplierController ?? this.supplierController,
       supplierArticleNumberController: supplierArticleNumberController ?? this.supplierArticleNumberController,
       manufacturerController: manufacturerController ?? this.manufacturerController,
+      minimumStockController: minimumStockController ?? this.minimumStockController,
+      minimumReorderQuantityController: minimumReorderQuantityController ?? this.minimumReorderQuantityController,
+      packagingUnitOnReorderController: packagingUnitOnReorderController ?? this.packagingUnitOnReorderController,
       netPriceController: netPriceController ?? this.netPriceController,
       grossPriceController: grossPriceController ?? this.grossPriceController,
       recommendedRetailPriceController: recommendedRetailPriceController ?? this.recommendedRetailPriceController,

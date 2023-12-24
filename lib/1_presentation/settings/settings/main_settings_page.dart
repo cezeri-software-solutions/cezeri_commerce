@@ -1,5 +1,4 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:cezeri_commerce/1_presentation/core/widgets/my_dialog_delete.dart';
 import 'package:cezeri_commerce/1_presentation/core/widgets/my_text_form_field.dart';
 import 'package:cezeri_commerce/1_presentation/settings/settings/widgets/my_settings_list_tile.dart';
 import 'package:flutter/material.dart';
@@ -10,6 +9,7 @@ import '../../../3_domain/entities/settings/main_settings.dart';
 import '../../../3_domain/entities/settings/payment_method.dart';
 import '../../../constants.dart';
 import '../../app_drawer.dart';
+import '../../core/functions/dialogs.dart';
 import '../../core/functions/my_scaffold_messanger.dart';
 import '../../core/widgets/my_form_field_container.dart';
 import '../../core/widgets/my_outlined_button.dart';
@@ -304,18 +304,14 @@ class _MainSettingsPageState extends State<MainSettingsPage> {
                                 trailing: IconButton(
                                   icon: const Icon(Icons.delete),
                                   color: Colors.red,
-                                  onPressed: () {
-                                    showDialog(
-                                      context: context,
-                                      builder: (_) => MyDialogDelete(
-                                        onConfirm: () {
-                                          _removeFromPaymentMethods(index);
-                                          context.router.pop();
-                                        },
-                                        content: 'Bist du sicher, dass du diese Zahlungsmethode löschen willst?',
-                                      ),
-                                    );
-                                  },
+                                  onPressed: () => showMyDialogDelete(
+                                    context: context,
+                                    onConfirm: () {
+                                      _removeFromPaymentMethods(index);
+                                      context.router.pop();
+                                    },
+                                    content: 'Bist du sicher, dass du diese Zahlungsmethode löschen willst?',
+                                  ),
                                 ),
                               );
                             },

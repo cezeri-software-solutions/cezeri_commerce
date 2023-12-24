@@ -5,7 +5,7 @@ import 'package:cezeri_commerce/3_domain/entities/receipt/receipt_product.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 
-import '../../1_presentation/core/widgets/my_dialog_info.dart';
+import '../../1_presentation/core/functions/dialogs.dart';
 import '../../3_domain/entities/customer/customer.dart';
 import '../../3_domain/entities/picklist/picklist.dart';
 import '../../3_domain/entities/product/product.dart';
@@ -413,10 +413,11 @@ class PackingStationBloc extends Bloc<PackingStationEvent, PackingStationState> 
 
     on<PicklistOnCreatePicklistEvent>((event, emit) async {
       if (state.selectedAppointments.isEmpty) {
-        showDialog(
-            context: event.context,
-            builder: (context) =>
-                const MyDialogInfo(title: 'Achtung!', content: 'Bitte wähle mindestens einen Auftrag zum Erstellen einer Pickliste aus.'));
+        showMyDialogAlert(
+          context: event.context,
+          title: 'Achtung!',
+          content: 'Bitte wähle mindestens einen Auftrag zum Erstellen einer Pickliste aus.',
+        );
         return;
       }
       emit(state.copyWith(isLoadingPicklistOnCreate: true));

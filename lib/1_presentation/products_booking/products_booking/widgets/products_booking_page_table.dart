@@ -1,12 +1,11 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../2_application/firebase/products_booking/products_booking_bloc.dart';
 import '../../../../3_domain/entities/product/booking_product.dart';
 import '../../../../constants.dart';
+import '../../../core/functions/dialogs.dart';
 import '../../../core/widgets/my_circular_progress_indicator.dart';
-import '../../../core/widgets/my_dialog_delete.dart';
 import '../../../core/widgets/my_text_form_field_small_double.dart';
 
 Table productsBookingPageTable({
@@ -21,17 +20,13 @@ Table productsBookingPageTable({
   const constraints = BoxConstraints(maxHeight: 32);
 
   void showRemoveDialog(BookingProduct bookingProduct) {
-    showDialog(
+    showMyDialogDelete(
       context: context,
-      builder: (_) => BlocProvider.value(
-        value: productsBookingBloc,
-        child: MyDialogDelete(
-            content: 'Bist du sicher, dass du "${bookingProduct.name}" aus der Liste löschen willst?',
-            onConfirm: () {
-              productsBookingBloc.add(OnProductsBookingRemoveFromSelectedReorderProductsEvent(bookingProduct: bookingProduct));
-              context.popRoute();
-            }),
-      ),
+      content: 'Bist du sicher, dass du "${bookingProduct.name}" aus der Liste löschen willst?',
+      onConfirm: () {
+        productsBookingBloc.add(OnProductsBookingRemoveFromSelectedReorderProductsEvent(bookingProduct: bookingProduct));
+        context.popRoute();
+      },
     );
   }
 

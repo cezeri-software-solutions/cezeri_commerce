@@ -1,8 +1,12 @@
+import 'package:cezeri_commerce/1_presentation/core/widgets/my_circular_progress_indicator.dart';
+import 'package:cezeri_commerce/1_presentation/core/widgets/my_text_form_field_small_double.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../2_application/firebase/product/product_bloc.dart';
 import '../../../../constants.dart';
+import '../../../core/widgets/my_button_small.dart';
+import '../../../core/widgets/my_dialog_suppliers.dart';
 import '../../../core/widgets/my_form_field_small.dart';
 
 class PurchaseCard extends StatelessWidget {
@@ -26,18 +30,35 @@ class PurchaseCard extends StatelessWidget {
                 Row(
                   children: [
                     Expanded(
-                      child: MyTextFormFieldSmall(
-                        labelText: 'EK-Preis',
+                      child: MyTextFormFieldSmallDouble(
+                        aboveText: 'EK-Preis',
                         controller: state.wholesalePriceController,
                         onChanged: (_) => productBloc.add(OnProductControllerChangedEvent()),
                       ),
                     ),
                     Gaps.w8,
+                    // Expanded(
+                    //   child: MyTextFormFieldSmall(
+                    //     labelText: 'Lief. Name',
+                    //     controller: state.supplierController,
+                    //     onChanged: (_) => productBloc.add(OnProductControllerChangedEvent()),
+                    //   ),
+                    // ),
                     Expanded(
-                      child: MyTextFormFieldSmall(
-                        labelText: 'Lief. Name',
-                        controller: state.supplierController,
-                        onChanged: (_) => productBloc.add(OnProductControllerChangedEvent()),
+                      child: GestureDetector(
+                        onTap: state.listOfSuppliers == null
+                            ? () => productBloc.add(OnProductGetSuppliersEvent())
+                            : () => showDialog(
+                                  context: context,
+                                  builder: (_) => MyDialogSuppliers(
+                                    listOfSuppliers: state.listOfSuppliers!,
+                                    onChanged: (supplier) => productBloc.add(OnProductSetSupplierEvent(supplierName: supplier.company)),
+                                  ),
+                                ),
+                        child: MyButtonSmall(
+                          labelText: 'Lieferant',
+                          child: state.isLoadingProductSuppliersOnObseve ? const MyCircularProgressIndicator() : Text(state.product!.supplier),
+                        ),
                       ),
                     ),
                   ],
@@ -57,6 +78,34 @@ class PurchaseCard extends StatelessWidget {
                       child: MyTextFormFieldSmall(
                         labelText: 'Hersteller',
                         controller: state.manufacturerController,
+                        onChanged: (_) => productBloc.add(OnProductControllerChangedEvent()),
+                      ),
+                    ),
+                  ],
+                ),
+                Gaps.h8,
+                Row(
+                  children: [
+                    Expanded(
+                      child: MyTextFormFieldSmallDouble(
+                        aboveText: 'Mindestnachbestellmenge',
+                        controller: state.minimumReorderQuantityController,
+                        onChanged: (_) => productBloc.add(OnProductControllerChangedEvent()),
+                      ),
+                    ),
+                    Gaps.w8,
+                    Expanded(
+                      child: MyTextFormFieldSmallDouble(
+                        aboveText: 'Verpackungseinheit',
+                        controller: state.packagingUnitOnReorderController,
+                        onChanged: (_) => productBloc.add(OnProductControllerChangedEvent()),
+                      ),
+                    ),
+                    Gaps.w8,
+                    Expanded(
+                      child: MyTextFormFieldSmallDouble(
+                        aboveText: 'Mindestbestand',
+                        controller: state.minimumStockController,
                         onChanged: (_) => productBloc.add(OnProductControllerChangedEvent()),
                       ),
                     ),

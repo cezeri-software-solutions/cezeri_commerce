@@ -50,8 +50,9 @@ class OnReorderDetailProductSearchTextClearedEvent extends ReorderDetailEvent {}
 
 class OnReorderDeatilAddProductEvent extends ReorderDetailEvent {
   final Product product;
+  final int quantity;
 
-  OnReorderDeatilAddProductEvent({required this.product});
+  OnReorderDeatilAddProductEvent({required this.product, required this.quantity});
 }
 
 class OnReorderDeatilAddEmptyProductEvent extends ReorderDetailEvent {}

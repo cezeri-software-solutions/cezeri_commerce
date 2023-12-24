@@ -53,7 +53,7 @@ final sl = GetIt.I;
 Future<void> init() async {
   //! state management
   sl.registerFactory(() => ProductImportBloc(productImportRepository: sl(), mainSettingsRepository: sl()));
-  sl.registerFactory(() => ProductBloc(productRepository: sl(), productEditRepository: sl()));
+  sl.registerFactory(() => ProductBloc(productRepository: sl(), productEditRepository: sl(), mainSettingsRepository: sl(), supplierRepository: sl()));
   sl.registerFactory(() => AuthBloc(authRepository: sl(), clientRepository: sl()));
   sl.registerFactory(() => SignInFormBloc(authRepository: sl()));
   sl.registerFactory(() => UserDataFormBloc(clientRepository: sl()));

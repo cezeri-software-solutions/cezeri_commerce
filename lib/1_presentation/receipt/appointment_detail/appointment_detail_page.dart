@@ -9,7 +9,7 @@ import '../../../3_domain/entities/marketplace/marketplace.dart';
 import '../../../3_domain/entities/receipt/receipt.dart';
 import '../../../3_domain/enums/enums.dart';
 import '../../../constants.dart';
-import '../../core/widgets/my_dialog_info.dart';
+import '../../core/functions/dialogs.dart';
 import '../../core/widgets/my_outlined_button.dart';
 import '../widgets/receipt_detail_address_card.dart';
 import '../widgets/receipt_detail_carrier_card.dart';
@@ -205,17 +205,14 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
 
   Future<bool> _validateReceiptOncreateOrUpdate(AppointmentState stateReceipt, ReceiptDetailState stateReceiptDetail) async {
     if (stateReceipt.receipt!.marketplaceId == '') {
-      await showDialog(
-        context: context,
-        builder: (context) => const MyDialogInfo(title: 'Achtung!', content: 'Ein Marktplatz muss ausgewählt werden'),
-      );
+      await showMyDialogAlert(context: context, title: 'Achtung!', content: 'Ein Marktplatz muss ausgewählt werden');
       return false;
     }
     if (stateReceiptDetail.listOfReceiptProducts.any((e) => e.articleNumber == '' || e.name == '')) {
-      await showDialog(
+      await showMyDialogAlert(
         context: context,
-        builder: (context) =>
-            const MyDialogInfo(title: 'Achtung!', content: 'Es dark kein Artikel mit leerer Artikelnummer oder leerem Artikelnamen vorhanden sein'),
+        title: 'Achtung!',
+        content: 'Es dark kein Artikel mit leerer Artikelnummer oder leerem Artikelnamen vorhanden sein',
       );
       return false;
     }

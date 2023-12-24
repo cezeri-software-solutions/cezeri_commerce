@@ -5,8 +5,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../2_application/firebase/reorder_detail/reorder_detail_bloc.dart';
 import '../../../../3_domain/entities/product/product.dart';
 import '../../../../constants.dart';
+import '../../../core/functions/dialogs.dart';
 import '../../../core/widgets/my_circular_progress_indicator.dart';
-import '../../../core/widgets/my_dialog_delete.dart';
 import '../../../core/widgets/my_form_field_small.dart';
 import '../../../core/widgets/my_text_form_field_small_double.dart';
 import '../functions/show_reorder_detail_products_dialog.dart';
@@ -160,16 +160,14 @@ class ReorderDetailProductsCard extends StatelessWidget {
                             ConstrainedBox(
                               constraints: const BoxConstraints(maxHeight: 28),
                               child: IconButton(
-                                onPressed: () => showDialog(
+                                onPressed: () => showMyDialogDelete(
                                   context: context,
-                                  builder: (context) => MyDialogDelete(
-                                    content:
-                                        'Bist du sicher, dass du den Artikel "//${state.reorder!.listOfReorderProducts[index].name}" löschen willst?',
-                                    onConfirm: () {
-                                      reorderDetailBloc.add(OnReorderDeatilRemoveProductEvent(index: index));
-                                      context.router.pop();
-                                    },
-                                  ),
+                                  content:
+                                      'Bist du sicher, dass du den Artikel "//${state.reorder!.listOfReorderProducts[index].name}" löschen willst?',
+                                  onConfirm: () {
+                                    reorderDetailBloc.add(OnReorderDeatilRemoveProductEvent(index: index));
+                                    context.router.pop();
+                                  },
                                 ),
                                 padding: EdgeInsets.zero,
                                 splashRadius: 0.0001,
@@ -198,7 +196,7 @@ class ReorderDetailProductsCard extends StatelessWidget {
                             label: const Text('Aus Artikelliste'),
                           ),
                     TextButton.icon(
-                      onPressed: () => reorderDetailBloc.add(OnReorderDeatilAddProductEvent(product: Product.empty())),
+                      onPressed: () => reorderDetailBloc.add(OnReorderDeatilAddProductEvent(product: Product.empty(), quantity: 1)),
                       icon: const Icon(Icons.add, color: Colors.green),
                       label: const Text('Leeres Feld'),
                     ),

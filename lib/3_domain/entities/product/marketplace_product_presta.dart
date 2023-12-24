@@ -6,7 +6,7 @@ import 'marketplace_product.dart';
 
 part 'marketplace_product_presta.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class MarketplaceProductPresta extends MarketplaceProduct {
   final int id;
   final String idManufacturer;

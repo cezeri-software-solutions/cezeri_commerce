@@ -14,9 +14,9 @@ import '../../../3_domain/entities/receipt/receipt.dart';
 import '../../../3_domain/entities/receipt/receipt_product.dart';
 import '../../../constants.dart';
 import '../../../core/firebase_failures.dart';
+import '../../core/functions/dialogs.dart';
 import '../../core/widgets/my_avatar.dart';
 import '../../core/widgets/my_circular_progress_indicator.dart';
-import '../../core/widgets/my_dialog_info.dart';
 import '../../core/widgets/my_dropdown_button_small.dart';
 import '../../core/widgets/my_form_field_container.dart';
 import '../../core/widgets/my_form_field_small.dart';
@@ -236,20 +236,14 @@ class _PackingStationDetailPageState extends State<PackingStationDetailPage> {
       final product = listOfProducts.where((e) => e.ean == value).firstOrNull;
       // final product = listOfProducts.where((e) => e.id == receiptProduct.productId).firstOrNull;
       if (product == null) {
-        await showDialog(
-          context: context,
-          builder: (context) => MyDialogInfo(title: 'Achtung', content: 'Kein Artikel mit der EAN: $value im Auftrag vorhanden!'),
-        );
+        await showMyDialogAlert(context: context, title: 'Achtung', content: 'Kein Artikel mit der EAN: $value im Auftrag vorhanden!');
         packingStationBloc.add(PackingStationClearControllerEvent());
         return;
       }
 
       final receiptProduct = listOfReceiptProducts.where((e) => e.productId == product.id).firstOrNull;
       if (receiptProduct == null) {
-        await showDialog(
-          context: context,
-          builder: (context) => MyDialogInfo(title: 'Achtung', content: 'Kein Artikel mit der EAN: $value im Auftrag vorhanden!'),
-        );
+        await showMyDialogAlert(context: context, title: 'Achtung', content: 'Kein Artikel mit der EAN: $value im Auftrag vorhanden!');
         packingStationBloc.add(PackingStationClearControllerEvent());
         return;
       }
@@ -257,10 +251,10 @@ class _PackingStationDetailPageState extends State<PackingStationDetailPage> {
       final index = listOfReceiptProducts.indexWhere((e) => e.productId == receiptProduct.productId);
 
       if (receiptProduct.shippedQuantity >= receiptProduct.quantity) {
-        await showDialog(
+        await showMyDialogAlert(
           context: context,
-          builder: (context) =>
-              MyDialogInfo(title: 'Achtung', content: 'Der Artikel \n\n${receiptProduct.name}\n\n ist bereits vollständig gepackt!'),
+          title: 'Achtung',
+          content: 'Der Artikel \n\n${receiptProduct.name}\n\n ist bereits vollständig gepackt!',
         );
         packingStationBloc.add(PackingStationClearControllerEvent());
         return;
@@ -292,22 +286,20 @@ class _PackingStationDetailPageState extends State<PackingStationDetailPage> {
     if (listOfReceiptProducts.every((e) => e.shippedQuantity == e.quantity)) {
       packingStationBloc.add(PackingStationGenerateFromAppointmentEvent(generateInvoice: generateInvoice));
     } else if (listOfReceiptProducts.every((e) => e.shippedQuantity == 0)) {
-      await showDialog(
+      await showMyDialogAlert(
         context: context,
-        builder: (context) =>
-            const MyDialogInfo(title: 'ACHTUNG', content: 'Du kannst keinen Auftrag absenden, ohne einen einzigen Artikel zu packen.'),
+        title: 'ACHTUNG',
+        content: 'Du kannst keinen Auftrag absenden, ohne einen einzigen Artikel zu packen.',
       );
     } else {
       if (isPartiallyEnabled) {
         packingStationBloc.add(PackingStationGenerateFromAppointmentEvent(generateInvoice: generateInvoice));
       } else {
-        await showDialog(
-          context: context,
-          builder: (context) => const MyDialogInfo(
-              title: 'ACHTUNG',
-              content:
-                  'Du hast noch nicht den kompletten Auftrag gepackt.\nUm Teillieferungen zu ermöglichen, bitte\n\n"Teillieferung möglich?"\n\n aktivieren.'),
-        );
+        await showMyDialogAlert(
+            context: context,
+            title: 'ACHTUNG',
+            content:
+                'Du hast noch nicht den kompletten Auftrag gepackt.\nUm Teillieferungen zu ermöglichen, bitte\n\n"Teillieferung möglich?"\n\n aktivieren.');
       }
     }
   }

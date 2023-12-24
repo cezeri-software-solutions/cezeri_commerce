@@ -1,4 +1,3 @@
-import 'package:cezeri_commerce/1_presentation/core/widgets/my_dialog_info.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -7,6 +6,7 @@ import '../../../3_domain/entities/reorder/reorder.dart';
 import '../../../3_domain/entities/reorder/supplier.dart';
 import '../../../3_domain/enums/enums.dart';
 import '../../../constants.dart';
+import '../../core/functions/dialogs.dart';
 import '../../core/widgets/my_outlined_button.dart';
 import 'reorder_detail_screen.dart';
 import 'widgets/reorder_detail_header_container.dart';
@@ -107,18 +107,12 @@ class ReorderDetailPage extends StatelessWidget {
 
   bool _validateReorder(BuildContext context, Reorder reorder) {
     if (reorder.listOfReorderProducts.any((e) => e.articleNumber.isEmpty)) {
-      showDialog(
-        context: context,
-        builder: (context) => const MyDialogInfo(title: 'Achtung', content: 'Es darf kein Artikel ohne Artikelnummer vorhanden sein'),
-      );
+      showMyDialogAlert(context: context, title: 'Achtung', content: 'Es darf kein Artikel ohne Artikelnummer vorhanden sein');
       return false;
     }
 
     if (reorder.listOfReorderProducts.any((e) => e.name.isEmpty)) {
-      showDialog(
-        context: context,
-        builder: (context) => const MyDialogInfo(title: 'Achtung', content: 'Es darf kein Artikel ohne Artikelname vorhanden sein'),
-      );
+      showMyDialogAlert(context: context, title: 'Achtung', content: 'Es darf kein Artikel ohne Artikelname vorhanden sein');
       return false;
     }
 

@@ -1,21 +1,21 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:cezeri_commerce/1_presentation/app_drawer.dart';
-import 'package:cezeri_commerce/1_presentation/core/widgets/my_dialog_info.dart';
 import 'package:cezeri_commerce/routes/router.gr.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-import '../../../2_application/firebase/marketplace/marketplace_bloc.dart';
 import '../../../2_application/firebase/product/product_bloc.dart';
-import '../../../3_domain/entities/marketplace/marketplace.dart';
+import '../../../3_domain/entities/product/product.dart';
+import '../../../3_domain/enums/enums.dart';
 import '../../../constants.dart';
 import '../../../injection.dart';
+import '../../core/functions/dialogs.dart';
 import '../../core/functions/my_scaffold_messanger.dart';
-import '../../core/widgets/my_dialog_delete.dart';
-import '../../core/widgets/my_outlined_button.dart';
 import 'products_overview_page.dart';
+import 'widgets/products_mass_editing_failure_dialog.dart';
+import 'widgets/products_mass_editing_select_marketplaces_dialog.dart';
 
 @RoutePage()
 class ProductsOverviewScreen extends StatelessWidget {
@@ -24,6 +24,8 @@ class ProductsOverviewScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final productBloc = sl<ProductBloc>()..add(GetAllProductsEvent());
+    final screenWidth = MediaQuery.sizeOf(context).width;
+    final responsiveness = screenWidth > 700 ? Responsiveness.isTablet : Responsiveness.isMobil;
 
     return BlocProvider<ProductBloc>(
       create: (context) => productBloc,
@@ -78,27 +80,45 @@ class ProductsOverviewScreen extends StatelessWidget {
               );
             },
           ),
+          BlocListener<ProductBloc, ProductState>(
+            bloc: productBloc,
+            listenWhen: (p, c) => p.fosMassEditProductsOption != c.fosMassEditProductsOption,
+            listener: (context, state) {
+              state.fosMassEditProductsOption.fold(
+                () => null,
+                (a) => a.fold((failure) {
+                  context.router.popUntilRouteWithName(ProductsOverviewRoute.name);
+                  myScaffoldMessenger(context, null, null, null, 'Beim Aktualisieren der Artikel ist ein Fehler aufgetreten');
+                  showDialog(
+                    context: context,
+                    builder: (context) => ProductsMassEditingFailureDialog(productsList: state.listOfNotUpdatedProductsOnMassEditing),
+                  );
+                }, (_) {
+                  context.router.popUntilRouteWithName(ProductsOverviewRoute.name);
+                  myScaffoldMessenger(context, null, null, 'Alle Artikel wurden erfolgreich aktualisiert', null);
+                }),
+              );
+            },
+          ),
         ],
         child: BlocBuilder<ProductBloc, ProductState>(
           builder: (context, state) {
             return Scaffold(
               drawer: const AppDrawer(),
               appBar: AppBar(
-                title: state.listOfFilteredProducts != null ? Text('Artikel (${state.listOfFilteredProducts!.length})') : const Text('Artikel'),
+                title: _getAppBarTitle(context, responsiveness, state.listOfFilteredProducts, state.selectedProducts),
                 actions: [
                   IconButton(onPressed: () => context.read<ProductBloc>().add(GetAllProductsEvent()), icon: const Icon(Icons.refresh)),
                   TextButton.icon(
-                    onPressed: () => showDialog(
-                      context: context,
-                      builder: (_) => state.selectedProducts.isEmpty
-                          ? const MyDialogInfo(title: 'Achtung!', content: 'Bitte wähle mindestens einen Artikel aus.')
-                          : MarketplacesDialog(
-                              onChanged: (marketplace) {
-                                context.read<ProductBloc>().add(MassEditActivateProductMarketplaceEvent(marketplace: marketplace!));
-                                context.router.pop();
-                              },
+                    onPressed: state.selectedProducts.isEmpty
+                        ? () => showMyDialogAlert(context: context, title: 'Achtung!', content: 'Bitte wähle mindestens einen Artikel aus.')
+                        : () => showDialog(
+                              context: context,
+                              builder: (_) => BlocProvider.value(
+                                value: productBloc,
+                                child: ProductsMassEditingSelectMarketplacesDialog(productBloc: productBloc),
+                              ),
                             ),
-                    ),
                     icon: state.isLoadingOnMassEditActivateProductMarketplace
                         ? const CircularProgressIndicator()
                         : const Icon(FontAwesomeIcons.diagramProject),
@@ -106,18 +126,16 @@ class ProductsOverviewScreen extends StatelessWidget {
                   ),
                   IconButton(onPressed: () {}, icon: const Icon(Icons.add, color: Colors.green)),
                   IconButton(
-                    onPressed: () => showDialog(
-                      context: context,
-                      builder: (_) => state.selectedProducts.isEmpty
-                          ? const MyDialogInfo(title: 'Achtung!', content: 'Bitte wähle mindestens einen Artikel aus.')
-                          : MyDialogDelete(
+                    onPressed: state.selectedProducts.isEmpty
+                        ? () => showMyDialogAlert(context: context, title: 'Achtung!', content: 'Bitte wähle mindestens einen Artikel aus.')
+                        : () => showMyDialogDelete(
+                              context: context,
                               content: 'Bist du sicher, dass du alle ausgewählten Artikel unwiederruflich löschen willst?',
                               onConfirm: () {
                                 context.read<ProductBloc>().add(DeleteSelectedProductsEvent(selectedProducts: state.selectedProducts));
                                 context.router.pop();
                               },
                             ),
-                    ),
                     icon: state.isLoadingProductOnDelete
                         ? const CircularProgressIndicator(color: Colors.red)
                         : const Icon(Icons.delete, color: Colors.red),
@@ -128,11 +146,35 @@ class ProductsOverviewScreen extends StatelessWidget {
                 children: [
                   Padding(
                     padding: const EdgeInsets.only(left: 20, right: 20, bottom: 10),
-                    child: CupertinoSearchTextField(
-                      controller: state.productSearchController,
-                      onChanged: (value) => context.read<ProductBloc>().add(OnSearchFieldSubmittedEvent()),
-                      onSubmitted: (value) => context.read<ProductBloc>().add(OnSearchFieldSubmittedEvent()),
-                      onSuffixTap: () => context.read<ProductBloc>().add(OnProductSearchControllerClearedEvent()),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: CupertinoSearchTextField(
+                            controller: state.productSearchController,
+                            onChanged: (value) => context.read<ProductBloc>().add(OnSearchFieldSubmittedEvent()),
+                            onSubmitted: (value) => context.read<ProductBloc>().add(OnSearchFieldSubmittedEvent()),
+                            onSuffixTap: () => context.read<ProductBloc>().add(OnProductSearchControllerClearedEvent()),
+                          ),
+                        ),
+                        if (responsiveness == Responsiveness.isTablet) ...[
+                          Gaps.w16,
+                          const Text('Erweiterte Suche:'),
+                          Gaps.w8,
+                          Switch.adaptive(
+                            value: state.isWidthSearchActive,
+                            onChanged: (value) => productBloc.add(SetProductsWidthSearchEvent(value: value)),
+                          ),
+                        ] else ...[
+                          Gaps.w8,
+                          Tooltip(
+                            message: 'Erweiterte Suche',
+                            child: Switch.adaptive(
+                              value: state.isWidthSearchActive,
+                              onChanged: (value) => productBloc.add(SetProductsWidthSearchEvent(value: value)),
+                            ),
+                          ),
+                        ],
+                      ],
                     ),
                   ),
                   ProductOverviewPage(productBloc: productBloc),
@@ -144,57 +186,42 @@ class ProductsOverviewScreen extends StatelessWidget {
       ),
     );
   }
-}
 
-class MarketplacesDialog extends StatelessWidget {
-  final Function(Marketplace?)? onChanged;
+  Widget _getAppBarTitle(BuildContext context, Responsiveness responsiveness, List<Product>? listOfFilteredProducts, List<Product> selectedProducts) {
+    if (listOfFilteredProducts == null) return const Text('Artikel');
 
-  const MarketplacesDialog({super.key, required this.onChanged});
-
-  @override
-  Widget build(BuildContext context) {
-    final marketplaceBloc = sl<MarketplaceBloc>()..add(GetAllMarketplacesEvent());
-
-    return BlocProvider(
-      create: (context) => marketplaceBloc,
-      child: BlocBuilder<MarketplaceBloc, MarketplaceState>(
-        builder: (context, state) {
-          return Dialog(
-            child: SizedBox(
-              width: 400,
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Text('Marktplätze', style: TextStyles.h1),
-                    Gaps.h32,
-                    Flexible(
-                      child: state.listOfMarketplace == null || state.isLoadingMarketplacesOnObserve
-                          ? const SizedBox(height: 200, child: Center(child: CircularProgressIndicator()))
-                          : state.firebaseFailure != null && state.isAnyFailure
-                              ? const SizedBox(
-                                  height: 200,
-                                  child: Center(
-                                    child: Text('Ein Fehler ist aufgetreten'),
-                                  ),
-                                )
-                              : ListView.builder(
-                                  shrinkWrap: true,
-                                  itemCount: state.listOfMarketplace!.length,
-                                  itemBuilder: (context, index) {
-                                    final marketplace = state.listOfMarketplace![index];
-                                    return MyOutlinedButton(buttonText: marketplace.name, onPressed: () => onChanged?.call(marketplace));
-                                  },
-                                ),
-                    ),
-                  ],
-                ),
-              ),
+    final row = Row(
+        children: switch (responsiveness) {
+      Responsiveness.isTablet => [
+          Text('Artikel (${listOfFilteredProducts.length})'),
+          Gaps.w8,
+          InkWell(
+            onTap: () => showMyDialogProducts(context: context, productsList: selectedProducts),
+            child: Text('Ausgewählte Artikel (${selectedProducts.length})'),
+          ),
+        ],
+      _ => [
+          Text('Artikel (${listOfFilteredProducts.length})'),
+          Gaps.w8,
+          Tooltip(
+            message: 'Ausgewählte Artikel',
+            child: InkWell(
+              onTap: () => showMyDialogProducts(context: context, productsList: selectedProducts),
+              child: Text('(${selectedProducts.length})'),
             ),
-          );
+          ),
+        ],
+    });
+
+    return switch (responsiveness) {
+      Responsiveness.isTablet => switch (selectedProducts.length) {
+          0 => Text('Artikel (${listOfFilteredProducts.length})'),
+          _ => row,
         },
-      ),
-    );
+      _ => switch (selectedProducts.length) {
+          0 => Text('Artikel (${listOfFilteredProducts.length})'),
+          _ => row,
+        },
+    };
   }
 }

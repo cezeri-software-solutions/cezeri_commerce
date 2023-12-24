@@ -9,9 +9,8 @@ import '../../../../2_application/firebase/supplier/supplier_bloc.dart';
 import '../../../../3_domain/entities/reorder/supplier.dart';
 import '../../../../injection.dart';
 import '../../../../routes/router.gr.dart';
+import '../../../core/functions/dialogs.dart';
 import '../../../core/functions/my_scaffold_messanger.dart';
-import '../../../core/widgets/my_dialog_delete.dart';
-import '../../../core/widgets/my_dialog_info.dart';
 import '../supplier_detail/supplier_detail_screen.dart';
 import 'suppliers_overview_page.dart';
 
@@ -71,18 +70,16 @@ class SuppliersOverviewScreen extends StatelessWidget {
                       },
                       icon: const Icon(Icons.add, color: Colors.green)),
                   IconButton(
-                    onPressed: () => showDialog(
-                      context: context,
-                      builder: (_) => state.selectedSuppliers.isEmpty
-                          ? const MyDialogInfo(title: 'Achtung!', content: 'Bitte wähle mindestens einen Lieferanten aus.')
-                          : MyDialogDelete(
+                    onPressed: state.selectedSuppliers.isEmpty
+                        ? () => showMyDialogAlert(context: context, title: 'Achtung!', content: 'Bitte wähle mindestens einen Lieferanten aus.')
+                        : () => showMyDialogDelete(
+                              context: context,
                               content: 'Bist du sicher, dass du alle ausgewählten Lieferanten unwiederruflich löschen willst?',
                               onConfirm: () {
                                 context.read<SupplierBloc>().add(DeleteSelectedSuppliersEvent(selectedSuppliers: state.selectedSuppliers));
                                 context.router.pop();
                               },
                             ),
-                    ),
                     icon: state.isLoadingSupplierOnDelete
                         ? const CircularProgressIndicator(color: Colors.red)
                         : const Icon(Icons.delete, color: Colors.red),

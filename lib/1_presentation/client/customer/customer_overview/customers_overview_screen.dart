@@ -9,9 +9,8 @@ import '../../../../2_application/firebase/main_settings/main_settings_bloc.dart
 import '../../../../3_domain/entities/customer/customer.dart';
 import '../../../../injection.dart';
 import '../../../../routes/router.gr.dart';
+import '../../../core/functions/dialogs.dart';
 import '../../../core/functions/my_scaffold_messanger.dart';
-import '../../../core/widgets/my_dialog_delete.dart';
-import '../../../core/widgets/my_dialog_info.dart';
 import '../customer_detail/customer_detail_screen.dart';
 import 'customers_overview_page.dart';
 
@@ -71,18 +70,16 @@ class CustomersOverviewScreen extends StatelessWidget {
                       },
                       icon: const Icon(Icons.add, color: Colors.green)),
                   IconButton(
-                    onPressed: () => showDialog(
-                      context: context,
-                      builder: (_) => state.selectedCustomers.isEmpty
-                          ? const MyDialogInfo(title: 'Achtung!', content: 'Bitte wähle mindestens einen Kunden aus.')
-                          : MyDialogDelete(
+                    onPressed: state.selectedCustomers.isEmpty
+                        ? () => showMyDialogAlert(context: context, title: 'Achtung!', content: 'Bitte wähle mindestens einen Kunden aus.')
+                        : () => showMyDialogDelete(
+                              context: context,
                               content: 'Bist du sicher, dass du alle ausgewählten Kunden unwiederruflich löschen willst?',
                               onConfirm: () {
                                 context.read<CustomerBloc>().add(DeleteSelectedCustomersEvent(selectedCustomers: state.selectedCustomers));
                                 context.router.pop();
                               },
                             ),
-                    ),
                     icon: state.isLoadingCustomerOnDelete
                         ? const CircularProgressIndicator(color: Colors.red)
                         : const Icon(Icons.delete, color: Colors.red),

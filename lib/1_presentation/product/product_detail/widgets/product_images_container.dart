@@ -5,9 +5,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../2_application/firebase/product/product_bloc.dart';
 import '../../../../3_domain/entities/product/product_image.dart';
 import '../../../../constants.dart';
+import '../../../core/functions/dialogs.dart';
 import '../../../core/widgets/my_avatar.dart';
 import '../../../core/widgets/my_circular_progress_indicator.dart';
-import '../../../core/widgets/my_dialog_delete.dart';
 import '../../../core/widgets/my_outlined_button.dart';
 
 class ProductImagesContainer extends StatelessWidget {
@@ -32,15 +32,13 @@ class ProductImagesContainer extends StatelessWidget {
                     const Text('Bilder', style: TextStyles.h2Bold),
                     Gaps.w16,
                     IconButton(
-                      onPressed: () => showDialog(
+                      onPressed: () => showMyDialogDelete(
                         context: context,
-                        builder: (context) => MyDialogDelete(
-                          content: 'Willst du wirklich alle ausgewählten Artikelbilder unwiederruflich löschen?',
-                          onConfirm: () {
-                            productBloc.add(RemoveSelectedProductImages());
-                            context.router.pop();
-                          },
-                        ),
+                        content: 'Willst du wirklich alle ausgewählten Artikelbilder unwiederruflich löschen?',
+                        onConfirm: () {
+                          productBloc.add(RemoveSelectedProductImages());
+                          context.router.pop();
+                        },
                       ),
                       icon: state.isLoadingProductOnUpdateImages
                           ? const MyCircularProgressIndicator(color: Colors.red)

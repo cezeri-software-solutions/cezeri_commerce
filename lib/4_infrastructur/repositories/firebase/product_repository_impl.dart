@@ -69,6 +69,13 @@ class ProductRepositoryImpl implements ProductRepository {
             (value) => value.docs.map((querySnapshot) => Product.fromJson(querySnapshot.data())).toList(),
           );
 
+      // for (final product in listOfProducts) {
+      //   final docRefPh = db.collection('Products').doc(currentUserUid).collection('Products').doc(product.id);
+      //   final updatedProduct = product.copyWith(minimumStock: 0, isUnderMinimumStock: false, minimumReorderQuantity: 1, packagingUnitOnReorder: 1);
+      //   await docRefPh.update(updatedProduct.toJson());
+      //   await Future.delayed(const Duration(milliseconds: 200));
+      // }
+
       if (listOfProducts.isEmpty) return left(EmptyFailure());
       return right(listOfProducts);
     } on FirebaseException {

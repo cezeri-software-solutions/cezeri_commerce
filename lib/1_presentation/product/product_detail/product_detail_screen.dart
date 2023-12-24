@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../2_application/firebase/product/product_bloc.dart';
+import '../../core/functions/my_scaffold_messanger.dart';
+import '../../core/widgets/my_dialog_suppliers.dart';
 
 enum ProductCreateOrEdit { create, edit }
 
@@ -17,12 +19,35 @@ class ProductDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final appBar = AppBar(title: const Text('Artikel'));
-    return BlocListener<ProductBloc, ProductState>(
-      bloc: productBloc,
-      listenWhen: (p, c) => p.triggerPop != c.triggerPop && c.triggerPop,
-      listener: (context, state) {
-        context.router.popTop();
-      },
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<ProductBloc, ProductState>(
+          bloc: productBloc,
+          listenWhen: (p, c) => p.triggerPop != c.triggerPop && c.triggerPop,
+          listener: (context, state) {
+            context.router.popTop();
+          },
+        ),
+        BlocListener<ProductBloc, ProductState>(
+          bloc: productBloc,
+          listenWhen: (p, c) => p.fosProductSuppliersOnObserveOption != c.fosProductSuppliersOnObserveOption,
+          listener: (context, state) {
+            state.fosProductSuppliersOnObserveOption.fold(
+              () => null,
+              (a) => a.fold(
+                (failure) => myScaffoldMessenger(context, null, null, null, 'Beim Laen der Lieferanten ist ein Fehler aufgetreten'),
+                (_) => showDialog(
+                  context: context,
+                  builder: (_) => MyDialogSuppliers(
+                    listOfSuppliers: state.listOfSuppliers!,
+                    onChanged: (supplier) => productBloc.add(OnProductSetSupplierEvent(supplierName: supplier.company)),
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
+      ],
       child: BlocBuilder<ProductBloc, ProductState>(
         bloc: productBloc,
         builder: (context, state) {
