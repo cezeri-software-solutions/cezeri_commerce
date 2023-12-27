@@ -43,6 +43,20 @@ class ProductOverviewPage extends StatelessWidget {
               itemCount: state.listOfFilteredProducts!.length,
               itemBuilder: (context, index) {
                 final curProduct = state.listOfFilteredProducts![index];
+                if (index == 0) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Checkbox.adaptive(
+                        value: state.isSelectedAllProducts,
+                        onChanged: (value) => productBloc.add(OnProductIsSelectedAllChangedEvent(isSelected: value!)),
+                      ),
+                      _ProductContainer(product: curProduct, index: index, productBloc: productBloc),
+                      const Divider(),
+                    ],
+                  );
+                }
+
                 return Column(
                   children: [
                     _ProductContainer(product: curProduct, index: index, productBloc: productBloc),

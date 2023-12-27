@@ -21,6 +21,7 @@ class StatProduct {
   final double offerVolume;
   // Gewinn nach Rechnungserstellng
   final double profit;
+  final int numberOfItemsSold;
   final List<StatProductDetail> listOfStatProductDetail;
   final DateTime lastEditingDate;
   final DateTime creationDate;
@@ -36,7 +37,8 @@ class StatProduct {
   })  : incomingOrders = _calcAmount(listOfStatProductDetail, ReceiptTyp.appointment),
         salesVolume = _calcAmount(listOfStatProductDetail, ReceiptTyp.invoice),
         offerVolume = _calcAmount(listOfStatProductDetail, ReceiptTyp.offer),
-        profit = _calcProfit(listOfStatProductDetail);
+        profit = _calcProfit(listOfStatProductDetail),
+        numberOfItemsSold = _calcNumberOfItemsSold(listOfStatProductDetail);
 
   static double _calcAmount(List<StatProductDetail> listOfStatProductDetail, ReceiptTyp receiptTyp) {
     if (listOfStatProductDetail.isEmpty || listOfStatProductDetail.where((e) => e.receiptTyp == receiptTyp).firstOrNull == null) {
@@ -52,6 +54,15 @@ class StatProduct {
     }
     final list = listOfStatProductDetail.where((e) => e.receiptTyp == ReceiptTyp.invoice).toList();
     return (list.map((e) => e.profit).toList().reduce((value, element) => value + element)).toMyRoundedDouble();
+  }
+
+  static int _calcNumberOfItemsSold(List<StatProductDetail> listOfStatProductDetail) {
+    int count = 0;
+    for (final statProductDetail in listOfStatProductDetail) {
+      if (statProductDetail.receiptTyp != ReceiptTyp.invoice) continue;
+      count = count += statProductDetail.quantity;
+    }
+    return count;
   }
 
   factory StatProduct.empty() {

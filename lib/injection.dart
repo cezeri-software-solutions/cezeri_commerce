@@ -11,6 +11,7 @@ import '2_application/firebase/auth/user_data_form/user_data_form_bloc.dart';
 import '2_application/firebase/client/client_bloc.dart';
 import '2_application/firebase/customer/customer_bloc.dart';
 import '2_application/firebase/dashboard/dashboard_bloc.dart';
+import '2_application/firebase/home/home_product/home_product_bloc.dart';
 import '2_application/firebase/main_settings/main_settings_bloc.dart';
 import '2_application/firebase/marketplace/marketplace_bloc.dart';
 import '2_application/firebase/product/product_bloc.dart';
@@ -53,11 +54,18 @@ final sl = GetIt.I;
 Future<void> init() async {
   //! state management
   sl.registerFactory(() => ProductImportBloc(productImportRepository: sl(), mainSettingsRepository: sl()));
-  sl.registerFactory(() => ProductBloc(productRepository: sl(), productEditRepository: sl(), mainSettingsRepository: sl(), supplierRepository: sl()));
+  sl.registerFactory(() => ProductBloc(
+        productRepository: sl(),
+        productEditRepository: sl(),
+        mainSettingsRepository: sl(),
+        supplierRepository: sl(),
+        statProductRepository: sl(),
+      ));
   sl.registerFactory(() => AuthBloc(authRepository: sl(), clientRepository: sl()));
   sl.registerFactory(() => SignInFormBloc(authRepository: sl()));
   sl.registerFactory(() => UserDataFormBloc(clientRepository: sl()));
   sl.registerFactory(() => ClientBloc(clientRepository: sl()));
+  sl.registerFactory(() => HomeProductBloc(productRepository: sl(), reorderRepository: sl()));
   sl.registerFactory(() => MarketplaceBloc(marketplaceRepository: sl()));
   sl.registerFactory(() => MainSettingsBloc(mainSettingsRepository: sl()));
   sl.registerFactory(() => AppointmentBloc(receiptRepository: sl()));

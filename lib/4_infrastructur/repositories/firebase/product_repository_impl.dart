@@ -70,10 +70,12 @@ class ProductRepositoryImpl implements ProductRepository {
           );
 
       // for (final product in listOfProducts) {
-      //   final docRefPh = db.collection('Products').doc(currentUserUid).collection('Products').doc(product.id);
-      //   final updatedProduct = product.copyWith(minimumStock: 0, isUnderMinimumStock: false, minimumReorderQuantity: 1, packagingUnitOnReorder: 1);
-      //   await docRefPh.update(updatedProduct.toJson());
-      //   await Future.delayed(const Duration(milliseconds: 200));
+      //   if (product.availableStock <= product.minimumReorderQuantity!) {
+      //     final docRefPh = db.collection('Products').doc(currentUserUid).collection('Products').doc(product.id);
+      //     final updatedProduct = product.copyWith(isUnderMinimumStock: true);
+      //     await docRefPh.update(updatedProduct.toJson());
+      //     await Future.delayed(const Duration(milliseconds: 200));
+      //   }
       // }
 
       if (listOfProducts.isEmpty) return left(EmptyFailure());
@@ -99,6 +101,44 @@ class ProductRepositoryImpl implements ProductRepository {
         final product = await docRef.get();
         if (product.exists) listOfProducts.add(Product.fromJson(product.data()!));
       }
+
+      return right(listOfProducts);
+    } on FirebaseException {
+      return left(GeneralFailure());
+    }
+  }
+
+  @override
+  Future<Either<FirebaseFailure, List<Product>>> getListOfSoldOutProducts() async {
+    final isConnected = await checkInternetConnection();
+    if (!isConnected) return left(NoConnectionFailure());
+
+    final currentUserUid = firebaseAuth.currentUser!.uid;
+    final docRef = db.collection('Products').doc(currentUserUid).collection('Products').where('availableStock', isEqualTo: 0);
+
+    try {
+      final listOfProducts = await docRef.get().then(
+            (value) => value.docs.map((querySnapshot) => Product.fromJson(querySnapshot.data())).toList(),
+          );
+
+      return right(listOfProducts);
+    } on FirebaseException {
+      return left(GeneralFailure());
+    }
+  }
+
+  @override
+  Future<Either<FirebaseFailure, List<Product>>> getListOfUnderMinimumQuantityProducts() async {
+    final isConnected = await checkInternetConnection();
+    if (!isConnected) return left(NoConnectionFailure());
+
+    final currentUserUid = firebaseAuth.currentUser!.uid;
+    final docRef = db.collection('Products').doc(currentUserUid).collection('Products').where('isUnderMinimumStock', isEqualTo: true);
+
+    try {
+      final listOfProducts = await docRef.get().then(
+            (value) => value.docs.map((querySnapshot) => Product.fromJson(querySnapshot.data())).toList(),
+          );
 
       return right(listOfProducts);
     } on FirebaseException {
@@ -364,6 +404,7 @@ class ProductRepositoryImpl implements ProductRepository {
       final updatedProduct = product.copyWith(
         availableStock: newQuantity,
         warehouseStock: product.warehouseStock - (product.availableStock - newQuantity),
+        isUnderMinimumStock: newQuantity <= product.minimumReorderQuantity! ? true : false,
       );
       await docRefProduct.update(updatedProduct.toJson());
 
@@ -382,7 +423,10 @@ class ProductRepositoryImpl implements ProductRepository {
     final docRefProduct = db.collection('Products').doc(currentUserUid).collection('Products').doc(product.id);
 
     try {
-      final updatedProduct = product.copyWith(availableStock: newQuantity);
+      final updatedProduct = product.copyWith(
+        availableStock: newQuantity,
+        isUnderMinimumStock: newQuantity <= product.minimumReorderQuantity! ? true : false,
+      );
       await docRefProduct.update(updatedProduct.toJson());
 
       return right(updatedProduct);
@@ -400,7 +444,10 @@ class ProductRepositoryImpl implements ProductRepository {
     final docRefProduct = db.collection('Products').doc(currentUserUid).collection('Products').doc(product.id);
 
     try {
-      final updatedProduct = product.copyWith(warehouseStock: product.warehouseStock - (product.warehouseStock - newQuantity));
+      final updatedProduct = product.copyWith(
+        warehouseStock: product.warehouseStock - (product.warehouseStock - newQuantity),
+        isUnderMinimumStock: product.availableStock <= product.minimumReorderQuantity! ? true : false,
+      );
       await docRefProduct.update(updatedProduct.toJson());
 
       return right(updatedProduct);
@@ -422,7 +469,11 @@ class ProductRepositoryImpl implements ProductRepository {
     final docRefProduct = db.collection('Products').doc(currentUserUid).collection('Products').doc(product.id);
 
     try {
-      final updatedProduct = product.copyWith(availableStock: product.availableStock + newQuantityIncremental);
+      final newAvailableStock = product.availableStock + newQuantityIncremental;
+      final updatedProduct = product.copyWith(
+        availableStock: newAvailableStock,
+        isUnderMinimumStock: newAvailableStock <= product.minimumReorderQuantity! ? true : false,
+      );
       await docRefProduct.update(updatedProduct.toJson());
 
       await marketplaceEditRepository.setProdcutPrestaQuantity(updatedProduct, updatedProduct.availableStock, marketplaceToSkip);
@@ -441,7 +492,10 @@ class ProductRepositoryImpl implements ProductRepository {
     final docRefProduct = db.collection('Products').doc(currentUserUid).collection('Products').doc(product.id);
 
     try {
-      final updatedProduct = product.copyWith(warehouseStock: product.warehouseStock + newQuantityIncremental);
+      final updatedProduct = product.copyWith(
+        warehouseStock: product.warehouseStock + newQuantityIncremental,
+        isUnderMinimumStock: product.availableStock <= product.minimumReorderQuantity! ? true : false,
+      );
       await docRefProduct.update(updatedProduct.toJson());
 
       return right(updatedProduct);

@@ -4,7 +4,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../2_application/firebase/product/product_bloc.dart';
 import '../../../../constants.dart';
 import '../../../core/widgets/my_form_field_small.dart';
-import 'description_dialog.dart';
 
 class ProductMasterCard extends StatelessWidget {
   final ProductBloc productBloc;
@@ -54,14 +53,16 @@ class ProductMasterCard extends StatelessWidget {
                       ),
                     ),
                     IconButton(
-                      onPressed: () async => await showDialog(
-                        context: context,
-                        barrierDismissible: false,
-                        builder: (_) => BlocProvider.value(
-                          value: productBloc,
-                          child: DescriptionDialog(productBloc: productBloc),
-                        ),
-                      ),
+                      onPressed: () => productBloc.add(OnProductShowDescriptionChangedEvent()),
+
+                      // () async => await showDialog(
+                      //   context: context,
+                      //   barrierDismissible: false,
+                      //   builder: (_) => BlocProvider.value(
+                      //     value: productBloc,
+                      //     child: DescriptionDialog(productBloc: productBloc),
+                      //   ),
+                      // ),
                       icon: const Icon(Icons.description, color: CustomColors.primaryColor),
                     ),
                   ],

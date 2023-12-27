@@ -7,6 +7,8 @@ import '../../../3_domain/entities/product/product_language.dart';
 import '../../../3_domain/entities/product/product_marketplace.dart';
 import '../../../3_domain/entities_presta/product_presta.dart';
 
+final logger = Logger();
+
 //* Order
 XmlBuilder orderStatusBuilder(final int orderId, final int statusId) {
   final builder = XmlBuilder();
@@ -39,7 +41,6 @@ XmlBuilder? productBuilder({
   required ProductMarketplace productMarketplace,
   required ProductPresta productPresta,
 }) {
-  final logger = Logger();
   // int boolToInt(bool bool) => switch (bool) {
   //       true => 1,
   //       false => 0,
@@ -91,6 +92,7 @@ XmlBuilder? productBuilder({
       builder.element('active', nest: marketplaceProductPresta.active);
       valueBuilder(product.name, productPresta.nameMultilanguage, product.listOfName, 'name');
       valueBuilder(product.description, productPresta.descriptionMultilanguage, product.listOfDescription, 'description');
+      valueBuilder(product.descriptionShort, productPresta.descriptionShortMultilanguage, product.listOfDescriptionShort, 'description_short');
     });
   });
   if (isAnyFailure) return null;

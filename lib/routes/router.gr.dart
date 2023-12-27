@@ -35,7 +35,7 @@ import 'package:cezeri_commerce/1_presentation/e_commerce/marketplace_overview/m
     as _i13;
 import 'package:cezeri_commerce/1_presentation/e_commerce/product_import/product_import_screen.dart'
     as _i23;
-import 'package:cezeri_commerce/1_presentation/home_screen.dart' as _i10;
+import 'package:cezeri_commerce/1_presentation/home/home_screen.dart' as _i10;
 import 'package:cezeri_commerce/1_presentation/packing_station/packing_station_detail/packing_station_detail_screen.dart'
     as _i17;
 import 'package:cezeri_commerce/1_presentation/packing_station/packing_station_overview/packing_station_overview_screen.dart'

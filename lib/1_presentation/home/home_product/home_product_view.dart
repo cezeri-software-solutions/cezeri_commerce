@@ -1,0 +1,65 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../../../2_application/firebase/home/home_product/home_product_bloc.dart';
+import '../../../injection.dart';
+import '../../core/functions/my_scaffold_messanger.dart';
+import 'widgets/home_product_collapsed.dart';
+import 'widgets/home_product_expanded.dart';
+
+class HomeProductView extends StatelessWidget {
+  const HomeProductView({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final homeProductBloc = sl<HomeProductBloc>();
+    // ..add(GetHomeProductSoldOutProductsEvent())
+    // ..add(GetHomeReordersEvent());
+    return BlocProvider(
+      create: (context) => homeProductBloc,
+      child: MultiBlocListener(
+        listeners: [
+          BlocListener<HomeProductBloc, HomeProductState>(
+            listenWhen: (p, c) => p.fosHomeProductsOnObserveOption != c.fosHomeProductsOnObserveOption,
+            listener: (context, state) {
+              state.fosHomeProductsOnObserveOption.fold(
+                () => null,
+                (a) => a.fold(
+                  (failure) => myScaffoldMessenger(context, failure, null, null, null),
+                  (products) => myScaffoldMessenger(context, null, null, 'Artikel erfolgreich geladen', null),
+                ),
+              );
+            },
+          ),
+          BlocListener<HomeProductBloc, HomeProductState>(
+            listenWhen: (p, c) => p.fosHomeReordersOnObserveOption != c.fosHomeReordersOnObserveOption,
+            listener: (context, state) {
+              state.fosHomeReordersOnObserveOption.fold(
+                () => null,
+                (a) => a.fold(
+                  (failure) => myScaffoldMessenger(context, failure, null, null, null),
+                  (reorders) => myScaffoldMessenger(context, null, null, 'Nachbestellungen erfolgreich geladen', null),
+                ),
+              );
+            },
+          ),
+        ],
+        child: BlocBuilder<HomeProductBloc, HomeProductState>(
+          builder: (context, state) {
+            return Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  HomeProductCollapsed(homeProductBloc: homeProductBloc),
+                  HomeProductExpanded(homeProductBloc: homeProductBloc),
+                  const Divider(),
+                ],
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+}

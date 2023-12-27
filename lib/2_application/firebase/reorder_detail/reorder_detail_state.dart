@@ -22,6 +22,7 @@ class ReorderDetailState {
 
   //* Helper
   final DateTimeRange? statProductDateRange;
+  final bool isDateRangeChanged;
 
   //* Controllers
   final TextEditingController discountPercentController;
@@ -61,6 +62,7 @@ class ReorderDetailState {
     required this.fosReorderDetailOnObserveProductsOption,
     required this.fosReorderDetailOnPdfDataOption,
     required this.statProductDateRange,
+    required this.isDateRangeChanged,
     required this.discountPercentController,
     required this.discountAmountGrossController,
     required this.additionalAmountGrossController,
@@ -96,6 +98,7 @@ class ReorderDetailState {
       fosReorderDetailOnObserveProductsOption: none(),
       fosReorderDetailOnPdfDataOption: none(),
       statProductDateRange: null,
+      isDateRangeChanged: false,
       discountPercentController: TextEditingController(),
       discountAmountGrossController: TextEditingController(),
       additionalAmountGrossController: TextEditingController(),
@@ -131,6 +134,7 @@ class ReorderDetailState {
     Option<Either<FirebaseFailure, List<Product>>>? fosReorderDetailOnObserveProductsOption,
     Option<Either<FirebaseFailure, List<Marketplace>>>? fosReorderDetailOnPdfDataOption,
     DateTimeRange? statProductDateRange,
+    bool? isDateRangeChanged,
     TextEditingController? discountPercentController,
     TextEditingController? discountAmountGrossController,
     TextEditingController? additionalAmountGrossController,
@@ -164,6 +168,7 @@ class ReorderDetailState {
       fosReorderDetailOnObserveProductsOption: fosReorderDetailOnObserveProductsOption ?? this.fosReorderDetailOnObserveProductsOption,
       fosReorderDetailOnPdfDataOption: fosReorderDetailOnPdfDataOption ?? this.fosReorderDetailOnPdfDataOption,
       statProductDateRange: statProductDateRange ?? this.statProductDateRange,
+      isDateRangeChanged: isDateRangeChanged ?? this.isDateRangeChanged,
       discountPercentController: discountPercentController ?? this.discountPercentController,
       discountAmountGrossController: discountAmountGrossController ?? this.discountAmountGrossController,
       additionalAmountGrossController: additionalAmountGrossController ?? this.additionalAmountGrossController,

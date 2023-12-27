@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:html_editor_enhanced/html_editor.dart';
 
+import '../../../constants.dart';
+
 class MyHtmlEditor extends StatelessWidget {
   final HtmlEditorController controller;
   final String? initialText;
@@ -16,8 +18,10 @@ class MyHtmlEditor extends StatelessWidget {
       controller: controller,
       htmlEditorOptions: HtmlEditorOptions(initialText: initialText),
       htmlToolbarOptions: HtmlToolbarOptions(
+        toolbarItemHeight: 26,
+        textStyle: TextStyles.s13Bold.copyWith(color: Colors.black),
         customToolbarButtons: [
-          IconButton(onPressed: () => controller.toggleCodeView(), icon: const Icon(Icons.code)),
+          InkWell(onTap: () => controller.toggleCodeView, child: const Icon(Icons.code)),
         ],
       ),
       callbacks: Callbacks(
@@ -29,9 +33,7 @@ class MyHtmlEditor extends StatelessWidget {
         height: double.infinity,
         decoration: BoxDecoration(
           color: Color.fromARGB(255, 244, 244, 244),
-          borderRadius: BorderRadius.all(
-            Radius.circular(16),
-          ),
+          borderRadius: BorderRadius.all(Radius.circular(16)),
         ),
       ),
     );

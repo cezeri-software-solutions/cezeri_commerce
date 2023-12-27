@@ -180,7 +180,6 @@ class ReceiptsOverviewScreen extends StatelessWidget {
                   },
                 ),
                 actions: [
-                  Text('${state.loadedAppointments} / ${state.numberOfToLoadAppointments}'),
                   IconButton(onPressed: () => appointmentBloc.add(SendEmailToCustomerReceiptEvent()), icon: const Icon(Icons.mail)),
                   Tooltip(
                     message: 'Senden',
@@ -190,13 +189,29 @@ class ReceiptsOverviewScreen extends StatelessWidget {
                         builder: (_) => BlocProvider.value(
                           value: appointmentBloc,
                           child: switch (receiptTyp) {
-                            ReceiptTyp.offer =>
-                              _GenerateFromOfferNewAppointmentDialog(listOfReceipts: state.selectedReceipts, appointmentBloc: appointmentBloc),
-                            ReceiptTyp.appointment =>
-                              _GenerateFromAppointmentDialog(listOfReceipts: state.selectedReceipts, appointmentBloc: appointmentBloc),
+                            ReceiptTyp.offer => _GenerateFromOfferNewAppointmentDialog(
+                                listOfReceipts: state.selectedReceipts,
+                                appointmentBloc: appointmentBloc,
+                              ),
+                            ReceiptTyp.appointment => _GenerateFromAppointmentDialog(
+                                listOfReceipts: state.selectedReceipts,
+                                appointmentBloc: appointmentBloc,
+                              ),
+                            ReceiptTyp.deliveryNote => state.selectedReceipts.isEmpty ||
+                                    !state.selectedReceipts.every((e) => e.receiptCustomer.id == state.selectedReceipts.first.id)
+                                ? _ReceiptsAlertDialog(
+                                    title: 'Achtug',
+                                    content: _getErrorMessageOnGenerateFromDeliveryNotesNewInvoice(state.selectedReceipts),
+                                  )
+                                : _GenerateFromDeliveryNotesNewInvoiceDialog(
+                                    appointmentBloc: appointmentBloc,
+                                    listOfReceipts: state.selectedReceipts,
+                                  ),
                             ReceiptTyp.invoice => state.selectedReceipts.length > 1
                                 ? const _ReceiptsAlertDialog(
-                                    title: 'Achtug', content: 'Du darfst maximal eine Rechnung auswählen, zum generieren einer Gutschrift')
+                                    title: 'Achtug',
+                                    content: 'Du darfst maximal eine Rechnung auswählen, zum generieren einer Gutschrift',
+                                  )
                                 : _GenerateFromInvoiceNewCreditDialog(listOfReceipts: state.selectedReceipts, appointmentBloc: appointmentBloc),
                             _ => const Dialog(),
                           },
@@ -325,7 +340,7 @@ class ReceiptsOverviewScreen extends StatelessWidget {
                     ReceiptTyp.deliveryNote => DefaultTabController(
                         length: 2,
                         child: TabBar(
-                          tabs: const [Tab(text: 'Offen'), Tab(text: 'Alle')],
+                          tabs: const [Tab(text: 'Ohne Rechnung'), Tab(text: 'Alle')],
                           labelStyle: const TextStyle(fontWeight: FontWeight.bold),
                           unselectedLabelStyle: const TextStyle(),
                           onTap: (value) => appointmentBloc.add(GetReceiptsEvent(tabValue: value, receiptTyp: receiptTyp)),
@@ -368,6 +383,14 @@ class ReceiptsOverviewScreen extends StatelessWidget {
       ReceiptTyp.invoice => 'Rechnung / Rechnungen erfolgreich gelöscht',
       ReceiptTyp.credit => 'Rechnung / Rechnungen erfolgreich gelöscht',
     };
+  }
+
+  String _getErrorMessageOnGenerateFromDeliveryNotesNewInvoice(List<Receipt> selectedReceipts) {
+    if (selectedReceipts.isEmpty) return 'Du musst mindestens ein Lieferschein auswählen, zum generieren einer Sammelrechnung';
+    if (!selectedReceipts.every((e) => e.receiptCustomer.id == selectedReceipts.first.id)) {
+      return 'Alle Lieferscheine die zu einer Sammelrechnung generiert werden sollen, müssen vom selben Kunden sein.';
+    }
+    return 'Ein Fehler ist aufgetreten';
   }
 }
 
@@ -553,6 +576,56 @@ class _GenerateFromInvoiceNewCreditDialogState extends State<_GenerateFromInvoic
                       buttonBackgroundColor: Colors.green,
                       isLoading: state.isLoadingReceiptOnGenerate,
                       onPressed: () => widget.appointmentBloc.add(OnGenerateFromInvoiceNewCreditEvent()),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _GenerateFromDeliveryNotesNewInvoiceDialog extends StatefulWidget {
+  final AppointmentBloc appointmentBloc;
+  final List<Receipt> listOfReceipts;
+
+  const _GenerateFromDeliveryNotesNewInvoiceDialog({required this.appointmentBloc, required this.listOfReceipts});
+
+  @override
+  State<_GenerateFromDeliveryNotesNewInvoiceDialog> createState() => _GenerateFromDeliveryNotesNewInvoiceDialogState();
+}
+
+class _GenerateFromDeliveryNotesNewInvoiceDialogState extends State<_GenerateFromDeliveryNotesNewInvoiceDialog> {
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<AppointmentBloc, AppointmentState>(
+      builder: (context, state) {
+        return Dialog(
+          child: SizedBox(
+            width: 600,
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text('Versenden', style: TextStyles.h1),
+                  const Divider(),
+                  Gaps.h24,
+                  Text('Ausgewählte Belege: ${widget.listOfReceipts.length}', style: TextStyles.h3BoldPrimary),
+                  Gaps.h42,
+                  const Text('Generiert eine Sammelrechnung aus den ausgewählten Lieferscheinen.', style: TextStyles.h3Bold),
+                  Gaps.h54,
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: MyOutlinedButton(
+                      buttonText: 'Anlegen',
+                      buttonBackgroundColor: Colors.green,
+                      isLoading: state.isLoadingReceiptOnGenerate,
+                      onPressed: () => widget.appointmentBloc.add(OnGenerateFromDeliveryNotesNewInvoiceEvent()),
                     ),
                   ),
                 ],

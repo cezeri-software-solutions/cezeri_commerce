@@ -39,6 +39,8 @@ import '../shipping_methods/austrian_post/austrian_post_api.dart';
 import 'receipt_respository_helper.dart';
 import 'repository_impl_helper.dart';
 
+final logger = Logger();
+
 class ReceiptRespositoryImpl implements ReceiptRepository {
   final FirebaseFirestore db;
   final FirebaseAuth firebaseAuth;
@@ -143,7 +145,6 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
   Future<Either<FirebaseFailure, Receipt>> createReceiptManually(Receipt receipt) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
-    final logger = Logger();
 
     final now = DateTime.now();
     final curYear = now.year;
@@ -222,8 +223,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
             ReceiptTyp.offer => getColRef(currentUserUid, receiptTyp).where('offerStatus', isEqualTo: OfferStatus.open.name),
             ReceiptTyp.appointment => getColRef(currentUserUid, receiptTyp)
                 .where('appointmentStatus', whereIn: [AppointmentStatus.open.name, AppointmentStatus.partiallyCompleted.name]),
-            ReceiptTyp.deliveryNote =>
-              getColRef(currentUserUid, receiptTyp).where('paymentStatus', whereIn: [PaymentStatus.open.name, PaymentStatus.partiallyPaid.name]),
+            ReceiptTyp.deliveryNote => getColRef(currentUserUid, receiptTyp).where('invoiceId', isEqualTo: 0),
             ReceiptTyp.invoice ||
             ReceiptTyp.credit =>
               getColRef(currentUserUid, receiptTyp).where('paymentStatus', whereIn: [PaymentStatus.open.name, PaymentStatus.partiallyPaid.name]),
@@ -302,7 +302,6 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
   Future<Either<FirebaseFailure, List<Receipt>>> generateFromListOfOffersNewAppointments(List<Receipt> listOfOffers) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
-    final logger = Logger();
 
     final now = DateTime.now();
     final curYear = now.year;
@@ -416,7 +415,6 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
   ) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
-    final logger = Logger();
 
     final now = DateTime.now();
     final curYear = now.year;
@@ -559,7 +557,6 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
   ) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
-    final logger = Logger();
 
     final now = DateTime.now();
     final curYear = now.year;
@@ -735,10 +732,75 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
   }
 
   @override
+  Future<Either<FirebaseFailure, Receipt>> generateFromListOfDeliveryNotesNewInvoice(List<Receipt> listOfDeliveryNotes) async {
+    final isConnected = await checkInternetConnection();
+    if (!isConnected) return left(NoConnectionFailure());
+
+    final now = DateTime.now();
+    final curYear = now.year;
+    final curMonth = now.month;
+
+    final currentUserUid = firebaseAuth.currentUser!.uid;
+    final docRefSettings = db.collection('Settings').doc(currentUserUid).collection('Settings').doc(currentUserUid);
+    final docRefStatDashboard = db.collection('StatDashboard').doc(currentUserUid).collection('StatDashboard').doc('$curYear$curMonth');
+    final docRefMarketplace =
+        db.collection('Marketetplaces').doc(currentUserUid).collection('Marketetplaces').doc(listOfDeliveryNotes.first.marketplaceId);
+
+    Receipt? generatedReceipt;
+
+    try {
+      final settingsSnapshot = await docRefSettings.get();
+      final settings = MainSettings.fromJson(settingsSnapshot.data()!);
+
+      final dsMarketplace = await docRefMarketplace.get();
+      final marketplace = Marketplace.fromJson(dsMarketplace.data()!);
+
+      await db.runTransaction((transaction) async {
+        final dsStatDashboard = await transaction.get(docRefStatDashboard);
+
+        final phInvoice = Receipt.fromDeliveryNotesGenInvoice(deliveryNotes: listOfDeliveryNotes, settings: settings);
+        final docRefI = getColRef(currentUserUid, phInvoice.receiptTyp).doc();
+        final invoice = phInvoice.copyWith(id: docRefI.id);
+        transaction.set(docRefI, invoice.toJson());
+        generatedReceipt = invoice;
+
+        await createOrIncrementStatDashboardOnCreateReceipt(invoice, docRefStatDashboard, dsStatDashboard, transaction);
+        await createOrIncrementStatProductOnCreateReceipt(invoice, currentUserUid, db);
+
+        for (final deliveryNote in listOfDeliveryNotes) {
+          final updatedDeliveryNote = deliveryNote.copyWith(
+            invoiceId: invoice.invoiceId,
+            invoiceNumberAsString: invoice.invoiceNumberAsString,
+            lastEditingDate: now,
+          );
+          transaction.update(
+            getColRef(currentUserUid, deliveryNote.receiptTyp).doc(deliveryNote.id),
+            updatedDeliveryNote.toJson(),
+          );
+        }
+
+        final updatedMainSettings = settings.copyWith(nextInvoiceNumber: settings.nextInvoiceNumber + 1);
+        transaction.update(docRefSettings, updatedMainSettings.toJson());
+      });
+      if (generatedReceipt == null) return left(GeneralFailure());
+
+      final isSuccessfulSent = await sendCustomerEmails([generatedReceipt!], marketplace);
+      if (isSuccessfulSent) {
+        logger.i('Alle E-Mails wurden erfolgreich verschickt.');
+      } else {
+        logger.e('Eine oder meherer E-Mails konnten nicht verschickt werden!');
+      }
+
+      return right(generatedReceipt!);
+    } on FirebaseException {
+      return left(GeneralFailure());
+    }
+  }
+
+  @override
   Future<Either<FirebaseFailure, Receipt>> generateFromInvoiceNewCredit(Receipt invoice) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
-    final logger = Logger();
 
     final now = DateTime.now();
     final curYear = now.year;
@@ -843,7 +905,6 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
   }
 
   Future<ProductPresta?> getProductByIdFromPrestashop(int id, Marketplace marketplace) async {
-    final logger = Logger();
     ProductPresta? productPresta;
     final fosProductPresta = await productImportRepository.getProductByIdFromPrestashopAsJson(id, marketplace);
     fosProductPresta.fold(
@@ -857,7 +918,6 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
   }
 
   Future<Customer?> getCustomerByMarketplaceId(String marketplaceId, int customerIdMarketplace) async {
-    final logger = Logger();
     Customer? loadedCustomer;
     final fosCustomer = await customerRepository.getCustomerByCustomerIdInMarketplace(marketplaceId, customerIdMarketplace);
     fosCustomer.fold(
@@ -870,7 +930,6 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
   }
 
   Future<Customer?> createCustomerFromMarketplace(Customer customer) async {
-    final logger = Logger();
     Customer? createdCustomer;
     final fosCustomer = await customerRepository.createCustomer(customer);
     fosCustomer.fold(
@@ -882,8 +941,6 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
   }
 
   Future<Customer?> checkCustomerAddressIsUpToDateOrUpdateThem(Customer customer, Address addressInvoice, Address addressDelivery) async {
-    final logger = Logger();
-
     final indexOfStoredInvoiceAddress = customer.listOfAddress.indexWhere((e) => e == addressInvoice);
     final indexOfStoredDeliveryAddress = customer.listOfAddress.indexWhere((e) => e == addressDelivery);
 
@@ -939,7 +996,6 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
   }
 
   Future<Product?> loadProductToUpdate(ReceiptProduct receiptProduct) async {
-    final logger = Logger();
     Product? toUpdateProduct;
     final fosToUpdateProduct = await productRepository.getProduct(receiptProduct.productId);
     fosToUpdateProduct.fold(
@@ -965,7 +1021,6 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
   Future<Either<AbstractFailure, List<ToLoadAppointmentsFromMarketplace>>> getToLoadAppointmentsFromMarketplaces() async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
-    final logger = Logger();
 
     final currentUserUid = firebaseAuth.currentUser!.uid;
     final docRefMarketplaces = db.collection('Marketetplaces').doc(currentUserUid).collection('Marketetplaces').where('isActive', isEqualTo: true);
@@ -1006,7 +1061,6 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
   ) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
-    final logger = Logger();
 
     final marketplace = toLoadAppointment.marketplace;
     final api = PrestashopApi(Client(), PrestashopApiConfig(apiKey: marketplace.key, webserviceUrl: marketplace.fullUrl));
@@ -1035,7 +1089,6 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
   Future<Either<AbstractFailure, Receipt>> uploadLoadedAppointmentToFirestore(LoadedOrderFromMarketplace loadedAppointmentFromMarketplace) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
-    final logger = Logger();
 
     final now = DateTime.now();
     final curYear = now.year;
@@ -1483,7 +1536,6 @@ Future<List<Product>?> getListOfProducts({
   required Receipt receipt,
   required String currentUserUid,
 }) async {
-  final logger = Logger();
   try {
     final listOfProductsInDatabase = receipt.listOfReceiptProduct.where((e) => e.isFromDatabase).toList();
     logger.i(listOfProductsInDatabase.map((e) => e.productId));
@@ -1509,7 +1561,6 @@ Future<void> updateProductWarehouseQuantityIncremental({
   required Product product,
   required int newQuantityIncremental,
 }) async {
-  final logger = Logger();
   final docRefProduct = db.collection('Products').doc(currentUserUid).collection('Products').doc(product.id);
 
   try {
@@ -1521,8 +1572,6 @@ Future<void> updateProductWarehouseQuantityIncremental({
 }
 
 Future<ParcelTracking?> getParcelTracking(Receipt receipt, MainSettings ms, int nextDeliveryNoteNumber) async {
-  final logger = Logger();
-
   final carrier = ms.listOfCarriers.where((e) => e.carrierTyp == receipt.receiptCarrier.carrierTyp).firstOrNull;
   if (carrier == null) return null;
   final cCredentials = carrier.carrierKey;

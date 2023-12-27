@@ -80,7 +80,7 @@ Table productsBookingPageTable({
     if (bookingProduct.productId.isEmpty || bookingProduct.productId.startsWith('00000')) {
       return const BoxDecoration(color: Color.fromARGB(255, 252, 238, 199));
     }
-    if (rowIndex % 2 == 1) return const BoxDecoration(color: Color.fromARGB(255, 229, 244, 251));
+    if (rowIndex % 2 == 1) return const BoxDecoration(color: CustomColors.ultraLightBlue);
     return null;
   }
 

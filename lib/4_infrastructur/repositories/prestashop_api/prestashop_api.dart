@@ -30,6 +30,8 @@ import '../../../3_domain/entities_presta/stock_available_presta.dart';
 import 'patch_builders.dart';
 import 'put_builder.dart';
 
+final logger = Logger();
+
 class PrestashopApiConfig {
   final String apiKey;
   final String webserviceUrl;
@@ -212,7 +214,7 @@ class PrestashopApi with UiLoggy {
         builder,
       );
       payload = payloadDoPatch;
-    } 
+    }
     // else {
     //   final optionalOrder = await getOrderAsXml(orderId);
     //   if (optionalOrder.isNotPresent) return false;
@@ -257,7 +259,6 @@ class PrestashopApi with UiLoggy {
   }
 
   Future<bool> uploadProductImageFromUrl(String productID, ProductImage productImage) async {
-    final logger = Logger();
     String url = '${_conf.webserviceUrl}images/products/$productID/';
     String base64Auth = base64Encode(utf8.encode('${_conf.apiKey}:'));
 
@@ -296,7 +297,6 @@ class PrestashopApi with UiLoggy {
   }
 
   Future<bool> deleteProductImage(String productID, String imageID) async {
-    final logger = Logger();
     String url = '${_conf.webserviceUrl}images/products/$productID/$imageID';
     String base64Auth = base64Encode(utf8.encode('${_conf.apiKey}:'));
 
@@ -445,8 +445,6 @@ class PrestashopApi with UiLoggy {
 
   Future<bool> _doPatch(String uri, XmlBuilder builder) async {
     loggy.debug('Fetching $uri');
-    print('Fetching $uri');
-    print('apiKey: ${_conf.apiKey}');
     final document = builder.buildDocument();
     final response = await _http.patch(
       Uri.parse(uri),
@@ -456,21 +454,13 @@ class PrestashopApi with UiLoggy {
       },
       body: document.toXmlString(),
     );
-    print('--------------------------------');
-    print(response);
-    print('--------------------------------');
-    print(response.body);
-    print('--------------------------------');
-    print(document);
-    print('--------------------------------');
 
     if (response.statusCode == 200) {
+      logger.i('Artikel _doPatch erfolgreich durchgeführt');
       return true;
     }
     loggy.error(response);
-    print('---------- response.body START ----------------------');
-    print(response.body);
-    print('---------- response.body END ----------------------');
+    logger.e('Artikel _doPatch Fehler: $response');
     throw PrestashopApiException(response);
   }
 
@@ -485,16 +475,11 @@ class PrestashopApi with UiLoggy {
     );
 
     if (response.statusCode == 200) {
-      print('#################################################################################');
-      print(response.body);
-      print('#################################################################################');
+      logger.i('Artikel _doPut erfolgreich durchgeführt');
       return true;
     }
     loggy.error(response);
-    print('---------- response.body START ----------------------');
-    print(response.body);
-    print(response.statusCode);
-    print('---------- response.body END ----------------------');
+    logger.e('Artikel _doPut Fehler: $response');
     throw PrestashopApiException(response);
   }
 

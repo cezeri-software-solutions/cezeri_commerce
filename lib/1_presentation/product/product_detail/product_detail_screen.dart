@@ -23,13 +23,6 @@ class ProductDetailScreen extends StatelessWidget {
       listeners: [
         BlocListener<ProductBloc, ProductState>(
           bloc: productBloc,
-          listenWhen: (p, c) => p.triggerPop != c.triggerPop && c.triggerPop,
-          listener: (context, state) {
-            context.router.popTop();
-          },
-        ),
-        BlocListener<ProductBloc, ProductState>(
-          bloc: productBloc,
           listenWhen: (p, c) => p.fosProductSuppliersOnObserveOption != c.fosProductSuppliersOnObserveOption,
           listener: (context, state) {
             state.fosProductSuppliersOnObserveOption.fold(

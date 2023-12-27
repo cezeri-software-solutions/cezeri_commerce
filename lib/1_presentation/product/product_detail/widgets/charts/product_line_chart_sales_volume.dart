@@ -2,26 +2,19 @@ import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.da
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
-import '../../../3_domain/entities/statistic/stat_dashboard.dart';
-import '../../../3_domain/enums/enums.dart';
-import '../../../constants.dart';
+import '/3_domain/entities/statistic/stat_product.dart';
+import '/constants.dart';
 
-class LineChartView extends StatefulWidget {
-  final List<StatDashboard> listOfStatDashboards;
-  final ChartType chartTyp;
+class ProductLineChartSalesVolume extends StatelessWidget {
+  final List<StatProduct> statProducts;
 
-  const LineChartView({super.key, required this.listOfStatDashboards, required this.chartTyp});
+  ProductLineChartSalesVolume({super.key, required this.statProducts});
 
-  @override
-  State<LineChartView> createState() => _LineChartViewState();
-}
-
-class _LineChartViewState extends State<LineChartView> {
-  List<Color> gradientColorOnSalesVolume = [
+  final List<Color> gradientColorOnSalesVolume = [
     CustomColors.chartColorCyan,
     CustomColors.chartColorBlue,
   ];
-  List<Color> gradientColorOnIncomingOrders = [
+  final List<Color> gradientColorOnIncomingOrders = [
     CustomColors.chartColorYellow,
     CustomColors.chartColorRed,
   ];
@@ -29,28 +22,21 @@ class _LineChartViewState extends State<LineChartView> {
   @override
   Widget build(BuildContext context) {
     final themeData = Theme.of(context);
-    return Stack(
-      children: [
-        AspectRatio(
-          aspectRatio: 3.5, //* 1.7
-          child: Padding(
-            padding: const EdgeInsets.only(
-              right: 25, //18,
-              left: 0, //12,
-              top: 24,
-              bottom: 12,
-            ),
-            child: LineChart(mainData(themeData)),
-          ),
-        ),
-      ],
+
+    return LineChart(
+      mainDataSalesVolume(themeData),
+      duration: const Duration(milliseconds: 250),
     );
   }
 
-  LineChartData mainData(ThemeData themeData) {
+  LineChartData mainDataSalesVolume(ThemeData themeData) {
+    List<Color> gradientColorOnSalesVolume = [
+      CustomColors.chartColorCyan,
+      CustomColors.chartColorBlue,
+    ];
+
     DateTime now = DateTime.now();
-    Color touchToolTipTextColor =
-        widget.chartTyp == ChartType.incomingOrder ? CustomColors.chartColorOrange.withOpacity(0.8) : CustomColors.chartColorCyan.withOpacity(0.8);
+    Color touchToolTipTextColor = CustomColors.chartColorCyan.withOpacity(0.8);
     return LineChartData(
       lineTouchData: LineTouchData(
         touchTooltipData: LineTouchTooltipData(
@@ -66,26 +52,14 @@ class _LineChartViewState extends State<LineChartView> {
       gridData: FlGridData(
         show: true,
         drawVerticalLine: true,
-        //horizontalInterval: getGritInterval(getMaxValue(widget.listOfStatDashboards)),
+        //horizontalInterval: getGritInterval(getMaxValue(statProducts)),
         verticalInterval: 1,
-        getDrawingHorizontalLine: (value) {
-          return FlLine(
-            color: themeData.colorScheme.primaryContainer, //AppColors.mainGridLineColor,
-            strokeWidth: 1,
-          );
-        },
-        getDrawingVerticalLine: (value) {
-          return FlLine(
-            color: themeData.colorScheme.primaryContainer, //AppColors.mainGridLineColor,
-            strokeWidth: 1,
-          );
-        },
+        getDrawingHorizontalLine: (value) => FlLine(color: themeData.colorScheme.primaryContainer, strokeWidth: 1),
+        getDrawingVerticalLine: (value) => FlLine(color: themeData.colorScheme.primaryContainer, strokeWidth: 1),
       ),
       titlesData: FlTitlesData(
         show: true,
-        rightTitles: const AxisTitles(
-          sideTitles: SideTitles(showTitles: false),
-        ),
+        rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
         topTitles: const AxisTitles(
           sideTitles: SideTitles(showTitles: false),
           /* axisNameWidget: const Text(
@@ -119,27 +93,21 @@ class _LineChartViewState extends State<LineChartView> {
       minX: 0,
       maxX: 12,
       minY: 0,
-      maxY: getMaxValue(widget.listOfStatDashboards), // * 1.1,
+      maxY: ((getMaxValue(statProducts) * 1.05) / 10).ceil() * 10,
       lineBarsData: [
         LineChartBarData(
-          spots: widget.chartTyp == ChartType.incomingOrder ? listOfFlSpotIncomingOrders(now) : listOfFlSpotSalesVolumes(now),
+          spots: listOfFlSpotSalesVolumes(now),
           isCurved: true,
-          //curveSmoothness: 0.25,
+          // curveSmoothness: 0.25,
           preventCurveOverShooting: true,
-          gradient: LinearGradient(
-            colors: widget.chartTyp == ChartType.incomingOrder ? gradientColorOnIncomingOrders : gradientColorOnSalesVolume,
-          ),
+          gradient: LinearGradient(colors: gradientColorOnSalesVolume),
           barWidth: 3,
           isStrokeCapRound: true,
-          dotData: const FlDotData(
-            show: false,
-          ),
+          dotData: const FlDotData(show: true),
           belowBarData: BarAreaData(
             show: true,
             gradient: LinearGradient(
-              colors: widget.chartTyp == ChartType.incomingOrder
-                  ? gradientColorOnIncomingOrders.map((color) => color.withOpacity(0.3)).toList()
-                  : gradientColorOnSalesVolume.map((color) => color.withOpacity(0.3)).toList(),
+              colors: gradientColorOnSalesVolume.map((color) => color.withOpacity(0.3)).toList(),
             ),
           ),
         ),
@@ -163,15 +131,11 @@ class _LineChartViewState extends State<LineChartView> {
     );
   }
 
-  double getMaxValue(List<StatDashboard> listOfStatDashboards) {
+  double getMaxValue(List<StatProduct> listOfStatDashboards) {
     if (listOfStatDashboards.isEmpty) return 0;
     List<double> numbers = [];
     for (var statDashboard in listOfStatDashboards) {
-      if (widget.chartTyp == ChartType.incomingOrder) {
-        numbers.add(statDashboard.incomingOrders);
-      } else {
-        numbers.add(statDashboard.salesVolume);
-      }
+      numbers.add(statDashboard.salesVolume);
     }
 
     double max = double.negativeInfinity;
@@ -187,26 +151,13 @@ class _LineChartViewState extends State<LineChartView> {
     return double.parse(number.toStringAsFixed(0));
   }
 
-  List<FlSpot> listOfFlSpotIncomingOrders(DateTime now) {
-    List<FlSpot> spots = [];
-    for (int i = 0; i < 13; i++) {
-      DateTime monthYear = DateTime(now.year, now.month - 12 + i);
-      var matchingElement = widget.listOfStatDashboards.firstWhere(
-        (element) => DateTime(element.dateTime.year, element.dateTime.month) == monthYear,
-        orElse: () => StatDashboard.empty(),
-      );
-      spots.add(FlSpot(i.toDouble(), roundDouble(matchingElement.incomingOrders)));
-    }
-    return spots;
-  }
-
   List<FlSpot> listOfFlSpotSalesVolumes(DateTime now) {
     List<FlSpot> spots = [];
     for (int i = 0; i < 13; i++) {
       DateTime monthYear = DateTime(now.year, now.month - 12 + i);
-      var matchingElement = widget.listOfStatDashboards.firstWhere(
-        (element) => DateTime(element.dateTime.year, element.dateTime.month) == monthYear,
-        orElse: () => StatDashboard.empty(),
+      var matchingElement = statProducts.firstWhere(
+        (element) => DateTime(element.creationDate.year, element.creationDate.month) == monthYear,
+        orElse: () => StatProduct.empty(),
       );
       spots.add(FlSpot(i.toDouble(), roundDouble(matchingElement.salesVolume)));
     }

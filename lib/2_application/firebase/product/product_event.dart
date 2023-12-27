@@ -27,6 +27,14 @@ class OnProductSalesPriceControllerChangedEvent extends ProductEvent {
   OnProductSalesPriceControllerChangedEvent({required this.isNet});
 }
 
+class OnPoductHtmlTabValueChangedEvent extends ProductEvent {
+  final int value;
+
+  OnPoductHtmlTabValueChangedEvent({required this.value});
+}
+
+class OnProductShowDescriptionChangedEvent extends ProductEvent {}
+
 class OnProductDescriptionChangedEvent extends ProductEvent {
   final String? content;
 
@@ -59,6 +67,12 @@ class DeleteSelectedProductsEvent extends ProductEvent {
 class OnProductSearchControllerClearedEvent extends ProductEvent {}
 
 class OnSearchFieldSubmittedEvent extends ProductEvent {}
+
+class OnProductIsSelectedAllChangedEvent extends ProductEvent {
+  final bool isSelected;
+
+  OnProductIsSelectedAllChangedEvent({required this.isSelected});
+}
 
 class OnProductSelectedEvent extends ProductEvent {
   final Product product;
@@ -111,6 +125,13 @@ class UpdateQuantityOfProductEvent extends ProductEvent {
 
   UpdateQuantityOfProductEvent({required this.product, required this.newQuantity, required this.updateOnlyAvailableQuantity});
 }
+
+// * #################################################################################################################################
+// * StatProducts Chart
+
+class OnProductGetStatProductsEvent extends ProductEvent {}
+
+class OnProductChangeChartModeEvent extends ProductEvent {}
 
 // * #################################################################################################################################
 // * Massenbearbeitung

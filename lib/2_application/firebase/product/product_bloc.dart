@@ -18,9 +18,11 @@ import '../../../3_domain/entities/product/product.dart';
 import '../../../3_domain/entities/product/product_image.dart';
 import '../../../3_domain/entities/reorder/supplier.dart';
 import '../../../3_domain/entities/settings/main_settings.dart';
+import '../../../3_domain/entities/statistic/stat_product.dart';
 import '../../../3_domain/entities_presta/product_presta.dart';
 import '../../../3_domain/repositories/firebase/main_settings_respository.dart';
 import '../../../3_domain/repositories/firebase/product_repository.dart';
+import '../../../3_domain/repositories/firebase/stat_product_repository.dart';
 import '../../../3_domain/repositories/firebase/supplier_repository.dart';
 import '../../../3_domain/repositories/marketplace/marketplace_edit_repository.dart';
 
@@ -34,12 +36,14 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
   final MarketplaceEditRepository productEditRepository;
   final MainSettingsRepository mainSettingsRepository;
   final SupplierRepository supplierRepository;
+  final StatProductRepository statProductRepository;
 
   ProductBloc({
     required this.productRepository,
     required this.productEditRepository,
     required this.mainSettingsRepository,
     required this.supplierRepository,
+    required this.statProductRepository,
   }) : super(ProductState.initial()) {
 //? #########################################################################
 
@@ -71,6 +75,7 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
         isLoadingProductsOnObserve: false,
         fosProductsOnObserveOption: optionOf(failureOrSuccess),
       ));
+      emit(state.copyWith(fosProductsOnObserveOption: none()));
     });
 
 //? #########################################################################
@@ -92,6 +97,7 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
         (product) {
           emit(state.copyWith(product: product, firebaseFailure: null, isAnyFailure: false));
           add(SetProductControllerEvent(product: product));
+          add(OnProductGetStatProductsEvent());
         },
       );
 
@@ -214,6 +220,18 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
 
 //? #########################################################################
 
+    on<OnPoductHtmlTabValueChangedEvent>((event, emit) {
+      emit(state.copyWith(htmlTabValue: event.value));
+    });
+
+//? #########################################################################
+
+    on<OnProductShowDescriptionChangedEvent>((event, emit) {
+      emit(state.copyWith(showHtmlTexts: !state.showHtmlTexts));
+    });
+
+//? #########################################################################
+
     on<OnProductDescriptionChangedEvent>((event, emit) {
       bool isChanged = true;
       if (state.isDescriptionSetFirstTime) isChanged = false;
@@ -225,9 +243,15 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
 
     on<OnSaveProductDescriptionEvent>((event, emit) async {
       final newDescription = await state.descriptionController.getText();
-      emit(state.copyWith(isDescriptionChanged: false, product: state.product!.copyWith(description: newDescription), triggerPop: true));
-      emit(state.copyWith(triggerPop: false));
-    });
+      final newDescriptionShort = await state.descriptionShortController.getText();
+      emit(state.copyWith(
+          isDescriptionChanged: false,
+          product: state.product!.copyWith(
+            description: newDescription,
+            descriptionShort: newDescriptionShort,
+          ),
+          showHtmlTexts: false));
+    } );
 
 //? #########################################################################
 
@@ -239,12 +263,19 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
       failureOrSuccess.fold(
         (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
         (unit) {
-          emit(state.copyWith(firebaseFailure: null, isAnyFailure: false));
+          final indexAll = state.listOfAllProducts!.indexWhere((e) => e.id == state.product!.id);
+          List<Product> updatedListOfAll = List.from(state.listOfAllProducts!);
+          if (indexAll != -1) updatedListOfAll[indexAll] = state.product!;
+          final indexSelected = state.selectedProducts.indexWhere((e) => e.id == state.product!.id);
+          List<Product> updatedSelected = List.from(state.selectedProducts);
+          if (indexSelected != -1) updatedSelected[indexSelected] = state.product!;
+          emit(state.copyWith(listOfAllProducts: updatedListOfAll, selectedProducts: updatedSelected, firebaseFailure: null, isAnyFailure: false));
           isUpdateInFirestoreSucceeded = true;
         },
       );
 
       if (isUpdateInFirestoreSucceeded) add(OnEditProductInPresta(product: state.product!));
+      add(OnSearchFieldSubmittedEvent());
 
       emit(state.copyWith(
         isLoadingProductOnUpdate: false,
@@ -280,6 +311,38 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
         fosProductOnUpdateQuantityOption: optionOf(failureOrSuccess),
       ));
       emit(state.copyWith(fosProductOnUpdateQuantityOption: none()));
+    });
+
+// * #################################################################################################################################
+// * StatProducts Chart
+
+//? #########################################################################
+
+    on<OnProductGetStatProductsEvent>((event, emit) async {
+      emit(state.copyWith(isLoadingStatProductsOnObserve: true));
+
+      final fosSettings = await statProductRepository.getStatProductsOfProductLast13(state.product!.id);
+      fosSettings.fold(
+        (failure) => emit(state.copyWith(firebaseFailureChart: failure)),
+        (statProducts) => emit(state.copyWith(listOfStatProducts: statProducts, firebaseFailureChart: null)),
+      );
+
+      final failureOrSuccess = await productRepository.getListOfProducts();
+      failureOrSuccess.fold(
+        (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
+        (listOfProduct) {
+          emit(state.copyWith(listOfAllProducts: listOfProduct, selectedProducts: [], firebaseFailure: null, isAnyFailure: false));
+          add(OnSearchFieldSubmittedEvent());
+        },
+      );
+
+      emit(state.copyWith(isLoadingStatProductsOnObserve: false));
+    });
+
+//? #########################################################################
+
+    on<OnProductChangeChartModeEvent>((event, emit) async {
+      emit(state.copyWith(isShowingSalesVolumeOnChart: !state.isShowingSalesVolumeOnChart));
     });
 
 // * #################################################################################################################################
@@ -467,14 +530,28 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
 
 //? #########################################################################
 
+    on<OnProductIsSelectedAllChangedEvent>((event, emit) async {
+      List<Product> products = [];
+      bool isSelectedAll = false;
+      if (event.isSelected) {
+        isSelectedAll = true;
+        products = List.from(state.listOfFilteredProducts!);
+      }
+      emit(state.copyWith(isSelectedAllProducts: isSelectedAll, selectedProducts: products));
+    });
+
+//? #########################################################################
+
     on<OnProductSelectedEvent>((event, emit) async {
       List<Product> products = List.from(state.selectedProducts);
-      if (products.any((element) => element.id == event.product.id)) {
-        products.removeWhere((element) => element.id == event.product.id);
+      if (products.any((e) => e.id == event.product.id)) {
+        products.removeWhere((e) => e.id == event.product.id);
       } else {
         products.add(event.product);
       }
-      emit(state.copyWith(selectedProducts: products));
+      emit(state.copyWith(
+          isSelectedAllProducts: state.isSelectedAllProducts && products.length < state.selectedProducts.length ? false : state.isSelectedAllProducts,
+          selectedProducts: products));
     });
 
 //? #########################################################################

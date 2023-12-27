@@ -189,7 +189,7 @@ class ReorderDetailProductsCard extends StatelessWidget {
                     state.isLoadingOnObserveReorderDetailProducts
                         ? const MyCircularProgressIndicator()
                         : TextButton.icon(
-                            onPressed: () => state.listOfProducts == null
+                            onPressed: () => state.listOfProducts == null || state.isDateRangeChanged
                                 ? reorderDetailBloc.add(OnReorderDetailGetProductsEvent())
                                 : showReorderDetailProductsDialog(context, reorderDetailBloc),
                             icon: const Icon(Icons.add, color: Colors.green),

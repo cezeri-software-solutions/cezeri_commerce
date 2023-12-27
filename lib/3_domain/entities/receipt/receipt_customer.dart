@@ -17,10 +17,10 @@ class ReceiptCustomer {
   final String email;
   final Gender gender;
   final String birthday;
-  final String phone; //* NEU
-  final String phoneMobile; //* NEU
+  final String phone;
+  final String phoneMobile;
   final List<Address> listOfAddress;
-  final String uidNumber; //* NEU
+  final String uidNumber;
   final String taxNumber;
 
   ReceiptCustomer({

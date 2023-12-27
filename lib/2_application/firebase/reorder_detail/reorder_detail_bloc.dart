@@ -152,11 +152,6 @@ class ReorderDetailBloc extends Bloc<ReorderDetailEvent, ReorderDetailState> {
             List<StatProductReorder> statProductsReorderInvoice = [];
             List<StatProductReorder> statProductsReorderAppointment = [];
             for (final statProduct in statProducts) {
-              if (statProduct.articleNumber == 'ADBL_2303') {
-                logger.i('Dodger statProduct Länge: ${statProduct.listOfStatProductDetail.length}');
-                logger.i('Dodger: $statProduct');
-                logger.i('Dodger listOfStatProductDetail.first: ${statProduct.listOfStatProductDetail.first}');
-              }
               for (final statProductDetail in statProduct.listOfStatProductDetail) {
                 if (!(statProductDetail.creationDate.isAfter(state.statProductDateRange!.start) &&
                     statProductDetail.creationDate.isBefore(state.statProductDateRange!.end))) continue;
@@ -182,6 +177,7 @@ class ReorderDetailBloc extends Bloc<ReorderDetailEvent, ReorderDetailState> {
               }
             }
             emit(state.copyWith(
+              isDateRangeChanged: false,
               listOfStatProductsInvoice: statProductsReorderInvoice,
               listOfStatProductsAppointment: statProductsReorderAppointment,
             ));
@@ -236,6 +232,7 @@ class ReorderDetailBloc extends Bloc<ReorderDetailEvent, ReorderDetailState> {
           start: event.dateRange.start,
           end: DateTime(event.dateRange.end.year, event.dateRange.end.month, event.dateRange.end.day + 1),
         ),
+        isDateRangeChanged: true,
       ));
     });
 
@@ -290,6 +287,7 @@ class ReorderDetailBloc extends Bloc<ReorderDetailEvent, ReorderDetailState> {
 //? #########################################################################
 
     on<OnReorderDetailProductSearchTextClearedEvent>((event, emit) async {
+      emit(state.copyWith(productSearchController: TextEditingController()));
       add(OnReorderDetailSetFilteredProductsEvent());
     });
 

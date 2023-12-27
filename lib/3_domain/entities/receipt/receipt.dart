@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.dart';
 import 'package:cezeri_commerce/3_domain/entities/carrier/carrier_product.dart';
 import 'package:json_annotation/json_annotation.dart';
@@ -57,6 +58,7 @@ class Receipt {
   final String appointmentNumberAsString;
   final int deliveryNoteId;
   final String deliveryNoteNumberAsString;
+  final List<int>? listOfDeliveryNoteIds; // Wenn aus mehereren Lieferscheinen eine Rechnung generieret wird
   final int invoiceId;
   final String invoiceNumberAsString;
   final int creditId;
@@ -137,6 +139,7 @@ class Receipt {
     required this.appointmentNumberAsString,
     required this.deliveryNoteId,
     required this.deliveryNoteNumberAsString,
+    required this.listOfDeliveryNoteIds,
     required this.invoiceId,
     required this.invoiceNumberAsString,
     required this.creditId,
@@ -270,6 +273,99 @@ class Receipt {
       receiptTyp: ReceiptTyp.invoice,
       appointmentStatus: AppointmentStatus.completed,
       receiptDocumentText: settings.invoiceDocumentText,
+      creationDate: now,
+      creationDateInt: now.microsecondsSinceEpoch,
+      lastEditingDate: now,
+    );
+  }
+
+  factory Receipt.fromDeliveryNotesGenInvoice({
+    required List<Receipt> deliveryNotes,
+    required MainSettings settings,
+  }) {
+    final now = DateTime.now();
+
+    if (deliveryNotes.length == 1) {
+      return deliveryNotes.first.copyWith(
+        deliveryNoteId: deliveryNotes.first.deliveryNoteId,
+        deliveryNoteNumberAsString: deliveryNotes.first.deliveryNoteNumberAsString,
+        invoiceId: settings.nextInvoiceNumber,
+        invoiceNumberAsString: settings.invoicePraefix + settings.nextInvoiceNumber.toString(),
+        receiptTyp: ReceiptTyp.invoice,
+        appointmentStatus: AppointmentStatus.completed,
+        receiptDocumentText: settings.invoiceDocumentText,
+        creationDate: now,
+        creationDateInt: now.microsecondsSinceEpoch,
+        lastEditingDate: now,
+      );
+    }
+
+    final listOfDeliveryNoteIds = deliveryNotes.map((e) => e.deliveryNoteId).toList();
+    final weight = deliveryNotes.map((e) => e.weight).toList().fold(0.0, (a, b) => a + b);
+    final totalGross = deliveryNotes.map((e) => e.totalGross).toList().fold(0.0, (a, b) => a + b);
+    final totalNet = totalGross / taxToCalc(deliveryNotes.first.tax.taxRate);
+    final totalTax = totalGross - totalNet;
+    final subTotalGross = deliveryNotes.map((e) => e.subTotalGross).toList().fold(0.0, (a, b) => a + b);
+    final subTotalNet = subTotalGross / taxToCalc(deliveryNotes.first.tax.taxRate);
+    final subTotalTax = subTotalGross - subTotalNet;
+    final totalShippingGross = deliveryNotes.map((e) => e.totalShippingGross).toList().fold(0.0, (a, b) => a + b);
+    final totalShippingNet = totalShippingGross / taxToCalc(deliveryNotes.first.tax.taxRate);
+    final totalShippingTax = totalShippingGross - totalShippingNet;
+    final discountGross = deliveryNotes.map((e) => e.discountGross).toList().fold(0.0, (a, b) => a + b);
+    final discountNet = discountGross / taxToCalc(deliveryNotes.first.tax.taxRate);
+    final discountTax = discountGross - discountNet;
+    final discountPercentAmountGross = deliveryNotes.map((e) => e.discountPercentAmountGross).toList().fold(0.0, (a, b) => a + b);
+    final discountPercentAmountNet = discountPercentAmountGross / taxToCalc(deliveryNotes.first.tax.taxRate);
+    final discountPercentAmountTax = discountPercentAmountGross - discountPercentAmountNet;
+    final additionalAmountGross = deliveryNotes.map((e) => e.additionalAmountGross).toList().fold(0.0, (a, b) => a + b);
+    final additionalAmountNet = additionalAmountGross / taxToCalc(deliveryNotes.first.tax.taxRate);
+    final additionalAmountTax = additionalAmountGross - additionalAmountNet;
+    List<Payment> listOfPayments = [];
+    for (final deliveryNote in deliveryNotes) {
+      listOfPayments.addAll(deliveryNote.listOfPayments);
+    }
+    List<ReceiptProduct> listOfReceiptProduct = [];
+    for (final deliveryNote in deliveryNotes) {
+      listOfReceiptProduct.addAll(deliveryNote.listOfReceiptProduct);
+    }
+    List<ParcelTracking> listOfParcelTracking = [];
+    for (final deliveryNote in deliveryNotes) {
+      listOfParcelTracking.addAll(deliveryNote.listOfParcelTracking);
+    }
+
+    return deliveryNotes.first.copyWith(
+      listOfDeliveryNoteIds: listOfDeliveryNoteIds,
+      invoiceId: settings.nextInvoiceNumber,
+      invoiceNumberAsString: settings.invoicePraefix + settings.nextInvoiceNumber.toString(),
+      receiptTyp: ReceiptTyp.invoice,
+      appointmentStatus: AppointmentStatus.completed,
+      receiptDocumentText: settings.invoiceDocumentText,
+      weight: weight,
+      totalGross: totalGross,
+      totalNet: totalNet,
+      totalTax: totalTax,
+      subTotalGross: subTotalGross,
+      subTotalNet: subTotalNet,
+      subTotalTax: subTotalTax,
+      totalShippingGross: totalShippingGross,
+      totalShippingNet: totalShippingNet,
+      totalShippingTax: totalShippingTax,
+      discountGross: discountGross,
+      discountNet: discountNet,
+      discountTax: discountTax,
+      discountPercentAmountGross: discountPercentAmountGross,
+      discountPercentAmountNet: discountPercentAmountNet,
+      discountPercentAmountTax: discountPercentAmountTax,
+      additionalAmountGross: additionalAmountGross,
+      additionalAmountNet: additionalAmountNet,
+      additionalAmountTax: additionalAmountTax,
+      profit: deliveryNotes.map((e) => e.profit).toList().fold(0.0, (a, b) => a! + b),
+      profitExclShipping: deliveryNotes.map((e) => e.profitExclShipping).toList().fold(0.0, (a, b) => a! + b),
+      profitExclWrapping: deliveryNotes.map((e) => e.profitExclWrapping).toList().fold(0.0, (a, b) => a! + b),
+      profitExclShippingAndWrapping: deliveryNotes.map((e) => e.profitExclShippingAndWrapping).toList().fold(0.0, (a, b) => a! + b),
+      listOfPayments: listOfPayments,
+      listOfReceiptProduct: listOfReceiptProduct,
+      listOfParcelTracking: listOfParcelTracking,
       creationDate: now,
       creationDateInt: now.microsecondsSinceEpoch,
       lastEditingDate: now,
@@ -523,6 +619,7 @@ class Receipt {
       appointmentNumberAsString: mainSettings.appointmentPraefix + mainSettings.nextAppointmentNumber.toString(),
       deliveryNoteId: 0,
       deliveryNoteNumberAsString: '',
+      listOfDeliveryNoteIds: [],
       invoiceId: 0,
       invoiceNumberAsString: '',
       creditId: 0,
@@ -608,6 +705,7 @@ class Receipt {
       appointmentNumberAsString: '',
       deliveryNoteId: 0,
       deliveryNoteNumberAsString: '',
+      listOfDeliveryNoteIds: [],
       invoiceId: 0,
       invoiceNumberAsString: '',
       creditId: 0,
@@ -690,6 +788,7 @@ class Receipt {
     String? appointmentNumberAsString,
     int? deliveryNoteId,
     String? deliveryNoteNumberAsString,
+    List<int>? listOfDeliveryNoteIds,
     int? invoiceId,
     String? invoiceNumberAsString,
     int? creditId,
@@ -770,6 +869,7 @@ class Receipt {
       appointmentNumberAsString: appointmentNumberAsString ?? this.appointmentNumberAsString,
       deliveryNoteId: deliveryNoteId ?? this.deliveryNoteId,
       deliveryNoteNumberAsString: deliveryNoteNumberAsString ?? this.deliveryNoteNumberAsString,
+      listOfDeliveryNoteIds: listOfDeliveryNoteIds ?? this.listOfDeliveryNoteIds,
       invoiceId: invoiceId ?? this.invoiceId,
       invoiceNumberAsString: invoiceNumberAsString ?? this.invoiceNumberAsString,
       creditId: creditId ?? this.creditId,

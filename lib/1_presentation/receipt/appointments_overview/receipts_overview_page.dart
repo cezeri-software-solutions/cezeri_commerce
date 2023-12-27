@@ -10,23 +10,24 @@ import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
 import 'package:printing/printing.dart';
 
-import '../../../2_application/firebase/appointment/appointment_bloc.dart';
-import '../../../2_application/firebase/marketplace/marketplace_bloc.dart';
-import '../../../3_domain/entities/marketplace/marketplace.dart';
-import '../../../3_domain/entities/receipt/receipt.dart';
-import '../../../3_domain/entities/receipt/receipt_product.dart';
-import '../../../3_domain/enums/enums.dart';
-import '../../../3_domain/pdf/pdf_api_mobile.dart';
-import '../../../3_domain/pdf/pdf_api_web.dart';
-import '../../../3_domain/pdf/pdf_receipt_generator.dart';
-import '../../../constants.dart';
-import '../../../core/firebase_failures.dart';
-import '../../../routes/router.gr.dart';
 import '../../core/functions/mixed_functions.dart';
+import '../../core/widgets/my_animated_expansion_container.dart';
 import '../../core/widgets/my_avatar.dart';
 import '../../core/widgets/my_country_flag.dart';
 import '../appointment_detail/appointment_detail_screen.dart';
 import '../widgets/receipts_overview_carrier_bar.dart';
+import '/2_application/firebase/appointment/appointment_bloc.dart';
+import '/2_application/firebase/marketplace/marketplace_bloc.dart';
+import '/3_domain/entities/marketplace/marketplace.dart';
+import '/3_domain/entities/receipt/receipt.dart';
+import '/3_domain/entities/receipt/receipt_product.dart';
+import '/3_domain/enums/enums.dart';
+import '/3_domain/pdf/pdf_api_mobile.dart';
+import '/3_domain/pdf/pdf_api_web.dart';
+import '/3_domain/pdf/pdf_receipt_generator.dart';
+import '/constants.dart';
+import '/core/firebase_failures.dart';
+import '/routes/router.gr.dart';
 
 class ReceiptsOverviewPage extends StatefulWidget {
   final AppointmentBloc appointmentBloc;
@@ -177,7 +178,6 @@ class __AppointmentContainerState extends State<_AppointmentContainer> {
                                     child: Center(child: Text(widget.receipt.listOfReceiptProduct.length.toString())),
                                   )
                                 : const SizedBox(),
-                            //Gaps.h10,
                             IconButton(
                               padding: EdgeInsets.zero,
                               onPressed: () => widget.appointmentBloc.add(SetAppointmentIsExpandedEvent(index: widget.index)),
@@ -360,8 +360,9 @@ class __AppointmentContainerState extends State<_AppointmentContainer> {
                   const SizedBox(),
                 ],
               ),
-              if (state.isExpanded[widget.index])
-                Padding(
+              MyAnimatedExpansionContainer(
+                isExpanded: state.isExpanded[widget.index],
+                child: Container(
                   padding: const EdgeInsets.all(12),
                   child: Card(
                     child: Padding(
@@ -397,7 +398,8 @@ class __AppointmentContainerState extends State<_AppointmentContainer> {
                       ),
                     ),
                   ),
-                )
+                ),
+              ),
             ],
           ),
         );

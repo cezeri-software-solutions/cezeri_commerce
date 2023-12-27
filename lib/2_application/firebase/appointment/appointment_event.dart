@@ -76,6 +76,8 @@ class OnGenerateFromAppointmentEvent extends AppointmentEvent {
   OnGenerateFromAppointmentEvent({required this.generateDeliveryNote, required this.generateInvoice});
 }
 
+class OnGenerateFromDeliveryNotesNewInvoiceEvent extends AppointmentEvent {}
+
 class OnGenerateFromInvoiceNewCreditEvent extends AppointmentEvent {}
 
 //* --- helper --- *//

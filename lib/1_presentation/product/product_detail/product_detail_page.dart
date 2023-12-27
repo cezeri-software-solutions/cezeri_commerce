@@ -8,6 +8,8 @@ import '../../../3_domain/entities/product/marketplace_product_presta.dart';
 import '../../../3_domain/entities/product/product.dart';
 import '../../../3_domain/enums/enums.dart';
 import 'product_detail_screen.dart';
+import 'widgets/charts/product_chart_card.dart';
+import 'widgets/description_page.dart';
 import 'widgets/edit_product_marketplace.dart';
 import 'widgets/product_detail_widgets.dart';
 import 'widgets/product_images_container.dart';
@@ -53,6 +55,8 @@ class ProductDetailPage extends StatelessWidget {
           ],
         );
 
+        if (state.showHtmlTexts) return DescriptionPage(productBloc: productBloc);
+
         return Scaffold(
           appBar: appBar,
           body: SafeArea(
@@ -75,6 +79,8 @@ class ProductDetailPage extends StatelessWidget {
                                     ProductMasterCard(productBloc: productBloc),
                                     Gaps.h16,
                                     PurchaseCard(productBloc: productBloc),
+                                    Gaps.h16,
+                                    ProductChartCard(productBloc: productBloc),
                                   ],
                                 ),
                               ),

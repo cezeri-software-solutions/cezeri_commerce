@@ -113,6 +113,40 @@ XmlDocument productUpdater({
   } else {
     if (description != null) descriptionElement.findAllElements('language').first.innerText = product.description;
   }
+  final List<Multilanguage>? descriptionShortMultilanguage = productPresta.descriptionShortMultilanguage;
+  final List<ProductLanguage> listOfDescriptionShort = product.listOfDescriptionShort;
+  final String? descriptionShort = productPresta.descriptionShort;
+  var descriptionShortElement = productElement.findAllElements('description_short').first;
+  if (descriptionShortMultilanguage != null && descriptionShortMultilanguage.isNotEmpty) {
+    if (marketplaceLanguages != null && marketplaceLanguages.isNotEmpty) {
+      for (final valueLanguage in descriptionShortMultilanguage) {
+        final languagePresta = marketplaceLanguages.where((lang) => lang.id.toString() == valueLanguage.id).firstOrNull;
+        if (languagePresta != null) {
+          final productLanguage = listOfDescriptionShort.where((e) => e.isoCode.toUpperCase() == languagePresta.isoCode.toUpperCase()).firstOrNull;
+          if (productLanguage != null) {
+            var languageElement = descriptionShortElement
+                .findElements('language')
+                .where((element) => element.getAttribute('id') == languagePresta.id.toString())
+                .firstOrNull;
+            if (languageElement != null) {
+              final value = languagePresta.isoCode.toUpperCase() == 'DE' ? product.descriptionShort : productLanguage.value;
+              languageElement.innerText = value;
+            }
+          } else {
+            if (languagePresta.isoCode.toUpperCase() == 'DE') {
+              var languageElement = descriptionShortElement
+                  .findElements('language')
+                  .where((element) => element.getAttribute('id') == languagePresta.id.toString())
+                  .firstOrNull;
+              if (languageElement != null) languageElement.innerText = product.descriptionShort;
+            }
+          }
+        }
+      }
+    }
+  } else {
+    if (descriptionShort != null) descriptionShortElement.findAllElements('language').first.innerText = product.descriptionShort;
+  }
 
   //* #################################################################
   //* Elements to be removed

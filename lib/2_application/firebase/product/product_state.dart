@@ -36,12 +36,20 @@ class ProductState {
 
   //* Prestashop States
   final Option<Either<PrestaFailure, Unit>> fosProductOnEditQuantityPrestaOption;
+  //* Chart
+  final List<StatProduct>? listOfStatProducts;
+  final bool isShowingSalesVolumeOnChart;
+  final bool isLoadingStatProductsOnObserve;
+  final FirebaseFailure? firebaseFailureChart;
   //* Helpers
   final TextEditingController productSearchController;
   final bool isDescriptionSetFirstTime;
   final bool isDescriptionChanged;
   final bool triggerPop;
   final bool isWidthSearchActive;
+  final bool isSelectedAllProducts;
+  final bool showHtmlTexts;
+  final int htmlTabValue;
   //* Product Images
   final bool isProductImagesEdited;
   final bool isSelectedAllImages;
@@ -68,6 +76,7 @@ class ProductState {
   final TextEditingController depthController;
 
   final HtmlEditorController descriptionController;
+  final HtmlEditorController descriptionShortController;
 
   const ProductState({
     required this.product,
@@ -101,11 +110,18 @@ class ProductState {
     required this.fosMassEditActivateProductMarketplaceOption,
     required this.fosMassEditProductsOption,
     required this.fosProductOnEditQuantityPrestaOption,
+    required this.listOfStatProducts,
+    required this.isShowingSalesVolumeOnChart,
+    required this.isLoadingStatProductsOnObserve,
+    required this.firebaseFailureChart,
     required this.productSearchController,
     required this.isDescriptionSetFirstTime,
     required this.isDescriptionChanged,
     required this.triggerPop,
     required this.isWidthSearchActive,
+    required this.isSelectedAllProducts,
+    required this.showHtmlTexts,
+    required this.htmlTabValue,
     required this.isProductImagesEdited,
     required this.isSelectedAllImages,
     required this.selectedProductImages,
@@ -129,6 +145,7 @@ class ProductState {
     required this.heightController,
     required this.depthController,
     required this.descriptionController,
+    required this.descriptionShortController,
   });
 
   factory ProductState.initial() {
@@ -164,11 +181,18 @@ class ProductState {
       fosMassEditActivateProductMarketplaceOption: none(),
       fosMassEditProductsOption: none(),
       fosProductOnEditQuantityPrestaOption: none(),
+      listOfStatProducts: null,
+      isShowingSalesVolumeOnChart: true,
+      isLoadingStatProductsOnObserve: false,
+      firebaseFailureChart: null,
       productSearchController: TextEditingController(),
       isDescriptionSetFirstTime: true,
       isDescriptionChanged: false,
       triggerPop: false,
       isWidthSearchActive: false,
+      isSelectedAllProducts: false,
+      showHtmlTexts: false,
+      htmlTabValue: 0,
       isProductImagesEdited: false,
       isSelectedAllImages: false,
       selectedProductImages: const [],
@@ -192,6 +216,7 @@ class ProductState {
       heightController: TextEditingController(),
       depthController: TextEditingController(),
       descriptionController: HtmlEditorController(),
+      descriptionShortController: HtmlEditorController(),
     );
   }
 
@@ -227,11 +252,18 @@ class ProductState {
     Option<Either<FirebaseFailure, Unit>>? fosMassEditActivateProductMarketplaceOption,
     Option<Either<FirebaseFailure, Unit>>? fosMassEditProductsOption,
     Option<Either<PrestaFailure, Unit>>? fosProductOnEditQuantityPrestaOption,
+    List<StatProduct>? listOfStatProducts,
+    bool? isShowingSalesVolumeOnChart,
+    bool? isLoadingStatProductsOnObserve,
+    FirebaseFailure? firebaseFailureChart,
     TextEditingController? productSearchController,
     bool? isDescriptionSetFirstTime,
     bool? isDescriptionChanged,
     bool? triggerPop,
     bool? isWidthSearchActive,
+    bool? isSelectedAllProducts,
+    bool? showHtmlTexts,
+    int? htmlTabValue,
     bool? isProductImagesEdited,
     bool? isSelectedAllImages,
     List<ProductImage>? selectedProductImages,
@@ -255,6 +287,7 @@ class ProductState {
     TextEditingController? heightController,
     TextEditingController? depthController,
     HtmlEditorController? descriptionController,
+    HtmlEditorController? descriptionShortController,
   }) {
     return ProductState(
       product: product ?? this.product,
@@ -289,11 +322,18 @@ class ProductState {
       fosMassEditActivateProductMarketplaceOption: fosMassEditActivateProductMarketplaceOption ?? this.fosMassEditActivateProductMarketplaceOption,
       fosMassEditProductsOption: fosMassEditProductsOption ?? this.fosMassEditProductsOption,
       fosProductOnEditQuantityPrestaOption: fosProductOnEditQuantityPrestaOption ?? this.fosProductOnEditQuantityPrestaOption,
+      listOfStatProducts: listOfStatProducts ?? this.listOfStatProducts,
+      isShowingSalesVolumeOnChart: isShowingSalesVolumeOnChart ?? this.isShowingSalesVolumeOnChart,
+      isLoadingStatProductsOnObserve: isLoadingStatProductsOnObserve ?? this.isLoadingStatProductsOnObserve,
+      firebaseFailureChart: firebaseFailureChart ?? this.firebaseFailureChart,
       productSearchController: productSearchController ?? this.productSearchController,
       isDescriptionSetFirstTime: isDescriptionSetFirstTime ?? this.isDescriptionSetFirstTime,
       isDescriptionChanged: isDescriptionChanged ?? this.isDescriptionChanged,
       triggerPop: triggerPop ?? this.triggerPop,
       isWidthSearchActive: isWidthSearchActive ?? this.isWidthSearchActive,
+      isSelectedAllProducts: isSelectedAllProducts ?? this.isSelectedAllProducts,
+      showHtmlTexts: showHtmlTexts ?? this.showHtmlTexts,
+      htmlTabValue: htmlTabValue ?? this.htmlTabValue,
       isProductImagesEdited: isProductImagesEdited ?? this.isProductImagesEdited,
       isSelectedAllImages: isSelectedAllImages ?? this.isSelectedAllImages,
       selectedProductImages: selectedProductImages ?? this.selectedProductImages,
@@ -317,6 +357,7 @@ class ProductState {
       heightController: heightController ?? this.heightController,
       depthController: depthController ?? this.depthController,
       descriptionController: descriptionController ?? this.descriptionController,
+      descriptionShortController: descriptionShortController ?? this.descriptionShortController,
     );
   }
 }

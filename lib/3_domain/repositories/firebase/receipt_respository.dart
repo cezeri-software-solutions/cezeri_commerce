@@ -29,6 +29,7 @@ abstract class ReceiptRepository {
     bool generateDeliveryNote,
     bool generateInvoice,
   );
+  Future<Either<FirebaseFailure, Receipt>> generateFromListOfDeliveryNotesNewInvoice(List<Receipt> listOfDeliveryNotes);
   Future<Either<FirebaseFailure, Receipt>> generateFromInvoiceNewCredit(Receipt invoice);
   Future<Either<FirebaseFailure, Unit>> sendEmails();
   //* ###### Load Appointments from Marketplaces #####

@@ -85,7 +85,7 @@ class ReordersOverviewPage extends StatelessWidget {
 
           for (final reorder in reorderList) {
             BoxDecoration? rowDecoration;
-            if (rowIndex % 2 == 1) rowDecoration = const BoxDecoration(color: Color.fromARGB(255, 229, 244, 251));
+            if (rowIndex % 2 == 1) rowDecoration = const BoxDecoration(color: CustomColors.ultraLightBlue);
 
             // Datenzeile hinzufügen
             rows.add(TableRow(

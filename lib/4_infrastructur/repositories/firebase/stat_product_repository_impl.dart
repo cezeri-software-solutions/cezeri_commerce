@@ -23,10 +23,10 @@ class StatProductRepositoryImpl implements StatProductRepository {
     final curMonth = now.month;
 
     final currentUserUid = firebaseAuth.currentUser!.uid;
-    var docRef = db.collection('StatProducts').doc(currentUserUid).collection('$curYear$curMonth');
+    final docRef = db.collection('StatProducts').doc(currentUserUid).collection('$curYear$curMonth');
 
     try {
-      var statProducts = await docRef.get().then((value) => value.docs.map((querySnapshot) => StatProduct.fromJson(querySnapshot.data())).toList());
+      final statProducts = await docRef.get().then((value) => value.docs.map((querySnapshot) => StatProduct.fromJson(querySnapshot.data())).toList());
 
       return right(statProducts);
     } on FirebaseException {
@@ -41,22 +41,67 @@ class StatProductRepositoryImpl implements StatProductRepository {
 
     final startDate = dateRange.start;
     final endDate = dateRange.end;
-    DateTime calcDate = DateTime(endDate.year, endDate.month);
+    DateTime calcDate = endDate;
 
     final currentUserUid = firebaseAuth.currentUser!.uid;
 
     try {
       List<StatProduct> listOfStatProducts = [];
       do {
-        var docRef = db.collection('StatProducts').doc(currentUserUid).collection('${calcDate.year}${calcDate.month.toString().padLeft(2, '0')}');
-        var statProducts = await docRef.get().then((value) => value.docs.map((querySnapshot) => StatProduct.fromJson(querySnapshot.data())).toList());
+        final docRef = db.collection('StatProducts').doc(currentUserUid).collection('${calcDate.year}${calcDate.month.toString().padLeft(2, '0')}');
+        final statProducts =
+            await docRef.get().then((value) => value.docs.map((querySnapshot) => StatProduct.fromJson(querySnapshot.data())).toList());
         listOfStatProducts.addAll(statProducts);
-        calcDate = DateTime(calcDate.year, calcDate.month - 1);
+        calcDate = subtractMonth(calcDate);
       } while (calcDate.isAfter(startDate) || (calcDate.year == startDate.year && calcDate.month == startDate.month));
 
       return right(listOfStatProducts);
     } on FirebaseException {
       return left(GeneralFailure());
+    }
+  }
+
+  @override
+  Future<Either<FirebaseFailure, List<StatProduct>>> getStatProductsOfProductLast13(String id) async {
+    final isConnected = await checkInternetConnection();
+    if (!isConnected) return left(NoConnectionFailure());
+
+    final now = DateTime.now();
+    final startDate = DateTime(now.year - 1, now.month);
+    DateTime calcDate = now;
+
+    final currentUserUid = firebaseAuth.currentUser!.uid;
+
+    List<StatProduct> listOfStatProducts = [];
+
+    try {
+      while (calcDate.isAfter(startDate) || (calcDate.year == startDate.year && calcDate.month == startDate.month)) {
+        final docRef =
+            db.collection('StatProducts').doc(currentUserUid).collection('${calcDate.year}${calcDate.month.toString().padLeft(2, '0')}').doc(id);
+        final statProductDs = await docRef.get();
+
+        if (statProductDs.exists) {
+          final statProduct = StatProduct.fromJson(statProductDs.data()!);
+          listOfStatProducts.add(statProduct);
+        }
+
+        calcDate = subtractMonth(calcDate);
+      }
+
+      return right(listOfStatProducts);
+    } on FirebaseException {
+      return left(GeneralFailure());
+    }
+  }
+
+//* ################################################################################################################################
+//* ### Hilfsfunktionen
+
+  DateTime subtractMonth(DateTime date) {
+    if (date.month == 1) {
+      return DateTime(date.year - 1, 12, date.day);
+    } else {
+      return DateTime(date.year, date.month - 1, date.day);
     }
   }
 }

@@ -442,6 +442,27 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
 
 //? #########################################################################
 
+    on<OnGenerateFromDeliveryNotesNewInvoiceEvent>((event, emit) async {
+      emit(state.copyWith(isLoadingReceiptOnGenerate: true));
+
+      final failureOrSuccess = await receiptRepository.generateFromListOfDeliveryNotesNewInvoice(state.selectedReceipts);
+      failureOrSuccess.fold(
+        (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
+        (receipt) {
+          emit(state.copyWith(selectedReceipts: [], firebaseFailure: null, isAnyFailure: false));
+          add(GetReceiptsEvent(tabValue: state.tabValue, receiptTyp: state.receiptTyp));
+        },
+      );
+
+      emit(state.copyWith(
+        isLoadingReceiptOnGenerate: false,
+        fosReceiptOnGenerateOption: optionOf(failureOrSuccess),
+      ));
+      emit(state.copyWith(fosReceiptOnGenerateOption: none()));
+    });
+
+//? #########################################################################
+
     on<OnGenerateFromInvoiceNewCreditEvent>((event, emit) async {
       emit(state.copyWith(isLoadingReceiptOnGenerate: true));
 
