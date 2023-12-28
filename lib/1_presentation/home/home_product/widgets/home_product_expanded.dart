@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../2_application/firebase/home/home_product/home_product_bloc.dart';
 import '../../../../constants.dart';
+import '../../../core/functions/bottom_sheets.dart';
 import '../../../core/widgets/my_animated_expansion_container.dart';
 import '../../../core/widgets/my_circular_progress_indicator.dart';
 import 'grouped_list_of_supplier_by_manufacturer.dart';
@@ -98,10 +99,13 @@ class HomeProductExpanded extends StatelessWidget {
                                     itemCount: group.listOfProducts.length,
                                     itemBuilder: (context, index2) {
                                       final product = group.listOfProducts[index2];
-                                      return Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 8),
-                                        color: index2 % 2 == 1 ? CustomColors.ultraLightBlue : Colors.white,
-                                        child: Text(product.name),
+                                      return InkWell(
+                                        onLongPress: () => showMyProductQuickView(context, product),
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                                          color: index2 % 2 == 1 ? CustomColors.ultraLightBlue : Colors.white,
+                                          child: Text(product.name),
+                                        ),
                                       );
                                     },
                                   )
