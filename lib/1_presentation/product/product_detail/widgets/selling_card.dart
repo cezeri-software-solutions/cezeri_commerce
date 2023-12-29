@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../2_application/firebase/product/product_bloc.dart';
+import '../../../../2_application/firebase/product_detail/product_detail_bloc.dart';
 import '../../../../constants.dart';
 import '../../../core/widgets/my_form_field_small.dart';
 
 class SellingCard extends StatelessWidget {
-  final ProductBloc productBloc;
+  final ProductDetailBloc productDetailBloc;
 
-  const SellingCard({super.key, required this.productBloc});
+  const SellingCard({super.key, required this.productDetailBloc});
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<ProductBloc, ProductState>(
-      bloc: productBloc,
+    return BlocBuilder<ProductDetailBloc, ProductDetailState>(
+      bloc: productDetailBloc,
       builder: (context, state) {
         return Card(
           child: Padding(
@@ -26,32 +26,32 @@ class SellingCard extends StatelessWidget {
                 MyTextFormFieldSmall(
                   labelText: 'VK-Preis Netto',
                   controller: state.netPriceController,
-                  onChanged: (_) => productBloc.add(OnProductSalesPriceControllerChangedEvent(isNet: true)),
+                  onChanged: (_) => productDetailBloc.add(OnProductSalesPriceControllerChangedEvent(isNet: true)),
                 ),
                 Gaps.h16,
                 MyTextFormFieldSmall(
                   labelText: 'VK-Preis Brutto',
                   controller: state.grossPriceController,
-                  onChanged: (_) => productBloc.add(OnProductSalesPriceControllerChangedEvent(isNet: false)),
+                  onChanged: (_) => productDetailBloc.add(OnProductSalesPriceControllerChangedEvent(isNet: false)),
                 ),
                 Gaps.h16,
                 MyTextFormFieldSmall(
                   labelText: 'UVP',
                   controller: state.recommendedRetailPriceController,
-                  onChanged: (_) => productBloc.add(OnProductControllerChangedEvent()),
+                  onChanged: (_) => productDetailBloc.add(OnProductControllerChangedEvent()),
                 ),
                 Gaps.h16,
                 MyTextFormFieldSmall(
                   labelText: 'Einheitspreis Netto',
                   controller: state.unitPriceController,
-                  onChanged: (_) => productBloc.add(OnProductControllerChangedEvent()),
+                  onChanged: (_) => productDetailBloc.add(OnProductControllerChangedEvent()),
                 ),
                 Gaps.h16,
                 MyTextFormFieldSmall(
                   labelText: 'Einheit',
                   hintText: 'z.B. pro 1 L',
                   controller: state.unityController,
-                  onChanged: (_) => productBloc.add(OnProductControllerChangedEvent()),
+                  onChanged: (_) => productDetailBloc.add(OnProductControllerChangedEvent()),
                 ),
               ],
             ),

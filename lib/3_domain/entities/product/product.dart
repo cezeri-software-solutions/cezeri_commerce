@@ -49,10 +49,10 @@ class Product {
   final String manufacturer;
   final int warehouseStock;
   final int availableStock;
-  final int? minimumStock; // Mindestbestand vor Warnung zur Nachbestellung
-  final bool? isUnderMinimumStock; // Flag der gesetzt wird, damit nur diese Artikel geladen werden können
-  final int? minimumReorderQuantity; // Mindestnachbestellmenge
-  final int? packagingUnitOnReorder; // Verpackungseinheit bei Nachbestellung
+  final int minimumStock; // Mindestbestand vor Warnung zur Nachbestellung
+  final bool isUnderMinimumStock; // Flag der gesetzt wird, damit nur diese Artikel geladen werden können
+  final int minimumReorderQuantity; // Mindestnachbestellmenge
+  final int packagingUnitOnReorder; // Verpackungseinheit bei Nachbestellung
   final String description;
   final List<ProductLanguage> listOfDescription;
   final String descriptionShort;
@@ -149,7 +149,7 @@ class Product {
       manufacturer: '',
       warehouseStock: 0,
       availableStock: 0,
-      minimumStock: 0,
+      minimumStock: 1,
       isUnderMinimumStock: false,
       minimumReorderQuantity: 1,
       packagingUnitOnReorder: 1,

@@ -2,20 +2,21 @@ import 'package:cezeri_commerce/1_presentation/core/widgets/my_circular_progress
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '/2_application/firebase/product/product_bloc.dart';
+import '../../../../../2_application/firebase/product_detail/product_detail_bloc.dart';
+import '../../../../core/functions/mixed_functions.dart';
 import '/constants.dart';
 import 'product_bart_chart_items_sold.dart';
 import 'product_line_chart_sales_volume.dart';
 
 class ProductChartCard extends StatelessWidget {
-  final ProductBloc productBloc;
+  final ProductDetailBloc productDetailBloc;
 
-  const ProductChartCard({super.key, required this.productBloc});
+  const ProductChartCard({super.key, required this.productDetailBloc});
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<ProductBloc, ProductState>(
-      bloc: productBloc,
+    return BlocBuilder<ProductDetailBloc, ProductDetailState>(
+      bloc: productDetailBloc,
       builder: (context, state) {
         if (state.isLoadingStatProductsOnObserve) return const _LoadingOrFailureCard(widget: MyCircularProgressIndicator());
         if (state.firebaseFailureChart != null) return const _LoadingOrFailureCard(widget: Text('Ein Fehler ist aufgetreten'));
@@ -40,8 +41,9 @@ class ProductChartCard extends StatelessWidget {
                           Expanded(
                             child: Padding(
                               padding: const EdgeInsets.only(right: 16, left: 6),
-                              child: state.isShowingSalesVolumeOnChart ? ProductLineChartSalesVolume(statProducts: state.listOfStatProducts!) : ProductBartChartItemsSold(statProducts: state.listOfStatProducts!),
-                              
+                              child: state.isShowingSalesVolumeOnChart
+                                  ? ProductLineChartSalesVolume(statProducts: state.listOfStatProducts!)
+                                  : ProductBartChartItemsSold(statProducts: state.listOfStatProducts!),
                             ),
                           ),
                           Gaps.h10,
@@ -51,8 +53,8 @@ class ProductChartCard extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           IconButton(
-                            icon: const Icon(Icons.refresh, color: CustomColors.primaryColor),
-                            onPressed: () => productBloc.add(OnProductChangeChartModeEvent()),
+                            icon: const Icon(Icons.sync, color: CustomColors.primaryColor),
+                            onPressed: () => productDetailBloc.add(OnProductChangeChartModeEvent()),
                           ),
                           Text(state.isShowingSalesVolumeOnChart ? 'Umsatz Netto' : 'Anzahl Verkäufe', style: TextStyles.defaultBold),
                         ],
@@ -76,15 +78,17 @@ class _LoadingOrFailureCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.sizeOf(context).width;
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('Statistik', style: TextStyles.h3BoldPrimary),
+            const Text('Auswertung', style: TextStyles.h3BoldPrimary),
             const Divider(height: 30),
-            SizedBox(height: 200, child: Center(child: widget))
+            AspectRatio(aspectRatio: getAspectRatio(screenWidth), child: Center(child: widget))
           ],
         ),
       ),

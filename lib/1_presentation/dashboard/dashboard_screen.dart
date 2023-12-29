@@ -39,7 +39,7 @@ class DashboardScreen extends StatelessWidget {
                 title: const Text('Dashboard'),
                 actions: [IconButton(onPressed: () => dashboardBloc.add(GetListOfStatDashboardsEvent()), icon: const Icon(Icons.refresh))],
               ),
-              body: DashboardScreenScaffoldBody(state: state, dashboardBloc: dashboardBloc),
+              body: SafeArea(child: DashboardScreenScaffoldBody(state: state, dashboardBloc: dashboardBloc)),
             );
           },
         ),

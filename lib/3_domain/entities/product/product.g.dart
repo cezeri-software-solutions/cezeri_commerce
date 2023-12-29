@@ -42,10 +42,10 @@ Product _$ProductFromJson(Map<String, dynamic> json) => Product(
       manufacturer: json['manufacturer'] as String,
       warehouseStock: json['warehouseStock'] as int,
       availableStock: json['availableStock'] as int,
-      minimumStock: json['minimumStock'] as int?,
-      isUnderMinimumStock: json['isUnderMinimumStock'] as bool?,
-      minimumReorderQuantity: json['minimumReorderQuantity'] as int?,
-      packagingUnitOnReorder: json['packagingUnitOnReorder'] as int?,
+      minimumStock: json['minimumStock'] as int,
+      isUnderMinimumStock: json['isUnderMinimumStock'] as bool,
+      minimumReorderQuantity: json['minimumReorderQuantity'] as int,
+      packagingUnitOnReorder: json['packagingUnitOnReorder'] as int,
       description: json['description'] as String,
       listOfDescription: (json['listOfDescription'] as List<dynamic>)
           .map((e) => ProductLanguage.fromJson(e as Map<String, dynamic>))

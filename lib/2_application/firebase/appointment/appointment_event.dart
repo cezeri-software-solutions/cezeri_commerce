@@ -80,6 +80,15 @@ class OnGenerateFromDeliveryNotesNewInvoiceEvent extends AppointmentEvent {}
 
 class OnGenerateFromInvoiceNewCreditEvent extends AppointmentEvent {}
 
+//* --- products --- *//
+class GetAllProductsEvent extends AppointmentEvent {}
+
+class GetProductByEanEvent extends AppointmentEvent {
+  final String ean;
+
+  GetProductByEanEvent({required this.ean});
+}
+
 //* --- helper --- *//
 class SetAppointmentIsExpandedEvent extends AppointmentEvent {
   final int index;
