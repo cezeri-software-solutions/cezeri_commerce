@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../../../3_domain/entities/statistic/stat_dashboard.dart';
 import '../../../3_domain/enums/enums.dart';
 import '../../../constants.dart';
+import '../../core/functions/mixed_functions.dart';
 
 class LineChartView extends StatefulWidget {
   final List<StatDashboard> listOfStatDashboards;
@@ -29,13 +30,15 @@ class _LineChartViewState extends State<LineChartView> {
   @override
   Widget build(BuildContext context) {
     final themeData = Theme.of(context);
+    final screenWidth = MediaQuery.sizeOf(context).width;
+    final responsiveness = screenWidth > 700 ? Responsiveness.isTablet : Responsiveness.isMobil;
     return Stack(
       children: [
         AspectRatio(
-          aspectRatio: 3.5, //* 1.7
+          aspectRatio:  getAspectRatio(screenWidth),
           child: Padding(
             padding: const EdgeInsets.only(
-              right: 25, //18,
+              right: 24, //18,
               left: 0, //12,
               top: 24,
               bottom: 12,

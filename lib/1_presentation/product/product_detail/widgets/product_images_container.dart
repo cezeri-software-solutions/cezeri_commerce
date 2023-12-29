@@ -2,7 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../2_application/firebase/product/product_bloc.dart';
+import '../../../../2_application/firebase/product_detail/product_detail_bloc.dart';
 import '../../../../3_domain/entities/product/product_image.dart';
 import '../../../../constants.dart';
 import '../../../core/functions/dialogs.dart';
@@ -11,14 +11,14 @@ import '../../../core/widgets/my_circular_progress_indicator.dart';
 import '../../../core/widgets/my_outlined_button.dart';
 
 class ProductImagesContainer extends StatelessWidget {
-  final ProductBloc productBloc;
+  final ProductDetailBloc productDetailBloc;
 
-  const ProductImagesContainer({super.key, required this.productBloc});
+  const ProductImagesContainer({super.key, required this.productDetailBloc});
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<ProductBloc, ProductState>(
-      bloc: productBloc,
+    return BlocBuilder<ProductDetailBloc, ProductDetailState>(
+      bloc: productDetailBloc,
       builder: (context, state) {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -36,7 +36,7 @@ class ProductImagesContainer extends StatelessWidget {
                         context: context,
                         content: 'Willst du wirklich alle ausgewählten Artikelbilder unwiederruflich löschen?',
                         onConfirm: () {
-                          productBloc.add(RemoveSelectedProductImages());
+                          productDetailBloc.add(RemoveSelectedProductImages());
                           context.router.pop();
                         },
                       ),
@@ -50,13 +50,13 @@ class ProductImagesContainer extends StatelessWidget {
                   buttonText: 'Hochladen',
                   isLoading: state.isLoadingProductOnUploadImages,
                   buttonBackgroundColor: !state.isProductImagesEdited ? CustomColors.backgroundLightGrey : CustomColors.primaryColor,
-                  onPressed: () => productBloc.add(UploadProductImageToPrestaEvent()),
+                  onPressed: () => productDetailBloc.add(UploadProductImageToPrestaEvent()),
                 ),
               ],
             ),
             Checkbox.adaptive(
               value: state.isSelectedAllImages,
-              onChanged: (value) => productBloc.add(OnAllProdcutImagesSelectedEvent(value: value!)),
+              onChanged: (value) => productDetailBloc.add(OnAllProdcutImagesSelectedEvent(value: value!)),
             ),
             ReorderableListView.builder(
               physics: const NeverScrollableScrollPhysics(),
@@ -74,7 +74,7 @@ class ProductImagesContainer extends StatelessWidget {
                       children: [
                         Checkbox.adaptive(
                           value: state.selectedProductImages.any((e) => e.fileUrl == image.fileUrl),
-                          onChanged: (_) => productBloc.add(OnProductImageSelectedEvent(image: image)),
+                          onChanged: (_) => productDetailBloc.add(OnProductImageSelectedEvent(image: image)),
                         ),
                         Container(
                           width: 60,
@@ -95,10 +95,10 @@ class ProductImagesContainer extends StatelessWidget {
                   ],
                 );
               },
-              onReorder: (oldIndex, newIndex) => productBloc.add(OnReorderProductImagesEvent(oldIndex: oldIndex, newIndex: newIndex)),
+              onReorder: (oldIndex, newIndex) => productDetailBloc.add(OnReorderProductImagesEvent(oldIndex: oldIndex, newIndex: newIndex)),
             ),
             TextButton.icon(
-              onPressed: () async => productBloc.add(OnPickNewProductPictureEvent()),
+              onPressed: () async => productDetailBloc.add(OnPickNewProductPictureEvent()),
               icon: const Icon(Icons.add, color: Colors.green),
               label: const Text('Bild/er hinzufügen'),
             ),

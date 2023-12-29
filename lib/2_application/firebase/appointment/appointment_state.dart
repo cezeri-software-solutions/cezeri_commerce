@@ -4,9 +4,11 @@ part of 'appointment_bloc.dart';
 class AppointmentState {
   final Receipt? receipt;
   final Customer? customer;
+  final Product? product;
   final List<Receipt>? listOfAllReceipts;
   final List<Receipt>? listOfFilteredReceipts; // Der State, der im presentation layer ausgegeben wird, egal ob Suchfeld leer oder nicht
   final List<Receipt> selectedReceipts; // Ausgewählte Aufträge zum löschen oder für Massenbearbeitung
+  final List<Product>? listOfAllProducts;
   final FirebaseFailure? firebaseFailure;
   final bool isAnyFailure;
   final bool isLoadingReceiptOnObserve;
@@ -17,6 +19,8 @@ class AppointmentState {
   final bool isLoadingReceiptOnUpdate;
   final bool isLoadingReceiptOnDelete;
   final bool isLoadingReceiptOnGenerate;
+  final bool isLoadingProductOnObserve;
+  final bool isLoadingProductsOnObserve;
   final Option<Either<FirebaseFailure, Receipt>> fosReceiptOnObserveOption;
   final Option<Either<FirebaseFailure, List<Receipt>>> fosReceiptsOnObserveOption;
   final Option<Either<AbstractFailure, Unit>> fosAppointmentOnObserveFromMarketplacesOption;
@@ -26,6 +30,8 @@ class AppointmentState {
   final Option<Either<FirebaseFailure, Unit>> fosReceiptOnDeleteOption;
   final Option<Either<FirebaseFailure, Receipt>> fosReceiptOnGenerateOption;
   final Option<Either<FirebaseFailure, List<Receipt>>> fosReceiptsOnGenerateOption;
+  final Option<Either<FirebaseFailure, Product>> fosProductOnObserveOption;
+  final Option<Either<FirebaseFailure, List<Product>>> fosProductsOnObserveOption;
 
   //* --- helper --- *//
   final bool isAllReceiptsSeledcted;
@@ -42,9 +48,11 @@ class AppointmentState {
   const AppointmentState({
     this.receipt,
     this.customer,
+    this.product,
     required this.listOfAllReceipts,
     required this.listOfFilteredReceipts,
     required this.selectedReceipts,
+    required this.listOfAllProducts,
     required this.firebaseFailure,
     required this.isAnyFailure,
     required this.isLoadingReceiptOnObserve,
@@ -55,6 +63,8 @@ class AppointmentState {
     required this.isLoadingReceiptOnUpdate,
     required this.isLoadingReceiptOnDelete,
     required this.isLoadingReceiptOnGenerate,
+    required this.isLoadingProductOnObserve,
+    required this.isLoadingProductsOnObserve,
     required this.fosReceiptOnObserveOption,
     required this.fosReceiptsOnObserveOption,
     required this.fosAppointmentOnObserveFromMarketplacesOption,
@@ -64,6 +74,8 @@ class AppointmentState {
     required this.fosReceiptOnDeleteOption,
     required this.fosReceiptOnGenerateOption,
     required this.fosReceiptsOnGenerateOption,
+    required this.fosProductOnObserveOption,
+    required this.fosProductsOnObserveOption,
     required this.isAllReceiptsSeledcted,
     required this.isExpanded,
     required this.receiptSearchText,
@@ -77,9 +89,11 @@ class AppointmentState {
   factory AppointmentState.initial() => AppointmentState(
         receipt: null,
         customer: null,
+        product: null,
         listOfAllReceipts: null,
         listOfFilteredReceipts: null,
         selectedReceipts: const [],
+        listOfAllProducts: null,
         firebaseFailure: null,
         isAnyFailure: false,
         isLoadingReceiptOnObserve: false,
@@ -90,6 +104,8 @@ class AppointmentState {
         isLoadingReceiptOnUpdate: false,
         isLoadingReceiptOnDelete: false,
         isLoadingReceiptOnGenerate: false,
+        isLoadingProductOnObserve: false,
+        isLoadingProductsOnObserve: false,
         fosReceiptOnObserveOption: none(),
         fosReceiptsOnObserveOption: none(),
         fosAppointmentOnObserveFromMarketplacesOption: none(),
@@ -99,6 +115,8 @@ class AppointmentState {
         fosReceiptOnDeleteOption: none(),
         fosReceiptOnGenerateOption: none(),
         fosReceiptsOnGenerateOption: none(),
+        fosProductOnObserveOption: none(),
+        fosProductsOnObserveOption: none(),
         isAllReceiptsSeledcted: false,
         isExpanded: const [],
         receiptSearchText: '',
@@ -112,9 +130,11 @@ class AppointmentState {
   AppointmentState copyWith({
     Receipt? receipt,
     Customer? customer,
+    Product? product,
     List<Receipt>? listOfAllReceipts,
     List<Receipt>? listOfFilteredReceipts,
     List<Receipt>? selectedReceipts,
+    List<Product>? listOfAllProducts,
     FirebaseFailure? firebaseFailure,
     bool? isAnyFailure,
     bool? isLoadingReceiptOnObserve,
@@ -125,6 +145,8 @@ class AppointmentState {
     bool? isLoadingReceiptOnUpdate,
     bool? isLoadingReceiptOnDelete,
     bool? isLoadingReceiptOnGenerate,
+    bool? isLoadingProductOnObserve,
+    bool? isLoadingProductsOnObserve,
     Option<Either<FirebaseFailure, Receipt>>? fosReceiptOnObserveOption,
     Option<Either<FirebaseFailure, List<Receipt>>>? fosReceiptsOnObserveOption,
     Option<Either<AbstractFailure, Unit>>? fosAppointmentOnObserveFromMarketplacesOption,
@@ -134,6 +156,8 @@ class AppointmentState {
     Option<Either<FirebaseFailure, Unit>>? fosReceiptOnDeleteOption,
     Option<Either<FirebaseFailure, Receipt>>? fosReceiptOnGenerateOption,
     Option<Either<FirebaseFailure, List<Receipt>>>? fosReceiptsOnGenerateOption,
+    Option<Either<FirebaseFailure, Product>>? fosProductOnObserveOption,
+    Option<Either<FirebaseFailure, List<Product>>>? fosProductsOnObserveOption,
     bool? isAllReceiptsSeledcted,
     List<bool>? isExpanded,
     String? receiptSearchText,
@@ -146,9 +170,11 @@ class AppointmentState {
     return AppointmentState(
       receipt: receipt ?? this.receipt,
       customer: customer ?? this.customer,
+      product: product ?? this.product,
       listOfAllReceipts: listOfAllReceipts ?? this.listOfAllReceipts,
       listOfFilteredReceipts: listOfFilteredReceipts ?? this.listOfFilteredReceipts,
       selectedReceipts: selectedReceipts ?? this.selectedReceipts,
+      listOfAllProducts: listOfAllProducts ?? this.listOfAllProducts,
       firebaseFailure: firebaseFailure ?? this.firebaseFailure,
       isAnyFailure: isAnyFailure ?? this.isAnyFailure,
       isLoadingReceiptOnObserve: isLoadingReceiptOnObserve ?? this.isLoadingReceiptOnObserve,
@@ -159,6 +185,8 @@ class AppointmentState {
       isLoadingReceiptOnUpdate: isLoadingReceiptOnUpdate ?? this.isLoadingReceiptOnUpdate,
       isLoadingReceiptOnDelete: isLoadingReceiptOnDelete ?? this.isLoadingReceiptOnDelete,
       isLoadingReceiptOnGenerate: isLoadingReceiptOnGenerate ?? this.isLoadingReceiptOnGenerate,
+      isLoadingProductOnObserve: isLoadingProductOnObserve ?? this.isLoadingProductOnObserve,
+      isLoadingProductsOnObserve: isLoadingProductsOnObserve ?? this.isLoadingProductsOnObserve,
       fosReceiptOnObserveOption: fosReceiptOnObserveOption ?? this.fosReceiptOnObserveOption,
       fosReceiptsOnObserveOption: fosReceiptsOnObserveOption ?? this.fosReceiptsOnObserveOption,
       fosAppointmentOnObserveFromMarketplacesOption:
@@ -170,6 +198,8 @@ class AppointmentState {
       fosReceiptOnDeleteOption: fosReceiptOnDeleteOption ?? this.fosReceiptOnDeleteOption,
       fosReceiptOnGenerateOption: fosReceiptOnGenerateOption ?? this.fosReceiptOnGenerateOption,
       fosReceiptsOnGenerateOption: fosReceiptsOnGenerateOption ?? this.fosReceiptsOnGenerateOption,
+      fosProductOnObserveOption: fosProductOnObserveOption ?? this.fosProductOnObserveOption,
+      fosProductsOnObserveOption: fosProductsOnObserveOption ?? this.fosProductsOnObserveOption,
       isAllReceiptsSeledcted: isAllReceiptsSeledcted ?? this.isAllReceiptsSeledcted,
       isExpanded: isExpanded ?? this.isExpanded,
       receiptSearchText: receiptSearchText ?? this.receiptSearchText,

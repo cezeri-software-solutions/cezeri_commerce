@@ -13,51 +13,6 @@ class GetProductEvent extends ProductEvent {
   GetProductEvent({required this.id});
 }
 
-class SetProductControllerEvent extends ProductEvent {
-  final Product product;
-
-  SetProductControllerEvent({required this.product});
-}
-
-class OnProductControllerChangedEvent extends ProductEvent {}
-
-class OnProductSalesPriceControllerChangedEvent extends ProductEvent {
-  final bool isNet;
-
-  OnProductSalesPriceControllerChangedEvent({required this.isNet});
-}
-
-class OnPoductHtmlTabValueChangedEvent extends ProductEvent {
-  final int value;
-
-  OnPoductHtmlTabValueChangedEvent({required this.value});
-}
-
-class OnProductShowDescriptionChangedEvent extends ProductEvent {}
-
-class OnProductDescriptionChangedEvent extends ProductEvent {
-  final String? content;
-
-  OnProductDescriptionChangedEvent({required this.content});
-}
-
-class OnSaveProductDescriptionEvent extends ProductEvent {}
-
-class GetProductByEanEvent extends ProductEvent {
-  final String ean;
-
-  GetProductByEanEvent({required this.ean});
-}
-
-class CreateProductEvent extends ProductEvent {
-  final Product product;
-  final ProductPresta? productPresta;
-
-  CreateProductEvent({required this.product, this.productPresta});
-}
-
-class UpdateProductEvent extends ProductEvent {}
-
 class DeleteSelectedProductsEvent extends ProductEvent {
   final List<Product> selectedProducts;
 
@@ -80,41 +35,12 @@ class OnProductSelectedEvent extends ProductEvent {
   OnProductSelectedEvent({required this.product});
 }
 
-class RemoveSelectedProductImages extends ProductEvent {}
-
-class OnPickNewProductPictureEvent extends ProductEvent {}
-
 class OnProductGetSuppliersEvent extends ProductEvent {}
-
-class OnProductSetSupplierEvent extends ProductEvent {
-  final String supplierName;
-
-  OnProductSetSupplierEvent({required this.supplierName});
-}
 
 class SetProductsWidthSearchEvent extends ProductEvent {
   final bool value;
 
   SetProductsWidthSearchEvent({required this.value});
-}
-
-class OnProductImageSelectedEvent extends ProductEvent {
-  final ProductImage image;
-
-  OnProductImageSelectedEvent({required this.image});
-}
-
-class OnAllProdcutImagesSelectedEvent extends ProductEvent {
-  final bool value;
-
-  OnAllProdcutImagesSelectedEvent({required this.value});
-}
-
-class OnReorderProductImagesEvent extends ProductEvent {
-  final int oldIndex;
-  final int newIndex;
-
-  OnReorderProductImagesEvent({required this.oldIndex, required this.newIndex});
 }
 
 //? Update Menge nur in Firebase (Danach wird automatisch OnEditQuantityInMarketplacesEvent getriggert)
@@ -125,13 +51,6 @@ class UpdateQuantityOfProductEvent extends ProductEvent {
 
   UpdateQuantityOfProductEvent({required this.product, required this.newQuantity, required this.updateOnlyAvailableQuantity});
 }
-
-// * #################################################################################################################################
-// * StatProducts Chart
-
-class OnProductGetStatProductsEvent extends ProductEvent {}
-
-class OnProductChangeChartModeEvent extends ProductEvent {}
 
 // * #################################################################################################################################
 // * Massenbearbeitung
@@ -215,5 +134,3 @@ class OnEditProductInPresta extends ProductEvent {
 
   OnEditProductInPresta({required this.product});
 }
-
-class UploadProductImageToPrestaEvent extends ProductEvent {}

@@ -1,19 +1,23 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.dart';
+import 'package:cezeri_commerce/injection.dart';
 import 'package:cezeri_commerce/routes/router.gr.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 
+import '../../../2_application/firebase/product_detail/product_detail_bloc.dart';
 import '../../../3_domain/entities/product/product.dart';
 import '../../../3_domain/enums/enums.dart';
 import '../../../constants.dart';
+import '../../product/product_detail/widgets/charts/product_bart_chart_items_sold.dart';
+import '../../product/product_detail/widgets/charts/product_line_chart_sales_volume.dart';
 import '../widgets/my_avatar.dart';
+import '../widgets/my_circular_progress_indicator.dart';
+import 'mixed_functions.dart';
 
-void showMyProductQuickView(BuildContext context, Product product) {
-  final screenWidth = MediaQuery.sizeOf(context).width;
-  final responsiveness = screenWidth > 700 ? Responsiveness.isTablet : Responsiveness.isMobil;
-
+void showMyProductQuickView({required BuildContext context, required Product product, bool showStatProduct = false}) {
   final trailing = IconButton(
     padding: const EdgeInsets.only(right: 24),
     icon: const Icon(Icons.close),
@@ -22,6 +26,7 @@ void showMyProductQuickView(BuildContext context, Product product) {
 
   WoltModalSheet.show(
     context: context,
+    useSafeArea: false,
     pageListBuilder: (woltContext) {
       return [
         WoltModalSheetPage(
@@ -29,7 +34,31 @@ void showMyProductQuickView(BuildContext context, Product product) {
           isTopBarLayerAlwaysVisible: true,
           topBarTitle: Text(product.articleNumber, style: TextStyles.h3Bold),
           trailingNavBarWidget: trailing,
-          child: Padding(
+          child: _ProductQuickView(product: product, showStatProduct: showStatProduct),
+        ),
+      ];
+    },
+  );
+}
+
+class _ProductQuickView extends StatelessWidget {
+  final Product product;
+  final bool showStatProduct;
+
+  const _ProductQuickView({required this.product, required this.showStatProduct});
+
+  @override
+  Widget build(BuildContext context) {
+    final productDetailBloc = sl<ProductDetailBloc>()..add(SetProductEvent(product: product, loadStatProduct: showStatProduct));
+
+    final screenWidth = MediaQuery.sizeOf(context).width;
+    final responsiveness = screenWidth > 700 ? Responsiveness.isTablet : Responsiveness.isMobil;
+
+    return BlocProvider(
+      create: (context) => productDetailBloc,
+      child: BlocBuilder<ProductDetailBloc, ProductDetailState>(
+        builder: (context, state) {
+          return Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -223,11 +252,55 @@ void showMyProductQuickView(BuildContext context, Product product) {
                     ),
                   ],
                 ),
+                if (showStatProduct) ...[
+                  const Divider(),
+                  const Text('Auswertung', style: TextStyles.h3BoldPrimary),
+                  Gaps.h10,
+                  if (state.listOfStatProducts != null) ...[
+                    AspectRatio(
+                      aspectRatio: responsiveness == Responsiveness.isTablet ? 2.5 : getAspectRatio(screenWidth),
+                      child: Stack(
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Gaps.h54,
+                              Expanded(
+                                child: Padding(
+                                  padding: const EdgeInsets.only(right: 16, left: 6),
+                                  child: !state.isShowingSalesVolumeOnChart
+                                      ? ProductLineChartSalesVolume(statProducts: state.listOfStatProducts!)
+                                      : ProductBartChartItemsSold(statProducts: state.listOfStatProducts!),
+                                ),
+                              ),
+                              Gaps.h10,
+                            ],
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              IconButton(
+                                icon: const Icon(Icons.sync, color: CustomColors.primaryColor),
+                                onPressed: () => productDetailBloc.add(OnProductChangeChartModeEvent()),
+                              ),
+                              Text(!state.isShowingSalesVolumeOnChart ? 'Umsatz Netto' : 'Anzahl Verkäufe', style: TextStyles.defaultBold),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ] else ...[
+                    AspectRatio(
+                      aspectRatio: responsiveness == Responsiveness.isTablet ? 2.5 : getAspectRatio(screenWidth),
+                      child: const Center(child: MyCircularProgressIndicator()),
+                    ),
+                  ],
+                ],
               ],
             ),
-          ),
-        ),
-      ];
-    },
-  );
+          );
+        },
+      ),
+    );
+  }
 }

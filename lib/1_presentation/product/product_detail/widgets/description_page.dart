@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../2_application/firebase/product/product_bloc.dart';
+import '../../../../2_application/firebase/product_detail/product_detail_bloc.dart';
 import '../../../../constants.dart';
 import '../../../core/widgets/my_html_editor.dart';
 import '../../../core/widgets/my_outlined_button.dart';
 
 class DescriptionPage extends StatelessWidget {
-  final ProductBloc productBloc;
+  final ProductDetailBloc productDetailBloc;
 
-  const DescriptionPage({super.key, required this.productBloc});
+  const DescriptionPage({super.key, required this.productDetailBloc});
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<ProductBloc, ProductState>(
-      bloc: productBloc,
+    return BlocBuilder<ProductDetailBloc, ProductDetailState>(
+      bloc: productDetailBloc,
       builder: (context, state) {
         return PopScope(
           canPop: false,
@@ -30,7 +30,7 @@ class DescriptionPage extends StatelessWidget {
                     child: MyHtmlEditor(
                       controller: state.descriptionShortController,
                       initialText: state.product!.descriptionShort,
-                      onChangeContent: (content) => productBloc.add(OnProductDescriptionChangedEvent(content: content)),
+                      onChangeContent: (content) => productDetailBloc.add(OnProductDescriptionChangedEvent(content: content)),
                     ),
                   ),
                   Gaps.h16,
@@ -38,7 +38,7 @@ class DescriptionPage extends StatelessWidget {
                     child: MyHtmlEditor(
                       controller: state.descriptionController,
                       initialText: state.product!.description,
-                      onChangeContent: (content) => productBloc.add(OnProductDescriptionChangedEvent(content: content)),
+                      onChangeContent: (content) => productDetailBloc.add(OnProductDescriptionChangedEvent(content: content)),
                     ),
                   ),
                   Gaps.h10,
@@ -48,13 +48,13 @@ class DescriptionPage extends StatelessWidget {
                       MyOutlinedButton(
                         buttonText: 'Abbrechen',
                         buttonBackgroundColor: Colors.red,
-                        onPressed: () => productBloc.add(OnProductShowDescriptionChangedEvent()),
+                        onPressed: () => productDetailBloc.add(OnProductShowDescriptionChangedEvent()),
                       ),
                       Gaps.w16,
                       MyOutlinedButton(
                         buttonText: 'Speichern',
                         buttonBackgroundColor: state.isDescriptionChanged ? Colors.green : CustomColors.primaryColor,
-                        onPressed: () => productBloc.add(OnSaveProductDescriptionEvent()),
+                        onPressed: () => productDetailBloc.add(OnSaveProductDescriptionEvent()),
                       ),
                     ],
                   )

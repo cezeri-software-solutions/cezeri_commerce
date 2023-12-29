@@ -21,7 +21,7 @@ class MyHtmlEditor extends StatelessWidget {
         toolbarItemHeight: 26,
         textStyle: TextStyles.s13Bold.copyWith(color: Colors.black),
         customToolbarButtons: [
-          InkWell(onTap: () => controller.toggleCodeView, child: const Icon(Icons.code)),
+          InkWell(onTap: () => controller.toggleCodeView(), child: const Icon(Icons.code)),
         ],
       ),
       callbacks: Callbacks(

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../3_domain/entities/product/home_product.dart';
 import '../../../../3_domain/entities/product/product.dart';
 import '../../../../constants.dart';
+import '../../../core/functions/show_my_product_quick_view.dart';
 
 class GroupedListOfSupplierByManufacturer extends StatelessWidget {
   final List<Product> listOfProducts;
@@ -46,10 +47,13 @@ class GroupedListOfSupplierByManufacturer extends StatelessWidget {
             itemBuilder: (context, index) {
               final product = homeProduct.listOfProducts[index];
 
-              return Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                color: index % 2 == 1 ? CustomColors.ultraLightBlue : Colors.white,
-                child: Text(product.name),
+              return InkWell(
+                onLongPress: () => showMyProductQuickView(context: context, product: product, showStatProduct: true),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  color: index % 2 == 1 ? CustomColors.ultraLightBlue : Colors.white,
+                  child: Text(product.name),
+                ),
               );
             },
           ),

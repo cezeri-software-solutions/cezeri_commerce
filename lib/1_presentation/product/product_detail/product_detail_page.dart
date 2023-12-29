@@ -1,208 +1,96 @@
-import 'package:cezeri_commerce/1_presentation/core/widgets/my_outlined_button.dart';
 import 'package:cezeri_commerce/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../2_application/firebase/product/product_bloc.dart';
-import '../../../3_domain/entities/product/marketplace_product_presta.dart';
-import '../../../3_domain/entities/product/product.dart';
+import '../../../2_application/firebase/product_detail/product_detail_bloc.dart';
 import '../../../3_domain/enums/enums.dart';
 import 'product_detail_screen.dart';
 import 'widgets/charts/product_chart_card.dart';
-import 'widgets/description_page.dart';
-import 'widgets/edit_product_marketplace.dart';
+import 'widgets/product_detail_marketplaces_bar.dart';
 import 'widgets/product_detail_widgets.dart';
 import 'widgets/product_images_container.dart';
 
 class ProductDetailPage extends StatelessWidget {
-  final Product? product;
-  final ProductBloc productBloc;
+  final ProductDetailBloc productDetailBloc;
   final ProductCreateOrEdit productCreateOrEdit;
 
-  const ProductDetailPage({super.key, this.product, required this.productBloc, required this.productCreateOrEdit});
+  const ProductDetailPage({super.key, required this.productDetailBloc, required this.productCreateOrEdit});
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<ProductBloc, ProductState>(
-      bloc: productBloc,
+    return BlocBuilder<ProductDetailBloc, ProductDetailState>(
+      bloc: productDetailBloc,
       builder: (context, state) {
         final screenWidth = MediaQuery.sizeOf(context).width;
         final responsiveness = screenWidth > 700 ? Responsiveness.isTablet : Responsiveness.isMobil;
 
-        final appBar = AppBar(
-          title: const Text('Artikel'),
-          centerTitle: responsiveness == Responsiveness.isTablet ? true : false,
-          actions: [
-            if (product != null)
-              IconButton(
-                onPressed: () => productBloc.add(GetProductEvent(id: product!.id)),
-                icon: const Icon(Icons.refresh, size: 30),
-              ),
-            responsiveness == Responsiveness.isTablet ? Gaps.w32 : Gaps.w8,
-            MyOutlinedButton(
-              buttonText: 'Speichern',
-              onPressed: () {
-                if (product != null) {
-                  productBloc.add(UpdateProductEvent());
-                } else {
-                  // TODO: Handle create new product
-                }
-              },
-              isLoading: state.isLoadingProductOnUpdate,
-              buttonBackgroundColor: Colors.green,
-            ),
-            responsiveness == Responsiveness.isTablet ? Gaps.w32 : Gaps.w8,
-          ],
-        );
-
-        if (state.showHtmlTexts) return DescriptionPage(productBloc: productBloc);
-
-        return Scaffold(
-          appBar: appBar,
-          body: SafeArea(
-            child: responsiveness == Responsiveness.isTablet
-                ? SingleChildScrollView(
-                    child: Padding(
-                      padding: const EdgeInsets.all(18.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Expanded(
-                                flex: 2,
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: [
-                                    ProductMasterCard(productBloc: productBloc),
-                                    Gaps.h16,
-                                    PurchaseCard(productBloc: productBloc),
-                                    Gaps.h16,
-                                    ProductChartCard(productBloc: productBloc),
-                                  ],
-                                ),
-                              ),
-                              Gaps.w16,
-                              Expanded(
-                                flex: 1,
-                                child: Column(
-                                  children: [
-                                    SellingCard(productBloc: productBloc),
-                                    Gaps.h16,
-                                    WeightAndDimensionsCard(productBloc: productBloc),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                          ProductImagesContainer(productBloc: productBloc),
-                          ProductDetailMarketplaces(productBloc: productBloc),
-                          Gaps.h16,
-                        ],
-                      ),
-                    ),
-                  )
-                : Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: ListView(
-                      children: [
-                        ProductMasterCard(productBloc: productBloc),
-                        Gaps.h16,
-                        PurchaseCard(productBloc: productBloc),
-                        Gaps.h16,
-                        SellingCard(productBloc: productBloc),
-                        Gaps.h16,
-                        WeightAndDimensionsCard(productBloc: productBloc),
-                        Gaps.h16,
-                        ProductImagesContainer(productBloc: productBloc),
-                        Gaps.h16,
-                        ProductDetailMarketplaces(productBloc: productBloc),
-                        Gaps.h16,
-                      ],
-                    ),
-                  ),
-          ),
-        );
-      },
-    );
-  }
-}
-
-class ProductDetailMarketplaces extends StatelessWidget {
-  final ProductBloc productBloc;
-
-  const ProductDetailMarketplaces({super.key, required this.productBloc});
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<ProductBloc, ProductState>(
-      bloc: productBloc,
-      builder: (context, state) {
-        return Column(
-          children: [
-            const Divider(),
-            const Text(
-              'Marktplätze',
-              style: TextStyles.h2,
-            ),
-            Gaps.h8,
-            SizedBox(
-              height: 110,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                physics: const BouncingScrollPhysics(),
-                itemCount: state.product!.productMarketplaces.length,
-                itemBuilder: (context, index) {
-                  final pm = state.product!.productMarketplaces[index];
-                  final marketplaceProduct = pm.marketplaceProduct as MarketplaceProductPresta;
-                  return Row(
+        if (responsiveness == Responsiveness.isTablet) {
+          return SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(18.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      InkWell(
-                        onTap: () => showModalBottomSheet(
-                          context: context,
-                          isScrollControlled: true,
-                          builder: (_) => BlocProvider.value(
-                            value: productBloc,
-                            child: EditProductMarketplace(productMarketplace: pm),
-                          ),
-                        ),
-                        child: SizedBox(
-                          height: 110,
-                          width: 200,
-                          child: Card(
-                            elevation: 4.0,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8.0),
-                            ),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Text(pm.nameMarketplace, style: const TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold)),
-                                ),
-                                Container(
-                                  height: 5.0,
-                                  decoration: BoxDecoration(
-                                    color: marketplaceProduct.active == '1' ? Colors.green : Colors.grey,
-                                    borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(8.0), bottomRight: Radius.circular(8.0)),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
+                      Expanded(
+                        flex: 2,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            ProductMasterCard(productDetailBloc: productDetailBloc),
+                            Gaps.h16,
+                            PurchaseCard(productDetailBloc: productDetailBloc),
+                            Gaps.h16,
+                            ProductChartCard(productDetailBloc: productDetailBloc),
+                          ],
                         ),
                       ),
                       Gaps.w16,
+                      Expanded(
+                        flex: 1,
+                        child: Column(
+                          children: [
+                            SellingCard(productDetailBloc: productDetailBloc),
+                            Gaps.h16,
+                            WeightAndDimensionsCard(productDetailBloc: productDetailBloc),
+                          ],
+                        ),
+                      ),
                     ],
-                  );
-                },
+                  ),
+                  ProductImagesContainer(productDetailBloc: productDetailBloc),
+                  ProductDetailMarketplacesBar(productDetailBloc: productDetailBloc),
+                  Gaps.h16,
+                ],
               ),
             ),
-          ],
-        );
+          );
+        } else {
+          return Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: ListView(
+              children: [
+                ProductMasterCard(productDetailBloc: productDetailBloc),
+                Gaps.h16,
+                PurchaseCard(productDetailBloc: productDetailBloc),
+                Gaps.h16,
+                SellingCard(productDetailBloc: productDetailBloc),
+                Gaps.h16,
+                WeightAndDimensionsCard(productDetailBloc: productDetailBloc),
+                Gaps.h16,
+                ProductChartCard(productDetailBloc: productDetailBloc),
+                Gaps.h16,
+                ProductImagesContainer(productDetailBloc: productDetailBloc),
+                Gaps.h16,
+                ProductDetailMarketplacesBar(productDetailBloc: productDetailBloc),
+                Gaps.h16,
+              ],
+            ),
+          );
+        }
       },
     );
   }

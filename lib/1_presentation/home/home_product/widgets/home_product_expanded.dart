@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../2_application/firebase/home/home_product/home_product_bloc.dart';
 import '../../../../constants.dart';
-import '../../../core/functions/bottom_sheets.dart';
+import '../../../core/functions/show_my_product_quick_view.dart';
 import '../../../core/widgets/my_animated_expansion_container.dart';
 import '../../../core/widgets/my_circular_progress_indicator.dart';
 import 'grouped_list_of_supplier_by_manufacturer.dart';
@@ -17,29 +17,31 @@ class HomeProductExpanded extends StatelessWidget {
   Widget build(BuildContext context) {
     final dividerColor = Theme.of(context).dividerColor;
     final screenWidth = MediaQuery.sizeOf(context).width;
+    final screenHeight = MediaQuery.sizeOf(context).height;
+    final expandedHeight = screenHeight / 3;
 
     return BlocBuilder<HomeProductBloc, HomeProductState>(
       builder: (context, state) {
         if (state.isLoadingHomeProductsOnObserve || state.isLoadingHomeReordersOnObserve) {
           return MyAnimatedExpansionContainer(
-              isExpanded: state.isExpandedProducts, child: const SizedBox(height: 400, child: Center(child: MyCircularProgressIndicator())));
+              isExpanded: state.isExpandedProducts, child: SizedBox(height: expandedHeight, child: const Center(child: MyCircularProgressIndicator())));
         } else if (state.firebaseFailure != null && state.isAnyFailure) {
           return MyAnimatedExpansionContainer(
               isExpanded: state.isExpandedProducts,
-              child: const SizedBox(height: 400, child: Center(child: Text('Beim Laden der Daten ist ein Fehler aufgetreten'))));
+              child: SizedBox(height: expandedHeight, child: const Center(child: Text('Beim Laden der Daten ist ein Fehler aufgetreten'))));
         } else if (state.showProductsBy == ShowProductsBy.soldOut && state.listOfProductsSoldOut == null || state.listOfReorders == null) {
           return MyAnimatedExpansionContainer(
-              isExpanded: state.isExpandedProducts, child: const SizedBox(height: 400, child: Center(child: MyCircularProgressIndicator())));
+              isExpanded: state.isExpandedProducts, child: SizedBox(height: expandedHeight, child: const Center(child: MyCircularProgressIndicator())));
         } else if (state.showProductsBy == ShowProductsBy.underMinimumQuantity && state.listOfProductsUnderMinimumQuantity == null ||
             state.listOfReorders == null) {
           return MyAnimatedExpansionContainer(
-              isExpanded: state.isExpandedProducts, child: const SizedBox(height: 400, child: Center(child: MyCircularProgressIndicator())));
+              isExpanded: state.isExpandedProducts, child: SizedBox(height: expandedHeight, child: const Center(child: MyCircularProgressIndicator())));
         }
 
         return MyAnimatedExpansionContainer(
           isExpanded: state.isExpandedProducts,
           child: SizedBox(
-            height: screenWidth < 400 ? screenWidth : 400,
+            height: expandedHeight,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
               physics: const BouncingScrollPhysics(),
@@ -55,7 +57,7 @@ class HomeProductExpanded extends StatelessWidget {
                       ),
                     ],
                     SizedBox(
-                      width: 400,
+                      width: screenWidth < 400 ? screenWidth : 400,
                       child: Column(
                         children: [
                           Container(
@@ -100,7 +102,7 @@ class HomeProductExpanded extends StatelessWidget {
                                     itemBuilder: (context, index2) {
                                       final product = group.listOfProducts[index2];
                                       return InkWell(
-                                        onLongPress: () => showMyProductQuickView(context, product),
+                                        onLongPress: () => showMyProductQuickView(context: context, product: product, showStatProduct: true),
                                         child: Container(
                                           padding: const EdgeInsets.symmetric(horizontal: 8),
                                           color: index2 % 2 == 1 ? CustomColors.ultraLightBlue : Colors.white,

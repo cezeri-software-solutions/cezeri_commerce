@@ -10,8 +10,8 @@ import '../../../2_application/firebase/product/product_bloc.dart';
 import '../../../3_domain/entities/product/product.dart';
 import '../../../3_domain/enums/enums.dart';
 import '../../../routes/router.gr.dart';
+import '../../core/functions/show_my_product_quick_view.dart';
 import '../../core/widgets/my_avatar.dart';
-import '../product_detail/product_detail_screen.dart';
 
 class ProductOverviewPage extends StatelessWidget {
   final ProductBloc productBloc;
@@ -110,16 +110,16 @@ class _ProductContainer extends StatelessWidget {
               ),
               responsiveness == Responsiveness.isTablet ? Gaps.w16 : Gaps.w8,
               Expanded(
-                //width: screenWidth / 2,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(product.articleNumber),
                     TextButton(
-                      onPressed: () {
-                        context.read<ProductBloc>().add(GetProductEvent(id: product.id));
-                        context.router.push(ProductDetailRoute(productBloc: productBloc, productCreateOrEdit: ProductCreateOrEdit.edit));
+                      onPressed: () async {
+                        await context.router.push(ProductDetailRoute(productId: product.id));
+                        productBloc.add(GetProductEvent(id: product.id));
                       },
+                      onLongPress: () => showMyProductQuickView(context: context, product: product),
                       style: TextButton.styleFrom(padding: EdgeInsets.zero, tapTargetSize: MaterialTapTargetSize.shrinkWrap),
                       child: Text(product.name, maxLines: 2, overflow: TextOverflow.ellipsis),
                     ),
@@ -270,7 +270,7 @@ class _UpdateProductQuantityDialogState extends State<_UpdateProductQuantityDial
                           updateOnlyAvailableQuantity: updateOnlyAvailableQuantity,
                         )),
                     buttonBackgroundColor: Colors.green,
-                    isLoading: state.isLoadingProductOnUpdate,
+                    isLoading: state.isLoadingProductOnUpdateQuantity,
                   ),
                 ],
               ),

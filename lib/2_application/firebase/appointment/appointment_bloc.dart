@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:cezeri_commerce/3_domain/repositories/firebase/product_repository.dart';
 import 'package:dartz/dartz.dart';
 import 'package:logger/logger.dart';
 import 'package:meta/meta.dart';
@@ -7,6 +8,7 @@ import '../../../3_domain/entities/address.dart';
 import '../../../3_domain/entities/carrier/carrier_product.dart';
 import '../../../3_domain/entities/customer/customer.dart';
 import '../../../3_domain/entities/marketplace/marketplace.dart';
+import '../../../3_domain/entities/product/product.dart';
 import '../../../3_domain/entities/receipt/load_appointments_helper/to_load_appointments_from_marketplace.dart';
 import '../../../3_domain/entities/receipt/receipt.dart';
 import '../../../3_domain/entities/receipt/receipt_carrier.dart';
@@ -22,8 +24,9 @@ part 'appointment_state.dart';
 
 class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
   final ReceiptRepository receiptRepository;
+  final ProductRepository productRepository;
 
-  AppointmentBloc({required this.receiptRepository}) : super(AppointmentState.initial()) {
+  AppointmentBloc({required this.receiptRepository, required this.productRepository}) : super(AppointmentState.initial()) {
 //? #########################################################################
 
     on<SetAppointmentStateToInitialEvent>((event, emit) {
@@ -480,6 +483,46 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
         fosReceiptOnGenerateOption: optionOf(failureOrSuccess),
       ));
       emit(state.copyWith(fosReceiptOnGenerateOption: none()));
+    });
+
+//? #########################################################################
+
+    on<GetAllProductsEvent>((event, emit) async {
+      emit(state.copyWith(isLoadingProductsOnObserve: true));
+
+      final failureOrSuccess = await productRepository.getListOfProducts();
+      failureOrSuccess.fold(
+        (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
+        (listOfProducts) {
+          emit(state.copyWith(listOfAllProducts: listOfProducts, firebaseFailure: null, isAnyFailure: false));
+        },
+      );
+
+      emit(state.copyWith(
+        isLoadingProductsOnObserve: false,
+        fosProductsOnObserveOption: optionOf(failureOrSuccess),
+      ));
+      emit(state.copyWith(fosProductsOnObserveOption: none()));
+    });
+
+//? #########################################################################
+
+    on<GetProductByEanEvent>((event, emit) async {
+      emit(state.copyWith(isLoadingProductOnObserve: true));
+
+      final failureOrSuccess = await productRepository.getProductByEan(event.ean);
+      failureOrSuccess.fold(
+        (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
+        (product) {
+          emit(state.copyWith(product: product, firebaseFailure: null, isAnyFailure: false));
+        },
+      );
+
+      emit(state.copyWith(
+        isLoadingProductOnObserve: false,
+        fosProductOnObserveOption: optionOf(failureOrSuccess),
+      ));
+      emit(state.copyWith(fosProductOnObserveOption: none()));
     });
 
 //? #########################################################################

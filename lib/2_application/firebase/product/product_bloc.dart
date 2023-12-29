@@ -1,28 +1,16 @@
-import 'dart:io';
-
 import 'package:bloc/bloc.dart';
-import 'package:cezeri_commerce/1_presentation/core/extensions/string_to_int.dart';
-import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.dart';
-import 'package:cezeri_commerce/1_presentation/core/functions/mixed_functions.dart';
 import 'package:cezeri_commerce/core/firebase_failures.dart';
 import 'package:cezeri_commerce/core/presta_failure.dart';
 import 'package:dartz/dartz.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:html_editor_enhanced/html_editor.dart';
 import 'package:logger/logger.dart';
 
 import '../../../3_domain/entities/marketplace/marketplace.dart';
 import '../../../3_domain/entities/product/product.dart';
-import '../../../3_domain/entities/product/product_image.dart';
 import '../../../3_domain/entities/reorder/supplier.dart';
 import '../../../3_domain/entities/settings/main_settings.dart';
-import '../../../3_domain/entities/statistic/stat_product.dart';
-import '../../../3_domain/entities_presta/product_presta.dart';
 import '../../../3_domain/repositories/firebase/main_settings_respository.dart';
 import '../../../3_domain/repositories/firebase/product_repository.dart';
-import '../../../3_domain/repositories/firebase/stat_product_repository.dart';
 import '../../../3_domain/repositories/firebase/supplier_repository.dart';
 import '../../../3_domain/repositories/marketplace/marketplace_edit_repository.dart';
 
@@ -36,14 +24,12 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
   final MarketplaceEditRepository productEditRepository;
   final MainSettingsRepository mainSettingsRepository;
   final SupplierRepository supplierRepository;
-  final StatProductRepository statProductRepository;
 
   ProductBloc({
     required this.productRepository,
     required this.productEditRepository,
     required this.mainSettingsRepository,
     required this.supplierRepository,
-    required this.statProductRepository,
   }) : super(ProductState.initial()) {
 //? #########################################################################
 
@@ -81,213 +67,25 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
 //? #########################################################################
 
     on<GetProductEvent>((event, emit) async {
-      emit(state.copyWith(isLoadingProductOnObserve: true));
-
-      if (state.mainSettings == null) {
-        final fosSettings = await mainSettingsRepository.getSettings();
-        fosSettings.fold(
-          (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
-          (settings) => emit(state.copyWith(mainSettings: settings, firebaseFailure: null, isAnyFailure: false)),
-        );
-      }
-
       final failureOrSuccess = await productRepository.getProduct(event.id);
       failureOrSuccess.fold(
         (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
         (product) {
-          emit(state.copyWith(product: product, firebaseFailure: null, isAnyFailure: false));
-          add(SetProductControllerEvent(product: product));
-          add(OnProductGetStatProductsEvent());
-        },
-      );
-
-      emit(state.copyWith(
-        isLoadingProductOnObserve: false,
-        fosProductOnObserveOption: optionOf(failureOrSuccess),
-      ));
-      emit(state.copyWith(fosProductOnObserveOption: none()));
-    });
-
-    on<SetProductControllerEvent>((event, emit) async {
-      emit(state.copyWith(
-        articleNumberController: TextEditingController(text: event.product.articleNumber),
-        eanController: TextEditingController(text: event.product.ean),
-        nameController: TextEditingController(text: event.product.name),
-        wholesalePriceController: TextEditingController(text: event.product.wholesalePrice.toMyCurrencyStringToShow()),
-        supplierArticleNumberController: TextEditingController(text: event.product.supplierArticleNumber),
-        manufacturerController: TextEditingController(text: event.product.manufacturer),
-        minimumStockController: TextEditingController(text: event.product.minimumStock.toString()),
-        minimumReorderQuantityController: TextEditingController(text: event.product.minimumReorderQuantity.toString()),
-        packagingUnitOnReorderController: TextEditingController(text: event.product.packagingUnitOnReorder.toString()),
-        netPriceController: TextEditingController(text: event.product.netPrice.toMyCurrencyStringToShow()),
-        grossPriceController: TextEditingController(text: event.product.grossPrice.toMyCurrencyStringToShow()),
-        recommendedRetailPriceController: TextEditingController(text: event.product.recommendedRetailPrice.toMyCurrencyStringToShow()),
-        unityController: TextEditingController(text: event.product.unity),
-        unitPriceController: TextEditingController(text: event.product.unitPrice.toMyCurrencyStringToShow()),
-        weightController: TextEditingController(text: event.product.weight.toMyCurrencyStringToShow()),
-        widthController: TextEditingController(text: event.product.width.toMyCurrencyStringToShow()),
-        heightController: TextEditingController(text: event.product.height.toMyCurrencyStringToShow()),
-        depthController: TextEditingController(text: event.product.depth.toMyCurrencyStringToShow()),
-        listOfProductImages: List.from(event.product.listOfProductImages),
-        selectedProductImages: [],
-        isSelectedAllImages: false,
-      ));
-    });
-
-//? #########################################################################
-
-    on<GetProductByEanEvent>((event, emit) async {
-      emit(state.copyWith(isLoadingProductOnObserve: true));
-
-      final failureOrSuccess = await productRepository.getProductByEan(event.ean);
-      failureOrSuccess.fold(
-        (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
-        (product) => emit(state.copyWith(product: product, firebaseFailure: null, isAnyFailure: false)),
-      );
-
-      emit(state.copyWith(
-        isLoadingProductOnObserve: false,
-        fosProductOnObserveOption: optionOf(failureOrSuccess),
-      ));
-      emit(state.copyWith(fosProductOnObserveOption: none()));
-    });
-
-//? #########################################################################
-
-    on<CreateProductEvent>((event, emit) async {
-      emit(state.copyWith(isLoadingProductOnCreate: true));
-
-      final failureOrSuccess = await productRepository.createProduct(event.product, event.productPresta);
-      failureOrSuccess.fold(
-        (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
-        (unit) => emit(state.copyWith(firebaseFailure: null, isAnyFailure: false)),
-      );
-
-      emit(state.copyWith(
-        isLoadingProductOnCreate: false,
-        fosProductOnCreateOption: optionOf(failureOrSuccess),
-      ));
-      emit(state.copyWith(fosProductOnCreateOption: none()));
-    });
-
-//? #########################################################################
-
-    on<OnProductControllerChangedEvent>((event, emit) {
-      emit(state.copyWith(
-        product: state.product!.copyWith(
-          articleNumber: state.articleNumberController.text,
-          ean: state.eanController.text,
-          name: state.nameController.text,
-          wholesalePrice: state.wholesalePriceController.text.toMyDouble(),
-          supplierArticleNumber: state.supplierArticleNumberController.text,
-          manufacturer: state.manufacturerController.text,
-          minimumStock: state.minimumStockController.text.toMyInt(),
-          minimumReorderQuantity: state.minimumReorderQuantityController.text.toMyInt(),
-          packagingUnitOnReorder: state.packagingUnitOnReorderController.text.toMyInt(),
-          netPrice: state.netPriceController.text.toMyDouble(),
-          grossPrice: state.grossPriceController.text.toMyDouble(),
-          recommendedRetailPrice: state.recommendedRetailPriceController.text.toMyDouble(),
-          unity: state.unityController.text,
-          unitPrice: state.unitPriceController.text.toMyDouble(),
-          weight: state.weightController.text.toMyDouble(),
-          width: state.widthController.text.toMyDouble(),
-          height: state.heightController.text.toMyDouble(),
-          depth: state.depthController.text.toMyDouble(),
-        ),
-      ));
-    });
-
-//? #########################################################################
-
-    on<OnProductSalesPriceControllerChangedEvent>((event, emit) {
-      final taxRate = state.mainSettings!.taxes.firstWhere((e) => e.isDefault).taxRate;
-      final netPrice = event.isNet ? state.netPriceController.text.toMyDouble() : state.grossPriceController.text.toMyDouble() / taxToCalc(taxRate);
-      final grossPrice = event.isNet ? state.netPriceController.text.toMyDouble() * taxToCalc(taxRate) : state.grossPriceController.text.toMyDouble();
-
-      emit(state.copyWith(
-        product: state.product!.copyWith(
-          netPrice: netPrice,
-          grossPrice: grossPrice,
-        ),
-      ));
-
-      if (event.isNet) {
-        emit(state.copyWith(grossPriceController: TextEditingController(text: grossPrice.toMyCurrencyStringToShow())));
-      } else {
-        emit(state.copyWith(netPriceController: TextEditingController(text: netPrice.toMyCurrencyStringToShow())));
-      }
-    });
-
-//? #########################################################################
-
-    on<OnPoductHtmlTabValueChangedEvent>((event, emit) {
-      emit(state.copyWith(htmlTabValue: event.value));
-    });
-
-//? #########################################################################
-
-    on<OnProductShowDescriptionChangedEvent>((event, emit) {
-      emit(state.copyWith(showHtmlTexts: !state.showHtmlTexts));
-    });
-
-//? #########################################################################
-
-    on<OnProductDescriptionChangedEvent>((event, emit) {
-      bool isChanged = true;
-      if (state.isDescriptionSetFirstTime) isChanged = false;
-      if (event.content != null && state.product != null && event.content == state.product!.description) isChanged = false;
-      emit(state.copyWith(isDescriptionChanged: isChanged, isDescriptionSetFirstTime: false));
-    });
-
-//? #########################################################################
-
-    on<OnSaveProductDescriptionEvent>((event, emit) async {
-      final newDescription = await state.descriptionController.getText();
-      final newDescriptionShort = await state.descriptionShortController.getText();
-      emit(state.copyWith(
-          isDescriptionChanged: false,
-          product: state.product!.copyWith(
-            description: newDescription,
-            descriptionShort: newDescriptionShort,
-          ),
-          showHtmlTexts: false));
-    } );
-
-//? #########################################################################
-
-    on<UpdateProductEvent>((event, emit) async {
-      emit(state.copyWith(isLoadingProductOnUpdate: true));
-
-      bool isUpdateInFirestoreSucceeded = false;
-      final failureOrSuccess = await productRepository.updateProduct(state.product!);
-      failureOrSuccess.fold(
-        (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
-        (unit) {
-          final indexAll = state.listOfAllProducts!.indexWhere((e) => e.id == state.product!.id);
+          final indexAll = state.listOfAllProducts!.indexWhere((e) => e.id == product.id);
           List<Product> updatedListOfAll = List.from(state.listOfAllProducts!);
-          if (indexAll != -1) updatedListOfAll[indexAll] = state.product!;
-          final indexSelected = state.selectedProducts.indexWhere((e) => e.id == state.product!.id);
+          if (indexAll != -1) updatedListOfAll[indexAll] = product;
+          final indexSelected = state.selectedProducts.indexWhere((e) => e.id == product.id);
           List<Product> updatedSelected = List.from(state.selectedProducts);
-          if (indexSelected != -1) updatedSelected[indexSelected] = state.product!;
+          if (indexSelected != -1) updatedSelected[indexSelected] = product;
           emit(state.copyWith(listOfAllProducts: updatedListOfAll, selectedProducts: updatedSelected, firebaseFailure: null, isAnyFailure: false));
-          isUpdateInFirestoreSucceeded = true;
         },
       );
-
-      if (isUpdateInFirestoreSucceeded) add(OnEditProductInPresta(product: state.product!));
-      add(OnSearchFieldSubmittedEvent());
-
-      emit(state.copyWith(
-        isLoadingProductOnUpdate: false,
-        fosProductOnUpdateOption: optionOf(failureOrSuccess),
-      ));
-      emit(state.copyWith(fosProductOnUpdateOption: none()));
     });
 
 //? #########################################################################
 
     on<UpdateQuantityOfProductEvent>((event, emit) async {
-      emit(state.copyWith(isLoadingProductOnUpdate: true));
+      emit(state.copyWith(isLoadingProductOnUpdateQuantity: true));
 
       final failureOrSuccess = switch (event.updateOnlyAvailableQuantity) {
         false => await productRepository.updateAllQuantityOfProductAbsolut(event.product, event.newQuantity),
@@ -307,42 +105,10 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
       );
 
       emit(state.copyWith(
-        isLoadingProductOnUpdate: false,
+        isLoadingProductOnUpdateQuantity: false,
         fosProductOnUpdateQuantityOption: optionOf(failureOrSuccess),
       ));
       emit(state.copyWith(fosProductOnUpdateQuantityOption: none()));
-    });
-
-// * #################################################################################################################################
-// * StatProducts Chart
-
-//? #########################################################################
-
-    on<OnProductGetStatProductsEvent>((event, emit) async {
-      emit(state.copyWith(isLoadingStatProductsOnObserve: true));
-
-      final fosSettings = await statProductRepository.getStatProductsOfProductLast13(state.product!.id);
-      fosSettings.fold(
-        (failure) => emit(state.copyWith(firebaseFailureChart: failure)),
-        (statProducts) => emit(state.copyWith(listOfStatProducts: statProducts, firebaseFailureChart: null)),
-      );
-
-      final failureOrSuccess = await productRepository.getListOfProducts();
-      failureOrSuccess.fold(
-        (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
-        (listOfProduct) {
-          emit(state.copyWith(listOfAllProducts: listOfProduct, selectedProducts: [], firebaseFailure: null, isAnyFailure: false));
-          add(OnSearchFieldSubmittedEvent());
-        },
-      );
-
-      emit(state.copyWith(isLoadingStatProductsOnObserve: false));
-    });
-
-//? #########################################################################
-
-    on<OnProductChangeChartModeEvent>((event, emit) async {
-      emit(state.copyWith(isShowingSalesVolumeOnChart: !state.isShowingSalesVolumeOnChart));
     });
 
 // * #################################################################################################################################
@@ -556,49 +322,6 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
 
 //? #########################################################################
 
-    on<OnPickNewProductPictureEvent>((event, emit) async {
-      List<File> imageFiles = [];
-      try {
-        final FilePickerResult? result = await FilePicker.platform.pickFiles(allowMultiple: true);
-        if (result == null) return;
-        logger.i('Neues Artikelbild erfolgreich gepickt');
-        for (final image in result.files) {
-          imageFiles.add(File(image.path!));
-        }
-      } on PlatformException {
-        logger.e('Fehler beim auswählen des Produktbildes');
-      }
-
-      if (imageFiles.isEmpty) return;
-      emit(state.copyWith(isLoadingProductOnUpdateImages: true));
-
-      bool isUpdateInFirestoreSucceeded = false;
-      final failureOrSuccess = await productRepository.updateProductAddImages(state.product!, imageFiles);
-      failureOrSuccess.fold(
-        (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
-        (updatedProduct) {
-          emit(state.copyWith(
-            listOfProductImages: updatedProduct.listOfProductImages,
-            product: updatedProduct,
-            isProductImagesEdited: true,
-            firebaseFailure: null,
-            isAnyFailure: false,
-          ));
-          isUpdateInFirestoreSucceeded = true;
-        },
-      );
-
-      // if (isUpdateInFirestoreSucceeded) add(OnEditProductInPresta(product: state.product!));
-
-      emit(state.copyWith(
-        isLoadingProductOnUpdateImages: false,
-        fosProductOnUpdateImagesOption: optionOf(failureOrSuccess),
-      ));
-      emit(state.copyWith(fosProductOnUpdateImagesOption: none()));
-    });
-
-//? #########################################################################
-
     on<OnProductGetSuppliersEvent>((event, emit) async {
       emit(state.copyWith(isLoadingProductSuppliersOnObseve: true));
 
@@ -617,97 +340,9 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
 
 //? #########################################################################
 
-    on<OnProductSetSupplierEvent>((event, emit) async {
-      emit(state.copyWith(product: state.product!.copyWith(supplier: event.supplierName)));
-    });
-
-//? #########################################################################
-
     on<SetProductsWidthSearchEvent>((event, emit) async {
       emit(state.copyWith(isWidthSearchActive: event.value));
       add(OnSearchFieldSubmittedEvent());
-    });
-
-//? #########################################################################
-
-    on<OnProductImageSelectedEvent>((event, emit) async {
-      List<ProductImage> selectedProductImages = List.from(state.selectedProductImages);
-      if (selectedProductImages.any((e) => e.fileUrl == event.image.fileUrl)) {
-        selectedProductImages.removeWhere((e) => e.fileUrl == event.image.fileUrl);
-      } else {
-        selectedProductImages.add(event.image);
-      }
-
-      final isSelectedAllImages = selectedProductImages.length == state.selectedProductImages.length;
-
-      emit(state.copyWith(selectedProductImages: selectedProductImages, isSelectedAllImages: isSelectedAllImages));
-    });
-
-//? #########################################################################
-
-    on<OnAllProdcutImagesSelectedEvent>((event, emit) async {
-      List<ProductImage> selectedProductImages = switch (event.value) {
-        true => List.from(state.listOfProductImages),
-        false => [],
-      };
-
-      emit(state.copyWith(selectedProductImages: selectedProductImages, isSelectedAllImages: event.value));
-    });
-
-//? #########################################################################
-
-    on<RemoveSelectedProductImages>((event, emit) async {
-      emit(state.copyWith(isLoadingProductOnUpdateImages: true));
-
-      bool isUpdateInFirestoreSucceeded = false;
-      final failureOrSuccess = await productRepository.updateProductRemoveImages(state.product!, state.selectedProductImages);
-      failureOrSuccess.fold(
-        (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
-        (updatedProduct) {
-          emit(state.copyWith(
-            listOfProductImages: updatedProduct.listOfProductImages,
-            product: updatedProduct,
-            isProductImagesEdited: true,
-            firebaseFailure: null,
-            isAnyFailure: false,
-          ));
-          isUpdateInFirestoreSucceeded = true;
-        },
-      );
-
-      // if (isUpdateInFirestoreSucceeded) add(OnEditProductInPresta(product: state.product!));
-
-      emit(state.copyWith(
-        isLoadingProductOnUpdateImages: false,
-        fosProductOnUpdateImagesOption: optionOf(failureOrSuccess),
-      ));
-      emit(state.copyWith(fosProductOnUpdateImagesOption: none()));
-    });
-
-    // emit(state.copyWith(selectedProductImages: selectedProductImages, isSelectedAllImages: event.value));
-
-//? #########################################################################
-
-    on<OnReorderProductImagesEvent>((event, emit) async {
-      List<ProductImage> listOfProductImages = List.from(state.listOfProductImages);
-
-      int newIndex = event.newIndex;
-      int oldIndex = event.oldIndex;
-      if (newIndex > oldIndex) {
-        newIndex -= 1;
-      }
-      final item = listOfProductImages.removeAt(oldIndex);
-      listOfProductImages.insert(newIndex, item);
-
-      for (int i = 0; i < listOfProductImages.length; i++) {
-        listOfProductImages[i] = listOfProductImages[i].copyWith(sortId: i + 1, isDefault: i == 0 ? true : false);
-      }
-
-      emit(state.copyWith(
-        listOfProductImages: listOfProductImages,
-        isProductImagesEdited: true,
-        product: state.product!.copyWith(listOfProductImages: listOfProductImages),
-      ));
     });
 
 //? #########################################################################
@@ -725,7 +360,7 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
         isLoadingOnMassEditActivateProductMarketplace: false,
         fosMassEditActivateProductMarketplaceOption: optionOf(failureOrSuccess),
       ));
-      emit(state.copyWith(fosProductOnUpdateOption: none()));
+      // emit(state.copyWith(fosProductOnUpdateOption: none()));
     });
 
 //? #########################################################################
@@ -757,24 +392,6 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
 
       emit(state.copyWith(fosProductOnEditQuantityPrestaOption: optionOf(failureOrSuccess)));
       emit(state.copyWith(fosProductOnEditQuantityPrestaOption: none()));
-
-      if (state.isProductImagesEdited) add(UploadProductImageToPrestaEvent());
-    });
-
-    on<UploadProductImageToPrestaEvent>((event, emit) async {
-      emit(state.copyWith(isLoadingProductOnUploadImages: true));
-
-      final failureOrSuccess = await productEditRepository.uploadProductImages(state.product!, state.listOfProductImages);
-      failureOrSuccess.fold(
-        (failure) => emit(state.copyWith()), // TODO: handle Presta Failure
-        (unit) => emit(state.copyWith(firebaseFailure: null, isAnyFailure: false)),
-      );
-
-      emit(state.copyWith(
-        isLoadingProductOnUploadImages: false,
-        fosProductOnUploadImagesOption: optionOf(failureOrSuccess),
-      ));
-      emit(state.copyWith(fosProductOnUploadImagesOption: none()));
     });
   }
 }

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+double getAspectRatio(double width) => 0.00192 * width + 0.873;
+
 durationToStringFormatter(Duration d) => d.toString().split('.').first.padLeft(8, '0');
 
 String getInitials(String name) => name.split(' ').where((str) => str.isNotEmpty).take(2).map((str) => str[0].toUpperCase()).join(' ');

@@ -15,6 +15,7 @@ import '2_application/firebase/home/home_product/home_product_bloc.dart';
 import '2_application/firebase/main_settings/main_settings_bloc.dart';
 import '2_application/firebase/marketplace/marketplace_bloc.dart';
 import '2_application/firebase/product/product_bloc.dart';
+import '2_application/firebase/product_detail/product_detail_bloc.dart';
 import '2_application/firebase/products_booking/products_booking_bloc.dart';
 import '2_application/firebase/receipt_detail/receipt_detail_bloc.dart';
 import '2_application/firebase/reorder/reorder_bloc.dart';
@@ -59,6 +60,12 @@ Future<void> init() async {
         productEditRepository: sl(),
         mainSettingsRepository: sl(),
         supplierRepository: sl(),
+      ));
+  sl.registerFactory(() => ProductDetailBloc(
+        productRepository: sl(),
+        marketplaceEditRepository: sl(),
+        mainSettingsRepository: sl(),
+        supplierRepository: sl(),
         statProductRepository: sl(),
       ));
   sl.registerFactory(() => AuthBloc(authRepository: sl(), clientRepository: sl()));
@@ -68,7 +75,7 @@ Future<void> init() async {
   sl.registerFactory(() => HomeProductBloc(productRepository: sl(), reorderRepository: sl()));
   sl.registerFactory(() => MarketplaceBloc(marketplaceRepository: sl()));
   sl.registerFactory(() => MainSettingsBloc(mainSettingsRepository: sl()));
-  sl.registerFactory(() => AppointmentBloc(receiptRepository: sl()));
+  sl.registerFactory(() => AppointmentBloc(receiptRepository: sl(), productRepository: sl()));
   sl.registerFactory(() => PackingStationBloc(receiptRepository: sl(), customerRepository: sl(), packingStationRepository: sl()));
   sl.registerFactory(() => CustomerBloc(customerRepository: sl()));
   sl.registerFactory(() => SupplierBloc(supplierRepository: sl()));
