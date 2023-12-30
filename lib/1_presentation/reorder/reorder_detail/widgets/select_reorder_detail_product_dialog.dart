@@ -96,18 +96,18 @@ class SelectReorderDetailProductDialog extends StatelessWidget {
                       statProductReorderAppointment ??= StatProductReorder(productId: '', quantity: 0);
                       final inListProduct = state.reorder!.listOfReorderProducts.where((e) => e.productId == product.id).firstOrNull;
 
-                      final ve = product.packagingUnitOnReorder!;
+                      final ve = product.packagingUnitOnReorder;
                       final ebmPerRe = _getRecommendedOrderQuantity(
                         statProductReorderInvoice.quantity,
-                        product.minimumStock!,
+                        product.minimumStock,
                         product.warehouseStock,
                       );
                       final ebmPerAe = _getRecommendedOrderQuantity(
                         statProductReorderAppointment.quantity,
-                        product.minimumStock!,
+                        product.minimumStock,
                         product.availableStock,
                       );
-                      final ebmPerVe = _getRecommendedOrderQuantityByPackagingUnit(ebmPerRe, product.packagingUnitOnReorder!);
+                      final ebmPerVe = _getRecommendedOrderQuantityByPackagingUnit(ebmPerRe, product.packagingUnitOnReorder);
 
                       return Column(
                         children: [
@@ -122,7 +122,6 @@ class SelectReorderDetailProductDialog extends StatelessWidget {
                                     : null,
                                 radius: 20,
                                 fontSize: 16,
-                                //fit: BoxFit.scaleDown,
                               ),
                             ),
                             title: Text(product.name, style: TextStyles.defaultt),

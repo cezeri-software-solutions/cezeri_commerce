@@ -1,4 +1,5 @@
 import 'package:cezeri_commerce/3_domain/entities/product/product.dart';
+import 'package:cezeri_commerce/3_domain/entities_presta/category_presta.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -18,6 +19,8 @@ import '../../../../core/presta_failure.dart';
 import '../firebase/repository_impl_helper.dart';
 import '../prestashop_api/prestashop_api.dart';
 
+final logger = Logger();
+
 class MarketplaceImportRepositoryImpl implements MarketplaceImportRepository {
   final FirebaseFirestore db;
   final FirebaseAuth firebaseAuth;
@@ -29,7 +32,6 @@ class MarketplaceImportRepositoryImpl implements MarketplaceImportRepository {
   Future<Either<AbstractFailure, List<int>>> getToLoadProductsFromMarketplace(Marketplace marketplace, bool onlyActive) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
-    final logger = Logger();
 
     try {
       List<int> listOfToLoadAppointmentsFromMarketplace = [];
@@ -57,7 +59,6 @@ class MarketplaceImportRepositoryImpl implements MarketplaceImportRepository {
   Future<Either<AbstractFailure, ProductPresta>> loadProductFromMarketplace(int productId, Marketplace marketplace) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
-    final logger = Logger();
 
     final api = PrestashopApi(Client(), PrestashopApiConfig(apiKey: marketplace.key, webserviceUrl: marketplace.fullUrl));
 
@@ -84,7 +85,6 @@ class MarketplaceImportRepositoryImpl implements MarketplaceImportRepository {
   ) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
-    final logger = Logger();
 
     try {
       final productFirestore = await getProductFromFirestoreIfExists(
@@ -135,7 +135,6 @@ class MarketplaceImportRepositoryImpl implements MarketplaceImportRepository {
   Future<Either<PrestaFailure, ProductPresta>> getProductByIdFromPrestashopAsJson(int id, Marketplace marketplace) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(PrestaGeneralFailure());
-    final logger = Logger();
 
     final api = PrestashopApi(Client(), PrestashopApiConfig(apiKey: marketplace.key, webserviceUrl: marketplace.fullUrl));
 
@@ -145,6 +144,24 @@ class MarketplaceImportRepositoryImpl implements MarketplaceImportRepository {
       final productPresta = optionalProductPresta.value;
 
       return right(productPresta);
+    } catch (e) {
+      logger.e(e);
+      return left(PrestaGeneralFailure());
+    }
+  }
+
+  @override
+  Future<Either<PrestaFailure, List<CategoryPresta>>> getAllPrestaCategories(Marketplace marketplace) async {
+    final isConnected = await checkInternetConnection();
+    if (!isConnected) return left(PrestaGeneralFailure());
+
+    final api = PrestashopApi(Client(), PrestashopApiConfig(apiKey: marketplace.key, webserviceUrl: marketplace.fullUrl));
+
+    try {
+      final categoriesPresta = await api.getCategories();
+      print(categoriesPresta);
+
+      return right(categoriesPresta);
     } catch (e) {
       logger.e(e);
       return left(PrestaGeneralFailure());

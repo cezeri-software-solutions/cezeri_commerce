@@ -43,7 +43,7 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
       if (productMarketplace.marketplaceProduct == null) return left(ProductHasNoMarketplaceFailure());
       final marketplaceProduct = switch (productMarketplace.marketplaceProduct!.marketplaceType) {
         MarketplaceType.prestashop => productMarketplace.marketplaceProduct as MarketplaceProductPresta,
-        _ => throw Error(),
+        MarketplaceType.shop => throw Error(),
       };
 
       final isSuccess = await api.patchProductQuantity(marketplaceProduct.id, newQuantity, marketplace);
@@ -117,7 +117,7 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
       if (productMarketplace.marketplaceProduct == null) return left(ProductHasNoMarketplaceFailure());
       final marketplaceProduct = switch (productMarketplace.marketplaceProduct!.marketplaceType) {
         MarketplaceType.prestashop => productMarketplace.marketplaceProduct as MarketplaceProductPresta,
-        _ => throw Error(),
+        MarketplaceType.shop => throw Error(),
       };
 
       final optionalProductPresta = await api.getProduct(marketplaceProduct.id, marketplace);

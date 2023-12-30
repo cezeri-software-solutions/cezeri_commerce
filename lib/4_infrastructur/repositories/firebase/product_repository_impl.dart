@@ -13,6 +13,7 @@ import '../../../3_domain/entities/marketplace/marketplace.dart';
 import '../../../3_domain/entities/product/product.dart';
 import '../../../3_domain/entities/product/product_image.dart';
 import '../../../3_domain/entities_presta/product_presta.dart';
+import '../../../3_domain/repositories/firebase/marketplace_repository.dart';
 import '../../../3_domain/repositories/firebase/product_repository.dart';
 import '../../../3_domain/repositories/marketplace/marketplace_edit_repository.dart';
 
@@ -20,8 +21,14 @@ class ProductRepositoryImpl implements ProductRepository {
   final FirebaseFirestore db;
   final FirebaseAuth firebaseAuth;
   final MarketplaceEditRepository marketplaceEditRepository;
+  final MarketplaceRepository marketplaceRepository;
 
-  const ProductRepositoryImpl({required this.db, required this.firebaseAuth, required this.marketplaceEditRepository});
+  const ProductRepositoryImpl({
+    required this.db,
+    required this.firebaseAuth,
+    required this.marketplaceEditRepository,
+    required this.marketplaceRepository,
+  });
 
   @override
   Future<Either<FirebaseFailure, Product>> createProduct(Product product, ProductPresta? productPresta) async {
@@ -76,6 +83,37 @@ class ProductRepositoryImpl implements ProductRepository {
       //     await docRefPh.update(updatedProduct.toJson());
       //     await Future.delayed(const Duration(milliseconds: 200));
       //   }
+      // }
+      //********************************
+      // List<Marketplace> marketplaces = [];
+      // final fosMarketplaces = await marketplaceRepository.getListOfMarketplaces();
+      // fosMarketplaces.fold(
+      //   (failure) => left(GeneralFailure()),
+      //   (listOfMarketplaces) => marketplaces.addAll(listOfMarketplaces),
+      // );
+
+      // int index = 1;
+      // for (final product in listOfProducts) {
+      //   logger.i('####################### Schleifendurchgang $index ###########################');
+      //   final docRefPh = db.collection('Products').doc(currentUserUid).collection('Products').doc(product.id);
+      //   List<ProductMarketplace> listOfProductMarketplaces = [];
+      //   for (int i = 0; i < product.productMarketplaces.length; i++) {
+      //     final marketplace = marketplaces.where((e) => e.id == product.productMarketplaces[i].idMarketplace).firstOrNull;
+      //     if (marketplace == null) continue;
+      //     final api = PrestashopApi(Client(), PrestashopApiConfig(apiKey: marketplace.key, webserviceUrl: marketplace.fullUrl));
+      //     final optionalProductPresta = await api.getProduct(
+      //       (product.productMarketplaces[i].marketplaceProduct as MarketplaceProductPresta).id,
+      //       marketplace,
+      //     );
+      //     if (optionalProductPresta.isNotPresent) continue;
+      //     final productPresta = optionalProductPresta.value;
+      //     final productMarketplace = ProductMarketplace.fromProductPresta(productPresta, marketplace);
+      //     listOfProductMarketplaces.add(productMarketplace);
+      //   }
+      //   final updatedProduct = product.copyWith(productMarketplaces: listOfProductMarketplaces);
+      //   await docRefPh.update(updatedProduct.toJson());
+      //   await Future.delayed(const Duration(milliseconds: 100));
+      //   index++;
       // }
 
       if (listOfProducts.isEmpty) return left(EmptyFailure());
@@ -404,7 +442,7 @@ class ProductRepositoryImpl implements ProductRepository {
       final updatedProduct = product.copyWith(
         availableStock: newQuantity,
         warehouseStock: product.warehouseStock - (product.availableStock - newQuantity),
-        isUnderMinimumStock: newQuantity <= product.minimumReorderQuantity! ? true : false,
+        isUnderMinimumStock: newQuantity <= product.minimumReorderQuantity ? true : false,
       );
       await docRefProduct.update(updatedProduct.toJson());
 
@@ -425,7 +463,7 @@ class ProductRepositoryImpl implements ProductRepository {
     try {
       final updatedProduct = product.copyWith(
         availableStock: newQuantity,
-        isUnderMinimumStock: newQuantity <= product.minimumReorderQuantity! ? true : false,
+        isUnderMinimumStock: newQuantity <= product.minimumReorderQuantity ? true : false,
       );
       await docRefProduct.update(updatedProduct.toJson());
 
@@ -446,7 +484,7 @@ class ProductRepositoryImpl implements ProductRepository {
     try {
       final updatedProduct = product.copyWith(
         warehouseStock: product.warehouseStock - (product.warehouseStock - newQuantity),
-        isUnderMinimumStock: product.availableStock <= product.minimumReorderQuantity! ? true : false,
+        isUnderMinimumStock: product.availableStock <= product.minimumReorderQuantity ? true : false,
       );
       await docRefProduct.update(updatedProduct.toJson());
 
@@ -472,7 +510,7 @@ class ProductRepositoryImpl implements ProductRepository {
       final newAvailableStock = product.availableStock + newQuantityIncremental;
       final updatedProduct = product.copyWith(
         availableStock: newAvailableStock,
-        isUnderMinimumStock: newAvailableStock <= product.minimumReorderQuantity! ? true : false,
+        isUnderMinimumStock: newAvailableStock <= product.minimumReorderQuantity ? true : false,
       );
       await docRefProduct.update(updatedProduct.toJson());
 
@@ -494,7 +532,7 @@ class ProductRepositoryImpl implements ProductRepository {
     try {
       final updatedProduct = product.copyWith(
         warehouseStock: product.warehouseStock + newQuantityIncremental,
-        isUnderMinimumStock: product.availableStock <= product.minimumReorderQuantity! ? true : false,
+        isUnderMinimumStock: product.availableStock <= product.minimumReorderQuantity ? true : false,
       );
       await docRefProduct.update(updatedProduct.toJson());
 

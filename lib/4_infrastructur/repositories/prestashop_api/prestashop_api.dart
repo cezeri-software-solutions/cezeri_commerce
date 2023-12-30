@@ -17,6 +17,7 @@ import '../../../3_domain/entities/product/product_image.dart';
 import '../../../3_domain/entities/product/product_marketplace.dart';
 import '../../../3_domain/entities_presta/address_presta.dart';
 import '../../../3_domain/entities_presta/carrier_presta.dart';
+import '../../../3_domain/entities_presta/category_presta.dart';
 import '../../../3_domain/entities_presta/country_presta.dart';
 import '../../../3_domain/entities_presta/currency_presta.dart';
 import '../../../3_domain/entities_presta/customer_presta.dart';
@@ -64,6 +65,21 @@ class PrestashopApi with UiLoggy {
       single: true,
     );
     return payload == null ? const Optional.absent() : Optional.of(CarriersPresta.fromJson(payload).items.single);
+  }
+
+  //* Categories */
+  Future<Optional<CategoryPresta>> getCategory(final int id) async {
+    final payload = await _doGetJson(
+      '${_conf.webserviceUrl}categories/$id?ws_key=${_conf.apiKey}&output_format=JSON&display=full',
+    );
+    return payload == null ? const Optional.absent() : Optional.of(CategoriesPresta.fromJson(payload).items.single);
+  }
+
+  Future<List<CategoryPresta>> getCategories() async {
+    final payload = await _doGetJson(
+      '${_conf.webserviceUrl}categories?ws_key=${_conf.apiKey}&output_format=JSON&display=full',
+    );
+    return CategoriesPresta.fromJson(payload).items;
   }
 
   //* Countries */
@@ -422,9 +438,12 @@ class PrestashopApi with UiLoggy {
       return null;
     }
     if (response.statusCode == 200) {
-      return jsonDecode(utf8.decode(response.bodyBytes));
+      var decodedJson = jsonDecode(utf8.decode(response.bodyBytes));
+      print(decodedJson);
+      return decodedJson; // jsonDecode(utf8.decode(response.bodyBytes));
     }
     loggy.error(response);
+    logger.e(response);
     throw PrestashopApiException(response);
   }
 
