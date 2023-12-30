@@ -14,6 +14,7 @@ import '2_application/firebase/dashboard/dashboard_bloc.dart';
 import '2_application/firebase/home/home_product/home_product_bloc.dart';
 import '2_application/firebase/main_settings/main_settings_bloc.dart';
 import '2_application/firebase/marketplace/marketplace_bloc.dart';
+import '2_application/firebase/marketplace_product/marketplace_product_bloc.dart';
 import '2_application/firebase/product/product_bloc.dart';
 import '2_application/firebase/product_detail/product_detail_bloc.dart';
 import '2_application/firebase/products_booking/products_booking_bloc.dart';
@@ -68,6 +69,7 @@ Future<void> init() async {
         supplierRepository: sl(),
         statProductRepository: sl(),
       ));
+  sl.registerFactory(() => MarketplaceProductBloc(marketplaceRepository: sl(), marketplaceImportRepository: sl()));
   sl.registerFactory(() => AuthBloc(authRepository: sl(), clientRepository: sl()));
   sl.registerFactory(() => SignInFormBloc(authRepository: sl()));
   sl.registerFactory(() => UserDataFormBloc(clientRepository: sl()));
@@ -94,7 +96,12 @@ Future<void> init() async {
   //! repositories Firebase
   sl.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl(firebaseAuth: sl()));
   sl.registerLazySingleton<ClientRepository>(() => ClientRepositoryImpl(db: sl(), firebaseAuth: sl()));
-  sl.registerLazySingleton<ProductRepository>(() => ProductRepositoryImpl(db: sl(), firebaseAuth: sl(), marketplaceEditRepository: sl()));
+  sl.registerLazySingleton<ProductRepository>(() => ProductRepositoryImpl(
+        db: sl(),
+        firebaseAuth: sl(),
+        marketplaceEditRepository: sl(),
+        marketplaceRepository: sl(),
+      ));
   sl.registerLazySingleton<MarketplaceRepository>(() => MarketplaceRepositoryImpl(db: sl(), firebaseAuth: sl()));
   sl.registerLazySingleton<MainSettingsRepository>(() => MainSettingsRepositoryImpl(db: sl(), firebaseAuth: sl()));
   sl.registerLazySingleton<ReceiptRepository>(

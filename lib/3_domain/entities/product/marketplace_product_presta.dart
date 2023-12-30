@@ -40,9 +40,9 @@ class MarketplaceProductPresta extends MarketplaceProduct {
   final String state;
   final String additionalDeliveryTimes;
   final String? deliveryInStock;
-  // final List<Multilanguage>? deliveryInStockMultilanguage;
+  final List<Multilanguage>? deliveryInStockMultilanguage;
   final String? deliveryOutStock;
-  // final List<Multilanguage>? deliveryOutStockMultilanguage;
+  final List<Multilanguage>? deliveryOutStockMultilanguage;
   final String onSale;
   final String onlineOnly;
   final String ecotax;
@@ -72,24 +72,24 @@ class MarketplaceProductPresta extends MarketplaceProduct {
   final String dateUpd;
   final String packStockType;
   final String? metaDescription;
-  // final List<Multilanguage>? metaDescriptionMultilanguage;
+  final List<Multilanguage>? metaDescriptionMultilanguage;
   final String? metaKeywords;
-  // final List<Multilanguage>? metaKeywordsMultilanguage;
+  final List<Multilanguage>? metaKeywordsMultilanguage;
   final String? metaTitle;
-  // final List<Multilanguage>? metaTitleMultilanguage;
+  final List<Multilanguage>? metaTitleMultilanguage;
   final String? linkRewrite;
-  // final List<Multilanguage>? linkRewriteMultilanguage;
+  final List<Multilanguage>? linkRewriteMultilanguage;
   final String? name;
-  // final List<Multilanguage>? nameMultilanguage;
+  final List<Multilanguage>? nameMultilanguage;
   final String? description;
-  // final List<Multilanguage>? descriptionMultilanguage;
+  final List<Multilanguage>? descriptionMultilanguage;
   final String? descriptionShort;
-  // final List<Multilanguage>? descriptionShortMultilanguage;
+  final List<Multilanguage>? descriptionShortMultilanguage;
   final String? availableNow;
-  // final List<Multilanguage>? availableNowMultilanguage;
+  final List<Multilanguage>? availableNowMultilanguage;
   final String? availableLater;
-  // final List<Multilanguage>? availableLaterMultilanguage;
-  //final Associations associations;
+  final List<Multilanguage>? availableLaterMultilanguage;
+  final Associations? associations;
 
   MarketplaceProductPresta({
     required this.id,
@@ -124,9 +124,9 @@ class MarketplaceProductPresta extends MarketplaceProduct {
     required this.state,
     required this.additionalDeliveryTimes,
     required this.deliveryInStock,
-    // required this.deliveryInStockMultilanguage,
+    required this.deliveryInStockMultilanguage,
     required this.deliveryOutStock,
-    // required this.deliveryOutStockMultilanguage,
+    required this.deliveryOutStockMultilanguage,
     required this.onSale,
     required this.onlineOnly,
     required this.ecotax,
@@ -156,24 +156,24 @@ class MarketplaceProductPresta extends MarketplaceProduct {
     required this.dateUpd,
     required this.packStockType,
     required this.metaDescription,
-    // required this.metaDescriptionMultilanguage,
+    required this.metaDescriptionMultilanguage,
     required this.metaKeywords,
-    // required this.metaKeywordsMultilanguage,
+    required this.metaKeywordsMultilanguage,
     required this.metaTitle,
-    // required this.metaTitleMultilanguage,
+    required this.metaTitleMultilanguage,
     required this.linkRewrite,
-    // required this.linkRewriteMultilanguage,
+    required this.linkRewriteMultilanguage,
     required this.name,
-    // required this.nameMultilanguage,
+    required this.nameMultilanguage,
     required this.description,
-    // required this.descriptionMultilanguage,
+    required this.descriptionMultilanguage,
     required this.descriptionShort,
-    // required this.descriptionShortMultilanguage,
+    required this.descriptionShortMultilanguage,
     required this.availableNow,
-    // required this.availableNowMultilanguage,
+    required this.availableNowMultilanguage,
     required this.availableLater,
-    // required this.availableLaterMultilanguage,
-    // required this.associations,
+    required this.availableLaterMultilanguage,
+    required this.associations,
   }) : super(MarketplaceType.prestashop);
 
   factory MarketplaceProductPresta.fromJson(Map<String, dynamic> json) => _$MarketplaceProductPrestaFromJson(json);
@@ -214,9 +214,9 @@ class MarketplaceProductPresta extends MarketplaceProduct {
       state: '',
       additionalDeliveryTimes: '',
       deliveryInStock: '',
-      // deliveryInStockMultilanguage: [],
+      deliveryInStockMultilanguage: [],
       deliveryOutStock: '',
-      // deliveryOutStockMultilanguage: [],
+      deliveryOutStockMultilanguage: [],
       onSale: '',
       onlineOnly: '',
       ecotax: '',
@@ -246,24 +246,24 @@ class MarketplaceProductPresta extends MarketplaceProduct {
       dateUpd: '',
       packStockType: '',
       metaDescription: '',
-      // metaDescriptionMultilanguage: [],
+      metaDescriptionMultilanguage: [],
       metaKeywords: '',
-      // metaKeywordsMultilanguage: [],
+      metaKeywordsMultilanguage: [],
       metaTitle: '',
-      // metaTitleMultilanguage: [],
+      metaTitleMultilanguage: [],
       linkRewrite: '',
-      // linkRewriteMultilanguage: [],
+      linkRewriteMultilanguage: [],
       name: '',
-      // nameMultilanguage: [],
+      nameMultilanguage: [],
       description: '',
-      // descriptionMultilanguage: [],
+      descriptionMultilanguage: [],
       descriptionShort: '',
-      // descriptionShortMultilanguage: [],
+      descriptionShortMultilanguage: [],
       availableNow: '',
-      // availableNowMultilanguage: [],
+      availableNowMultilanguage: [],
       availableLater: '',
-      // availableLaterMultilanguage: [],
-      //associations: Associations.empty(),
+      availableLaterMultilanguage: [],
+      associations: Associations.empty(),
     );
   }
 
@@ -301,9 +301,9 @@ class MarketplaceProductPresta extends MarketplaceProduct {
       state: pp.state,
       additionalDeliveryTimes: pp.additionalDeliveryTimes,
       deliveryInStock: pp.deliveryInStock,
-      // deliveryInStockMultilanguage: pp.deliveryInStockMultilanguage,
+      deliveryInStockMultilanguage: pp.deliveryInStockMultilanguage,
       deliveryOutStock: pp.deliveryOutStock,
-      // deliveryOutStockMultilanguage: pp.deliveryOutStockMultilanguage,
+      deliveryOutStockMultilanguage: pp.deliveryOutStockMultilanguage,
       onSale: pp.onSale,
       onlineOnly: pp.onlineOnly,
       ecotax: pp.ecotax,
@@ -333,24 +333,24 @@ class MarketplaceProductPresta extends MarketplaceProduct {
       dateUpd: pp.dateUpd,
       packStockType: pp.packStockType,
       metaDescription: pp.metaDescription,
-      // metaDescriptionMultilanguage: pp.metaDescriptionMultilanguage,
+      metaDescriptionMultilanguage: pp.metaDescriptionMultilanguage,
       metaKeywords: pp.metaKeywords,
-      // metaKeywordsMultilanguage: pp.metaKeywordsMultilanguage,
+      metaKeywordsMultilanguage: pp.metaKeywordsMultilanguage,
       metaTitle: pp.metaTitle,
-      // metaTitleMultilanguage: pp.metaTitleMultilanguage,
+      metaTitleMultilanguage: pp.metaTitleMultilanguage,
       linkRewrite: pp.linkRewrite,
-      // linkRewriteMultilanguage: pp.linkRewriteMultilanguage,
+      linkRewriteMultilanguage: pp.linkRewriteMultilanguage,
       name: pp.name,
-      // nameMultilanguage: pp.nameMultilanguage,
+      nameMultilanguage: pp.nameMultilanguage,
       description: pp.description,
-      // descriptionMultilanguage: pp.descriptionMultilanguage,
+      descriptionMultilanguage: pp.descriptionMultilanguage,
       descriptionShort: pp.descriptionShort,
-      // descriptionShortMultilanguage: pp.descriptionShortMultilanguage,
+      descriptionShortMultilanguage: pp.descriptionShortMultilanguage,
       availableNow: pp.availableNow,
-      // availableNowMultilanguage: pp.availableNowMultilanguage,
+      availableNowMultilanguage: pp.availableNowMultilanguage,
       availableLater: pp.availableLater,
-      // availableLaterMultilanguage: pp.availableLaterMultilanguage,
-      // associations: pp.associations,
+      availableLaterMultilanguage: pp.availableLaterMultilanguage,
+      associations: pp.associations,
     );
   }
 
@@ -387,7 +387,9 @@ class MarketplaceProductPresta extends MarketplaceProduct {
     String? state,
     String? additionalDeliveryTimes,
     String? deliveryInStock,
+    List<Multilanguage>? deliveryInStockMultilanguage,
     String? deliveryOutStock,
+    List<Multilanguage>? deliveryOutStockMultilanguage,
     String? onSale,
     String? onlineOnly,
     String? ecotax,
@@ -417,14 +419,24 @@ class MarketplaceProductPresta extends MarketplaceProduct {
     String? dateUpd,
     String? packStockType,
     String? metaDescription,
+    List<Multilanguage>? metaDescriptionMultilanguage,
     String? metaKeywords,
+    List<Multilanguage>? metaKeywordsMultilanguage,
     String? metaTitle,
+    List<Multilanguage>? metaTitleMultilanguage,
     String? linkRewrite,
+    List<Multilanguage>? linkRewriteMultilanguage,
     String? name,
+    List<Multilanguage>? nameMultilanguage,
     String? description,
+    List<Multilanguage>? descriptionMultilanguage,
     String? descriptionShort,
+    List<Multilanguage>? descriptionShortMultilanguage,
     String? availableNow,
+    List<Multilanguage>? availableNowMultilanguage,
     String? availableLater,
+    List<Multilanguage>? availableLaterMultilanguage,
+    Associations? associations,
   }) {
     return MarketplaceProductPresta(
       id: id ?? this.id,
@@ -459,7 +471,9 @@ class MarketplaceProductPresta extends MarketplaceProduct {
       state: state ?? this.state,
       additionalDeliveryTimes: additionalDeliveryTimes ?? this.additionalDeliveryTimes,
       deliveryInStock: deliveryInStock ?? this.deliveryInStock,
+      deliveryInStockMultilanguage: deliveryInStockMultilanguage ?? this.deliveryInStockMultilanguage,
       deliveryOutStock: deliveryOutStock ?? this.deliveryOutStock,
+      deliveryOutStockMultilanguage: deliveryOutStockMultilanguage ?? this.deliveryOutStockMultilanguage,
       onSale: onSale ?? this.onSale,
       onlineOnly: onlineOnly ?? this.onlineOnly,
       ecotax: ecotax ?? this.ecotax,
@@ -489,19 +503,29 @@ class MarketplaceProductPresta extends MarketplaceProduct {
       dateUpd: dateUpd ?? this.dateUpd,
       packStockType: packStockType ?? this.packStockType,
       metaDescription: metaDescription ?? this.metaDescription,
+      metaDescriptionMultilanguage: metaDescriptionMultilanguage ?? this.metaDescriptionMultilanguage,
       metaKeywords: metaKeywords ?? this.metaKeywords,
+      metaKeywordsMultilanguage: metaKeywordsMultilanguage ?? this.metaKeywordsMultilanguage,
       metaTitle: metaTitle ?? this.metaTitle,
+      metaTitleMultilanguage: metaTitleMultilanguage ?? this.metaTitleMultilanguage,
       linkRewrite: linkRewrite ?? this.linkRewrite,
+      linkRewriteMultilanguage: linkRewriteMultilanguage ?? this.linkRewriteMultilanguage,
       name: name ?? this.name,
+      nameMultilanguage: nameMultilanguage ?? this.nameMultilanguage,
       description: description ?? this.description,
+      descriptionMultilanguage: descriptionMultilanguage ?? this.descriptionMultilanguage,
       descriptionShort: descriptionShort ?? this.descriptionShort,
+      descriptionShortMultilanguage: descriptionShortMultilanguage ?? this.descriptionShortMultilanguage,
       availableNow: availableNow ?? this.availableNow,
+      availableNowMultilanguage: availableNowMultilanguage ?? this.availableNowMultilanguage,
       availableLater: availableLater ?? this.availableLater,
+      availableLaterMultilanguage: availableLaterMultilanguage ?? this.availableLaterMultilanguage,
+      associations: associations ?? this.associations,
     );
   }
 
   @override
   String toString() {
-    return 'MarketplaceProductPresta(id: $id, idManufacturer: $idManufacturer, idSupplier: $idSupplier, idCategoryDefault: $idCategoryDefault, newProduct: $newProduct, cacheDefaultAttribute: $cacheDefaultAttribute, idDefaultImage: $idDefaultImage, idDefaultCombination: $idDefaultCombination, idTaxRulesGroup: $idTaxRulesGroup, positionInCategory: $positionInCategory, manufacturerName: $manufacturerName, quantity: $quantity, type: $type, idShopDefault: $idShopDefault, reference: $reference, supplierReference: $supplierReference, location: $location, width: $width, height: $height, depth: $depth, weight: $weight, quantityDiscount: $quantityDiscount, ean13: $ean13, isbn: $isbn, upc: $upc, mpn: $mpn, cacheIsPack: $cacheIsPack, cacheHasAttachments: $cacheHasAttachments, isVirtual: $isVirtual, state: $state, additionalDeliveryTimes: $additionalDeliveryTimes, deliveryInStock: $deliveryInStock, deliveryOutStock: $deliveryOutStock, onSale: $onSale, onlineOnly: $onlineOnly, ecotax: $ecotax, minimalQuantity: $minimalQuantity, lowStockThreshold: $lowStockThreshold, lowStockAlert: $lowStockAlert, price: $price, wholesalePrice: $wholesalePrice, unity: $unity, unitPriceRatio: $unitPriceRatio, additionalShippingCost: $additionalShippingCost, customizable: $customizable, textFields: $textFields, uploadableFiles: $uploadableFiles, active: $active, redirectType: $redirectType, idTypeRedirected: $idTypeRedirected, availableForOrder: $availableForOrder, availableDate: $availableDate, showCondition: $showCondition, condition: $condition, showPrice: $showPrice, indexed: $indexed, visibility: $visibility, advancedStockManagement: $advancedStockManagement, dateAdd: $dateAdd, dateUpd: $dateUpd, packStockType: $packStockType, metaDescription: $metaDescription, metaKeywords: $metaKeywords, metaTitle: $metaTitle, linkRewrite: $linkRewrite, name: $name, description: $description, descriptionShort: $descriptionShort, availableNow: $availableNow, availableLater: $availableLater, marketplaceType: $marketplaceType)';
+    return 'MarketplaceProductPresta(id: $id, idManufacturer: $idManufacturer, idSupplier: $idSupplier, idCategoryDefault: $idCategoryDefault, newProduct: $newProduct, cacheDefaultAttribute: $cacheDefaultAttribute, idDefaultImage: $idDefaultImage, idDefaultCombination: $idDefaultCombination, idTaxRulesGroup: $idTaxRulesGroup, positionInCategory: $positionInCategory, manufacturerName: $manufacturerName, quantity: $quantity, type: $type, idShopDefault: $idShopDefault, reference: $reference, supplierReference: $supplierReference, location: $location, width: $width, height: $height, depth: $depth, weight: $weight, quantityDiscount: $quantityDiscount, ean13: $ean13, isbn: $isbn, upc: $upc, mpn: $mpn, cacheIsPack: $cacheIsPack, cacheHasAttachments: $cacheHasAttachments, isVirtual: $isVirtual, state: $state, additionalDeliveryTimes: $additionalDeliveryTimes, deliveryInStock: $deliveryInStock, deliveryInStockMultilanguage: $deliveryInStockMultilanguage, deliveryOutStock: $deliveryOutStock, deliveryOutStockMultilanguage: $deliveryOutStockMultilanguage, onSale: $onSale, onlineOnly: $onlineOnly, ecotax: $ecotax, minimalQuantity: $minimalQuantity, lowStockThreshold: $lowStockThreshold, lowStockAlert: $lowStockAlert, price: $price, wholesalePrice: $wholesalePrice, unity: $unity, unitPriceRatio: $unitPriceRatio, additionalShippingCost: $additionalShippingCost, customizable: $customizable, textFields: $textFields, uploadableFiles: $uploadableFiles, active: $active, redirectType: $redirectType, idTypeRedirected: $idTypeRedirected, availableForOrder: $availableForOrder, availableDate: $availableDate, showCondition: $showCondition, condition: $condition, showPrice: $showPrice, indexed: $indexed, visibility: $visibility, advancedStockManagement: $advancedStockManagement, dateAdd: $dateAdd, dateUpd: $dateUpd, packStockType: $packStockType, metaDescription: $metaDescription, metaDescriptionMultilanguage: $metaDescriptionMultilanguage, metaKeywords: $metaKeywords, metaKeywordsMultilanguage: $metaKeywordsMultilanguage, metaTitle: $metaTitle, metaTitleMultilanguage: $metaTitleMultilanguage, linkRewrite: $linkRewrite, linkRewriteMultilanguage: $linkRewriteMultilanguage, name: $name, nameMultilanguage: $nameMultilanguage, description: $description, descriptionMultilanguage: $descriptionMultilanguage, descriptionShort: $descriptionShort, descriptionShortMultilanguage: $descriptionShortMultilanguage, availableNow: $availableNow, availableNowMultilanguage: $availableNowMultilanguage, availableLater: $availableLater, availableLaterMultilanguage: $availableLaterMultilanguage, associations: $associations)';
   }
 }

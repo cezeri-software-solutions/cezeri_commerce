@@ -41,7 +41,15 @@ MarketplaceProductPresta _$MarketplaceProductPrestaFromJson(
       state: json['state'] as String,
       additionalDeliveryTimes: json['additionalDeliveryTimes'] as String,
       deliveryInStock: json['deliveryInStock'] as String?,
+      deliveryInStockMultilanguage:
+          (json['deliveryInStockMultilanguage'] as List<dynamic>?)
+              ?.map((e) => Multilanguage.fromJson(e as Map<String, dynamic>))
+              .toList(),
       deliveryOutStock: json['deliveryOutStock'] as String?,
+      deliveryOutStockMultilanguage:
+          (json['deliveryOutStockMultilanguage'] as List<dynamic>?)
+              ?.map((e) => Multilanguage.fromJson(e as Map<String, dynamic>))
+              .toList(),
       onSale: json['onSale'] as String,
       onlineOnly: json['onlineOnly'] as String,
       ecotax: json['ecotax'] as String,
@@ -71,14 +79,51 @@ MarketplaceProductPresta _$MarketplaceProductPrestaFromJson(
       dateUpd: json['dateUpd'] as String,
       packStockType: json['packStockType'] as String,
       metaDescription: json['metaDescription'] as String?,
+      metaDescriptionMultilanguage:
+          (json['metaDescriptionMultilanguage'] as List<dynamic>?)
+              ?.map((e) => Multilanguage.fromJson(e as Map<String, dynamic>))
+              .toList(),
       metaKeywords: json['metaKeywords'] as String?,
+      metaKeywordsMultilanguage:
+          (json['metaKeywordsMultilanguage'] as List<dynamic>?)
+              ?.map((e) => Multilanguage.fromJson(e as Map<String, dynamic>))
+              .toList(),
       metaTitle: json['metaTitle'] as String?,
+      metaTitleMultilanguage: (json['metaTitleMultilanguage'] as List<dynamic>?)
+          ?.map((e) => Multilanguage.fromJson(e as Map<String, dynamic>))
+          .toList(),
       linkRewrite: json['linkRewrite'] as String?,
+      linkRewriteMultilanguage:
+          (json['linkRewriteMultilanguage'] as List<dynamic>?)
+              ?.map((e) => Multilanguage.fromJson(e as Map<String, dynamic>))
+              .toList(),
       name: json['name'] as String?,
+      nameMultilanguage: (json['nameMultilanguage'] as List<dynamic>?)
+          ?.map((e) => Multilanguage.fromJson(e as Map<String, dynamic>))
+          .toList(),
       description: json['description'] as String?,
+      descriptionMultilanguage:
+          (json['descriptionMultilanguage'] as List<dynamic>?)
+              ?.map((e) => Multilanguage.fromJson(e as Map<String, dynamic>))
+              .toList(),
       descriptionShort: json['descriptionShort'] as String?,
+      descriptionShortMultilanguage:
+          (json['descriptionShortMultilanguage'] as List<dynamic>?)
+              ?.map((e) => Multilanguage.fromJson(e as Map<String, dynamic>))
+              .toList(),
       availableNow: json['availableNow'] as String?,
+      availableNowMultilanguage:
+          (json['availableNowMultilanguage'] as List<dynamic>?)
+              ?.map((e) => Multilanguage.fromJson(e as Map<String, dynamic>))
+              .toList(),
       availableLater: json['availableLater'] as String?,
+      availableLaterMultilanguage:
+          (json['availableLaterMultilanguage'] as List<dynamic>?)
+              ?.map((e) => Multilanguage.fromJson(e as Map<String, dynamic>))
+              .toList(),
+      associations: json['associations'] == null
+          ? null
+          : Associations.fromJson(json['associations'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$MarketplaceProductPrestaToJson(
@@ -116,7 +161,13 @@ Map<String, dynamic> _$MarketplaceProductPrestaToJson(
       'state': instance.state,
       'additionalDeliveryTimes': instance.additionalDeliveryTimes,
       'deliveryInStock': instance.deliveryInStock,
+      'deliveryInStockMultilanguage': instance.deliveryInStockMultilanguage
+          ?.map((e) => e.toJson())
+          .toList(),
       'deliveryOutStock': instance.deliveryOutStock,
+      'deliveryOutStockMultilanguage': instance.deliveryOutStockMultilanguage
+          ?.map((e) => e.toJson())
+          .toList(),
       'onSale': instance.onSale,
       'onlineOnly': instance.onlineOnly,
       'ecotax': instance.ecotax,
@@ -146,12 +197,33 @@ Map<String, dynamic> _$MarketplaceProductPrestaToJson(
       'dateUpd': instance.dateUpd,
       'packStockType': instance.packStockType,
       'metaDescription': instance.metaDescription,
+      'metaDescriptionMultilanguage': instance.metaDescriptionMultilanguage
+          ?.map((e) => e.toJson())
+          .toList(),
       'metaKeywords': instance.metaKeywords,
+      'metaKeywordsMultilanguage':
+          instance.metaKeywordsMultilanguage?.map((e) => e.toJson()).toList(),
       'metaTitle': instance.metaTitle,
+      'metaTitleMultilanguage':
+          instance.metaTitleMultilanguage?.map((e) => e.toJson()).toList(),
       'linkRewrite': instance.linkRewrite,
+      'linkRewriteMultilanguage':
+          instance.linkRewriteMultilanguage?.map((e) => e.toJson()).toList(),
       'name': instance.name,
+      'nameMultilanguage':
+          instance.nameMultilanguage?.map((e) => e.toJson()).toList(),
       'description': instance.description,
+      'descriptionMultilanguage':
+          instance.descriptionMultilanguage?.map((e) => e.toJson()).toList(),
       'descriptionShort': instance.descriptionShort,
+      'descriptionShortMultilanguage': instance.descriptionShortMultilanguage
+          ?.map((e) => e.toJson())
+          .toList(),
       'availableNow': instance.availableNow,
+      'availableNowMultilanguage':
+          instance.availableNowMultilanguage?.map((e) => e.toJson()).toList(),
       'availableLater': instance.availableLater,
+      'availableLaterMultilanguage':
+          instance.availableLaterMultilanguage?.map((e) => e.toJson()).toList(),
+      'associations': instance.associations?.toJson(),
     };

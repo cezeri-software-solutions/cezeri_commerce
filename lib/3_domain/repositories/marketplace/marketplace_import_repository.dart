@@ -5,6 +5,7 @@ import '../../../../core/presta_failure.dart';
 import '../../entities/marketplace/marketplace.dart';
 import '../../entities/product/product.dart';
 import '../../entities/settings/main_settings.dart';
+import '../../entities_presta/category_presta.dart';
 import '../../entities_presta/product_presta.dart';
 
 abstract class MarketplaceImportRepository {
@@ -17,4 +18,5 @@ abstract class MarketplaceImportRepository {
   );
   //
   Future<Either<PrestaFailure, ProductPresta>> getProductByIdFromPrestashopAsJson(int id, Marketplace marketplace);
+  Future<Either<PrestaFailure, List<CategoryPresta>>> getAllPrestaCategories(Marketplace marketplace);
 }
