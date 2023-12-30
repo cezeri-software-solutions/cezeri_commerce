@@ -3,6 +3,7 @@ part of 'marketplace_product_bloc.dart';
 class MarketplaceProductState {
   final ProductMarketplace? productMarketplace;
   final MarketplaceProductPresta? marketplaceProductPresta;
+  final List<CategoryPresta>? listOfCategoriesPrestaOriginal;
   final List<CategoryPresta>? listOfCategoriesPresta;
   final FirebaseFailure? firebaseFailure;
   final PrestaFailure? prestaFailure;
@@ -12,9 +13,15 @@ class MarketplaceProductState {
   final Option<Either<FirebaseFailure, Marketplace>> fosMarketplaceProductMarketplaceOnObserveOption;
   final Option<Either<PrestaFailure, List<CategoryPresta>>> fosMarketplaceProductCategoriesOnObserveOption;
 
+  //* Helper Category
+  final List<bool> isExpanded;
+  final List<bool> isSelected;
+  final String? defaultCategory;
+
   MarketplaceProductState({
     required this.productMarketplace,
     required this.marketplaceProductPresta,
+    required this.listOfCategoriesPrestaOriginal,
     required this.listOfCategoriesPresta,
     required this.firebaseFailure,
     required this.prestaFailure,
@@ -23,12 +30,16 @@ class MarketplaceProductState {
     required this.isLoadingMarketplaceProductCategoriesOnObserve,
     required this.fosMarketplaceProductMarketplaceOnObserveOption,
     required this.fosMarketplaceProductCategoriesOnObserveOption,
+    required this.isExpanded,
+    required this.isSelected,
+    required this.defaultCategory,
   });
 
   factory MarketplaceProductState.initial() {
     return MarketplaceProductState(
       productMarketplace: null,
       marketplaceProductPresta: null,
+      listOfCategoriesPrestaOriginal: null,
       listOfCategoriesPresta: null,
       firebaseFailure: null,
       prestaFailure: null,
@@ -37,12 +48,16 @@ class MarketplaceProductState {
       isLoadingMarketplaceProductCategoriesOnObserve: false,
       fosMarketplaceProductMarketplaceOnObserveOption: none(),
       fosMarketplaceProductCategoriesOnObserveOption: none(),
+      isExpanded: [],
+      isSelected: [],
+      defaultCategory: null,
     );
   }
 
   MarketplaceProductState copyWith({
     ProductMarketplace? productMarketplace,
     MarketplaceProductPresta? marketplaceProductPresta,
+    List<CategoryPresta>? listOfCategoriesPrestaOriginal,
     List<CategoryPresta>? listOfCategoriesPresta,
     FirebaseFailure? firebaseFailure,
     PrestaFailure? prestaFailure,
@@ -51,10 +66,14 @@ class MarketplaceProductState {
     bool? isLoadingMarketplaceProductCategoriesOnObserve,
     Option<Either<FirebaseFailure, Marketplace>>? fosMarketplaceProductMarketplaceOnObserveOption,
     Option<Either<PrestaFailure, List<CategoryPresta>>>? fosMarketplaceProductCategoriesOnObserveOption,
+    List<bool>? isExpanded,
+    List<bool>? isSelected,
+    String? defaultCategory,
   }) {
     return MarketplaceProductState(
       productMarketplace: productMarketplace ?? this.productMarketplace,
       marketplaceProductPresta: marketplaceProductPresta ?? this.marketplaceProductPresta,
+      listOfCategoriesPrestaOriginal: listOfCategoriesPrestaOriginal ?? this.listOfCategoriesPrestaOriginal,
       listOfCategoriesPresta: listOfCategoriesPresta ?? this.listOfCategoriesPresta,
       firebaseFailure: firebaseFailure ?? this.firebaseFailure,
       prestaFailure: prestaFailure ?? this.prestaFailure,
@@ -66,6 +85,9 @@ class MarketplaceProductState {
           fosMarketplaceProductMarketplaceOnObserveOption ?? this.fosMarketplaceProductMarketplaceOnObserveOption,
       fosMarketplaceProductCategoriesOnObserveOption:
           fosMarketplaceProductCategoriesOnObserveOption ?? this.fosMarketplaceProductCategoriesOnObserveOption,
+      isExpanded: isExpanded ?? this.isExpanded,
+      isSelected: isSelected ?? this.isSelected,
+      defaultCategory: defaultCategory ?? this.defaultCategory,
     );
   }
 }

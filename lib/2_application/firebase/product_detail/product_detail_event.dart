@@ -82,6 +82,12 @@ class OnReorderProductImagesEvent extends ProductDetailEvent {
   OnReorderProductImagesEvent({required this.oldIndex, required this.newIndex});
 }
 
+class OnUpdateProductMarketplaceEvent extends ProductDetailEvent {
+  final ProductMarketplace productMarketplace;
+
+  OnUpdateProductMarketplaceEvent({required this.productMarketplace});
+}
+
 // * #################################################################################################################################
 // * StatProducts Chart
 

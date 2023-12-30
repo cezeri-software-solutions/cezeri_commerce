@@ -675,6 +675,28 @@ class Associations {
 
   @override
   String toString() => _encoder.convert(toJson());
+
+  Associations copyWith({
+    List<AssociationsCategory>? associationsCategories,
+    List<AssociationsImage>? associationsImages,
+    List<AssociationsCombination>? associationsCombinations,
+    List<AssociationsProductOptionValue>? associationsProductOptionValues,
+    List<AssociationsProductFeature>? associationsProductFeatures,
+    List<AssociationsStockAvailable>? associationsStockAvailables,
+    List<AssociationsAccessory>? associationsAccessories,
+    List<AssociationsProductBundle>? associationsProductBundle,
+  }) {
+    return Associations(
+      associationsCategories: associationsCategories ?? this.associationsCategories,
+      associationsImages: associationsImages ?? this.associationsImages,
+      associationsCombinations: associationsCombinations ?? this.associationsCombinations,
+      associationsProductOptionValues: associationsProductOptionValues ?? this.associationsProductOptionValues,
+      associationsProductFeatures: associationsProductFeatures ?? this.associationsProductFeatures,
+      associationsStockAvailables: associationsStockAvailables ?? this.associationsStockAvailables,
+      associationsAccessories: associationsAccessories ?? this.associationsAccessories,
+      associationsProductBundle: associationsProductBundle ?? this.associationsProductBundle,
+    );
+  }
 }
 
 @JsonSerializable()

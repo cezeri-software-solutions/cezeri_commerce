@@ -438,9 +438,7 @@ class PrestashopApi with UiLoggy {
       return null;
     }
     if (response.statusCode == 200) {
-      var decodedJson = jsonDecode(utf8.decode(response.bodyBytes));
-      print(decodedJson);
-      return decodedJson; // jsonDecode(utf8.decode(response.bodyBytes));
+      return jsonDecode(utf8.decode(response.bodyBytes));
     }
     loggy.error(response);
     logger.e(response);

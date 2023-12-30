@@ -13,6 +13,7 @@ import 'package:logger/logger.dart';
 import '../../../1_presentation/core/functions/mixed_functions.dart';
 import '../../../3_domain/entities/product/product.dart';
 import '../../../3_domain/entities/product/product_image.dart';
+import '../../../3_domain/entities/product/product_marketplace.dart';
 import '../../../3_domain/entities/reorder/supplier.dart';
 import '../../../3_domain/entities/settings/main_settings.dart';
 import '../../../3_domain/entities/statistic/stat_product.dart';
@@ -382,6 +383,18 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
         isProductImagesEdited: true,
         product: state.product!.copyWith(listOfProductImages: listOfProductImages),
       ));
+    });
+
+//? ###########################################################################################################################
+
+    on<OnUpdateProductMarketplaceEvent>((event, emit) {
+      List<ProductMarketplace> updatedList = List.from(state.product!.productMarketplaces);
+      final index = updatedList.indexWhere((e) => e.idMarketplace == event.productMarketplace.idMarketplace);
+
+      if (index != -1) {
+        updatedList[index] = event.productMarketplace;
+        emit(state.copyWith(product: state.product!.copyWith(productMarketplaces: updatedList)));
+      }
     });
 
 //? ###########################################################################################################################

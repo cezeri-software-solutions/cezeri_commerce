@@ -10,6 +10,7 @@ import '../../../../3_domain/entities/product/marketplace_product_presta.dart';
 import '../../../../3_domain/entities/product/product_marketplace.dart';
 import '../../../../constants.dart';
 import '../../../../injection.dart';
+import '../../../core/widgets/my_outlined_button.dart';
 import 'product_marketplace/edit_marketplace_product_presta.dart';
 
 class ProductDetailMarketplacesBar extends StatelessWidget {
@@ -46,6 +47,7 @@ class ProductDetailMarketplacesBar extends StatelessWidget {
                       children: [
                         InkWell(
                           onTap: () {
+                            marketplaceProductBloc.add(SetMarketplaceProductStatesToInitialEvent());
                             marketplaceProductBloc.add(SetMarketplaceProductEvent(productMarketplace: pm));
                             showEditProductInMarketplace(context, productDetailBloc, marketplaceProductBloc, pm);
                           },
@@ -96,10 +98,15 @@ Future<void> showEditProductInMarketplace(
 ) async {
   final pageIndexNotifier = ValueNotifier(0);
 
+  void onPopFromSecondToFirstPage() {
+    marketplaceProductBloc.add(SetListOfCategoriesPrestaToOriginalEvent());
+    pageIndexNotifier.value = 0;
+  }
+
   final leading = IconButton(
     padding: const EdgeInsets.only(left: 24),
     icon: const Icon(Icons.arrow_back),
-    onPressed: () => pageIndexNotifier.value -= 1,
+    onPressed: () => onPopFromSecondToFirstPage(),
   );
 
   final trailing = IconButton(
@@ -112,7 +119,16 @@ Future<void> showEditProductInMarketplace(
     context: context,
     useSafeArea: false,
     pageIndexNotifier: pageIndexNotifier,
-    onModalDismissedWithBarrierTap: () => pageIndexNotifier.value = 0,
+    onModalDismissedWithBarrierTap: () {
+      context.router.pop().then((value) {
+        pageIndexNotifier.value = 0;
+      });
+    },
+    onModalDismissedWithDrag: () {
+      context.router.pop().then((value) {
+        pageIndexNotifier.value = 0;
+      });
+    },
     pageListBuilder: (woltContext) {
       return [
         WoltModalSheetPage(
@@ -138,6 +154,25 @@ Future<void> showEditProductInMarketplace(
           leadingNavBarWidget: leading,
           trailingNavBarWidget: trailing,
           child: EditMarketplaceProductPrestaCategories(marketplaceProductBloc: marketplaceProductBloc),
+          stickyActionBar: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              TextButton(
+                onPressed: () => onPopFromSecondToFirstPage(),
+                child: Text('Abbrechen', style: TextStyles.textButtonText.copyWith(color: Colors.red)),
+              ),
+              Gaps.w8,
+              MyOutlinedButton(
+                buttonText: 'Übernehmen',
+                buttonBackgroundColor: Colors.green,
+                onPressed: () {
+                  marketplaceProductBloc.add(OnSetUpdatedCategoriesEvent());
+                  pageIndexNotifier.value = 0;
+                },
+              ),
+              Gaps.w8,
+            ],
+          ),
         ),
       ];
     },

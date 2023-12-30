@@ -27,7 +27,7 @@ CategoryPresta _$CategoryPrestaFromJson(Map<String, dynamic> json) =>
       name: json['name'] as String,
       associations: json['associations'] == null
           ? null
-          : AssociationsCategory.fromJson(
+          : AssociationsCategoryPresta.fromJson(
               json['associations'] as Map<String, dynamic>),
     );
 
@@ -41,9 +41,9 @@ Map<String, dynamic> _$CategoryPrestaToJson(CategoryPresta instance) =>
       'associations': instance.associations,
     };
 
-AssociationsCategory _$AssociationsCategoryFromJson(
+AssociationsCategoryPresta _$AssociationsCategoryFromJson(
         Map<String, dynamic> json) =>
-    AssociationsCategory(
+    AssociationsCategoryPresta(
       categoryIds: (json['categories'] as List<dynamic>?)
           ?.map((e) => CategoryId.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -53,7 +53,7 @@ AssociationsCategory _$AssociationsCategoryFromJson(
     );
 
 Map<String, dynamic> _$AssociationsCategoryToJson(
-        AssociationsCategory instance) =>
+        AssociationsCategoryPresta instance) =>
     <String, dynamic>{
       'categories': instance.categoryIds,
       'products': instance.productIds,

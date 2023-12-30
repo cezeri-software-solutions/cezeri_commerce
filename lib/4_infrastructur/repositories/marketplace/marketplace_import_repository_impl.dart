@@ -159,7 +159,6 @@ class MarketplaceImportRepositoryImpl implements MarketplaceImportRepository {
 
     try {
       final categoriesPresta = await api.getCategories();
-      print(categoriesPresta);
 
       return right(categoriesPresta);
     } catch (e) {

@@ -53,7 +53,7 @@ class CategoryPresta {
   // final String metaDescription;
   // @JsonKey(name: 'meta_keywords')
   // final String metaKeywords;
-  final AssociationsCategory? associations;
+  final AssociationsCategoryPresta? associations;
 
   CategoryPresta({
     required this.id,
@@ -84,7 +84,7 @@ class CategoryPresta {
 }
 
 @JsonSerializable()
-class AssociationsCategory {
+class AssociationsCategoryPresta {
   static const _encoder = JsonEncoder.withIndent('  ');
 
   @JsonKey(name: 'categories')
@@ -93,9 +93,9 @@ class AssociationsCategory {
   @JsonKey(name: 'products')
   final List<ProductId>? productIds;
 
-  AssociationsCategory({required this.categoryIds, required this.productIds});
+  AssociationsCategoryPresta({required this.categoryIds, required this.productIds});
 
-  factory AssociationsCategory.fromJson(Map<String, dynamic> json) => _$AssociationsCategoryFromJson(json);
+  factory AssociationsCategoryPresta.fromJson(Map<String, dynamic> json) => _$AssociationsCategoryFromJson(json);
   Map<String, dynamic> toJson() => _$AssociationsCategoryToJson(this);
 
   @override

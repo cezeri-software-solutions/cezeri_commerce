@@ -1,4 +1,7 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:cezeri_commerce/1_presentation/core/extensions/string_to_int.dart';
+import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.dart';
+import 'package:cezeri_commerce/1_presentation/core/functions/dialogs.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -8,6 +11,7 @@ import '../../../../../3_domain/entities/product/marketplace_product_presta.dart
 import '../../../../../3_domain/entities/product/product_marketplace.dart';
 import '../../../../../3_domain/entities_presta/category_presta.dart';
 import '../../../../../constants.dart';
+import '../../../../core/widgets/my_animated_expansion_container.dart';
 import '../../../../core/widgets/my_circular_progress_indicator.dart';
 import '../../../../core/widgets/my_outlined_button.dart';
 
@@ -64,7 +68,23 @@ class EditMarketplaceProductPresta extends StatelessWidget {
                   )
                 ],
               ),
-              Text(state.marketplaceProductPresta!.associations!.associationsCategories!.map((e) => e.id).toList().toString()),
+              // Text(state.marketplaceProductPresta!.associations!.associationsCategories!.map((e) => e.id).toList().toString()),
+              ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: state.marketplaceProductPresta!.associations!.associationsCategories!.length,
+                itemBuilder: (context, index) {
+                  final category = state.marketplaceProductPresta!.associations!.associationsCategories![index];
+                  return Row(
+                    children: [
+                      Text('${category.id}: '),
+                      if (state.listOfCategoriesPresta != null &&
+                          state.listOfCategoriesPresta!.where((e) => e.id.toString() == category.id).firstOrNull != null)
+                        Text(state.listOfCategoriesPresta!.where((e) => e.id.toString() == category.id).first.name)
+                    ],
+                  );
+                },
+              ),
               Gaps.h42,
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
@@ -77,10 +97,13 @@ class EditMarketplaceProductPresta extends StatelessWidget {
                   MyOutlinedButton(
                     buttonText: 'Speichern',
                     buttonBackgroundColor: Colors.green,
-                    onPressed: () {},
+                    onPressed: () {
+                      productDetailBloc.add(OnUpdateProductMarketplaceEvent(productMarketplace: state.productMarketplace!));
+                      context.router.pop();
+                    },
                   ),
                 ],
-              )
+              ),
             ],
           ),
         );
@@ -89,31 +112,29 @@ class EditMarketplaceProductPresta extends StatelessWidget {
   }
 }
 
-class EditMarketplaceProductPrestaCategories extends StatefulWidget {
+class EditMarketplaceProductPrestaCategories extends StatelessWidget {
   final MarketplaceProductBloc marketplaceProductBloc;
 
   const EditMarketplaceProductPrestaCategories({super.key, required this.marketplaceProductBloc});
 
   @override
-  State<EditMarketplaceProductPrestaCategories> createState() => _EditMarketplaceProductPrestaCategoriesState();
-}
-
-class _EditMarketplaceProductPrestaCategoriesState extends State<EditMarketplaceProductPrestaCategories> {
-  @override
   Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.sizeOf(context).height;
     return BlocBuilder<MarketplaceProductBloc, MarketplaceProductState>(
-      bloc: widget.marketplaceProductBloc,
+      bloc: marketplaceProductBloc,
       builder: (context, state) {
         return Padding(
           padding: const EdgeInsets.all(8.0),
-          child: ListView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: state.listOfCategoriesPresta!.length,
-            itemBuilder: (BuildContext context, int index) {
-              final categories = state.listOfCategoriesPresta!;
-              return Text(categories[index].name); //CategoryWidget(category: categories[index]);
-            },
+          child: Column(
+            children: [
+              CategoryWidget(
+                category: state.listOfCategoriesPresta!.first,
+                index: 0,
+                allCategories: state.listOfCategoriesPresta!,
+                marketplaceProductBloc: marketplaceProductBloc,
+              ),
+              Container(height: screenHeight / 1.30),
+            ],
           ),
         );
       },
@@ -121,57 +142,87 @@ class _EditMarketplaceProductPrestaCategoriesState extends State<EditMarketplace
   }
 }
 
-class CategoryWidget extends StatefulWidget {
+class CategoryWidget extends StatelessWidget {
   final CategoryPresta category;
+  final int index;
+  final List<CategoryPresta> allCategories;
+  final MarketplaceProductBloc marketplaceProductBloc;
 
-  const CategoryWidget({Key? key, required this.category}) : super(key: key);
-
-  @override
-  _CategoryWidgetState createState() => _CategoryWidgetState();
-}
-
-class _CategoryWidgetState extends State<CategoryWidget> {
-  bool isExpanded = false;
-  bool isChecked = false;
+  const CategoryWidget({Key? key, required this.category, required this.index, required this.allCategories, required this.marketplaceProductBloc})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        ListTile(
-          title: Text(widget.category.name),
-          leading: Checkbox(
-            value: isChecked,
-            onChanged: (bool? value) {
-              setState(() {
-                isChecked = value!;
-              });
-            },
-          ),
-          trailing: widget.category.associations!.categoryIds!.isNotEmpty
-              ? IconButton(
-                  icon: Icon(isExpanded ? Icons.expand_less : Icons.expand_more),
-                  onPressed: () {
-                    setState(() {
-                      isExpanded = !isExpanded;
-                    });
-                  },
-                )
-              : null,
-          onTap: () {
-            setState(() {
-              isExpanded = !isExpanded;
-            });
-          },
-        ),
-        if (isExpanded)
-          Padding(
-            padding: const EdgeInsets.only(left: 16.0),
-            child: Column(
-              children: widget.category.associations!.categoryIds!.map((subCategory) => CategoryWidget(category: widget.category)).toList(),
+    List<CategoryPresta> subCategories =
+        allCategories.where((c) => c.idParent == category.id.toString() && c.levelDepth == (int.parse(category.levelDepth) + 1).toString()).toList();
+
+    return BlocBuilder<MarketplaceProductBloc, MarketplaceProductState>(
+      bloc: marketplaceProductBloc,
+      builder: (context, state) {
+        return Column(
+          children: [
+            if (subCategories.isNotEmpty) const Divider(height: 0, color: CustomColors.backgroundLightGrey),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Row(
+                    children: [
+                      if (category.levelDepth.toMyInt() != 0) SizedBox(width: 20 * (category.levelDepth.toMyDouble())),
+                      if (subCategories.isNotEmpty)
+                        InkWell(
+                          onTap: () => marketplaceProductBloc.add(OnCategoriesIsExpandedChangedEvent(index: index)),
+                          child: state.isExpanded[index] ? const Icon(Icons.keyboard_arrow_down) : const Icon(Icons.keyboard_arrow_right),
+                        )
+                      else
+                        const Icon(Icons.keyboard_arrow_right, color: Colors.transparent),
+                      Checkbox.adaptive(
+                        value: state.isSelected[index],
+                        onChanged: (value) {
+                          if (value != null && !value && category.id.toString() == state.marketplaceProductPresta!.idCategoryDefault) {
+                            showMyDialogAlert(
+                              context: context,
+                              title: 'Achtung',
+                              content: 'Ändere bitte zuerst die Standardkategorie um diese Kategorie deaktivieren zu können',
+                            );
+                            return;
+                          }
+                          marketplaceProductBloc.add(OnCategoriesIsSelectedChangedEvent(index: index, value: value!));
+                        },
+                      ),
+                      Expanded(child: Text(category.name, maxLines: 1, overflow: TextOverflow.ellipsis)),
+                    ],
+                  ),
+                ),
+                // if (subCategories.isNotEmpty)
+                // IconButton(
+                //   icon: state.isExpanded[index] ? const Icon(Icons.keyboard_arrow_down) : const Icon(Icons.keyboard_arrow_right),
+                //   onPressed: () {
+                //     marketplaceProductBloc.add(OnCategoriesIsExpandedChangedEvent(index: index));
+                //   },
+                // ),
+                Checkbox.adaptive(
+                  value: category.id.toString() == state.marketplaceProductPresta!.idCategoryDefault,
+                  onChanged: (_) => marketplaceProductBloc.add(OnDefaultCategoryChangedEvent(id: category.id, index: index)),
+                ),
+              ],
             ),
-          ),
-      ],
+            if (state.isExpanded[index])
+              ...subCategories
+                  .map((subCategory) => MyAnimatedExpansionContainer(
+                        isExpanded: state.isExpanded[index],
+                        child: CategoryWidget(
+                          category: subCategory,
+                          index: allCategories.indexOf(subCategory),
+                          allCategories: allCategories,
+                          marketplaceProductBloc: marketplaceProductBloc,
+                        ),
+                      ))
+                  .toList(),
+            if (subCategories.isNotEmpty) const Divider(height: 0, color: CustomColors.backgroundLightGrey),
+          ],
+        );
+      },
     );
   }
 }
