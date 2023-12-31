@@ -1,37 +1,37 @@
 import 'package:json_annotation/json_annotation.dart';
 
-part 'product_language.g.dart';
+part 'field_language.g.dart';
 
 @JsonSerializable()
-class ProductLanguage {
+class FieldLanguage {
   final int id;
   final String value;
   final String isoCode;
 
-  const ProductLanguage({
+  const FieldLanguage({
     required this.id,
     required this.value,
     required this.isoCode,
   });
 
-  factory ProductLanguage.empty() {
-    return const ProductLanguage(
+  factory FieldLanguage.empty() {
+    return const FieldLanguage(
       id: 0,
       value: '',
       isoCode: '',
     );
   }
 
-  factory ProductLanguage.fromJson(Map<String, dynamic> json) => _$ProductLanguageFromJson(json);
+  factory FieldLanguage.fromJson(Map<String, dynamic> json) => _$FieldLanguageFromJson(json);
 
-  Map<String, dynamic> toJson() => _$ProductLanguageToJson(this);
+  Map<String, dynamic> toJson() => _$FieldLanguageToJson(this);
 
-  ProductLanguage copyWith({
+  FieldLanguage copyWith({
     int? id,
     String? value,
     String? isoCode,
   }) {
-    return ProductLanguage(
+    return FieldLanguage(
       id: id ?? this.id,
       value: value ?? this.value,
       isoCode: isoCode ?? this.isoCode,
@@ -39,5 +39,5 @@ class ProductLanguage {
   }
 
   @override
-  String toString() => 'ProductLanguage(id: $id, value: $value, isoCode: $isoCode)';
+  String toString() => 'FieldLanguage(id: $id, value: $value, isoCode: $isoCode)';
 }

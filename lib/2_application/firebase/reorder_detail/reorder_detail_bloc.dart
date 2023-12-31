@@ -325,7 +325,8 @@ class ReorderDetailBloc extends Bloc<ReorderDetailEvent, ReorderDetailState> {
           quantityControllers: newListOfQuantityControllers,
         ));
       } else {
-        newListOfReorderProducts.add(ReorderProduct.fromProduct(event.product, newListOfReorderProducts.length + event.quantity, state.reorder!.tax));
+        newListOfReorderProducts.add(ReorderProduct.fromProduct(event.product, newListOfReorderProducts.length, state.reorder!.tax));
+        newListOfReorderProducts.last = newListOfReorderProducts.last.copyWith(quantity: event.quantity);
         emit(state.copyWith(reorder: state.reorder!.copyWith(listOfReorderProducts: newListOfReorderProducts)));
         add(ReorderDetailSetAllProductControllersEvent());
       }

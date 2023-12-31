@@ -1,0 +1,161 @@
+<prestashop xmlns:xlink="http://www.w3.org/1999/xlink">
+    <product>
+        <id><![CDATA[726]]></id>
+        <id_manufacturer xlink:href="https://carcleancare.com/api/manufacturers/25"><![CDATA[25]]></id_manufacturer>
+        <id_supplier><![CDATA[0]]></id_supplier>
+        <id_category_default xlink:href="https://carcleancare.com/api/categories/2">63</id_category_default>
+        <new><![CDATA[]]></new>
+        <cache_default_attribute><![CDATA[0]]></cache_default_attribute>
+        <id_default_image xlink:href="https://carcleancare.com/api/images/products/726/6073" notFilterable="true"><![CDATA[6073]]></id_default_image>
+        <id_default_combination notFilterable="true"><![CDATA[0]]></id_default_combination>
+        <id_tax_rules_group xlink:href="https://carcleancare.com/api/tax_rule_groups/58"><![CDATA[58]]></id_tax_rules_group>
+        <position_in_category notFilterable="true"><![CDATA[676]]></position_in_category>
+
+        <type notFilterable="true"><![CDATA[simple]]></type>
+        <id_shop_default><![CDATA[1]]></id_shop_default>
+        <reference>ADBL_ 2169_5</reference>
+        <supplier_reference><![CDATA[]]></supplier_reference>
+        <location><![CDATA[]]></location>
+        <width>15.50</width>
+        <height>25.00</height>
+        <depth>19.00</depth>
+        <weight>5.50</weight>
+        <quantity_discount><![CDATA[0]]></quantity_discount>
+        <ean13>5902729000680</ean13>
+        <isbn><![CDATA[]]></isbn>
+        <upc><![CDATA[]]></upc>
+        <mpn><![CDATA[]]></mpn>
+        <cache_is_pack><![CDATA[0]]></cache_is_pack>
+        <cache_has_attachments><![CDATA[0]]></cache_has_attachments>
+        <is_virtual><![CDATA[0]]></is_virtual>
+        <state><![CDATA[1]]></state>
+        <additional_delivery_times><![CDATA[0]]></additional_delivery_times>
+        <delivery_in_stock>
+            <language id="1" xlink:href="https://carcleancare.com/api/languages/1"><![CDATA[]]></language>
+            <language id="2" xlink:href="https://carcleancare.com/api/languages/2"><![CDATA[]]></language>
+            <language id="3" xlink:href="https://carcleancare.com/api/languages/3"><![CDATA[]]></language>
+        </delivery_in_stock>
+        <delivery_out_stock>
+            <language id="1" xlink:href="https://carcleancare.com/api/languages/1"><![CDATA[]]></language>
+            <language id="2" xlink:href="https://carcleancare.com/api/languages/2"><![CDATA[]]></language>
+            <language id="3" xlink:href="https://carcleancare.com/api/languages/3"><![CDATA[]]></language>
+        </delivery_out_stock>
+        <product_type><![CDATA[]]></product_type>
+        <on_sale><![CDATA[0]]></on_sale>
+        <online_only><![CDATA[0]]></online_only>
+        <ecotax><![CDATA[0.000000]]></ecotax>
+        <minimal_quantity>1</minimal_quantity>
+        <low_stock_threshold><![CDATA[0]]></low_stock_threshold>
+        <low_stock_alert><![CDATA[0]]></low_stock_alert>
+        <price>19.08</price>
+        <wholesale_price>12.51</wholesale_price>
+        <unity/>
+        <unit_price_ratio><![CDATA[0.000000]]></unit_price_ratio>
+        <additional_shipping_cost><![CDATA[0.000000]]></additional_shipping_cost>
+        <customizable><![CDATA[0]]></customizable>
+        <text_fields><![CDATA[0]]></text_fields>
+        <uploadable_files><![CDATA[0]]></uploadable_files>
+        <active>1</active>
+        <redirect_type><![CDATA[404]]></redirect_type>
+        <id_type_redirected><![CDATA[0]]></id_type_redirected>
+        <available_for_order><![CDATA[1]]></available_for_order>
+        <available_date><![CDATA[0000-00-00]]></available_date>
+        <show_condition><![CDATA[0]]></show_condition>
+        <condition><![CDATA[new]]></condition>
+        <show_price><![CDATA[1]]></show_price>
+        <indexed><![CDATA[1]]></indexed>
+        <visibility><![CDATA[both]]></visibility>
+        <advanced_stock_management><![CDATA[0]]></advanced_stock_management>
+        <date_add><![CDATA[2022-01-08 11:50:43]]></date_add>
+        <date_upd><![CDATA[2023-12-31 11:38:24]]></date_upd>
+        <pack_stock_type><![CDATA[0]]></pack_stock_type>
+        <meta_description>
+            <language id="1" xlink:href="https://carcleancare.com/api/languages/1"><![CDATA[ADBL - APC - Konzentrierter Allzweckreiniger 5L ist ein vielseitiges Produkt zum Reinigen von allen Oberflächen im Außenbereich und Innenraum des Fahrzeuges.]]></language>
+            <language id="2" xlink:href="https://carcleancare.com/api/languages/2"><![CDATA[ADBL - APC - Konzentrierter Allzweckreiniger 5L ist ein vielseitiges Produkt zum Reinigen von allen Oberflächen im Außenbereich und Innenraum des Fahrzeuges.]]></language>
+            <language id="3" xlink:href="https://carcleancare.com/api/languages/3"><![CDATA[ADBL - APC - Konzentrierter Allzweckreiniger 5L ist ein vielseitiges Produkt zum Reinigen von allen Oberflächen im Außenbereich und Innenraum des Fahrzeuges.]]></language>
+        </meta_description>
+        <meta_keywords>
+            <language id="1" xlink:href="https://carcleancare.com/api/languages/1"><![CDATA[ ]]></language>
+            <language id="2" xlink:href="https://carcleancare.com/api/languages/2"><![CDATA[]]></language>
+            <language id="3" xlink:href="https://carcleancare.com/api/languages/3"><![CDATA[ ]]></language>
+        </meta_keywords>
+        <meta_title>
+            <language id="1" xlink:href="https://carcleancare.com/api/languages/1"><![CDATA[]]></language>
+            <language id="2" xlink:href="https://carcleancare.com/api/languages/2"><![CDATA[]]></language>
+            <language id="3" xlink:href="https://carcleancare.com/api/languages/3"><![CDATA[]]></language>
+        </meta_title>
+        <link_rewrite>
+            <language id="1" xlink:href="https://carcleancare.com/api/languages/1"><![CDATA[adbl-apc-konzentrierter-allzweckreiniger-5l]]></language>
+            <language id="2" xlink:href="https://carcleancare.com/api/languages/2"><![CDATA[adbl-apc-konzentrierter-allzweckreiniger-5l]]></language>
+            <language id="3" xlink:href="https://carcleancare.com/api/languages/3"><![CDATA[adbl-apc-konzentrierter-allzweckreiniger-5l]]></language>
+        </link_rewrite>
+        <name>
+            <language id="1" xlink:href="https://carcleancare.com/api/languages/1"><![CDATA[ADBL - APC - Konzentrierter Allzweckreiniger 5L]]></language>
+            <language id="2" xlink:href="https://carcleancare.com/api/languages/2">ADBL - APC - Konzentrierter Allzweckreiniger 5L</language>
+            <language id="3" xlink:href="https://carcleancare.com/api/languages/3"><![CDATA[ADBL - APC - Konzentrierter Allzweckreiniger 5L]]></language>
+        </name>
+        <description>
+            <language id="1" xlink:href="https://carcleancare.com/api/languages/1"><![CDATA[<p><br /></p><h2 style="color:rgb(0,0,0);font-style:normal;letter-spacing:normal;text-indent:0px;text-transform:none;white-space:normal;word-spacing:0px;text-decoration:none;">ADBL - APC - Konzentrierter Allzweckreiniger 5L</h2><p style="color:rgb(0,0,0);font-style:normal;font-weight:normal;letter-spacing:normal;text-indent:0px;text-transform:none;white-space:normal;word-spacing:0px;text-decoration:none;"><br /></p><p style="color:rgb(0,0,0);font-style:normal;font-weight:normal;letter-spacing:normal;text-indent:0px;text-transform:none;white-space:normal;word-spacing:0px;text-decoration:none;">ADBL - APC - Konzentrierter Allzweckreiniger 5L ist ein vielseitiges Produkt zum Reinigen von allen Oberflächen im Außenbereich und Innenraum des Fahrzeuges.</p><p style="color:rgb(0,0,0);font-style:normal;font-weight:normal;letter-spacing:normal;text-indent:0px;text-transform:none;white-space:normal;word-spacing:0px;text-decoration:none;">Der APC von ADBL liefert eine umfassende Wirkung, dringt in den Schmutz ein und trennt diese von der Oberfläche. Spezielle Additive halten den Schmutz in der Lösung zurück und bilden eine leicht entfernbare Suspension. Schonend für Oberflächen.</p><p style="color:rgb(0,0,0);font-style:normal;font-weight:normal;letter-spacing:normal;text-indent:0px;text-transform:none;white-space:normal;word-spacing:0px;text-decoration:none;"><br /></p><p style="color:rgb(0,0,0);font-style:normal;font-weight:normal;letter-spacing:normal;text-indent:0px;text-transform:none;white-space:normal;word-spacing:0px;text-decoration:none;"><strong><span style="text-decoration:underline;">DOSIERUNG:</span></strong></p><ul style="color:rgb(0,0,0);font-style:normal;font-weight:normal;letter-spacing:normal;text-indent:0px;text-transform:none;white-space:normal;word-spacing:0px;text-decoration:none;"><li>Mischungsverhältnis bei starken Verschmutzungen: 1:4</li><li>Mischungsverhältnis bei leichten Verschmutzungen: 1:80</li></ul><p style="color:rgb(0,0,0);font-style:normal;font-weight:normal;letter-spacing:normal;text-indent:0px;text-transform:none;white-space:normal;word-spacing:0px;text-decoration:none;"><br /></p><p style="color:rgb(0,0,0);font-style:normal;font-weight:normal;letter-spacing:normal;text-indent:0px;text-transform:none;white-space:normal;word-spacing:0px;text-decoration:none;"><strong><span style="text-decoration:underline;">ANWENDUNG:</span></strong></p><ol style="color:rgb(0,0,0);font-style:normal;font-weight:normal;letter-spacing:normal;text-indent:0px;text-transform:none;white-space:normal;word-spacing:0px;text-decoration:none;"><li>Gemisch in der gewünschten Dosierung anmischen (je nach Verschmutzung)</li><li>Die zu reinigende Oberfläche einsprühen und bei Bedarf mit Pinsel, Applikator oder einer Bürste einarbeiten</li><li>Die Verschmutzung mit einem Mikrofasertuch abwischen oder mit fließendem Wasser abspülen</li><li>Wenn notwendig die Schritte wiederholen</li></ol><p style="color:rgb(0,0,0);font-style:normal;font-weight:normal;letter-spacing:normal;text-indent:0px;text-transform:none;white-space:normal;word-spacing:0px;text-decoration:none;"><br /></p><p style="color:rgb(0,0,0);font-style:normal;font-weight:normal;letter-spacing:normal;text-indent:0px;text-transform:none;white-space:normal;word-spacing:0px;text-decoration:none;"><strong><span style="text-decoration:underline;">HINWEISE:</span></strong></p><ul style="color:rgb(0,0,0);font-style:normal;font-weight:normal;letter-spacing:normal;text-indent:0px;text-transform:none;white-space:normal;word-spacing:0px;text-decoration:none;"><li>Das Produkt vor der eigentlichen Nutzung an einer unauffälligen Stelle Testen</li><li>Die zu reinigende Oberfläche darf nicht zu warm sein</li><li>Nicht antrocknen lassen</li><li>Nicht einfrieren lassen</li><li>Kühl und trocken aufbewahren</li><li>Keiner direkten Sonneneinstrahlung aussetzen</li></ul>]]></language>
+            <language id="2" xlink:href="https://carcleancare.com/api/languages/2">&lt;p>&lt;br>&lt;/p>&lt;h2 style="color:rgb(0,0,0);font-style:normal;letter-spacing:normal;text-indent:0px;text-transform:none;white-space:normal;word-spacing:0px;text-decoration:none;">ADBL - APC - Konzentrierter Allzweckreiniger 5L&lt;/h2>&lt;p style="color:rgb(0,0,0);font-style:normal;font-weight:normal;letter-spacing:normal;text-indent:0px;text-transform:none;white-space:normal;word-spacing:0px;text-decoration:none;">&lt;br>&lt;/p>&lt;p style="color:rgb(0,0,0);font-style:normal;font-weight:normal;letter-spacing:normal;text-indent:0px;text-transform:none;white-space:normal;word-spacing:0px;text-decoration:none;">ADBL - APC - Konzentrierter Allzweckreiniger 5L ist ein vielseitiges Produkt zum Reinigen von allen Oberflächen im Außenbereich und Innenraum des Fahrzeuges.&lt;/p>&lt;p style="color:rgb(0,0,0);font-style:normal;font-weight:normal;letter-spacing:normal;text-indent:0px;text-transform:none;white-space:normal;word-spacing:0px;text-decoration:none;">Der APC von ADBL liefert eine umfassende Wirkung, dringt in den Schmutz ein und trennt diese von der Oberfläche. Spezielle Additive halten den Schmutz in der Lösung zurück und bilden eine leicht entfernbare Suspension. Schonend für Oberflächen.&lt;/p>&lt;p style="color:rgb(0,0,0);font-style:normal;font-weight:normal;letter-spacing:normal;text-indent:0px;text-transform:none;white-space:normal;word-spacing:0px;text-decoration:none;">&lt;br>&lt;/p>&lt;p style="color:rgb(0,0,0);font-style:normal;font-weight:normal;letter-spacing:normal;text-indent:0px;text-transform:none;white-space:normal;word-spacing:0px;text-decoration:none;">&lt;strong>&lt;span style="text-decoration:underline;">DOSIERUNG:&lt;/span>&lt;/strong>&lt;/p>&lt;ul style="color:rgb(0,0,0);font-style:normal;font-weight:normal;letter-spacing:normal;text-indent:0px;text-transform:none;white-space:normal;word-spacing:0px;text-decoration:none;">&lt;li>Mischungsverhältnis bei starken Verschmutzungen: 1:4&lt;/li>&lt;li>Mischungsverhältnis bei leichten Verschmutzungen: 1:80&lt;/li>&lt;/ul>&lt;p style="color:rgb(0,0,0);font-style:normal;font-weight:normal;letter-spacing:normal;text-indent:0px;text-transform:none;white-space:normal;word-spacing:0px;text-decoration:none;">&lt;br>&lt;/p>&lt;p style="color:rgb(0,0,0);font-style:normal;font-weight:normal;letter-spacing:normal;text-indent:0px;text-transform:none;white-space:normal;word-spacing:0px;text-decoration:none;">&lt;strong>&lt;span style="text-decoration:underline;">ANWENDUNG:&lt;/span>&lt;/strong>&lt;/p>&lt;ol style="color:rgb(0,0,0);font-style:normal;font-weight:normal;letter-spacing:normal;text-indent:0px;text-transform:none;white-space:normal;word-spacing:0px;text-decoration:none;">&lt;li>Gemisch in der gewünschten Dosierung anmischen (je nach Verschmutzung)&lt;/li>&lt;li>Die zu reinigende Oberfläche einsprühen und bei Bedarf mit Pinsel, Applikator oder einer Bürste einarbeiten&lt;/li>&lt;li>Die Verschmutzung mit einem Mikrofasertuch abwischen oder mit fließendem Wasser abspülen&lt;/li>&lt;li>Wenn notwendig die Schritte wiederholen&lt;/li>&lt;/ol>&lt;p style="color:rgb(0,0,0);font-style:normal;font-weight:normal;letter-spacing:normal;text-indent:0px;text-transform:none;white-space:normal;word-spacing:0px;text-decoration:none;">&lt;br>&lt;/p>&lt;p style="color:rgb(0,0,0);font-style:normal;font-weight:normal;letter-spacing:normal;text-indent:0px;text-transform:none;white-space:normal;word-spacing:0px;text-decoration:none;">&lt;strong>&lt;span style="text-decoration:underline;">HINWEISE:&lt;/span>&lt;/strong>&lt;/p>&lt;ul style="color:rgb(0,0,0);font-style:normal;font-weight:normal;letter-spacing:normal;text-indent:0px;text-transform:none;white-space:normal;word-spacing:0px;text-decoration:none;">&lt;li>Das Produkt vor der eigentlichen Nutzung an einer unauffälligen Stelle Testen&lt;/li>&lt;li>Die zu reinigende Oberfläche darf nicht zu warm sein&lt;/li>&lt;li>Nicht antrocknen lassen&lt;/li>&lt;li>Nicht einfrieren lassen&lt;/li>&lt;li>Kühl und trocken aufbewahren&lt;/li>&lt;li>Keiner direkten Sonneneinstrahlung aussetzen&lt;/li>&lt;/ul></language>
+            <language id="3" xlink:href="https://carcleancare.com/api/languages/3"><![CDATA[<p><br /></p><h2 style="color:rgb(0,0,0);font-style:normal;letter-spacing:normal;text-indent:0px;text-transform:none;white-space:normal;word-spacing:0px;text-decoration:none;">ADBL - APC - Konzentrierter Allzweckreiniger 5L</h2><p style="color:rgb(0,0,0);font-style:normal;font-weight:normal;letter-spacing:normal;text-indent:0px;text-transform:none;white-space:normal;word-spacing:0px;text-decoration:none;"><br /></p><p style="color:rgb(0,0,0);font-style:normal;font-weight:normal;letter-spacing:normal;text-indent:0px;text-transform:none;white-space:normal;word-spacing:0px;text-decoration:none;">ADBL - APC - Konzentrierter Allzweckreiniger 5L ist ein vielseitiges Produkt zum Reinigen von allen Oberflächen im Außenbereich und Innenraum des Fahrzeuges.</p><p style="color:rgb(0,0,0);font-style:normal;font-weight:normal;letter-spacing:normal;text-indent:0px;text-transform:none;white-space:normal;word-spacing:0px;text-decoration:none;">Der APC von ADBL liefert eine umfassende Wirkung, dringt in den Schmutz ein und trennt diese von der Oberfläche. Spezielle Additive halten den Schmutz in der Lösung zurück und bilden eine leicht entfernbare Suspension. Schonend für Oberflächen.</p><p style="color:rgb(0,0,0);font-style:normal;font-weight:normal;letter-spacing:normal;text-indent:0px;text-transform:none;white-space:normal;word-spacing:0px;text-decoration:none;"><br /></p><p style="color:rgb(0,0,0);font-style:normal;font-weight:normal;letter-spacing:normal;text-indent:0px;text-transform:none;white-space:normal;word-spacing:0px;text-decoration:none;"><strong><span style="text-decoration:underline;">DOSIERUNG:</span></strong></p><ul style="color:rgb(0,0,0);font-style:normal;font-weight:normal;letter-spacing:normal;text-indent:0px;text-transform:none;white-space:normal;word-spacing:0px;text-decoration:none;"><li>Mischungsverhältnis bei starken Verschmutzungen: 1:4</li><li>Mischungsverhältnis bei leichten Verschmutzungen: 1:80</li></ul><p style="color:rgb(0,0,0);font-style:normal;font-weight:normal;letter-spacing:normal;text-indent:0px;text-transform:none;white-space:normal;word-spacing:0px;text-decoration:none;"><br /></p><p style="color:rgb(0,0,0);font-style:normal;font-weight:normal;letter-spacing:normal;text-indent:0px;text-transform:none;white-space:normal;word-spacing:0px;text-decoration:none;"><strong><span style="text-decoration:underline;">ANWENDUNG:</span></strong></p><ol style="color:rgb(0,0,0);font-style:normal;font-weight:normal;letter-spacing:normal;text-indent:0px;text-transform:none;white-space:normal;word-spacing:0px;text-decoration:none;"><li>Gemisch in der gewünschten Dosierung anmischen (je nach Verschmutzung)</li><li>Die zu reinigende Oberfläche einsprühen und bei Bedarf mit Pinsel, Applikator oder einer Bürste einarbeiten</li><li>Die Verschmutzung mit einem Mikrofasertuch abwischen oder mit fließendem Wasser abspülen</li><li>Wenn notwendig die Schritte wiederholen</li></ol><p style="color:rgb(0,0,0);font-style:normal;font-weight:normal;letter-spacing:normal;text-indent:0px;text-transform:none;white-space:normal;word-spacing:0px;text-decoration:none;"><br /></p><p style="color:rgb(0,0,0);font-style:normal;font-weight:normal;letter-spacing:normal;text-indent:0px;text-transform:none;white-space:normal;word-spacing:0px;text-decoration:none;"><strong><span style="text-decoration:underline;">HINWEISE:</span></strong></p><ul style="color:rgb(0,0,0);font-style:normal;font-weight:normal;letter-spacing:normal;text-indent:0px;text-transform:none;white-space:normal;word-spacing:0px;text-decoration:none;"><li>Das Produkt vor der eigentlichen Nutzung an einer unauffälligen Stelle Testen</li><li>Die zu reinigende Oberfläche darf nicht zu warm sein</li><li>Nicht antrocknen lassen</li><li>Nicht einfrieren lassen</li><li>Kühl und trocken aufbewahren</li><li>Keiner direkten Sonneneinstrahlung aussetzen</li></ul>]]></language>
+        </description>
+        <description_short>
+            <language id="1" xlink:href="https://carcleancare.com/api/languages/1"><![CDATA[<p><span style="font-style:normal;font-weight:400;letter-spacing:normal;text-indent:0px;text-transform:none;white-space:normal;word-spacing:0px;text-decoration:none;color:rgb(0,0,0);font-family:Verdana, Arial, Helvetica, sans-serif;font-size:11px;background-color:rgb(250,251,252);float:none;">ADBL - APC - Konzentrierter Allzweckreiniger 5L ist ein vielseitiges Produkt zum Reinigen von allen Oberflächen im Außenbereich und Innenraum des Fahrzeuges.</span><br /></p>]]></language>
+            <language id="2" xlink:href="https://carcleancare.com/api/languages/2">ADBL - APC - Konzentrierter Allzweckreiniger 5L ist ein vielseitiges Produkt zum Reinigen von allen Oberflächen im Außenbereich und Innenraum des Fahrzeuges.</language>
+            <language id="3" xlink:href="https://carcleancare.com/api/languages/3"><![CDATA[<p><span style="font-style:normal;font-weight:400;letter-spacing:normal;text-indent:0px;text-transform:none;white-space:normal;word-spacing:0px;text-decoration:none;color:rgb(0,0,0);font-family:Verdana, Arial, Helvetica, sans-serif;font-size:11px;background-color:rgb(250,251,252);float:none;">ADBL - APC - Konzentrierter Allzweckreiniger 5L ist ein vielseitiges Produkt zum Reinigen von allen Oberflächen im Außenbereich und Innenraum des Fahrzeuges.</span><br /></p>]]></language>
+        </description_short>
+        <available_now>
+            <language id="1" xlink:href="https://carcleancare.com/api/languages/1"><![CDATA[]]></language>
+            <language id="2" xlink:href="https://carcleancare.com/api/languages/2"><![CDATA[]]></language>
+            <language id="3" xlink:href="https://carcleancare.com/api/languages/3"><![CDATA[]]></language>
+        </available_now>
+        <available_later>
+            <language id="1" xlink:href="https://carcleancare.com/api/languages/1"><![CDATA[]]></language>
+            <language id="2" xlink:href="https://carcleancare.com/api/languages/2"><![CDATA[]]></language>
+            <language id="3" xlink:href="https://carcleancare.com/api/languages/3"><![CDATA[]]></language>
+        </available_later>
+        <associations>
+            <categories nodeType="category" api="categories">
+                <category>
+                    <id>2</id>
+                </category>
+                <category>
+                    <id>6</id>
+                </category>
+                <category>
+                    <id>8</id>
+                </category>
+                <category>
+                    <id>34</id>
+                </category>
+                <category>
+                    <id>62</id>
+                </category>
+                <category>
+                    <id>63</id>
+                </category>
+                <category>
+                    <id>108</id>
+                </category>
+            </categories>
+            <images nodeType="image" api="images">
+                <image xlink:href="https://carcleancare.com/api/images/products/726/6073">
+                    <id><![CDATA[6073]]></id>
+                </image>
+            </images>
+            <combinations nodeType="combination" api="combinations"/>
+            <product_option_values nodeType="product_option_value" api="product_option_values"/>
+            <product_features nodeType="product_feature" api="product_features"/>
+            <tags nodeType="tag" api="tags"/>
+            <stock_availables nodeType="stock_available" api="stock_availables">
+                <stock_available xlink:href="https://carcleancare.com/api/stock_availables/778">
+                    <id><![CDATA[778]]></id>
+                    <id_product_attribute><![CDATA[0]]></id_product_attribute>
+                </stock_available>
+            </stock_availables>
+            <attachments nodeType="attachment" api="attachments"/>
+            <accessories nodeType="product" api="products"/>
+            <product_bundle nodeType="product" api="products"/>
+        </associations>
+    </product>
+</prestashop>

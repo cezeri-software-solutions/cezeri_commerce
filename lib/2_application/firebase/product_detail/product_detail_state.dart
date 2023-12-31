@@ -1,9 +1,9 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 part of 'product_detail_bloc.dart';
 
 class ProductDetailState {
   final Product? product;
   final List<Supplier>? listOfSuppliers;
+  final List<Marketplace>? listOfNotSynchronizedMarketplaces;
   final MainSettings? mainSettings;
   final FirebaseFailure? firebaseFailure;
   final bool isAnyFailure;
@@ -13,11 +13,13 @@ class ProductDetailState {
   final bool isLoadingProductOnUploadImages;
   final bool isLoadingProductOnDelete;
   final bool isLoadingProductSuppliersOnObseve;
+  final bool isLoadingProductMarketplacesOnObseve;
   final Option<Either<FirebaseFailure, Product>> fosProductOnObserveOption;
   final Option<Either<FirebaseFailure, Unit>> fosProductOnUpdateOption;
   final Option<Either<FirebaseFailure, Product>> fosProductOnUpdateImagesOption;
   final Option<Either<FirebaseFailure, Unit>> fosProductOnDeleteOption;
   final Option<Either<FirebaseFailure, List<Supplier>>> fosProductSuppliersOnObserveOption;
+  final Option<Either<FirebaseFailure, List<Marketplace>>> fosProductMarketplacesOnObserveOption;
   final Option<Either<PrestaFailure, Unit>> fosProductOnUploadImagesInMarketplaceOption;
   final Option<Either<PrestaFailure, Unit>> fosProductOnUpdateInMarketplaceOption;
 
@@ -61,6 +63,7 @@ class ProductDetailState {
   ProductDetailState({
     required this.product,
     required this.listOfSuppliers,
+    required this.listOfNotSynchronizedMarketplaces,
     required this.mainSettings,
     required this.firebaseFailure,
     required this.isAnyFailure,
@@ -70,11 +73,13 @@ class ProductDetailState {
     required this.isLoadingProductOnUploadImages,
     required this.isLoadingProductOnDelete,
     required this.isLoadingProductSuppliersOnObseve,
+    required this.isLoadingProductMarketplacesOnObseve,
     required this.fosProductOnObserveOption,
     required this.fosProductOnUpdateOption,
     required this.fosProductOnUpdateImagesOption,
     required this.fosProductOnDeleteOption,
     required this.fosProductSuppliersOnObserveOption,
+    required this.fosProductMarketplacesOnObserveOption,
     required this.fosProductOnUploadImagesInMarketplaceOption,
     required this.fosProductOnUpdateInMarketplaceOption,
     required this.listOfStatProducts,
@@ -114,6 +119,7 @@ class ProductDetailState {
     return ProductDetailState(
       product: null,
       listOfSuppliers: null,
+      listOfNotSynchronizedMarketplaces: null,
       mainSettings: null,
       firebaseFailure: null,
       isAnyFailure: false,
@@ -123,11 +129,13 @@ class ProductDetailState {
       isLoadingProductOnUploadImages: false,
       isLoadingProductOnDelete: false,
       isLoadingProductSuppliersOnObseve: false,
+      isLoadingProductMarketplacesOnObseve: false,
       fosProductOnObserveOption: none(),
       fosProductOnUpdateOption: none(),
       fosProductOnUpdateImagesOption: none(),
       fosProductOnDeleteOption: none(),
       fosProductSuppliersOnObserveOption: none(),
+      fosProductMarketplacesOnObserveOption: none(),
       fosProductOnUploadImagesInMarketplaceOption: none(),
       fosProductOnUpdateInMarketplaceOption: none(),
       listOfStatProducts: null,
@@ -167,6 +175,7 @@ class ProductDetailState {
   ProductDetailState copyWith({
     Product? product,
     List<Supplier>? listOfSuppliers,
+    List<Marketplace>? listOfNotSynchronizedMarketplaces,
     MainSettings? mainSettings,
     FirebaseFailure? firebaseFailure,
     bool? isAnyFailure,
@@ -176,11 +185,13 @@ class ProductDetailState {
     bool? isLoadingProductOnUploadImages,
     bool? isLoadingProductOnDelete,
     bool? isLoadingProductSuppliersOnObseve,
+    bool? isLoadingProductMarketplacesOnObseve,
     Option<Either<FirebaseFailure, Product>>? fosProductOnObserveOption,
     Option<Either<FirebaseFailure, Unit>>? fosProductOnUpdateOption,
     Option<Either<FirebaseFailure, Product>>? fosProductOnUpdateImagesOption,
     Option<Either<FirebaseFailure, Unit>>? fosProductOnDeleteOption,
     Option<Either<FirebaseFailure, List<Supplier>>>? fosProductSuppliersOnObserveOption,
+    Option<Either<FirebaseFailure, List<Marketplace>>>? fosProductMarketplacesOnObserveOption,
     Option<Either<PrestaFailure, Unit>>? fosProductOnUploadImagesInMarketplaceOption,
     Option<Either<PrestaFailure, Unit>>? fosProductOnUpdateInMarketplaceOption,
     List<StatProduct>? listOfStatProducts,
@@ -218,6 +229,7 @@ class ProductDetailState {
     return ProductDetailState(
       product: product ?? this.product,
       listOfSuppliers: listOfSuppliers ?? this.listOfSuppliers,
+      listOfNotSynchronizedMarketplaces: listOfNotSynchronizedMarketplaces ?? this.listOfNotSynchronizedMarketplaces,
       mainSettings: mainSettings ?? this.mainSettings,
       firebaseFailure: firebaseFailure ?? this.firebaseFailure,
       isAnyFailure: isAnyFailure ?? this.isAnyFailure,
@@ -227,11 +239,13 @@ class ProductDetailState {
       isLoadingProductOnUploadImages: isLoadingProductOnUploadImages ?? this.isLoadingProductOnUploadImages,
       isLoadingProductOnDelete: isLoadingProductOnDelete ?? this.isLoadingProductOnDelete,
       isLoadingProductSuppliersOnObseve: isLoadingProductSuppliersOnObseve ?? this.isLoadingProductSuppliersOnObseve,
+      isLoadingProductMarketplacesOnObseve: isLoadingProductMarketplacesOnObseve ?? this.isLoadingProductMarketplacesOnObseve,
       fosProductOnObserveOption: fosProductOnObserveOption ?? this.fosProductOnObserveOption,
       fosProductOnUpdateOption: fosProductOnUpdateOption ?? this.fosProductOnUpdateOption,
       fosProductOnUpdateImagesOption: fosProductOnUpdateImagesOption ?? this.fosProductOnUpdateImagesOption,
       fosProductOnDeleteOption: fosProductOnDeleteOption ?? this.fosProductOnDeleteOption,
       fosProductSuppliersOnObserveOption: fosProductSuppliersOnObserveOption ?? this.fosProductSuppliersOnObserveOption,
+      fosProductMarketplacesOnObserveOption: fosProductMarketplacesOnObserveOption ?? this.fosProductMarketplacesOnObserveOption,
       fosProductOnUploadImagesInMarketplaceOption: fosProductOnUploadImagesInMarketplaceOption ?? this.fosProductOnUploadImagesInMarketplaceOption,
       fosProductOnUpdateInMarketplaceOption: fosProductOnUpdateInMarketplaceOption ?? this.fosProductOnUpdateInMarketplaceOption,
       listOfStatProducts: listOfStatProducts ?? this.listOfStatProducts,

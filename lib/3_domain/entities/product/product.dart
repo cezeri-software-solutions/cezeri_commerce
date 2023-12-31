@@ -1,6 +1,6 @@
 import 'package:cezeri_commerce/1_presentation/core/extensions/string_to_int.dart';
 import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.dart';
-import 'package:cezeri_commerce/3_domain/entities/product/product_language.dart';
+import 'package:cezeri_commerce/3_domain/entities/product/field_language.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 import '../../../1_presentation/core/functions/mixed_functions.dart';
@@ -25,7 +25,7 @@ class Product {
   final String sku;
   final String ean;
   final String name;
-  final List<ProductLanguage> listOfName;
+  final List<FieldLanguage> listOfName;
   final Tax tax; // Steuer Inland
   final List<String> imageUrls;
   final bool isActive;
@@ -54,13 +54,13 @@ class Product {
   final int minimumReorderQuantity; // Mindestnachbestellmenge
   final int packagingUnitOnReorder; // Verpackungseinheit bei Nachbestellung
   final String description;
-  final List<ProductLanguage> listOfDescription;
+  final List<FieldLanguage> listOfDescription;
   final String descriptionShort;
-  final List<ProductLanguage> listOfDescriptionShort;
+  final List<FieldLanguage> listOfDescriptionShort;
   final String metaTitle;
-  final List<ProductLanguage> listOfMetaTitle;
+  final List<FieldLanguage> listOfMetaTitle;
   final String metaDescription;
-  final List<ProductLanguage> listOfMetaDescription;
+  final List<FieldLanguage> listOfMetaDescription;
   final double volume; // Volumen in cm3
   final List<ProductImage> listOfProductImages;
   final List<SetProduct> listOfSetProducts;
@@ -172,8 +172,8 @@ class Product {
     required Marketplace marketplace,
     required MainSettings mainSettings,
   }) {
-    List<ProductLanguage> getListOfProductLanguages(List<Multilanguage>? valueMultilanguage) {
-      List<ProductLanguage> listOfProductLanguages = [];
+    List<FieldLanguage> getListOfProductLanguages(List<Multilanguage>? valueMultilanguage) {
+      List<FieldLanguage> listOfProductLanguages = [];
       if (valueMultilanguage != null &&
           valueMultilanguage.isNotEmpty &&
           productPresta.marketplaceLanguages != null &&
@@ -185,13 +185,13 @@ class Product {
           final language = Language.languageList.where((e) => e.isoCode.toUpperCase() == mLanguage.isoCode.toUpperCase()).firstOrNull;
           if (language == null) continue;
           final id = language.id;
-          listOfProductLanguages.add(ProductLanguage(id: id, value: value.value, isoCode: language.isoCode));
+          listOfProductLanguages.add(FieldLanguage(id: id, value: value.value, isoCode: language.isoCode));
         }
       }
       return listOfProductLanguages;
     }
 
-    String getProductValue(List<ProductLanguage> listOfProductLanguages, String? value) {
+    String getProductValue(List<FieldLanguage> listOfProductLanguages, String? value) {
       String toReturnValue = '';
       if (listOfProductLanguages.isNotEmpty) {
         final phValue = listOfProductLanguages.where((e) => e.isoCode.toUpperCase() == 'DE').firstOrNull;
@@ -279,7 +279,7 @@ class Product {
     String? sku,
     String? ean,
     String? name,
-    List<ProductLanguage>? listOfName,
+    List<FieldLanguage>? listOfName,
     Tax? tax,
     List<String>? imageUrls,
     bool? isActive,
@@ -307,13 +307,13 @@ class Product {
     int? minimumReorderQuantity,
     int? packagingUnitOnReorder,
     String? description,
-    List<ProductLanguage>? listOfDescription,
+    List<FieldLanguage>? listOfDescription,
     String? descriptionShort,
-    List<ProductLanguage>? listOfDescriptionShort,
+    List<FieldLanguage>? listOfDescriptionShort,
     String? metaTitle,
-    List<ProductLanguage>? listOfMetaTitle,
+    List<FieldLanguage>? listOfMetaTitle,
     String? metaDescription,
-    List<ProductLanguage>? listOfMetaDescription,
+    List<FieldLanguage>? listOfMetaDescription,
     List<ProductImage>? listOfProductImages,
     List<SetProduct>? listOfSetProducts,
     List<ProductMarketplace>? productMarketplaces,

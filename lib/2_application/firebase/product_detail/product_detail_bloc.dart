@@ -11,6 +11,7 @@ import 'package:html_editor_enhanced/html_editor.dart';
 import 'package:logger/logger.dart';
 
 import '../../../1_presentation/core/functions/mixed_functions.dart';
+import '../../../3_domain/entities/marketplace/marketplace.dart';
 import '../../../3_domain/entities/product/product.dart';
 import '../../../3_domain/entities/product/product_image.dart';
 import '../../../3_domain/entities/product/product_marketplace.dart';
@@ -18,6 +19,7 @@ import '../../../3_domain/entities/reorder/supplier.dart';
 import '../../../3_domain/entities/settings/main_settings.dart';
 import '../../../3_domain/entities/statistic/stat_product.dart';
 import '../../../3_domain/repositories/firebase/main_settings_respository.dart';
+import '../../../3_domain/repositories/firebase/marketplace_repository.dart';
 import '../../../3_domain/repositories/firebase/product_repository.dart';
 import '../../../3_domain/repositories/firebase/stat_product_repository.dart';
 import '../../../3_domain/repositories/firebase/supplier_repository.dart';
@@ -35,6 +37,7 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
   final MarketplaceEditRepository marketplaceEditRepository;
   final MainSettingsRepository mainSettingsRepository;
   final SupplierRepository supplierRepository;
+  final MarketplaceRepository marketplaceRepository;
   final StatProductRepository statProductRepository;
 
   ProductDetailBloc({
@@ -42,6 +45,7 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
     required this.marketplaceEditRepository,
     required this.mainSettingsRepository,
     required this.supplierRepository,
+    required this.marketplaceRepository,
     required this.statProductRepository,
   }) : super(ProductDetailState.initial()) {
 //? ###########################################################################################################################
@@ -333,6 +337,28 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
 
     on<OnProductSetSupplierEvent>((event, emit) async {
       emit(state.copyWith(product: state.product!.copyWith(supplier: event.supplierName)));
+    });
+
+//? ###########################################################################################################################
+
+    on<OnProductGetMarketplacesEvent>((event, emit) async {
+      emit(state.copyWith(isLoadingProductMarketplacesOnObseve: true));
+
+      final failureOrSuccess = await marketplaceRepository.getListOfMarketplaces();
+      failureOrSuccess.fold(
+        (failure) => null,
+        (listOfMarketplaces) {
+          final notSynchronizedList =
+              listOfMarketplaces.where((e) => !state.product!.productMarketplaces.any((f) => f.idMarketplace == e.id)).toList();
+          emit(state.copyWith(listOfNotSynchronizedMarketplaces: notSynchronizedList, firebaseFailure: null, isAnyFailure: false));
+        },
+      );
+
+      emit(state.copyWith(
+        isLoadingProductMarketplacesOnObseve: false,
+        fosProductMarketplacesOnObserveOption: optionOf(failureOrSuccess),
+      ));
+      emit(state.copyWith(fosProductMarketplacesOnObserveOption: none()));
     });
 
 //? ###########################################################################################################################

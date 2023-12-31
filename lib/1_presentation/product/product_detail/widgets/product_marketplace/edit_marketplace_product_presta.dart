@@ -46,6 +46,14 @@ class EditMarketplaceProductPresta extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
+                  const Text('ID im Marktplatz:', style: TextStyles.defaultBold),
+                  Text(state.marketplaceProductPresta!.id.toString()),
+                ],
+              ),
+              Gaps.h16,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
                   const Text('Aktiv:', style: TextStyles.defaultBold),
                   Switch.adaptive(
                     value: switch (state.marketplaceProductPresta!.active) {

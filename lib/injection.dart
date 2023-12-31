@@ -67,6 +67,7 @@ Future<void> init() async {
         marketplaceEditRepository: sl(),
         mainSettingsRepository: sl(),
         supplierRepository: sl(),
+        marketplaceRepository: sl(),
         statProductRepository: sl(),
       ));
   sl.registerFactory(() => MarketplaceProductBloc(marketplaceRepository: sl(), marketplaceImportRepository: sl()));

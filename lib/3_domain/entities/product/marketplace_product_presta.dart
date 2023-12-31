@@ -231,7 +231,7 @@ class MarketplaceProductPresta extends MarketplaceProduct {
       customizable: '',
       textFields: '',
       uploadableFiles: '',
-      active: '',
+      active: '0',
       redirectType: '',
       idTypeRedirected: '',
       availableForOrder: '',

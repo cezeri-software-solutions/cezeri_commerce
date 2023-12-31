@@ -15,6 +15,8 @@ class ProductChartCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.sizeOf(context).width;
+
     return BlocBuilder<ProductDetailBloc, ProductDetailState>(
       bloc: productDetailBloc,
       builder: (context, state) {
@@ -31,7 +33,7 @@ class ProductChartCard extends StatelessWidget {
                 const Text('Auswertung', style: TextStyles.h3BoldPrimary),
                 const Divider(height: 30),
                 AspectRatio(
-                  aspectRatio: 2.8,
+                  aspectRatio: getAspectRatio(screenWidth),
                   child: Stack(
                     children: [
                       Column(

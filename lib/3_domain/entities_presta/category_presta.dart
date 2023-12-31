@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:json_annotation/json_annotation.dart';
 
+import 'product_presta.dart';
+
 part 'category_presta.g.dart';
 
 @JsonSerializable()
@@ -42,6 +44,7 @@ class CategoryPresta {
   // @JsonKey(name: 'date_upd')
   // final String dateUpd;
   final String name;
+  final List<Multilanguage>? names;
   // @JsonKey(name: 'link_rewrite')
   // final String linkRewrite;
   // final String description;
@@ -67,6 +70,7 @@ class CategoryPresta {
     // required this.dateAdd,
     // required this.dateUpd,
     required this.name,
+    required this.names,
     // required this.linkRewrite,
     // required this.description,
     // required this.additionalDescription,
@@ -76,7 +80,30 @@ class CategoryPresta {
     required this.associations,
   });
 
-  factory CategoryPresta.fromJson(Map<String, dynamic> json) => _$CategoryPrestaFromJson(json);
+  // factory CategoryPresta.fromJson(Map<String, dynamic> json) => _$CategoryPrestaFromJson(json);
+  factory CategoryPresta.fromJson(Map<String, dynamic> json) {
+    String? name;
+    List<Multilanguage>? names;
+    if (json['name'] is String) {
+      name = json['name'] as String;
+    } else if (json['name'] is List) {
+      var firstItem = json['name'][0];
+      if (firstItem is Map<String, dynamic> && firstItem['value'] is String) {
+        name = firstItem['value'];
+      }
+      names = (json['name'] as List).map((e) => Multilanguage.fromJson(e as Map<String, dynamic>)).toList();
+    }
+
+    return CategoryPresta(
+      id: json['id'] as int,
+      idParent: json['id_parent'] as String,
+      levelDepth: json['level_depth'] as String,
+      active: json['active'] as String,
+      name: name!,
+      names: names,
+      associations: json['associations'] == null ? null : AssociationsCategoryPresta.fromJson(json['associations'] as Map<String, dynamic>),
+    );
+  }
   Map<String, dynamic> toJson() => _$CategoryPrestaToJson(this);
 
   @override
@@ -95,8 +122,8 @@ class AssociationsCategoryPresta {
 
   AssociationsCategoryPresta({required this.categoryIds, required this.productIds});
 
-  factory AssociationsCategoryPresta.fromJson(Map<String, dynamic> json) => _$AssociationsCategoryFromJson(json);
-  Map<String, dynamic> toJson() => _$AssociationsCategoryToJson(this);
+  factory AssociationsCategoryPresta.fromJson(Map<String, dynamic> json) => _$AssociationsCategoryPrestaFromJson(json);
+  Map<String, dynamic> toJson() => _$AssociationsCategoryPrestaToJson(this);
 
   @override
   String toString() => _encoder.convert(toJson());

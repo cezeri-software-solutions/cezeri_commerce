@@ -496,7 +496,7 @@ class PrestashopApi with UiLoggy {
       return true;
     }
     loggy.error(response);
-    logger.e('Artikel _doPut Fehler: $response');
+    logger.e('Artikel _doPut Fehler: ${response.body}');
     throw PrestashopApiException(response);
   }
 

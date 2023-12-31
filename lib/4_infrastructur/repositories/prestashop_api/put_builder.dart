@@ -1,9 +1,9 @@
 import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.dart';
 import 'package:xml/xml.dart';
 
+import '../../../3_domain/entities/product/field_language.dart';
 import '../../../3_domain/entities/product/marketplace_product_presta.dart';
 import '../../../3_domain/entities/product/product.dart';
-import '../../../3_domain/entities/product/product_language.dart';
 import '../../../3_domain/entities/product/product_marketplace.dart';
 import '../../../3_domain/entities_presta/language_presta.dart';
 import '../../../3_domain/entities_presta/product_presta.dart';
@@ -37,6 +37,14 @@ XmlDocument productUpdater({
 
   var toUpdateDocument = document;
   var productElement = toUpdateDocument.findAllElements('product').first;
+  //****************************************************************
+  // var idCategoryDefaultElement = productElement.findElements('id_category_default').firstOrNull;
+  // if (idCategoryDefaultElement != null) {
+  //   idCategoryDefaultElement.attributes.clear();
+  //   idCategoryDefaultElement.innerText = marketplaceProductPresta.idCategoryDefault.toString();
+  // }
+  //****************************************************************
+  productElement.findAllElements('id_category_default').first.innerText = marketplaceProductPresta.idCategoryDefault;
   productElement.findAllElements('reference').first.innerText = product.articleNumber;
   productElement.findAllElements('minimal_quantity').first.innerText = '1';
   productElement.findAllElements('width').first.innerText = product.width.toMyXmlString();
@@ -50,7 +58,7 @@ XmlDocument productUpdater({
   //productElement.findAllElements('unit_price_ratio').first.innerText = (product.netPrice / product.unitPrice).toMyXmlString();
   productElement.findAllElements('active').first.innerText = marketplaceProductPresta.active;
   final List<Multilanguage>? nameMultilanguage = productPresta.nameMultilanguage;
-  final List<ProductLanguage> listOfName = product.listOfName;
+  final List<FieldLanguage> listOfName = product.listOfName;
   final String? name = productPresta.name;
   var nameElement = productElement.findAllElements('name').first;
   if (nameMultilanguage != null && nameMultilanguage.isNotEmpty) {
@@ -80,7 +88,7 @@ XmlDocument productUpdater({
     if (name != null) nameElement.findAllElements('language').first.innerText = product.name;
   }
   final List<Multilanguage>? descriptionMultilanguage = productPresta.descriptionMultilanguage;
-  final List<ProductLanguage> listOfDescription = product.listOfDescription;
+  final List<FieldLanguage> listOfDescription = product.listOfDescription;
   final String? description = productPresta.description;
   var descriptionElement = productElement.findAllElements('description').first;
   if (descriptionMultilanguage != null && descriptionMultilanguage.isNotEmpty) {
@@ -114,7 +122,7 @@ XmlDocument productUpdater({
     if (description != null) descriptionElement.findAllElements('language').first.innerText = product.description;
   }
   final List<Multilanguage>? descriptionShortMultilanguage = productPresta.descriptionShortMultilanguage;
-  final List<ProductLanguage> listOfDescriptionShort = product.listOfDescriptionShort;
+  final List<FieldLanguage> listOfDescriptionShort = product.listOfDescriptionShort;
   final String? descriptionShort = productPresta.descriptionShort;
   var descriptionShortElement = productElement.findAllElements('description_short').first;
   if (descriptionShortMultilanguage != null && descriptionShortMultilanguage.isNotEmpty) {
@@ -147,6 +155,18 @@ XmlDocument productUpdater({
   } else {
     if (descriptionShort != null) descriptionShortElement.findAllElements('language').first.innerText = product.descriptionShort;
   }
+  var associationsElement = productElement.findElements('associations').firstOrNull;
+  if (associationsElement != null) {
+    var categoriesElement = associationsElement.findElements('categories').firstOrNull;
+    if (categoriesElement != null) {
+      categoriesElement.children.clear();
+      for (final category in marketplaceProductPresta.associations!.associationsCategories!) {
+        categoriesElement.children.add(XmlElement(XmlName('category'), [], [
+          XmlElement(XmlName('id'), [], [XmlText(category.id.toString())])
+        ]));
+      }
+    }
+  }
 
   //* #################################################################
   //* Elements to be removed
@@ -157,6 +177,10 @@ XmlDocument productUpdater({
   var quantityNameElement = productElement.findElements('quantity').firstOrNull;
   if (quantityNameElement != null) {
     quantityNameElement.parent!.children.remove(quantityNameElement);
+  }
+  var positionInCategoryNameElement = productElement.findElements('position_in_category').firstOrNull;
+  if (positionInCategoryNameElement != null) {
+    positionInCategoryNameElement.parent!.children.remove(positionInCategoryNameElement);
   }
   print(toUpdateDocument.toXmlString());
 

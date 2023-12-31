@@ -1,4 +1,3 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:cezeri_commerce/3_domain/entities/settings/payment_method.dart';
 import 'package:json_annotation/json_annotation.dart';
 

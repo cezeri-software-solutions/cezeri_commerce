@@ -16,7 +16,7 @@ Product _$ProductFromJson(Map<String, dynamic> json) => Product(
       ean: json['ean'] as String,
       name: json['name'] as String,
       listOfName: (json['listOfName'] as List<dynamic>)
-          .map((e) => ProductLanguage.fromJson(e as Map<String, dynamic>))
+          .map((e) => FieldLanguage.fromJson(e as Map<String, dynamic>))
           .toList(),
       tax: Tax.fromJson(json['tax'] as Map<String, dynamic>),
       imageUrls:
@@ -48,19 +48,19 @@ Product _$ProductFromJson(Map<String, dynamic> json) => Product(
       packagingUnitOnReorder: json['packagingUnitOnReorder'] as int,
       description: json['description'] as String,
       listOfDescription: (json['listOfDescription'] as List<dynamic>)
-          .map((e) => ProductLanguage.fromJson(e as Map<String, dynamic>))
+          .map((e) => FieldLanguage.fromJson(e as Map<String, dynamic>))
           .toList(),
       descriptionShort: json['descriptionShort'] as String,
       listOfDescriptionShort: (json['listOfDescriptionShort'] as List<dynamic>)
-          .map((e) => ProductLanguage.fromJson(e as Map<String, dynamic>))
+          .map((e) => FieldLanguage.fromJson(e as Map<String, dynamic>))
           .toList(),
       metaTitle: json['metaTitle'] as String,
       listOfMetaTitle: (json['listOfMetaTitle'] as List<dynamic>)
-          .map((e) => ProductLanguage.fromJson(e as Map<String, dynamic>))
+          .map((e) => FieldLanguage.fromJson(e as Map<String, dynamic>))
           .toList(),
       metaDescription: json['metaDescription'] as String,
       listOfMetaDescription: (json['listOfMetaDescription'] as List<dynamic>)
-          .map((e) => ProductLanguage.fromJson(e as Map<String, dynamic>))
+          .map((e) => FieldLanguage.fromJson(e as Map<String, dynamic>))
           .toList(),
       listOfProductImages: (json['listOfProductImages'] as List<dynamic>)
           .map((e) => ProductImage.fromJson(e as Map<String, dynamic>))

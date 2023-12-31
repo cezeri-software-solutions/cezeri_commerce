@@ -1,9 +1,9 @@
 import 'package:logger/logger.dart';
 import 'package:xml/xml.dart';
 
+import '../../../3_domain/entities/product/field_language.dart';
 import '../../../3_domain/entities/product/marketplace_product_presta.dart';
 import '../../../3_domain/entities/product/product.dart';
-import '../../../3_domain/entities/product/product_language.dart';
 import '../../../3_domain/entities/product/product_marketplace.dart';
 import '../../../3_domain/entities_presta/product_presta.dart';
 
@@ -49,7 +49,7 @@ XmlBuilder? productBuilder({
   bool isAnyFailure = false;
   final marketplaceProductPresta = productMarketplace.marketplaceProduct as MarketplaceProductPresta;
   final marketplaceLanguages = productPresta.marketplaceLanguages;
-  void valueBuilder(String? value, List<Multilanguage>? valuesMultilanguage, List<ProductLanguage> listOfProductLanguages, String fieldName) {
+  void valueBuilder(String? value, List<Multilanguage>? valuesMultilanguage, List<FieldLanguage> listOfProductLanguages, String fieldName) {
     if (valuesMultilanguage != null && valuesMultilanguage.isNotEmpty) {
       if (marketplaceLanguages != null && marketplaceLanguages.isNotEmpty) {
         builder.element(fieldName, nest: () {
@@ -78,6 +78,7 @@ XmlBuilder? productBuilder({
   builder.element('prestashop', attributes: {'xmlns:xlink': 'http://www.w3.org/1999/xlink'}, nest: () {
     builder.element('product', nest: () {
       builder.element('id', nest: id);
+      builder.element('id_category_default', nest: marketplaceProductPresta.idCategoryDefault);
       builder.element('reference', nest: product.articleNumber);
       builder.element('minimal_quantity', nest: '1');
       builder.element('width', nest: product.width);
@@ -93,6 +94,19 @@ XmlBuilder? productBuilder({
       valueBuilder(product.name, productPresta.nameMultilanguage, product.listOfName, 'name');
       valueBuilder(product.description, productPresta.descriptionMultilanguage, product.listOfDescription, 'description');
       valueBuilder(product.descriptionShort, productPresta.descriptionShortMultilanguage, product.listOfDescriptionShort, 'description_short');
+      if (marketplaceProductPresta.associations != null) {
+        builder.element('associations', nest: () {
+          if (marketplaceProductPresta.associations!.associationsCategories != null) {
+            builder.element('categories', nest: () {
+              for (final category in marketplaceProductPresta.associations!.associationsCategories!) {
+                builder.element('category', nest: () {
+                  builder.element('id', nest: category.id);
+                });
+              }
+            });
+          }
+        });
+      }
     });
   });
   if (isAnyFailure) return null;

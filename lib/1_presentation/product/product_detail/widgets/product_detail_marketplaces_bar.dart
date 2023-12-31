@@ -8,6 +8,7 @@ import '../../../../2_application/firebase/product_detail/product_detail_bloc.da
 import '../../../../3_domain/entities/marketplace/marketplace.dart';
 import '../../../../3_domain/entities/product/marketplace_product_presta.dart';
 import '../../../../3_domain/entities/product/product_marketplace.dart';
+import '../../../../3_domain/entities_presta/product_presta.dart';
 import '../../../../constants.dart';
 import '../../../../injection.dart';
 import '../../../core/widgets/my_outlined_button.dart';
@@ -33,7 +34,9 @@ class ProductDetailMarketplacesBar extends StatelessWidget {
               const Divider(),
               Gaps.h10,
               const Text('Marktplätze', style: TextStyles.h2Bold),
-              Gaps.h8,
+              Gaps.h16,
+              const Text('Synchronisierte Marktplätze:', style: TextStyles.h3),
+              Gaps.h16,
               SizedBox(
                 height: 110,
                 child: ListView.builder(
@@ -82,6 +85,93 @@ class ProductDetailMarketplacesBar extends StatelessWidget {
                   },
                 ),
               ),
+              Gaps.h16,
+              Row(
+                children: [
+                  const Text('Nicht synchronisierte Marktplätze:', style: TextStyles.h3),
+                  IconButton(
+                    onPressed: () => productDetailBloc.add(OnProductGetMarketplacesEvent()),
+                    icon: const Icon(Icons.refresh, color: CustomColors.primaryColor),
+                  ),
+                ],
+              ),
+              Gaps.h16,
+              if (state.listOfNotSynchronizedMarketplaces != null)
+                SizedBox(
+                  height: 110,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    physics: const BouncingScrollPhysics(),
+                    itemCount: state.listOfNotSynchronizedMarketplaces!.length,
+                    itemBuilder: (context, index) {
+                      final marketplace = state.listOfNotSynchronizedMarketplaces![index];
+                      return Row(
+                        children: [
+                          InkWell(
+                            onTap: () {
+                              switch (marketplace.marketplaceType) {
+                                case MarketplaceType.prestashop:
+                                  {
+                                    marketplaceProductBloc.add(SetMarketplaceProductStatesToInitialEvent());
+                                    final emptyMarketplaceProductPresta = MarketplaceProductPresta.empty();
+                                    final marketplaceProductPresta = emptyMarketplaceProductPresta.copyWith(
+                                      associations: Associations(
+                                          associationsCategories: [],
+                                          associationsImages: null,
+                                          associationsCombinations: null,
+                                          associationsProductOptionValues: null,
+                                          associationsProductFeatures: null,
+                                          associationsStockAvailables: null,
+                                          associationsAccessories: null,
+                                          associationsProductBundle: null),
+                                    );
+                                    final productMarketplace = ProductMarketplace(
+                                      idMarketplace: marketplace.id,
+                                      nameMarketplace: marketplace.name,
+                                      shortNameMarketplace: marketplace.shortName,
+                                      marketplaceProduct: marketplaceProductPresta,
+                                    );
+                                    marketplaceProductBloc.add(SetMarketplaceProductEvent(productMarketplace: productMarketplace));
+                                    showEditProductInMarketplace(context, productDetailBloc, marketplaceProductBloc, productMarketplace);
+                                  }
+                                case MarketplaceType.shop:
+                                  {
+                                    throw Error();
+                                  }
+                              }
+                            },
+                            child: SizedBox(
+                              height: 110,
+                              width: 200,
+                              child: Card(
+                                elevation: 4.0,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Text(marketplace.name, style: const TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold)),
+                                    ),
+                                    Container(
+                                      height: 5.0,
+                                      decoration: const BoxDecoration(
+                                        color: Colors.grey,
+                                        borderRadius: BorderRadius.only(bottomLeft: Radius.circular(8.0), bottomRight: Radius.circular(8.0)),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                          Gaps.w16,
+                        ],
+                      );
+                    },
+                  ),
+                ),
+              Gaps.h16,
             ],
           );
         },

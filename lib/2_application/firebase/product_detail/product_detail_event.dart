@@ -63,6 +63,8 @@ class OnProductSetSupplierEvent extends ProductDetailEvent {
   OnProductSetSupplierEvent({required this.supplierName});
 }
 
+class OnProductGetMarketplacesEvent extends ProductDetailEvent {}
+
 class OnProductImageSelectedEvent extends ProductDetailEvent {
   final ProductImage image;
 
