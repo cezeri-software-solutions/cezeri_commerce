@@ -394,7 +394,7 @@ class _SelectProductDialogState extends State<_SelectProductDialog> {
 
         List<Product> productList = switch (_productSearchController.text) {
           '' => state.listOfAllProducts!,
-          _ => state.listOfAllProducts!.where((e) => e.name.contains(_productSearchController.text)).toList(),
+          _ => state.listOfAllProducts!.where((e) => e.name.toLowerCase().contains(_productSearchController.text.toLowerCase())).toList(),
         };
 
         return Dialog(

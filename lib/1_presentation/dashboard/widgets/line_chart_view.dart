@@ -35,7 +35,7 @@ class _LineChartViewState extends State<LineChartView> {
     return Stack(
       children: [
         AspectRatio(
-          aspectRatio:  getAspectRatio(screenWidth),
+          aspectRatio: getAspectRatio(screenWidth),
           child: Padding(
             padding: const EdgeInsets.only(
               right: 24, //18,
@@ -66,6 +66,7 @@ class _LineChartViewState extends State<LineChartView> {
           //    widget.chartTyp == ChartTyp.incomingOrder ? AppColors.contentColorOrange.withOpacity(0.8) : AppColors.contentColorCyan.withOpacity(0.8),
         ),
       ),
+      backgroundColor: CustomColors.ultraLightGrey,
       gridData: FlGridData(
         show: true,
         drawVerticalLine: true,
@@ -122,7 +123,7 @@ class _LineChartViewState extends State<LineChartView> {
       minX: 0,
       maxX: 12,
       minY: 0,
-      maxY: getMaxValue(widget.listOfStatDashboards), // * 1.1,
+      maxY: ((getMaxValue(widget.listOfStatDashboards) * 1.05) / 10).ceil() * 10, //getMaxValue(widget.listOfStatDashboards), // * 1.1,
       lineBarsData: [
         LineChartBarData(
           spots: widget.chartTyp == ChartType.incomingOrder ? listOfFlSpotIncomingOrders(now) : listOfFlSpotSalesVolumes(now),
@@ -134,9 +135,7 @@ class _LineChartViewState extends State<LineChartView> {
           ),
           barWidth: 3,
           isStrokeCapRound: true,
-          dotData: const FlDotData(
-            show: false,
-          ),
+          dotData: const FlDotData(show: true),
           belowBarData: BarAreaData(
             show: true,
             gradient: LinearGradient(

@@ -1,5 +1,6 @@
 import 'package:cezeri_commerce/1_presentation/core/widgets/my_dropdown_button_small.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
 import '../../../2_application/firebase/appointment/appointment_bloc.dart';
@@ -77,7 +78,10 @@ class _ReceiptDetailGeneralCardState extends State<ReceiptDetailGeneralCard> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text('E-Mail', style: TextStyles.infoOnTextField),
-                      Text(widget.receipt.receiptCustomer.email),
+                      InkWell(
+                        onLongPress: () => Clipboard.setData(ClipboardData(text: widget.receipt.receiptCustomer.email)),
+                        child: Text(widget.receipt.receiptCustomer.email),
+                      ),
                     ],
                   ),
                 ),

@@ -4,7 +4,6 @@ import 'package:logger/logger.dart';
 import 'package:meta/meta.dart';
 
 import '../../../3_domain/entities/marketplace/marketplace.dart';
-import '../../../3_domain/entities/settings/main_settings.dart';
 import '../../../3_domain/entities_presta/product_presta.dart';
 import '../../../3_domain/repositories/firebase/main_settings_respository.dart';
 import '../../../3_domain/repositories/marketplace/marketplace_import_repository.dart';
@@ -86,21 +85,7 @@ class ProductImportBloc extends Bloc<ProductImportEvent, ProductImportState> {
 
       bool isSuccess = true;
 
-      MainSettings? mainSettings;
-      final fosMainSettings = await mainSettingsRepository.getSettings();
-      fosMainSettings.fold(
-        (failure) {
-          isSuccess = false;
-          return;
-        },
-        (settings) => mainSettings = settings,
-      );
-
-      final failureOrSuccess = await productImportRepository.uploadLoadedProductToFirestore(
-        state.productPresta!,
-        state.selectedMarketplace!,
-        mainSettings!,
-      );
+      final failureOrSuccess = await productImportRepository.uploadLoadedProductToFirestore(state.productPresta!, state.selectedMarketplace!.id);
       failureOrSuccess.fold(
         (failure) => isSuccess = false,
         (product) => null,
@@ -125,22 +110,8 @@ class ProductImportBloc extends Bloc<ProductImportEvent, ProductImportState> {
 
       bool isSuccess = true;
 
-      MainSettings? mainSettings;
-      final fosMainSettings = await mainSettingsRepository.getSettings();
-      fosMainSettings.fold(
-        (failure) {
-          isSuccess = false;
-          return;
-        },
-        (settings) => mainSettings = settings,
-      );
-
       for (final productPresta in state.listOfProductsPresta!) {
-        final failureOrSuccess = await productImportRepository.uploadLoadedProductToFirestore(
-          productPresta,
-          state.selectedMarketplace!,
-          mainSettings!,
-        );
+        final failureOrSuccess = await productImportRepository.uploadLoadedProductToFirestore(productPresta, state.selectedMarketplace!.id);
         failureOrSuccess.fold(
           (failure) => isSuccess = false,
           (product) => emit(state.copyWith(loadedProducts: state.loadedProducts + 1)),

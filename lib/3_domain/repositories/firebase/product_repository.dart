@@ -6,6 +6,7 @@ import 'package:dartz/dartz.dart';
 import '../../entities/marketplace/marketplace.dart';
 import '../../entities/product/product.dart';
 import '../../entities/product/product_image.dart';
+import '../../entities/product/product_marketplace.dart';
 import '../../entities_presta/product_presta.dart';
 
 abstract class ProductRepository {
@@ -20,6 +21,10 @@ abstract class ProductRepository {
   Future<Either<FirebaseFailure, Product>> getProductByArticleNumber(String articleNumber);
   Future<Either<FirebaseFailure, Product>> getProductByEan(String ean);
   Future<Either<FirebaseFailure, Product>> getProductByName(String name);
+  Future<Either<FirebaseFailure, Product>> getProductWithSameProductMarketplaceAndSameManufacturer(
+    Product product,
+    ProductMarketplace productMarketplace,
+  );
   Future<Either<FirebaseFailure, List<Product>>> getListOfProducts();
   Future<Either<FirebaseFailure, List<Product>>> getListOfProductsByIds(List<String> productIds);
   Future<Either<FirebaseFailure, List<Product>>> getListOfSoldOutProducts();

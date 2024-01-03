@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cezeri_commerce/3_domain/entities/product/product_marketplace.dart';
 import 'package:cezeri_commerce/3_domain/entities_presta/product_presta_image.dart';
 import 'package:cezeri_commerce/core/firebase_failures.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -246,6 +247,32 @@ class ProductRepositoryImpl implements ProductRepository {
       final product = await docRef.get().then((value) => value.docs.map((docSs) => Product.fromJson(docSs.data())).toList().firstOrNull);
       if (product == null) return left(EmptyFailure());
       return right(product);
+    } on FirebaseException {
+      return left(GeneralFailure());
+    }
+  }
+
+  @override
+  Future<Either<FirebaseFailure, Product>> getProductWithSameProductMarketplaceAndSameManufacturer(
+    Product product,
+    ProductMarketplace productMarketplace,
+  ) async {
+    final isConnected = await checkInternetConnection();
+    if (!isConnected) return left(NoConnectionFailure());
+
+    final currentUserUid = firebaseAuth.currentUser!.uid;
+    final docRef = db.collection('Products').doc(currentUserUid).collection('Products').where('manufacturer',
+        isEqualTo: product.manufacturer); //.where('productMarketplaces.idMarketplace', whereIn: [productMarketplace.idMarketplace]);
+
+    try {
+      final products = await docRef.get().then((value) => value.docs.map((docSs) => Product.fromJson(docSs.data())).toList());
+      if (products.isEmpty) return left(EmptyFailure());
+
+      final productSameMarketplace =
+          products.where((e) => e.productMarketplaces.any((f) => f.idMarketplace == productMarketplace.idMarketplace)).firstOrNull;
+      if (productSameMarketplace == null) return left(GeneralFailure());
+
+      return right(productSameMarketplace);
     } on FirebaseException {
       return left(GeneralFailure());
     }

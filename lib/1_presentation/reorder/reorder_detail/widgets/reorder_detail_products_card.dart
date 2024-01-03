@@ -6,6 +6,7 @@ import '../../../../2_application/firebase/reorder_detail/reorder_detail_bloc.da
 import '../../../../3_domain/entities/product/product.dart';
 import '../../../../constants.dart';
 import '../../../core/functions/dialogs.dart';
+import '../../../core/functions/show_my_product_quick_view.dart';
 import '../../../core/widgets/my_circular_progress_indicator.dart';
 import '../../../core/widgets/my_form_field_small.dart';
 import '../../../core/widgets/my_text_form_field_small_double.dart';
@@ -29,6 +30,7 @@ class ReorderDetailProductsCard extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
+                    const Icon(Icons.article_outlined, color: Colors.transparent),
                     const Expanded(
                       flex: RowWidthsReOP.pos,
                       child: Text('Pos.', style: TextStyles.s12Bold),
@@ -87,6 +89,10 @@ class ReorderDetailProductsCard extends StatelessWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
+                            InkWell(
+                              onTap: () => showMyProductQuickViewById(context: context, productId: reorderProduct.productId),
+                              child: const Icon(Icons.article_outlined, color: CustomColors.primaryColor),
+                            ),
                             Expanded(
                               flex: RowWidthsReOP.pos,
                               child: MyTextFormFieldSmallDouble(

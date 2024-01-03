@@ -119,7 +119,7 @@ class _ProductContainer extends StatelessWidget {
                         await context.router.push(ProductDetailRoute(productId: product.id));
                         productBloc.add(GetProductEvent(id: product.id));
                       },
-                      onLongPress: () => showMyProductQuickView(context: context, product: product),
+                      onLongPress: () => showMyProductQuickView(context: context, product: product, showStatProduct: true),
                       style: TextButton.styleFrom(padding: EdgeInsets.zero, tapTargetSize: MaterialTapTargetSize.shrinkWrap),
                       child: Text(product.name, maxLines: 2, overflow: TextOverflow.ellipsis),
                     ),

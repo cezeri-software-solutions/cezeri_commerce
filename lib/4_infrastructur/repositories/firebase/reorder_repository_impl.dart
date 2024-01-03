@@ -78,6 +78,8 @@ class ReorderRepositoryImpl implements ReorderRepository {
 
     try {
       final listOfReorders = await docRef.get().then((value) => value.docs.map((querySnapshot) => Reorder.fromJson(querySnapshot.data())).toList());
+      print('Repository');
+      print(listOfReorders.length);
 
       if (listOfReorders.isEmpty) return left(EmptyFailure());
       return right(listOfReorders);

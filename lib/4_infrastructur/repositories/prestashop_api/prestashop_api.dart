@@ -12,6 +12,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:quiver/core.dart';
 import 'package:xml/xml.dart';
 
+import '../../../3_domain/entities/product/marketplace_product_presta.dart';
 import '../../../3_domain/entities/product/product.dart';
 import '../../../3_domain/entities/product/product_image.dart';
 import '../../../3_domain/entities/product/product_marketplace.dart';
@@ -29,6 +30,7 @@ import '../../../3_domain/entities_presta/product_presta.dart';
 import '../../../3_domain/entities_presta/product_presta_image.dart';
 import '../../../3_domain/entities_presta/stock_available_presta.dart';
 import 'patch_builders.dart';
+import 'post_builder.dart';
 import 'put_builder.dart';
 
 final logger = Logger();
@@ -181,7 +183,20 @@ class PrestashopApi with UiLoggy {
       single: true,
     );
     final optionalProductPresta = payload == null ? const Optional.absent() : Optional.of(ProductsPresta.fromJson(payload).items.single);
-    if (optionalProductPresta.isNotPresent) return throw PrestashopApiException;
+    if (optionalProductPresta.isNotPresent) return const Optional.absent();
+    final phProductPresta = optionalProductPresta.value;
+    final productPresta = await getProductImpl(phProductPresta, marketplace);
+    return productPresta.isNotPresent ? const Optional.absent() : productPresta;
+  }
+
+  Future<Optional<ProductPresta>> getProductByReference(final String reference, final Marketplace marketplace) async {
+    final payload = await _doGetJson(
+      '${_conf.webserviceUrl}products?ws_key=${_conf.apiKey}&filter[reference]=[$reference]&output_format=JSON&display=full',
+      single: true,
+    );
+    if (payload is Map && payload.isEmpty || payload is List && payload.isEmpty) return const Optional.absent();
+    final optionalProductPresta = payload == null ? const Optional.absent() : Optional.of(ProductsPresta.fromJson(payload).items.single);
+    if (optionalProductPresta.isNotPresent) return const Optional.absent();
     final phProductPresta = optionalProductPresta.value;
     final productPresta = await getProductImpl(phProductPresta, marketplace);
     return productPresta.isNotPresent ? const Optional.absent() : productPresta;
@@ -219,12 +234,13 @@ class PrestashopApi with UiLoggy {
 
 //? ################################## GET ENDE ######################################################################################
 //? ##################################################################################################################################
+//? ##################################################################################################################################
 //? ################################## PATCH START ###################################################################################
   //* Order
   Future<bool> patchOrderStatus(final int orderId, final int statusId, final bool isPresta8) async {
     bool payload = false;
     if (isPresta8) {
-      final builder = orderStatusBuilder(orderId, statusId);
+      final builder = patchOrderStatusBuilder(orderId, statusId);
       final payloadDoPatch = await _doPatch(
         '${_conf.webserviceUrl}orders/$orderId',
         builder,
@@ -253,7 +269,7 @@ class PrestashopApi with UiLoggy {
     final stockAvailableId = productPresta.associations.associationsStockAvailables!.first.id;
     bool payload = false;
     if (marketplace.isPresta8) {
-      final builder = stockAvailableBuilder(stockAvailableId, quantity);
+      final builder = patchStockAvailableBuilder(stockAvailableId, quantity);
       final payloadDoPatch = await _doPatch(
         '${_conf.webserviceUrl}stock_availables/$stockAvailableId',
         builder,
@@ -338,7 +354,7 @@ class PrestashopApi with UiLoggy {
     final stockAvailableId = productPresta.associations.associationsStockAvailables!.first.id;
     bool payload = false;
     if (marketplace.isPresta8) {
-      final builder = stockAvailableBuilder(stockAvailableId, quantity);
+      final builder = patchStockAvailableBuilder(stockAvailableId, quantity);
       final payloadDoPatch = await _doPatch(
         '${_conf.webserviceUrl}stock_availables/$stockAvailableId',
         builder,
@@ -370,7 +386,7 @@ class PrestashopApi with UiLoggy {
     final productPresta = optionalProductPresta.value;
     bool payload = false;
     if (marketplace.isPresta8) {
-      final builder = productBuilder(
+      final builder = patchProductBuilder(
         id: marketplaceProductPrestaId,
         product: product,
         productMarketplace: productMarketplace,
@@ -424,6 +440,41 @@ class PrestashopApi with UiLoggy {
 
 //? ################################## PATCH ENDE #####################################################################################
 //? ###################################################################################################################################
+//? ###################################################################################################################################
+//? ################################## POST START #####################################################################################
+
+  //* Product
+  Future<int> postProduct(
+    Product product,
+    ProductMarketplace productMarketplace,
+    ProductMarketplace anotherProductMarketplaceWithSameManufacturer,
+    Marketplace marketplace,
+  ) async {
+    final optionalProductPresta = await getProductByReference(product.articleNumber, marketplace);
+    if (optionalProductPresta.isPresent) return 0;
+    final aMpp = anotherProductMarketplaceWithSameManufacturer.marketplaceProduct as MarketplaceProductPresta;
+    final optionalAnotherProductPresta = await getProduct(aMpp.id, marketplace);
+    if (optionalAnotherProductPresta.isNotPresent) return 0;
+    final productPrestaWithSameManufacturer = optionalAnotherProductPresta.value;
+
+    int payload = 0;
+    final builder = postProductBuilder(
+      product: product,
+      productMarketplace: productMarketplace,
+      productPrestaWithSameManufacturer: productPrestaWithSameManufacturer,
+    );
+    if (builder == null) return 0;
+    final payloadDoPost = await _doPost(
+      '${_conf.webserviceUrl}products/',
+      builder,
+    );
+    payload = payloadDoPost;
+
+    return payload;
+  }
+
+//? ################################## POST ENDE #####################################################################################
+//? ###################################################################################################################################
 
   //* Utility methods */
   Future<dynamic> _doGetJson(String uri, {bool single = false}) async {
@@ -441,7 +492,9 @@ class PrestashopApi with UiLoggy {
       return jsonDecode(utf8.decode(response.bodyBytes));
     }
     loggy.error(response);
-    logger.e(response);
+    logger.e(uri);
+    logger.e(response.statusCode);
+    logger.e(response.body);
     throw PrestashopApiException(response);
   }
 
@@ -496,8 +549,38 @@ class PrestashopApi with UiLoggy {
       return true;
     }
     loggy.error(response);
+    logger.e(uri);
     logger.e('Artikel _doPut Fehler: ${response.body}');
     throw PrestashopApiException(response);
+  }
+
+  //* Zum erstellen von Daten in Prestashop (z.B. das Erstellen eines Artikels)
+  Future<int> _doPost(String uri, XmlBuilder builder) async {
+    loggy.debug('Fetching $uri');
+    final document = builder.buildDocument();
+    final response = await _http.post(
+      Uri.parse(uri),
+      headers: {
+        'Authorization': 'Basic ${base64Encode(utf8.encode('${_conf.apiKey}:'))}',
+        'Content-Type': 'application/xml',
+      },
+      body: document.toXmlString(),
+    );
+
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      print(response.body);
+      logger.i('_doPost erfolgreich durchgeführt');
+      final document = XmlDocument.parse(response.body);
+      final idElement = document.findAllElements('id').firstOrNull;
+      if (idElement == null) return 0;
+
+      return idElement.innerText.toMyInt();
+    }
+    loggy.error(response);
+    logger.e('_doPost Fehler: ${response.statusCode}');
+    logger.e('_doPost Fehler: ${response.body}');
+    // throw PrestashopApiException(response);
+    return 0;
   }
 
   Future<Optional<ProductPresta>> getProductImpl(ProductPresta phProductPresta, Marketplace marketplace) async {

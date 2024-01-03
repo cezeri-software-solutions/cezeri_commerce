@@ -13,6 +13,7 @@ import '../../../../3_domain/entities/product/marketplace_product_presta.dart';
 import '../../../../3_domain/entities/product/product_marketplace.dart';
 import '../../../../3_domain/repositories/marketplace/marketplace_edit_repository.dart';
 import '../../../3_domain/entities/patch_marketplace_logger.dart';
+import '../../../3_domain/entities_presta/product_presta.dart';
 import '../prestashop_api/prestashop_api.dart';
 
 class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
@@ -37,6 +38,7 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
 
       final marketplaceSnapshot = await docRef.get();
       final marketplace = Marketplace.fromJson(marketplaceSnapshot.data()!);
+      if (!marketplace.isActive) continue;
 
       final api = PrestashopApi(Client(), PrestashopApiConfig(apiKey: marketplace.key, webserviceUrl: marketplace.fullUrl));
 
@@ -94,6 +96,40 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
     }
     if (isSuccess) return right(unit);
     return left(PrestaGeneralFailure());
+  }
+
+  @override
+  Future<Either<PrestaFailure, ProductPresta>> createProdcutPresta(
+    Product product,
+    ProductMarketplace productMarketplace,
+    ProductMarketplace anotherProductMarketplaceWithSameManufacturer,
+  ) async {
+    final isConnected = await checkInternetConnection();
+    if (!isConnected) return left(PrestaGeneralFailure());
+
+    final currentUserUid = firebaseAuth.currentUser!.uid;
+
+    final docRef = db.collection('Marketetplaces').doc(currentUserUid).collection('Marketetplaces').doc(productMarketplace.idMarketplace);
+
+    final marketplaceSnapshot = await docRef.get();
+    final marketplace = Marketplace.fromJson(marketplaceSnapshot.data()!);
+
+    final api = PrestashopApi(Client(), PrestashopApiConfig(apiKey: marketplace.key, webserviceUrl: marketplace.fullUrl));
+    //* Erstellt den neuen Artikel in Prestashop und gibt die ID des erstellten Artikels zurück
+    final idOfCreatedProduct = await api.postProduct(product, productMarketplace, anotherProductMarketplaceWithSameManufacturer, marketplace);
+
+    if (idOfCreatedProduct == 0) return left(PrestaGeneralFailure());
+
+    await Future.delayed(const Duration(seconds: 1));
+
+    final optionalProductPresta = await api.getProduct(idOfCreatedProduct, marketplace);
+    if (optionalProductPresta.isNotPresent) {
+      logger.e('Fehler beim Laden des Artikels aus Prestashop');
+      return left(PrestaGeneralFailure(errorMessage: 'Fehler beim Laden der Artikels aus Prestashop'));
+    }
+    final productPresta = optionalProductPresta.value;
+
+    return right(productPresta);
   }
 
   @override

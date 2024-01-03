@@ -7,6 +7,7 @@ import '../../../2_application/firebase/product_detail/product_detail_bloc.dart'
 import '../../../3_domain/enums/enums.dart';
 import '../../../constants.dart';
 import '../../../injection.dart';
+import '../../../routes/router.gr.dart';
 import '../../core/functions/my_scaffold_messanger.dart';
 import '../../core/widgets/my_dialog_suppliers.dart';
 import '../../core/widgets/my_outlined_button.dart';
@@ -89,6 +90,29 @@ class ProductDetailScreen extends StatelessWidget {
                   },
                   (listOfProducts) {
                     myScaffoldMessenger(context, null, null, 'Artikel erfolgreich im Marktplatz aktualisiert', null);
+                  },
+                ),
+              );
+            },
+          ),
+          BlocListener<ProductDetailBloc, ProductDetailState>(
+            listenWhen: (p, c) => p.fosProductOnCreateInMarketplaceOption != c.fosProductOnCreateInMarketplaceOption,
+            listener: (context, state) {
+              state.fosProductOnCreateInMarketplaceOption.fold(
+                () => null,
+                (a) => a.fold(
+                  (failure) {
+                    context.router.popTop();
+                    myScaffoldMessenger(context, null, null, null, 'Artikel konnte nicht im Marktplatz angelegt werden');
+                  },
+                  (unit) {
+                    final curProduct = state.product!;
+                    productDetailBloc.add(SetProductDetailStatesToInitialEvent());
+                    productDetailBloc.add(GetProductEvent(id: curProduct.id));
+                    productDetailBloc.add(OnEditProductInPresta(product: curProduct));
+                    productDetailBloc.add(UploadProductImageToPrestaEvent());
+                    context.router.popUntilRouteWithName(ProductDetailRoute.name);
+                    myScaffoldMessenger(context, null, null, 'Artikel erfolgreich im Marktplatz angelegt', null);
                   },
                 ),
               );

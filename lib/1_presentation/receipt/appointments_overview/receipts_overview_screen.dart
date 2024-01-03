@@ -198,7 +198,8 @@ class ReceiptsOverviewScreen extends StatelessWidget {
                                 appointmentBloc: appointmentBloc,
                               ),
                             ReceiptTyp.deliveryNote => state.selectedReceipts.isEmpty ||
-                                    !state.selectedReceipts.every((e) => e.receiptCustomer.id == state.selectedReceipts.first.id)
+                                    (state.selectedReceipts.length > 1 &&
+                                        state.selectedReceipts.any((e) => e.receiptCustomer.id != state.selectedReceipts.first.id))
                                 ? _ReceiptsAlertDialog(
                                     title: 'Achtug',
                                     content: _getErrorMessageOnGenerateFromDeliveryNotesNewInvoice(state.selectedReceipts),
@@ -387,7 +388,7 @@ class ReceiptsOverviewScreen extends StatelessWidget {
 
   String _getErrorMessageOnGenerateFromDeliveryNotesNewInvoice(List<Receipt> selectedReceipts) {
     if (selectedReceipts.isEmpty) return 'Du musst mindestens ein Lieferschein auswählen, zum generieren einer Sammelrechnung';
-    if (!selectedReceipts.every((e) => e.receiptCustomer.id == selectedReceipts.first.id)) {
+    if (selectedReceipts.any((e) => e.receiptCustomer.id != selectedReceipts.first.id)) {
       return 'Alle Lieferscheine die zu einer Sammelrechnung generiert werden sollen, müssen vom selben Kunden sein.';
     }
     return 'Ein Fehler ist aufgetreten';

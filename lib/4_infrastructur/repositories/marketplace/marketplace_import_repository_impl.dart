@@ -78,15 +78,24 @@ class MarketplaceImportRepositoryImpl implements MarketplaceImportRepository {
   }
 
   @override
-  Future<Either<AbstractFailure, Product?>> uploadLoadedProductToFirestore(
-    ProductPresta productPresta,
-    Marketplace marketplace,
-    MainSettings mainSettings,
-  ) async {
+  Future<Either<AbstractFailure, Product?>> uploadLoadedProductToFirestore(ProductPresta productPresta, String marketplaceId) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
 
+    final currentUserUid = firebaseAuth.currentUser!.uid;
+
+    final docRefMarketplace = db.collection('Marketetplaces').doc(currentUserUid).collection('Marketetplaces').doc(marketplaceId);
+    final docRefSettings = db.collection('Settings').doc(currentUserUid).collection('Settings').doc(currentUserUid);
+
     try {
+      final marketplaceDs = await docRefMarketplace.get();
+      if (!marketplaceDs.exists) return left(GeneralFailure());
+      final marketplace = Marketplace.fromJson(marketplaceDs.data()!);
+
+      final settingsDs = await docRefSettings.get();
+      if (!settingsDs.exists) return left(GeneralFailure());
+      final mainSettings = MainSettings.fromJson(settingsDs.data()!);
+
       final productFirestore = await getProductFromFirestoreIfExists(
         productPresta.reference,
         productPresta.ean13,

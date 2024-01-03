@@ -65,6 +65,13 @@ class OnProductSetSupplierEvent extends ProductDetailEvent {
 
 class OnProductGetMarketplacesEvent extends ProductDetailEvent {}
 
+class OnCreateProductInMarketplaceEvent extends ProductDetailEvent {
+  final BuildContext context;
+  final ProductMarketplace productMarketplace;
+
+  OnCreateProductInMarketplaceEvent({required this.context, required this.productMarketplace});
+}
+
 class OnProductImageSelectedEvent extends ProductDetailEvent {
   final ProductImage image;
 

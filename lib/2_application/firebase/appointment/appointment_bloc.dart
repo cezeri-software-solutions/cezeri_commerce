@@ -165,29 +165,6 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
       bool isSuccess = true;
       emit(state.copyWith(isLoadingAppointmentsFromPrestaOnObserve: true, loadedAppointments: 0, numberOfToLoadAppointments: 0, loadingText: ''));
 
-      // final failureOrSuccess = await receiptRepository.loadNewAppointmentsFromMarketplaces();
-      // failureOrSuccess.fold(
-      //   (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
-      //   (listOfAppointments) {
-      //     if (listOfAppointments.isNotEmpty) {
-      //       List<Receipt> listWithNewAppointments = List.from(state.listOfAllReceipts ?? []);
-      //       listWithNewAppointments.addAll(listOfAppointments);
-      //       listWithNewAppointments.sort((a, b) => switch (listOfAppointments.first.receiptTyp) {
-      //             ReceiptTyp.offer => b.offerId.compareTo(a.offerId),
-      //             ReceiptTyp.appointment => b.appointmentId.compareTo(a.appointmentId),
-      //             ReceiptTyp.deliveryNote => b.deliveryNoteId.compareTo(a.deliveryNoteId),
-      //             ReceiptTyp.invoice || ReceiptTyp.credit => b.invoiceId.compareTo(a.invoiceId),
-      //           });
-      //       emit(state.copyWith(
-      //         listOfAllReceipts: listWithNewAppointments,
-      //         isExpanded: List<bool>.filled(listWithNewAppointments.length, false),
-      //         firebaseFailure: null,
-      //         isAnyFailure: false,
-      //       ));
-      //     }
-      //   },
-      // );
-
       List<ToLoadAppointmentsFromMarketplace>? toLoadAppointmentsFromMarketplace;
       final fosToLoadAppointments = await receiptRepository.getToLoadAppointmentsFromMarketplaces();
       fosToLoadAppointments.fold(
@@ -494,6 +471,7 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
       failureOrSuccess.fold(
         (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
         (listOfProducts) {
+          listOfProducts.sort((a, b) => a.name.compareTo(b.name));
           emit(state.copyWith(listOfAllProducts: listOfProducts, firebaseFailure: null, isAnyFailure: false));
         },
       );

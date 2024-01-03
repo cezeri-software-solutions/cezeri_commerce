@@ -47,7 +47,7 @@ class HomeProductState {
     return HomeProductState(
       listOfProductsSoldOut: null,
       listOfProductsUnderMinimumQuantity: null,
-      listOfReorders: [],
+      listOfReorders: null,
       listOfHomeProducts: [],
       firebaseFailure: null,
       isAnyFailure: false,

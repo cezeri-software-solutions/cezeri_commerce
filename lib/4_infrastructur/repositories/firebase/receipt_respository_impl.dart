@@ -1032,8 +1032,11 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
           );
 
       for (final marketplace in listOfActiveMarketplaces) {
-        final api = PrestashopApi(Client(), PrestashopApiConfig(apiKey: marketplace.key, webserviceUrl: marketplace.fullUrl));
         if (!marketplace.isActive) continue;
+        print('################################################');
+        print(marketplace.name);
+        print('################################################');
+        final api = PrestashopApi(Client(), PrestashopApiConfig(apiKey: marketplace.key, webserviceUrl: marketplace.fullUrl));
 
         if (marketplace.marketplaceType == MarketplaceType.prestashop) {
           final orderIdsPresta = await api.getOrderIds();
@@ -1063,6 +1066,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
     if (!isConnected) return left(NoConnectionFailure());
 
     final marketplace = toLoadAppointment.marketplace;
+    logger.i(marketplace.name);
     final api = PrestashopApi(Client(), PrestashopApiConfig(apiKey: marketplace.key, webserviceUrl: marketplace.fullUrl));
 
     try {
@@ -1096,7 +1100,9 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
 
     final currentUserUid = firebaseAuth.currentUser!.uid;
     final marketplace = loadedAppointmentFromMarketplace.marketplace;
+    logger.i(marketplace.name);
     final api = PrestashopApi(Client(), PrestashopApiConfig(apiKey: marketplace.key, webserviceUrl: marketplace.fullUrl));
+    logger.i(marketplace.fullUrl);
     final docRefMainSettings = db.collection('Settings').doc(currentUserUid).collection('Settings').doc(currentUserUid);
     final docRefStatDashboard = db.collection('StatDashboard').doc(currentUserUid).collection('StatDashboard').doc('$curYear$curMonth');
     final docRefMarketplace = db.collection('Marketetplaces').doc(currentUserUid).collection('Marketetplaces').doc(marketplace.id);

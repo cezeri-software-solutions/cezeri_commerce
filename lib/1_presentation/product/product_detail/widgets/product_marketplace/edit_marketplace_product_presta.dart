@@ -21,6 +21,7 @@ class EditMarketplaceProductPresta extends StatelessWidget {
   final ProductMarketplace productMarketplace;
   final MarketplaceProductPresta marketplaceProductPresta;
   final VoidCallback setPage;
+  final bool isProductSynchronized;
 
   const EditMarketplaceProductPresta({
     super.key,
@@ -29,6 +30,7 @@ class EditMarketplaceProductPresta extends StatelessWidget {
     required this.productMarketplace,
     required this.marketplaceProductPresta,
     required this.setPage,
+    required this.isProductSynchronized,
   });
 
   @override
@@ -102,14 +104,23 @@ class EditMarketplaceProductPresta extends StatelessWidget {
                     child: Text('Abbrechen', style: TextStyles.textButtonText.copyWith(color: Colors.red)),
                   ),
                   Gaps.w8,
-                  MyOutlinedButton(
-                    buttonText: 'Speichern',
-                    buttonBackgroundColor: Colors.green,
-                    onPressed: () {
-                      productDetailBloc.add(OnUpdateProductMarketplaceEvent(productMarketplace: state.productMarketplace!));
-                      context.router.pop();
-                    },
-                  ),
+                  isProductSynchronized
+                      ? MyOutlinedButton(
+                          buttonText: 'Speichern',
+                          buttonBackgroundColor: Colors.green,
+                          onPressed: () {
+                            productDetailBloc.add(OnUpdateProductMarketplaceEvent(productMarketplace: state.productMarketplace!));
+                            context.router.pop();
+                          },
+                        )
+                      : MyOutlinedButton(
+                          buttonText: 'Anlegen',
+                          buttonBackgroundColor: Colors.green,
+                          onPressed: () {
+                            showMyDialogLoading(context: context, text: 'Artikel wird im Marktplatz angelegt...', canPop: true);
+                            productDetailBloc.add(OnCreateProductInMarketplaceEvent(context: context, productMarketplace: state.productMarketplace!));
+                          },
+                        ),
                 ],
               ),
             ],

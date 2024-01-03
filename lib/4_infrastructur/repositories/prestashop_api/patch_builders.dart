@@ -10,7 +10,7 @@ import '../../../3_domain/entities_presta/product_presta.dart';
 final logger = Logger();
 
 //* Order
-XmlBuilder orderStatusBuilder(final int orderId, final int statusId) {
+XmlBuilder patchOrderStatusBuilder(final int orderId, final int statusId) {
   final builder = XmlBuilder();
   builder.processing('xml', 'version="1.0" encoding="UTF-8"');
   builder.element('prestashop', attributes: {'xmlns:xlink': 'http://www.w3.org/1999/xlink'}, nest: () {
@@ -23,7 +23,7 @@ XmlBuilder orderStatusBuilder(final int orderId, final int statusId) {
 }
 
 //* Product
-XmlBuilder stockAvailableBuilder(String id, int quantity) {
+XmlBuilder patchStockAvailableBuilder(String id, int quantity) {
   final builder = XmlBuilder();
   builder.processing('xml', 'version="1.0" encoding="UTF-8"');
   builder.element('prestashop', attributes: {'xmlns:xlink': 'http://www.w3.org/1999/xlink'}, nest: () {
@@ -35,7 +35,7 @@ XmlBuilder stockAvailableBuilder(String id, int quantity) {
   return builder;
 }
 
-XmlBuilder? productBuilder({
+XmlBuilder? patchProductBuilder({
   required int id,
   required Product product,
   required ProductMarketplace productMarketplace,

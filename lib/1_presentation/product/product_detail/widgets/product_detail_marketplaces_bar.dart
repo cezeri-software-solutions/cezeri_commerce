@@ -52,7 +52,7 @@ class ProductDetailMarketplacesBar extends StatelessWidget {
                           onTap: () {
                             marketplaceProductBloc.add(SetMarketplaceProductStatesToInitialEvent());
                             marketplaceProductBloc.add(SetMarketplaceProductEvent(productMarketplace: pm));
-                            showEditProductInMarketplace(context, productDetailBloc, marketplaceProductBloc, pm);
+                            showEditProductInMarketplace(context, productDetailBloc, marketplaceProductBloc, pm, true);
                           },
                           child: SizedBox(
                             height: 110,
@@ -116,7 +116,7 @@ class ProductDetailMarketplacesBar extends StatelessWidget {
                                     final emptyMarketplaceProductPresta = MarketplaceProductPresta.empty();
                                     final marketplaceProductPresta = emptyMarketplaceProductPresta.copyWith(
                                       associations: Associations(
-                                          associationsCategories: [],
+                                          associationsCategories: [AssociationsCategory(id: '2')],
                                           associationsImages: null,
                                           associationsCombinations: null,
                                           associationsProductOptionValues: null,
@@ -132,7 +132,7 @@ class ProductDetailMarketplacesBar extends StatelessWidget {
                                       marketplaceProduct: marketplaceProductPresta,
                                     );
                                     marketplaceProductBloc.add(SetMarketplaceProductEvent(productMarketplace: productMarketplace));
-                                    showEditProductInMarketplace(context, productDetailBloc, marketplaceProductBloc, productMarketplace);
+                                    showEditProductInMarketplace(context, productDetailBloc, marketplaceProductBloc, productMarketplace, false);
                                   }
                                 case MarketplaceType.shop:
                                   {
@@ -185,6 +185,7 @@ Future<void> showEditProductInMarketplace(
   ProductDetailBloc productDetailBloc,
   MarketplaceProductBloc marketplaceProductBloc,
   ProductMarketplace productMarketplace,
+  bool isProductSynchronized,
 ) async {
   final pageIndexNotifier = ValueNotifier(0);
 
@@ -233,6 +234,7 @@ Future<void> showEditProductInMarketplace(
                 productMarketplace: productMarketplace,
                 marketplaceProductPresta: productMarketplace.marketplaceProduct as MarketplaceProductPresta,
                 setPage: () => pageIndexNotifier.value = 1,
+                isProductSynchronized: isProductSynchronized,
               ),
             MarketplaceType.shop => throw Error,
           },

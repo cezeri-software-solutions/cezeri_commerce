@@ -33,8 +33,10 @@ class HomeProductBloc extends Bloc<HomeProductEvent, HomeProductState> {
       failureOrSuccess.fold(
         (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
         (listOfProducts) {
+          print(state.listOfReorders);
           emit(state.copyWith(listOfProductsSoldOut: listOfProducts, firebaseFailure: null, isAnyFailure: false));
           add(GenerateProductHomeProductsEvent());
+          if (state.listOfReorders == null) add(GetHomeReordersEvent());
         },
       );
 
@@ -56,6 +58,7 @@ class HomeProductBloc extends Bloc<HomeProductEvent, HomeProductState> {
         (listOfProducts) {
           emit(state.copyWith(listOfProductsUnderMinimumQuantity: listOfProducts, firebaseFailure: null, isAnyFailure: false));
           add(GenerateProductHomeProductsEvent());
+          if (state.listOfReorders == null) add(GetHomeReordersEvent());
         },
       );
 
@@ -69,6 +72,7 @@ class HomeProductBloc extends Bloc<HomeProductEvent, HomeProductState> {
 //? #########################################################################
 
     on<GetHomeReordersEvent>((event, emit) async {
+      print('GetHomeReordersEvent wird ausgeführt');
       emit(state.copyWith(isLoadingHomeReordersOnObserve: true));
 
       final failureOrSuccess = await reorderRepository.getListOfReorders(GetReordersType.openOrPartialOpen);

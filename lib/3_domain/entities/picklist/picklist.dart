@@ -50,7 +50,8 @@ class Picklist {
         final picklistProduct = PicklistProduct.fromReceiptProduct(product);
         if (listOfPicklistProducts.any((e) => e == picklistProduct)) {
           final index = listOfPicklistProducts.indexWhere((e) => e == picklistProduct);
-          listOfPicklistProducts[index].copyWith(quantity: listOfPicklistProducts[index].quantity + picklistProduct.quantity);
+          listOfPicklistProducts[index] =
+              listOfPicklistProducts[index].copyWith(quantity: listOfPicklistProducts[index].quantity + picklistProduct.quantity);
         } else {
           listOfPicklistProducts.add(picklistProduct);
         }

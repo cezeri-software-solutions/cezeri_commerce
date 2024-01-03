@@ -1,7 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:html/dom.dart';
+import 'package:html/parser.dart';
 
 double getAspectRatio(double width) => 0.00192 * width + 0.873;
+
+String generateFriendlyUrl(String productName) {
+  // Ersetzt alle Sonderzeichen außer Bindestrichen durch nichts
+  String url = productName.replaceAll(RegExp(r'[^\w-]+'), '');
+
+  // Ersetzt alle Leerzeichen und Unterstriche durch Bindestriche
+  url = url.replaceAll(RegExp(r'[\s_]+'), '-');
+
+  // Konvertiert den gesamten String in Kleinbuchstaben
+  url = url.toLowerCase();
+
+  return url;
+}
+
+String convertHtmlToString(String htmlString) {
+  // Parsen des HTML-Strings
+  Document document = parse(htmlString);
+
+  // Konvertieren in normalen String
+  String parsedString = document.body?.text ?? '';
+
+  return parsedString;
+}
 
 durationToStringFormatter(Duration d) => d.toString().split('.').first.padLeft(8, '0');
 

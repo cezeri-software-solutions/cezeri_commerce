@@ -111,6 +111,19 @@ class PurchaseCard extends StatelessWidget {
                     ),
                   ],
                 ),
+                Gaps.w8,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        const Text('Ist unter Mindestbestand: '),
+                        Checkbox.adaptive(value: state.product!.isUnderMinimumStock, onChanged: null),
+                      ],
+                    ),
+                    Text('Bestand: ${state.product!.availableStock} / ${state.product!.warehouseStock}'),
+                  ],
+                ),
               ],
             ),
           ),
