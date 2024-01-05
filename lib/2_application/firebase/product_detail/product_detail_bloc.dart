@@ -92,6 +92,39 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
 
 //? ###########################################################################################################################
 
+    on<GetProductAfterExportNewProductToMarketplaceEvent>((event, emit) async {
+      add(SetProductDetailStatesToInitialEvent());
+
+      emit(state.copyWith(isLoadingProductOnObserve: true));
+
+      if (state.mainSettings == null) {
+        final fosSettings = await mainSettingsRepository.getSettings();
+        fosSettings.fold(
+          (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
+          (settings) => emit(state.copyWith(mainSettings: settings, firebaseFailure: null, isAnyFailure: false)),
+        );
+      }
+
+      final failureOrSuccess = await productRepository.getProduct(event.id);
+      failureOrSuccess.fold(
+        (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
+        (product) {
+          emit(state.copyWith(product: product, firebaseFailure: null, isAnyFailure: false));
+          add(SetProductControllerEvent(product: product));
+          add(OnProductGetStatProductsEvent());
+          add(OnEditProductInPresta(product: product, updateImages: true));
+        },
+      );
+
+      emit(state.copyWith(
+        isLoadingProductOnObserve: false,
+        fosProductOnObserveOption: optionOf(failureOrSuccess),
+      ));
+      emit(state.copyWith(fosProductOnObserveOption: none()));
+    });
+
+//? ###########################################################################################################################
+
     on<SetProductEvent>((event, emit) async {
       emit(state.copyWith(product: event.product));
       if (event.loadStatProduct) add(OnProductGetStatProductsEvent());
@@ -236,7 +269,7 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
       );
 
       if (isUpdateInFirestoreSucceeded) {
-        add(OnEditProductInPresta(product: state.product!));
+        add(OnEditProductInPresta(product: state.product!, updateImages: state.isProductImagesEdited));
       } else {
         emit(state.copyWith(
           isLoadingProductOnUpdate: false,
@@ -564,7 +597,7 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
         (unit) => isSuccessfull = true,
       );
 
-      if (isSuccessfull && state.isProductImagesEdited) {
+      if (isSuccessfull && event.updateImages) {
         add(UploadProductImageToPrestaEvent());
       } else {
         emit(state.copyWith(

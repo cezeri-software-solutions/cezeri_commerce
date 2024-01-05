@@ -7,6 +7,7 @@ import '../../../3_domain/enums/enums.dart';
 import 'product_detail_screen.dart';
 import 'widgets/charts/product_chart_card.dart';
 import 'widgets/product_detail_marketplaces_bar.dart';
+import 'widgets/product_detail_set_article_bar.dart';
 import 'widgets/product_detail_widgets.dart';
 import 'widgets/product_images_container.dart';
 
@@ -62,6 +63,7 @@ class ProductDetailPage extends StatelessWidget {
                     ],
                   ),
                   ProductImagesContainer(productDetailBloc: productDetailBloc),
+                  ProductDetailSetArticleBar(productDetailBloc: productDetailBloc),
                   ProductDetailMarketplacesBar(productDetailBloc: productDetailBloc),
                   Gaps.h16,
                 ],
@@ -84,6 +86,8 @@ class ProductDetailPage extends StatelessWidget {
                 ProductChartCard(productDetailBloc: productDetailBloc),
                 Gaps.h16,
                 ProductImagesContainer(productDetailBloc: productDetailBloc),
+                Gaps.h16,
+                ProductDetailSetArticleBar(productDetailBloc: productDetailBloc),
                 Gaps.h16,
                 ProductDetailMarketplacesBar(productDetailBloc: productDetailBloc),
                 Gaps.h16,

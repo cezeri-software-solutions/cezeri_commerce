@@ -10,6 +10,12 @@ class GetProductEvent extends ProductDetailEvent {
   GetProductEvent({required this.id});
 }
 
+class GetProductAfterExportNewProductToMarketplaceEvent extends ProductDetailEvent {
+  final String id;
+
+  GetProductAfterExportNewProductToMarketplaceEvent({required this.id});
+}
+
 class SetProductEvent extends ProductDetailEvent {
   final Product product;
   final bool loadStatProduct;
@@ -106,8 +112,9 @@ class OnProductChangeChartModeEvent extends ProductDetailEvent {}
 
 class OnEditProductInPresta extends ProductDetailEvent {
   final Product product;
+  final bool updateImages;
 
-  OnEditProductInPresta({required this.product});
+  OnEditProductInPresta({required this.product, required this.updateImages});
 }
 
 class UploadProductImageToPrestaEvent extends ProductDetailEvent {}

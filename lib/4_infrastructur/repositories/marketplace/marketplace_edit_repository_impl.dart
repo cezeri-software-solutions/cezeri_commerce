@@ -93,6 +93,7 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
 
       final marketplaceProduct = productMarketplace.marketplaceProduct as MarketplaceProductPresta;
       isSuccess = await api.patchProduct(marketplaceProduct.id, product, productMarketplace, marketplace);
+      await setProdcutPrestaQuantity(product, product.availableStock, null);
     }
     if (isSuccess) return right(unit);
     return left(PrestaGeneralFailure());

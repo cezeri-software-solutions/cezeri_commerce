@@ -130,8 +130,8 @@ XmlBuilder? postProductBuilder({
   builder.element('prestashop', attributes: {'xmlns:xlink': 'http://www.w3.org/1999/xlink'}, nest: () {
     builder.element('product', nest: () {
       // builder.element('id', nest: id);
-      builder.element('id_manufacturer', nest: productPrestaWithSameManufacturer.idCategoryDefault);
-      builder.element('id_supplier', nest: productPrestaWithSameManufacturer.idCategoryDefault);
+      builder.element('id_manufacturer', nest: productPrestaWithSameManufacturer.idManufacturer);
+      builder.element('id_supplier', nest: productPrestaWithSameManufacturer.idSupplier);
       builder.element('id_category_default', nest: mpp.idCategoryDefault);
       builder.element('new', nest: '1');
       builder.element('id_default_combination', nest: 0);

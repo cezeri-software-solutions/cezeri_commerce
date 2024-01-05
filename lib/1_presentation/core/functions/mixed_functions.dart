@@ -6,10 +6,23 @@ import 'package:html/parser.dart';
 double getAspectRatio(double width) => 0.00192 * width + 0.873;
 
 String generateFriendlyUrl(String productName) {
-  // Ersetzt alle Sonderzeichen außer Bindestrichen durch nichts
-  String url = productName.replaceAll(RegExp(r'[^\w-]+'), '');
+  // Ersetzt Umlaute
+  String url = productName
+      .replaceAll('ä', 'ae')
+      .replaceAll('ö', 'oe')
+      .replaceAll('ü', 'ue')
+      .replaceAll('Ä', 'Ae')
+      .replaceAll('Ö', 'Oe')
+      .replaceAll('Ü', 'Ue')
+      .replaceAll('ß', 'ss');
 
-  // Ersetzt alle Leerzeichen und Unterstriche durch Bindestriche
+  // Entfernt alle Sonderzeichen außer Bindestrichen und Alphanumerischen Zeichen
+  url = url.replaceAll(RegExp(r'[^\w\s-]'), '');
+
+  // Ersetzt Leerzeichen gefolgt von einem Bindestrich oder umgekehrt durch einen Bindestrich
+  url = url.replaceAll(RegExp(r'\s?-\s?'), '-');
+
+  // Ersetzt alle verbleibenden Leerzeichen und Unterstriche durch Bindestriche
   url = url.replaceAll(RegExp(r'[\s_]+'), '-');
 
   // Konvertiert den gesamten String in Kleinbuchstaben
