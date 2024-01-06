@@ -104,6 +104,11 @@ class OnUpdateProductMarketplaceEvent extends ProductDetailEvent {
 }
 
 // * #################################################################################################################################
+// * Set-Article
+
+class OnProductSetIsSetArticleEvent extends ProductDetailEvent {}
+
+// * #################################################################################################################################
 // * StatProducts Chart
 
 class OnProductGetStatProductsEvent extends ProductDetailEvent {}

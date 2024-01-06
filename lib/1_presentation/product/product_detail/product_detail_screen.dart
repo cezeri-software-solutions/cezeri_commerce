@@ -170,4 +170,8 @@ class ProductDetailScreen extends StatelessWidget {
       ),
     );
   }
+
+  // void _onSave(BuildContext context, ProductDetailBloc productDetailBloc, Product product) {
+  //   if(product.isSetArticle && product.listOfProductIdWithQuantity.isEmpty)
+  // }
 }

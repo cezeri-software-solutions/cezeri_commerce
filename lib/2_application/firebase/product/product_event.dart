@@ -43,6 +43,12 @@ class SetProductsWidthSearchEvent extends ProductEvent {
   SetProductsWidthSearchEvent({required this.value});
 }
 
+class SetProductIsLoadingPdfEvent extends ProductEvent {
+  final bool value;
+
+  SetProductIsLoadingPdfEvent({required this.value});
+}
+
 //? Update Menge nur in Firebase (Danach wird automatisch OnEditQuantityInMarketplacesEvent getriggert)
 class UpdateQuantityOfProductEvent extends ProductEvent {
   final Product product;

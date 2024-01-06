@@ -83,11 +83,19 @@ class HomeProductExpanded extends StatelessWidget {
                                           const TextSpan(text: ' '),
                                           TextSpan(text: '(${group.listOfProducts.length})', style: TextStyles.h3),
                                         ])),
-                                      GroupProductsBy.supplier => Text.rich(TextSpan(children: [
-                                          TextSpan(text: group.supplier, style: TextStyles.h3Bold),
-                                          const TextSpan(text: ' '),
-                                          TextSpan(text: '(${group.listOfProducts.length})', style: TextStyles.h3),
-                                        ])),
+                                      GroupProductsBy.supplier => Expanded(
+                                          child: Text.rich(
+                                            TextSpan(
+                                              children: [
+                                                TextSpan(text: group.supplier, style: TextStyles.h3Bold),
+                                                const TextSpan(text: ' '),
+                                                TextSpan(text: '(${group.listOfProducts.length})', style: TextStyles.h3),
+                                              ],
+                                            ),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
                                     },
                                     if (state.groupProductsBy == GroupProductsBy.supplier)
                                       InkWell(

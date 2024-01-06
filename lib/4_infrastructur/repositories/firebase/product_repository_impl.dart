@@ -7,6 +7,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:logger/logger.dart';
 import 'package:path/path.dart';
 
 import '../../../1_presentation/core/functions/check_internet_connection.dart';
@@ -17,6 +18,8 @@ import '../../../3_domain/entities_presta/product_presta.dart';
 import '../../../3_domain/repositories/firebase/marketplace_repository.dart';
 import '../../../3_domain/repositories/firebase/product_repository.dart';
 import '../../../3_domain/repositories/marketplace/marketplace_edit_repository.dart';
+
+final logger = Logger();
 
 class ProductRepositoryImpl implements ProductRepository {
   final FirebaseFirestore db;
@@ -77,13 +80,19 @@ class ProductRepositoryImpl implements ProductRepository {
             (value) => value.docs.map((querySnapshot) => Product.fromJson(querySnapshot.data())).toList(),
           );
 
+      // int index = 1;
       // for (final product in listOfProducts) {
-      //   if (product.availableStock <= product.minimumReorderQuantity!) {
-      //     final docRefPh = db.collection('Products').doc(currentUserUid).collection('Products').doc(product.id);
-      //     final updatedProduct = product.copyWith(isUnderMinimumStock: true);
-      //     await docRefPh.update(updatedProduct.toJson());
-      //     await Future.delayed(const Duration(milliseconds: 200));
-      //   }
+      //   print('####################### Schleifendurchgang $index ###########################');
+      //   final docRefPh = db.collection('Products').doc(currentUserUid).collection('Products').doc(product.id);
+      //   final updatedProduct = product.copyWith(
+      //     isUnderMinimumStock: product.availableStock <= product.minimumStock ? true : false,
+      //     listOfIsPartOfSetIds: [],
+      //     listOfProductIdWithQuantity: [],
+      //     isSetArticle: false,
+      //   );
+      //   await docRefPh.update(updatedProduct.toJson());
+      //   await Future.delayed(const Duration(milliseconds: 200));
+      //   index++;
       // }
       //********************************
       // List<Marketplace> marketplaces = [];
@@ -469,7 +478,7 @@ class ProductRepositoryImpl implements ProductRepository {
       final updatedProduct = product.copyWith(
         availableStock: newQuantity,
         warehouseStock: product.warehouseStock - (product.availableStock - newQuantity),
-        isUnderMinimumStock: newQuantity <= product.minimumReorderQuantity ? true : false,
+        isUnderMinimumStock: newQuantity <= product.minimumStock ? true : false,
       );
       await docRefProduct.update(updatedProduct.toJson());
 
@@ -490,7 +499,7 @@ class ProductRepositoryImpl implements ProductRepository {
     try {
       final updatedProduct = product.copyWith(
         availableStock: newQuantity,
-        isUnderMinimumStock: newQuantity <= product.minimumReorderQuantity ? true : false,
+        isUnderMinimumStock: newQuantity <= product.minimumStock ? true : false,
       );
       await docRefProduct.update(updatedProduct.toJson());
 
@@ -511,7 +520,7 @@ class ProductRepositoryImpl implements ProductRepository {
     try {
       final updatedProduct = product.copyWith(
         warehouseStock: product.warehouseStock - (product.warehouseStock - newQuantity),
-        isUnderMinimumStock: product.availableStock <= product.minimumReorderQuantity ? true : false,
+        isUnderMinimumStock: product.availableStock <= product.minimumStock ? true : false,
       );
       await docRefProduct.update(updatedProduct.toJson());
 
@@ -537,7 +546,7 @@ class ProductRepositoryImpl implements ProductRepository {
       final newAvailableStock = product.availableStock + newQuantityIncremental;
       final updatedProduct = product.copyWith(
         availableStock: newAvailableStock,
-        isUnderMinimumStock: newAvailableStock <= product.minimumReorderQuantity ? true : false,
+        isUnderMinimumStock: newAvailableStock <= product.minimumStock ? true : false,
       );
       await docRefProduct.update(updatedProduct.toJson());
 
@@ -559,7 +568,7 @@ class ProductRepositoryImpl implements ProductRepository {
     try {
       final updatedProduct = product.copyWith(
         warehouseStock: product.warehouseStock + newQuantityIncremental,
-        isUnderMinimumStock: product.availableStock <= product.minimumReorderQuantity ? true : false,
+        isUnderMinimumStock: product.availableStock <= product.minimumStock ? true : false,
       );
       await docRefProduct.update(updatedProduct.toJson());
 

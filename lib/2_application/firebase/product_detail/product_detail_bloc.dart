@@ -442,11 +442,13 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
 
       if (anotherProductWithSameProductMarketplaceAndSameManufacturer == null) {
         event.context.router.pop();
-        showMyDialogAlert(
-          context: event.context,
-          title: 'Achtung',
-          content: 'Ein Problem ist aufgetreten. Bitte versuche es später erneut, oder kontaktiere den Support.',
-        );
+        if (event.context.mounted) {
+          showMyDialogAlert(
+            context: event.context,
+            title: 'Achtung',
+            content: 'Ein Problem ist aufgetreten. Bitte versuche es später erneut, oder kontaktiere den Support.',
+          );
+        }
         return;
       }
 
@@ -564,6 +566,12 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
         updatedList[index] = event.productMarketplace;
         emit(state.copyWith(product: state.product!.copyWith(productMarketplaces: updatedList)));
       }
+    });
+
+//? ###########################################################################################################################
+
+    on<OnProductSetIsSetArticleEvent>((event, emit) {
+      emit(state.copyWith(product: state.product!.copyWith(isSetArticle: !state.product!.isSetArticle)));
     });
 
 //? ###########################################################################################################################

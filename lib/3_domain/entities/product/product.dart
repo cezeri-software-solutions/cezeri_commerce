@@ -9,6 +9,7 @@ import '../language.dart';
 import '../marketplace/marketplace.dart';
 import '../settings/main_settings.dart';
 import '../settings/tax.dart';
+import 'product_id_with_quantity.dart';
 import 'product_image.dart';
 import 'product_marketplace.dart';
 import 'set_product.dart';
@@ -44,6 +45,8 @@ class Product {
   final bool haveVariants; // Gibt es eine Variante
   final bool isSetArticle;
   // Wenn Set Artikle && true, dann wird der Bestand unabhängig von seinen Bestandteilen geführt, ansonsten wird der Bestand durch den niedrigsten Besteand der Besandteile ermittelt
+  final List<String> listOfIsPartOfSetIds; // Im Einzelartikel, von welchem Set dies ein Bestandteil ist
+  final List<ProductIdWithQuantity> listOfProductIdWithQuantity; // Von welchem Einzelartikel wieviel im Set enthalten sind
   final bool isSetSelfQuantityManaged;
   final String manufacturerNumber;
   final String manufacturer;
@@ -93,6 +96,8 @@ class Product {
     required this.recommendedRetailPrice,
     required this.haveVariants,
     required this.isSetArticle,
+    required this.listOfIsPartOfSetIds,
+    required this.listOfProductIdWithQuantity,
     required this.isSetSelfQuantityManaged,
     required this.manufacturerNumber,
     required this.manufacturer,
@@ -115,6 +120,9 @@ class Product {
     required this.listOfSetProducts,
     required this.productMarketplaces,
   }) : volume = width * height * depth;
+
+  factory Product.fromJson(Map<String, dynamic> json) => _$ProductFromJson(json);
+  Map<String, dynamic> toJson() => _$ProductToJson(this);
 
   factory Product.empty() {
     return Product(
@@ -144,6 +152,8 @@ class Product {
       recommendedRetailPrice: 0,
       haveVariants: false,
       isSetArticle: false,
+      listOfIsPartOfSetIds: [],
+      listOfProductIdWithQuantity: [],
       isSetSelfQuantityManaged: false,
       manufacturerNumber: '',
       manufacturer: '',
@@ -266,10 +276,6 @@ class Product {
     );
   }
 
-  factory Product.fromJson(Map<String, dynamic> json) => _$ProductFromJson(json);
-
-  Map<String, dynamic> toJson() => _$ProductToJson(this);
-
   Product copyWith({
     String? id,
     String? articleNumber,
@@ -297,6 +303,8 @@ class Product {
     double? recommendedRetailPrice,
     bool? haveVariants,
     bool? isSetArticle,
+    List<String>? listOfIsPartOfSetIds,
+    List<ProductIdWithQuantity>? listOfProductIdWithQuantity,
     bool? isSetSelfQuantityManaged,
     String? manufacturerNumber,
     String? manufacturer,
@@ -345,6 +353,8 @@ class Product {
       recommendedRetailPrice: recommendedRetailPrice ?? this.recommendedRetailPrice,
       haveVariants: haveVariants ?? this.haveVariants,
       isSetArticle: isSetArticle ?? this.isSetArticle,
+      listOfIsPartOfSetIds: listOfIsPartOfSetIds ?? this.listOfIsPartOfSetIds,
+      listOfProductIdWithQuantity: listOfProductIdWithQuantity ?? this.listOfProductIdWithQuantity,
       isSetSelfQuantityManaged: isSetSelfQuantityManaged ?? this.isSetSelfQuantityManaged,
       manufacturerNumber: manufacturerNumber ?? this.manufacturerNumber,
       manufacturer: manufacturer ?? this.manufacturer,
@@ -370,6 +380,6 @@ class Product {
 
   @override
   String toString() {
-    return 'Product(id: $id, articleNumber: $articleNumber, supplierArticleNumber: $supplierArticleNumber, supplierNumber: $supplierNumber, supplier: $supplier, sku: $sku, ean: $ean, name: $name, listOfName: $listOfName, tax: $tax, imageUrls: $imageUrls, isActive: $isActive, ordered: $ordered, brandName: $brandName, unity: $unity, unitPrice: $unitPrice, width: $width, height: $height, depth: $depth, weight: $weight, netPrice: $netPrice, grossPrice: $grossPrice, wholesalePrice: $wholesalePrice, recommendedRetailPrice: $recommendedRetailPrice, haveVariants: $haveVariants, isSetArticle: $isSetArticle, isSetSelfQuantityManaged: $isSetSelfQuantityManaged, manufacturerNumber: $manufacturerNumber, manufacturer: $manufacturer, warehouseStock: $warehouseStock, availableStock: $availableStock, minimumStock: $minimumStock, isUnderMinimumStock: $isUnderMinimumStock, minimumReorderQuantity: $minimumReorderQuantity, packagingUnitOnReorder: $packagingUnitOnReorder, description: $description, listOfDescription: $listOfDescription, descriptionShort: $descriptionShort, listOfDescriptionShort: $listOfDescriptionShort, metaTitle: $metaTitle, listOfMetaTitle: $listOfMetaTitle, metaDescription: $metaDescription, listOfMetaDescription: $listOfMetaDescription, volume: $volume, listOfProductImages: $listOfProductImages, listOfSetProducts: $listOfSetProducts, productMarketplaces: $productMarketplaces)';
+    return 'Product(id: $id, articleNumber: $articleNumber, supplierArticleNumber: $supplierArticleNumber, supplierNumber: $supplierNumber, supplier: $supplier, sku: $sku, ean: $ean, name: $name, listOfName: $listOfName, tax: $tax, imageUrls: $imageUrls, isActive: $isActive, ordered: $ordered, brandName: $brandName, unity: $unity, unitPrice: $unitPrice, width: $width, height: $height, depth: $depth, weight: $weight, netPrice: $netPrice, grossPrice: $grossPrice, wholesalePrice: $wholesalePrice, recommendedRetailPrice: $recommendedRetailPrice, haveVariants: $haveVariants, isSetArticle: $isSetArticle, listOfIsPartOfSetIds: $listOfIsPartOfSetIds, listOfProductIdWithQuantity: $listOfProductIdWithQuantity, isSetSelfQuantityManaged: $isSetSelfQuantityManaged, manufacturerNumber: $manufacturerNumber, manufacturer: $manufacturer, warehouseStock: $warehouseStock, availableStock: $availableStock, minimumStock: $minimumStock, isUnderMinimumStock: $isUnderMinimumStock, minimumReorderQuantity: $minimumReorderQuantity, packagingUnitOnReorder: $packagingUnitOnReorder, description: $description, listOfDescription: $listOfDescription, descriptionShort: $descriptionShort, listOfDescriptionShort: $listOfDescriptionShort, metaTitle: $metaTitle, listOfMetaTitle: $listOfMetaTitle, metaDescription: $metaDescription, listOfMetaDescription: $listOfMetaDescription, volume: $volume, listOfProductImages: $listOfProductImages, listOfSetProducts: $listOfSetProducts, productMarketplaces: $productMarketplaces)';
   }
 }

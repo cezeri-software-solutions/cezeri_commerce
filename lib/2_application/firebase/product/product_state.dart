@@ -33,6 +33,7 @@ class ProductState {
   final bool triggerPop;
   final bool isWidthSearchActive;
   final bool isSelectedAllProducts;
+  final bool isLoadingPdf;
 
   const ProductState({
     required this.listOfAllProducts,
@@ -62,6 +63,7 @@ class ProductState {
     required this.triggerPop,
     required this.isWidthSearchActive,
     required this.isSelectedAllProducts,
+    required this.isLoadingPdf,
   });
 
   factory ProductState.initial() {
@@ -93,6 +95,7 @@ class ProductState {
       triggerPop: false,
       isWidthSearchActive: false,
       isSelectedAllProducts: false,
+      isLoadingPdf: false,
     );
   }
 
@@ -124,6 +127,7 @@ class ProductState {
     bool? triggerPop,
     bool? isWidthSearchActive,
     bool? isSelectedAllProducts,
+    bool? isLoadingPdf,
   }) {
     return ProductState(
       listOfAllProducts: listOfAllProducts ?? this.listOfAllProducts,
@@ -154,6 +158,7 @@ class ProductState {
       triggerPop: triggerPop ?? this.triggerPop,
       isWidthSearchActive: isWidthSearchActive ?? this.isWidthSearchActive,
       isSelectedAllProducts: isSelectedAllProducts ?? this.isSelectedAllProducts,
+      isLoadingPdf: isLoadingPdf ?? this.isLoadingPdf,
     );
   }
 }

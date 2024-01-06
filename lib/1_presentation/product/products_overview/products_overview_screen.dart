@@ -2,6 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:cezeri_commerce/1_presentation/app_drawer.dart';
 import 'package:cezeri_commerce/routes/router.gr.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -9,10 +10,14 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../../2_application/firebase/product/product_bloc.dart';
 import '../../../3_domain/entities/product/product.dart';
 import '../../../3_domain/enums/enums.dart';
+import '../../../3_domain/pdf/pdf_api_mobile.dart';
+import '../../../3_domain/pdf/pdf_api_web.dart';
+import '../../../3_domain/pdf/pdf_products_generator.dart';
 import '../../../constants.dart';
 import '../../../injection.dart';
 import '../../core/functions/dialogs.dart';
 import '../../core/functions/my_scaffold_messanger.dart';
+import '../../core/widgets/my_circular_progress_indicator.dart';
 import 'products_overview_page.dart';
 import 'widgets/products_mass_editing_failure_dialog.dart';
 import 'widgets/products_mass_editing_select_marketplaces_dialog.dart';
@@ -108,6 +113,26 @@ class ProductsOverviewScreen extends StatelessWidget {
               appBar: AppBar(
                 title: _getAppBarTitle(context, responsiveness, state.listOfFilteredProducts, state.selectedProducts),
                 actions: [
+                  IconButton(
+                    onPressed: () async {
+                      showMyDialogLoading(context: context, text: 'PDF wird erstellt...');
+                      productBloc.add(SetProductIsLoadingPdfEvent(value: true));
+                      final generatedPdf = await PdfProductsGenerator.generate(listOfProducts: state.selectedProducts);
+
+                      if (context.mounted) context.router.popUntilRouteWithName(ProductsOverviewRoute.name);
+
+                      if (kIsWeb) {
+                        await PdfApiWeb.saveDocument(name: 'Ausgewählte Artikel.pdf', byteList: generatedPdf, showInBrowser: true);
+                      } else {
+                        await PdfApiMobile.saveDocument(name: 'Ausgewählte Artikel.pdf', byteList: generatedPdf);
+                      }
+
+                      productBloc.add(SetProductIsLoadingPdfEvent(value: false));
+                    },
+                    icon: state.isLoadingPdf
+                        ? const MyCircularProgressIndicator(color: Colors.red)
+                        : const Icon(Icons.picture_as_pdf, color: Colors.red),
+                  ),
                   IconButton(onPressed: () => context.read<ProductBloc>().add(GetAllProductsEvent()), icon: const Icon(Icons.refresh)),
                   TextButton.icon(
                     onPressed: state.selectedProducts.isEmpty

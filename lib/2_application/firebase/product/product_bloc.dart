@@ -91,8 +91,12 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
         false => await productRepository.updateAllQuantityOfProductAbsolut(event.product, event.newQuantity),
         true => await productRepository.updateAvailableQuantityOfProductAbsolut(event.product, event.newQuantity)
       };
+      bool isSuccess = true;
       failureOrSuccess.fold(
-        (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
+        (failure) {
+          isSuccess = false;
+          emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true));
+        },
         (product) {
           List<Product> updatedProducts = List.from(state.listOfAllProducts!);
           final index = updatedProducts.indexWhere((element) => element.id == product.id);
@@ -100,9 +104,25 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
 
           emit(state.copyWith(listOfAllProducts: updatedProducts, firebaseFailure: null, isAnyFailure: false));
           add(OnSearchFieldSubmittedEvent());
-          add(OnEditQuantityInMarketplacesEvent(product: event.product, newQuantity: event.newQuantity));
         },
       );
+
+      if (isSuccess) {
+        final fosPresta = await productEditRepository.setProdcutPrestaQuantity(event.product, event.newQuantity, null);
+        failureOrSuccess.fold(
+          (failure) => emit(state.copyWith()), // TODO: handle Presta Failure
+          (unit) => emit(state.copyWith(firebaseFailure: null, isAnyFailure: false)),
+        );
+
+        emit(state.copyWith(
+          isLoadingProductOnUpdateQuantity: false,
+          fosProductOnUpdateQuantityOption: optionOf(failureOrSuccess),
+          fosProductOnEditQuantityPrestaOption: optionOf(fosPresta),
+        ));
+        emit(state.copyWith(fosProductOnEditQuantityPrestaOption: none()));
+        emit(state.copyWith(fosProductOnUpdateQuantityOption: none()));
+        return;
+      }
 
       emit(state.copyWith(
         isLoadingProductOnUpdateQuantity: false,
@@ -343,6 +363,12 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
     on<SetProductsWidthSearchEvent>((event, emit) async {
       emit(state.copyWith(isWidthSearchActive: event.value));
       add(OnSearchFieldSubmittedEvent());
+    });
+
+//? #########################################################################
+
+    on<SetProductIsLoadingPdfEvent>((event, emit) async {
+      emit(state.copyWith(isLoadingPdf: event.value));
     });
 
 //? #########################################################################

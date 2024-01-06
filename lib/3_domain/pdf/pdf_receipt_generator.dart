@@ -9,6 +9,8 @@ import 'package:pdf/widgets.dart' as pw;
 import '../entities/receipt/receipt.dart';
 import 'widgets/pdf_text.dart';
 
+final logger = Logger();
+
 class PdfReceiptGenerator {
   static Future<Uint8List> generate({
     required Receipt receipt,
@@ -16,7 +18,6 @@ class PdfReceiptGenerator {
   }) async {
     //final fontRegular = await PdfGoogleFonts.robotoRegular();
     //final fontBold = await PdfGoogleFonts.robotoBold();
-    final logger = Logger();
 
     final myTheme = pw.ThemeData.withFont(
       base: pw.Font.ttf(await rootBundle.load('assets/font/Roboto-Regular.ttf')),

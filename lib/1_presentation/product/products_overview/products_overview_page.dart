@@ -7,6 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../2_application/firebase/product/product_bloc.dart';
+import '../../../3_domain/entities/marketplace/marketplace.dart';
+import '../../../3_domain/entities/product/marketplace_product_presta.dart';
 import '../../../3_domain/entities/product/product.dart';
 import '../../../3_domain/enums/enums.dart';
 import '../../../routes/router.gr.dart';
@@ -113,7 +115,13 @@ class _ProductContainer extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(product.articleNumber),
+                    Text.rich(TextSpan(children: [
+                      TextSpan(text: product.articleNumber),
+                      if (product.isActive == false) ...[
+                        const TextSpan(text: '  '),
+                        TextSpan(text: 'Inaktiv', style: TextStyles.defaultBold.copyWith(color: Colors.red)),
+                      ],
+                    ])),
                     TextButton(
                       onPressed: () async {
                         await context.router.push(ProductDetailRoute(productId: product.id));
@@ -164,7 +172,18 @@ class _ProductContainer extends StatelessWidget {
                     itemCount: product.productMarketplaces.length,
                     itemBuilder: (context, index) {
                       final productMarketplace = product.productMarketplaces[index];
-                      return Text(productMarketplace.shortNameMarketplace);
+                      final style = switch (productMarketplace.marketplaceProduct!.marketplaceType) {
+                        MarketplaceType.prestashop => switch ((productMarketplace.marketplaceProduct as MarketplaceProductPresta).active) {
+                            '0' => TextStyles.defaultBold.copyWith(color: Colors.red),
+                            '1' => TextStyles.defaultBold.copyWith(color: Colors.green),
+                            _ => throw Exception(),
+                          },
+                        _ => throw Exception(),
+                      };
+                      return Text(
+                        productMarketplace.shortNameMarketplace,
+                        style: style,
+                      );
                     },
                   ),
                 ),
@@ -264,11 +283,13 @@ class _UpdateProductQuantityDialogState extends State<_UpdateProductQuantityDial
                   Gaps.h32,
                   MyOutlinedButton(
                     buttonText: 'Speichern',
-                    onPressed: () => context.read<ProductBloc>().add(UpdateQuantityOfProductEvent(
-                          product: widget.product,
-                          newQuantity: newQuantity,
-                          updateOnlyAvailableQuantity: updateOnlyAvailableQuantity,
-                        )),
+                    onPressed: state.isLoadingProductOnUpdateQuantity
+                        ? () {}
+                        : () => context.read<ProductBloc>().add(UpdateQuantityOfProductEvent(
+                              product: widget.product,
+                              newQuantity: newQuantity,
+                              updateOnlyAvailableQuantity: updateOnlyAvailableQuantity,
+                            )),
                     buttonBackgroundColor: Colors.green,
                     isLoading: state.isLoadingProductOnUpdateQuantity,
                   ),
