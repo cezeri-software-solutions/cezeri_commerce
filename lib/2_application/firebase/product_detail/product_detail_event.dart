@@ -10,6 +10,8 @@ class GetProductEvent extends ProductDetailEvent {
   GetProductEvent({required this.id});
 }
 
+class GetListOfProductsEvent extends ProductDetailEvent {}
+
 class GetProductAfterExportNewProductToMarketplaceEvent extends ProductDetailEvent {
   final String id;
 

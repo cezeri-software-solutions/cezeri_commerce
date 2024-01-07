@@ -92,6 +92,34 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
 
 //? ###########################################################################################################################
 
+    on<GetListOfProductsEvent>((event, emit) async {
+      emit(state.copyWith(isLoadingProductsOnObserve: true));
+
+      if (state.mainSettings == null) {
+        final fosSettings = await mainSettingsRepository.getSettings();
+        fosSettings.fold(
+          (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
+          (settings) => emit(state.copyWith(mainSettings: settings, firebaseFailure: null, isAnyFailure: false)),
+        );
+      }
+
+      final failureOrSuccess = await productRepository.getListOfProducts();
+      failureOrSuccess.fold(
+        (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
+        (loadedProducts) {
+          emit(state.copyWith(listOfProducts: loadedProducts, firebaseFailure: null, isAnyFailure: false));
+        },
+      );
+
+      emit(state.copyWith(
+        isLoadingProductsOnObserve: false,
+        fosProductsOnObserveOption: optionOf(failureOrSuccess),
+      ));
+      emit(state.copyWith(fosProductsOnObserveOption: none()));
+    });
+
+//? ###########################################################################################################################
+
     on<GetProductAfterExportNewProductToMarketplaceEvent>((event, emit) async {
       add(SetProductDetailStatesToInitialEvent());
 

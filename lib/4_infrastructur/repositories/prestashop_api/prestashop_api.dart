@@ -530,7 +530,7 @@ class PrestashopApi with UiLoggy {
       return true;
     }
     loggy.error(response);
-    logger.e('Artikel _doPatch Fehler: $response');
+    logger.e('Artikel _doPatch Fehler: ${response.body}');
     throw PrestashopApiException(response);
   }
 

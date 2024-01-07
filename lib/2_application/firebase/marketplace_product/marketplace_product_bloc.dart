@@ -35,10 +35,19 @@ class MarketplaceProductBloc extends Bloc<MarketplaceProductEvent, MarketplacePr
       switch (event.productMarketplace.marketplaceProduct!.marketplaceType) {
         case MarketplaceType.prestashop:
           {
+            final phMpp = event.productMarketplace.marketplaceProduct as MarketplaceProductPresta;
+            final mpp = switch (phMpp.associations) {
+              null => phMpp.copyWith(associations: Associations.empty().copyWith(associationsCategories: [])),
+              _ => switch (phMpp.associations!.associationsCategories) {
+                  null => phMpp.copyWith(associations: Associations.empty().copyWith(associationsCategories: [])),
+                  _ => phMpp,
+                },
+            };
+            final pm = event.productMarketplace.copyWith(marketplaceProduct: mpp);
             emit(state.copyWith(
-              productMarketplace: event.productMarketplace,
-              marketplaceProductPresta: event.productMarketplace.marketplaceProduct as MarketplaceProductPresta,
-              defaultCategory: (event.productMarketplace.marketplaceProduct as MarketplaceProductPresta).idCategoryDefault,
+              productMarketplace: pm,
+              marketplaceProductPresta: mpp,
+              defaultCategory: mpp.idCategoryDefault,
             ));
           }
         case MarketplaceType.shop:

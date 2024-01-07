@@ -2,12 +2,14 @@ part of 'product_detail_bloc.dart';
 
 class ProductDetailState {
   final Product? product;
+  final List<Product>? listOfProducts;
   final List<Supplier>? listOfSuppliers;
   final List<Marketplace>? listOfNotSynchronizedMarketplaces;
   final MainSettings? mainSettings;
   final FirebaseFailure? firebaseFailure;
   final bool isAnyFailure;
   final bool isLoadingProductOnObserve;
+  final bool isLoadingProductsOnObserve;
   final bool isLoadingProductOnUpdate;
   final bool isLoadingProductOnUpdateImages;
   final bool isLoadingProductOnUploadImages;
@@ -16,6 +18,7 @@ class ProductDetailState {
   final bool isLoadingProductMarketplacesOnObseve;
   final bool isLoadingProductOnCreateInMarketplaces;
   final Option<Either<FirebaseFailure, Product>> fosProductOnObserveOption;
+  final Option<Either<FirebaseFailure, List<Product>>> fosProductsOnObserveOption;
   final Option<Either<FirebaseFailure, Unit>> fosProductOnUpdateOption;
   final Option<Either<FirebaseFailure, Product>> fosProductOnUpdateImagesOption;
   final Option<Either<FirebaseFailure, Unit>> fosProductOnDeleteOption;
@@ -64,12 +67,14 @@ class ProductDetailState {
 
   ProductDetailState({
     required this.product,
+    required this.listOfProducts,
     required this.listOfSuppliers,
     required this.listOfNotSynchronizedMarketplaces,
     required this.mainSettings,
     required this.firebaseFailure,
     required this.isAnyFailure,
     required this.isLoadingProductOnObserve,
+    required this.isLoadingProductsOnObserve,
     required this.isLoadingProductOnUpdate,
     required this.isLoadingProductOnUpdateImages,
     required this.isLoadingProductOnUploadImages,
@@ -78,6 +83,7 @@ class ProductDetailState {
     required this.isLoadingProductMarketplacesOnObseve,
     required this.isLoadingProductOnCreateInMarketplaces,
     required this.fosProductOnObserveOption,
+    required this.fosProductsOnObserveOption,
     required this.fosProductOnUpdateOption,
     required this.fosProductOnUpdateImagesOption,
     required this.fosProductOnDeleteOption,
@@ -122,12 +128,14 @@ class ProductDetailState {
   factory ProductDetailState.initial() {
     return ProductDetailState(
       product: null,
+      listOfProducts: null,
       listOfSuppliers: null,
       listOfNotSynchronizedMarketplaces: null,
       mainSettings: null,
       firebaseFailure: null,
       isAnyFailure: false,
       isLoadingProductOnObserve: false,
+      isLoadingProductsOnObserve: false,
       isLoadingProductOnUpdate: false,
       isLoadingProductOnUpdateImages: false,
       isLoadingProductOnUploadImages: false,
@@ -136,6 +144,7 @@ class ProductDetailState {
       isLoadingProductMarketplacesOnObseve: false,
       isLoadingProductOnCreateInMarketplaces: false,
       fosProductOnObserveOption: none(),
+      fosProductsOnObserveOption: none(),
       fosProductOnUpdateOption: none(),
       fosProductOnUpdateImagesOption: none(),
       fosProductOnDeleteOption: none(),
@@ -180,12 +189,14 @@ class ProductDetailState {
 
   ProductDetailState copyWith({
     Product? product,
+    List<Product>? listOfProducts,
     List<Supplier>? listOfSuppliers,
     List<Marketplace>? listOfNotSynchronizedMarketplaces,
     MainSettings? mainSettings,
     FirebaseFailure? firebaseFailure,
     bool? isAnyFailure,
     bool? isLoadingProductOnObserve,
+    bool? isLoadingProductsOnObserve,
     bool? isLoadingProductOnUpdate,
     bool? isLoadingProductOnUpdateImages,
     bool? isLoadingProductOnUploadImages,
@@ -194,6 +205,7 @@ class ProductDetailState {
     bool? isLoadingProductMarketplacesOnObseve,
     bool? isLoadingProductOnCreateInMarketplaces,
     Option<Either<FirebaseFailure, Product>>? fosProductOnObserveOption,
+    Option<Either<FirebaseFailure, List<Product>>>? fosProductsOnObserveOption,
     Option<Either<FirebaseFailure, Unit>>? fosProductOnUpdateOption,
     Option<Either<FirebaseFailure, Product>>? fosProductOnUpdateImagesOption,
     Option<Either<FirebaseFailure, Unit>>? fosProductOnDeleteOption,
@@ -236,12 +248,14 @@ class ProductDetailState {
   }) {
     return ProductDetailState(
       product: product ?? this.product,
+      listOfProducts: listOfProducts ?? this.listOfProducts,
       listOfSuppliers: listOfSuppliers ?? this.listOfSuppliers,
       listOfNotSynchronizedMarketplaces: listOfNotSynchronizedMarketplaces ?? this.listOfNotSynchronizedMarketplaces,
       mainSettings: mainSettings ?? this.mainSettings,
       firebaseFailure: firebaseFailure ?? this.firebaseFailure,
       isAnyFailure: isAnyFailure ?? this.isAnyFailure,
       isLoadingProductOnObserve: isLoadingProductOnObserve ?? this.isLoadingProductOnObserve,
+      isLoadingProductsOnObserve: isLoadingProductsOnObserve ?? this.isLoadingProductsOnObserve,
       isLoadingProductOnUpdate: isLoadingProductOnUpdate ?? this.isLoadingProductOnUpdate,
       isLoadingProductOnUpdateImages: isLoadingProductOnUpdateImages ?? this.isLoadingProductOnUpdateImages,
       isLoadingProductOnUploadImages: isLoadingProductOnUploadImages ?? this.isLoadingProductOnUploadImages,
@@ -250,6 +264,7 @@ class ProductDetailState {
       isLoadingProductMarketplacesOnObseve: isLoadingProductMarketplacesOnObseve ?? this.isLoadingProductMarketplacesOnObseve,
       isLoadingProductOnCreateInMarketplaces: isLoadingProductOnCreateInMarketplaces ?? this.isLoadingProductOnCreateInMarketplaces,
       fosProductOnObserveOption: fosProductOnObserveOption ?? this.fosProductOnObserveOption,
+      fosProductsOnObserveOption: fosProductsOnObserveOption ?? this.fosProductsOnObserveOption,
       fosProductOnUpdateOption: fosProductOnUpdateOption ?? this.fosProductOnUpdateOption,
       fosProductOnUpdateImagesOption: fosProductOnUpdateImagesOption ?? this.fosProductOnUpdateImagesOption,
       fosProductOnDeleteOption: fosProductOnDeleteOption ?? this.fosProductOnDeleteOption,
