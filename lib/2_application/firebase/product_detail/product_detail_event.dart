@@ -12,6 +12,12 @@ class GetProductEvent extends ProductDetailEvent {
 
 class GetListOfProductsEvent extends ProductDetailEvent {}
 
+class SetListOfProductsEvent extends ProductDetailEvent {
+  final List<Product> listOfProducts;
+
+  SetListOfProductsEvent({required this.listOfProducts});
+}
+
 class GetProductAfterExportNewProductToMarketplaceEvent extends ProductDetailEvent {
   final String id;
 
@@ -109,6 +115,25 @@ class OnUpdateProductMarketplaceEvent extends ProductDetailEvent {
 // * Set-Article
 
 class OnProductSetIsSetArticleEvent extends ProductDetailEvent {}
+
+class OnAddProductToSetArticleEvent extends ProductDetailEvent {
+  final Product product;
+
+  OnAddProductToSetArticleEvent({required this.product});
+}
+
+class OnRemoveProductFromSetArticleEvent extends ProductDetailEvent {
+  final int index;
+
+  OnRemoveProductFromSetArticleEvent({required this.index});
+}
+
+class OnSetArticleQuantityChangedEvent extends ProductDetailEvent {
+  final String productId;
+  final bool isIncrease;
+
+  OnSetArticleQuantityChangedEvent({required this.productId, required this.isIncrease});
+}
 
 // * #################################################################################################################################
 // * StatProducts Chart

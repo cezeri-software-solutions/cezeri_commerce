@@ -1,12 +1,17 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
+import 'package:logger/logger.dart';
 
 import '../../../../2_application/firebase/product_detail/product_detail_bloc.dart';
 import '../../../../3_domain/entities/product/product.dart';
 import '../../../../constants.dart';
+import '../../../../routes/router.gr.dart';
 import '../../../core/functions/dialogs.dart';
-import '../../../core/widgets/my_circular_progress_indicator.dart';
+import '../../../core/widgets/my_avatar.dart';
+import 'set_articles/show_select_product_sheet.dart';
+
+final logger = Logger();
 
 class ProductDetailSetArticleBar extends StatelessWidget {
   final ProductDetailBloc productDetailBloc;
@@ -25,28 +30,20 @@ class ProductDetailSetArticleBar extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    const Text('Set-Artikel', style: TextStyles.h2Bold),
-                    if (state.product!.isSetArticle) ...[
-                      Gaps.w16,
-                      IconButton(onPressed: () {}, icon: const Icon(Icons.delete, color: Colors.red)),
-                    ],
-                  ],
-                ),
+                const Text('Set-Artikel', style: TextStyles.h2Bold),
                 Row(
                   children: [
                     if (state.product!.isSetArticle) ...[
                       IconButton(
                         onPressed: () {
-                          if (state.listOfProducts != null) {
-                            _showProductsDialog(context, productDetailBloc, state.listOfProducts);
+                          if (state.listOfAllProducts != null) {
+                            showSelectProductSheet(context, productDetailBloc);
                           } else {
                             productDetailBloc.add(GetListOfProductsEvent());
-                            _showProductsDialog(context, productDetailBloc, state.listOfProducts);
+                            showMyDialogLoading(context: context, text: 'Artikel werden geladen...');
                           }
                         },
-                        icon: const Icon(Icons.add, color: Colors.green),
+                        icon: const Icon(Icons.edit, color: Colors.blue),
                       ),
                       Gaps.w16,
                     ],
@@ -54,6 +51,60 @@ class ProductDetailSetArticleBar extends StatelessWidget {
                   ],
                 ),
               ],
+            ),
+            ListView.builder(
+              physics: const NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
+              itemCount: state.product!.listOfProductIdWithQuantity.length,
+              itemBuilder: (context, index) {
+                final product = state.listOfAllProducts!.where((e) => e.id == state.product!.listOfProductIdWithQuantity[index].productId).first;
+                final productIdWithQuantity = state.product!.listOfProductIdWithQuantity[index];
+                return Column(
+                  children: [
+                    if (index == 0) const Divider(color: CustomColors.backgroundLightGrey, height: 0),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              width: 60,
+                              decoration: const BoxDecoration(
+                                border: Border(
+                                  left: BorderSide(color: CustomColors.backgroundLightGrey),
+                                  right: BorderSide(color: CustomColors.backgroundLightGrey),
+                                ),
+                              ),
+                              child: MyAvatar(
+                                name: product.name,
+                                radius: 30,
+                                imageUrl: product.listOfProductImages.isNotEmpty
+                                    ? product.listOfProductImages.where((e) => e.isDefault).first.fileUrl
+                                    : null,
+                                shape: BoxShape.rectangle,
+                                fit: BoxFit.scaleDown,
+                                onTap: product.listOfProductImages.isNotEmpty
+                                    ? () => context.router.push(MyFullscreenImageRoute(
+                                        imagePaths: product.listOfProductImages.map((e) => e.fileUrl).toList(),
+                                        initialIndex: 0,
+                                        isNetworkImage: true))
+                                    : null,
+                              ),
+                            ),
+                            Gaps.w8,
+                            Text(product.name, overflow: TextOverflow.ellipsis),
+                          ],
+                        ),
+                        Text(
+                          '${productIdWithQuantity.quantity} x',
+                          style: TextStyles.defaultBold.copyWith(color: CustomColors.primaryColor),
+                        )
+                      ],
+                    ),
+                    const Divider(color: CustomColors.backgroundLightGrey, height: 0),
+                  ],
+                );
+              },
             ),
           ],
         );
@@ -68,31 +119,5 @@ class ProductDetailSetArticleBar extends StatelessWidget {
     }
 
     productDetailBloc.add(OnProductSetIsSetArticleEvent());
-  }
-
-  void _showProductsDialog(BuildContext context, ProductDetailBloc productDetailBloc, List<Product>? listOfProducts) {
-    final pageIndexNotifier = ValueNotifier(listOfProducts == null ? 0 : 1);
-
-    WoltModalSheet.show(
-      pageIndexNotifier: pageIndexNotifier,
-      context: context,
-      pageListBuilder: (woltContext) {
-        return [
-          WoltModalSheetPage(
-            child: BlocBuilder<ProductDetailBloc, ProductDetailState>(
-              bloc: productDetailBloc,
-              builder: (context, state) {
-                if (state.listOfProducts != null) {
-                  pageIndexNotifier.value = 1;
-                  return const SizedBox();
-                }
-                return const MyCircularProgressIndicator();
-              },
-            ),
-          ),
-          WoltModalSheetPage(child: const Text('Hallo')),
-        ];
-      },
-    );
   }
 }

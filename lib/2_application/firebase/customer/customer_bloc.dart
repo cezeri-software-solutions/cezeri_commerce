@@ -6,8 +6,10 @@ import 'package:logger/logger.dart';
 
 import '../../../3_domain/entities/address.dart';
 import '../../../3_domain/entities/customer/customer.dart';
+import '../../../3_domain/entities/settings/main_settings.dart';
 import '../../../3_domain/entities/settings/tax.dart';
 import '../../../3_domain/repositories/firebase/customer_repository.dart';
+import '../../../3_domain/repositories/firebase/main_settings_respository.dart';
 
 part 'customer_event.dart';
 part 'customer_state.dart';
@@ -16,8 +18,9 @@ final logger = Logger();
 
 class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
   final CustomerRepository customerRepository;
+  final MainSettingsRepository mainSettingsRepository;
 
-  CustomerBloc({required this.customerRepository}) : super(CustomerState.initial()) {
+  CustomerBloc({required this.customerRepository, required this.mainSettingsRepository}) : super(CustomerState.initial()) {
 //? #########################################################################
 
     on<SetCustomerStateToInitialEvent>((event, emit) {
@@ -56,7 +59,7 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
         (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
         (customer) {
           emit(state.copyWith(customer: customer, firebaseFailure: null, isAnyFailure: false));
-          add(SetCustomerControllerEvnet());
+          add(SetCustomerControllerEvent());
         },
       );
 
@@ -69,9 +72,23 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
 
 //? #########################################################################
 
-    on<SetCustomerEvent>((event, emit) async {
-      emit(state.copyWith(customer: event.customer));
-      add(SetCustomerControllerEvnet());
+    on<SetEmptyCustomerOnCreateNewCustomerEvent>((event, emit) async {
+      emit(state.copyWith(isLoadingCustomerMainSettingsOnObserve: true));
+
+      final fos = await mainSettingsRepository.getSettings();
+      fos.fold(
+        (failure) => null,
+        (settings) {
+          emit(state.copyWith(customer: Customer.empty().copyWith(customerNumber: settings.nextCustomerNumber)));
+          add(SetCustomerControllerEvent());
+        },
+      );
+
+      emit(state.copyWith(
+        isLoadingCustomerMainSettingsOnObserve: false,
+        fosCustomerMainSettingsOnObserveOption: optionOf(fos),
+      ));
+      emit(state.copyWith(fosCustomerMainSettingsOnObserveOption: none()));
     });
 
 //? #########################################################################
@@ -219,7 +236,7 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
 
 //? #########################################################################
 
-    on<SetCustomerControllerEvnet>((event, emit) async {
+    on<SetCustomerControllerEvent>((event, emit) async {
       Customer? customer = state.customer;
       if (customer == null) {
         emit(state.copyWith(customer: Customer.empty()));

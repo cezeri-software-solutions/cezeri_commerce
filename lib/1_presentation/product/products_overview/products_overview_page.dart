@@ -124,7 +124,7 @@ class _ProductContainer extends StatelessWidget {
                     ])),
                     TextButton(
                       onPressed: () async {
-                        await context.router.push(ProductDetailRoute(productId: product.id));
+                        await context.router.push(ProductDetailRoute(productId: product.id, listOfProducts: state.listOfAllProducts!));
                         productBloc.add(GetProductEvent(id: product.id));
                       },
                       onLongPress: () => showMyProductQuickView(context: context, product: product, showStatProduct: true),
@@ -145,8 +145,20 @@ class _ProductContainer extends StatelessWidget {
                       Text('EK: ${product.wholesalePrice.toMyCurrencyStringToShow()}'),
                       Text('VK-Netto: ${product.netPrice.toMyCurrencyStringToShow()}'),
                       Text('VK-Brutto: ${product.grossPrice.toMyCurrencyStringToShow()}'),
-                      Text((product.netPrice - product.wholesalePrice).toMyCurrencyStringToShow(),
-                          style: TextStyles.defaultBold.copyWith(color: Colors.green))
+                      Text.rich(TextSpan(children: [
+                        TextSpan(
+                          text: (product.netPrice - product.wholesalePrice).toMyCurrencyStringToShow(),
+                          style: TextStyles.defaultBold.copyWith(color: Colors.green),
+                        ),
+                        if (product.wholesalePrice != 0 && product.netPrice != 0) ...[
+                          const TextSpan(text: ' | ', style: TextStyles.defaultBold),
+                          TextSpan(
+                            text: ((1 - (product.wholesalePrice / product.netPrice)) * 100).toMyCurrencyStringToShow(),
+                            style: TextStyles.defaultBold.copyWith(color: CustomColors.primaryColor),
+                          ),
+                          TextSpan(text: '%', style: TextStyles.defaultBold.copyWith(color: CustomColors.primaryColor))
+                        ],
+                      ]))
                     ],
                   ),
                 ),

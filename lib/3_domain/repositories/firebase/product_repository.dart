@@ -25,7 +25,7 @@ abstract class ProductRepository {
     Product product,
     ProductMarketplace productMarketplace,
   );
-  Future<Either<FirebaseFailure, List<Product>>> getListOfProducts();
+  Future<Either<FirebaseFailure, List<Product>>> getListOfProducts(bool onlyActive);
   Future<Either<FirebaseFailure, List<Product>>> getListOfProductsByIds(List<String> productIds);
   Future<Either<FirebaseFailure, List<Product>>> getListOfSoldOutProducts();
   Future<Either<FirebaseFailure, List<Product>>> getListOfUnderMinimumQuantityProducts();

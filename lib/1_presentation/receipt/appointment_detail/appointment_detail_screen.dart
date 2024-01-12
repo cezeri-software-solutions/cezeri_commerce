@@ -1,7 +1,10 @@
+import 'dart:convert';
+
 import 'package:auto_route/auto_route.dart';
 import 'package:cezeri_commerce/3_domain/entities/receipt/receipt.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:printing/printing.dart';
 
 import '../../../2_application/firebase/appointment/appointment_bloc.dart';
 import '../../../2_application/firebase/main_settings/main_settings_bloc.dart';
@@ -110,6 +113,27 @@ class AppointmentDetailScreen extends StatelessWidget {
                   (unit) {
                     myScaffoldMessenger(context, null, null, 'Autrag / Aufträge erfolgreich gelöscht', null);
                     context.router.popUntilRouteWithName(AppointmentsOverviewRoute.name);
+                  },
+                ),
+              );
+            },
+          ),
+          BlocListener<AppointmentBloc, AppointmentState>(
+            bloc: appointmentBloc,
+            listenWhen: (p, c) => p.fosParcelLabelOnCreate != c.fosParcelLabelOnCreate,
+            listener: (context, state) {
+              state.fosParcelLabelOnCreate.fold(
+                () => null,
+                (a) => a.fold(
+                  (failure) {
+                    myScaffoldMessenger(context, null, null, null, 'Paketlabel konnte nicht erstellt werden');
+                  },
+                  (parcelTracking) async {
+                    myScaffoldMessenger(context, null, null, 'Paketlabel erfolgreich erstellt', null);
+                    if (parcelTracking.pdfString.isNotEmpty) {
+                      final pdfBytes = base64.decode(parcelTracking.pdfString);
+                      await Printing.layoutPdf(onLayout: (_) => pdfBytes);
+                    }
                   },
                 ),
               );

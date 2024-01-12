@@ -4,9 +4,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/src/material/date.dart';
+import 'package:logger/logger.dart';
 
 import '../../../1_presentation/core/functions/check_internet_connection.dart';
 import '../../../3_domain/repositories/firebase/stat_product_repository.dart';
+
+final logger = Logger();
 
 class StatProductRepositoryImpl implements StatProductRepository {
   final FirebaseFirestore db;
@@ -48,7 +51,7 @@ class StatProductRepositoryImpl implements StatProductRepository {
     try {
       List<StatProduct> listOfStatProducts = [];
       do {
-        final docRef = db.collection('StatProducts').doc(currentUserUid).collection('${calcDate.year}${calcDate.month.toString().padLeft(2, '0')}');
+        final docRef = db.collection('StatProducts').doc(currentUserUid).collection('${calcDate.year}${calcDate.month.toString()}');
         final statProducts =
             await docRef.get().then((value) => value.docs.map((querySnapshot) => StatProduct.fromJson(querySnapshot.data())).toList());
         listOfStatProducts.addAll(statProducts);
@@ -76,8 +79,8 @@ class StatProductRepositoryImpl implements StatProductRepository {
 
     try {
       while (calcDate.isAfter(startDate) || (calcDate.year == startDate.year && calcDate.month == startDate.month)) {
-        final docRef =
-            db.collection('StatProducts').doc(currentUserUid).collection('${calcDate.year}${calcDate.month.toString().padLeft(2, '0')}').doc(id);
+        final collection = '${calcDate.year}${calcDate.month.toString()}';
+        final docRef = db.collection('StatProducts').doc(currentUserUid).collection(collection).doc(id);
         final statProductDs = await docRef.get();
 
         if (statProductDs.exists) {

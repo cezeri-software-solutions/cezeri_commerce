@@ -135,7 +135,7 @@ class ReorderDetailBloc extends Bloc<ReorderDetailEvent, ReorderDetailState> {
     on<OnReorderDetailGetProductsEvent>((event, emit) async {
       emit(state.copyWith(isLoadingOnObserveReorderDetailProducts: true));
 
-      final failureOrSuccess = await productRepository.getListOfProducts();
+      final failureOrSuccess = await productRepository.getListOfProducts(true);
       failureOrSuccess.fold(
         (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
         (listOfLoadedProducts) {

@@ -13,11 +13,7 @@ class GetCustomerEvent extends CustomerEvent {
   GetCustomerEvent({required this.customer});
 }
 
-class SetCustomerEvent extends CustomerEvent {
-  final Customer customer;
-
-  SetCustomerEvent({required this.customer});
-}
+class SetEmptyCustomerOnCreateNewCustomerEvent extends CustomerEvent {}
 
 class CreateCustomerEvent extends CustomerEvent {}
 
@@ -77,6 +73,6 @@ class OnAddEditCustomerAddressEvent extends CustomerEvent {
 
 //* --- Controller --- *//
 
-class SetCustomerControllerEvnet extends CustomerEvent {}
+class SetCustomerControllerEvent extends CustomerEvent {}
 
 class OnCustomerControllerChangedEvent extends CustomerEvent {}

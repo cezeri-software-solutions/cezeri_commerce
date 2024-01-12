@@ -52,7 +52,7 @@ class DescriptionPage extends StatelessWidget {
                       ),
                       Gaps.w16,
                       MyOutlinedButton(
-                        buttonText: 'Speichern',
+                        buttonText: 'Übernehmen',
                         buttonBackgroundColor: state.isDescriptionChanged ? Colors.green : CustomColors.primaryColor,
                         onPressed: () => productDetailBloc.add(OnSaveProductDescriptionEvent()),
                       ),

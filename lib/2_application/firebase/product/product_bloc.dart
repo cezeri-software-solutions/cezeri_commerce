@@ -48,7 +48,7 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
         (settings) => emit(state.copyWith(mainSettings: settings, firebaseFailure: null, isAnyFailure: false)),
       );
 
-      final failureOrSuccess = await productRepository.getListOfProducts();
+      final failureOrSuccess = await productRepository.getListOfProducts(false);
       failureOrSuccess.fold(
         (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
         (listOfProduct) {

@@ -15,6 +15,7 @@ import '../../../1_presentation/core/functions/dialogs.dart';
 import '../../../1_presentation/core/functions/mixed_functions.dart';
 import '../../../3_domain/entities/marketplace/marketplace.dart';
 import '../../../3_domain/entities/product/product.dart';
+import '../../../3_domain/entities/product/product_id_with_quantity.dart';
 import '../../../3_domain/entities/product/product_image.dart';
 import '../../../3_domain/entities/product/product_marketplace.dart';
 import '../../../3_domain/entities/reorder/supplier.dart';
@@ -103,11 +104,16 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
         );
       }
 
-      final failureOrSuccess = await productRepository.getListOfProducts();
+      final failureOrSuccess = await productRepository.getListOfProducts(true);
       failureOrSuccess.fold(
         (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
         (loadedProducts) {
-          emit(state.copyWith(listOfProducts: loadedProducts, firebaseFailure: null, isAnyFailure: false));
+          emit(state.copyWith(
+            listOfAllProducts: loadedProducts,
+            pageIndexNotifierSetArticles: ValueNotifier(1),
+            firebaseFailure: null,
+            isAnyFailure: false,
+          ));
         },
       );
 
@@ -116,6 +122,12 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
         fosProductsOnObserveOption: optionOf(failureOrSuccess),
       ));
       emit(state.copyWith(fosProductsOnObserveOption: none()));
+    });
+
+//? ###########################################################################################################################
+
+    on<SetListOfProductsEvent>((event, emit) async {
+      emit(state.copyWith(listOfAllProducts: event.listOfProducts));
     });
 
 //? ###########################################################################################################################
@@ -600,6 +612,30 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
 
     on<OnProductSetIsSetArticleEvent>((event, emit) {
       emit(state.copyWith(product: state.product!.copyWith(isSetArticle: !state.product!.isSetArticle)));
+    });
+
+//? ###########################################################################################################################
+
+    on<OnAddProductToSetArticleEvent>((event, emit) {
+      List<ProductIdWithQuantity> productIdsWithQuantity = List.from(state.product!.listOfProductIdWithQuantity);
+      if (!productIdsWithQuantity.any((e) => e.productId == event.product.id)) {
+        productIdsWithQuantity.add(ProductIdWithQuantity(productId: event.product.id, quantity: 1));
+      }
+      emit(state.copyWith(product: state.product!.copyWith(listOfProductIdWithQuantity: productIdsWithQuantity)));
+    });
+
+//? ###########################################################################################################################
+
+    on<OnSetArticleQuantityChangedEvent>((event, emit) {
+      List<ProductIdWithQuantity> productIdsWithQuantity = List.from(state.product!.listOfProductIdWithQuantity);
+      final index = productIdsWithQuantity.indexWhere((e) => e.productId == event.productId);
+      if (productIdsWithQuantity[index].quantity == 1 && !event.isIncrease) {
+        productIdsWithQuantity.removeAt(index);
+      } else {
+        final newQuantity = event.isIncrease ? productIdsWithQuantity[index].quantity + 1 : productIdsWithQuantity[index].quantity - 1;
+        productIdsWithQuantity[index] = productIdsWithQuantity[index].copyWith(quantity: newQuantity);
+      }
+      emit(state.copyWith(product: state.product!.copyWith(listOfProductIdWithQuantity: productIdsWithQuantity)));
     });
 
 //? ###########################################################################################################################

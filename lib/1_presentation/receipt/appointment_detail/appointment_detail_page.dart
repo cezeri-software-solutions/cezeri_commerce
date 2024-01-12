@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:logger/logger.dart';
+import 'package:printing/printing.dart';
 
 import '../../../2_application/firebase/appointment/appointment_bloc.dart';
 import '../../../2_application/firebase/main_settings/main_settings_bloc.dart';
@@ -10,6 +11,7 @@ import '../../../3_domain/entities/receipt/receipt.dart';
 import '../../../3_domain/enums/enums.dart';
 import '../../../constants.dart';
 import '../../core/functions/dialogs.dart';
+import '../../core/widgets/my_circular_progress_indicator.dart';
 import '../../core/widgets/my_outlined_button.dart';
 import '../widgets/receipt_detail_address_card.dart';
 import '../widgets/receipt_detail_carrier_card.dart';
@@ -66,6 +68,29 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
                 icon: const Icon(Icons.refresh, size: 30),
               ),
             responsiveness == Responsiveness.isTablet ? Gaps.w32 : Gaps.w8,
+            if (widget.receiptTyp == ReceiptTyp.deliveryNote) ...[
+              IconButton(
+                onPressed: () => widget.appointmentBloc.add(CreateParcelLabelReceiptEvent()),
+                icon: state.isLoadingParcelLabelOnCreate
+                    ? const MyCircularProgressIndicator()
+                    : const Icon(Icons.new_label, color: CustomColors.primaryColor),
+              ),
+              responsiveness == Responsiveness.isTablet ? Gaps.w32 : Gaps.w8,
+            ],
+            IconButton(
+              onPressed: () async {
+                // final generatedPdf = await PdfReceiptGenerator.generate(
+                //   receipt: state.receipt!,
+                //   logoUrl: '',
+                // );
+                // await Printing.layoutPdf(onLayout: (_) => generatedPdf);
+                final printer = await Printing.pickPrinter(context: context);
+                logger.i(printer);
+                print('hallo');
+                // await Printing.directPrintPdf(printer: Printer(url: url), onLayout: onLayout);
+              },
+              icon: const Icon(Icons.car_crash),
+            ),
             BlocBuilder<ReceiptDetailBloc, ReceiptDetailState>(
               bloc: widget.receiptDetailBloc,
               builder: (context, stateReceiptDetail) {

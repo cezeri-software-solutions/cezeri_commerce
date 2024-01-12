@@ -81,7 +81,7 @@ Future<void> init() async {
   sl.registerFactory(() => MainSettingsBloc(mainSettingsRepository: sl()));
   sl.registerFactory(() => AppointmentBloc(receiptRepository: sl(), productRepository: sl()));
   sl.registerFactory(() => PackingStationBloc(receiptRepository: sl(), customerRepository: sl(), packingStationRepository: sl()));
-  sl.registerFactory(() => CustomerBloc(customerRepository: sl()));
+  sl.registerFactory(() => CustomerBloc(customerRepository: sl(), mainSettingsRepository: sl()));
   sl.registerFactory(() => SupplierBloc(supplierRepository: sl()));
   sl.registerFactory(() => ReorderBloc(reorderRepository: sl(), supplierRepository: sl()));
   sl.registerFactory(() => ReorderDetailBloc(

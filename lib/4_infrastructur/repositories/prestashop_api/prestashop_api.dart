@@ -414,28 +414,61 @@ class PrestashopApi with UiLoggy {
       );
       payload = payloadDoPut;
     }
-    //! Update StockAvailables
-    final stockAvailableId = productPresta.associations.associationsStockAvailables!.first.id;
-    bool payloadQuantity = true;
-    // if (marketplace.isPresta8) {
-    //   final builderStockAvailables = stockAvailableBuilder(stockAvailableId, product.availableStock);
-    //   final payloadDoPatchSA = await _doPatch(
-    //     '${_conf.webserviceUrl}stock_availables/$stockAvailableId',
-    //     builderStockAvailables,
-    //   );
-    //   payloadQuantity = payloadDoPatchSA;
-    // } else {
-    //   final optionaStockAvailableAsXml = await getStockAvailableAsXml(stockAvailableId.toMyInt());
-    //   if (optionaStockAvailableAsXml.isNotPresent) return false;
-    //   final stockAvailableAsXml = optionaStockAvailableAsXml.value;
-    //   final updatedDocument = stockAvailableUpdater(stockAvailableAsXml, product.availableStock);
-    //   final payloadDoPutSA = await _doPut(
-    //     '${_conf.webserviceUrl}stock_availables/$stockAvailableId',
-    //     updatedDocument,
-    //   );
-    //   payloadQuantity = payloadDoPutSA;
-    // }
-    return payload && payloadQuantity == true ? true : false;
+    return payload;
+  }
+
+  Future<bool> patchSetProduct(
+    final int marketplaceProductPrestaId,
+    Product product,
+    List<Product> listOfPartOfSetArticles,
+    ProductMarketplace productMarketplace,
+    Marketplace marketplace,
+  ) async {
+    final optionalProductPresta = await getProduct(marketplaceProductPrestaId, marketplace);
+    if (optionalProductPresta.isNotPresent) return false;
+    final productPresta = optionalProductPresta.value;
+
+    final List<ProductPresta> listOfPartProductsPresta = [];
+    for (final partProduct in listOfPartOfSetArticles) {
+      final partProductMarketplace = partProduct.productMarketplaces.where((e) => e.idMarketplace == productMarketplace.idMarketplace).firstOrNull;
+      if (partProductMarketplace == null) return false;
+      final partMarketplaceProductPresta = partProductMarketplace.marketplaceProduct as MarketplaceProductPresta;
+      final optionalPartProductPresta = await getProduct(partMarketplaceProductPresta.id, marketplace);
+      if (optionalPartProductPresta.isNotPresent) return false;
+      final partProductPresta = optionalPartProductPresta.value;
+      listOfPartProductsPresta.add(partProductPresta);
+    }
+    bool payload = false;
+    if (marketplace.isPresta8) {
+      final builder = patchProductBuilder(
+        id: marketplaceProductPrestaId,
+        product: product,
+        productMarketplace: productMarketplace,
+        productPresta: productPresta,
+      );
+      if (builder == null) return false;
+      final payloadDoPatch = await _doPatch(
+        '${_conf.webserviceUrl}products/$marketplaceProductPrestaId',
+        builder,
+      );
+      payload = payloadDoPatch;
+    } else {
+      final optionalProductAsXml = await getProductAsXml(marketplaceProductPrestaId);
+      if (optionalProductAsXml.isNotPresent) return false;
+      final productAsXml = optionalProductAsXml.value;
+      final updatedProductAsXml = productUpdater(
+        document: productAsXml,
+        product: product,
+        productMarketplace: productMarketplace,
+        productPresta: productPresta,
+      );
+      final payloadDoPut = await _doPut(
+        '${_conf.webserviceUrl}products/$marketplaceProductPrestaId',
+        updatedProductAsXml,
+      );
+      payload = payloadDoPut;
+    }
+    return payload;
   }
 
 //? ################################## PATCH ENDE #####################################################################################

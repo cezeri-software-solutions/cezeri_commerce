@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../2_application/firebase/product_detail/product_detail_bloc.dart';
+import '../../../3_domain/entities/product/product.dart';
 import '../../../3_domain/enums/enums.dart';
 import '../../../constants.dart';
 import '../../../injection.dart';
@@ -12,14 +13,16 @@ import '../../core/functions/my_scaffold_messanger.dart';
 import '../../core/widgets/my_dialog_suppliers.dart';
 import '../../core/widgets/my_outlined_button.dart';
 import 'widgets/description_page.dart';
+import 'widgets/set_articles/show_select_product_sheet.dart';
 
 enum ProductCreateOrEdit { create, edit }
 
 @RoutePage()
 class ProductDetailScreen extends StatelessWidget {
   final String? productId;
+  final List<Product> listOfProducts;
 
-  const ProductDetailScreen({super.key, this.productId});
+  const ProductDetailScreen({super.key, this.productId, required this.listOfProducts});
 
   @override
   Widget build(BuildContext context) {
@@ -27,8 +30,10 @@ class ProductDetailScreen extends StatelessWidget {
     final responsiveness = screenWidth > 700 ? Responsiveness.isTablet : Responsiveness.isMobil;
 
     final productDetailBloc = switch (productId) {
-      null => sl<ProductDetailBloc>(),
-      _ => sl<ProductDetailBloc>()..add(GetProductEvent(id: productId!)),
+      null => sl<ProductDetailBloc>()..add(SetListOfProductsEvent(listOfProducts: listOfProducts)),
+      _ => sl<ProductDetailBloc>()
+        ..add(GetProductEvent(id: productId!))
+        ..add(SetListOfProductsEvent(listOfProducts: listOfProducts)),
     };
 
     return BlocProvider(
@@ -115,6 +120,24 @@ class ProductDetailScreen extends StatelessWidget {
               );
             },
           ),
+          BlocListener<ProductDetailBloc, ProductDetailState>(
+            listenWhen: (p, c) => p.fosProductsOnObserveOption != c.fosProductsOnObserveOption,
+            listener: (context, state) {
+              state.fosProductsOnObserveOption.fold(
+                () => null,
+                (a) => a.fold(
+                  (failure) {
+                    context.router.popTop();
+                    myScaffoldMessenger(context, null, null, null, 'Artikel konnten nicht geladen werden');
+                  },
+                  (loadedProducts) {
+                    context.router.popUntilRouteWithName(ProductDetailRoute.name);
+                    showSelectProductSheet(context, productDetailBloc);
+                  },
+                ),
+              );
+            },
+          ),
         ],
         child: BlocBuilder<ProductDetailBloc, ProductDetailState>(
           builder: (context, state) {
@@ -140,7 +163,9 @@ class ProductDetailScreen extends StatelessWidget {
                   responsiveness == Responsiveness.isTablet ? Gaps.w16 : Gaps.w8,
                   if (productId != null) ...[
                     IconButton(
-                      onPressed: () => productDetailBloc.add(GetProductEvent(id: state.product!.id)),
+                      onPressed: () => productDetailBloc.add(GetProductEvent(
+                        id: state.product!.id,
+                      )),
                       icon: const Icon(Icons.refresh, size: 30),
                     ),
                     responsiveness == Responsiveness.isTablet ? Gaps.w16 : Gaps.w8,

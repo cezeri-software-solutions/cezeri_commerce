@@ -21,6 +21,7 @@ class AppointmentState {
   final bool isLoadingReceiptOnGenerate;
   final bool isLoadingProductOnObserve;
   final bool isLoadingProductsOnObserve;
+  final bool isLoadingParcelLabelOnCreate;
   final Option<Either<FirebaseFailure, Receipt>> fosReceiptOnObserveOption;
   final Option<Either<FirebaseFailure, List<Receipt>>> fosReceiptsOnObserveOption;
   final Option<Either<AbstractFailure, Unit>> fosAppointmentOnObserveFromMarketplacesOption;
@@ -32,6 +33,7 @@ class AppointmentState {
   final Option<Either<FirebaseFailure, List<Receipt>>> fosReceiptsOnGenerateOption;
   final Option<Either<FirebaseFailure, Product>> fosProductOnObserveOption;
   final Option<Either<FirebaseFailure, List<Product>>> fosProductsOnObserveOption;
+  final Option<Either<AbstractFailure, ParcelTracking>> fosParcelLabelOnCreate;
 
   //* --- helper --- *//
   final bool isAllReceiptsSeledcted;
@@ -65,6 +67,7 @@ class AppointmentState {
     required this.isLoadingReceiptOnGenerate,
     required this.isLoadingProductOnObserve,
     required this.isLoadingProductsOnObserve,
+    required this.isLoadingParcelLabelOnCreate,
     required this.fosReceiptOnObserveOption,
     required this.fosReceiptsOnObserveOption,
     required this.fosAppointmentOnObserveFromMarketplacesOption,
@@ -76,6 +79,7 @@ class AppointmentState {
     required this.fosReceiptsOnGenerateOption,
     required this.fosProductOnObserveOption,
     required this.fosProductsOnObserveOption,
+    required this.fosParcelLabelOnCreate,
     required this.isAllReceiptsSeledcted,
     required this.isExpanded,
     required this.receiptSearchText,
@@ -106,6 +110,7 @@ class AppointmentState {
         isLoadingReceiptOnGenerate: false,
         isLoadingProductOnObserve: false,
         isLoadingProductsOnObserve: false,
+        isLoadingParcelLabelOnCreate: false,
         fosReceiptOnObserveOption: none(),
         fosReceiptsOnObserveOption: none(),
         fosAppointmentOnObserveFromMarketplacesOption: none(),
@@ -117,6 +122,7 @@ class AppointmentState {
         fosReceiptsOnGenerateOption: none(),
         fosProductOnObserveOption: none(),
         fosProductsOnObserveOption: none(),
+        fosParcelLabelOnCreate: none(),
         isAllReceiptsSeledcted: false,
         isExpanded: const [],
         receiptSearchText: '',
@@ -147,6 +153,7 @@ class AppointmentState {
     bool? isLoadingReceiptOnGenerate,
     bool? isLoadingProductOnObserve,
     bool? isLoadingProductsOnObserve,
+    bool? isLoadingParcelLabelOnCreate,
     Option<Either<FirebaseFailure, Receipt>>? fosReceiptOnObserveOption,
     Option<Either<FirebaseFailure, List<Receipt>>>? fosReceiptsOnObserveOption,
     Option<Either<AbstractFailure, Unit>>? fosAppointmentOnObserveFromMarketplacesOption,
@@ -158,6 +165,7 @@ class AppointmentState {
     Option<Either<FirebaseFailure, List<Receipt>>>? fosReceiptsOnGenerateOption,
     Option<Either<FirebaseFailure, Product>>? fosProductOnObserveOption,
     Option<Either<FirebaseFailure, List<Product>>>? fosProductsOnObserveOption,
+    Option<Either<AbstractFailure, ParcelTracking>>? fosParcelLabelOnCreate,
     bool? isAllReceiptsSeledcted,
     List<bool>? isExpanded,
     String? receiptSearchText,
@@ -187,12 +195,11 @@ class AppointmentState {
       isLoadingReceiptOnGenerate: isLoadingReceiptOnGenerate ?? this.isLoadingReceiptOnGenerate,
       isLoadingProductOnObserve: isLoadingProductOnObserve ?? this.isLoadingProductOnObserve,
       isLoadingProductsOnObserve: isLoadingProductsOnObserve ?? this.isLoadingProductsOnObserve,
+      isLoadingParcelLabelOnCreate: isLoadingParcelLabelOnCreate ?? this.isLoadingParcelLabelOnCreate,
       fosReceiptOnObserveOption: fosReceiptOnObserveOption ?? this.fosReceiptOnObserveOption,
       fosReceiptsOnObserveOption: fosReceiptsOnObserveOption ?? this.fosReceiptsOnObserveOption,
-      fosAppointmentOnObserveFromMarketplacesOption:
-          fosAppointmentOnObserveFromMarketplacesOption ?? this.fosAppointmentOnObserveFromMarketplacesOption,
-      fosAppointmentsOnObserveFromMarketplacesOption:
-          fosAppointmentsOnObserveFromMarketplacesOption ?? this.fosAppointmentsOnObserveFromMarketplacesOption,
+      fosAppointmentOnObserveFromMarketplacesOption: fosAppointmentOnObserveFromMarketplacesOption ?? this.fosAppointmentOnObserveFromMarketplacesOption,
+      fosAppointmentsOnObserveFromMarketplacesOption: fosAppointmentsOnObserveFromMarketplacesOption ?? this.fosAppointmentsOnObserveFromMarketplacesOption,
       fosReceiptOnCreateOption: fosReceiptOnCreateOption ?? this.fosReceiptOnCreateOption,
       fosReceiptOnUpdateOption: fosReceiptOnUpdateOption ?? this.fosReceiptOnUpdateOption,
       fosReceiptOnDeleteOption: fosReceiptOnDeleteOption ?? this.fosReceiptOnDeleteOption,
@@ -200,6 +207,7 @@ class AppointmentState {
       fosReceiptsOnGenerateOption: fosReceiptsOnGenerateOption ?? this.fosReceiptsOnGenerateOption,
       fosProductOnObserveOption: fosProductOnObserveOption ?? this.fosProductOnObserveOption,
       fosProductsOnObserveOption: fosProductsOnObserveOption ?? this.fosProductsOnObserveOption,
+      fosParcelLabelOnCreate: fosParcelLabelOnCreate ?? this.fosParcelLabelOnCreate,
       isAllReceiptsSeledcted: isAllReceiptsSeledcted ?? this.isAllReceiptsSeledcted,
       isExpanded: isExpanded ?? this.isExpanded,
       receiptSearchText: receiptSearchText ?? this.receiptSearchText,

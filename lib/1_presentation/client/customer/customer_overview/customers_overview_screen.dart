@@ -1,12 +1,11 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:cezeri_commerce/1_presentation/app_drawer.dart';
+import 'package:cezeri_commerce/1_presentation/core/widgets/my_circular_progress_indicator.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../2_application/firebase/customer/customer_bloc.dart';
-import '../../../../2_application/firebase/main_settings/main_settings_bloc.dart';
-import '../../../../3_domain/entities/customer/customer.dart';
 import '../../../../injection.dart';
 import '../../../../routes/router.gr.dart';
 import '../../../core/functions/dialogs.dart';
@@ -52,6 +51,19 @@ class CustomersOverviewScreen extends StatelessWidget {
               );
             },
           ),
+          BlocListener<CustomerBloc, CustomerState>(
+            listenWhen: (p, c) => p.fosCustomerMainSettingsOnObserveOption != c.fosCustomerMainSettingsOnObserveOption,
+            listener: (context, state) {
+              state.fosCustomerMainSettingsOnObserveOption.fold(
+                () => null,
+                (a) => a.fold(
+                  (failure) => myScaffoldMessenger(context, failure, null, null, null),
+                  (customer) =>
+                      context.router.push(CustomerDetailRoute(customerBloc: customerBloc, customerCreateOrEdit: CustomerCreateOrEdit.create)),
+                ),
+              );
+            },
+          ),
         ],
         child: BlocBuilder<CustomerBloc, CustomerState>(
           builder: (context, state) {
@@ -62,13 +74,11 @@ class CustomersOverviewScreen extends StatelessWidget {
                 actions: [
                   IconButton(onPressed: () => context.read<CustomerBloc>().add(GetAllCustomersEvenet()), icon: const Icon(Icons.refresh)),
                   IconButton(
-                      onPressed: () {
-                        final newCustomer =
-                            Customer.empty().copyWith(customerNumber: context.read<MainSettingsBloc>().state.mainSettings!.nextCustomerNumber);
-                        customerBloc.add(SetCustomerEvent(customer: newCustomer));
-                        context.router.push(CustomerDetailRoute(customerBloc: customerBloc, customerCreateOrEdit: CustomerCreateOrEdit.create));
-                      },
-                      icon: const Icon(Icons.add, color: Colors.green)),
+                    onPressed: () => customerBloc.add(SetEmptyCustomerOnCreateNewCustomerEvent()),
+                    icon: state.isLoadingCustomerMainSettingsOnObserve
+                        ? const MyCircularProgressIndicator()
+                        : const Icon(Icons.add, color: Colors.green),
+                  ),
                   IconButton(
                     onPressed: state.selectedCustomers.isEmpty
                         ? () => showMyDialogAlert(context: context, title: 'Achtung!', content: 'Bitte wähle mindestens einen Kunden aus.')

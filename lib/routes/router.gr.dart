@@ -84,14 +84,15 @@ import 'package:cezeri_commerce/2_application/firebase/appointment/appointment_b
 import 'package:cezeri_commerce/2_application/firebase/customer/customer_bloc.dart'
     as _i42;
 import 'package:cezeri_commerce/2_application/firebase/supplier/supplier_bloc.dart'
-    as _i45;
+    as _i46;
 import 'package:cezeri_commerce/2_application/packing_station/packing_station_bloc.dart'
     as _i43;
 import 'package:cezeri_commerce/3_domain/entities/marketplace/marketplace.dart'
     as _i40;
+import 'package:cezeri_commerce/3_domain/entities/product/product.dart' as _i44;
 import 'package:cezeri_commerce/3_domain/entities/receipt/receipt.dart' as _i41;
 import 'package:cezeri_commerce/3_domain/entities/reorder/supplier.dart'
-    as _i44;
+    as _i45;
 import 'package:flutter/material.dart' as _i38;
 
 abstract class $AppRouter extends _i37.RootStackRouter {
@@ -277,13 +278,13 @@ abstract class $AppRouter extends _i37.RootStackRouter {
       );
     },
     ProductDetailRoute.name: (routeData) {
-      final args = routeData.argsAs<ProductDetailRouteArgs>(
-          orElse: () => const ProductDetailRouteArgs());
+      final args = routeData.argsAs<ProductDetailRouteArgs>();
       return _i37.AutoRoutePage<dynamic>(
         routeData: routeData,
         child: _i22.ProductDetailScreen(
           key: args.key,
           productId: args.productId,
+          listOfProducts: args.listOfProducts,
         ),
       );
     },
@@ -996,12 +997,14 @@ class ProductDetailRoute extends _i37.PageRouteInfo<ProductDetailRouteArgs> {
   ProductDetailRoute({
     _i38.Key? key,
     String? productId,
+    required List<_i44.Product> listOfProducts,
     List<_i37.PageRouteInfo>? children,
   }) : super(
           ProductDetailRoute.name,
           args: ProductDetailRouteArgs(
             key: key,
             productId: productId,
+            listOfProducts: listOfProducts,
           ),
           initialChildren: children,
         );
@@ -1016,15 +1019,18 @@ class ProductDetailRouteArgs {
   const ProductDetailRouteArgs({
     this.key,
     this.productId,
+    required this.listOfProducts,
   });
 
   final _i38.Key? key;
 
   final String? productId;
 
+  final List<_i44.Product> listOfProducts;
+
   @override
   String toString() {
-    return 'ProductDetailRouteArgs{key: $key, productId: $productId}';
+    return 'ProductDetailRouteArgs{key: $key, productId: $productId, listOfProducts: $listOfProducts}';
   }
 }
 
@@ -1090,7 +1096,7 @@ class ReorderDetailRoute extends _i37.PageRouteInfo<ReorderDetailRouteArgs> {
   ReorderDetailRoute({
     _i38.Key? key,
     required _i27.ReorderCreateOrEdit reorderCreateOrEdit,
-    _i44.Supplier? supplier,
+    _i45.Supplier? supplier,
     String? reorderId,
     List<_i37.PageRouteInfo>? children,
   }) : super(
@@ -1122,7 +1128,7 @@ class ReorderDetailRouteArgs {
 
   final _i27.ReorderCreateOrEdit reorderCreateOrEdit;
 
-  final _i44.Supplier? supplier;
+  final _i45.Supplier? supplier;
 
   final String? reorderId;
 
@@ -1245,7 +1251,7 @@ class SplashRouteArgs {
 class SupplierDetailRoute extends _i37.PageRouteInfo<SupplierDetailRouteArgs> {
   SupplierDetailRoute({
     _i38.Key? key,
-    required _i45.SupplierBloc supplierBloc,
+    required _i46.SupplierBloc supplierBloc,
     required _i34.SupplierCreateOrEdit supplierCreateOrEdit,
     List<_i37.PageRouteInfo>? children,
   }) : super(
@@ -1273,7 +1279,7 @@ class SupplierDetailRouteArgs {
 
   final _i38.Key? key;
 
-  final _i45.SupplierBloc supplierBloc;
+  final _i46.SupplierBloc supplierBloc;
 
   final _i34.SupplierCreateOrEdit supplierCreateOrEdit;
 

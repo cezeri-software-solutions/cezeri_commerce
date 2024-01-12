@@ -13,11 +13,13 @@ class CustomerState {
   final bool isLoadingCustomerOnCreate;
   final bool isLoadingCustomerOnUpdate;
   final bool isLoadingCustomerOnDelete;
+  final bool isLoadingCustomerMainSettingsOnObserve;
   final Option<Either<FirebaseFailure, Customer>> fosCustomerOnObserveOption;
   final Option<Either<FirebaseFailure, List<Customer>>> fosCustomersOnObserveOption;
   final Option<Either<FirebaseFailure, Customer>> fosCustomerOnCreateOption;
   final Option<Either<FirebaseFailure, Customer>> fosCustomerOnUpdateOption;
   final Option<Either<FirebaseFailure, Unit>> fosCustomerOnDeleteOption;
+  final Option<Either<FirebaseFailure, MainSettings>> fosCustomerMainSettingsOnObserveOption;
 
   //* Helpers
   final bool isAllCustomersSelected;
@@ -45,11 +47,13 @@ class CustomerState {
     required this.isLoadingCustomerOnCreate,
     required this.isLoadingCustomerOnUpdate,
     required this.isLoadingCustomerOnDelete,
+    required this.isLoadingCustomerMainSettingsOnObserve,
     required this.fosCustomerOnObserveOption,
     required this.fosCustomersOnObserveOption,
     required this.fosCustomerOnCreateOption,
     required this.fosCustomerOnUpdateOption,
     required this.fosCustomerOnDeleteOption,
+    required this.fosCustomerMainSettingsOnObserveOption,
     required this.isAllCustomersSelected,
     required this.customerSearchText,
     required this.companyNameController,
@@ -75,11 +79,13 @@ class CustomerState {
       isLoadingCustomerOnCreate: false,
       isLoadingCustomerOnUpdate: false,
       isLoadingCustomerOnDelete: false,
+      isLoadingCustomerMainSettingsOnObserve: false,
       fosCustomerOnObserveOption: none(),
       fosCustomersOnObserveOption: none(),
       fosCustomerOnCreateOption: none(),
       fosCustomerOnUpdateOption: none(),
       fosCustomerOnDeleteOption: none(),
+      fosCustomerMainSettingsOnObserveOption: none(),
       isAllCustomersSelected: false,
       customerSearchText: '',
       companyNameController: TextEditingController(),
@@ -105,11 +111,13 @@ class CustomerState {
     bool? isLoadingCustomerOnCreate,
     bool? isLoadingCustomerOnUpdate,
     bool? isLoadingCustomerOnDelete,
+    bool? isLoadingCustomerMainSettingsOnObserve,
     Option<Either<FirebaseFailure, Customer>>? fosCustomerOnObserveOption,
     Option<Either<FirebaseFailure, List<Customer>>>? fosCustomersOnObserveOption,
     Option<Either<FirebaseFailure, Customer>>? fosCustomerOnCreateOption,
     Option<Either<FirebaseFailure, Customer>>? fosCustomerOnUpdateOption,
     Option<Either<FirebaseFailure, Unit>>? fosCustomerOnDeleteOption,
+    Option<Either<FirebaseFailure, MainSettings>>? fosCustomerMainSettingsOnObserveOption,
     bool? isAllCustomersSelected,
     String? customerSearchText,
     TextEditingController? companyNameController,
@@ -133,11 +141,13 @@ class CustomerState {
       isLoadingCustomerOnCreate: isLoadingCustomerOnCreate ?? this.isLoadingCustomerOnCreate,
       isLoadingCustomerOnUpdate: isLoadingCustomerOnUpdate ?? this.isLoadingCustomerOnUpdate,
       isLoadingCustomerOnDelete: isLoadingCustomerOnDelete ?? this.isLoadingCustomerOnDelete,
+      isLoadingCustomerMainSettingsOnObserve: isLoadingCustomerMainSettingsOnObserve ?? this.isLoadingCustomerMainSettingsOnObserve,
       fosCustomerOnObserveOption: fosCustomerOnObserveOption ?? this.fosCustomerOnObserveOption,
       fosCustomersOnObserveOption: fosCustomersOnObserveOption ?? this.fosCustomersOnObserveOption,
       fosCustomerOnCreateOption: fosCustomerOnCreateOption ?? this.fosCustomerOnCreateOption,
       fosCustomerOnUpdateOption: fosCustomerOnUpdateOption ?? this.fosCustomerOnUpdateOption,
       fosCustomerOnDeleteOption: fosCustomerOnDeleteOption ?? this.fosCustomerOnDeleteOption,
+      fosCustomerMainSettingsOnObserveOption: fosCustomerMainSettingsOnObserveOption ?? this.fosCustomerMainSettingsOnObserveOption,
       isAllCustomersSelected: isAllCustomersSelected ?? this.isAllCustomersSelected,
       customerSearchText: customerSearchText ?? this.customerSearchText,
       companyNameController: companyNameController ?? this.companyNameController,

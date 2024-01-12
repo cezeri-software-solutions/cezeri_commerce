@@ -394,7 +394,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
             );
             await productRepository.updateAvailableQuantityOfProductInremental(product!, receiptProduct.quantity * -1, null);
           }
-          if (marketplace != null) await sendCustomerEmails([generatedAppointmentFromThisOffer], marketplace!);
+          if (marketplace != null) await sendCustomerEmailsOnCreateReceipts([generatedAppointmentFromThisOffer], marketplace!);
         });
       }
       final updatedMainSettings = settings.copyWith(nextAppointmentNumber: nextAppointmentNumber);
@@ -522,7 +522,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
               newQuantityIncremental: receiptProduct.quantity * -1,
             );
           }
-          if (marketplace != null) await sendCustomerEmails(generatedReceiptsFromThisReceipt, marketplace!);
+          if (marketplace != null) await sendCustomerEmailsOnCreateReceipts(generatedReceiptsFromThisReceipt, marketplace!);
         });
 
         //* Neuen Bestellstatus im Marktplatz setzen
@@ -704,7 +704,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
 
       final updatedMainSettings = settings.copyWith(nextDeliveryNoteNumber: nextDeliveryNoteNumber, nextInvoiceNumber: nextInvoiceNumber);
       await docRefSettings.update(updatedMainSettings.toJson());
-      final isSuccessfulSent = await sendCustomerEmails(generatedReceipts, marketplace);
+      final isSuccessfulSent = await sendCustomerEmailsOnCreateReceipts(generatedReceipts, marketplace);
       if (isSuccessfulSent) {
         logger.i('Alle E-Mails wurden erfolgreich verschickt.');
       } else {
@@ -784,7 +784,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
       });
       if (generatedReceipt == null) return left(GeneralFailure());
 
-      final isSuccessfulSent = await sendCustomerEmails([generatedReceipt!], marketplace);
+      final isSuccessfulSent = await sendCustomerEmailsOnCreateReceipts([generatedReceipt!], marketplace);
       if (isSuccessfulSent) {
         logger.i('Alle E-Mails wurden erfolgreich verschickt.');
       } else {
@@ -882,7 +882,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
           );
           await productRepository.updateAvailableQuantityOfProductInremental(product!, receiptProduct.quantity * -1, null);
         }
-        if (marketplace != null) await sendCustomerEmails([generatedAppointmentFromThisOffer], marketplace!);
+        if (marketplace != null) await sendCustomerEmailsOnCreateReceipts([generatedAppointmentFromThisOffer], marketplace!);
       });
 
       final updatedMainSettings = settings.copyWith(nextInvoiceNumber: nextInvoiceNumber);
@@ -1015,6 +1015,46 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
     //await sendEmail(to: 'info@ccf-autopflege.at', from: 'ince.ali@msn.com', subject: 'Test-Mail', text: 'Hallo das ist eine Test-Mail');
     if (isFailure) return left(GeneralFailure());
     return right(unit);
+  }
+
+  @override
+  Future<Either<AbstractFailure, ParcelTracking>> createNewParcelForReceipt(Receipt deliveryNote) async {
+    final isConnected = await checkInternetConnection();
+    if (!isConnected) return left(NoConnectionFailure());
+
+    final currentUserUid = firebaseAuth.currentUser!.uid;
+    final docRef = getColRef(currentUserUid, deliveryNote.receiptTyp).doc(deliveryNote.id);
+    final docRefMS = db.collection('Settings').doc(currentUserUid).collection('Settings').doc(currentUserUid);
+    final docRefMP = db.collection('Marketetplaces').doc(currentUserUid).collection('Marketetplaces').doc(deliveryNote.marketplaceId);
+
+    try {
+      final loadedDeliveryNoteDs = await docRef.get();
+      if (!loadedDeliveryNoteDs.exists) return left(MixedFailure(errorMessage: 'Dokument konnte nicht aus der Datenbank geladen werden'));
+      final loadedDeliveryNote = Receipt.fromJson(loadedDeliveryNoteDs.data()!);
+
+      final settingsDs = await docRefMS.get();
+      if (!settingsDs.exists) return left(MixedFailure(errorMessage: 'Einstellungen konnten nicht aus der Datenbank geladen werden'));
+      final settings = MainSettings.fromJson(settingsDs.data()!);
+
+      final marketplaceDs = await docRefMP.get();
+      if (!marketplaceDs.exists) return left(MixedFailure(errorMessage: 'Marktplatz konnten nicht aus der Datenbank geladen werden'));
+      final marketplace = Marketplace.fromJson(marketplaceDs.data()!);
+
+      final parcelTracking = await getParcelTracking(loadedDeliveryNote, settings, loadedDeliveryNote.deliveryNoteId);
+      if (parcelTracking == null) return left(MixedFailure(errorMessage: 'Paketlabel konnte nicht erstellt werden'));
+
+      final List<ParcelTracking> listOfUpdatedParcelTracking = loadedDeliveryNote.listOfParcelTracking;
+      listOfUpdatedParcelTracking.add(parcelTracking);
+      final updatedDeliveryNote = loadedDeliveryNote.copyWith(listOfParcelTracking: listOfUpdatedParcelTracking);
+
+      await docRef.update(updatedDeliveryNote.toJson());
+
+      await sendCustomerEmailsOnCreateReceipts([updatedDeliveryNote], marketplace);
+
+      return right(parcelTracking);
+    } on FirebaseException {
+      return left(GeneralFailure());
+    }
   }
 
   @override
@@ -1315,7 +1355,9 @@ String fillPlaceholder(Receipt receipt, String value) {
   ParcelTracking? parceltracking;
   final isParceltrackingGiven = receipt.receiptTyp == ReceiptTyp.deliveryNote && receipt.listOfParcelTracking.isNotEmpty;
   if (isParceltrackingGiven) {
-    parceltracking = receipt.listOfParcelTracking.first;
+    List<ParcelTracking> listOfParcels = receipt.listOfParcelTracking;
+    listOfParcels.sort((a, b) => a.trackingNumber.compareTo(b.trackingNumber));
+    parceltracking = listOfParcels.last;
   }
 
   String newValue = value.replaceAll(
@@ -1342,7 +1384,7 @@ String fillPlaceholder(Receipt receipt, String value) {
   return newValue;
 }
 
-Future<bool> sendCustomerEmails(List<Receipt> listOfReceipts, Marketplace marketplace) async {
+Future<bool> sendCustomerEmailsOnCreateReceipts(List<Receipt> listOfReceipts, Marketplace marketplace) async {
   bool isSuccess = false;
   for (final receipt in listOfReceipts) {
     switch (receipt.receiptTyp) {
@@ -1577,7 +1619,7 @@ Future<void> updateProductWarehouseQuantityIncremental({
   }
 }
 
-Future<ParcelTracking?> getParcelTracking(Receipt receipt, MainSettings ms, int nextDeliveryNoteNumber) async {
+Future<ParcelTracking?> getParcelTracking(Receipt receipt, MainSettings ms, int deliveryNoteNumber) async {
   final carrier = ms.listOfCarriers.where((e) => e.carrierTyp == receipt.receiptCarrier.carrierTyp).firstOrNull;
   if (carrier == null) return null;
   final cCredentials = carrier.carrierKey;
@@ -1622,7 +1664,7 @@ Future<ParcelTracking?> getParcelTracking(Receipt receipt, MainSettings ms, int 
   final pdfString = service.getPdfLabel(responseString);
 
   final parcelTracking = ParcelTracking(
-    deliveryNoteId: nextDeliveryNoteNumber,
+    deliveryNoteId: deliveryNoteNumber,
     trackingUrl: carrier.trackingUrl,
     trackingNumber: trackingNumber,
     pdfString: pdfString,

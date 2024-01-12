@@ -6,6 +6,7 @@ import 'package:meta/meta.dart';
 
 import '../../../3_domain/entities/address.dart';
 import '../../../3_domain/entities/carrier/carrier_product.dart';
+import '../../../3_domain/entities/carrier/parcel_tracking.dart';
 import '../../../3_domain/entities/customer/customer.dart';
 import '../../../3_domain/entities/marketplace/marketplace.dart';
 import '../../../3_domain/entities/product/product.dart';
@@ -467,7 +468,7 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
     on<GetAllProductsEvent>((event, emit) async {
       emit(state.copyWith(isLoadingProductsOnObserve: true));
 
-      final failureOrSuccess = await productRepository.getListOfProducts();
+      final failureOrSuccess = await productRepository.getListOfProducts(true);
       failureOrSuccess.fold(
         (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
         (listOfProducts) {
@@ -611,6 +612,20 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
 
     on<SendEmailToCustomerReceiptEvent>((event, emit) async {
       await receiptRepository.sendEmails();
+    });
+
+//? #########################################################################
+
+    on<CreateParcelLabelReceiptEvent>((event, emit) async {
+      emit(state.copyWith(isLoadingParcelLabelOnCreate: true));
+
+      final fos = await receiptRepository.createNewParcelForReceipt(state.receipt!);
+
+      emit(state.copyWith(
+        isLoadingParcelLabelOnCreate: false,
+        fosParcelLabelOnCreate: optionOf(fos),
+      ));
+      emit(state.copyWith(fosParcelLabelOnCreate: none()));
     });
 
 //? #########################################################################

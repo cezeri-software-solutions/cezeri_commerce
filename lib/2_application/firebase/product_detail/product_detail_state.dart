@@ -2,7 +2,6 @@ part of 'product_detail_bloc.dart';
 
 class ProductDetailState {
   final Product? product;
-  final List<Product>? listOfProducts;
   final List<Supplier>? listOfSuppliers;
   final List<Marketplace>? listOfNotSynchronizedMarketplaces;
   final MainSettings? mainSettings;
@@ -37,6 +36,12 @@ class ProductDetailState {
   final bool isDescriptionSetFirstTime;
   final bool isDescriptionChanged;
   final bool showHtmlTexts;
+  //* Set Article
+  final ValueNotifier<int> pageIndexNotifierSetArticles;
+  final bool isAllSetProductsSelected;
+  final List<ProductIdWithQuantity> listOfSelectedProducts;
+  final List<Product> listOfPartOfSetProducts;
+  final List<Product>? listOfAllProducts;
   //* Product Images
   final bool isProductImagesEdited;
   final bool isSelectedAllImages;
@@ -67,7 +72,6 @@ class ProductDetailState {
 
   ProductDetailState({
     required this.product,
-    required this.listOfProducts,
     required this.listOfSuppliers,
     required this.listOfNotSynchronizedMarketplaces,
     required this.mainSettings,
@@ -99,6 +103,11 @@ class ProductDetailState {
     required this.isDescriptionSetFirstTime,
     required this.isDescriptionChanged,
     required this.showHtmlTexts,
+    required this.pageIndexNotifierSetArticles,
+    required this.isAllSetProductsSelected,
+    required this.listOfSelectedProducts,
+    required this.listOfPartOfSetProducts,
+    required this.listOfAllProducts,
     required this.isProductImagesEdited,
     required this.isSelectedAllImages,
     required this.selectedProductImages,
@@ -128,7 +137,6 @@ class ProductDetailState {
   factory ProductDetailState.initial() {
     return ProductDetailState(
       product: null,
-      listOfProducts: null,
       listOfSuppliers: null,
       listOfNotSynchronizedMarketplaces: null,
       mainSettings: null,
@@ -160,6 +168,11 @@ class ProductDetailState {
       isDescriptionSetFirstTime: true,
       isDescriptionChanged: false,
       showHtmlTexts: false,
+      pageIndexNotifierSetArticles: ValueNotifier(0),
+      isAllSetProductsSelected: false,
+      listOfSelectedProducts: [],
+      listOfPartOfSetProducts: [],
+      listOfAllProducts: null,
       isProductImagesEdited: false,
       isSelectedAllImages: false,
       selectedProductImages: const [],
@@ -189,7 +202,6 @@ class ProductDetailState {
 
   ProductDetailState copyWith({
     Product? product,
-    List<Product>? listOfProducts,
     List<Supplier>? listOfSuppliers,
     List<Marketplace>? listOfNotSynchronizedMarketplaces,
     MainSettings? mainSettings,
@@ -221,6 +233,11 @@ class ProductDetailState {
     bool? isDescriptionSetFirstTime,
     bool? isDescriptionChanged,
     bool? showHtmlTexts,
+    ValueNotifier<int>? pageIndexNotifierSetArticles,
+    bool? isAllSetProductsSelected,
+    List<ProductIdWithQuantity>? listOfSelectedProducts,
+    List<Product>? listOfPartOfSetProducts,
+    List<Product>? listOfAllProducts,
     bool? isProductImagesEdited,
     bool? isSelectedAllImages,
     List<ProductImage>? selectedProductImages,
@@ -248,7 +265,6 @@ class ProductDetailState {
   }) {
     return ProductDetailState(
       product: product ?? this.product,
-      listOfProducts: listOfProducts ?? this.listOfProducts,
       listOfSuppliers: listOfSuppliers ?? this.listOfSuppliers,
       listOfNotSynchronizedMarketplaces: listOfNotSynchronizedMarketplaces ?? this.listOfNotSynchronizedMarketplaces,
       mainSettings: mainSettings ?? this.mainSettings,
@@ -280,6 +296,11 @@ class ProductDetailState {
       isDescriptionSetFirstTime: isDescriptionSetFirstTime ?? this.isDescriptionSetFirstTime,
       isDescriptionChanged: isDescriptionChanged ?? this.isDescriptionChanged,
       showHtmlTexts: showHtmlTexts ?? this.showHtmlTexts,
+      pageIndexNotifierSetArticles: pageIndexNotifierSetArticles ?? this.pageIndexNotifierSetArticles,
+      isAllSetProductsSelected: isAllSetProductsSelected ?? this.isAllSetProductsSelected,
+      listOfSelectedProducts: listOfSelectedProducts ?? this.listOfSelectedProducts,
+      listOfPartOfSetProducts: listOfPartOfSetProducts ?? this.listOfPartOfSetProducts,
+      listOfAllProducts: listOfAllProducts ?? this.listOfAllProducts,
       isProductImagesEdited: isProductImagesEdited ?? this.isProductImagesEdited,
       isSelectedAllImages: isSelectedAllImages ?? this.isSelectedAllImages,
       selectedProductImages: selectedProductImages ?? this.selectedProductImages,

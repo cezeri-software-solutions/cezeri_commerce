@@ -45,6 +45,7 @@ XmlBuilder? patchProductBuilder({
   //       true => 1,
   //       false => 0,
   //     };
+  final type = product.isSetArticle ? 'pack' : 'simple';
   final builder = XmlBuilder();
   bool isAnyFailure = false;
   final marketplaceProductPresta = productMarketplace.marketplaceProduct as MarketplaceProductPresta;
@@ -80,6 +81,7 @@ XmlBuilder? patchProductBuilder({
       builder.element('id', nest: id);
       builder.element('id_category_default', nest: marketplaceProductPresta.idCategoryDefault);
       builder.element('reference', nest: product.articleNumber);
+      builder.element('type', nest: type);
       builder.element('minimal_quantity', nest: '1');
       builder.element('width', nest: product.width);
       builder.element('height', nest: product.height);

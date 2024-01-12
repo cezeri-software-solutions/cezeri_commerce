@@ -92,7 +92,22 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
       final api = PrestashopApi(Client(), PrestashopApiConfig(apiKey: marketplace.key, webserviceUrl: marketplace.fullUrl));
 
       final marketplaceProduct = productMarketplace.marketplaceProduct as MarketplaceProductPresta;
-      isSuccess = await api.patchProduct(marketplaceProduct.id, product, productMarketplace, marketplace);
+
+      if (product.isSetArticle) {
+        //* Alle Einzelartikel des Set-Artikel laden und in eine Liste speichern
+        final List<Product> listOfSetPartProducts = [];
+        for (final partProductIdWithQuantity in product.listOfProductIdWithQuantity) {
+          final docRefPartProduct = db.collection('Products').doc(currentUserUid).collection('Products').doc(partProductIdWithQuantity.productId);
+          final partProductDs = await docRefPartProduct.get();
+          if (!partProductDs.exists) return left(PrestaGeneralFailure()); //TODO: ist kein PrestashopFailure
+          Product partProduct = Product.fromJson(partProductDs.data()!);
+          listOfSetPartProducts.add(partProduct);
+        }
+        if(listOfSetPartProducts.isEmpty) return left(PrestaGeneralFailure()); //TODO: ist kein PrestashopFailure
+        isSuccess = await api.patchSetProduct(marketplaceProduct.id, product, listOfSetPartProducts, productMarketplace, marketplace);
+      } else {
+        isSuccess = await api.patchProduct(marketplaceProduct.id, product, productMarketplace, marketplace);
+      }
       await setProdcutPrestaQuantity(product, product.availableStock, null);
     }
     if (isSuccess) return right(unit);
