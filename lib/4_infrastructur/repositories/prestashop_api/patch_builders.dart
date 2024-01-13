@@ -40,12 +40,12 @@ XmlBuilder? patchProductBuilder({
   required Product product,
   required ProductMarketplace productMarketplace,
   required ProductPresta productPresta,
+  List<ProductPresta>? listOfPartProductsPresta,
 }) {
   // int boolToInt(bool bool) => switch (bool) {
   //       true => 1,
   //       false => 0,
   //     };
-  final type = product.isSetArticle ? 'pack' : 'simple';
   final builder = XmlBuilder();
   bool isAnyFailure = false;
   final marketplaceProductPresta = productMarketplace.marketplaceProduct as MarketplaceProductPresta;
@@ -81,7 +81,7 @@ XmlBuilder? patchProductBuilder({
       builder.element('id', nest: id);
       builder.element('id_category_default', nest: marketplaceProductPresta.idCategoryDefault);
       builder.element('reference', nest: product.articleNumber);
-      builder.element('type', nest: type);
+      if (listOfPartProductsPresta != null) builder.element('type', nest: 'pack');
       builder.element('minimal_quantity', nest: '1');
       builder.element('width', nest: product.width);
       builder.element('height', nest: product.height);
@@ -96,21 +96,31 @@ XmlBuilder? patchProductBuilder({
       valueBuilder(product.name, productPresta.nameMultilanguage, product.listOfName, 'name');
       valueBuilder(product.description, productPresta.descriptionMultilanguage, product.listOfDescription, 'description');
       valueBuilder(product.descriptionShort, productPresta.descriptionShortMultilanguage, product.listOfDescriptionShort, 'description_short');
-      if (marketplaceProductPresta.associations != null) {
-        builder.element('associations', nest: () {
-          if (marketplaceProductPresta.associations!.associationsCategories != null) {
-            builder.element('categories', nest: () {
-              for (final category in marketplaceProductPresta.associations!.associationsCategories!) {
-                builder.element('category', nest: () {
-                  builder.element('id', nest: category.id);
+      builder.element('associations', nest: () {
+        if (marketplaceProductPresta.associations != null && marketplaceProductPresta.associations!.associationsCategories != null) {
+          builder.element('categories', nest: () {
+            for (final category in marketplaceProductPresta.associations!.associationsCategories!) {
+              builder.element('category', nest: () {
+                builder.element('id', nest: category.id);
+              });
+            }
+          });
+          if (listOfPartProductsPresta != null) {
+            builder.element('product_bundle', nest: () {
+              for (final partOfSetProductPresta in listOfPartProductsPresta) {
+                builder.element('product', nest: () {
+                  builder.element('id', nest: partOfSetProductPresta.id);
+                  builder.element('quantity', nest: partOfSetProductPresta.quantity);
                 });
               }
             });
           }
-        });
-      }
+        }
+      });
     });
   });
+  print(builder);
   if (isAnyFailure) return null;
+
   return builder;
 }

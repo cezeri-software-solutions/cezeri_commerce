@@ -103,7 +103,7 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
           Product partProduct = Product.fromJson(partProductDs.data()!);
           listOfSetPartProducts.add(partProduct);
         }
-        if(listOfSetPartProducts.isEmpty) return left(PrestaGeneralFailure()); //TODO: ist kein PrestashopFailure
+        if (listOfSetPartProducts.isEmpty) return left(PrestaGeneralFailure()); //TODO: ist kein PrestashopFailure
         isSuccess = await api.patchSetProduct(marketplaceProduct.id, product, listOfSetPartProducts, productMarketplace, marketplace);
       } else {
         isSuccess = await api.patchProduct(marketplaceProduct.id, product, productMarketplace, marketplace);

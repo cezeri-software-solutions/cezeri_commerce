@@ -1,7 +1,9 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:json_annotation/json_annotation.dart';
 
 import '../carrier/carrier.dart';
 import 'bank_details.dart';
+import 'my_printer.dart';
 import 'opening_times.dart';
 import 'packaging_box.dart';
 import 'payment_method.dart';
@@ -41,6 +43,8 @@ class MainSettings {
   final int limitationNumberOfBranches;
   final bool isSmallBusiness;
   final bool isMainSettings;
+  final MyPrinter? printerMain;
+  final MyPrinter? printerLabel;
   final List<Carrier> listOfCarriers;
   final List<PaymentMethod> paymentMethods;
   final List<PackagingBox> listOfPackagingBoxes;
@@ -78,6 +82,8 @@ class MainSettings {
     required this.limitationNumberOfBranches,
     required this.isSmallBusiness,
     required this.isMainSettings,
+    required this.printerMain,
+    required this.printerLabel,
     required this.listOfCarriers,
     required this.paymentMethods,
     required this.listOfPackagingBoxes,
@@ -121,6 +127,8 @@ class MainSettings {
       limitationNumberOfBranches: 0,
       isSmallBusiness: false,
       isMainSettings: true,
+      printerMain: null,
+      printerLabel: null,
       listOfCarriers: [],
       paymentMethods: [],
       listOfPackagingBoxes: [],
@@ -160,6 +168,8 @@ class MainSettings {
     int? limitationNumberOfBranches,
     bool? isSmallBusiness,
     bool? isMainSettings,
+    MyPrinter? printerMain,
+    MyPrinter? printerLabel,
     List<Carrier>? listOfCarriers,
     List<PaymentMethod>? paymentMethods,
     List<PackagingBox>? listOfPackagingBoxes,
@@ -197,6 +207,8 @@ class MainSettings {
       limitationNumberOfBranches: limitationNumberOfBranches ?? this.limitationNumberOfBranches,
       isSmallBusiness: isSmallBusiness ?? this.isSmallBusiness,
       isMainSettings: isMainSettings ?? this.isMainSettings,
+      printerMain: printerMain ?? this.printerMain,
+      printerLabel: printerLabel ?? this.printerLabel,
       listOfCarriers: listOfCarriers ?? this.listOfCarriers,
       paymentMethods: paymentMethods ?? this.paymentMethods,
       listOfPackagingBoxes: listOfPackagingBoxes ?? this.listOfPackagingBoxes,
@@ -207,6 +219,6 @@ class MainSettings {
 
   @override
   String toString() {
-    return 'MainSettings(settingsId: $settingsId, logoUrl: $logoUrl, offerPraefix: $offerPraefix, appointmentPraefix: $appointmentPraefix, deliveryNotePraefix: $deliveryNotePraefix, invoicePraefix: $invoicePraefix, creditPraefix: $creditPraefix, currency: $currency, smsMessage: $smsMessage, offerDocumentText: $offerDocumentText, appointmentDocumentText: $appointmentDocumentText, deliveryNoteDocumentText: $deliveryNoteDocumentText, invoiceDocumentText: $invoiceDocumentText, creditDocumentText: $creditDocumentText, taxes: $taxes, nextOfferNumber: $nextOfferNumber, nextAppointmentNumber: $nextAppointmentNumber, nextDeliveryNoteNumber: $nextDeliveryNoteNumber, nextInvoiceNumber: $nextInvoiceNumber, nextBranchNumber: $nextBranchNumber, nextCustomerNumber: $nextCustomerNumber, nextSupplierNumber: $nextSupplierNumber, nextReorderNumber: $nextReorderNumber, termOfPayment: $termOfPayment, countEmployees: $countEmployees, countBranches: $countBranches, limitationNumberOfEmployees: $limitationNumberOfEmployees, limitationNumberOfBranches: $limitationNumberOfBranches, isSmallBusiness: $isSmallBusiness, isMainSettings: $isMainSettings, listOfCarriers: $listOfCarriers, paymentMethods: $paymentMethods, listOfPackagingBoxes: $listOfPackagingBoxes, bankDetails: $bankDetails, openingTimes: $openingTimes)';
+    return 'MainSettings(settingsId: $settingsId, logoUrl: $logoUrl, offerPraefix: $offerPraefix, appointmentPraefix: $appointmentPraefix, deliveryNotePraefix: $deliveryNotePraefix, invoicePraefix: $invoicePraefix, creditPraefix: $creditPraefix, currency: $currency, smsMessage: $smsMessage, offerDocumentText: $offerDocumentText, appointmentDocumentText: $appointmentDocumentText, deliveryNoteDocumentText: $deliveryNoteDocumentText, invoiceDocumentText: $invoiceDocumentText, creditDocumentText: $creditDocumentText, taxes: $taxes, nextOfferNumber: $nextOfferNumber, nextAppointmentNumber: $nextAppointmentNumber, nextDeliveryNoteNumber: $nextDeliveryNoteNumber, nextInvoiceNumber: $nextInvoiceNumber, nextBranchNumber: $nextBranchNumber, nextCustomerNumber: $nextCustomerNumber, nextSupplierNumber: $nextSupplierNumber, nextReorderNumber: $nextReorderNumber, termOfPayment: $termOfPayment, countEmployees: $countEmployees, countBranches: $countBranches, limitationNumberOfEmployees: $limitationNumberOfEmployees, limitationNumberOfBranches: $limitationNumberOfBranches, isSmallBusiness: $isSmallBusiness, isMainSettings: $isMainSettings, printerMain: $printerMain, printerLabel: $printerLabel, listOfCarriers: $listOfCarriers, paymentMethods: $paymentMethods, listOfPackagingBoxes: $listOfPackagingBoxes, bankDetails: $bankDetails, openingTimes: $openingTimes)';
   }
 }

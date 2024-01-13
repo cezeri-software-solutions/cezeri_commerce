@@ -3,9 +3,11 @@ import 'package:cezeri_commerce/1_presentation/core/widgets/my_text_form_field.d
 import 'package:cezeri_commerce/1_presentation/settings/settings/widgets/my_settings_list_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:printing/printing.dart';
 
 import '../../../2_application/firebase/main_settings/main_settings_bloc.dart';
 import '../../../3_domain/entities/settings/main_settings.dart';
+import '../../../3_domain/entities/settings/my_printer.dart';
 import '../../../3_domain/entities/settings/payment_method.dart';
 import '../../../constants.dart';
 import '../../app_drawer.dart';
@@ -30,6 +32,8 @@ class _MainSettingsPageState extends State<MainSettingsPage> {
   bool _isSmallBusiness = false;
   String _selectedCurrencyItem = '€';
   List<PaymentMethod> _paymentMethods = [];
+  MyPrinter? _printerMain;
+  MyPrinter? _printerLabel;
 
   late TextEditingController _offerDocumentTextController = TextEditingController();
   late TextEditingController _appointmentDocumentTextController = TextEditingController();
@@ -63,6 +67,8 @@ class _MainSettingsPageState extends State<MainSettingsPage> {
     _isSmallBusiness = widget.mSettings.isSmallBusiness;
     _selectedCurrencyItem = widget.mSettings.currency;
     _paymentMethods = widget.mSettings.paymentMethods;
+    _printerMain = widget.mSettings.printerMain;
+    _printerLabel = widget.mSettings.printerLabel;
 
     _offerDocumentTextController = TextEditingController(text: widget.mSettings.offerDocumentText);
     _appointmentDocumentTextController = TextEditingController(text: widget.mSettings.appointmentDocumentText);
@@ -356,6 +362,43 @@ class _MainSettingsPageState extends State<MainSettingsPage> {
                     MyFormFieldContainer(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
                       child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('A4 Drucker:', style: TextStyles.infoOnTextField),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              if (_printerMain != null && _printerMain!.name != null) Text(_printerMain!.name!) else const SizedBox(),
+                              IconButton(
+                                onPressed: () async {
+                                  final pickedPrinter = await Printing.pickPrinter(context: context);
+                                  if (pickedPrinter != null) setState(() => _printerMain = MyPrinter.fromPrinter(pickedPrinter));
+                                },
+                                icon: const Icon(Icons.edit, color: Colors.blue),
+                              ),
+                            ],
+                          ),
+                          const Text('Label Drucker:', style: TextStyles.infoOnTextField),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              if (_printerLabel != null && _printerLabel!.name != null) Text(_printerLabel!.name!) else const SizedBox(),
+                              IconButton(
+                                onPressed: () async {
+                                  final pickedPrinter = await Printing.pickPrinter(context: context);
+                                  if (pickedPrinter != null) setState(() => _printerLabel = MyPrinter.fromPrinter(pickedPrinter));
+                                },
+                                icon: const Icon(Icons.edit, color: Colors.blue),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    Gaps.h24,
+                    MyFormFieldContainer(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+                      child: Column(
                         children: [
                           const Text('Dokumenttexte', style: TextStyles.h3BoldPrimary),
                           const Divider(),
@@ -446,6 +489,8 @@ class _MainSettingsPageState extends State<MainSettingsPage> {
         bankBic: _bankBicController.text,
         paypalEmail: _paypalEmailController.text,
       ),
+      printerMain: _printerMain,
+      printerLabel: _printerLabel,
     );
     context.read<MainSettingsBloc>().add(UpdateMainSettingsEvent(mainSettings: updatedMainSettings));
   }

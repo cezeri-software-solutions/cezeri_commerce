@@ -428,15 +428,23 @@ class PrestashopApi with UiLoggy {
     if (optionalProductPresta.isNotPresent) return false;
     final productPresta = optionalProductPresta.value;
 
+    //* Lädt die Einzelartikel des Set-Artikels aus Prestashop
     final List<ProductPresta> listOfPartProductsPresta = [];
     for (final partProduct in listOfPartOfSetArticles) {
       final partProductMarketplace = partProduct.productMarketplaces.where((e) => e.idMarketplace == productMarketplace.idMarketplace).firstOrNull;
-      if (partProductMarketplace == null) return false;
+      if (partProductMarketplace == null) {
+        logger.e('Der Artikel: "${partProduct.name}" konnte im Marktplatz: "${marketplace.name}" nicht gefunden werden');
+        return false;
+      }
       final partMarketplaceProductPresta = partProductMarketplace.marketplaceProduct as MarketplaceProductPresta;
       final optionalPartProductPresta = await getProduct(partMarketplaceProductPresta.id, marketplace);
-      if (optionalPartProductPresta.isNotPresent) return false;
+      if (optionalPartProductPresta.isNotPresent) {
+        logger.e('Der Artikel: "${partProduct.name}" konnte aus dem Marktplatz: "${marketplace.name}" nicht geladen werden');
+        return false;
+      }
       final partProductPresta = optionalPartProductPresta.value;
-      listOfPartProductsPresta.add(partProductPresta);
+      final quantity = product.listOfProductIdWithQuantity.where((e) => e.productId == partProduct.id).first.quantity;
+      listOfPartProductsPresta.add(partProductPresta.copyWith(quantity: quantity.toString()));
     }
     bool payload = false;
     if (marketplace.isPresta8) {
@@ -445,6 +453,7 @@ class PrestashopApi with UiLoggy {
         product: product,
         productMarketplace: productMarketplace,
         productPresta: productPresta,
+        listOfPartProductsPresta: listOfPartProductsPresta,
       );
       if (builder == null) return false;
       final payloadDoPatch = await _doPatch(
@@ -454,6 +463,7 @@ class PrestashopApi with UiLoggy {
       payload = payloadDoPatch;
     } else {
       final optionalProductAsXml = await getProductAsXml(marketplaceProductPrestaId);
+      logger.i(optionalProductAsXml.isNotPresent);
       if (optionalProductAsXml.isNotPresent) return false;
       final productAsXml = optionalProductAsXml.value;
       final updatedProductAsXml = productUpdater(
@@ -461,6 +471,7 @@ class PrestashopApi with UiLoggy {
         product: product,
         productMarketplace: productMarketplace,
         productPresta: productPresta,
+        listOfPartProductsPresta: listOfPartProductsPresta,
       );
       final payloadDoPut = await _doPut(
         '${_conf.webserviceUrl}products/$marketplaceProductPrestaId',

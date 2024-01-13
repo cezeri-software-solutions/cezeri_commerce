@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:printing/printing.dart';
 
+import '../../../2_application/firebase/main_settings/main_settings_bloc.dart';
 import '../../../2_application/packing_station/packing_station_bloc.dart';
 import '../../../3_domain/entities/marketplace/marketplace.dart';
 import '../../../3_domain/pdf/pdf_receipt_generator.dart';
@@ -35,6 +36,11 @@ class PackingStationDetailScreen extends StatelessWidget {
               content: 'Beim generieren der Dokumente ist ein Fehler aufgetreten:\n\n$failure',
             ),
             (listOfReceipts) async {
+              final myPrinterMain = context.read<MainSettingsBloc>().state.mainSettings!.printerMain;
+              final myPrinterLabel = context.read<MainSettingsBloc>().state.mainSettings!.printerLabel;
+              final printerMain = myPrinterMain != null ? Printer(url: myPrinterMain.url) : null;
+              final printerLabel = myPrinterLabel != null ? Printer(url: myPrinterLabel.url) : null;
+
               final deliveryNote = listOfReceipts.where((e) => e.receiptTyp == ReceiptTyp.deliveryNote).firstOrNull;
               if (deliveryNote == null) {
                 await showMyDialogAlert(context: context, title: 'FEHLER', content: 'Beim Erstellen der Lieferscheines ist ein Fehler aufgetreten');
@@ -44,12 +50,21 @@ class PackingStationDetailScreen extends StatelessWidget {
                 receipt: deliveryNote!,
                 logoUrl: marketplace.logoUrl,
               );
-              await Printing.layoutPdf(onLayout: (_) => generatedPdf);
+
+              if (printerMain != null) {
+                await Printing.directPrintPdf(printer: printerMain, onLayout: (_) => generatedPdf);
+              } else {
+                await Printing.layoutPdf(onLayout: (_) => generatedPdf);
+              }
               await Future.delayed(const Duration(milliseconds: 500));
               if (deliveryNote.listOfParcelTracking.isNotEmpty && deliveryNote.listOfParcelTracking.first.pdfString != '') {
                 final pdfString = deliveryNote.listOfParcelTracking.first.pdfString;
                 final pdfBytes = base64.decode(pdfString);
-                await Printing.layoutPdf(onLayout: (_) => pdfBytes);
+                if (printerLabel != null) {
+                  await Printing.directPrintPdf(printer: printerLabel, onLayout: (_) => pdfBytes);
+                } else {
+                  await Printing.layoutPdf(onLayout: (_) => pdfBytes);
+                }
               }
               if (context.mounted) context.router.popUntilRouteWithName(PackingStationOverviewRoute.name);
             },

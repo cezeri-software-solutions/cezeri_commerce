@@ -9,6 +9,7 @@ import '../../../2_application/firebase/receipt_detail/receipt_detail_bloc.dart'
 import '../../../3_domain/entities/marketplace/marketplace.dart';
 import '../../../3_domain/entities/receipt/receipt.dart';
 import '../../../3_domain/enums/enums.dart';
+import '../../../3_domain/pdf/pdf_receipt_generator.dart';
 import '../../../constants.dart';
 import '../../core/functions/dialogs.dart';
 import '../../core/widgets/my_circular_progress_indicator.dart';
@@ -79,14 +80,17 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
             ],
             IconButton(
               onPressed: () async {
-                // final generatedPdf = await PdfReceiptGenerator.generate(
-                //   receipt: state.receipt!,
-                //   logoUrl: '',
-                // );
+                final generatedPdf = await PdfReceiptGenerator.generate(
+                  receipt: state.receipt!,
+                  logoUrl: '',
+                );
                 // await Printing.layoutPdf(onLayout: (_) => generatedPdf);
                 final printer = await Printing.pickPrinter(context: context);
                 logger.i(printer);
+                print(printer!.url);
                 print('hallo');
+
+                // await Printing.directPrintPdf(printer: printer, onLayout: (_) => generatedPdf);
                 // await Printing.directPrintPdf(printer: Printer(url: url), onLayout: onLayout);
               },
               icon: const Icon(Icons.car_crash),

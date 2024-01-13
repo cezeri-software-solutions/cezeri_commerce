@@ -338,6 +338,7 @@ class ProductRepositoryImpl implements ProductRepository {
             Product noMorePartProduct = Product.fromJson(noMorePartProductDs.data()!);
             List<String> listOfIsPartOfSetIds = List.from(noMorePartProduct.listOfIsPartOfSetIds);
             final index = listOfIsPartOfSetIds.indexWhere((e) => e == product.id);
+            if (index == -1) continue;
             listOfIsPartOfSetIds.removeAt(index);
 
             noMorePartProduct = noMorePartProduct.copyWith(listOfIsPartOfSetIds: listOfIsPartOfSetIds);
@@ -356,10 +357,10 @@ class ProductRepositoryImpl implements ProductRepository {
           final quantitySetArticle = calcSetArticleQuantity(product.listOfProductIdWithQuantity, listOfSetPartProducts);
 
           //* Alle Einzelartikel, wo der Set-Artikel noch nicht eingetragen ist in Firestore updaten
-          for (final product in listOfSetPartProducts) {
-            final docRefUpdatedPartProduct = db.collection('Products').doc(currentUserUid).collection('Products').doc(product.id);
-            if (product.listOfIsPartOfSetIds.any((e) => e == product.id)) continue;
-            final updatedProduct = product.copyWith(listOfIsPartOfSetIds: product.listOfIsPartOfSetIds..add(product.id));
+          for (final partOfSetProduct in listOfSetPartProducts) {
+            final docRefUpdatedPartProduct = db.collection('Products').doc(currentUserUid).collection('Products').doc(partOfSetProduct.id);
+            if (partOfSetProduct.listOfIsPartOfSetIds.any((e) => e == product.id)) continue;
+            final updatedProduct = partOfSetProduct.copyWith(listOfIsPartOfSetIds: partOfSetProduct.listOfIsPartOfSetIds..add(product.id));
             transaction.update(docRefUpdatedPartProduct, updatedProduct.toJson());
           }
 
@@ -374,7 +375,8 @@ class ProductRepositoryImpl implements ProductRepository {
 
         return right(unit);
       }
-    } on FirebaseException {
+    } on FirebaseException catch (e) {
+      logger.e(e);
       return left(GeneralFailure());
     }
   }
@@ -437,7 +439,8 @@ class ProductRepositoryImpl implements ProductRepository {
       await docRef.update(updatedProduct.toJson());
 
       return right(updatedProduct);
-    } on FirebaseException {
+    } on FirebaseException catch (e) {
+      logger.e(e);
       return left(GeneralFailure());
     }
   }

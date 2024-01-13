@@ -31,6 +31,7 @@ XmlDocument productUpdater({
   required Product product,
   required ProductMarketplace productMarketplace,
   required ProductPresta productPresta,
+  List<ProductPresta>? listOfPartProductsPresta,
 }) {
   final marketplaceProductPresta = productMarketplace.marketplaceProduct as MarketplaceProductPresta;
   final List<LanguagePresta>? marketplaceLanguages = productPresta.marketplaceLanguages;
@@ -164,6 +165,27 @@ XmlDocument productUpdater({
         categoriesElement.children.add(XmlElement(XmlName('category'), [], [
           XmlElement(XmlName('id'), [], [XmlText(category.id.toString())])
         ]));
+      }
+    }
+    if (listOfPartProductsPresta != null) {
+      var productBundleElement = associationsElement.findElements('product_bundle').firstOrNull;
+      if (productBundleElement != null) {
+        productBundleElement.children.clear();
+        for (final partOfSetProductPresta in listOfPartProductsPresta) {
+          productBundleElement.children.add(XmlElement(XmlName('product'), [], [
+            XmlElement(XmlName('id'), [], [XmlText(partOfSetProductPresta.id.toString())]),
+            XmlElement(XmlName('quantity'), [], [XmlText(partOfSetProductPresta.quantity)]),
+          ]));
+        }
+      } else {
+        associationsElement.children.add(XmlElement(XmlName('product_bundle'), [], []));
+        productBundleElement = associationsElement.findElements('product_bundle').first;
+        for (final partOfSetProductPresta in listOfPartProductsPresta) {
+          productBundleElement.children.add(XmlElement(XmlName('product'), [], [
+            XmlElement(XmlName('id'), [], [XmlText(partOfSetProductPresta.id.toString())]),
+            XmlElement(XmlName('quantity'), [], [XmlText(partOfSetProductPresta.quantity)]),
+          ]));
+        }
       }
     }
   }
