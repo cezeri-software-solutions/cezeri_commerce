@@ -10,15 +10,14 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:logger/logger.dart';
 import 'package:path/path.dart';
 
-import '../../../1_presentation/core/functions/check_internet_connection.dart';
-import '../../../3_domain/entities/marketplace/marketplace.dart';
-import '../../../3_domain/entities/product/product.dart';
-import '../../../3_domain/entities/product/product_id_with_quantity.dart';
-import '../../../3_domain/entities/product/product_image.dart';
-import '../../../3_domain/entities_presta/product_presta.dart';
-import '../../../3_domain/repositories/firebase/marketplace_repository.dart';
-import '../../../3_domain/repositories/firebase/product_repository.dart';
-import '../../../3_domain/repositories/marketplace/marketplace_edit_repository.dart';
+import '/1_presentation/core/functions/check_internet_connection.dart';
+import '/3_domain/entities/marketplace/marketplace.dart';
+import '/3_domain/entities/product/product.dart';
+import '/3_domain/entities/product/product_image.dart';
+import '/3_domain/entities_presta/product_presta.dart';
+import '/3_domain/repositories/firebase/marketplace_repository.dart';
+import '/3_domain/repositories/firebase/product_repository.dart';
+import '/3_domain/repositories/marketplace/marketplace_edit_repository.dart';
 
 final logger = Logger();
 
@@ -298,7 +297,7 @@ class ProductRepositoryImpl implements ProductRepository {
   }
 
   @override
-  Future<Either<FirebaseFailure, Unit>> updateProduct(Product product) async {
+  Future<Either<FirebaseFailure, Product>> updateProduct(Product product) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
 
@@ -306,6 +305,7 @@ class ProductRepositoryImpl implements ProductRepository {
     final docRef = db.collection('Products').doc(currentUserUid).collection('Products').doc(product.id);
 
     try {
+      Product? updatedProduct;
       if (product.isSetArticle) {
         await db.runTransaction((transaction) async {
           final originalProductDs = await transaction.get(docRef);
@@ -313,14 +313,13 @@ class ProductRepositoryImpl implements ProductRepository {
           final originalProduct = Product.fromJson(originalProductDs.data()!);
 
           //* Alle Einzelartikel des Set-Artikel laden und in eine Liste speichern
-          final List<Product> listOfSetPartProducts = [];
-          for (final partProductIdWithQuantity in product.listOfProductIdWithQuantity) {
-            final docRefPartProduct = db.collection('Products').doc(currentUserUid).collection('Products').doc(partProductIdWithQuantity.productId);
-            final partProductDs = await transaction.get(docRefPartProduct);
-            if (!partProductDs.exists) return left(GeneralFailure());
-            Product partProduct = Product.fromJson(partProductDs.data()!);
-            listOfSetPartProducts.add(partProduct);
-          }
+          final listOfSetPartProducts = await getPartProductsOfSetProduct(
+            db: db,
+            currentUserUid: currentUserUid,
+            transaction: transaction,
+            setProduct: product,
+          );
+          if (listOfSetPartProducts == null) return left(GeneralFailure());
 
           //* Alle Einzelartikel, die nicht mehr Bestandteil des Set-Artikel sind identitfizieren und aus Einzelartikel das Set Entfernen
           final newPartArticleIds = listOfSetPartProducts.map((e) => e.id).toList();
@@ -346,15 +345,7 @@ class ProductRepositoryImpl implements ProductRepository {
           }
 
           //* Berechne Menge des Set-Artikels
-          int calcSetArticleQuantity(List<ProductIdWithQuantity> listOfProductIdWithQuantity, List<Product> listOfSetPartProducts) {
-            final quantitySetArticle = product.listOfProductIdWithQuantity.map((e) {
-              final partProduct = listOfSetPartProducts.firstWhere((element) => element.id == e.productId);
-              return partProduct.availableStock ~/ e.quantity;
-            }).reduce((a, b) => a < b ? a : b);
-            return quantitySetArticle;
-          }
-
-          final quantitySetArticle = calcSetArticleQuantity(product.listOfProductIdWithQuantity, listOfSetPartProducts);
+          final quantitySetArticle = calcSetArticleAvailableQuantity(product, listOfSetPartProducts);
 
           //* Alle Einzelartikel, wo der Set-Artikel noch nicht eingetragen ist in Firestore updaten
           for (final partOfSetProduct in listOfSetPartProducts) {
@@ -368,12 +359,14 @@ class ProductRepositoryImpl implements ProductRepository {
           final difference = product.warehouseStock - product.availableStock;
           final setArticle = product.copyWith(availableStock: quantitySetArticle, warehouseStock: quantitySetArticle + difference);
           transaction.update(docRef, setArticle.toJson());
+          updatedProduct = setArticle;
         });
-        return right(unit);
+        if (updatedProduct == null) return left(GeneralFailure());
+        return right(updatedProduct!);
       } else {
         await docRef.update(product.toJson());
 
-        return right(unit);
+        return right(product);
       }
     } on FirebaseException catch (e) {
       logger.e(e);
@@ -549,18 +542,59 @@ class ProductRepositoryImpl implements ProductRepository {
     if (!isConnected) return left(NoConnectionFailure());
 
     final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRefProduct = db.collection('Products').doc(currentUserUid).collection('Products').doc(product.id);
+    final docRef = db.collection('Products').doc(currentUserUid).collection('Products').doc(product.id);
 
     try {
-      final updatedProduct = product.copyWith(
-        availableStock: newQuantity,
-        warehouseStock: product.warehouseStock - (product.availableStock - newQuantity),
-        isUnderMinimumStock: newQuantity <= product.minimumStock ? true : false,
-      );
-      await docRefProduct.update(updatedProduct.toJson());
+      Product? updatedProduct;
+      List<Product> listOfUpdatedSetProducts = [];
+      await db.runTransaction((transaction) async {
+        final loadedProductDS = await transaction.get(docRef);
+        if (!loadedProductDS.exists) return left(GeneralFailure());
+        final loadedProduct = Product.fromJson(loadedProductDS.data()!);
 
-      return right(updatedProduct);
-    } on FirebaseException {
+        updatedProduct = loadedProduct.copyWith(
+          availableStock: newQuantity,
+          warehouseStock: loadedProduct.warehouseStock - (loadedProduct.availableStock - newQuantity),
+          isUnderMinimumStock: newQuantity <= loadedProduct.minimumStock ? true : false,
+        );
+
+        if (loadedProduct.listOfIsPartOfSetIds.isNotEmpty) {
+          //* Set-Artikel laden, wo dieser Artikel ein Bestandteil ist
+          final listOfSetProducts = await getSetProductsOfPartProduct(db, currentUserUid, transaction, loadedProduct);
+          if (listOfSetProducts == null) return left(GeneralFailure());
+
+          //* Bestand bei allen Set-Artikeln anpassen
+          for (final setProduct in listOfSetProducts) {
+            final docRefSetProduct = db.collection('Products').doc(currentUserUid).collection('Products').doc(setProduct.id);
+            final listOfSetPartProducts = await getPartProductsOfSetProduct(
+              db: db,
+              currentUserUid: currentUserUid,
+              transaction: transaction,
+              setProduct: setProduct,
+              alreadyLoadedPartProduct: updatedProduct,
+            );
+            if (listOfSetPartProducts == null) return left(GeneralFailure());
+
+            final quantitySetArticle = calcSetArticleAvailableQuantity(setProduct, listOfSetPartProducts);
+            final difference = setProduct.warehouseStock - setProduct.availableStock;
+            final updatedSetProduct = setProduct.copyWith(availableStock: quantitySetArticle, warehouseStock: quantitySetArticle + difference);
+
+            transaction.update(docRefSetProduct, updatedSetProduct.toJson());
+            listOfUpdatedSetProducts.add(updatedSetProduct);
+          }
+        }
+
+        if (updatedProduct == null) return left(GeneralFailure());
+        transaction.update(docRef, updatedProduct!.toJson());
+      });
+
+      for (final updatedSetProduct in listOfUpdatedSetProducts) {
+        await marketplaceEditRepository.setProdcutPrestaQuantity(updatedSetProduct, updatedSetProduct.availableStock, null);
+      }
+      if (updatedProduct == null) return left(GeneralFailure());
+      return right(updatedProduct!);
+    } on FirebaseException catch (e) {
+      logger.e(e);
       return left(GeneralFailure());
     }
   }
@@ -654,6 +688,48 @@ class ProductRepositoryImpl implements ProductRepository {
       return left(GeneralFailure());
     }
   }
+}
+
+Future<List<Product>?> getPartProductsOfSetProduct({
+  required FirebaseFirestore db,
+  required String currentUserUid,
+  required Transaction transaction,
+  required Product setProduct,
+  Product? alreadyLoadedPartProduct,
+}) async {
+  final List<Product> listOfSetPartProducts = [];
+  for (final partProductIdWithQuantity in setProduct.listOfProductIdWithQuantity) {
+    if (alreadyLoadedPartProduct != null && partProductIdWithQuantity.productId == alreadyLoadedPartProduct.id) {
+      listOfSetPartProducts.add(alreadyLoadedPartProduct);
+      continue;
+    }
+    final docRefPartProduct = db.collection('Products').doc(currentUserUid).collection('Products').doc(partProductIdWithQuantity.productId);
+    final partProductDs = await transaction.get(docRefPartProduct);
+    if (!partProductDs.exists) return Future.value(null);
+    Product partProduct = Product.fromJson(partProductDs.data()!);
+    listOfSetPartProducts.add(partProduct);
+  }
+  return listOfSetPartProducts;
+}
+
+Future<List<Product>?> getSetProductsOfPartProduct(FirebaseFirestore db, String currentUserUid, Transaction transaction, Product product) async {
+  final List<Product> listOfSetProducts = [];
+  for (final setProductId in product.listOfIsPartOfSetIds) {
+    final docRefSet = db.collection('Products').doc(currentUserUid).collection('Products').doc(setProductId);
+    final setProductDS = await transaction.get(docRefSet);
+    if (!setProductDS.exists) return Future.value(null);
+    final setProduct = Product.fromJson(setProductDS.data()!);
+    listOfSetProducts.add(setProduct);
+  }
+  return listOfSetProducts;
+}
+
+int calcSetArticleAvailableQuantity(Product setProduct, List<Product> listOfSetPartProducts) {
+  final quantitySetArticle = setProduct.listOfProductIdWithQuantity.map((e) {
+    final partProduct = listOfSetPartProducts.firstWhere((element) => element.id == e.productId);
+    return partProduct.availableStock ~/ e.quantity;
+  }).reduce((a, b) => a < b ? a : b);
+  return quantitySetArticle;
 }
 
 Future<List<ProductImage>> uploadImageFilesToStorageFromProductPrestaImage(List<ProductPrestaImage?>? imageFiles, String firebaseStoragePath) async {

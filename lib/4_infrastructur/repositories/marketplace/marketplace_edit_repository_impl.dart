@@ -24,7 +24,6 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
 
   @override
   Future<Either<PrestaFailure, Unit>> setProdcutPrestaQuantity(Product product, int newQuantity, Marketplace? marketplaceToSkip) async {
-    if (product.isSetArticle) return right(unit);
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(PrestaGeneralFailure());
 

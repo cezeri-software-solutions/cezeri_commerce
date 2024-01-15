@@ -11,7 +11,7 @@ import '../../entities_presta/product_presta.dart';
 
 abstract class ProductRepository {
   Future<Either<FirebaseFailure, Product>> createProduct(Product product, ProductPresta? productPresta);
-  Future<Either<FirebaseFailure, Unit>> updateProduct(Product product);
+  Future<Either<FirebaseFailure, Product>> updateProduct(Product product);
   Future<Either<FirebaseFailure, Product>> updateProductAddImages(Product product, List<File> imageFiles);
   Future<Either<FirebaseFailure, Product>> updateProductRemoveImages(Product product, List<ProductImage> listOfProductImages);
   Future<Either<FirebaseFailure, Unit>> deleteProduct(String id);

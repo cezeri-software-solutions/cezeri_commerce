@@ -9,6 +9,7 @@ import '../../../../constants.dart';
 import '../../../../routes/router.gr.dart';
 import '../../../core/functions/dialogs.dart';
 import '../../../core/widgets/my_avatar.dart';
+import '../../../core/widgets/my_circular_progress_indicator.dart';
 import 'set_articles/show_select_product_sheet.dart';
 
 final logger = Logger();
@@ -23,6 +24,7 @@ class ProductDetailSetArticleBar extends StatelessWidget {
     return BlocBuilder<ProductDetailBloc, ProductDetailState>(
       bloc: productDetailBloc,
       builder: (context, state) {
+        if (state.product == null) return const MyCircularProgressIndicator();
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -65,36 +67,39 @@ class ProductDetailSetArticleBar extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Row(
-                          children: [
-                            Container(
-                              width: 60,
-                              decoration: const BoxDecoration(
-                                border: Border(
-                                  left: BorderSide(color: CustomColors.backgroundLightGrey),
-                                  right: BorderSide(color: CustomColors.backgroundLightGrey),
+                        Expanded(
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 60,
+                                decoration: const BoxDecoration(
+                                  border: Border(
+                                    left: BorderSide(color: CustomColors.backgroundLightGrey),
+                                    right: BorderSide(color: CustomColors.backgroundLightGrey),
+                                  ),
+                                ),
+                                child: MyAvatar(
+                                  name: product.name,
+                                  radius: 30,
+                                  imageUrl: product.listOfProductImages.isNotEmpty
+                                      ? product.listOfProductImages.where((e) => e.isDefault).first.fileUrl
+                                      : null,
+                                  shape: BoxShape.rectangle,
+                                  fit: BoxFit.scaleDown,
+                                  onTap: product.listOfProductImages.isNotEmpty
+                                      ? () => context.router.push(MyFullscreenImageRoute(
+                                          imagePaths: product.listOfProductImages.map((e) => e.fileUrl).toList(),
+                                          initialIndex: 0,
+                                          isNetworkImage: true))
+                                      : null,
                                 ),
                               ),
-                              child: MyAvatar(
-                                name: product.name,
-                                radius: 30,
-                                imageUrl: product.listOfProductImages.isNotEmpty
-                                    ? product.listOfProductImages.where((e) => e.isDefault).first.fileUrl
-                                    : null,
-                                shape: BoxShape.rectangle,
-                                fit: BoxFit.scaleDown,
-                                onTap: product.listOfProductImages.isNotEmpty
-                                    ? () => context.router.push(MyFullscreenImageRoute(
-                                        imagePaths: product.listOfProductImages.map((e) => e.fileUrl).toList(),
-                                        initialIndex: 0,
-                                        isNetworkImage: true))
-                                    : null,
-                              ),
-                            ),
-                            Gaps.w8,
-                            Text(product.name, overflow: TextOverflow.ellipsis),
-                          ],
+                              Gaps.w8,
+                              Expanded(child: Text(product.name, overflow: TextOverflow.ellipsis)),
+                            ],
+                          ),
                         ),
+                        Gaps.w16,
                         Text(
                           '${productIdWithQuantity.quantity} x',
                           style: TextStyles.defaultBold.copyWith(color: CustomColors.primaryColor),

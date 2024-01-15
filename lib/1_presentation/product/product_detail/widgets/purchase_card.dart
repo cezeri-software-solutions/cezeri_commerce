@@ -19,6 +19,7 @@ class PurchaseCard extends StatelessWidget {
     return BlocBuilder<ProductDetailBloc, ProductDetailState>(
       bloc: productDetailBloc,
       builder: (context, state) {
+        if (state.product == null) return const MyCircularProgressIndicator();
         return Card(
           child: Padding(
             padding: const EdgeInsets.all(8.0),

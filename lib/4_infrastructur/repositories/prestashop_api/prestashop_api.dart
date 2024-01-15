@@ -267,6 +267,8 @@ class PrestashopApi with UiLoggy {
     if (optionalProductPresta.isNotPresent) return false;
     final productPresta = optionalProductPresta.value;
     final stockAvailableId = productPresta.associations.associationsStockAvailables!.first.id;
+    print('################################ $stockAvailableId #################################');
+    print('################################ $quantity #################################');
     bool payload = false;
     if (marketplace.isPresta8) {
       final builder = patchStockAvailableBuilder(stockAvailableId, quantity);

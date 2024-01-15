@@ -11,6 +11,7 @@ import '../../../../3_domain/entities/product/product_marketplace.dart';
 import '../../../../3_domain/entities_presta/product_presta.dart';
 import '../../../../constants.dart';
 import '../../../../injection.dart';
+import '../../../core/widgets/my_circular_progress_indicator.dart';
 import '../../../core/widgets/my_outlined_button.dart';
 import 'product_marketplace/edit_marketplace_product_presta.dart';
 
@@ -28,6 +29,7 @@ class ProductDetailMarketplacesBar extends StatelessWidget {
       child: BlocBuilder<ProductDetailBloc, ProductDetailState>(
         bloc: productDetailBloc,
         builder: (context, state) {
+          if (state.product == null) return const MyCircularProgressIndicator();
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

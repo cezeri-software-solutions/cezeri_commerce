@@ -18,7 +18,7 @@ class ProductDetailState {
   final bool isLoadingProductOnCreateInMarketplaces;
   final Option<Either<FirebaseFailure, Product>> fosProductOnObserveOption;
   final Option<Either<FirebaseFailure, List<Product>>> fosProductsOnObserveOption;
-  final Option<Either<FirebaseFailure, Unit>> fosProductOnUpdateOption;
+  final Option<Either<FirebaseFailure, Product>> fosProductOnUpdateOption;
   final Option<Either<FirebaseFailure, Product>> fosProductOnUpdateImagesOption;
   final Option<Either<FirebaseFailure, Unit>> fosProductOnDeleteOption;
   final Option<Either<FirebaseFailure, List<Supplier>>> fosProductSuppliersOnObserveOption;
@@ -218,7 +218,7 @@ class ProductDetailState {
     bool? isLoadingProductOnCreateInMarketplaces,
     Option<Either<FirebaseFailure, Product>>? fosProductOnObserveOption,
     Option<Either<FirebaseFailure, List<Product>>>? fosProductsOnObserveOption,
-    Option<Either<FirebaseFailure, Unit>>? fosProductOnUpdateOption,
+    Option<Either<FirebaseFailure, Product>>? fosProductOnUpdateOption,
     Option<Either<FirebaseFailure, Product>>? fosProductOnUpdateImagesOption,
     Option<Either<FirebaseFailure, Unit>>? fosProductOnDeleteOption,
     Option<Either<FirebaseFailure, List<Supplier>>>? fosProductSuppliersOnObserveOption,

@@ -299,16 +299,19 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
       emit(state.copyWith(isLoadingProductOnUpdate: true));
 
       bool isUpdateInFirestoreSucceeded = false;
+      Product? updatedProduct;
       final failureOrSuccess = await productRepository.updateProduct(state.product!);
       failureOrSuccess.fold(
         (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
-        (unit) {
-          emit(state.copyWith(firebaseFailure: null, isAnyFailure: false));
+        (loadedProduct) {
+          emit(state.copyWith(product: loadedProduct, firebaseFailure: null, isAnyFailure: false));
           isUpdateInFirestoreSucceeded = true;
+          updatedProduct = loadedProduct;
         },
       );
 
-      if (isUpdateInFirestoreSucceeded) {
+      if (isUpdateInFirestoreSucceeded && updatedProduct != null) {
+        await productRepository.updateAllQuantityOfProductAbsolut(updatedProduct!, updatedProduct!.availableStock);
         add(OnEditProductInPresta(product: state.product!, updateImages: state.isProductImagesEdited));
       } else {
         emit(state.copyWith(
@@ -674,7 +677,7 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
       } else {
         emit(state.copyWith(
           isLoadingProductOnUpdate: false,
-          fosProductOnUpdateOption: optionOf(right(unit)),
+          fosProductOnUpdateOption: optionOf(right(state.product!)),
           fosProductOnUpdateInMarketplaceOption: optionOf(failureOrSuccess),
         ));
         emit(state.copyWith(fosProductOnUpdateOption: none(), fosProductOnUpdateInMarketplaceOption: none()));
@@ -694,7 +697,7 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
 
       emit(state.copyWith(
         isLoadingProductOnUpdate: false,
-        fosProductOnUpdateOption: optionOf(right(unit)),
+        fosProductOnUpdateOption: optionOf(right(state.product!)),
         isLoadingProductOnUploadImages: false,
         fosProductOnUploadImagesInMarketplaceOption: optionOf(failureOrSuccess),
       ));

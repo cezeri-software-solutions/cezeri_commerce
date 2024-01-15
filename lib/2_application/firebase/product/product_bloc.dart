@@ -78,6 +78,7 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
           List<Product> updatedSelected = List.from(state.selectedProducts);
           if (indexSelected != -1) updatedSelected[indexSelected] = product;
           emit(state.copyWith(listOfAllProducts: updatedListOfAll, selectedProducts: updatedSelected, firebaseFailure: null, isAnyFailure: false));
+          add(OnSearchFieldSubmittedEvent());
         },
       );
     });
@@ -91,16 +92,20 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
         false => await productRepository.updateAllQuantityOfProductAbsolut(event.product, event.newQuantity),
         true => await productRepository.updateAvailableQuantityOfProductAbsolut(event.product, event.newQuantity)
       };
+
       bool isSuccess = true;
+      Product? updatedProduct;
+
       failureOrSuccess.fold(
         (failure) {
           isSuccess = false;
           emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true));
         },
-        (product) {
+        (loadedProduct) {
+          updatedProduct = loadedProduct;
           List<Product> updatedProducts = List.from(state.listOfAllProducts!);
-          final index = updatedProducts.indexWhere((element) => element.id == product.id);
-          updatedProducts[index] = product;
+          final index = updatedProducts.indexWhere((element) => element.id == loadedProduct.id);
+          updatedProducts[index] = loadedProduct;
 
           emit(state.copyWith(listOfAllProducts: updatedProducts, firebaseFailure: null, isAnyFailure: false));
           add(OnSearchFieldSubmittedEvent());
@@ -108,7 +113,7 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
       );
 
       if (isSuccess) {
-        final fosPresta = await productEditRepository.setProdcutPrestaQuantity(event.product, event.newQuantity, null);
+        final fosPresta = await productEditRepository.setProdcutPrestaQuantity(updatedProduct!, updatedProduct!.availableStock, null);
         failureOrSuccess.fold(
           (failure) => emit(state.copyWith()), // TODO: handle Presta Failure
           (unit) => emit(state.copyWith(firebaseFailure: null, isAnyFailure: false)),
