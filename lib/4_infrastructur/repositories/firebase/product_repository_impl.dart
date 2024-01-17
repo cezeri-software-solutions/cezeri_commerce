@@ -161,13 +161,22 @@ class ProductRepositoryImpl implements ProductRepository {
   }
 
   @override
-  Future<Either<FirebaseFailure, List<Product>>> getListOfProductsBySupplier(Supplier supplier) async {
+  Future<Either<FirebaseFailure, List<Product>>> getListOfProductsBySupplierName({required bool onlyActive, required Supplier supplier}) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
 
+    print(supplier.name);
+
     final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRef = db.collection('Products').doc(currentUserUid).collection('Products').where('supplier', isEqualTo: supplier.name);
-    
+    final docRef = switch (onlyActive) {
+      false => db.collection('Products').doc(currentUserUid).collection('Products').where('supplier', isEqualTo: supplier.company),
+      true => db
+          .collection('Products')
+          .doc(currentUserUid)
+          .collection('Products')
+          .where('isActive', isEqualTo: true)
+          .where('supplier', isEqualTo: supplier.company),
+    };
 
     try {
       final listOfProducts = await docRef.get().then(

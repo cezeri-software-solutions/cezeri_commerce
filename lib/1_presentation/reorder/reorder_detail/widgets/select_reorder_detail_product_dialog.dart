@@ -56,31 +56,102 @@ class SelectReorderDetailProductDialog extends StatelessWidget {
                         onSuffixTap: () => reorderDetailBloc.add(OnReorderDetailProductSearchTextClearedEvent()),
                       ),
                       Gaps.h10,
-                      const Row(
-                        children: [
-                          Text('Legende:', style: TextStyles.defaultBold),
-                          Gaps.w24,
-                          Tooltip(
-                            message: 'Verpackungseinheit',
-                            child: RecommendedReorderQuantity(title: 'VE:', quantity: 0, color: CustomColors.ultraLightGreen),
-                          ),
-                          Gaps.w24,
-                          Tooltip(
-                            message: 'Empfohlene Bestellmenge nach erstelleten Rechnungen',
-                            child: RecommendedReorderQuantity(title: 'EBM/RE:', quantity: 0, color: CustomColors.ultraLightYellow),
-                          ),
-                          Gaps.w24,
-                          Tooltip(
-                            message: 'Empfohlene Bestellmenge nach Auftragseingang',
-                            child: RecommendedReorderQuantity(title: 'EBM/AE:', quantity: 0, color: CustomColors.ultraLightOrange2),
-                          ),
-                          Gaps.w24,
-                          Tooltip(
-                            message: 'Empfohlene Bestellmenge nach Verpackungseinheit',
-                            child: RecommendedReorderQuantity(title: 'EBM/VE:', quantity: 0, color: CustomColors.ultraLightRed),
-                          ),
-                        ],
-                      ),
+                      if (state.statProductDateRange != null)
+                        Row(
+                          children: [
+                            const Text('Legende:', style: TextStyles.defaultBold),
+                            Gaps.w24,
+                            Tooltip(
+                              message: 'Verpackungseinheit',
+                              child: InkWell(
+                                  onLongPress: () {
+                                    for (final reProduct in productList) {
+                                      final ve = reProduct.packagingUnitOnReorder;
+                                      reorderDetailBloc.add(OnReorderDeatilAddProductEvent(product: reProduct, quantity: ve));
+                                    }
+                                  },
+                                  child: const RecommendedReorderQuantity(title: 'VE:', quantity: 0, color: CustomColors.ultraLightGreen)),
+                            ),
+                            Gaps.w24,
+                            Tooltip(
+                              message: 'Empfohlene Bestellmenge nach erstelleten Rechnungen',
+                              child: InkWell(
+                                  onLongPress: () {
+                                    for (final reProduct in productList) {
+                                      StatProductReorder? statProductReorderInvoice =
+                                          state.listOfStatProductsInvoice?.where((e) => e.productId == reProduct.id).firstOrNull;
+                                      statProductReorderInvoice ??= StatProductReorder(productId: '', quantity: 0);
+                                      final ebmPerRe = _getRecommendedOrderQuantity(
+                                        statProductReorderInvoice.quantity,
+                                        reProduct.minimumStock,
+                                        reProduct.warehouseStock,
+                                      );
+                                      reorderDetailBloc.add(OnReorderDeatilAddProductEvent(product: reProduct, quantity: ebmPerRe));
+                                    }
+                                  },
+                                  child: const RecommendedReorderQuantity(title: 'EBM/RE:', quantity: 0, color: CustomColors.ultraLightYellow)),
+                            ),
+                            Gaps.w24,
+                            Tooltip(
+                              message: 'Empfohlene Bestellmenge nach Auftragseingang',
+                              child: InkWell(
+                                  onLongPress: () {
+                                    for (final reProduct in productList) {
+                                      StatProductReorder? statProductReorderAppointment =
+                                          state.listOfStatProductsAppointment?.where((e) => e.productId == reProduct.id).firstOrNull;
+                                      statProductReorderAppointment ??= StatProductReorder(productId: '', quantity: 0);
+                                      final ebmPerAe = _getRecommendedOrderQuantity(
+                                        statProductReorderAppointment.quantity,
+                                        reProduct.minimumStock,
+                                        reProduct.availableStock,
+                                      );
+                                      reorderDetailBloc.add(OnReorderDeatilAddProductEvent(product: reProduct, quantity: ebmPerAe));
+                                    }
+                                  },
+                                  child: const RecommendedReorderQuantity(title: 'EBM/AE:', quantity: 0, color: CustomColors.ultraLightOrange2)),
+                            ),
+                            Gaps.w24,
+                            Tooltip(
+                              message: 'Empfohlene Bestellmenge nach Rechnungen in Verpackungseinheit',
+                              child: InkWell(
+                                  onLongPress: () {
+                                    for (final reProduct in productList) {
+                                      StatProductReorder? statProductReorderInvoice =
+                                          state.listOfStatProductsInvoice?.where((e) => e.productId == reProduct.id).firstOrNull;
+                                      statProductReorderInvoice ??= StatProductReorder(productId: '', quantity: 0);
+                                      final ebmPerRe = _getRecommendedOrderQuantity(
+                                        statProductReorderInvoice.quantity,
+                                        reProduct.minimumStock,
+                                        reProduct.warehouseStock,
+                                      );
+                                      final ebmPerReVe = _getRecommendedOrderQuantityByPackagingUnit(ebmPerRe, reProduct.packagingUnitOnReorder);
+                                      reorderDetailBloc.add(OnReorderDeatilAddProductEvent(product: reProduct, quantity: ebmPerReVe));
+                                    }
+                                  },
+                                  child: const RecommendedReorderQuantity(title: 'EBM/RE/VE:', quantity: 0, color: CustomColors.ultraLightRed)),
+                            ),
+                            Gaps.w24,
+                            Tooltip(
+                              message: 'Empfohlene Bestellmenge nach Auftagseingang in Verpackungseinheit',
+                              child: InkWell(
+                                  onLongPress: () {
+                                    for (final reProduct in productList) {
+                                      StatProductReorder? statProductReorderAppointment =
+                                          state.listOfStatProductsAppointment?.where((e) => e.productId == reProduct.id).firstOrNull;
+                                      statProductReorderAppointment ??= StatProductReorder(productId: '', quantity: 0);
+                                      final ebmPerAe = _getRecommendedOrderQuantity(
+                                        statProductReorderAppointment.quantity,
+                                        reProduct.minimumStock,
+                                        reProduct.availableStock,
+                                      );
+                                      final ebmPerAeVe = _getRecommendedOrderQuantityByPackagingUnit(ebmPerAe, reProduct.packagingUnitOnReorder);
+                                      reorderDetailBloc.add(OnReorderDeatilAddProductEvent(product: reProduct, quantity: ebmPerAeVe));
+                                    }
+                                  },
+                                  child: const RecommendedReorderQuantity(title: 'EBM/AE/VE:', quantity: 0, color: CustomColors.ultraLightRed)),
+                            ),
+                          ],
+                        ),
                     ],
                   ),
                 ),
@@ -108,7 +179,8 @@ class SelectReorderDetailProductDialog extends StatelessWidget {
                         product.minimumStock,
                         product.availableStock,
                       );
-                      final ebmPerVe = _getRecommendedOrderQuantityByPackagingUnit(ebmPerRe, product.packagingUnitOnReorder);
+                      final ebmPerReVe = _getRecommendedOrderQuantityByPackagingUnit(ebmPerRe, product.packagingUnitOnReorder);
+                      final ebmPerAeVe = _getRecommendedOrderQuantityByPackagingUnit(ebmPerAe, product.packagingUnitOnReorder);
 
                       return Column(
                         children: [
@@ -177,15 +249,29 @@ class SelectReorderDetailProductDialog extends StatelessWidget {
                                       ),
                                       Gaps.w16,
                                       InkWell(
-                                        onTap: () => reorderDetailBloc.add(OnReorderDeatilAddProductEvent(product: product, quantity: ebmPerVe)),
+                                        onTap: () => reorderDetailBloc.add(OnReorderDeatilAddProductEvent(product: product, quantity: ebmPerReVe)),
                                         onLongPress: () {
                                           reorderDetailBloc.add(OnReorderDetailControllerClearedEvent());
                                           context.router.pop();
-                                          reorderDetailBloc.add(OnReorderDeatilAddProductEvent(product: product, quantity: ebmPerVe));
+                                          reorderDetailBloc.add(OnReorderDeatilAddProductEvent(product: product, quantity: ebmPerReVe));
                                         },
                                         child: RecommendedReorderQuantity(
-                                          title: 'EBM/VE:',
-                                          quantity: ebmPerVe,
+                                          title: 'EBM/RE/VE:',
+                                          quantity: ebmPerReVe,
+                                          color: CustomColors.ultraLightRed,
+                                        ),
+                                      ),
+                                      Gaps.w16,
+                                      InkWell(
+                                        onTap: () => reorderDetailBloc.add(OnReorderDeatilAddProductEvent(product: product, quantity: ebmPerAeVe)),
+                                        onLongPress: () {
+                                          reorderDetailBloc.add(OnReorderDetailControllerClearedEvent());
+                                          context.router.pop();
+                                          reorderDetailBloc.add(OnReorderDeatilAddProductEvent(product: product, quantity: ebmPerAeVe));
+                                        },
+                                        child: RecommendedReorderQuantity(
+                                          title: 'EBM/AE/VE:',
+                                          quantity: ebmPerAeVe,
                                           color: CustomColors.ultraLightRed,
                                         ),
                                       ),
@@ -197,7 +283,12 @@ class SelectReorderDetailProductDialog extends StatelessWidget {
                                         ),
                                     ],
                                   )
-                                : null,
+                                : inListProduct != null && inListProduct.quantity != 0
+                                    ? Text(
+                                        inListProduct.quantity.toString(),
+                                        style: TextStyles.defaultBold.copyWith(color: Colors.green),
+                                      )
+                                    : null,
                             trailing: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
@@ -226,6 +317,21 @@ class SelectReorderDetailProductDialog extends StatelessWidget {
                                   ),
                                   onTap: () => reorderDetailBloc.add(OnReorderDeatilAddProductEvent(product: product, quantity: 1)),
                                   child: const Icon(Icons.add, color: Colors.green),
+                                ),
+                                Gaps.w8,
+                                InkWell(
+                                  onLongPress: () => showDialog(
+                                    context: context,
+                                    builder: (_) => BlocProvider.value(
+                                      value: reorderDetailBloc,
+                                      child: _QuantityDialog(
+                                        reorderDetailBloc: reorderDetailBloc,
+                                        product: product,
+                                      ),
+                                    ),
+                                  ),
+                                  onTap: () => reorderDetailBloc.add(OnReorderDeatilAddProductEvent(product: product, quantity: -1)),
+                                  child: const Icon(Icons.remove, color: CustomColors.primaryColor),
                                 ),
                               ],
                             ),

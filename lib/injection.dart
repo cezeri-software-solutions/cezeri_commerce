@@ -90,6 +90,7 @@ Future<void> init() async {
         mainSettingsRepository: sl(),
         marketplaceRepository: sl(),
         statProductRepository: sl(),
+        supplierRepository: sl()
       ));
   sl.registerFactory(() => DashboardBloc(dashboardRepository: sl(), receiptRepository: sl()));
   sl.registerFactory(() => ProductsBookingBloc(productRepository: sl(), reorderRepository: sl()));

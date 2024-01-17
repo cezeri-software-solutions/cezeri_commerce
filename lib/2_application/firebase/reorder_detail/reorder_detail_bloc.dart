@@ -22,6 +22,7 @@ import '../../../3_domain/repositories/firebase/marketplace_repository.dart';
 import '../../../3_domain/repositories/firebase/product_repository.dart';
 import '../../../3_domain/repositories/firebase/reorder_repository.dart';
 import '../../../3_domain/repositories/firebase/stat_product_repository.dart';
+import '../../../3_domain/repositories/firebase/supplier_repository.dart';
 import '../../../core/firebase_failures.dart';
 
 part 'reorder_detail_event.dart';
@@ -33,6 +34,7 @@ class ReorderDetailBloc extends Bloc<ReorderDetailEvent, ReorderDetailState> {
   final MainSettingsRepository mainSettingsRepository;
   final MarketplaceRepository marketplaceRepository;
   final StatProductRepository statProductRepository;
+  final SupplierRepository supplierRepository;
 
   ReorderDetailBloc({
     required this.reorderRepository,
@@ -40,6 +42,7 @@ class ReorderDetailBloc extends Bloc<ReorderDetailEvent, ReorderDetailState> {
     required this.mainSettingsRepository,
     required this.marketplaceRepository,
     required this.statProductRepository,
+    required this.supplierRepository,
   }) : super(ReorderDetailState.initial()) {
 //? #########################################################################
 
@@ -126,7 +129,26 @@ class ReorderDetailBloc extends Bloc<ReorderDetailEvent, ReorderDetailState> {
           }
       }
 
-      emit(state.copyWith(isLoadingReorderDetailOnObserve: false, reorder: reorderToSet!, firebaseFailure: null, isAnyFailure: false));
+      Supplier? supplierToSet;
+      final fosSupplier = switch (event.reorderCreateOrEdit) {
+        ReorderCreateOrEdit.create => await supplierRepository.getSupplier(event.supplier!.id),
+        ReorderCreateOrEdit.edit => await supplierRepository.getSupplier(reorderToSet!.reorderSupplier.id),
+      };
+      fosSupplier.fold(
+        (failure) {
+          emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true));
+          return;
+        },
+        (loadedSupplier) => supplierToSet = loadedSupplier,
+      );
+
+      emit(state.copyWith(
+        isLoadingReorderDetailOnObserve: false,
+        reorder: reorderToSet!,
+        supplier: supplierToSet!,
+        firebaseFailure: null,
+        isAnyFailure: false,
+      ));
       add(SetReorderDetailControllersEvent());
       add(ReorderDetailSetAllProductControllersEvent());
     });
@@ -136,7 +158,7 @@ class ReorderDetailBloc extends Bloc<ReorderDetailEvent, ReorderDetailState> {
     on<OnReorderDetailGetProductsEvent>((event, emit) async {
       emit(state.copyWith(isLoadingOnObserveReorderDetailProducts: true));
 
-      final failureOrSuccess = await productRepository.getListOfProducts(true);
+      final failureOrSuccess = await productRepository.getListOfProductsBySupplierName(onlyActive: true, supplier: state.supplier!);
       failureOrSuccess.fold(
         (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
         (listOfLoadedProducts) {
@@ -378,7 +400,8 @@ List<StatProductReorder> _setStatProductReorderInvoice(List<StatProduct> statPro
   List<StatProductReorder> statProductsReorderInvoice = [];
   for (final statProduct in statProducts) {
     for (final statProductDetail in statProduct.listOfStatProductDetail) {
-      if (!(statProductDetail.creationDate.isAfter(statProductDateRange.start) && statProductDetail.creationDate.isBefore(statProductDateRange.end))) {
+      if (!(statProductDetail.creationDate.isAfter(statProductDateRange.start) &&
+          statProductDetail.creationDate.isBefore(statProductDateRange.end))) {
         continue;
       }
 
@@ -400,7 +423,8 @@ List<StatProductReorder> _setStatProductReorderAppointment(List<StatProduct> sta
   List<StatProductReorder> statProductsReorderAppointment = [];
   for (final statProduct in statProducts) {
     for (final statProductDetail in statProduct.listOfStatProductDetail) {
-      if (!(statProductDetail.creationDate.isAfter(statProductDateRange.start) && statProductDetail.creationDate.isBefore(statProductDateRange.end))) {
+      if (!(statProductDetail.creationDate.isAfter(statProductDateRange.start) &&
+          statProductDetail.creationDate.isBefore(statProductDateRange.end))) {
         continue;
       }
       if (statProductDetail.receiptTyp == ReceiptTyp.appointment) {

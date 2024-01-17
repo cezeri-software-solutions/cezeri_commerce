@@ -2,6 +2,7 @@ part of 'reorder_detail_bloc.dart';
 
 class ReorderDetailState {
   final Reorder? reorder;
+  final Supplier? supplier;
   final List<Product>? listOfProducts;
   final List<Product>? listOfFilteredProducts;
   final List<Marketplace>? listOfMarketplaces;
@@ -44,6 +45,7 @@ class ReorderDetailState {
 
   const ReorderDetailState({
     required this.reorder,
+    required this.supplier,
     required this.listOfProducts,
     required this.listOfFilteredProducts,
     required this.listOfMarketplaces,
@@ -80,6 +82,7 @@ class ReorderDetailState {
   factory ReorderDetailState.initial() {
     return ReorderDetailState(
       reorder: null,
+      supplier: null,
       listOfProducts: null,
       listOfFilteredProducts: null,
       listOfMarketplaces: null,
@@ -116,6 +119,7 @@ class ReorderDetailState {
 
   ReorderDetailState copyWith({
     Reorder? reorder,
+    Supplier? supplier,
     List<Product>? listOfProducts,
     List<Product>? listOfFilteredProducts,
     List<Marketplace>? listOfMarketplaces,
@@ -150,6 +154,7 @@ class ReorderDetailState {
   }) {
     return ReorderDetailState(
       reorder: reorder ?? this.reorder,
+      supplier: supplier ?? this.supplier,
       listOfProducts: listOfProducts ?? this.listOfProducts,
       listOfFilteredProducts: listOfFilteredProducts ?? this.listOfFilteredProducts,
       listOfMarketplaces: listOfMarketplaces ?? this.listOfMarketplaces,
