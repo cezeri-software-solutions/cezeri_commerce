@@ -12,6 +12,7 @@ import '../../../../3_domain/entities/product/product.dart';
 import '../../../../3_domain/entities/statistic/stat_product_reorder.dart';
 import '../../../../constants.dart';
 import '../../../core/widgets/my_avatar.dart';
+import '../../../core/widgets/my_recommended_reorder_quantity.dart';
 
 final logger = Logger();
 
@@ -61,22 +62,22 @@ class SelectReorderDetailProductDialog extends StatelessWidget {
                           Gaps.w24,
                           Tooltip(
                             message: 'Verpackungseinheit',
-                            child: _RecommendedQuantity(title: 'VE:', quantity: 0, color: CustomColors.ultraLightGreen),
+                            child: RecommendedReorderQuantity(title: 'VE:', quantity: 0, color: CustomColors.ultraLightGreen),
                           ),
                           Gaps.w24,
                           Tooltip(
                             message: 'Empfohlene Bestellmenge nach erstelleten Rechnungen',
-                            child: _RecommendedQuantity(title: 'EBM/RE:', quantity: 0, color: CustomColors.ultraLightYellow),
+                            child: RecommendedReorderQuantity(title: 'EBM/RE:', quantity: 0, color: CustomColors.ultraLightYellow),
                           ),
                           Gaps.w24,
                           Tooltip(
                             message: 'Empfohlene Bestellmenge nach Auftragseingang',
-                            child: _RecommendedQuantity(title: 'EBM/AE:', quantity: 0, color: CustomColors.ultraLightOrange2),
+                            child: RecommendedReorderQuantity(title: 'EBM/AE:', quantity: 0, color: CustomColors.ultraLightOrange2),
                           ),
                           Gaps.w24,
                           Tooltip(
                             message: 'Empfohlene Bestellmenge nach Verpackungseinheit',
-                            child: _RecommendedQuantity(title: 'EBM/VE:', quantity: 0, color: CustomColors.ultraLightRed),
+                            child: RecommendedReorderQuantity(title: 'EBM/VE:', quantity: 0, color: CustomColors.ultraLightRed),
                           ),
                         ],
                       ),
@@ -140,7 +141,7 @@ class SelectReorderDetailProductDialog extends StatelessWidget {
                                           context.router.pop();
                                           reorderDetailBloc.add(OnReorderDeatilAddProductEvent(product: product, quantity: ve));
                                         },
-                                        child: _RecommendedQuantity(
+                                        child: RecommendedReorderQuantity(
                                           title: 'VE:',
                                           quantity: ve,
                                           color: CustomColors.ultraLightGreen,
@@ -154,7 +155,7 @@ class SelectReorderDetailProductDialog extends StatelessWidget {
                                           context.router.pop();
                                           reorderDetailBloc.add(OnReorderDeatilAddProductEvent(product: product, quantity: ebmPerRe));
                                         },
-                                        child: _RecommendedQuantity(
+                                        child: RecommendedReorderQuantity(
                                           title: 'EBM/RE:',
                                           quantity: ebmPerRe,
                                           color: CustomColors.ultraLightYellow,
@@ -168,7 +169,7 @@ class SelectReorderDetailProductDialog extends StatelessWidget {
                                           context.router.pop();
                                           reorderDetailBloc.add(OnReorderDeatilAddProductEvent(product: product, quantity: ebmPerAe));
                                         },
-                                        child: _RecommendedQuantity(
+                                        child: RecommendedReorderQuantity(
                                           title: 'EBM/AE:',
                                           quantity: ebmPerAe,
                                           color: CustomColors.ultraLightOrange2,
@@ -182,7 +183,7 @@ class SelectReorderDetailProductDialog extends StatelessWidget {
                                           context.router.pop();
                                           reorderDetailBloc.add(OnReorderDeatilAddProductEvent(product: product, quantity: ebmPerVe));
                                         },
-                                        child: _RecommendedQuantity(
+                                        child: RecommendedReorderQuantity(
                                           title: 'EBM/VE:',
                                           quantity: ebmPerVe,
                                           color: CustomColors.ultraLightRed,
@@ -251,40 +252,6 @@ class SelectReorderDetailProductDialog extends StatelessWidget {
 
   int _getRecommendedOrderQuantityByPackagingUnit(int recommendedQuantity, int packagingUnit) {
     return (recommendedQuantity + packagingUnit - 1) ~/ packagingUnit * packagingUnit;
-  }
-}
-
-class _RecommendedQuantity extends StatelessWidget {
-  final String title;
-  final int quantity;
-  final Color color;
-
-  const _RecommendedQuantity({required this.title, required this.quantity, required this.color});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 20,
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: const BorderRadius.all(Radius.circular(10)),
-        border: Border.all(color: Colors.grey, width: 0.5),
-      ),
-      child: Center(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 6),
-          child: Text.rich(
-            TextSpan(
-              children: [
-                TextSpan(text: title),
-                const TextSpan(text: ' '),
-                TextSpan(text: quantity.toString(), style: TextStyles.s13Bold),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
   }
 }
 

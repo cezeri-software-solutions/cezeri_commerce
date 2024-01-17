@@ -1,3 +1,4 @@
+import 'package:cezeri_commerce/1_presentation/core/extensions/string_to_int.dart';
 import 'package:cezeri_commerce/3_domain/entities/product/product.dart';
 import 'package:cezeri_commerce/3_domain/entities_presta/category_presta.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -8,7 +9,6 @@ import 'package:logger/logger.dart';
 
 import '../../../../1_presentation/core/functions/check_internet_connection.dart';
 import '../../../../3_domain/entities/marketplace/marketplace.dart';
-import '../../../../3_domain/entities/product/product_marketplace.dart';
 import '../../../../3_domain/entities/settings/main_settings.dart';
 import '../../../../3_domain/entities_presta/product_presta.dart';
 import '../../../../3_domain/repositories/firebase/product_repository.dart';
@@ -16,7 +16,9 @@ import '../../../../3_domain/repositories/marketplace/marketplace_import_reposit
 import '../../../../core/abstract_failure.dart';
 import '../../../../core/firebase_failures.dart';
 import '../../../../core/presta_failure.dart';
-import '../firebase/repository_impl_helper.dart';
+import '../../../3_domain/entities/product/product_id_with_quantity.dart';
+import '../firebase/product_repository_impl.dart';
+import '../functions/product_import.dart';
 import '../prestashop_api/prestashop_api.dart';
 
 final logger = Logger();
@@ -96,41 +98,69 @@ class MarketplaceImportRepositoryImpl implements MarketplaceImportRepository {
       if (!settingsDs.exists) return left(GeneralFailure());
       final mainSettings = MainSettings.fromJson(settingsDs.data()!);
 
-      final productFirestore = await getProductFromFirestoreIfExists(
-        productPresta.reference,
-        productPresta.ean13,
-        productPresta.name!,
-        marketplace,
-        mainSettings,
-        productRepository,
-      );
+      final api = PrestashopApi(Client(), PrestashopApiConfig(apiKey: marketplace.key, webserviceUrl: marketplace.fullUrl));
 
       Product? newCreatedOrUpdatedProduct;
 
-      if (productFirestore == null) {
-        final createdProductFirestore = await createProductInFirestore(
-          Product.fromProductPresta(
-            productPresta: productPresta,
-            marketplace: marketplace,
-            mainSettings: mainSettings,
-          ),
+      //* Wenn Set-Artikel werden auch die Einzelartikel des Sets mitgeladen
+      if (productPresta.type == 'pack' &&
+          productPresta.associations.associationsProductBundle != null &&
+          productPresta.associations.associationsProductBundle!.isNotEmpty) {
+        final List<ProductIdWithQuantity> listOfProductIdWithQuantity = [];
+        final List<Product> listOfSetPartProducts = [];
+        for (final partProductPrestaId in productPresta.associations.associationsProductBundle!) {
+          final optionalProductPresta = await api.getProduct(int.parse(partProductPrestaId.id), marketplace);
+          if (optionalProductPresta.isNotPresent) {
+            logger.e('Artikel aus Bestellung konnte beim Bestellimport nicht aus Marktplatz geladen werden');
+            return left(MixedFailure(errorMessage: 'Artikel aus Bestellung konnte beim Bestellimport nicht aus Marktplatz geladen werden'));
+          }
+          final loadedProductPresta = optionalProductPresta.value;
+          final fosLoadedOrCreatedProduct = await getOrCreateProductFromPrestaOnImportProduct(
+            loadedProductPresta,
+            marketplace,
+            mainSettings,
+            productRepository,
+            null,
+          );
+          fosLoadedOrCreatedProduct.fold(
+            (failure) => left(failure),
+            (locProduct) {
+              listOfSetPartProducts.add(locProduct);
+              listOfProductIdWithQuantity.add(ProductIdWithQuantity(productId: locProduct.id, quantity: partProductPrestaId.quantity.toMyInt()));
+            },
+          );
+        }
+        final fosToImportProduct = await getOrCreateProductFromPrestaOnImportProduct(
           productPresta,
           marketplace,
           mainSettings,
           productRepository,
+          listOfProductIdWithQuantity,
         );
-        if (createdProductFirestore == null) return left(GeneralFailure as FirebaseFailure);
-        newCreatedOrUpdatedProduct = createdProductFirestore;
-      } else {
-        if (!productFirestore.productMarketplaces.any((e) => e.idMarketplace == marketplace.id)) {
-          final productMarketplace = ProductMarketplace.fromProductPresta(productPresta, marketplace);
-          List<ProductMarketplace> productMarketplaces = List.from(productFirestore.productMarketplaces);
-          productMarketplaces.add(productMarketplace);
-          final updatedProduct = productFirestore.copyWith(productMarketplaces: productMarketplaces);
-          newCreatedOrUpdatedProduct = updatedProduct;
+        fosToImportProduct.fold(
+          (failure) => left(failure),
+          (appProduct) => newCreatedOrUpdatedProduct = appProduct,
+        );
 
-          await productRepository.updateProduct(updatedProduct);
-        }
+        await addSetProductIdToPartProducts(
+          db: db,
+          currentUserUid: currentUserUid,
+          transaction: null,
+          setProduct: newCreatedOrUpdatedProduct!,
+          listOfSetPartProducts: listOfSetPartProducts,
+        );
+      } else {
+        final fosToImportProduct = await getOrCreateProductFromPrestaOnImportProduct(
+          productPresta,
+          marketplace,
+          mainSettings,
+          productRepository,
+          null,
+        );
+        fosToImportProduct.fold(
+          (failure) => left(failure),
+          (appProduct) => newCreatedOrUpdatedProduct = appProduct,
+        );
       }
 
       return right(newCreatedOrUpdatedProduct);

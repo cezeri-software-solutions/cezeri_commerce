@@ -1,5 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:cezeri_commerce/1_presentation/core/widgets/my_outlined_button.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -23,16 +24,28 @@ class ProductDetailSelectPartsOfSetArticle extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.max,
           children: [
-            const Padding(
-              padding: EdgeInsets.only(top: 18, left: 18, right: 18, bottom: 8),
-              child: Text('Alle Artikel', style: TextStyles.h2Bold),
+            Padding(
+              padding: const EdgeInsets.only(top: 18, left: 18, right: 18, bottom: 8),
+              child: Row(
+                children: [
+                  const Text('Alle Artikel', style: TextStyles.h2Bold),
+                  Gaps.w16,
+                  Expanded(
+                    child: CupertinoSearchTextField(
+                      controller: state.partOfSetProductSearchController,
+                      onChanged: (_) => productDetailBloc.add(OnPartOfSetProductControllerChangedEvent()),
+                      onSuffixTap: () => productDetailBloc.add(OnPartOfSetProductControllerClearedEvent()),
+                    ),
+                  ),
+                ],
+              ),
             ),
             Expanded(
               child: ListView.builder(
                 shrinkWrap: true,
-                itemCount: state.listOfAllProducts!.length,
+                itemCount: state.listOfFilteredProducts.length,
                 itemBuilder: (context, index) {
-                  final product = state.listOfAllProducts![index];
+                  final product = state.listOfFilteredProducts[index];
                   return ListTile(
                     leading: SizedBox(
                       width: 60,

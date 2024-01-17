@@ -181,6 +181,7 @@ class Product {
     required ProductPresta productPresta,
     required Marketplace marketplace,
     required MainSettings mainSettings,
+    required List<ProductIdWithQuantity>? listOfProductIdWithQuantity,
   }) {
     List<FieldLanguage> getListOfProductLanguages(List<Multilanguage>? valueMultilanguage) {
       List<FieldLanguage> listOfProductLanguages = [];
@@ -259,6 +260,7 @@ class Product {
         'pack' => true,
         (_) => Product.empty().isSetArticle,
       },
+      listOfProductIdWithQuantity: listOfProductIdWithQuantity ?? [],
       // TODO: Hersteller anlegen und Nummer übergeben
       manufacturerNumber: Product.empty().manufacturerNumber,
       manufacturer: productPresta.manufacturerName,

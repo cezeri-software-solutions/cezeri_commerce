@@ -88,10 +88,8 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
     on<UpdateQuantityOfProductEvent>((event, emit) async {
       emit(state.copyWith(isLoadingProductOnUpdateQuantity: true));
 
-      final failureOrSuccess = switch (event.updateOnlyAvailableQuantity) {
-        false => await productRepository.updateAllQuantityOfProductAbsolut(event.product, event.newQuantity),
-        true => await productRepository.updateAvailableQuantityOfProductAbsolut(event.product, event.newQuantity)
-      };
+      final failureOrSuccess =
+          await productRepository.updateAllQuantityOfProductAbsolut(event.product, event.newQuantity, event.updateOnlyAvailableQuantity);
 
       bool isSuccess = true;
       Product? updatedProduct;

@@ -22,3 +22,6 @@ enum ChartType { incomingOrder, salesVolume }
 enum OrderStatusUpdateType { onImport, onShipping, onCancel, onDelete }
 
 enum GetReordersType { open, partialOpen, openOrPartialOpen, completed, all }
+
+//* Ob der Bestand der Artikel absolut oder inkrementell geupdatet werden soll
+enum ProductQuantityEditType { absolut, incremental }

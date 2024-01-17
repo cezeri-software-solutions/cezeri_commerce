@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:json_annotation/json_annotation.dart';
 
+import 'product_presta.dart';
+
 part 'order_presta.g.dart';
 
 @JsonSerializable()
@@ -246,6 +248,24 @@ class OrderProductPresta {
 
   factory OrderProductPresta.fromJson(Map<String, dynamic> json) => _$OrderProductPrestaFromJson(json);
   Map<String, dynamic> toJson() => _$OrderProductPrestaToJson(this);
+
+  factory OrderProductPresta.fromProductPresta(ProductPresta pp) {
+    return OrderProductPresta(
+      id: '',
+      productId: pp.id.toString(),
+      productAttributeId: '',
+      productQuantity: '',
+      productName: pp.name!,
+      productReference: pp.reference,
+      productEan13: pp.ean13,
+      productIsbn: pp.isbn,
+      productUpc: pp.upc,
+      productPrice: pp.price,
+      idCustomization: '',
+      unitPriceTaxIncl: pp.price,
+      unitPriceTaxExcl: pp.price,
+    );
+  }
 
   List<Object?> get props => [id];
 

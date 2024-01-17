@@ -23,10 +23,21 @@ class SellingCard extends StatelessWidget {
               children: [
                 const Text('Verkauf', style: TextStyles.h3BoldPrimary),
                 const Divider(),
-                MyTextFormFieldSmall(
-                  labelText: 'VK-Preis Netto',
-                  controller: state.netPriceController,
-                  onChanged: (_) => productDetailBloc.add(OnProductSalesPriceControllerChangedEvent(isNet: true)),
+                Row(
+                  children: [
+                    Expanded(
+                      child: MyTextFormFieldSmall(
+                        labelText: 'VK-Preis Netto',
+                        controller: state.netPriceController,
+                        onChanged: (value) => productDetailBloc.add(OnProductSalesPriceControllerChangedEvent(isNet: true)),
+                      ),
+                    ),
+                    if (state.product!.isSetArticle && state.product!.listOfProductIdWithQuantity.isNotEmpty)
+                      IconButton(
+                        onPressed: () => productDetailBloc.add(OnSetProductSalesNetPriceGeneratedEvent()),
+                        icon: const Icon(Icons.reply_all_outlined, color: CustomColors.primaryColor),
+                      ),
+                  ],
                 ),
                 Gaps.h16,
                 MyTextFormFieldSmall(

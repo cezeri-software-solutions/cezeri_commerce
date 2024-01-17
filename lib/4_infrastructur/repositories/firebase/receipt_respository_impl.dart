@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:cezeri_commerce/1_presentation/core/extensions/string_to_int.dart';
 import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.dart';
 import 'package:cezeri_commerce/3_domain/entities/receipt/load_appointments_helper/to_load_appointments_from_marketplace.dart';
 import 'package:cezeri_commerce/3_domain/entities/receipt/receipt.dart';
@@ -24,7 +25,7 @@ import '../../../3_domain/entities/customer/customer.dart';
 import '../../../3_domain/entities/e_mail_automation.dart';
 import '../../../3_domain/entities/marketplace/marketplace.dart';
 import '../../../3_domain/entities/product/product.dart';
-import '../../../3_domain/entities/product/product_marketplace.dart';
+import '../../../3_domain/entities/product/product_id_with_quantity.dart';
 import '../../../3_domain/entities/settings/main_settings.dart';
 import '../../../3_domain/entities_presta/order_presta.dart';
 import '../../../3_domain/entities_presta/product_presta.dart';
@@ -34,10 +35,11 @@ import '../../../3_domain/repositories/firebase/main_settings_respository.dart';
 import '../../../3_domain/repositories/firebase/product_repository.dart';
 import '../../../3_domain/repositories/marketplace/marketplace_edit_repository.dart';
 import '../../../3_domain/repositories/marketplace/marketplace_import_repository.dart';
+import '../functions/product_import.dart';
 import '../prestashop_api/prestashop_api.dart';
 import '../shipping_methods/austrian_post/austrian_post_api.dart';
+import 'product_repository_impl.dart';
 import 'receipt_respository_helper.dart';
-import 'repository_impl_helper.dart';
 
 final logger = Logger();
 
@@ -1172,64 +1174,88 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
 
       List<ReceiptProduct> listOfReceiptproduct = [];
       for (final orderProductPresta in orderPresta.associations!.orderRows) {
-        Product? appointmentProduct;
         final quantity = int.parse(orderProductPresta.productQuantity);
         final tax = calcTaxPercent((orderProductPresta.unitPriceTaxIncl).toMyDouble(), (orderProductPresta.unitPriceTaxExcl).toMyDouble());
 
-        final productFirestore = await getProductFromFirestoreIfExists(
-          orderProductPresta.productReference,
-          orderProductPresta.productEan13,
-          orderProductPresta.productName,
-          marketplace,
-          mainSettings,
-          productRepository,
-        );
-        if (productFirestore == null) {
-          final optionalProductPresta = await api.getProduct(int.parse(orderProductPresta.productId), marketplace);
-          if (optionalProductPresta.isNotPresent) {
-            logger.e('Artikel aus Bestellung konnte beim Bestellimport nicht aus Marktplatz geladen werden');
-            return left(MixedFailure(errorMessage: 'Artikel aus Bestellung konnte beim Bestellimport nicht aus Marktplatz geladen werden'));
-          }
-          final productPresta = optionalProductPresta.value;
+        final api = PrestashopApi(Client(), PrestashopApiConfig(apiKey: marketplace.key, webserviceUrl: marketplace.fullUrl));
+        final optionalProductPresta = await api.getProduct(int.parse(orderProductPresta.productId), marketplace);
+        if (optionalProductPresta.isNotPresent) {
+          logger.e('Artikel aus Bestellung konnte beim Bestellimport nicht aus Marktplatz geladen werden');
+          return left(MixedFailure(errorMessage: 'Artikel aus Bestellung konnte beim Bestellimport nicht aus Marktplatz geladen werden'));
+        }
+        final productPresta = optionalProductPresta.value;
 
-          final createdProductFirestore = await createProductInFirestore(
-            Product.fromProductPresta(
-              productPresta: productPresta,
-              marketplace: marketplace,
-              mainSettings: mainSettings,
-            ),
-            productPresta,
-            marketplace,
-            mainSettings,
-            productRepository,
-          );
-          if (createdProductFirestore == null) return left(GeneralFailure as FirebaseFailure);
-          appointmentProduct = createdProductFirestore;
-          await productRepository.updateWarehouseQuantityOfProductIncremental(createdProductFirestore, quantity);
-        } else {
-          if (!productFirestore.productMarketplaces.any((e) => e.idMarketplace == marketplace.id)) {
-            final optionalProductPresta = await api.getProduct(int.parse(orderProductPresta.productId), marketplace);
+        Product? appointmentProduct;
+
+        //* Wenn Set-Artikel werden auch die Einzelartikel des Sets mitgeladen
+        if (productPresta.type == 'pack' &&
+            productPresta.associations.associationsProductBundle != null &&
+            productPresta.associations.associationsProductBundle!.isNotEmpty) {
+          final List<ProductIdWithQuantity> listOfProductIdWithQuantity = [];
+          final List<Product> listOfSetPartProducts = [];
+          for (final partProductPrestaId in productPresta.associations.associationsProductBundle!) {
+            final optionalProductPresta = await api.getProduct(int.parse(partProductPrestaId.id), marketplace);
             if (optionalProductPresta.isNotPresent) {
               logger.e('Artikel aus Bestellung konnte beim Bestellimport nicht aus Marktplatz geladen werden');
               return left(MixedFailure(errorMessage: 'Artikel aus Bestellung konnte beim Bestellimport nicht aus Marktplatz geladen werden'));
             }
-            final productPresta = optionalProductPresta.value;
-            final productMarketplace = ProductMarketplace.fromProductPresta(productPresta, marketplace);
-            List<ProductMarketplace> productMarketplaces = List.from(productFirestore.productMarketplaces);
-            productMarketplaces.add(productMarketplace);
-            final updatedProduct = productFirestore.copyWith(productMarketplaces: productMarketplaces);
-            appointmentProduct = updatedProduct;
-
-            await productRepository.updateProduct(updatedProduct);
-            await productRepository.updateAvailableQuantityOfProductInremental(updatedProduct, quantity * -1, null);
-          } else {
-            appointmentProduct = productFirestore;
-            await productRepository.updateAvailableQuantityOfProductInremental(productFirestore, quantity * -1, null);
+            final loadedProductPresta = optionalProductPresta.value;
+            final fosLoadedOrCreatedProduct = await getOrCreateProductFromPrestaOnImportAppointment(
+              OrderProductPresta.fromProductPresta(loadedProductPresta),
+              partProductPrestaId.quantity.toMyInt(),
+              marketplace,
+              mainSettings,
+              productRepository,
+              api,
+              null,
+            );
+            fosLoadedOrCreatedProduct.fold(
+              (failure) => left(failure),
+              (locProduct) {
+                listOfSetPartProducts.add(locProduct);
+                listOfProductIdWithQuantity.add(ProductIdWithQuantity(productId: locProduct.id, quantity: partProductPrestaId.quantity.toMyInt()));
+              },
+            );
           }
+          final fosAppointmentProduct = await getOrCreateProductFromPrestaOnImportAppointment(
+            orderProductPresta,
+            quantity,
+            marketplace,
+            mainSettings,
+            productRepository,
+            api,
+            listOfProductIdWithQuantity,
+          );
+          fosAppointmentProduct.fold(
+            (failure) => left(failure),
+            (appProduct) => appointmentProduct = appProduct,
+          );
+
+          await addSetProductIdToPartProducts(
+            db: db,
+            currentUserUid: currentUserUid,
+            transaction: null,
+            setProduct: appointmentProduct!,
+            listOfSetPartProducts: listOfSetPartProducts,
+          );
+        } else {
+          final fosAppointmentProduct = await getOrCreateProductFromPrestaOnImportAppointment(
+            orderProductPresta,
+            quantity,
+            marketplace,
+            mainSettings,
+            productRepository,
+            api,
+            null,
+          );
+          fosAppointmentProduct.fold(
+            (failure) => left(failure),
+            (appProduct) => appointmentProduct = appProduct,
+          );
         }
 
         final receiptProduct = generateReceiptProduct(
-          product: appointmentProduct,
+          product: appointmentProduct!,
           orderProductPresta: orderProductPresta,
           mainSettings: mainSettings,
           quantity: quantity,
@@ -1609,10 +1635,14 @@ Future<void> updateProductWarehouseQuantityIncremental({
   required Product product,
   required int newQuantityIncremental,
 }) async {
+  //! Wenn diese Funktion bearbeitet wird muss auch die Funktion (product_repository_impl)(updateWarehouseQuantityOfProductIncremental) geupdatet werden
   final docRefProduct = db.collection('Products').doc(currentUserUid).collection('Products').doc(product.id);
 
   try {
-    final updatedProduct = product.copyWith(warehouseStock: product.warehouseStock + newQuantityIncremental);
+    final updatedProduct = product.copyWith(
+      warehouseStock: product.warehouseStock + newQuantityIncremental,
+      isUnderMinimumStock: product.availableStock <= product.minimumStock ? true : false,
+    );
     transaction.update(docRefProduct, updatedProduct.toJson());
   } catch (error) {
     logger.e('Error on updating product quantity in firebase: $error');

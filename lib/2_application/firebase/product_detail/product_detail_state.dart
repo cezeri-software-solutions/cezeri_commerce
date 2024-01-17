@@ -42,11 +42,14 @@ class ProductDetailState {
   final List<ProductIdWithQuantity> listOfSelectedProducts;
   final List<Product> listOfPartOfSetProducts;
   final List<Product>? listOfAllProducts;
+  final List<Product> listOfFilteredProducts;
+  final SearchController partOfSetProductSearchController;
   //* Product Images
   final bool isProductImagesEdited;
   final bool isSelectedAllImages;
   final List<ProductImage> selectedProductImages;
   final List<ProductImage> listOfProductImages;
+
   //* Controllers
   final TextEditingController articleNumberController;
   final TextEditingController eanController;
@@ -108,6 +111,8 @@ class ProductDetailState {
     required this.listOfSelectedProducts,
     required this.listOfPartOfSetProducts,
     required this.listOfAllProducts,
+    required this.listOfFilteredProducts,
+    required this.partOfSetProductSearchController,
     required this.isProductImagesEdited,
     required this.isSelectedAllImages,
     required this.selectedProductImages,
@@ -173,6 +178,8 @@ class ProductDetailState {
       listOfSelectedProducts: [],
       listOfPartOfSetProducts: [],
       listOfAllProducts: null,
+      listOfFilteredProducts: [],
+      partOfSetProductSearchController: SearchController(),
       isProductImagesEdited: false,
       isSelectedAllImages: false,
       selectedProductImages: const [],
@@ -238,6 +245,8 @@ class ProductDetailState {
     List<ProductIdWithQuantity>? listOfSelectedProducts,
     List<Product>? listOfPartOfSetProducts,
     List<Product>? listOfAllProducts,
+    List<Product>? listOfFilteredProducts,
+    SearchController? partOfSetProductSearchController,
     bool? isProductImagesEdited,
     bool? isSelectedAllImages,
     List<ProductImage>? selectedProductImages,
@@ -301,6 +310,8 @@ class ProductDetailState {
       listOfSelectedProducts: listOfSelectedProducts ?? this.listOfSelectedProducts,
       listOfPartOfSetProducts: listOfPartOfSetProducts ?? this.listOfPartOfSetProducts,
       listOfAllProducts: listOfAllProducts ?? this.listOfAllProducts,
+      listOfFilteredProducts: listOfFilteredProducts ?? this.listOfFilteredProducts,
+      partOfSetProductSearchController: partOfSetProductSearchController ?? this.partOfSetProductSearchController,
       isProductImagesEdited: isProductImagesEdited ?? this.isProductImagesEdited,
       isSelectedAllImages: isSelectedAllImages ?? this.isSelectedAllImages,
       selectedProductImages: selectedProductImages ?? this.selectedProductImages,

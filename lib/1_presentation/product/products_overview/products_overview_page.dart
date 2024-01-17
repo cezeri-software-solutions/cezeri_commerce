@@ -12,6 +12,7 @@ import '../../../3_domain/entities/product/marketplace_product_presta.dart';
 import '../../../3_domain/entities/product/product.dart';
 import '../../../3_domain/enums/enums.dart';
 import '../../../routes/router.gr.dart';
+import '../../core/functions/dialogs.dart';
 import '../../core/functions/show_my_product_quick_view.dart';
 import '../../core/widgets/my_avatar.dart';
 
@@ -115,13 +116,36 @@ class _ProductContainer extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text.rich(TextSpan(children: [
-                      TextSpan(text: product.articleNumber),
-                      if (product.isActive == false) ...[
-                        const TextSpan(text: '  '),
-                        TextSpan(text: 'Inaktiv', style: TextStyles.defaultBold.copyWith(color: Colors.red)),
+                    Row(
+                      children: [
+                        Text.rich(TextSpan(children: [
+                          TextSpan(text: product.articleNumber),
+                          if (product.isActive == false) ...[
+                            const TextSpan(text: '  '),
+                            TextSpan(text: 'Inaktiv', style: TextStyles.defaultBold.copyWith(color: Colors.red)),
+                          ],
+                        ])),
+                        Gaps.w8,
+                        if (product.isSetArticle)
+                          InkWell(
+                            onTap: () {
+                              final productList =
+                                  state.listOfAllProducts!.where((e) => product.listOfProductIdWithQuantity.any((f) => f.productId == e.id)).toList();
+                              showMyDialogProducts(context: context, productsList: productList);
+                            },
+                            child: const Icon(Icons.layers, size: 18, color: CustomColors.primaryColor),
+                          ),
+                        Gaps.w8,
+                        if (product.listOfIsPartOfSetIds.isNotEmpty)
+                          InkWell(
+                            onTap: () {
+                              final productList = state.listOfAllProducts!.where((e) => product.listOfIsPartOfSetIds.contains(e.id)).toList();
+                              showMyDialogProducts(context: context, productsList: productList);
+                            },
+                            child: const Icon(Icons.group_work, size: 18, color: CustomColors.primaryColor),
+                          ),
                       ],
-                    ])),
+                    ),
                     TextButton(
                       onPressed: () async {
                         await context.router.push(ProductDetailRoute(productId: product.id, listOfProducts: state.listOfAllProducts!));
@@ -168,10 +192,16 @@ class _ProductContainer extends StatelessWidget {
                 children: [
                   Text(product.warehouseStock.toString()),
                   TextButton(
-                      onPressed: () => showDialog(
-                            context: context,
-                            builder: (_) => BlocProvider.value(value: productBloc, child: _UpdateProductQuantityDialog(product: product)),
-                          ),
+                      onPressed: () => product.isSetArticle
+                          ? showMyDialogAlert(
+                              context: context,
+                              title: 'Achtung',
+                              content:
+                                  'Der Bestand von Set-Artikel wird automatisch über dessen Einzelteile bestimmt und kann nicht manuell abgeändert werden')
+                          : showDialog(
+                              context: context,
+                              builder: (_) => BlocProvider.value(value: productBloc, child: _UpdateProductQuantityDialog(product: product)),
+                            ),
                       child: Text(product.availableStock.toString())),
                 ],
               ),

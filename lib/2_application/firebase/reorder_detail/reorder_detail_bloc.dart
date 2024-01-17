@@ -15,6 +15,7 @@ import '../../../3_domain/entities/reorder/reorder_product.dart';
 import '../../../3_domain/entities/reorder/supplier.dart';
 import '../../../3_domain/entities/settings/main_settings.dart';
 import '../../../3_domain/entities/settings/tax.dart';
+import '../../../3_domain/entities/statistic/stat_product.dart';
 import '../../../3_domain/entities/statistic/stat_product_reorder.dart';
 import '../../../3_domain/repositories/firebase/main_settings_respository.dart';
 import '../../../3_domain/repositories/firebase/marketplace_repository.dart';
@@ -149,33 +150,9 @@ class ReorderDetailBloc extends Bloc<ReorderDetailEvent, ReorderDetailState> {
         fosStatProducts.fold(
           (failure) => null,
           (statProducts) {
-            List<StatProductReorder> statProductsReorderInvoice = [];
-            List<StatProductReorder> statProductsReorderAppointment = [];
-            for (final statProduct in statProducts) {
-              for (final statProductDetail in statProduct.listOfStatProductDetail) {
-                if (!(statProductDetail.creationDate.isAfter(state.statProductDateRange!.start) &&
-                    statProductDetail.creationDate.isBefore(state.statProductDateRange!.end))) continue;
+            List<StatProductReorder> statProductsReorderInvoice = _setStatProductReorderInvoice(statProducts, state.statProductDateRange!);
+            List<StatProductReorder> statProductsReorderAppointment = _setStatProductReorderAppointment(statProducts, state.statProductDateRange!);
 
-                if (statProductDetail.receiptTyp == ReceiptTyp.invoice) {
-                  final index = statProductsReorderInvoice.indexWhere((e) => e.productId == statProductDetail.productId);
-                  if (index == -1) {
-                    statProductsReorderInvoice.add(StatProductReorder.fromStatProductDetail(statProductDetail));
-                  } else {
-                    statProductsReorderInvoice[index] =
-                        statProductsReorderInvoice[index].copyWith(quantity: statProductsReorderInvoice[index].quantity + statProductDetail.quantity);
-                  }
-                }
-                if (statProductDetail.receiptTyp == ReceiptTyp.appointment) {
-                  final index = statProductsReorderAppointment.indexWhere((e) => e.productId == statProductDetail.productId);
-                  if (index == -1) {
-                    statProductsReorderAppointment.add(StatProductReorder.fromStatProductDetail(statProductDetail));
-                  } else {
-                    statProductsReorderAppointment[index] = statProductsReorderAppointment[index]
-                        .copyWith(quantity: statProductsReorderAppointment[index].quantity + statProductDetail.quantity);
-                  }
-                }
-              }
-            }
             emit(state.copyWith(
               isDateRangeChanged: false,
               listOfStatProductsInvoice: statProductsReorderInvoice,
@@ -395,4 +372,47 @@ class ReorderDetailBloc extends Bloc<ReorderDetailEvent, ReorderDetailState> {
 //? #########################################################################
 //? #########################################################################
   }
+}
+
+List<StatProductReorder> _setStatProductReorderInvoice(List<StatProduct> statProducts, DateTimeRange statProductDateRange) {
+  List<StatProductReorder> statProductsReorderInvoice = [];
+  for (final statProduct in statProducts) {
+    for (final statProductDetail in statProduct.listOfStatProductDetail) {
+      if (!(statProductDetail.creationDate.isAfter(statProductDateRange.start) && statProductDetail.creationDate.isBefore(statProductDateRange.end))) {
+        continue;
+      }
+
+      if (statProductDetail.receiptTyp == ReceiptTyp.invoice) {
+        final index = statProductsReorderInvoice.indexWhere((e) => e.productId == statProductDetail.productId);
+        if (index == -1) {
+          statProductsReorderInvoice.add(StatProductReorder.fromStatProductDetail(statProductDetail));
+        } else {
+          statProductsReorderInvoice[index] =
+              statProductsReorderInvoice[index].copyWith(quantity: statProductsReorderInvoice[index].quantity + statProductDetail.quantity);
+        }
+      }
+    }
+  }
+  return statProductsReorderInvoice;
+}
+
+List<StatProductReorder> _setStatProductReorderAppointment(List<StatProduct> statProducts, DateTimeRange statProductDateRange) {
+  List<StatProductReorder> statProductsReorderAppointment = [];
+  for (final statProduct in statProducts) {
+    for (final statProductDetail in statProduct.listOfStatProductDetail) {
+      if (!(statProductDetail.creationDate.isAfter(statProductDateRange.start) && statProductDetail.creationDate.isBefore(statProductDateRange.end))) {
+        continue;
+      }
+      if (statProductDetail.receiptTyp == ReceiptTyp.appointment) {
+        final index = statProductsReorderAppointment.indexWhere((e) => e.productId == statProductDetail.productId);
+        if (index == -1) {
+          statProductsReorderAppointment.add(StatProductReorder.fromStatProductDetail(statProductDetail));
+        } else {
+          statProductsReorderAppointment[index] =
+              statProductsReorderAppointment[index].copyWith(quantity: statProductsReorderAppointment[index].quantity + statProductDetail.quantity);
+        }
+      }
+    }
+  }
+  return statProductsReorderAppointment;
 }

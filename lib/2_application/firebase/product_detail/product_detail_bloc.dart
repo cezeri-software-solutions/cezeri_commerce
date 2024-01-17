@@ -110,6 +110,7 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
         (loadedProducts) {
           emit(state.copyWith(
             listOfAllProducts: loadedProducts,
+            listOfFilteredProducts: loadedProducts,
             pageIndexNotifierSetArticles: ValueNotifier(1),
             firebaseFailure: null,
             isAnyFailure: false,
@@ -127,7 +128,7 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
 //? ###########################################################################################################################
 
     on<SetListOfProductsEvent>((event, emit) async {
-      emit(state.copyWith(listOfAllProducts: event.listOfProducts));
+      emit(state.copyWith(listOfAllProducts: event.listOfProducts, listOfFilteredProducts: event.listOfProducts));
     });
 
 //? ###########################################################################################################################
@@ -311,7 +312,7 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
       );
 
       if (isUpdateInFirestoreSucceeded && updatedProduct != null) {
-        await productRepository.updateAllQuantityOfProductAbsolut(updatedProduct!, updatedProduct!.availableStock);
+        await productRepository.updateAllQuantityOfProductAbsolut(updatedProduct!, updatedProduct!.availableStock, false);
         add(OnEditProductInPresta(product: state.product!, updateImages: state.isProductImagesEdited));
       } else {
         emit(state.copyWith(
@@ -639,6 +640,74 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
         productIdsWithQuantity[index] = productIdsWithQuantity[index].copyWith(quantity: newQuantity);
       }
       emit(state.copyWith(product: state.product!.copyWith(listOfProductIdWithQuantity: productIdsWithQuantity)));
+    });
+
+//? ###########################################################################################################################
+
+    on<OnSetProductSalesNetPriceGeneratedEvent>((event, emit) {
+      final taxRate = state.mainSettings!.taxes.firstWhere((e) => e.isDefault).taxRate;
+      final listOfPartProductNetPrices = state.listOfAllProducts!
+          .where((product) => state.product!.listOfProductIdWithQuantity.any((partProduct) => partProduct.productId == product.id))
+          .map((e) => e.netPrice * state.product!.listOfProductIdWithQuantity.firstWhere((partProduct) => partProduct.productId == e.id).quantity)
+          .toList();
+      final sumOfPartProductNetPrices = listOfPartProductNetPrices.fold(0.0, (sum, item) => sum + item);
+      final netPrice = sumOfPartProductNetPrices.toMyRoundedDouble();
+      final grossPrice = (netPrice * taxToCalc(taxRate)).toMyRoundedDouble();
+
+      emit(state.copyWith(
+        product: state.product!.copyWith(
+          netPrice: netPrice,
+          grossPrice: grossPrice,
+        ),
+      ));
+
+      emit(state.copyWith(
+        netPriceController: TextEditingController(text: netPrice.toMyCurrencyStringToShow()),
+        grossPriceController: TextEditingController(text: grossPrice.toMyCurrencyStringToShow()),
+      ));
+    });
+
+//? ###########################################################################################################################
+
+    on<OnSetProductWholesalePriceGeneratedEvent>((event, emit) {
+      final listOfPartProductWholesalePrices = state.listOfAllProducts!
+          .where((product) => state.product!.listOfProductIdWithQuantity.any((partProduct) => partProduct.productId == product.id))
+          .map((e) =>
+              e.wholesalePrice * state.product!.listOfProductIdWithQuantity.firstWhere((partProduct) => partProduct.productId == e.id).quantity)
+          .toList();
+      final sumOfPartProductWholesalePrices = listOfPartProductWholesalePrices.fold(0.0, (sum, item) => sum + item);
+      final wholesalePrice = sumOfPartProductWholesalePrices.toMyRoundedDouble();
+
+      emit(state.copyWith(
+          product: state.product!.copyWith(wholesalePrice: wholesalePrice),
+          wholesalePriceController: TextEditingController(text: wholesalePrice.toMyCurrencyStringToShow())));
+    });
+
+//? ###########################################################################################################################
+
+    on<OnPartOfSetProductControllerChangedEvent>((event, emit) {
+      final widthSearchText = state.partOfSetProductSearchController.text.toLowerCase().split(' ');
+
+      List<Product>? listOfProducts = switch (state.partOfSetProductSearchController.text) {
+        '' => state.listOfAllProducts,
+        (_) => state.listOfAllProducts!
+            .where((e) => widthSearchText.every((entry) =>
+                e.name.toLowerCase().contains(entry) ||
+                e.ean.toLowerCase().contains(entry) ||
+                e.supplier.toLowerCase().contains(entry) ||
+                e.articleNumber.toLowerCase().contains(entry)))
+            .toList(),
+      };
+
+      if (listOfProducts != null && listOfProducts.isNotEmpty) listOfProducts.sort((a, b) => a.name.compareTo(b.name));
+
+      emit(state.copyWith(listOfFilteredProducts: listOfProducts));
+    });
+
+//? ###########################################################################################################################
+
+    on<OnPartOfSetProductControllerClearedEvent>((event, emit) {
+      emit(state.copyWith(listOfFilteredProducts: state.listOfAllProducts, partOfSetProductSearchController: SearchController()));
     });
 
 //? ###########################################################################################################################

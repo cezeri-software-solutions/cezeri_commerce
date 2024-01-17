@@ -151,16 +151,7 @@ class ProductsOverviewScreen extends StatelessWidget {
                   ),
                   IconButton(onPressed: () {}, icon: const Icon(Icons.add, color: Colors.green)),
                   IconButton(
-                    onPressed: state.selectedProducts.isEmpty
-                        ? () => showMyDialogAlert(context: context, title: 'Achtung!', content: 'Bitte wähle mindestens einen Artikel aus.')
-                        : () => showMyDialogDelete(
-                              context: context,
-                              content: 'Bist du sicher, dass du alle ausgewählten Artikel unwiederruflich löschen willst?',
-                              onConfirm: () {
-                                context.read<ProductBloc>().add(DeleteSelectedProductsEvent(selectedProducts: state.selectedProducts));
-                                context.router.pop();
-                              },
-                            ),
+                    onPressed: () => _onRemovePressed(context, state.selectedProducts),
                     icon: state.isLoadingProductOnDelete
                         ? const CircularProgressIndicator(color: Colors.red)
                         : const Icon(Icons.delete, color: Colors.red),
@@ -209,6 +200,31 @@ class ProductsOverviewScreen extends StatelessWidget {
           },
         ),
       ),
+    );
+  }
+
+  void _onRemovePressed(BuildContext context, List<Product> selectedProducts) {
+    if (selectedProducts.isEmpty) {
+      showMyDialogAlert(context: context, title: 'Achtung!', content: 'Bitte wähle mindestens einen Artikel aus.');
+      return;
+    }
+
+    if (selectedProducts.any((e) => e.listOfIsPartOfSetIds.isNotEmpty)) {
+      showMyDialogAlert(
+          context: context,
+          title: 'Achtung!',
+          content:
+              'Ihre Auswahl beinhaltet Artikel, die Bestandteil von Set-Artikel sind.\nDiese müssen zuerst aus den Set-Artikeln entfernt werden.');
+      return;
+    }
+
+    showMyDialogDelete(
+      context: context,
+      content: 'Bist du sicher, dass du alle ausgewählten Artikel unwiederruflich löschen willst?',
+      onConfirm: () {
+        context.read<ProductBloc>().add(DeleteSelectedProductsEvent(selectedProducts: selectedProducts));
+        context.router.pop();
+      },
     );
   }
 

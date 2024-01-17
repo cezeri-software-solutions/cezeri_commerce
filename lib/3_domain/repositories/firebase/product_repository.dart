@@ -7,6 +7,7 @@ import '../../entities/marketplace/marketplace.dart';
 import '../../entities/product/product.dart';
 import '../../entities/product/product_image.dart';
 import '../../entities/product/product_marketplace.dart';
+import '../../entities/reorder/supplier.dart';
 import '../../entities_presta/product_presta.dart';
 
 abstract class ProductRepository {
@@ -27,16 +28,15 @@ abstract class ProductRepository {
   );
   Future<Either<FirebaseFailure, List<Product>>> getListOfProducts(bool onlyActive);
   Future<Either<FirebaseFailure, List<Product>>> getListOfProductsByIds(List<String> productIds);
+  Future<Either<FirebaseFailure, List<Product>>> getListOfProductsBySupplier(Supplier supplier);
   Future<Either<FirebaseFailure, List<Product>>> getListOfSoldOutProducts();
   Future<Either<FirebaseFailure, List<Product>>> getListOfUnderMinimumQuantityProducts();
 
-  Future<Either<FirebaseFailure, Product>> updateAllQuantityOfProductAbsolut(Product product, int newQuantity);
-  Future<Either<FirebaseFailure, Product>> updateAvailableQuantityOfProductAbsolut(Product product, int newQuantity);
-  Future<Either<FirebaseFailure, Product>> updateWarehouseQuantityOfProductAbsolut(Product product, int newQuantity);
+  Future<Either<FirebaseFailure, Product>> updateAllQuantityOfProductAbsolut(Product product, int newQuantity, bool updateOnlyAvailableQuantity);
   Future<Either<FirebaseFailure, Product>> updateAvailableQuantityOfProductInremental(
     Product product,
     int newQuantityIncremental,
     Marketplace? marketplaceToSkip,
   );
-  Future<Either<FirebaseFailure, Product>> updateWarehouseQuantityOfProductIncremental(Product product, int newQuantityIncremental);
+  Future<Either<FirebaseFailure, Product>> updateWarehouseQuantityOfNewProductOnImportIncremental(Product product, int newQuantityIncremental);
 }

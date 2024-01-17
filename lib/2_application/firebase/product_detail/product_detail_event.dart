@@ -135,6 +135,14 @@ class OnSetArticleQuantityChangedEvent extends ProductDetailEvent {
   OnSetArticleQuantityChangedEvent({required this.productId, required this.isIncrease});
 }
 
+class OnSetProductSalesNetPriceGeneratedEvent extends ProductDetailEvent {}
+
+class OnSetProductWholesalePriceGeneratedEvent extends ProductDetailEvent {}
+
+class OnPartOfSetProductControllerChangedEvent extends ProductDetailEvent {}
+
+class OnPartOfSetProductControllerClearedEvent extends ProductDetailEvent {}
+
 // * #################################################################################################################################
 // * StatProducts Chart
 

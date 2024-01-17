@@ -10,6 +10,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:logger/logger.dart';
 import 'package:path/path.dart';
 
+import '../../../3_domain/entities/reorder/supplier.dart';
 import '/1_presentation/core/functions/check_internet_connection.dart';
 import '/3_domain/entities/marketplace/marketplace.dart';
 import '/3_domain/entities/product/product.dart';
@@ -153,6 +154,27 @@ class ProductRepositoryImpl implements ProductRepository {
         if (product.exists) listOfProducts.add(Product.fromJson(product.data()!));
       }
 
+      return right(listOfProducts);
+    } on FirebaseException {
+      return left(GeneralFailure());
+    }
+  }
+
+  @override
+  Future<Either<FirebaseFailure, List<Product>>> getListOfProductsBySupplier(Supplier supplier) async {
+    final isConnected = await checkInternetConnection();
+    if (!isConnected) return left(NoConnectionFailure());
+
+    final currentUserUid = firebaseAuth.currentUser!.uid;
+    final docRef = db.collection('Products').doc(currentUserUid).collection('Products').where('supplier', isEqualTo: supplier.name);
+    
+
+    try {
+      final listOfProducts = await docRef.get().then(
+            (value) => value.docs.map((querySnapshot) => Product.fromJson(querySnapshot.data())).toList(),
+          );
+
+      if (listOfProducts.isEmpty) return left(EmptyFailure());
       return right(listOfProducts);
     } on FirebaseException {
       return left(GeneralFailure());
@@ -348,12 +370,13 @@ class ProductRepositoryImpl implements ProductRepository {
           final quantitySetArticle = calcSetArticleAvailableQuantity(product, listOfSetPartProducts);
 
           //* Alle Einzelartikel, wo der Set-Artikel noch nicht eingetragen ist in Firestore updaten
-          for (final partOfSetProduct in listOfSetPartProducts) {
-            final docRefUpdatedPartProduct = db.collection('Products').doc(currentUserUid).collection('Products').doc(partOfSetProduct.id);
-            if (partOfSetProduct.listOfIsPartOfSetIds.any((e) => e == product.id)) continue;
-            final updatedProduct = partOfSetProduct.copyWith(listOfIsPartOfSetIds: partOfSetProduct.listOfIsPartOfSetIds..add(product.id));
-            transaction.update(docRefUpdatedPartProduct, updatedProduct.toJson());
-          }
+          await addSetProductIdToPartProducts(
+            db: db,
+            currentUserUid: currentUserUid,
+            transaction: transaction,
+            setProduct: product,
+            listOfSetPartProducts: listOfSetPartProducts,
+          );
 
           //* Update Set-Article
           final difference = product.warehouseStock - product.availableStock;
@@ -537,7 +560,11 @@ class ProductRepositoryImpl implements ProductRepository {
   }
 
   @override
-  Future<Either<FirebaseFailure, Product>> updateAllQuantityOfProductAbsolut(Product product, int newQuantity) async {
+  Future<Either<FirebaseFailure, Product>> updateAllQuantityOfProductAbsolut(
+    Product product,
+    int newQuantity,
+    bool updateOnlyAvailableQuantity,
+  ) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
 
@@ -554,37 +581,25 @@ class ProductRepositoryImpl implements ProductRepository {
 
         updatedProduct = loadedProduct.copyWith(
           availableStock: newQuantity,
-          warehouseStock: loadedProduct.warehouseStock - (loadedProduct.availableStock - newQuantity),
+          warehouseStock: updateOnlyAvailableQuantity
+              ? loadedProduct.warehouseStock
+              : loadedProduct.warehouseStock - (loadedProduct.availableStock - newQuantity),
           isUnderMinimumStock: newQuantity <= loadedProduct.minimumStock ? true : false,
         );
 
+        if (updatedProduct == null) return left(GeneralFailure());
+
         if (loadedProduct.listOfIsPartOfSetIds.isNotEmpty) {
-          //* Set-Artikel laden, wo dieser Artikel ein Bestandteil ist
-          final listOfSetProducts = await getSetProductsOfPartProduct(db, currentUserUid, transaction, loadedProduct);
-          if (listOfSetProducts == null) return left(GeneralFailure());
+          final updatedSetProducts = await updateQuantityOfSetProducts(
+            db: db,
+            currentUserUid: currentUserUid,
+            transaction: transaction,
+            product: updatedProduct!,
+          );
 
-          //* Bestand bei allen Set-Artikeln anpassen
-          for (final setProduct in listOfSetProducts) {
-            final docRefSetProduct = db.collection('Products').doc(currentUserUid).collection('Products').doc(setProduct.id);
-            final listOfSetPartProducts = await getPartProductsOfSetProduct(
-              db: db,
-              currentUserUid: currentUserUid,
-              transaction: transaction,
-              setProduct: setProduct,
-              alreadyLoadedPartProduct: updatedProduct,
-            );
-            if (listOfSetPartProducts == null) return left(GeneralFailure());
-
-            final quantitySetArticle = calcSetArticleAvailableQuantity(setProduct, listOfSetPartProducts);
-            final difference = setProduct.warehouseStock - setProduct.availableStock;
-            final updatedSetProduct = setProduct.copyWith(availableStock: quantitySetArticle, warehouseStock: quantitySetArticle + difference);
-
-            transaction.update(docRefSetProduct, updatedSetProduct.toJson());
-            listOfUpdatedSetProducts.add(updatedSetProduct);
-          }
+          listOfUpdatedSetProducts.addAll(updatedSetProducts!);
         }
 
-        if (updatedProduct == null) return left(GeneralFailure());
         transaction.update(docRef, updatedProduct!.toJson());
       });
 
@@ -592,51 +607,10 @@ class ProductRepositoryImpl implements ProductRepository {
         await marketplaceEditRepository.setProdcutPrestaQuantity(updatedSetProduct, updatedSetProduct.availableStock, null);
       }
       if (updatedProduct == null) return left(GeneralFailure());
+      await marketplaceEditRepository.setProdcutPrestaQuantity(updatedProduct!, updatedProduct!.availableStock, null);
       return right(updatedProduct!);
     } on FirebaseException catch (e) {
       logger.e(e);
-      return left(GeneralFailure());
-    }
-  }
-
-  @override
-  Future<Either<FirebaseFailure, Product>> updateAvailableQuantityOfProductAbsolut(Product product, int newQuantity) async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(NoConnectionFailure());
-
-    final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRefProduct = db.collection('Products').doc(currentUserUid).collection('Products').doc(product.id);
-
-    try {
-      final updatedProduct = product.copyWith(
-        availableStock: newQuantity,
-        isUnderMinimumStock: newQuantity <= product.minimumStock ? true : false,
-      );
-      await docRefProduct.update(updatedProduct.toJson());
-
-      return right(updatedProduct);
-    } on FirebaseException {
-      return left(GeneralFailure());
-    }
-  }
-
-  @override
-  Future<Either<FirebaseFailure, Product>> updateWarehouseQuantityOfProductAbsolut(Product product, int newQuantity) async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(NoConnectionFailure());
-
-    final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRefProduct = db.collection('Products').doc(currentUserUid).collection('Products').doc(product.id);
-
-    try {
-      final updatedProduct = product.copyWith(
-        warehouseStock: product.warehouseStock - (product.warehouseStock - newQuantity),
-        isUnderMinimumStock: product.availableStock <= product.minimumStock ? true : false,
-      );
-      await docRefProduct.update(updatedProduct.toJson());
-
-      return right(updatedProduct);
-    } on FirebaseException {
       return left(GeneralFailure());
     }
   }
@@ -654,22 +628,46 @@ class ProductRepositoryImpl implements ProductRepository {
     final docRefProduct = db.collection('Products').doc(currentUserUid).collection('Products').doc(product.id);
 
     try {
-      final newAvailableStock = product.availableStock + newQuantityIncremental;
-      final updatedProduct = product.copyWith(
-        availableStock: newAvailableStock,
-        isUnderMinimumStock: newAvailableStock <= product.minimumStock ? true : false,
-      );
-      await docRefProduct.update(updatedProduct.toJson());
+      Product? updatedProduct;
+      List<Product> listOfUpdatedSetProducts = [];
+      await db.runTransaction((transaction) async {
+        final newAvailableStock = product.availableStock + newQuantityIncremental;
+        updatedProduct = product.copyWith(
+          availableStock: newAvailableStock,
+          isUnderMinimumStock: newAvailableStock <= product.minimumStock ? true : false,
+        );
 
-      await marketplaceEditRepository.setProdcutPrestaQuantity(updatedProduct, updatedProduct.availableStock, marketplaceToSkip);
-      return right(updatedProduct);
+        if (updatedProduct == null) return left(GeneralFailure());
+
+        if (product.listOfIsPartOfSetIds.isNotEmpty) {
+          final updatedSetProducts = await updateQuantityOfSetProducts(
+            db: db,
+            currentUserUid: currentUserUid,
+            transaction: transaction,
+            product: updatedProduct!,
+          );
+
+          listOfUpdatedSetProducts.addAll(updatedSetProducts!);
+        }
+
+        transaction.update(docRefProduct, updatedProduct!.toJson());
+      });
+
+      for (final updatedSetProduct in listOfUpdatedSetProducts) {
+        await marketplaceEditRepository.setProdcutPrestaQuantity(updatedSetProduct, updatedSetProduct.availableStock, null);
+      }
+
+      if (updatedProduct == null) return left(GeneralFailure());
+      await marketplaceEditRepository.setProdcutPrestaQuantity(updatedProduct!, updatedProduct!.availableStock, marketplaceToSkip);
+      return right(updatedProduct!);
     } on FirebaseException {
       return left(GeneralFailure());
     }
   }
 
   @override
-  Future<Either<FirebaseFailure, Product>> updateWarehouseQuantityOfProductIncremental(Product product, int newQuantityIncremental) async {
+  Future<Either<FirebaseFailure, Product>> updateWarehouseQuantityOfNewProductOnImportIncremental(Product product, int newQuantityIncremental) async {
+    //! Wenn diese Funktion bearbeitet wird muss auch die Funktion (receipt_repository_impl)(updateProductWarehouseQuantityIncremental) geupdatet werden
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
 
@@ -688,6 +686,39 @@ class ProductRepositoryImpl implements ProductRepository {
       return left(GeneralFailure());
     }
   }
+}
+
+Future<List<Product>?> updateQuantityOfSetProducts({
+  required FirebaseFirestore db,
+  required String currentUserUid,
+  required Transaction transaction,
+  required Product product,
+}) async {
+  List<Product> listOfUpdatedSetProducts = [];
+  //* Set-Artikel laden, wo dieser Artikel ein Bestandteil ist
+  final listOfSetProducts = await getSetProductsOfPartProduct(db, currentUserUid, transaction, product);
+  if (listOfSetProducts == null) return Future.value(null);
+
+  //* Bestand bei allen Set-Artikeln anpassen
+  for (final setProduct in listOfSetProducts) {
+    final docRefSetProduct = db.collection('Products').doc(currentUserUid).collection('Products').doc(setProduct.id);
+    final listOfSetPartProducts = await getPartProductsOfSetProduct(
+      db: db,
+      currentUserUid: currentUserUid,
+      transaction: transaction,
+      setProduct: setProduct,
+      alreadyLoadedPartProduct: product,
+    );
+    if (listOfSetPartProducts == null) return Future.value(null);
+
+    final quantitySetArticle = calcSetArticleAvailableQuantity(setProduct, listOfSetPartProducts);
+    final difference = setProduct.warehouseStock - setProduct.availableStock;
+    final updatedSetProduct = setProduct.copyWith(availableStock: quantitySetArticle, warehouseStock: quantitySetArticle + difference);
+
+    transaction.update(docRefSetProduct, updatedSetProduct.toJson());
+    listOfUpdatedSetProducts.add(updatedSetProduct);
+  }
+  return listOfUpdatedSetProducts;
 }
 
 Future<List<Product>?> getPartProductsOfSetProduct({
@@ -710,6 +741,25 @@ Future<List<Product>?> getPartProductsOfSetProduct({
     listOfSetPartProducts.add(partProduct);
   }
   return listOfSetPartProducts;
+}
+
+Future<void> addSetProductIdToPartProducts({
+  required FirebaseFirestore db,
+  required String currentUserUid,
+  required Transaction? transaction,
+  required Product setProduct,
+  required List<Product> listOfSetPartProducts,
+}) async {
+  for (final partOfSetProduct in listOfSetPartProducts) {
+    final docRefUpdatedPartProduct = db.collection('Products').doc(currentUserUid).collection('Products').doc(partOfSetProduct.id);
+    if (partOfSetProduct.listOfIsPartOfSetIds.any((e) => e == setProduct.id)) continue;
+    final updatedProduct = partOfSetProduct.copyWith(listOfIsPartOfSetIds: partOfSetProduct.listOfIsPartOfSetIds..add(setProduct.id));
+    if (transaction != null) {
+      transaction.update(docRefUpdatedPartProduct, updatedProduct.toJson());
+    } else {
+      docRefUpdatedPartProduct.update(updatedProduct.toJson());
+    }
+  }
 }
 
 Future<List<Product>?> getSetProductsOfPartProduct(FirebaseFirestore db, String currentUserUid, Transaction transaction, Product product) async {

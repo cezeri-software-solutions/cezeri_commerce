@@ -7,6 +7,7 @@ import '../../../../constants.dart';
 import '../../../core/functions/show_my_product_quick_view.dart';
 import '../../../core/widgets/my_animated_expansion_container.dart';
 import '../../../core/widgets/my_circular_progress_indicator.dart';
+import '../../../core/widgets/my_recommended_reorder_quantity.dart';
 import 'grouped_list_of_supplier_by_manufacturer.dart';
 
 final logger = Logger();
@@ -99,7 +100,7 @@ class HomeProductExpanded extends StatelessWidget {
                                     },
                                     if (state.groupProductsBy == GroupProductsBy.supplier)
                                       InkWell(
-                                        onTap: () {},
+                                        onTap: () async => _showDateRangePicker(context, homeProductBloc, group.supplier),
                                         child: const Icon(Icons.add_shopping_cart_rounded),
                                       ),
                                   ],
@@ -154,6 +155,55 @@ class HomeProductExpanded extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+
+  Future<void> _showDateRangePicker(BuildContext context, HomeProductBloc homeProductBloc, String supplierName) async {
+    final now = DateTime.now();
+
+    final newDateRange = await showDateRangePicker(context: context, firstDate: DateTime(now.year - 1), lastDate: now);
+
+    if (context.mounted && newDateRange != null) {
+      showDialog(context: context, builder: (context) => _CreateReorderDialog(supplierName: supplierName, dateRange: newDateRange));
+    }
+  }
+}
+
+class _CreateReorderDialog extends StatelessWidget {
+  final String supplierName;
+  final DateTimeRange dateRange;
+
+  const _CreateReorderDialog({required this.supplierName, required this.dateRange});
+
+  @override
+  Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.sizeOf(context).width;
+    return Dialog(
+      child: SizedBox(
+        width: screenWidth > 700 ? 1000 : screenWidth,
+        child: const Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(padding: EdgeInsets.all(8), child: Text('Nachbestellung nach:', style: TextStyles.h2Bold)),
+            ListTile(
+              leading: SizedBox(width: 80, child: RecommendedReorderQuantity(title: 'VE:', quantity: 0, color: CustomColors.ultraLightGreen)),
+              title: Text('Verpackungseinheit'),
+            ),
+            ListTile(
+              leading: SizedBox(width: 80, child: RecommendedReorderQuantity(title: 'EBM/RE:', quantity: 0, color: CustomColors.ultraLightYellow)),
+              title: Text('Empfohlene Bestellmenge nach erstelleten Rechnungen'),
+            ),
+            ListTile(
+              leading: SizedBox(width: 80, child: RecommendedReorderQuantity(title: 'EBM/AE:', quantity: 0, color: CustomColors.ultraLightOrange2)),
+              title: Text('Empfohlene Bestellmenge nach Auftragseingang'),
+            ),
+            ListTile(
+              leading: SizedBox(width: 80, child: RecommendedReorderQuantity(title: 'EBM/VE:', quantity: 0, color: CustomColors.ultraLightRed)),
+              title: Text('Empfohlene Bestellmenge nach Verpackungseinheit'),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

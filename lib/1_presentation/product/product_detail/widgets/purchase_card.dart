@@ -37,14 +37,13 @@ class PurchaseCard extends StatelessWidget {
                         onChanged: (_) => productDetailBloc.add(OnProductControllerChangedEvent()),
                       ),
                     ),
-                    Gaps.w8,
-                    // Expanded(
-                    //   child: MyTextFormFieldSmall(
-                    //     labelText: 'Lief. Name',
-                    //     controller: state.supplierController,
-                    //     onChanged: (_) => productDetailBloc.add(OnProductControllerChangedEvent()),
-                    //   ),
-                    // ),
+                    if (state.product!.isSetArticle && state.product!.listOfProductIdWithQuantity.isNotEmpty)
+                      IconButton(
+                        onPressed: () => productDetailBloc.add(OnSetProductWholesalePriceGeneratedEvent()),
+                        icon: const Icon(Icons.reply_all_outlined, color: CustomColors.primaryColor),
+                      )
+                    else
+                      Gaps.w8,
                     Expanded(
                       child: GestureDetector(
                         onTap: state.listOfSuppliers == null

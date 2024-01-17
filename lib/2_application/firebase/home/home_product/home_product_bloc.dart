@@ -33,7 +33,6 @@ class HomeProductBloc extends Bloc<HomeProductEvent, HomeProductState> {
       failureOrSuccess.fold(
         (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
         (listOfProducts) {
-          print(state.listOfReorders);
           emit(state.copyWith(listOfProductsSoldOut: listOfProducts, firebaseFailure: null, isAnyFailure: false));
           add(GenerateProductHomeProductsEvent());
           if (state.listOfReorders == null) add(GetHomeReordersEvent());
