@@ -20,8 +20,9 @@ class SetListOfProductsEvent extends ProductDetailEvent {
 
 class GetProductAfterExportNewProductToMarketplaceEvent extends ProductDetailEvent {
   final String id;
+  final List<Product> listOfAllProducts;
 
-  GetProductAfterExportNewProductToMarketplaceEvent({required this.id});
+  GetProductAfterExportNewProductToMarketplaceEvent({required this.id, required this.listOfAllProducts});
 }
 
 class SetProductEvent extends ProductDetailEvent {

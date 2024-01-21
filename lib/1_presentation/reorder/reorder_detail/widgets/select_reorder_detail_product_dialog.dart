@@ -84,6 +84,7 @@ class SelectReorderDetailProductDialog extends StatelessWidget {
                                       final ebmPerRe = _getRecommendedOrderQuantity(
                                         statProductReorderInvoice.quantity,
                                         reProduct.minimumStock,
+                                        reProduct.minimumReorderQuantity,
                                         reProduct.warehouseStock,
                                       );
                                       reorderDetailBloc.add(OnReorderDeatilAddProductEvent(product: reProduct, quantity: ebmPerRe));
@@ -103,6 +104,7 @@ class SelectReorderDetailProductDialog extends StatelessWidget {
                                       final ebmPerAe = _getRecommendedOrderQuantity(
                                         statProductReorderAppointment.quantity,
                                         reProduct.minimumStock,
+                                        reProduct.minimumReorderQuantity,
                                         reProduct.availableStock,
                                       );
                                       reorderDetailBloc.add(OnReorderDeatilAddProductEvent(product: reProduct, quantity: ebmPerAe));
@@ -122,6 +124,7 @@ class SelectReorderDetailProductDialog extends StatelessWidget {
                                       final ebmPerRe = _getRecommendedOrderQuantity(
                                         statProductReorderInvoice.quantity,
                                         reProduct.minimumStock,
+                                        reProduct.minimumReorderQuantity,
                                         reProduct.warehouseStock,
                                       );
                                       final ebmPerReVe = _getRecommendedOrderQuantityByPackagingUnit(ebmPerRe, reProduct.packagingUnitOnReorder);
@@ -142,6 +145,7 @@ class SelectReorderDetailProductDialog extends StatelessWidget {
                                       final ebmPerAe = _getRecommendedOrderQuantity(
                                         statProductReorderAppointment.quantity,
                                         reProduct.minimumStock,
+                                        reProduct.minimumReorderQuantity,
                                         reProduct.availableStock,
                                       );
                                       final ebmPerAeVe = _getRecommendedOrderQuantityByPackagingUnit(ebmPerAe, reProduct.packagingUnitOnReorder);
@@ -172,11 +176,13 @@ class SelectReorderDetailProductDialog extends StatelessWidget {
                       final ebmPerRe = _getRecommendedOrderQuantity(
                         statProductReorderInvoice.quantity,
                         product.minimumStock,
+                        product.minimumReorderQuantity,
                         product.warehouseStock,
                       );
                       final ebmPerAe = _getRecommendedOrderQuantity(
                         statProductReorderAppointment.quantity,
                         product.minimumStock,
+                        product.minimumReorderQuantity,
                         product.availableStock,
                       );
                       final ebmPerReVe = _getRecommendedOrderQuantityByPackagingUnit(ebmPerRe, product.packagingUnitOnReorder);
@@ -350,10 +356,15 @@ class SelectReorderDetailProductDialog extends StatelessWidget {
     );
   }
 
-  int _getRecommendedOrderQuantity(int unitsSold, int minimumStock, int quantity) {
-    int expectedDemand = unitsSold; // Erwarteter Bedarf entspricht den verkauften Einheiten
-    int reorderQuantity = expectedDemand - quantity + minimumStock;
-    return reorderQuantity > 0 ? reorderQuantity : 0; // Vermeidung von negativen Werten
+  int _getRecommendedOrderQuantity(int unitsSold, int minimumStock, int minimumReorderQuantity, int quantity) {
+    int reorderQuantity = unitsSold - quantity + minimumStock;
+    int realReorderQuantity = 0;
+    if (reorderQuantity <= 0) {
+      realReorderQuantity = 0;
+    } else {
+      realReorderQuantity = reorderQuantity > minimumReorderQuantity ? reorderQuantity : minimumReorderQuantity;
+    }
+    return realReorderQuantity > 0 ? realReorderQuantity : 0; // Vermeidung von negativen Werten
   }
 
   int _getRecommendedOrderQuantityByPackagingUnit(int recommendedQuantity, int packagingUnit) {

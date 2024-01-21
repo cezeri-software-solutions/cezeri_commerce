@@ -112,7 +112,7 @@ class ProductDetailScreen extends StatelessWidget {
                   },
                   (unit) {
                     final curProduct = state.product!;
-                    productDetailBloc.add(GetProductAfterExportNewProductToMarketplaceEvent(id: curProduct.id));
+                    productDetailBloc.add(GetProductAfterExportNewProductToMarketplaceEvent(id: curProduct.id, listOfAllProducts: listOfProducts));
                     context.router.popUntilRouteWithName(ProductDetailRoute.name);
                     myScaffoldMessenger(context, null, null, 'Artikel erfolgreich im Marktplatz angelegt', null);
                   },

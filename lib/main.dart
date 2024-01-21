@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:responsive_framework/responsive_framework.dart';
 
 import '2_application/firebase/auth/auth_bloc/auth_bloc.dart';
 import '2_application/firebase/main_settings/main_settings_bloc.dart';
@@ -34,13 +35,22 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         title: 'Flutter Demo',
         theme: AppTheme.lightTheme,
-        //home: const MyHomePage(title: 'Flutter Demo Home Page'),
+        builder: (context, child) {
+          return ResponsiveBreakpoints.builder(
+            child: child!,
+            breakpoints: [
+              const Breakpoint(start: 0, end: 699, name: MOBILE),
+              const Breakpoint(start: 700, end: 1399, name: TABLET),
+              const Breakpoint(start: 1400, end: 1920, name: DESKTOP),
+              const Breakpoint(start: 1921, end: double.infinity, name: '4K'),
+            ],
+          );
+        },
         localizationsDelegates: const [
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
         ],
-        //locale: const Locale('de', 'AT'),
         supportedLocales: const [Locale('de', 'DE')],
       ),
     );

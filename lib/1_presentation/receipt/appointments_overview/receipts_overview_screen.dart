@@ -4,6 +4,7 @@ import 'package:cezeri_commerce/1_presentation/core/extensions/string_to_int.dar
 import 'package:cezeri_commerce/1_presentation/core/widgets/my_dropdown_button_form_field.dart';
 import 'package:cezeri_commerce/3_domain/entities/receipt/receipt_product.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -15,6 +16,9 @@ import '../../../3_domain/entities/customer/customer.dart';
 import '../../../3_domain/entities/marketplace/marketplace.dart';
 import '../../../3_domain/entities/receipt/receipt.dart';
 import '../../../3_domain/entities/receipt/receipt_customer.dart';
+import '../../../3_domain/pdf/pdf_api_mobile.dart';
+import '../../../3_domain/pdf/pdf_api_web.dart';
+import '../../../3_domain/pdf/pdf_outgoing_invoices_generator.dart';
 import '../../../constants.dart';
 import '../../../injection.dart';
 import '../../../routes/router.gr.dart';
@@ -180,6 +184,10 @@ class ReceiptsOverviewScreen extends StatelessWidget {
                   },
                 ),
                 actions: [
+                  IconButton(
+                    onPressed: () async => _onGeneratePdfTable(context, state.listOfAllReceipts!),
+                    icon: const Icon(Icons.table_chart_rounded, color: CustomColors.primaryColor),
+                  ),
                   IconButton(onPressed: () => appointmentBloc.add(SendEmailToCustomerReceiptEvent()), icon: const Icon(Icons.mail)),
                   Tooltip(
                     message: 'Senden',
@@ -374,6 +382,46 @@ class ReceiptsOverviewScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<void> _onGeneratePdfTable(BuildContext context, List<Receipt> listOfReceipts) async {
+    final now = DateTime.now();
+    final dateRange = await showDateRangePicker(context: context, firstDate: DateTime(now.year - 2), lastDate: now);
+    if (dateRange == null) return;
+
+    if (context.mounted) showMyDialogLoading(context: context, text: 'PDF wird erstellt...');
+
+    final listOfReceiptsInDateRange = listOfReceipts
+        .where((e) => e.creationDate.isAfter(dateRange.start) && e.creationDate.isBefore(dateRange.end.add(const Duration(days: 1))))
+        .toList();
+
+    final generatedPdf = await PdfOutgoingInvoicesGenerator.generate(listOfReceipts: listOfReceiptsInDateRange, dateRange: dateRange);
+
+    if (context.mounted) {
+      switch (receiptTyp) {
+        case ReceiptTyp.offer:
+          context.router.popUntilRouteWithName(OffersOverviewRoute.name);
+        case ReceiptTyp.appointment:
+          context.router.popUntilRouteWithName(AppointmentsOverviewRoute.name);
+        case ReceiptTyp.deliveryNote:
+          context.router.popUntilRouteWithName(DeliveryNotesOverviewRoute.name);
+        case ReceiptTyp.invoice || ReceiptTyp.credit:
+          context.router.popUntilRouteWithName(InvoicesOverviewRoute.name);
+      }
+    }
+
+    if (kIsWeb) {
+      await PdfApiWeb.saveDocument(
+          name:
+              'Rechnungen ${dateRange.start.year}-${dateRange.start.month}-${dateRange.start.day} - ${dateRange.end.year}-${dateRange.end.month}-${dateRange.end.day}.pdf',
+          byteList: generatedPdf,
+          showInBrowser: true);
+    } else {
+      await PdfApiMobile.saveDocument(
+          name:
+              'Rechnungen ${dateRange.start.year}-${dateRange.start.month}-${dateRange.start.day} - ${dateRange.end.year}-${dateRange.end.month}-${dateRange.end.day}.pdf',
+          byteList: generatedPdf);
+    }
   }
 
   String _textOnSuccessfulDelete(ReceiptTyp receiptTyp) {

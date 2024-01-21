@@ -237,6 +237,35 @@ class AppDrawer extends StatelessWidget {
                       ],
                     ),
                     ExpansionTile(
+                      title: const Text('Buchhaltung'),
+                      leading: const Icon(Icons.balance),
+                      childrenPadding: const EdgeInsets.only(left: 20),
+                      children: [
+                        ListTile(
+                          leading: const Icon(Icons.table_chart_outlined),
+                          title: const Text('Sachkonten'),
+                          onTap: () {
+                            if (context.router.current.name == SuppliersOverviewRoute.name) {
+                              context.router.pop();
+                            } else {
+                              context.router.replaceAll([const SuppliersOverviewRoute()]);
+                            }
+                          },
+                        ),
+                        ListTile(
+                          leading: const Icon(Icons.document_scanner),
+                          title: const Text('Ausgangsrechnungen'),
+                          onTap: () {
+                            if (context.router.current.name == ReordersOverviewRoute.name) {
+                              context.router.pop();
+                            } else {
+                              context.router.replaceAll([const ReordersOverviewRoute()]);
+                            }
+                          },
+                        ),
+                      ],
+                    ),
+                    ExpansionTile(
                       leading: const Icon(Icons.settings),
                       title: const Text('Einstellungen'),
                       childrenPadding: const EdgeInsets.only(left: 20),

@@ -40,6 +40,13 @@ class ProductOverviewPage extends StatelessWidget {
           return const Expanded(child: Center(child: CircularProgressIndicator()));
         }
 
+        double totalWarehouseStockAmount =
+            state.listOfAllProducts!.fold(0.0, (previousValue, product) => previousValue + (product.netPrice * product.warehouseStock));
+        logger.i(totalWarehouseStockAmount.toMyCurrencyStringToShow());
+        double totalWarehouseStockWholesaleAmount =
+            state.listOfAllProducts!.fold(0.0, (previousValue, product) => previousValue + (product.wholesalePrice * product.warehouseStock));
+        logger.i(totalWarehouseStockWholesaleAmount.toMyCurrencyStringToShow());
+
         return Expanded(
           child: Scrollbar(
             child: ListView.builder(

@@ -12,23 +12,23 @@ import 'package:path_provider/path_provider.dart';
 import 'package:quiver/core.dart';
 import 'package:xml/xml.dart';
 
-import '../../../3_domain/entities/product/marketplace_product_presta.dart';
-import '../../../3_domain/entities/product/product.dart';
-import '../../../3_domain/entities/product/product_image.dart';
-import '../../../3_domain/entities/product/product_marketplace.dart';
-import '../../../3_domain/entities_presta/address_presta.dart';
-import '../../../3_domain/entities_presta/carrier_presta.dart';
-import '../../../3_domain/entities_presta/category_presta.dart';
-import '../../../3_domain/entities_presta/country_presta.dart';
-import '../../../3_domain/entities_presta/currency_presta.dart';
-import '../../../3_domain/entities_presta/customer_presta.dart';
-import '../../../3_domain/entities_presta/language_presta.dart';
-import '../../../3_domain/entities_presta/order_id_presta.dart';
-import '../../../3_domain/entities_presta/order_presta.dart';
-import '../../../3_domain/entities_presta/product_id_presta.dart';
-import '../../../3_domain/entities_presta/product_presta.dart';
-import '../../../3_domain/entities_presta/product_presta_image.dart';
-import '../../../3_domain/entities_presta/stock_available_presta.dart';
+import '/3_domain/entities/product/marketplace_product_presta.dart';
+import '/3_domain/entities/product/product.dart';
+import '/3_domain/entities/product/product_image.dart';
+import '/3_domain/entities/product/product_marketplace.dart';
+import '/3_domain/entities_presta/address_presta.dart';
+import '/3_domain/entities_presta/carrier_presta.dart';
+import '/3_domain/entities_presta/category_presta.dart';
+import '/3_domain/entities_presta/country_presta.dart';
+import '/3_domain/entities_presta/currency_presta.dart';
+import '/3_domain/entities_presta/customer_presta.dart';
+import '/3_domain/entities_presta/language_presta.dart';
+import '/3_domain/entities_presta/order_id_presta.dart';
+import '/3_domain/entities_presta/order_presta.dart';
+import '/3_domain/entities_presta/product_id_presta.dart';
+import '/3_domain/entities_presta/product_presta.dart';
+import '/3_domain/entities_presta/product_presta_image.dart';
+import '/3_domain/entities_presta/stock_available_presta.dart';
 import 'patch_builders.dart';
 import 'post_builder.dart';
 import 'put_builder.dart';
@@ -195,7 +195,7 @@ class PrestashopApi with UiLoggy {
       single: true,
     );
     if (payload is Map && payload.isEmpty || payload is List && payload.isEmpty) return const Optional.absent();
-    final optionalProductPresta = payload == null ? const Optional.absent() : Optional.of(ProductsPresta.fromJson(payload).items.single);
+    final optionalProductPresta = payload == null ? const Optional.absent() : Optional.of(ProductsPresta.fromJson(payload).items.first);
     if (optionalProductPresta.isNotPresent) return const Optional.absent();
     final phProductPresta = optionalProductPresta.value;
     final productPresta = await getProductImpl(phProductPresta, marketplace);
@@ -331,7 +331,7 @@ class PrestashopApi with UiLoggy {
   }
 
   Future<bool> deleteProductImage(String productID, String imageID) async {
-    String url = '${_conf.webserviceUrl}images/products/$productID/$imageID';
+    String url = '${_conf.webserviceUrl}images/products/$productID/${imageID.toMyInt()}';
     String base64Auth = base64Encode(utf8.encode('${_conf.apiKey}:'));
 
     var response = await delete(
@@ -344,6 +344,7 @@ class PrestashopApi with UiLoggy {
       return true;
     } else {
       logger.e('Failed to delete image');
+      logger.e(response.body);
       return false;
     }
   }
@@ -497,7 +498,10 @@ class PrestashopApi with UiLoggy {
     Marketplace marketplace,
   ) async {
     final optionalProductPresta = await getProductByReference(product.articleNumber, marketplace);
-    if (optionalProductPresta.isPresent) return 0;
+    if (optionalProductPresta.isPresent) {
+      logger.e('Ein Artikel mit der Artikelnummer: "${product.articleNumber}" ist bereits im Marktplatz: "${marketplace.name}" vorhanden');
+      return 0;
+    }
     final aMpp = anotherProductMarketplaceWithSameManufacturer.marketplaceProduct as MarketplaceProductPresta;
     final optionalAnotherProductPresta = await getProduct(aMpp.id, marketplace);
     if (optionalAnotherProductPresta.isNotPresent) return 0;
@@ -535,6 +539,7 @@ class PrestashopApi with UiLoggy {
       return null;
     }
     if (response.statusCode == 200) {
+      print(response.body);
       return jsonDecode(utf8.decode(response.bodyBytes));
     }
     loggy.error(response);

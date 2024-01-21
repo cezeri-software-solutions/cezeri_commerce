@@ -150,7 +150,7 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
       failureOrSuccess.fold(
         (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
         (product) {
-          emit(state.copyWith(product: product, firebaseFailure: null, isAnyFailure: false));
+          emit(state.copyWith(product: product, listOfAllProducts: event.listOfAllProducts, firebaseFailure: null, isAnyFailure: false));
           add(SetProductControllerEvent(product: product));
           add(OnProductGetStatProductsEvent());
           add(OnEditProductInPresta(product: product, updateImages: true));

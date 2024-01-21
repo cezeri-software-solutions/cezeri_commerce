@@ -1,9 +1,9 @@
 import 'package:cezeri_commerce/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:responsive_framework/responsive_breakpoints.dart';
 
 import '../../../2_application/firebase/product_detail/product_detail_bloc.dart';
-import '../../../3_domain/enums/enums.dart';
 import 'product_detail_screen.dart';
 import 'widgets/charts/product_chart_card.dart';
 import 'widgets/product_detail_marketplaces_bar.dart';
@@ -23,9 +23,8 @@ class ProductDetailPage extends StatelessWidget {
       bloc: productDetailBloc,
       builder: (context, state) {
         final screenWidth = MediaQuery.sizeOf(context).width;
-        final responsiveness = screenWidth > 700 ? Responsiveness.isTablet : Responsiveness.isMobil;
 
-        if (responsiveness == Responsiveness.isTablet) {
+        if (ResponsiveBreakpoints.of(context).isTablet) {
           return SingleChildScrollView(
             child: Padding(
               padding: const EdgeInsets.all(18.0),
