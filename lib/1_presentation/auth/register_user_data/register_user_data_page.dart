@@ -13,6 +13,7 @@ import '../../core/functions/input_validators.dart';
 import '../../core/widgets/my_dropdown_button_countries.dart';
 import '../../core/widgets/my_elevated_button.dart';
 import '../../core/widgets/my_form_field_container.dart';
+import '../../splash_page.dart';
 
 class RegisterUserDataPage extends StatefulWidget {
   final UserDataFormBloc userDataFormBloc;
@@ -201,9 +202,16 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
                     const LinearProgressIndicator(),
                   ],
                   const SizedBox(height: 40),
+                  if (context.router.canPop())
+                    MyElevatedButton(
+                      buttonText: 'Abbrechen',
+                      onPressed: () => context.router.popUntil((route) => route.settings.name == SignInRoute.name),
+                    ),
+                  Gaps.h24,
                   MyElevatedButton(
-                    buttonText: 'Abbrechen',
-                    onPressed: () => context.router.popUntil((route) => route.settings.name == SignInRoute.name),
+                    buttonText: 'Abmelden',
+                    buttonBackgroundColor: Colors.red,
+                    onPressed: () => context.router.replaceAll([SplashRoute(comeFrom: ComeFromToSplashPage.appDrawer)]),
                   ),
                   Gaps.h32
                 ],

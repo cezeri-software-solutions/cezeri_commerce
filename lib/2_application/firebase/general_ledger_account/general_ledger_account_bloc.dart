@@ -196,6 +196,7 @@ class GeneralLedgerAccountBloc extends Bloc<GeneralLedgerAccountEvent, GeneralLe
 
   void _onGLAccountSearchControllerCleared(OnGLAccountSearchControllerClearedEvent event, Emitter<GeneralLedgerAccountState> emit) {
     emit(state.copyWith(searchController: SearchController()));
+    add(OnGLAccountSearchControllerChangedEvent());
   }
 
   void _onGLAccountIsActiveChanged(OnGLAccountIsActiveChangedEvent event, Emitter<GeneralLedgerAccountState> emit) {

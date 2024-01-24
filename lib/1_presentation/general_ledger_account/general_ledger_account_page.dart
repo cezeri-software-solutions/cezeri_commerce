@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:responsive_framework/responsive_framework.dart';
 
 import '../../2_application/firebase/general_ledger_account/general_ledger_account_bloc.dart';
 import '../../3_domain/entities/settings/general_ledger_account.dart';
@@ -22,25 +23,25 @@ class GeneralLedgerAccountPage extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                GLAccountTitle(gLAccountBloc: gLAccountBloc, title: 'Klasse 0'),
+                GLAccountTitle(gLAccountBloc: gLAccountBloc, title: 'Klasse 0', list: state.listOfFilteredGLAccounts0),
                 GLAccountListView(gLAccountBloc: gLAccountBloc, list: state.listOfFilteredGLAccounts0),
-                GLAccountTitle(gLAccountBloc: gLAccountBloc, title: 'Klasse 1'),
+                GLAccountTitle(gLAccountBloc: gLAccountBloc, title: 'Klasse 1', list: state.listOfFilteredGLAccounts1),
                 GLAccountListView(gLAccountBloc: gLAccountBloc, list: state.listOfFilteredGLAccounts1),
-                GLAccountTitle(gLAccountBloc: gLAccountBloc, title: 'Klasse 2'),
+                GLAccountTitle(gLAccountBloc: gLAccountBloc, title: 'Klasse 2', list: state.listOfFilteredGLAccounts2),
                 GLAccountListView(gLAccountBloc: gLAccountBloc, list: state.listOfFilteredGLAccounts2),
-                GLAccountTitle(gLAccountBloc: gLAccountBloc, title: 'Klasse 3'),
+                GLAccountTitle(gLAccountBloc: gLAccountBloc, title: 'Klasse 3', list: state.listOfFilteredGLAccounts3),
                 GLAccountListView(gLAccountBloc: gLAccountBloc, list: state.listOfFilteredGLAccounts3),
-                GLAccountTitle(gLAccountBloc: gLAccountBloc, title: 'Klasse 4'),
+                GLAccountTitle(gLAccountBloc: gLAccountBloc, title: 'Klasse 4', list: state.listOfFilteredGLAccounts4),
                 GLAccountListView(gLAccountBloc: gLAccountBloc, list: state.listOfFilteredGLAccounts4),
-                GLAccountTitle(gLAccountBloc: gLAccountBloc, title: 'Klasse 5'),
+                GLAccountTitle(gLAccountBloc: gLAccountBloc, title: 'Klasse 5', list: state.listOfFilteredGLAccounts5),
                 GLAccountListView(gLAccountBloc: gLAccountBloc, list: state.listOfFilteredGLAccounts5),
-                GLAccountTitle(gLAccountBloc: gLAccountBloc, title: 'Klasse 6'),
+                GLAccountTitle(gLAccountBloc: gLAccountBloc, title: 'Klasse 6', list: state.listOfFilteredGLAccounts6),
                 GLAccountListView(gLAccountBloc: gLAccountBloc, list: state.listOfFilteredGLAccounts6),
-                GLAccountTitle(gLAccountBloc: gLAccountBloc, title: 'Klasse 7'),
+                GLAccountTitle(gLAccountBloc: gLAccountBloc, title: 'Klasse 7', list: state.listOfFilteredGLAccounts7),
                 GLAccountListView(gLAccountBloc: gLAccountBloc, list: state.listOfFilteredGLAccounts7),
-                GLAccountTitle(gLAccountBloc: gLAccountBloc, title: 'Klasse 8'),
+                GLAccountTitle(gLAccountBloc: gLAccountBloc, title: 'Klasse 8', list: state.listOfFilteredGLAccounts8),
                 GLAccountListView(gLAccountBloc: gLAccountBloc, list: state.listOfFilteredGLAccounts8),
-                GLAccountTitle(gLAccountBloc: gLAccountBloc, title: 'Klasse 9'),
+                GLAccountTitle(gLAccountBloc: gLAccountBloc, title: 'Klasse 9', list: state.listOfFilteredGLAccounts9),
                 GLAccountListView(gLAccountBloc: gLAccountBloc, list: state.listOfFilteredGLAccounts9),
               ],
             ),
@@ -54,23 +55,26 @@ class GeneralLedgerAccountPage extends StatelessWidget {
 class GLAccountTitle extends StatelessWidget {
   final GeneralLedgerAccountBloc gLAccountBloc;
   final String title;
+  final List<GeneralLedgerAccount> list;
 
-  const GLAccountTitle({super.key, required this.gLAccountBloc, required this.title});
+  const GLAccountTitle({super.key, required this.gLAccountBloc, required this.title, required this.list});
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(title, style: TextStyles.h2Bold),
-        const Row(
-          children: [
-            SizedBox(width: 60, child: Center(child: Text('Aktiv'))),
-            SizedBox(width: 60, child: Center(child: Text('Sichtbar'))),
-          ],
-        )
-      ],
-    );
+    return list.isEmpty
+        ? const SizedBox()
+        : Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(title, style: TextStyles.h2Bold),
+              const Row(
+                children: [
+                  SizedBox(width: 60, child: Center(child: Text('Aktiv'))),
+                  SizedBox(width: 60, child: Center(child: Text('Sichtbar'))),
+                ],
+              )
+            ],
+          );
   }
 }
 
@@ -93,22 +97,24 @@ class GLAccountListView extends StatelessWidget {
             return Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    Checkbox.adaptive(
-                      value: state.selectedGLAccounts.any((e) => e.id == gLAccount.id),
-                      onChanged: (_) => gLAccountBloc.add(OnSelectGLAccountEvent(gLAccount: gLAccount)),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        gLAccountBloc.add(SetGLAccountEvent(gLAccount: gLAccount));
-                        addEditGLSAccount(context, gLAccountBloc, gLAccount);
-                      },
-                      child: Text(gLAccount.generalLedgerAccount),
-                    ),
-                    Gaps.w16,
-                    Text(gLAccount.name),
-                  ],
+                Expanded(
+                  child: Row(
+                    children: [
+                      Checkbox.adaptive(
+                        value: state.selectedGLAccounts.any((e) => e.id == gLAccount.id),
+                        onChanged: (_) => gLAccountBloc.add(OnSelectGLAccountEvent(gLAccount: gLAccount)),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          gLAccountBloc.add(SetGLAccountEvent(gLAccount: gLAccount));
+                          addEditGLSAccount(context, gLAccountBloc, gLAccount);
+                        },
+                        child: Text(gLAccount.generalLedgerAccount),
+                      ),
+                      if (ResponsiveBreakpoints.of(context).largerThan(MOBILE)) Gaps.w16,
+                      Expanded(child: Text(gLAccount.name, maxLines: 1, overflow: TextOverflow.ellipsis)),
+                    ],
+                  ),
                 ),
                 Row(
                   children: [

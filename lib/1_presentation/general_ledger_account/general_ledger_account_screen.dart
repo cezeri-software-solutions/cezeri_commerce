@@ -97,18 +97,13 @@ class _GeneralLedgerAccountScreenState extends State<GeneralLedgerAccountScreen>
             );
 
             if (state.isLoadingGLAccountsOnObserve) {
-              return Scaffold(drawer: drawer, appBar: appbar, floatingActionButton: fab, body: const Center(child: MyCircularProgressIndicator()));
+              return Scaffold(drawer: drawer, appBar: appbar, body: const Center(child: MyCircularProgressIndicator()));
             }
             if (state.abstractFailure != null && state.isAnyFailure) {
-              return Scaffold(
-                drawer: drawer,
-                appBar: appbar,
-                floatingActionButton: fab,
-                body: const Center(child: Text('Ein Fehler ist aufgetreten')),
-              );
+              return Scaffold(drawer: drawer, appBar: appbar, body: const Center(child: Text('Ein Fehler ist aufgetreten')));
             }
             if (state.listOfAllGLAccounts == null) {
-              return Scaffold(drawer: drawer, appBar: appbar, floatingActionButton: fab, body: const Center(child: MyCircularProgressIndicator()));
+              return Scaffold(drawer: drawer, appBar: appbar, body: const Center(child: MyCircularProgressIndicator()));
             }
 
             return Scaffold(
@@ -138,4 +133,3 @@ class _GeneralLedgerAccountScreenState extends State<GeneralLedgerAccountScreen>
   @override
   bool get wantKeepAlive => true;
 }
-
