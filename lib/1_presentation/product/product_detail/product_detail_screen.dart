@@ -51,107 +51,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with Automati
     return BlocProvider.value(
       value: productDetailBloc,
       child: MultiBlocListener(
-        listeners: [
-          BlocListener<ProductDetailBloc, ProductDetailState>(
-            listenWhen: (p, c) => p.fosProductSuppliersOnObserveOption != c.fosProductSuppliersOnObserveOption,
-            listener: (context, state) {
-              state.fosProductSuppliersOnObserveOption.fold(
-                () => null,
-                (a) => a.fold(
-                  (failure) => myScaffoldMessenger(context, null, null, null, 'Beim Laen der Lieferanten ist ein Fehler aufgetreten'),
-                  (_) => showDialog(
-                    context: context,
-                    builder: (_) => MyDialogSuppliers(
-                      listOfSuppliers: state.listOfSuppliers!,
-                      onChanged: (supplier) => productDetailBloc.add(OnProductSetSupplierEvent(supplierName: supplier.company)),
-                    ),
-                  ),
-                ),
-              );
-            },
-          ),
-          BlocListener<ProductDetailBloc, ProductDetailState>(
-            listenWhen: (p, c) => p.fosProductOnUpdateOption != c.fosProductOnUpdateOption,
-            listener: (context, state) {
-              state.fosProductOnUpdateOption.fold(
-                () => null,
-                (a) => a.fold(
-                  (failure) => myScaffoldMessenger(context, failure, null, null, null),
-                  (listOfProducts) => myScaffoldMessenger(context, null, null, 'Artikel erfolgreich aktualisiert', null),
-                ),
-              );
-            },
-          ),
-          BlocListener<ProductDetailBloc, ProductDetailState>(
-            listenWhen: (p, c) => p.fosProductOnUpdateInMarketplaceOption != c.fosProductOnUpdateInMarketplaceOption,
-            listener: (context, state) {
-              state.fosProductOnUpdateInMarketplaceOption.fold(
-                () => null,
-                (a) => a.fold(
-                  (failure) =>
-                      myScaffoldMessenger(context, null, null, null, 'Artikel konnte in mindestens einem Marktplatz nicht aktualisert werden'),
-                  (listOfProducts) => myScaffoldMessenger(context, null, null, 'Artikel erfolgreich im Marktplatz aktualisiert', null),
-                ),
-              );
-            },
-          ),
-          BlocListener<ProductDetailBloc, ProductDetailState>(
-            listenWhen: (p, c) => p.fosProductOnUploadImagesInMarketplaceOption != c.fosProductOnUploadImagesInMarketplaceOption,
-            listener: (context, state) {
-              state.fosProductOnUploadImagesInMarketplaceOption.fold(
-                () => null,
-                (a) => a.fold(
-                  (failure) {
-                    myScaffoldMessenger(context, null, null, 'Artikel erfolgreich im Marktplatz aktualisiert', null);
-                    myScaffoldMessenger(context, null, null, null, 'Artikelbilder konnten in mindestens einem Marktplatz nicht aktualisert werden');
-                  },
-                  (listOfProducts) {
-                    myScaffoldMessenger(context, null, null, 'Artikel erfolgreich im Marktplatz aktualisiert', null);
-                  },
-                ),
-              );
-            },
-          ),
-          BlocListener<ProductDetailBloc, ProductDetailState>(
-            listenWhen: (p, c) => p.fosProductOnCreateInMarketplaceOption != c.fosProductOnCreateInMarketplaceOption,
-            listener: (context, state) {
-              state.fosProductOnCreateInMarketplaceOption.fold(
-                () => null,
-                (a) => a.fold(
-                  (failure) {
-                    context.router.popTop();
-                    myScaffoldMessenger(context, null, null, null, 'Artikel konnte nicht im Marktplatz angelegt werden');
-                  },
-                  (unit) {
-                    final curProduct = state.product!;
-                    productDetailBloc
-                        .add(GetProductAfterExportNewProductToMarketplaceEvent(id: curProduct.id, listOfAllProducts: widget.listOfProducts));
-                    context.router.popUntilRouteWithName(ProductDetailRoute.name);
-                    myScaffoldMessenger(context, null, null, 'Artikel erfolgreich im Marktplatz angelegt', null);
-                  },
-                ),
-              );
-            },
-          ),
-          BlocListener<ProductDetailBloc, ProductDetailState>(
-            listenWhen: (p, c) => p.fosProductsOnObserveOption != c.fosProductsOnObserveOption,
-            listener: (context, state) {
-              state.fosProductsOnObserveOption.fold(
-                () => null,
-                (a) => a.fold(
-                  (failure) {
-                    context.router.popTop();
-                    myScaffoldMessenger(context, null, null, null, 'Artikel konnten nicht geladen werden');
-                  },
-                  (loadedProducts) {
-                    context.router.popUntilRouteWithName(ProductDetailRoute.name);
-                    showSelectProductSheet(context, productDetailBloc);
-                  },
-                ),
-              );
-            },
-          ),
-        ],
+        listeners: _getProductDetailBlocListeners(productDetailBloc, widget.listOfProducts),
         child: BlocBuilder<ProductDetailBloc, ProductDetailState>(
           builder: (context, state) {
             final appBar = AppBar(title: const Text('Artikel'));
@@ -167,36 +67,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with Automati
             return Scaffold(
               appBar: AppBar(
                 title: const Text('Artikel'),
-                actions: [
-                  if (state.product != null)
-                    Switch.adaptive(
-                      value: state.product!.isActive,
-                      onChanged: (_) => productDetailBloc.add(OnProductIsActiveChangedEvent()),
-                    ),
-                  ResponsiveBreakpoints.of(context).isTablet ? Gaps.w16 : Gaps.w8,
-                  if (widget.productId != null) ...[
-                    IconButton(
-                      onPressed: () => productDetailBloc.add(GetProductEvent(
-                        id: state.product!.id,
-                      )),
-                      icon: const Icon(Icons.refresh, size: 30),
-                    ),
-                    ResponsiveBreakpoints.of(context).isTablet ? Gaps.w16 : Gaps.w8,
-                  ],
-                  MyOutlinedButton(
-                    buttonText: 'Speichern',
-                    onPressed: () {
-                      if (widget.productId != null) {
-                        productDetailBloc.add(UpdateProductEvent());
-                      } else {
-                        // TODO: Handle create new product
-                      }
-                    },
-                    isLoading: state.isLoadingProductOnUpdate,
-                    buttonBackgroundColor: Colors.green,
-                  ),
-                  ResponsiveBreakpoints.of(context).isTablet ? Gaps.w32 : Gaps.w8,
-                ],
+                actions: _getProductDetailActions(context, productDetailBloc, state, widget.productId),
               ),
               body: ProductDetailPage(
                 productDetailBloc: productDetailBloc,
@@ -211,4 +82,142 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with Automati
 
   @override
   bool get wantKeepAlive => true;
+}
+
+List<BlocListener<ProductDetailBloc, ProductDetailState>> _getProductDetailBlocListeners(
+  ProductDetailBloc productDetailBloc,
+  List<Product> listOfProducts,
+) {
+  return [
+    BlocListener<ProductDetailBloc, ProductDetailState>(
+      listenWhen: (p, c) => p.fosProductSuppliersOnObserveOption != c.fosProductSuppliersOnObserveOption,
+      listener: (context, state) {
+        state.fosProductSuppliersOnObserveOption.fold(
+          () => null,
+          (a) => a.fold(
+            (failure) => myScaffoldMessenger(context, null, null, null, 'Beim Laen der Lieferanten ist ein Fehler aufgetreten'),
+            (_) => showDialog(
+              context: context,
+              builder: (_) => MyDialogSuppliers(
+                listOfSuppliers: state.listOfSuppliers!,
+                onChanged: (supplier) => productDetailBloc.add(OnProductSetSupplierEvent(supplierName: supplier.company)),
+              ),
+            ),
+          ),
+        );
+      },
+    ),
+    BlocListener<ProductDetailBloc, ProductDetailState>(
+      listenWhen: (p, c) => p.fosProductOnUpdateOption != c.fosProductOnUpdateOption,
+      listener: (context, state) {
+        state.fosProductOnUpdateOption.fold(
+          () => null,
+          (a) => a.fold(
+            (failure) => myScaffoldMessenger(context, failure, null, null, null),
+            (listOfProducts) => myScaffoldMessenger(context, null, null, 'Artikel erfolgreich aktualisiert', null),
+          ),
+        );
+      },
+    ),
+    BlocListener<ProductDetailBloc, ProductDetailState>(
+      listenWhen: (p, c) => p.fosProductOnUpdateInMarketplaceOption != c.fosProductOnUpdateInMarketplaceOption,
+      listener: (context, state) {
+        state.fosProductOnUpdateInMarketplaceOption.fold(
+          () => null,
+          (a) => a.fold(
+            (failure) => myScaffoldMessenger(context, null, null, null, 'Artikel konnte in mindestens einem Marktplatz nicht aktualisert werden'),
+            (listOfProducts) => myScaffoldMessenger(context, null, null, 'Artikel erfolgreich im Marktplatz aktualisiert', null),
+          ),
+        );
+      },
+    ),
+    BlocListener<ProductDetailBloc, ProductDetailState>(
+      listenWhen: (p, c) => p.fosProductOnUploadImagesInMarketplaceOption != c.fosProductOnUploadImagesInMarketplaceOption,
+      listener: (context, state) {
+        state.fosProductOnUploadImagesInMarketplaceOption.fold(
+          () => null,
+          (a) => a.fold(
+            (failure) {
+              myScaffoldMessenger(context, null, null, 'Artikel erfolgreich im Marktplatz aktualisiert', null);
+              myScaffoldMessenger(context, null, null, null, 'Artikelbilder konnten in mindestens einem Marktplatz nicht aktualisert werden');
+            },
+            (listOfProducts) {
+              myScaffoldMessenger(context, null, null, 'Artikel erfolgreich im Marktplatz aktualisiert', null);
+            },
+          ),
+        );
+      },
+    ),
+    BlocListener<ProductDetailBloc, ProductDetailState>(
+      listenWhen: (p, c) => p.fosProductOnCreateInMarketplaceOption != c.fosProductOnCreateInMarketplaceOption,
+      listener: (context, state) {
+        state.fosProductOnCreateInMarketplaceOption.fold(
+          () => null,
+          (a) => a.fold(
+            (failure) {
+              context.router.popTop();
+              myScaffoldMessenger(context, null, null, null, 'Artikel konnte nicht im Marktplatz angelegt werden');
+            },
+            (unit) {
+              final curProduct = state.product!;
+              productDetailBloc.add(GetProductAfterExportNewProductToMarketplaceEvent(id: curProduct.id, listOfAllProducts: listOfProducts));
+              context.router.popUntilRouteWithName(ProductDetailRoute.name);
+              myScaffoldMessenger(context, null, null, 'Artikel erfolgreich im Marktplatz angelegt', null);
+            },
+          ),
+        );
+      },
+    ),
+    BlocListener<ProductDetailBloc, ProductDetailState>(
+      listenWhen: (p, c) => p.fosProductsOnObserveOption != c.fosProductsOnObserveOption,
+      listener: (context, state) {
+        state.fosProductsOnObserveOption.fold(
+          () => null,
+          (a) => a.fold(
+            (failure) {
+              context.router.popTop();
+              myScaffoldMessenger(context, null, null, null, 'Artikel konnten nicht geladen werden');
+            },
+            (loadedProducts) {
+              context.router.popUntilRouteWithName(ProductDetailRoute.name);
+              showSelectProductSheet(context, productDetailBloc);
+            },
+          ),
+        );
+      },
+    ),
+  ];
+}
+
+List<Widget>? _getProductDetailActions(BuildContext context, ProductDetailBloc productDetailBloc, ProductDetailState state, String? productId) {
+  return [
+    if (state.product != null)
+      Switch.adaptive(
+        value: state.product!.isActive,
+        onChanged: (_) => productDetailBloc.add(OnProductIsActiveChangedEvent()),
+      ),
+    ResponsiveBreakpoints.of(context).isTablet ? Gaps.w16 : Gaps.w8,
+    if (productId != null) ...[
+      IconButton(
+        onPressed: () => productDetailBloc.add(GetProductEvent(
+          id: state.product!.id,
+        )),
+        icon: const Icon(Icons.refresh, size: 30),
+      ),
+      ResponsiveBreakpoints.of(context).isTablet ? Gaps.w16 : Gaps.w8,
+    ],
+    MyOutlinedButton(
+      buttonText: 'Speichern',
+      onPressed: () {
+        if (productId != null) {
+          productDetailBloc.add(UpdateProductEvent());
+        } else {
+          // TODO: Handle create new product
+        }
+      },
+      isLoading: state.isLoadingProductOnUpdate,
+      buttonBackgroundColor: Colors.green,
+    ),
+    ResponsiveBreakpoints.of(context).isTablet ? Gaps.w32 : Gaps.w8,
+  ];
 }

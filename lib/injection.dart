@@ -11,6 +11,7 @@ import '2_application/firebase/auth/user_data_form/user_data_form_bloc.dart';
 import '2_application/firebase/client/client_bloc.dart';
 import '2_application/firebase/customer/customer_bloc.dart';
 import '2_application/firebase/dashboard/dashboard_bloc.dart';
+import '2_application/firebase/general_ledger_account/general_ledger_account_bloc.dart';
 import '2_application/firebase/home/home_product/home_product_bloc.dart';
 import '2_application/firebase/main_settings/main_settings_bloc.dart';
 import '2_application/firebase/marketplace/marketplace_bloc.dart';
@@ -96,6 +97,7 @@ Future<void> init() async {
   sl.registerFactory(() => DashboardBloc(dashboardRepository: sl(), receiptRepository: sl()));
   sl.registerFactory(() => ProductsBookingBloc(productRepository: sl(), reorderRepository: sl()));
   sl.registerFactory(() => ReceiptDetailBloc());
+  sl.registerFactory(() => GeneralLedgerAccountBloc(gLAccountRepository: sl()));
 
   //! repositories Firebase
   sl.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl(firebaseAuth: sl()));

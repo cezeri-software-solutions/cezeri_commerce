@@ -1,6 +1,5 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:cezeri_commerce/1_presentation/app_drawer.dart';
-import 'package:cezeri_commerce/routes/router.gr.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -15,6 +14,7 @@ import '../../../3_domain/pdf/pdf_api_web.dart';
 import '../../../3_domain/pdf/pdf_products_generator.dart';
 import '../../../constants.dart';
 import '../../../injection.dart';
+import '../../../routes/router.gr.dart';
 import '../../core/functions/dialogs.dart';
 import '../../core/functions/my_scaffold_messanger.dart';
 import '../../core/widgets/my_circular_progress_indicator.dart';
@@ -32,6 +32,12 @@ class ProductsOverviewScreen extends StatefulWidget {
 
 class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> with AutomaticKeepAliveClientMixin {
   final productBloc = sl<ProductBloc>()..add(GetAllProductsEvent());
+
+  @override
+  void initState() {
+    print('aloooo');
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {

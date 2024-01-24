@@ -5,7 +5,16 @@ part of 'general_ledger_account_bloc.dart';
 class GeneralLedgerAccountState {
   final GeneralLedgerAccount? gLAccount;
   final List<GeneralLedgerAccount>? listOfAllGLAccounts;
-  final List<GeneralLedgerAccount>? listOfFilteredGLAccounts;
+  final List<GeneralLedgerAccount> listOfFilteredGLAccounts0;
+  final List<GeneralLedgerAccount> listOfFilteredGLAccounts1;
+  final List<GeneralLedgerAccount> listOfFilteredGLAccounts2;
+  final List<GeneralLedgerAccount> listOfFilteredGLAccounts3;
+  final List<GeneralLedgerAccount> listOfFilteredGLAccounts4;
+  final List<GeneralLedgerAccount> listOfFilteredGLAccounts5;
+  final List<GeneralLedgerAccount> listOfFilteredGLAccounts6;
+  final List<GeneralLedgerAccount> listOfFilteredGLAccounts7;
+  final List<GeneralLedgerAccount> listOfFilteredGLAccounts8;
+  final List<GeneralLedgerAccount> listOfFilteredGLAccounts9;
   final AbstractFailure? abstractFailure;
   final bool isAnyFailure;
   final bool isLoadingGLAccountOnObserve;
@@ -31,7 +40,16 @@ class GeneralLedgerAccountState {
   const GeneralLedgerAccountState({
     required this.gLAccount,
     required this.listOfAllGLAccounts,
-    required this.listOfFilteredGLAccounts,
+    required this.listOfFilteredGLAccounts0,
+    required this.listOfFilteredGLAccounts1,
+    required this.listOfFilteredGLAccounts2,
+    required this.listOfFilteredGLAccounts3,
+    required this.listOfFilteredGLAccounts4,
+    required this.listOfFilteredGLAccounts5,
+    required this.listOfFilteredGLAccounts6,
+    required this.listOfFilteredGLAccounts7,
+    required this.listOfFilteredGLAccounts8,
+    required this.listOfFilteredGLAccounts9,
     required this.abstractFailure,
     required this.isAnyFailure,
     required this.isLoadingGLAccountOnObserve,
@@ -55,7 +73,16 @@ class GeneralLedgerAccountState {
     return GeneralLedgerAccountState(
       gLAccount: null,
       listOfAllGLAccounts: null,
-      listOfFilteredGLAccounts: const [],
+      listOfFilteredGLAccounts0: const [],
+      listOfFilteredGLAccounts1: const [],
+      listOfFilteredGLAccounts2: const [],
+      listOfFilteredGLAccounts3: const [],
+      listOfFilteredGLAccounts4: const [],
+      listOfFilteredGLAccounts5: const [],
+      listOfFilteredGLAccounts6: const [],
+      listOfFilteredGLAccounts7: const [],
+      listOfFilteredGLAccounts8: const [],
+      listOfFilteredGLAccounts9: const [],
       abstractFailure: null,
       isAnyFailure: false,
       isLoadingGLAccountOnObserve: false,
@@ -79,7 +106,16 @@ class GeneralLedgerAccountState {
   GeneralLedgerAccountState copyWith({
     GeneralLedgerAccount? gLAccount,
     List<GeneralLedgerAccount>? listOfAllGLAccounts,
-    List<GeneralLedgerAccount>? listOfFilteredGLAccounts,
+    List<GeneralLedgerAccount>? listOfFilteredGLAccounts0,
+    List<GeneralLedgerAccount>? listOfFilteredGLAccounts1,
+    List<GeneralLedgerAccount>? listOfFilteredGLAccounts2,
+    List<GeneralLedgerAccount>? listOfFilteredGLAccounts3,
+    List<GeneralLedgerAccount>? listOfFilteredGLAccounts4,
+    List<GeneralLedgerAccount>? listOfFilteredGLAccounts5,
+    List<GeneralLedgerAccount>? listOfFilteredGLAccounts6,
+    List<GeneralLedgerAccount>? listOfFilteredGLAccounts7,
+    List<GeneralLedgerAccount>? listOfFilteredGLAccounts8,
+    List<GeneralLedgerAccount>? listOfFilteredGLAccounts9,
     AbstractFailure? abstractFailure,
     bool? isAnyFailure,
     bool? isLoadingGLAccountOnObserve,
@@ -101,7 +137,16 @@ class GeneralLedgerAccountState {
     return GeneralLedgerAccountState(
       gLAccount: gLAccount ?? this.gLAccount,
       listOfAllGLAccounts: listOfAllGLAccounts ?? this.listOfAllGLAccounts,
-      listOfFilteredGLAccounts: listOfFilteredGLAccounts ?? this.listOfFilteredGLAccounts,
+      listOfFilteredGLAccounts0: listOfFilteredGLAccounts0 ?? this.listOfFilteredGLAccounts0,
+      listOfFilteredGLAccounts1: listOfFilteredGLAccounts1 ?? this.listOfFilteredGLAccounts1,
+      listOfFilteredGLAccounts2: listOfFilteredGLAccounts2 ?? this.listOfFilteredGLAccounts2,
+      listOfFilteredGLAccounts3: listOfFilteredGLAccounts3 ?? this.listOfFilteredGLAccounts3,
+      listOfFilteredGLAccounts4: listOfFilteredGLAccounts4 ?? this.listOfFilteredGLAccounts4,
+      listOfFilteredGLAccounts5: listOfFilteredGLAccounts5 ?? this.listOfFilteredGLAccounts5,
+      listOfFilteredGLAccounts6: listOfFilteredGLAccounts6 ?? this.listOfFilteredGLAccounts6,
+      listOfFilteredGLAccounts7: listOfFilteredGLAccounts7 ?? this.listOfFilteredGLAccounts7,
+      listOfFilteredGLAccounts8: listOfFilteredGLAccounts8 ?? this.listOfFilteredGLAccounts8,
+      listOfFilteredGLAccounts9: listOfFilteredGLAccounts9 ?? this.listOfFilteredGLAccounts9,
       abstractFailure: abstractFailure ?? this.abstractFailure,
       isAnyFailure: isAnyFailure ?? this.isAnyFailure,
       isLoadingGLAccountOnObserve: isLoadingGLAccountOnObserve ?? this.isLoadingGLAccountOnObserve,

@@ -13,15 +13,37 @@ class GetGLAccountEvent extends GeneralLedgerAccountEvent {
   GetGLAccountEvent({required this.gLAccount});
 }
 
+class SetGLAccountEvent extends GeneralLedgerAccountEvent {
+  final GeneralLedgerAccount gLAccount;
+
+  SetGLAccountEvent({required this.gLAccount});
+}
+
 class CreateGLAccountEvent extends GeneralLedgerAccountEvent {}
 
 class UpdateGLAccountEvent extends GeneralLedgerAccountEvent {}
+
+class UpdateGLAccountIsActiveEvent extends GeneralLedgerAccountEvent {
+  final GeneralLedgerAccount gLAccount;
+
+  UpdateGLAccountIsActiveEvent({required this.gLAccount});
+}
+
+class UpdateGLAccountIsVisibleEvent extends GeneralLedgerAccountEvent {
+  final GeneralLedgerAccount gLAccount;
+
+  UpdateGLAccountIsVisibleEvent({required this.gLAccount});
+}
 
 class DeleteSelectedGLAccountsEvent extends GeneralLedgerAccountEvent {}
 
 class OnGLAccountSearchControllerChangedEvent extends GeneralLedgerAccountEvent {}
 
 class OnGLAccountSearchControllerClearedEvent extends GeneralLedgerAccountEvent {}
+
+class OnGLAccountIsActiveChangedEvent extends GeneralLedgerAccountEvent {}
+
+class OnGLAccountIsVisibleChangedEvent extends GeneralLedgerAccountEvent {}
 
 //* --- helper --- *//
 

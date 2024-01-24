@@ -245,10 +245,10 @@ class AppDrawer extends StatelessWidget {
                           leading: const Icon(Icons.table_chart_outlined),
                           title: const Text('Sachkonten'),
                           onTap: () {
-                            if (context.router.current.name == SuppliersOverviewRoute.name) {
+                            if (context.router.current.name == GeneralLedgerAccountRoute.name) {
                               context.router.pop();
                             } else {
-                              context.router.replaceAll([const SuppliersOverviewRoute()]);
+                              context.router.replaceAll([const GeneralLedgerAccountRoute()]);
                             }
                           },
                         ),
