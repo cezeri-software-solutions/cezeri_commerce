@@ -234,7 +234,7 @@ class ReceiptsOverviewScreen extends StatelessWidget {
                       icon: const Icon(Icons.refresh)),
                   IconButton(
                     onPressed: () {
-                      customerBloc.add(GetAllCustomersEvenet());
+                      customerBloc.add(GetAllCustomersEvent());
                       showDialog(
                         context: context,
                         builder: (_) => BlocProvider.value(
@@ -741,7 +741,7 @@ class _SelectCustomerDialogState extends State<_SelectCustomerDialog> {
     return BlocBuilder<CustomerBloc, CustomerState>(
       bloc: widget.customerBloc,
       builder: (context, state) {
-        if (state.listOfAllCustomers == null) widget.customerBloc.add(GetAllCustomersEvenet());
+        if (state.listOfAllCustomers == null) widget.customerBloc.add(GetAllCustomersEvent());
 
         if (state.firebaseFailure != null && state.isAnyFailure) {
           return Dialog(child: SizedBox(width: 600, height: 1200, child: Center(child: Text(state.firebaseFailure.toString()))));

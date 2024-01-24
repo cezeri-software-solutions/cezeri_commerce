@@ -1653,9 +1653,6 @@ Future<ParcelTracking?> getParcelTracking(Receipt receipt, MainSettings ms, int 
   final carrier = ms.listOfCarriers.where((e) => e.carrierTyp == receipt.receiptCarrier.carrierTyp).firstOrNull;
   if (carrier == null) return null;
   final cCredentials = carrier.carrierKey;
-
-  //TODO: Löschen wenn alles passt
-  // final recipientAddress = receipt.receiptCustomer.listOfAddress.where((e) => e.addressType == AddressType.delivery && e.isDefault).first;
   final recipientAddress = receipt.addressDelivery;
 
   final service = AustrianPostApi(

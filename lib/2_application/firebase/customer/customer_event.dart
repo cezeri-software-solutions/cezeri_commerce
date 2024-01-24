@@ -5,7 +5,7 @@ abstract class CustomerEvent {}
 
 class SetCustomerStateToInitialEvent extends CustomerEvent {}
 
-class GetAllCustomersEvenet extends CustomerEvent {}
+class GetAllCustomersEvent extends CustomerEvent {}
 
 class GetCustomerEvent extends CustomerEvent {
   final Customer customer;

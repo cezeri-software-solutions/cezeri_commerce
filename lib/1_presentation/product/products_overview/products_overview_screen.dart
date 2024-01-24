@@ -6,10 +6,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:responsive_framework/responsive_framework.dart';
 
 import '../../../2_application/firebase/product/product_bloc.dart';
 import '../../../3_domain/entities/product/product.dart';
-import '../../../3_domain/enums/enums.dart';
 import '../../../3_domain/pdf/pdf_api_mobile.dart';
 import '../../../3_domain/pdf/pdf_api_web.dart';
 import '../../../3_domain/pdf/pdf_products_generator.dart';
@@ -23,17 +23,22 @@ import 'widgets/products_mass_editing_failure_dialog.dart';
 import 'widgets/products_mass_editing_select_marketplaces_dialog.dart';
 
 @RoutePage()
-class ProductsOverviewScreen extends StatelessWidget {
+class ProductsOverviewScreen extends StatefulWidget {
   const ProductsOverviewScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final productBloc = sl<ProductBloc>()..add(GetAllProductsEvent());
-    final screenWidth = MediaQuery.sizeOf(context).width;
-    final responsiveness = screenWidth > 700 ? Responsiveness.isTablet : Responsiveness.isMobil;
+  State<ProductsOverviewScreen> createState() => _ProductsOverviewScreenState();
+}
 
-    return BlocProvider<ProductBloc>(
-      create: (context) => productBloc,
+class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> with AutomaticKeepAliveClientMixin {
+  final productBloc = sl<ProductBloc>()..add(GetAllProductsEvent());
+
+  @override
+  Widget build(BuildContext context) {
+    super.build(context);
+
+    return BlocProvider.value(
+      value: productBloc,
       child: MultiBlocListener(
         listeners: [
           BlocListener<ProductBloc, ProductState>(
@@ -111,7 +116,7 @@ class ProductsOverviewScreen extends StatelessWidget {
             return Scaffold(
               drawer: const AppDrawer(),
               appBar: AppBar(
-                title: _getAppBarTitle(context, responsiveness, state.listOfFilteredProducts, state.selectedProducts),
+                title: _getAppBarTitle(context, state.listOfFilteredProducts, state.selectedProducts),
                 actions: [
                   IconButton(
                     onPressed: () async {
@@ -172,7 +177,7 @@ class ProductsOverviewScreen extends StatelessWidget {
                             onSuffixTap: () => context.read<ProductBloc>().add(OnProductSearchControllerClearedEvent()),
                           ),
                         ),
-                        if (responsiveness == Responsiveness.isTablet) ...[
+                        if (ResponsiveBreakpoints.of(context).isTablet) ...[
                           Gaps.w16,
                           const Text('Erweiterte Suche:'),
                           Gaps.w8,
@@ -228,12 +233,13 @@ class ProductsOverviewScreen extends StatelessWidget {
     );
   }
 
-  Widget _getAppBarTitle(BuildContext context, Responsiveness responsiveness, List<Product>? listOfFilteredProducts, List<Product> selectedProducts) {
+  Widget _getAppBarTitle(BuildContext context, List<Product>? listOfFilteredProducts, List<Product> selectedProducts) {
     if (listOfFilteredProducts == null) return const Text('Artikel');
+    final isTablet = ResponsiveBreakpoints.of(context).isTablet;
 
     final row = Row(
-        children: switch (responsiveness) {
-      Responsiveness.isTablet => [
+        children: switch (isTablet) {
+      true => [
           Text('Artikel (${listOfFilteredProducts.length})'),
           Gaps.w8,
           InkWell(
@@ -254,8 +260,8 @@ class ProductsOverviewScreen extends StatelessWidget {
         ],
     });
 
-    return switch (responsiveness) {
-      Responsiveness.isTablet => switch (selectedProducts.length) {
+    return switch (isTablet) {
+      true => switch (selectedProducts.length) {
           0 => Text('Artikel (${listOfFilteredProducts.length})'),
           _ => row,
         },
@@ -265,4 +271,7 @@ class ProductsOverviewScreen extends StatelessWidget {
         },
     };
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }

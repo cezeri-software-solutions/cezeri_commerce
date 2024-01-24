@@ -10,11 +10,7 @@ GeneralLedgerAccount _$GeneralLedgerAccountFromJson(
         Map<String, dynamic> json) =>
     GeneralLedgerAccount(
       id: json['id'] as String,
-      accountClass: json['accountClass'] as int,
-      accountGroup: json['accountGroup'] as int,
-      accountSubGroup: json['accountSubGroup'] as int,
-      individualAccount: json['individualAccount'] as int,
-      generalLedgerAccount: json['generalLedgerAccount'] as int,
+      generalLedgerAccount: json['generalLedgerAccount'] as String,
       name: json['name'] as String,
       isActive: json['isActive'] as bool,
       isVisible: json['isVisible'] as bool,
@@ -25,10 +21,6 @@ Map<String, dynamic> _$GeneralLedgerAccountToJson(
         GeneralLedgerAccount instance) =>
     <String, dynamic>{
       'id': instance.id,
-      'accountClass': instance.accountClass,
-      'accountGroup': instance.accountGroup,
-      'accountSubGroup': instance.accountSubGroup,
-      'individualAccount': instance.individualAccount,
       'generalLedgerAccount': instance.generalLedgerAccount,
       'name': instance.name,
       'isActive': instance.isActive,

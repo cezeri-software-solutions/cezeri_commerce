@@ -2,10 +2,10 @@ import 'package:auto_route/auto_route.dart';
 import 'package:cezeri_commerce/1_presentation/product/product_detail/product_detail_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:responsive_framework/responsive_framework.dart';
 
 import '../../../2_application/firebase/product_detail/product_detail_bloc.dart';
 import '../../../3_domain/entities/product/product.dart';
-import '../../../3_domain/enums/enums.dart';
 import '../../../constants.dart';
 import '../../../injection.dart';
 import '../../../routes/router.gr.dart';
@@ -18,26 +18,38 @@ import 'widgets/set_articles/show_select_product_sheet.dart';
 enum ProductCreateOrEdit { create, edit }
 
 @RoutePage()
-class ProductDetailScreen extends StatelessWidget {
+class ProductDetailScreen extends StatefulWidget {
   final String? productId;
   final List<Product> listOfProducts;
 
   const ProductDetailScreen({super.key, this.productId, required this.listOfProducts});
 
   @override
+  State<ProductDetailScreen> createState() => _ProductDetailScreenState();
+}
+
+class _ProductDetailScreenState extends State<ProductDetailScreen> with AutomaticKeepAliveClientMixin {
+  late final ProductDetailBloc productDetailBloc;
+
+  @override
+  void initState() {
+    super.initState();
+    productDetailBloc = sl<ProductDetailBloc>();
+
+    if (widget.productId == null) {
+      productDetailBloc.add(SetListOfProductsEvent(listOfProducts: widget.listOfProducts));
+    } else {
+      productDetailBloc.add(GetProductEvent(id: widget.productId!));
+      productDetailBloc.add(SetListOfProductsEvent(listOfProducts: widget.listOfProducts));
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.sizeOf(context).width;
-    final responsiveness = screenWidth > 700 ? Responsiveness.isTablet : Responsiveness.isMobil;
+    super.build(context);
 
-    final productDetailBloc = switch (productId) {
-      null => sl<ProductDetailBloc>()..add(SetListOfProductsEvent(listOfProducts: listOfProducts)),
-      _ => sl<ProductDetailBloc>()
-        ..add(GetProductEvent(id: productId!))
-        ..add(SetListOfProductsEvent(listOfProducts: listOfProducts)),
-    };
-
-    return BlocProvider(
-      create: (context) => productDetailBloc,
+    return BlocProvider.value(
+      value: productDetailBloc,
       child: MultiBlocListener(
         listeners: [
           BlocListener<ProductDetailBloc, ProductDetailState>(
@@ -112,7 +124,8 @@ class ProductDetailScreen extends StatelessWidget {
                   },
                   (unit) {
                     final curProduct = state.product!;
-                    productDetailBloc.add(GetProductAfterExportNewProductToMarketplaceEvent(id: curProduct.id, listOfAllProducts: listOfProducts));
+                    productDetailBloc
+                        .add(GetProductAfterExportNewProductToMarketplaceEvent(id: curProduct.id, listOfAllProducts: widget.listOfProducts));
                     context.router.popUntilRouteWithName(ProductDetailRoute.name);
                     myScaffoldMessenger(context, null, null, 'Artikel erfolgreich im Marktplatz angelegt', null);
                   },
@@ -160,20 +173,20 @@ class ProductDetailScreen extends StatelessWidget {
                       value: state.product!.isActive,
                       onChanged: (_) => productDetailBloc.add(OnProductIsActiveChangedEvent()),
                     ),
-                  responsiveness == Responsiveness.isTablet ? Gaps.w16 : Gaps.w8,
-                  if (productId != null) ...[
+                  ResponsiveBreakpoints.of(context).isTablet ? Gaps.w16 : Gaps.w8,
+                  if (widget.productId != null) ...[
                     IconButton(
                       onPressed: () => productDetailBloc.add(GetProductEvent(
                         id: state.product!.id,
                       )),
                       icon: const Icon(Icons.refresh, size: 30),
                     ),
-                    responsiveness == Responsiveness.isTablet ? Gaps.w16 : Gaps.w8,
+                    ResponsiveBreakpoints.of(context).isTablet ? Gaps.w16 : Gaps.w8,
                   ],
                   MyOutlinedButton(
                     buttonText: 'Speichern',
                     onPressed: () {
-                      if (productId != null) {
+                      if (widget.productId != null) {
                         productDetailBloc.add(UpdateProductEvent());
                       } else {
                         // TODO: Handle create new product
@@ -182,12 +195,12 @@ class ProductDetailScreen extends StatelessWidget {
                     isLoading: state.isLoadingProductOnUpdate,
                     buttonBackgroundColor: Colors.green,
                   ),
-                  responsiveness == Responsiveness.isTablet ? Gaps.w32 : Gaps.w8,
+                  ResponsiveBreakpoints.of(context).isTablet ? Gaps.w32 : Gaps.w8,
                 ],
               ),
               body: ProductDetailPage(
                 productDetailBloc: productDetailBloc,
-                productCreateOrEdit: productId != null ? ProductCreateOrEdit.edit : ProductCreateOrEdit.create,
+                productCreateOrEdit: widget.productId != null ? ProductCreateOrEdit.edit : ProductCreateOrEdit.create,
               ),
             );
           },
@@ -196,7 +209,6 @@ class ProductDetailScreen extends StatelessWidget {
     );
   }
 
-  // void _onSave(BuildContext context, ProductDetailBloc productDetailBloc, Product product) {
-  //   if(product.isSetArticle && product.listOfProductIdWithQuantity.isEmpty)
-  // }
+  @override
+  bool get wantKeepAlive => true;
 }

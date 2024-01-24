@@ -19,7 +19,7 @@ class CustomersOverviewScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final customerBloc = sl<CustomerBloc>()..add(GetAllCustomersEvenet());
+    final customerBloc = sl<CustomerBloc>()..add(GetAllCustomersEvent());
 
     final searchController = TextEditingController();
 
@@ -72,7 +72,7 @@ class CustomersOverviewScreen extends StatelessWidget {
               appBar: AppBar(
                 title: const Text('Kunden'),
                 actions: [
-                  IconButton(onPressed: () => context.read<CustomerBloc>().add(GetAllCustomersEvenet()), icon: const Icon(Icons.refresh)),
+                  IconButton(onPressed: () => context.read<CustomerBloc>().add(GetAllCustomersEvent()), icon: const Icon(Icons.refresh)),
                   IconButton(
                     onPressed: () => customerBloc.add(SetEmptyCustomerOnCreateNewCustomerEvent()),
                     icon: state.isLoadingCustomerMainSettingsOnObserve

@@ -7,7 +7,7 @@ class ColRef {
     return switch (colRefType) {
       ColRefType.users => db.collection('Users'),
       ColRefType.settings => db.collection('Settings').doc(doc).collection('Settings'),
-      ColRefType.generalLedgerAccount => db.collection('Settings').doc(doc).collection('Settings'),
+      ColRefType.generalLedgerAccount => db.collection('GLAccounts').doc(doc).collection('GLAccounts'),
     };
   }
 }

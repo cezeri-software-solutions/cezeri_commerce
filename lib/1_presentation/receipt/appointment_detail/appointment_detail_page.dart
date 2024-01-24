@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:logger/logger.dart';
-import 'package:printing/printing.dart';
 
 import '../../../2_application/firebase/appointment/appointment_bloc.dart';
 import '../../../2_application/firebase/main_settings/main_settings_bloc.dart';
@@ -9,7 +8,6 @@ import '../../../2_application/firebase/receipt_detail/receipt_detail_bloc.dart'
 import '../../../3_domain/entities/marketplace/marketplace.dart';
 import '../../../3_domain/entities/receipt/receipt.dart';
 import '../../../3_domain/enums/enums.dart';
-import '../../../3_domain/pdf/pdf_receipt_generator.dart';
 import '../../../constants.dart';
 import '../../core/functions/dialogs.dart';
 import '../../core/widgets/my_circular_progress_indicator.dart';
@@ -46,9 +44,11 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
   @override
   Widget build(BuildContext context) {
     final logger = Logger();
+    
     return BlocBuilder<AppointmentBloc, AppointmentState>(
       bloc: widget.appointmentBloc,
       builder: (context, state) {
+        logger.i(state.receipt!.receiptCarrier.carrierProduct.id);
         final mainSettings = context.read<MainSettingsBloc>().state.mainSettings!;
         final screenWidth = MediaQuery.sizeOf(context).width;
         final responsiveness = screenWidth > 700 ? Responsiveness.isTablet : Responsiveness.isMobil;
@@ -78,23 +78,6 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
               ),
               responsiveness == Responsiveness.isTablet ? Gaps.w32 : Gaps.w8,
             ],
-            IconButton(
-              onPressed: () async {
-                final generatedPdf = await PdfReceiptGenerator.generate(
-                  receipt: state.receipt!,
-                  logoUrl: '',
-                );
-                // await Printing.layoutPdf(onLayout: (_) => generatedPdf);
-                final printer = await Printing.pickPrinter(context: context);
-                logger.i(printer);
-                print(printer!.url);
-                print('hallo');
-
-                // await Printing.directPrintPdf(printer: printer, onLayout: (_) => generatedPdf);
-                // await Printing.directPrintPdf(printer: Printer(url: url), onLayout: onLayout);
-              },
-              icon: const Icon(Icons.car_crash),
-            ),
             BlocBuilder<ReceiptDetailBloc, ReceiptDetailState>(
               bloc: widget.receiptDetailBloc,
               builder: (context, stateReceiptDetail) {

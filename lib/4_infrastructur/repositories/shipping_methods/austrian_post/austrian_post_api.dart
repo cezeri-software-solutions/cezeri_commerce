@@ -1,8 +1,11 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
 import 'package:xml/xml.dart';
 
 import '../../../../3_domain/entities/address.dart';
+
+final logger = Logger();
 
 class AustrianPostApiConfig {
   final String clientId;
@@ -10,6 +13,9 @@ class AustrianPostApiConfig {
   final String orgUnitGuide;
 
   const AustrianPostApiConfig({required this.clientId, required this.orgUnitId, required this.orgUnitGuide});
+
+  @override
+  String toString() => 'AustrianPostApiConfig(clientId: $clientId, orgUnitId: $orgUnitId, orgUnitGuide: $orgUnitGuide)';
 }
 
 class AustrianPostApiSettings {
@@ -18,6 +24,9 @@ class AustrianPostApiSettings {
   final String printerLanguage;
 
   AustrianPostApiSettings({required this.paperLayout, required this.labelSize, required this.printerLanguage});
+
+  @override
+  String toString() => 'AustrianPostApiSettings(paperLayout: $paperLayout, labelSize: $labelSize, printerLanguage: $printerLanguage)';
 }
 
 class AustrianPostApi {
@@ -45,7 +54,6 @@ class AustrianPostApi {
   );
 
   Future<String> createShipment(String soapRequest) async {
-    final logger = Logger();
     final response = await http.post(
       Uri.parse(_baseUrl),
       headers: {
@@ -56,6 +64,8 @@ class AustrianPostApi {
     );
 
     if (response.statusCode == 200) {
+      logger.i(response.statusCode);
+      logger.i(response.body);
       return response.body;
     } else {
       logger.e(response.body);
@@ -134,5 +144,10 @@ class AustrianPostApi {
     final document = XmlDocument.parse(response);
     final pdfDataElement = document.findAllElements('pdfData').first;
     return pdfDataElement.innerText;
+  }
+
+  @override
+  String toString() {
+    return 'AustrianPostApi(_config: $_config, _settings: $_settings, _carrierProductId: $_carrierProductId, _weight: $_weight, _recipientAddress: $_recipientAddress, _recipientEMail: $_recipientEMail, _shipperAddress: $_shipperAddress, _shipperEMail: $_shipperEMail, _isReturn: $_isReturn)';
   }
 }
