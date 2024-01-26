@@ -243,7 +243,7 @@ class AppDrawer extends StatelessWidget {
                       children: [
                         ListTile(
                           leading: const Icon(Icons.table_chart_outlined),
-                          title: const Text('Sachkonten'),
+                          title: const Text('Sachkontos'),
                           onTap: () {
                             if (context.router.current.name == GeneralLedgerAccountRoute.name) {
                               context.router.pop();
@@ -254,7 +254,7 @@ class AppDrawer extends StatelessWidget {
                         ),
                         ListTile(
                           leading: const Icon(Icons.document_scanner),
-                          title: const Text('Ausgangsrechnungen'),
+                          title: const Text('Eingangsrechnungen'),
                           onTap: () {
                             if (context.router.current.name == ReordersOverviewRoute.name) {
                               context.router.pop();

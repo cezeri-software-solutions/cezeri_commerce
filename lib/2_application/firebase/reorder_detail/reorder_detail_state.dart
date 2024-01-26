@@ -23,7 +23,8 @@ class ReorderDetailState {
 
   //* Helper
   final DateTimeRange? statProductDateRange;
-  final bool isDateRangeChanged;
+  final bool reloadProducts;
+  final bool getAllProducts;
 
   //* Controllers
   final TextEditingController discountPercentController;
@@ -64,7 +65,8 @@ class ReorderDetailState {
     required this.fosReorderDetailOnObserveProductsOption,
     required this.fosReorderDetailOnPdfDataOption,
     required this.statProductDateRange,
-    required this.isDateRangeChanged,
+    required this.reloadProducts,
+    required this.getAllProducts,
     required this.discountPercentController,
     required this.discountAmountGrossController,
     required this.additionalAmountGrossController,
@@ -101,7 +103,8 @@ class ReorderDetailState {
       fosReorderDetailOnObserveProductsOption: none(),
       fosReorderDetailOnPdfDataOption: none(),
       statProductDateRange: null,
-      isDateRangeChanged: false,
+      reloadProducts: false,
+      getAllProducts: false,
       discountPercentController: TextEditingController(),
       discountAmountGrossController: TextEditingController(),
       additionalAmountGrossController: TextEditingController(),
@@ -138,7 +141,8 @@ class ReorderDetailState {
     Option<Either<FirebaseFailure, List<Product>>>? fosReorderDetailOnObserveProductsOption,
     Option<Either<FirebaseFailure, List<Marketplace>>>? fosReorderDetailOnPdfDataOption,
     DateTimeRange? statProductDateRange,
-    bool? isDateRangeChanged,
+    bool? reloadProducts,
+    bool? getAllProducts,
     TextEditingController? discountPercentController,
     TextEditingController? discountAmountGrossController,
     TextEditingController? additionalAmountGrossController,
@@ -173,7 +177,8 @@ class ReorderDetailState {
       fosReorderDetailOnObserveProductsOption: fosReorderDetailOnObserveProductsOption ?? this.fosReorderDetailOnObserveProductsOption,
       fosReorderDetailOnPdfDataOption: fosReorderDetailOnPdfDataOption ?? this.fosReorderDetailOnPdfDataOption,
       statProductDateRange: statProductDateRange ?? this.statProductDateRange,
-      isDateRangeChanged: isDateRangeChanged ?? this.isDateRangeChanged,
+      reloadProducts: reloadProducts ?? this.reloadProducts,
+      getAllProducts: getAllProducts ?? this.getAllProducts,
       discountPercentController: discountPercentController ?? this.discountPercentController,
       discountAmountGrossController: discountAmountGrossController ?? this.discountAmountGrossController,
       additionalAmountGrossController: additionalAmountGrossController ?? this.additionalAmountGrossController,

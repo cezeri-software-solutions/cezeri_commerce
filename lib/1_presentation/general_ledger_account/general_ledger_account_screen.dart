@@ -25,12 +25,6 @@ class _GeneralLedgerAccountScreenState extends State<GeneralLedgerAccountScreen>
   final gLAccountBloc = sl<GeneralLedgerAccountBloc>()..add(GetAllGLAccountsEvent());
 
   @override
-  void initState() {
-    gLAccountBloc.add(GetAllGLAccountsEvent());
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
     super.build(context);
 

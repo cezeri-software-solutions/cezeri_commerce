@@ -601,6 +601,7 @@ class PrestashopApi with UiLoggy {
     }
     loggy.error(response);
     logger.e(uri);
+    logger.e('StatusCode: ${response.statusCode}');
     logger.e('Artikel _doPut Fehler: ${response.body}');
     throw PrestashopApiException(response);
   }

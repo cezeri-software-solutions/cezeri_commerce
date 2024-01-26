@@ -90,9 +90,10 @@ class ReorderDetailProductsCard extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             InkWell(
-                              onTap: () => showMyProductQuickViewById(context: context, productId: reorderProduct.productId),
+                              onTap: () => showMyProductQuickViewById(context: context, productId: reorderProduct.productId, showStatProduct: true),
                               child: const Icon(Icons.article_outlined, color: CustomColors.primaryColor),
                             ),
+                            Gaps.w8,
                             Expanded(
                               flex: RowWidthsReOP.pos,
                               child: MyTextFormFieldSmallDouble(
@@ -195,7 +196,7 @@ class ReorderDetailProductsCard extends StatelessWidget {
                     state.isLoadingOnObserveReorderDetailProducts
                         ? const MyCircularProgressIndicator()
                         : TextButton.icon(
-                            onPressed: () => state.listOfProducts == null || state.isDateRangeChanged
+                            onPressed: () => state.listOfProducts == null || state.reloadProducts
                                 ? reorderDetailBloc.add(OnReorderDetailGetProductsEvent())
                                 : showReorderDetailProductsDialog(context, reorderDetailBloc),
                             icon: const Icon(Icons.add, color: Colors.green),

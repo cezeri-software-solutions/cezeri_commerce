@@ -18,7 +18,9 @@ class GeneralLedgerAccountPage extends StatelessWidget {
       builder: (context, state) {
         return SingleChildScrollView(
           child: Container(
-            padding: const EdgeInsets.all(18),
+            padding: ResponsiveBreakpoints.of(context).largerThan(MOBILE)
+                ? const EdgeInsets.all(18)
+                : const EdgeInsets.only(top: 10, bottom: 10, right: 10),
             width: double.infinity,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -63,17 +65,20 @@ class GLAccountTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     return list.isEmpty
         ? const SizedBox()
-        : Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(title, style: TextStyles.h2Bold),
-              const Row(
-                children: [
-                  SizedBox(width: 60, child: Center(child: Text('Aktiv'))),
-                  SizedBox(width: 60, child: Center(child: Text('Sichtbar'))),
-                ],
-              )
-            ],
+        : Padding(
+            padding: ResponsiveBreakpoints.of(context).largerThan(MOBILE) ? EdgeInsets.zero : const EdgeInsets.only(left: 12),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(title, style: TextStyles.h2Bold),
+                const Row(
+                  children: [
+                    SizedBox(width: 60, child: Center(child: Text('Aktiv'))),
+                    SizedBox(width: 60, child: Center(child: Text('Sichtbar'))),
+                  ],
+                )
+              ],
+            ),
           );
   }
 }

@@ -34,6 +34,8 @@ class OnReorderDetailSetStatProductFromDateEvent extends ReorderDetailEvent {
   OnReorderDetailSetStatProductFromDateEvent({required this.dateRange});
 }
 
+class OnReorderDetailSetLoadAllProductsEvent extends ReorderDetailEvent {}
+
 //* Controllers
 
 class SetReorderDetailControllersEvent extends ReorderDetailEvent {}

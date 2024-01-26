@@ -83,7 +83,7 @@ class ReorderDetailHeaderContainer extends StatelessWidget {
                 children: [
                   Expanded(
                     child: SizedBox(
-                      width: 180,
+                      width: 120,
                       child: MyTextFormFieldSmall(
                         labelText: 'Bestellnummer intern',
                         controller: state.reorderNumberInternalController,
@@ -123,7 +123,18 @@ class ReorderDetailHeaderContainer extends StatelessWidget {
                       ],
                     ),
                   ),
-                  Expanded(
+                  Flexible(
+                    child: Column(
+                      children: [
+                        const Text('Alle Artikel anzeigen'),
+                        Switch.adaptive(
+                          value: state.getAllProducts,
+                          onChanged: (_) => reorderDetailBloc.add(OnReorderDetailSetLoadAllProductsEvent()),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Flexible(
                     child: Column(
                       children: [
                         const Text('Manuell geschlossen'),
@@ -133,7 +144,7 @@ class ReorderDetailHeaderContainer extends StatelessWidget {
                         ),
                       ],
                     ),
-                  )
+                  ),
                 ],
               )
             ],

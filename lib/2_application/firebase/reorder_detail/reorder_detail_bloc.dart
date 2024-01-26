@@ -158,7 +158,9 @@ class ReorderDetailBloc extends Bloc<ReorderDetailEvent, ReorderDetailState> {
     on<OnReorderDetailGetProductsEvent>((event, emit) async {
       emit(state.copyWith(isLoadingOnObserveReorderDetailProducts: true));
 
-      final failureOrSuccess = await productRepository.getListOfProductsBySupplierName(onlyActive: true, supplier: state.supplier!);
+      final failureOrSuccess = state.getAllProducts
+          ? await productRepository.getListOfProducts(false)
+          : await productRepository.getListOfProductsBySupplierName(onlyActive: true, supplier: state.supplier!);
       failureOrSuccess.fold(
         (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
         (listOfLoadedProducts) {
@@ -176,7 +178,7 @@ class ReorderDetailBloc extends Bloc<ReorderDetailEvent, ReorderDetailState> {
             List<StatProductReorder> statProductsReorderAppointment = _setStatProductReorderAppointment(statProducts, state.statProductDateRange!);
 
             emit(state.copyWith(
-              isDateRangeChanged: false,
+              reloadProducts: false,
               listOfStatProductsInvoice: statProductsReorderInvoice,
               listOfStatProductsAppointment: statProductsReorderAppointment,
             ));
@@ -231,8 +233,14 @@ class ReorderDetailBloc extends Bloc<ReorderDetailEvent, ReorderDetailState> {
           start: event.dateRange.start,
           end: DateTime(event.dateRange.end.year, event.dateRange.end.month, event.dateRange.end.day + 1),
         ),
-        isDateRangeChanged: true,
+        reloadProducts: true,
       ));
+    });
+
+//? #########################################################################
+
+    on<OnReorderDetailSetLoadAllProductsEvent>((event, emit) async {
+      emit(state.copyWith(getAllProducts: !state.getAllProducts, reloadProducts: true));
     });
 
 //? #########################################################################

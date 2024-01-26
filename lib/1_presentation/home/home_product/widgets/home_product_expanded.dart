@@ -4,11 +4,12 @@ import 'package:logger/logger.dart';
 
 import '../../../../2_application/firebase/home/home_product/home_product_bloc.dart';
 import '../../../../constants.dart';
-import '../../../core/functions/show_my_product_quick_view.dart';
 import '../../../core/widgets/my_animated_expansion_container.dart';
 import '../../../core/widgets/my_circular_progress_indicator.dart';
 import '../../../core/widgets/my_recommended_reorder_quantity.dart';
+import '../functions/get_reordered_quantity.dart';
 import 'grouped_list_of_supplier_by_manufacturer.dart';
+import 'home_product_name_widget.dart';
 
 final logger = Logger();
 
@@ -116,34 +117,12 @@ class HomeProductExpanded extends StatelessWidget {
                                     itemCount: group.listOfProducts.length,
                                     itemBuilder: (context, index2) {
                                       final product = group.listOfProducts[index2];
-                                      int reorderedQuantity = 0;
-                                      if (state.listOfReorders != null) {
-                                        for (final reorder in state.listOfReorders!) {
-                                          for (final reorderProduct in reorder.listOfReorderProducts) {
-                                            if (reorderProduct.productId == product.id) {
-                                              reorderedQuantity += reorderProduct.openQuantity;
-                                            }
-                                          }
-                                        }
-                                      }
+                                      final reorderedQuantity = getReorderedQuantity(product, state.listOfReorders);
 
-                                      return InkWell(
-                                        onLongPress: () => showMyProductQuickView(context: context, product: product, showStatProduct: true),
-                                        child: Container(
-                                          padding: const EdgeInsets.symmetric(horizontal: 8),
-                                          color: index2 % 2 == 1 ? CustomColors.ultraLightBlue : Colors.white,
-                                          child: Row(
-                                            children: [
-                                              Expanded(child: Text(product.name)),
-                                              if (reorderedQuantity > 0)
-                                                Text(reorderedQuantity.toString(), style: TextStyles.defaultBold.copyWith(color: Colors.green)),
-                                            ],
-                                          ),
-                                        ),
-                                      );
+                                      return HomeProductNameWidget(product: product, index: index2, reorderedQuantity: reorderedQuantity);
                                     },
                                   )
-                                : GroupedListOfSupplierByManufacturer(listOfProducts: group.listOfProducts),
+                                : GroupedListOfSupplierByManufacturer(listOfProducts: group.listOfProducts, listOfReorders: state.listOfReorders),
                           ),
                         ],
                       ),

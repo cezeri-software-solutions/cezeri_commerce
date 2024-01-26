@@ -724,7 +724,8 @@ Future<List<Product>?> updateQuantityOfSetProducts({
     final difference = setProduct.warehouseStock - setProduct.availableStock;
     final updatedSetProduct = setProduct.copyWith(availableStock: quantitySetArticle, warehouseStock: quantitySetArticle + difference);
 
-    transaction.update(docRefSetProduct, updatedSetProduct.toJson());
+    //TODO: Transactions require all reads to be executed before all writes. transaction.update(docRefSetProduct, updatedSetProduct.toJson());
+    await docRefSetProduct.update(updatedSetProduct.toJson());
     listOfUpdatedSetProducts.add(updatedSetProduct);
   }
   return listOfUpdatedSetProducts;

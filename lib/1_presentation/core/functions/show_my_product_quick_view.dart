@@ -6,12 +6,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_html/flutter_html.dart';
+import 'package:get_it/get_it.dart';
+import 'package:responsive_framework/responsive_breakpoints.dart';
 import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 
 import '../../../2_application/firebase/product_detail/product_detail_bloc.dart';
 import '../../../3_domain/entities/product/product.dart';
-import '../../../3_domain/enums/enums.dart';
+import '../../../3_domain/repositories/firebase/product_repository.dart';
 import '../../../constants.dart';
+import '../../../core/firebase_failures.dart';
 import '../../product/product_detail/widgets/charts/product_bart_chart_items_sold.dart';
 import '../../product/product_detail/widgets/charts/product_line_chart_sales_volume.dart';
 import '../widgets/my_avatar.dart';
@@ -42,68 +45,83 @@ void showMyProductQuickView({required BuildContext context, required Product pro
   );
 }
 
-void showMyProductQuickViewById({required BuildContext context, required String productId, bool showStatProduct = false}) {
+Future<void> showMyProductQuickViewById({required BuildContext context, required String productId, bool showStatProduct = false}) async {
+  Product? product;
+  FirebaseFailure? failure;
+
+  final productRepository = GetIt.I.get<ProductRepository>();
+  final fosProduct = await productRepository.getProduct(productId);
+  fosProduct.fold(
+    (firebaseFailure) => failure = firebaseFailure,
+    (loadedProduct) => product = loadedProduct,
+  );
+
   final trailing = IconButton(
     padding: const EdgeInsets.only(right: 24),
     icon: const Icon(Icons.close),
     onPressed: () => context.router.pop(),
   );
 
-  WoltModalSheet.show(
-    context: context,
-    useSafeArea: false,
-    pageListBuilder: (woltContext) {
-      return [
-        WoltModalSheetPage(
-          trailingNavBarWidget: trailing,
-          child: _ProductQuickView(productId: productId, showStatProduct: showStatProduct),
-        ),
-      ];
-    },
-  );
+  if (context.mounted) {
+    WoltModalSheet.show(
+      context: context,
+      useSafeArea: false,
+      pageListBuilder: (woltContext) {
+        return [
+          WoltModalSheetPage(
+            hasTopBarLayer: true,
+            isTopBarLayerAlwaysVisible: true,
+            topBarTitle: Text(product != null ? product!.articleNumber : 'Fehler', style: TextStyles.h3Bold),
+            trailingNavBarWidget: trailing,
+            child: _ProductQuickView(product: product, showStatProduct: showStatProduct, failure: failure),
+          ),
+        ];
+      },
+    );
+  }
 }
 
-class _ProductQuickView extends StatelessWidget {
+class _ProductQuickView extends StatefulWidget {
   final Product? product;
-  final String? productId;
   final bool showStatProduct;
+  final FirebaseFailure? failure;
 
-  const _ProductQuickView({this.product, this.productId, required this.showStatProduct});
+  const _ProductQuickView({required this.product, required this.showStatProduct, this.failure});
+
+  @override
+  State<_ProductQuickView> createState() => _ProductQuickViewState();
+}
+
+class _ProductQuickViewState extends State<_ProductQuickView> {
+  final productDetailBloc = sl<ProductDetailBloc>();
+  bool _showStatProduct = false;
+
+  @override
+  void initState() {
+    if (widget.product != null && widget.failure == null) {
+      setState(() => _showStatProduct = widget.showStatProduct);
+      productDetailBloc.add(SetProductEvent(product: widget.product!, loadStatProduct: widget.showStatProduct));
+    }
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final productDetailBloc = sl<ProductDetailBloc>()..add(SetProductEvent(product: Product.empty(), loadStatProduct: showStatProduct));
-    if (product != null) productDetailBloc.add(SetProductEvent(product: product!, loadStatProduct: showStatProduct));
-    if (productId != null) productDetailBloc.add(GetProductEvent(id: productId!));
-
     final screenWidth = MediaQuery.sizeOf(context).width;
     final screenHeight = MediaQuery.sizeOf(context).height;
-    final responsiveness = screenWidth > 700 ? Responsiveness.isTablet : Responsiveness.isMobil;
 
-    return BlocProvider(
-      create: (context) => productDetailBloc,
+    return BlocProvider.value(
+      value: productDetailBloc,
       child: BlocBuilder<ProductDetailBloc, ProductDetailState>(
         builder: (context, state) {
-          if (state.isLoadingProductOnObserve) {
-            return Padding(
-              padding: const EdgeInsets.all(16),
-              child: SizedBox(height: screenHeight * 1.3, child: const Center(child: MyCircularProgressIndicator())),
-            );
-          }
-
-          if (state.firebaseFailure != null && state.isAnyFailure) {
+          if (state.firebaseFailure != null && state.isAnyFailure || widget.product == null || widget.failure != null) {
             return Padding(
               padding: const EdgeInsets.all(16),
               child: SizedBox(height: screenHeight * 1.3, child: const Center(child: Text('Ein Fehler ist aufgetreten'))),
             );
           }
 
-          if (state.product == null) {
-            return Padding(
-              padding: const EdgeInsets.all(16),
-              child: SizedBox(height: screenHeight * 1.3, child: const Center(child: MyCircularProgressIndicator())),
-            );
-          } else {
+          {
             return Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
@@ -112,27 +130,30 @@ class _ProductQuickView extends StatelessWidget {
                   Row(
                     children: [
                       SizedBox(
-                        width: responsiveness == Responsiveness.isTablet ? 70 : 60,
+                        width: ResponsiveBreakpoints.of(context).largerOrEqualTo(TABLET) ? 70 : 60,
                         child: MyAvatar(
-                          name: product!.name,
-                          imageUrl:
-                              product!.listOfProductImages.isNotEmpty ? product!.listOfProductImages.where((e) => e.isDefault).first.fileUrl : null,
-                          radius: responsiveness == Responsiveness.isTablet ? 35 : 30,
-                          fontSize: responsiveness == Responsiveness.isTablet ? 25 : 20,
+                          name: widget.product!.name,
+                          imageUrl: widget.product!.listOfProductImages.isNotEmpty
+                              ? widget.product!.listOfProductImages.where((e) => e.isDefault).first.fileUrl
+                              : null,
+                          radius: ResponsiveBreakpoints.of(context).largerOrEqualTo(TABLET) ? 35 : 30,
+                          fontSize: ResponsiveBreakpoints.of(context).largerOrEqualTo(TABLET) ? 25 : 20,
                           shape: BoxShape.rectangle,
-                          onTap: product!.listOfProductImages.isNotEmpty
+                          onTap: widget.product!.listOfProductImages.isNotEmpty
                               ? () => context.router.push(MyFullscreenImageRoute(
-                                  imagePaths: product!.listOfProductImages.map((e) => e.fileUrl).toList(), initialIndex: 0, isNetworkImage: true))
+                                  imagePaths: widget.product!.listOfProductImages.map((e) => e.fileUrl).toList(),
+                                  initialIndex: 0,
+                                  isNetworkImage: true))
                               : null,
                         ),
                       ),
                       Gaps.w16,
-                      Expanded(child: Text(product!.name, style: TextStyles.defaultBold)),
+                      Expanded(child: Text(widget.product!.name, style: TextStyles.defaultBold)),
                     ],
                   ),
                   Gaps.h16,
                   const Text('Kurzbeschreibung:', style: TextStyles.infoOnTextFieldSmall),
-                  Html(data: product!.descriptionShort),
+                  Html(data: widget.product!.descriptionShort),
                   Row(
                     children: [
                       Expanded(
@@ -141,8 +162,8 @@ class _ProductQuickView extends StatelessWidget {
                           children: [
                             const Text('EAN:', style: TextStyles.infoOnTextFieldSmall),
                             InkWell(
-                              onTap: () => Clipboard.setData(ClipboardData(text: product!.ean)),
-                              child: Text(product!.ean),
+                              onTap: () => Clipboard.setData(ClipboardData(text: widget.product!.ean)),
+                              child: Text(widget.product!.ean),
                             ),
                           ],
                         ),
@@ -152,7 +173,7 @@ class _ProductQuickView extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const Text('Bestand (Verfügbar / Lager):', style: TextStyles.infoOnTextFieldSmall),
-                            Text('${product!.availableStock} / ${product!.warehouseStock}'),
+                            Text('${widget.product!.availableStock} / ${widget.product!.warehouseStock}'),
                           ],
                         ),
                       ),
@@ -168,7 +189,7 @@ class _ProductQuickView extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const Text('EK-Preis:', style: TextStyles.infoOnTextFieldSmall),
-                            Text(product!.wholesalePrice.toMyCurrencyStringToShow()),
+                            Text(widget.product!.wholesalePrice.toMyCurrencyStringToShow()),
                           ],
                         ),
                       ),
@@ -177,7 +198,7 @@ class _ProductQuickView extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const Text('Mindestbestand:', style: TextStyles.infoOnTextFieldSmall),
-                            Text(product!.minimumStock.toString()),
+                            Text(widget.product!.minimumStock.toString()),
                           ],
                         ),
                       ),
@@ -191,7 +212,7 @@ class _ProductQuickView extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const Text('Mindestnachbestellmenge:', style: TextStyles.infoOnTextFieldSmall),
-                            Text(product!.minimumReorderQuantity.toString()),
+                            Text(widget.product!.minimumReorderQuantity.toString()),
                           ],
                         ),
                       ),
@@ -200,7 +221,7 @@ class _ProductQuickView extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const Text('Verpackungseinheit:', style: TextStyles.infoOnTextFieldSmall),
-                            Text(product!.packagingUnitOnReorder.toString()),
+                            Text(widget.product!.packagingUnitOnReorder.toString()),
                           ],
                         ),
                       ),
@@ -216,7 +237,7 @@ class _ProductQuickView extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const Text('VK-Preis Netto:', style: TextStyles.infoOnTextFieldSmall),
-                            Text(product!.netPrice.toMyCurrencyStringToShow()),
+                            Text(widget.product!.netPrice.toMyCurrencyStringToShow()),
                           ],
                         ),
                       ),
@@ -225,7 +246,7 @@ class _ProductQuickView extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const Text('VK-Preis Brutto:', style: TextStyles.infoOnTextFieldSmall),
-                            Text(product!.grossPrice.toMyCurrencyStringToShow()),
+                            Text(widget.product!.grossPrice.toMyCurrencyStringToShow()),
                           ],
                         ),
                       ),
@@ -239,7 +260,7 @@ class _ProductQuickView extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const Text('UVP Brutto:', style: TextStyles.infoOnTextFieldSmall),
-                            Text(product!.recommendedRetailPrice.toMyCurrencyStringToShow()),
+                            Text(widget.product!.recommendedRetailPrice.toMyCurrencyStringToShow()),
                           ],
                         ),
                       ),
@@ -248,7 +269,7 @@ class _ProductQuickView extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const Text('Einheitspreis Netto:', style: TextStyles.infoOnTextFieldSmall),
-                            Text('${product!.unitPrice.toMyCurrencyStringToShow()} ${product!.unity}'),
+                            Text('${widget.product!.unitPrice.toMyCurrencyStringToShow()} ${widget.product!.unity}'),
                           ],
                         ),
                       ),
@@ -264,7 +285,7 @@ class _ProductQuickView extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const Text('Gewicht kg:', style: TextStyles.infoOnTextFieldSmall),
-                            Text(product!.weight.toMyCurrencyStringToShow()),
+                            Text(widget.product!.weight.toMyCurrencyStringToShow()),
                           ],
                         ),
                       ),
@@ -273,7 +294,7 @@ class _ProductQuickView extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const Text('Höhe cm:', style: TextStyles.infoOnTextFieldSmall),
-                            Text(product!.height.toMyCurrencyStringToShow()),
+                            Text(widget.product!.height.toMyCurrencyStringToShow()),
                           ],
                         ),
                       ),
@@ -287,7 +308,7 @@ class _ProductQuickView extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const Text('Länge cm:', style: TextStyles.infoOnTextFieldSmall),
-                            Text(product!.depth.toMyCurrencyStringToShow()),
+                            Text(widget.product!.depth.toMyCurrencyStringToShow()),
                           ],
                         ),
                       ),
@@ -296,19 +317,19 @@ class _ProductQuickView extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const Text('Breite cm:', style: TextStyles.infoOnTextFieldSmall),
-                            Text(product!.width.toMyCurrencyStringToShow()),
+                            Text(widget.product!.width.toMyCurrencyStringToShow()),
                           ],
                         ),
                       ),
                     ],
                   ),
-                  if (showStatProduct) ...[
+                  if (_showStatProduct) ...[
                     const Divider(),
                     const Text('Auswertung', style: TextStyles.h3BoldPrimary),
                     Gaps.h10,
                     if (state.listOfStatProducts != null) ...[
                       AspectRatio(
-                        aspectRatio: responsiveness == Responsiveness.isTablet ? 2.5 : getAspectRatio(screenWidth),
+                        aspectRatio: ResponsiveBreakpoints.of(context).largerOrEqualTo(TABLET) ? 2.5 : getAspectRatio(screenWidth),
                         child: Stack(
                           children: [
                             Column(
@@ -341,7 +362,7 @@ class _ProductQuickView extends StatelessWidget {
                       ),
                     ] else ...[
                       AspectRatio(
-                        aspectRatio: responsiveness == Responsiveness.isTablet ? 2.5 : getAspectRatio(screenWidth),
+                        aspectRatio: ResponsiveBreakpoints.of(context).largerOrEqualTo(TABLET) ? 2.5 : getAspectRatio(screenWidth),
                         child: const Center(child: MyCircularProgressIndicator()),
                       ),
                     ],

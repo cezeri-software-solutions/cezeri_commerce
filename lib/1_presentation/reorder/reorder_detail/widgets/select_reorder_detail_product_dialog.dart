@@ -11,6 +11,7 @@ import '../../../../2_application/firebase/reorder_detail/reorder_detail_bloc.da
 import '../../../../3_domain/entities/product/product.dart';
 import '../../../../3_domain/entities/statistic/stat_product_reorder.dart';
 import '../../../../constants.dart';
+import '../../../core/functions/show_my_product_quick_view.dart';
 import '../../../core/widgets/my_avatar.dart';
 import '../../../core/widgets/my_recommended_reorder_quantity.dart';
 
@@ -207,9 +208,12 @@ class SelectReorderDetailProductDialog extends StatelessWidget {
                             subtitle: state.statProductDateRange != null
                                 ? Row(
                                     children: [
-                                      Text(
-                                        '${statProductReorderInvoice.quantity} / ${statProductReorderAppointment.quantity}',
-                                        style: TextStyles.s13Bold,
+                                      InkWell(
+                                        onTap: () => showMyProductQuickView(context: context, product: product, showStatProduct: true),
+                                        child: Text(
+                                          '${statProductReorderInvoice.quantity} / ${statProductReorderAppointment.quantity}',
+                                          style: TextStyles.s13Bold,
+                                        ),
                                       ),
                                       Gaps.w16,
                                       InkWell(
