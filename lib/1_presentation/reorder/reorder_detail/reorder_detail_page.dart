@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:responsive_framework/responsive_framework.dart';
 
 import '../../../2_application/firebase/reorder_detail/reorder_detail_bloc.dart';
 import '../../../3_domain/entities/reorder/reorder.dart';
 import '../../../3_domain/entities/reorder/supplier.dart';
-import '../../../3_domain/enums/enums.dart';
 import '../../../constants.dart';
 import '../../core/functions/dialogs.dart';
 import '../../core/widgets/my_outlined_button.dart';
@@ -25,13 +25,10 @@ class ReorderDetailPage extends StatelessWidget {
     return BlocBuilder<ReorderDetailBloc, ReorderDetailState>(
       bloc: reorderDetailBloc,
       builder: (context, state) {
-        final screenWidth = MediaQuery.sizeOf(context).width;
-        final responsiveness = screenWidth > 700 ? Responsiveness.isTablet : Responsiveness.isMobil;
-
         final appBar = AppBar(
           title:
               reorderCreateOrEdit == ReorderCreateOrEdit.create ? const Text('Nachlieferung') : Text('Nachlieferung ${state.reorder!.reorderNumber}'),
-          centerTitle: responsiveness == Responsiveness.isTablet ? true : false,
+          centerTitle: ResponsiveBreakpoints.of(context).largerOrEqualTo(TABLET) ? true : false,
           actions: [
             if (reorderCreateOrEdit == ReorderCreateOrEdit.edit && state.reorder != null && state.reorder!.id.isNotEmpty)
               IconButton(
@@ -42,7 +39,7 @@ class ReorderDetailPage extends StatelessWidget {
                 )),
                 icon: const Icon(Icons.refresh, size: 30),
               ),
-            responsiveness == Responsiveness.isTablet ? Gaps.w32 : Gaps.w8,
+            ResponsiveBreakpoints.of(context).largerOrEqualTo(TABLET) ? Gaps.w32 : Gaps.w8,
             MyOutlinedButton(
               buttonText: 'Speichern',
               onPressed: () {
@@ -56,14 +53,14 @@ class ReorderDetailPage extends StatelessWidget {
               isLoading: state.isLoadingOnCreateReorder || state.isLoadingOnUpdateReorder,
               buttonBackgroundColor: Colors.green,
             ),
-            responsiveness == Responsiveness.isTablet ? Gaps.w32 : Gaps.w8,
+            ResponsiveBreakpoints.of(context).largerOrEqualTo(TABLET) ? Gaps.w32 : Gaps.w8,
           ],
         );
 
         return Scaffold(
           appBar: appBar,
           body: SafeArea(
-            child: responsiveness == Responsiveness.isTablet
+            child: ResponsiveBreakpoints.of(context).largerOrEqualTo(TABLET)
                 ? SingleChildScrollView(
                     child: Padding(
                       padding: const EdgeInsets.all(18),

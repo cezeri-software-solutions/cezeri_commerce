@@ -92,10 +92,13 @@ int calcTaxPercent(double grossAmount, double netAmount) {
 }
 
 //* Berechnet die Vorsteuer in Zahl.
-//* zb. 20% | Brutto: 100 / Steuer: 20 = 83,3333%
-//* zb. 19% | Brutto: 100 / Netto: 19% = 84,03%
-double calcTaxAmount(double grossAmount, int tax) {
+double calcTaxAmountFromGross(double grossAmount, int tax) {
   return grossAmount - (grossAmount / taxToCalc(tax));
+}
+
+//* Berechnet die Vorsteuer in Zahl.
+double calcTaxAmountFromNet(double netAmount, int tax) {
+  return (netAmount * taxToCalc(tax) + netAmount);
 }
 
 bool stringToBool(String str) {

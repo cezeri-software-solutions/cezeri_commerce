@@ -98,11 +98,11 @@ class ReceiptDetailState {
     double additionalAmountGross,
   ) {
     return (procutsTotalGross - productsTotalNet) -
-        calcTaxAmount(posDiscountPercentAmount, tax).toMyRoundedDouble() -
-        calcTaxAmount(discountPercentageAmountGross, tax).toMyRoundedDouble() -
-        calcTaxAmount(discountAmountGross, tax).toMyRoundedDouble() +
-        calcTaxAmount(shippingAmountGross, tax).toMyRoundedDouble() +
-        calcTaxAmount(additionalAmountGross, tax).toMyRoundedDouble();
+        calcTaxAmountFromGross(posDiscountPercentAmount, tax).toMyRoundedDouble() -
+        calcTaxAmountFromGross(discountPercentageAmountGross, tax).toMyRoundedDouble() -
+        calcTaxAmountFromGross(discountAmountGross, tax).toMyRoundedDouble() +
+        calcTaxAmountFromGross(shippingAmountGross, tax).toMyRoundedDouble() +
+        calcTaxAmountFromGross(additionalAmountGross, tax).toMyRoundedDouble();
   }
 
   factory ReceiptDetailState.initial() => ReceiptDetailState(

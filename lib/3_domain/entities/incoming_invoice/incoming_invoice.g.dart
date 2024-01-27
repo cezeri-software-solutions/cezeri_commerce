@@ -9,15 +9,19 @@ part of 'incoming_invoice.dart';
 IncomingInvoice _$IncomingInvoiceFromJson(Map<String, dynamic> json) =>
     IncomingInvoice(
       id: json['id'] as String,
+      supplierId: json['supplierId'] as String,
       invoiceNumber: json['invoiceNumber'] as String,
       status: $enumDecode(_$IncomingInvoiceStatusEnumMap, json['status']),
       reviewerId: json['reviewerId'] as String?,
       tax: Tax.fromJson(json['tax'] as Map<String, dynamic>),
       currency: json['currency'] as String,
-      totalPositions: InvoiceTotals.fromJson(
-          json['totalPositions'] as Map<String, dynamic>),
       totalReceipt:
           InvoiceTotals.fromJson(json['totalReceipt'] as Map<String, dynamic>),
+      listOfIncomingInvoiceAccounts: (json['listOfIncomingInvoiceAccounts']
+              as List<dynamic>)
+          .map(
+              (e) => IncomingInvoiceAccount.fromJson(e as Map<String, dynamic>))
+          .toList(),
       listOfIncomingInvoiceFiles: (json['listOfIncomingInvoiceFiles']
               as List<dynamic>?)
           ?.map((e) => IncomingInvoiceFile.fromJson(e as Map<String, dynamic>))
@@ -37,13 +41,16 @@ IncomingInvoice _$IncomingInvoiceFromJson(Map<String, dynamic> json) =>
 Map<String, dynamic> _$IncomingInvoiceToJson(IncomingInvoice instance) =>
     <String, dynamic>{
       'id': instance.id,
+      'supplierId': instance.supplierId,
       'invoiceNumber': instance.invoiceNumber,
       'status': _$IncomingInvoiceStatusEnumMap[instance.status]!,
       'reviewerId': instance.reviewerId,
       'tax': instance.tax.toJson(),
       'currency': instance.currency,
-      'totalPositions': instance.totalPositions.toJson(),
       'totalReceipt': instance.totalReceipt.toJson(),
+      'listOfIncomingInvoiceAccounts': instance.listOfIncomingInvoiceAccounts
+          .map((e) => e.toJson())
+          .toList(),
       'listOfIncomingInvoiceFiles':
           instance.listOfIncomingInvoiceFiles?.map((e) => e.toJson()).toList(),
       'invoiceDate': instance.invoiceDate.toIso8601String(),

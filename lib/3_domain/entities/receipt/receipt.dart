@@ -470,11 +470,11 @@ class Receipt {
     final tax = phAppointment.tax.taxRate;
     final taxAmount = productsTotalGross -
         productsTotalNet -
-        calcTaxAmount(posDiscountPercentAmount, tax).toMyRoundedDouble() -
-        calcTaxAmount(discountPercentageAmountGross, tax).toMyRoundedDouble() -
-        calcTaxAmount(phAppointment.discountGross, tax).toMyRoundedDouble() +
-        calcTaxAmount(phAppointment.totalShippingGross, tax).toMyRoundedDouble() +
-        calcTaxAmount(phAppointment.additionalAmountGross, tax).toMyRoundedDouble();
+        calcTaxAmountFromGross(posDiscountPercentAmount, tax).toMyRoundedDouble() -
+        calcTaxAmountFromGross(discountPercentageAmountGross, tax).toMyRoundedDouble() -
+        calcTaxAmountFromGross(phAppointment.discountGross, tax).toMyRoundedDouble() +
+        calcTaxAmountFromGross(phAppointment.totalShippingGross, tax).toMyRoundedDouble() +
+        calcTaxAmountFromGross(phAppointment.additionalAmountGross, tax).toMyRoundedDouble();
     final totalGross = productsTotalGross -
         posDiscountPercentAmount -
         discountPercentageAmountGross -

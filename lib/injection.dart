@@ -123,7 +123,12 @@ Future<void> init() async {
   );
   sl.registerLazySingleton<CustomerRepository>(() => CustomerRepositoryImpl(db: sl(), firebaseAuth: sl()));
   sl.registerLazySingleton<SupplierRepository>(() => SupplierRepositoryImpl(db: sl(), firebaseAuth: sl()));
-  sl.registerLazySingleton<ReorderRepository>(() => ReorderRepositoryImpl(db: sl(), firebaseAuth: sl(), marketplaceEditRepository: sl()));
+  sl.registerLazySingleton<ReorderRepository>(() => ReorderRepositoryImpl(
+        db: sl(),
+        firebaseAuth: sl(),
+        marketplaceEditRepository: sl(),
+        productRepository: sl(),
+      ));
   sl.registerLazySingleton<PackingStationRepository>(() => PackingStationRepositoryImpl(db: sl(), firebaseAuth: sl()));
   sl.registerLazySingleton<StatDashboardRepository>(() => StatDashboardRepositoryImpl(db: sl(), firebaseAuth: sl()));
   sl.registerLazySingleton<StatProductRepository>(() => StatProductRepositoryImpl(db: sl(), firebaseAuth: sl()));

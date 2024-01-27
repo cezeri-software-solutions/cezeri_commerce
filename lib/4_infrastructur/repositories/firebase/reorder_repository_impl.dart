@@ -9,6 +9,7 @@ import '../../../1_presentation/core/functions/check_internet_connection.dart';
 import '../../../3_domain/entities/product/product.dart';
 import '../../../3_domain/entities/reorder/reorder_product.dart';
 import '../../../3_domain/enums/enums.dart';
+import '../../../3_domain/repositories/firebase/product_repository.dart';
 import '../../../3_domain/repositories/firebase/reorder_repository.dart';
 import '../../../3_domain/repositories/marketplace/marketplace_edit_repository.dart';
 
@@ -16,8 +17,9 @@ class ReorderRepositoryImpl implements ReorderRepository {
   final FirebaseFirestore db;
   final FirebaseAuth firebaseAuth;
   final MarketplaceEditRepository marketplaceEditRepository;
+  final ProductRepository productRepository;
 
-  ReorderRepositoryImpl({required this.db, required this.firebaseAuth, required this.marketplaceEditRepository});
+  ReorderRepositoryImpl({required this.db, required this.firebaseAuth, required this.marketplaceEditRepository, required this.productRepository});
 
   @override
   Future<Either<FirebaseFailure, Reorder>> createReorder(Reorder reorder) async {
@@ -186,6 +188,19 @@ class ReorderRepositoryImpl implements ReorderRepository {
             availableStock: loadedProduct.availableStock + bookingProduct.toBookQuantity,
             warehouseStock: loadedProduct.warehouseStock + bookingProduct.toBookQuantity,
           );
+          // final fos = await productRepository.updateAllQuantityOfProductAbsolut(
+          //   loadedProduct,
+          //   loadedProduct.availableStock + bookingProduct.toBookQuantity,
+          //   false,
+          // );
+          // fos.fold(
+          //   (failure) {
+          //     final cm =
+          //         'Bestand des Artikels: "${loadedProduct.name}" mit der Arikelnummer: "${loadedProduct.articleNumber}" konnte nicht aktualisiert werden';
+          //     left(GeneralFailure(customMessage: cm));
+          //   },
+          //   (product) => updatedProduct = product,
+          // );
           transaction.update(docRefProduct, updatedProduct!.toJson());
         });
 

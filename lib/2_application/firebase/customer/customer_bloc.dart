@@ -294,7 +294,7 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
 
 // //? #########################################################################
 
-//     on<GetAllCustomersEvenet>((event, emit) async {
+//     on<GetAllCustomersEvent>((event, emit) async {
 //       emit(state.copyWith(isLoadingCustomersOnObserve: true));
 
 //       final failureOrSuccess = await customerRepository.getListOfCustomers();
