@@ -196,7 +196,7 @@ List<Widget>? _getProductDetailActions(BuildContext context, ProductDetailBloc p
         value: state.product!.isActive,
         onChanged: (_) => productDetailBloc.add(OnProductIsActiveChangedEvent()),
       ),
-    ResponsiveBreakpoints.of(context).isTablet ? Gaps.w16 : Gaps.w8,
+    ResponsiveBreakpoints.of(context).largerOrEqualTo(TABLET) ? Gaps.w16 : Gaps.w8,
     if (productId != null) ...[
       IconButton(
         onPressed: () => productDetailBloc.add(GetProductEvent(
@@ -204,7 +204,7 @@ List<Widget>? _getProductDetailActions(BuildContext context, ProductDetailBloc p
         )),
         icon: const Icon(Icons.refresh, size: 30),
       ),
-      ResponsiveBreakpoints.of(context).isTablet ? Gaps.w16 : Gaps.w8,
+      ResponsiveBreakpoints.of(context).largerOrEqualTo(TABLET) ? Gaps.w16 : Gaps.w8,
     ],
     MyOutlinedButton(
       buttonText: 'Speichern',
@@ -218,6 +218,6 @@ List<Widget>? _getProductDetailActions(BuildContext context, ProductDetailBloc p
       isLoading: state.isLoadingProductOnUpdate,
       buttonBackgroundColor: Colors.green,
     ),
-    ResponsiveBreakpoints.of(context).isTablet ? Gaps.w32 : Gaps.w8,
+    ResponsiveBreakpoints.of(context).largerOrEqualTo(TABLET) ? Gaps.w32 : Gaps.w8,
   ];
 }

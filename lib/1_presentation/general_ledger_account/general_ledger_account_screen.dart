@@ -9,6 +9,7 @@ import '../../3_domain/entities/settings/general_ledger_account.dart';
 import '../../injection.dart';
 import '../../routes/router.gr.dart';
 import '../app_drawer.dart';
+import '../core/renderer/failure_renderer.dart';
 import '../core/widgets/my_circular_progress_indicator.dart';
 import 'general_ledger_account_page.dart';
 import 'widgets/add_edit_general_ledger_account.dart';
@@ -38,7 +39,7 @@ class _GeneralLedgerAccountScreenState extends State<GeneralLedgerAccountScreen>
               state.fosGLAccountsOnObserveOption.fold(
                 () => null,
                 (a) => a.fold(
-                  (failure) => myScaffoldMessenger(context, null, null, null, 'Beim Laden der Sachkontos ist ein Fehler aufgetreten'),
+                  (failure) => failureRenderer(context, [failure]),
                   (listOfProducts) => myScaffoldMessenger(context, null, null, 'Sachkontos erfolgreich geladen', null),
                 ),
               );
@@ -50,7 +51,7 @@ class _GeneralLedgerAccountScreenState extends State<GeneralLedgerAccountScreen>
               state.fosGLAccountOnCreateOption.fold(
                 () => null,
                 (a) => a.fold(
-                  (failure) => myScaffoldMessenger(context, null, null, null, 'Beim Erstellen des Sachkonto ist ein Fehler aufgetreten'),
+                  (failure) => failureRenderer(context, [failure]),
                   (listOfProducts) {
                     myScaffoldMessenger(context, null, null, 'Sachkonto erfolgreich erstellt', null);
                     context.router.popUntilRouteWithName(GeneralLedgerAccountRoute.name);
@@ -65,7 +66,7 @@ class _GeneralLedgerAccountScreenState extends State<GeneralLedgerAccountScreen>
               state.fosGLAccountOnUpdateOption.fold(
                 () => null,
                 (a) => a.fold(
-                  (failure) => myScaffoldMessenger(context, null, null, null, 'Beim Aktualisieren des Sachkonto ist ein Fehler aufgetreten'),
+                  (failure) => failureRenderer(context, [failure]),
                   (listOfProducts) {
                     myScaffoldMessenger(context, null, null, 'Sachkonto erfolgreich aktualisiert', null);
                     context.router.popUntilRouteWithName(GeneralLedgerAccountRoute.name);

@@ -309,7 +309,7 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
 
       final failureOrSuccess = await receiptRepository.deleteListOfReceipts(event.selectedReceipts);
       failureOrSuccess.fold(
-        (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
+        (failure) => null,
         (unit) {
           List<Receipt> appointments = List.from(state.listOfFilteredReceipts!);
           for (final appointment in event.selectedReceipts) {

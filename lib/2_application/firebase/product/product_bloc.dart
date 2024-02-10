@@ -1,6 +1,5 @@
 import 'package:bloc/bloc.dart';
 import 'package:cezeri_commerce/core/firebase_failures.dart';
-import 'package:cezeri_commerce/core/presta_failure.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
@@ -13,6 +12,7 @@ import '../../../3_domain/repositories/firebase/main_settings_respository.dart';
 import '../../../3_domain/repositories/firebase/product_repository.dart';
 import '../../../3_domain/repositories/firebase/supplier_repository.dart';
 import '../../../3_domain/repositories/marketplace/marketplace_edit_repository.dart';
+import '../../../core/abstract_failure.dart';
 
 part 'product_event.dart';
 part 'product_state.dart';
@@ -95,10 +95,7 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
       Product? updatedProduct;
 
       failureOrSuccess.fold(
-        (failure) {
-          isSuccess = false;
-          emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true));
-        },
+        (failure) => isSuccess = false,
         (loadedProduct) {
           updatedProduct = loadedProduct;
           List<Product> updatedProducts = List.from(state.listOfAllProducts!);
@@ -143,7 +140,7 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
       emit(state.copyWith(isLoadingProductOnMassEditing: true, listOfNotUpdatedProductsOnMassEditing: []));
 
       bool isFosFirestoreSuccess = true;
-      bool isFosMarketplaceSuccess = true;
+      final List<AbstractFailure> marketplaceFailures = [];
       List<Product> listOfNotUpdatedProductsOnMassEditing = [];
 
       for (final product in state.selectedProducts) {
@@ -178,7 +175,7 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
         //* Update in Marktplätzen
         final fosMarketplace = await productEditRepository.editProdcutPresta(updatedProduct, event.selectedMarketplaces);
         failureOrSuccess.fold(
-          (failure) => isFosMarketplaceSuccess = false, // TODO: handle Presta Failure
+          (failure) => marketplaceFailures.add(failure),
           (unit) => emit(state.copyWith(firebaseFailure: null, isAnyFailure: false)),
         );
 
@@ -191,7 +188,7 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
           isLoadingProductOnMassEditing: false,
           listOfNotUpdatedProductsOnMassEditing: listOfNotUpdatedProductsOnMassEditing,
           fosMassEditProductsOption: isFosFirestoreSuccess ? some(right(unit)) : some(left(GeneralFailure())),
-          fosProductOnEditQuantityPrestaOption: isFosMarketplaceSuccess ? some(right(unit)) : some(left(PrestaGeneralFailure()))));
+          fosProductOnEditQuantityPrestaOption: marketplaceFailures.isEmpty ? some(right(unit)) : some(left(marketplaceFailures))));
       emit(state.copyWith(
         fosMassEditProductsOption: none(),
         fosProductOnEditQuantityPrestaOption: none(),
@@ -204,7 +201,7 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
       emit(state.copyWith(isLoadingProductOnMassEditing: true, listOfNotUpdatedProductsOnMassEditing: []));
 
       bool isFosFirestoreSuccess = true;
-      bool isFosMarketplaceSuccess = true;
+      final List<AbstractFailure> marketplaceFailures = [];
       List<Product> listOfNotUpdatedProductsOnMassEditing = [];
 
       for (final product in state.selectedProducts) {
@@ -235,8 +232,8 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
 
         //* Update in Marktplätzen
         final fosMarketplace = await productEditRepository.editProdcutPresta(updatedProduct, event.selectedMarketplaces);
-        failureOrSuccess.fold(
-          (failure) => isFosMarketplaceSuccess = false, // TODO: handle Presta Failure
+        fosMarketplace.fold(
+          (failure) => marketplaceFailures.addAll(failure),
           (unit) => emit(state.copyWith(firebaseFailure: null, isAnyFailure: false)),
         );
 
@@ -249,7 +246,7 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
           isLoadingProductOnMassEditing: false,
           listOfNotUpdatedProductsOnMassEditing: listOfNotUpdatedProductsOnMassEditing,
           fosMassEditProductsOption: isFosFirestoreSuccess ? some(right(unit)) : some(left(GeneralFailure())),
-          fosProductOnEditQuantityPrestaOption: isFosMarketplaceSuccess ? some(right(unit)) : some(left(PrestaGeneralFailure()))));
+          fosProductOnEditQuantityPrestaOption: marketplaceFailures.isEmpty ? some(right(unit)) : some(left(marketplaceFailures))));
       emit(state.copyWith(
         fosMassEditProductsOption: none(),
         fosProductOnEditQuantityPrestaOption: none(),

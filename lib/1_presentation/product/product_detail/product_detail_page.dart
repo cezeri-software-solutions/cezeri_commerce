@@ -6,10 +6,10 @@ import 'package:responsive_framework/responsive_breakpoints.dart';
 import '../../../2_application/firebase/product_detail/product_detail_bloc.dart';
 import 'product_detail_screen.dart';
 import 'widgets/charts/product_chart_card.dart';
-import 'widgets/product_detail_marketplaces_bar.dart';
 import 'widgets/product_detail_set_article_bar.dart';
 import 'widgets/product_detail_widgets.dart';
 import 'widgets/product_images_container.dart';
+import 'widgets/product_marketplace/product_detail_marketplaces_bar.dart';
 
 class ProductDetailPage extends StatelessWidget {
   final ProductDetailBloc productDetailBloc;
@@ -22,9 +22,7 @@ class ProductDetailPage extends StatelessWidget {
     return BlocBuilder<ProductDetailBloc, ProductDetailState>(
       bloc: productDetailBloc,
       builder: (context, state) {
-        final screenWidth = MediaQuery.sizeOf(context).width;
-
-        if (ResponsiveBreakpoints.of(context).isTablet) {
+        if (ResponsiveBreakpoints.of(context).largerOrEqualTo(TABLET)) {
           return SingleChildScrollView(
             child: Padding(
               padding: const EdgeInsets.all(18.0),

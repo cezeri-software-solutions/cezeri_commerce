@@ -1,11 +1,18 @@
+import 'dart:io';
+
 import 'package:auto_route/auto_route.dart';
 import 'package:cezeri_commerce/1_presentation/app_drawer.dart';
+import 'package:cezeri_commerce/1_presentation/core/renderer/failure_renderer.dart';
+import 'package:csv/csv.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:html/parser.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:responsive_framework/responsive_framework.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../../2_application/firebase/product/product_bloc.dart';
 import '../../../3_domain/entities/product/product.dart';
@@ -32,12 +39,7 @@ class ProductsOverviewScreen extends StatefulWidget {
 
 class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> with AutomaticKeepAliveClientMixin {
   final productBloc = sl<ProductBloc>()..add(GetAllProductsEvent());
-
-  @override
-  void initState() {
-    print('aloooo');
-    super.initState();
-  }
+  final iconButtonKey = GlobalKey();
 
   @override
   Widget build(BuildContext context) {
@@ -65,7 +67,10 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> with Au
               state.fosProductOnUpdateQuantityOption.fold(
                 () => null,
                 (a) => a.fold(
-                  (prestaFailure) => context.router.popUntilRouteWithName(ProductsOverviewRoute.name),
+                  (failure) {
+                    failureRenderer(context, [failure]);
+                    context.router.popUntilRouteWithName(ProductsOverviewRoute.name);
+                  },
                   (unit) => context.router.popUntilRouteWithName(ProductsOverviewRoute.name),
                 ),
               );
@@ -125,6 +130,14 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> with Au
                 title: _getAppBarTitle(context, state.listOfFilteredProducts, state.selectedProducts),
                 actions: [
                   IconButton(
+                    key: iconButtonKey,
+                    onPressed: () {
+                      final csvString = _generateCsvString(state.selectedProducts);
+                      _saveAndShareCsv(csvString);
+                    },
+                    icon: const Icon(Icons.table_chart_outlined, color: CustomColors.primaryColor),
+                  ),
+                  IconButton(
                     onPressed: () async {
                       showMyDialogLoading(context: context, text: 'PDF wird erstellt...');
                       productBloc.add(SetProductIsLoadingPdfEvent(value: true));
@@ -144,7 +157,7 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> with Au
                         ? const MyCircularProgressIndicator(color: Colors.red)
                         : const Icon(Icons.picture_as_pdf, color: Colors.red),
                   ),
-                  IconButton(onPressed: () => context.read<ProductBloc>().add(GetAllProductsEvent()), icon: const Icon(Icons.refresh)),
+                  IconButton(onPressed: () => productBloc.add(GetAllProductsEvent()), icon: const Icon(Icons.refresh)),
                   TextButton.icon(
                     onPressed: state.selectedProducts.isEmpty
                         ? () => showMyDialogAlert(context: context, title: 'Achtung!', content: 'Bitte wähle mindestens einen Artikel aus.')
@@ -183,7 +196,7 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> with Au
                             onSuffixTap: () => context.read<ProductBloc>().add(OnProductSearchControllerClearedEvent()),
                           ),
                         ),
-                        if (ResponsiveBreakpoints.of(context).isTablet) ...[
+                        if (ResponsiveBreakpoints.of(context).largerOrEqualTo(TABLET)) ...[
                           Gaps.w16,
                           const Text('Erweiterte Suche:'),
                           Gaps.w8,
@@ -214,6 +227,63 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> with Au
     );
   }
 
+  String _generateCsvString(List<Product> selectedProducts) {
+    List<List<dynamic>> rows = [
+      [
+        'ID',
+        'Artikelnummer',
+        'Name',
+        'Beschreibung',
+        'Beschreibung (HTML)',
+        'Hersteller',
+        'Gewicht',
+        'Preis Netto',
+        'Preis Brutto',
+        'Lagerbestand',
+        'Verfügbarer Bestand',
+        'Set-Artikel',
+        'Aktiv',
+      ],
+    ];
+
+    int pos = 1;
+    for (final product in selectedProducts) {
+      final document = parse(product.description);
+      final blancDescription = document.body!.text;
+      final row = [
+        pos,
+        product.articleNumber,
+        product.name,
+        blancDescription,
+        product.description,
+        product.manufacturer,
+        product.weight,
+        product.netPrice,
+        product.grossPrice,
+        product.warehouseStock,
+        product.availableStock,
+        product.isSetArticle,
+        product.isActive,
+      ];
+      rows.add(row);
+      pos++;
+    }
+    return const ListToCsvConverter().convert(rows);
+  }
+
+  Future<void> _saveAndShareCsv(String csvString) async {
+    final box = iconButtonKey.currentContext!.findRenderObject() as RenderBox;
+    final directory = await getApplicationDocumentsDirectory();
+    final path = '${directory.path}/Artikel.csv';
+    final file = File(path);
+
+    await file.writeAsString(csvString);
+
+    final XFile csvFile = XFile(path);
+
+    Share.shareXFiles([csvFile], sharePositionOrigin: box.localToGlobal(Offset.zero) & box.size);
+  }
+
   void _onRemovePressed(BuildContext context, List<Product> selectedProducts) {
     if (selectedProducts.isEmpty) {
       showMyDialogAlert(context: context, title: 'Achtung!', content: 'Bitte wähle mindestens einen Artikel aus.');
@@ -241,7 +311,7 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> with Au
 
   Widget _getAppBarTitle(BuildContext context, List<Product>? listOfFilteredProducts, List<Product> selectedProducts) {
     if (listOfFilteredProducts == null) return const Text('Artikel');
-    final isTablet = ResponsiveBreakpoints.of(context).isTablet;
+    final isTablet = ResponsiveBreakpoints.of(context).largerOrEqualTo(TABLET);
 
     final row = Row(
         children: switch (isTablet) {

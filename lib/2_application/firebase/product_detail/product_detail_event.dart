@@ -112,6 +112,12 @@ class OnUpdateProductMarketplaceEvent extends ProductDetailEvent {
   OnUpdateProductMarketplaceEvent({required this.productMarketplace});
 }
 
+class DeleteMarketplaceFromProductEvent extends ProductDetailEvent {
+  final String marketplaceId;
+
+  DeleteMarketplaceFromProductEvent({required this.marketplaceId});
+}
+
 // * #################################################################################################################################
 // * Set-Article
 

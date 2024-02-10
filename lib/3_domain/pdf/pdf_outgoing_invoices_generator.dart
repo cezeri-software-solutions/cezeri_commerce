@@ -12,7 +12,7 @@ import 'widgets/pdf_text.dart';
 final logger = Logger();
 
 class PdfOutgoingInvoicesGenerator {
-  static Future<Uint8List> generate({required List<Receipt> listOfReceipts, required DateTimeRange dateRange}) async {
+  static Future<Uint8List> generate({required List<Receipt> listOfReceipts, DateTimeRange? dateRange}) async {
     final myTheme = pw.ThemeData.withFont(
       base: pw.Font.ttf(await rootBundle.load('assets/font/Roboto-Regular.ttf')),
       bold: pw.Font.ttf(await rootBundle.load('assets/font/Roboto-Bold.ttf')),
@@ -52,7 +52,7 @@ class PdfOutgoingInvoicesGenerator {
         pageFormat: PdfPageFormat.a4.landscape,
         build: (context) {
           return [
-            _buildTitle(dateRange),
+            _buildTitle(listOfReceipts, dateRange),
             pw.SizedBox(height: 10),
             _buildPositions(listOfReceipts),
             pw.SizedBox(height: 20),
@@ -80,10 +80,20 @@ class PdfOutgoingInvoicesGenerator {
     return pdf.save();
   }
 
-  static pw.Widget _buildTitle(DateTimeRange dateRange) {
+  static pw.Widget _buildTitle(List<Receipt> listOfReceipts, DateTimeRange? dateRange) {
     final dateFormat = DateFormat('dd.MM.yyyy', 'de');
-    final earliestDateString = dateFormat.format(dateRange.start);
-    final latestDateString = dateFormat.format(dateRange.end);
+    String earliestDateString = '';
+    String latestDateString = '';
+
+    if (dateRange != null) {
+      earliestDateString = dateFormat.format(dateRange.start);
+      latestDateString = dateFormat.format(dateRange.end);
+    } else {
+      final dateTimes = listOfReceipts.map((e) => e.creationDate).toList();
+      dateTimes.sort((a, b) => a.compareTo(b));
+      earliestDateString = dateFormat.format(dateTimes.first);
+      latestDateString = dateFormat.format(dateTimes.last);
+    }
 
     final title = '$earliestDateString - $latestDateString';
 

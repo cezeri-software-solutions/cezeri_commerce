@@ -1,4 +1,6 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 
 import '../../../../../2_application/firebase/customer/customer_bloc.dart';
 import '../../../../../3_domain/entities/address.dart';
@@ -49,7 +51,7 @@ class _CustomerAddressCardState extends State<CustomerAddressCard> {
               ),
             ),
             Gaps.h16,
-            _CustomerDetailCustomerAddressContainer(address: shownAddress, customerBloc: widget.customerBloc)
+            _CustomerDetailCustomerAddressContainer(customerBloc: widget.customerBloc, address: shownAddress)
           ],
         ),
       ),
@@ -91,16 +93,14 @@ class _CustomerDetailCustomerAddressContainer extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             IconButton(
-              onPressed: () => showModalBottomSheet(
-                isScrollControlled: true,
-                context: context,
-                builder: (context) => MyAddressUpdateSheet(
-                  address: address,
-                  onSave: (newAddress) => customerBloc.add(OnAddEditCustomerAddressEvent(address: newAddress)),
-                ),
-              ),
+              onPressed: () => _showAddEditAddressModal(context, customerBloc, address),
               icon: address != null ? const Icon(Icons.edit, color: CustomColors.primaryColor) : const Icon(Icons.add, color: Colors.green),
             ),
+            if (address != null)
+              IconButton(
+                onPressed: () => _showAddEditAddressModal(context, customerBloc, null),
+                icon: const Icon(Icons.add, color: Colors.green),
+              ),
             IconButton(
               onPressed: () {}, //TODO: es soll ein Dialog oder Sheet aufgehen, wo alle adressen des kunden aufgelistet sind
               icon: const Icon(Icons.list, color: CustomColors.primaryColor),
@@ -110,4 +110,38 @@ class _CustomerDetailCustomerAddressContainer extends StatelessWidget {
       ],
     );
   }
+}
+
+void _showAddEditAddressModal(BuildContext context, CustomerBloc customerBloc, Address? address) {
+  final title = Padding(
+    padding: const EdgeInsets.only(left: 24, top: 20),
+    child: Text(address == null ? 'Neue Adresse' : 'Adresse bearbeiten', style: TextStyles.h2),
+  );
+
+  final closeButton = Padding(
+    padding: const EdgeInsets.only(right: 8),
+    child: IconButton(
+      icon: const Icon(Icons.close),
+      onPressed: () {
+        context.router.pop();
+      },
+    ),
+  );
+
+  WoltModalSheet.show<void>(
+    context: context,
+    barrierDismissible: false,
+    enableDrag: false,
+    useSafeArea: false,
+    pageListBuilder: (context) => [
+      WoltModalSheetPage(
+        leadingNavBarWidget: title,
+        trailingNavBarWidget: closeButton,
+        child: MyAddressUpdateSheet(
+          address: address,
+          onSave: (newAddress) => customerBloc.add(OnAddEditCustomerAddressEvent(address: newAddress)),
+        ),
+      ),
+    ],
+  );
 }

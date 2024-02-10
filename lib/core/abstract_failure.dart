@@ -1,7 +1,13 @@
-abstract class AbstractFailure {}
+enum AbstractFailureType { firebase, auth, presta, mixed }
+
+abstract class AbstractFailure {
+  final AbstractFailureType abstractFailureType;
+
+  AbstractFailure({required this.abstractFailureType});
+}
 
 class MixedFailure extends AbstractFailure {
   final String? errorMessage;
 
-  MixedFailure({required this.errorMessage});
+  MixedFailure({required this.errorMessage}) : super(abstractFailureType: AbstractFailureType.mixed);
 }

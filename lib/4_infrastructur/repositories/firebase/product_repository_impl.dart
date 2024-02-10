@@ -10,15 +10,16 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:logger/logger.dart';
 import 'package:path/path.dart';
 
-import '../../../3_domain/entities/reorder/supplier.dart';
 import '/1_presentation/core/functions/check_internet_connection.dart';
 import '/3_domain/entities/marketplace/marketplace.dart';
 import '/3_domain/entities/product/product.dart';
 import '/3_domain/entities/product/product_image.dart';
+import '/3_domain/entities/reorder/supplier.dart';
 import '/3_domain/entities_presta/product_presta.dart';
 import '/3_domain/repositories/firebase/marketplace_repository.dart';
 import '/3_domain/repositories/firebase/product_repository.dart';
 import '/3_domain/repositories/marketplace/marketplace_edit_repository.dart';
+import '/core/abstract_failure.dart';
 
 final logger = Logger();
 
@@ -47,7 +48,6 @@ class ProductRepositoryImpl implements ProductRepository {
 
       Product toCreateProduct;
       //* Artikelbilder erstellen START
-
       if (productPresta != null && productPresta.imageFiles != null) {
         final firebaseStoragePath = '$currentUserUid/ProductImages/${docRef.id}';
         final List<ProductImage> listOfProductImages =
@@ -83,52 +83,6 @@ class ProductRepositoryImpl implements ProductRepository {
       final listOfProducts = await docRef.get().then(
             (value) => value.docs.map((querySnapshot) => Product.fromJson(querySnapshot.data())).toList(),
           );
-
-      // int index = 1;
-      // for (final product in listOfProducts) {
-      //   print('####################### Schleifendurchgang $index ###########################');
-      //   final docRefPh = db.collection('Products').doc(currentUserUid).collection('Products').doc(product.id);
-      //   final updatedProduct = product.copyWith(
-      //     isUnderMinimumStock: product.availableStock <= product.minimumStock ? true : false,
-      //     listOfIsPartOfSetIds: [],
-      //     listOfProductIdWithQuantity: [],
-      //     isSetArticle: false,
-      //   );
-      //   await docRefPh.update(updatedProduct.toJson());
-      //   await Future.delayed(const Duration(milliseconds: 200));
-      //   index++;
-      // }
-      //********************************
-      // List<Marketplace> marketplaces = [];
-      // final fosMarketplaces = await marketplaceRepository.getListOfMarketplaces();
-      // fosMarketplaces.fold(
-      //   (failure) => left(GeneralFailure()),
-      //   (listOfMarketplaces) => marketplaces.addAll(listOfMarketplaces),
-      // );
-
-      // int index = 1;
-      // for (final product in listOfProducts) {
-      //   logger.i('####################### Schleifendurchgang $index ###########################');
-      //   final docRefPh = db.collection('Products').doc(currentUserUid).collection('Products').doc(product.id);
-      //   List<ProductMarketplace> listOfProductMarketplaces = [];
-      //   for (int i = 0; i < product.productMarketplaces.length; i++) {
-      //     final marketplace = marketplaces.where((e) => e.id == product.productMarketplaces[i].idMarketplace).firstOrNull;
-      //     if (marketplace == null) continue;
-      //     final api = PrestashopApi(Client(), PrestashopApiConfig(apiKey: marketplace.key, webserviceUrl: marketplace.fullUrl));
-      //     final optionalProductPresta = await api.getProduct(
-      //       (product.productMarketplaces[i].marketplaceProduct as MarketplaceProductPresta).id,
-      //       marketplace,
-      //     );
-      //     if (optionalProductPresta.isNotPresent) continue;
-      //     final productPresta = optionalProductPresta.value;
-      //     final productMarketplace = ProductMarketplace.fromProductPresta(productPresta, marketplace);
-      //     listOfProductMarketplaces.add(productMarketplace);
-      //   }
-      //   final updatedProduct = product.copyWith(productMarketplaces: listOfProductMarketplaces);
-      //   await docRefPh.update(updatedProduct.toJson());
-      //   await Future.delayed(const Duration(milliseconds: 100));
-      //   index++;
-      // }
 
       if (listOfProducts.isEmpty) return left(EmptyFailure());
       return right(listOfProducts);
@@ -363,7 +317,7 @@ class ProductRepositoryImpl implements ProductRepository {
           }
           for (final noMorePartId in noMorePartOfSetIds) {
             final docRefNoMorePartOfSet = db.collection('Products').doc(currentUserUid).collection('Products').doc(noMorePartId);
-            final noMorePartProductDs = await transaction.get(docRefNoMorePartOfSet);
+            final noMorePartProductDs = await docRefNoMorePartOfSet.get(); //await transaction.get(docRefNoMorePartOfSet);
             if (!noMorePartProductDs.exists) return left(GeneralFailure());
             Product noMorePartProduct = Product.fromJson(noMorePartProductDs.data()!);
             List<String> listOfIsPartOfSetIds = List.from(noMorePartProduct.listOfIsPartOfSetIds);
@@ -569,7 +523,7 @@ class ProductRepositoryImpl implements ProductRepository {
   }
 
   @override
-  Future<Either<FirebaseFailure, Product>> updateAllQuantityOfProductAbsolut(
+  Future<Either<AbstractFailure, Product>> updateAllQuantityOfProductAbsolut(
     Product product,
     int newQuantity,
     bool updateOnlyAvailableQuantity,
@@ -585,7 +539,9 @@ class ProductRepositoryImpl implements ProductRepository {
       List<Product> listOfUpdatedSetProducts = [];
       await db.runTransaction((transaction) async {
         final loadedProductDS = await transaction.get(docRef);
-        if (!loadedProductDS.exists) return left(GeneralFailure());
+        if (!loadedProductDS.exists) {
+          return left(GeneralFailure(customMessage: 'Der Artikel "${product.name}" konnte nicht aus der Datenbank geladen werden.'));
+        }
         final loadedProduct = Product.fromJson(loadedProductDS.data()!);
 
         updatedProduct = loadedProduct.copyWith(
@@ -596,7 +552,9 @@ class ProductRepositoryImpl implements ProductRepository {
           isUnderMinimumStock: newQuantity <= loadedProduct.minimumStock ? true : false,
         );
 
-        if (updatedProduct == null) return left(GeneralFailure());
+        if (updatedProduct == null) {
+          return left(GeneralFailure(customMessage: 'Ein Fehler beim absoluten aktualiseren des Artikels "${product.name}" ist aufgetreten.'));
+        }
 
         if (loadedProduct.listOfIsPartOfSetIds.isNotEmpty) {
           final updatedSetProducts = await updateQuantityOfSetProducts(
@@ -625,7 +583,7 @@ class ProductRepositoryImpl implements ProductRepository {
   }
 
   @override
-  Future<Either<FirebaseFailure, Product>> updateAvailableQuantityOfProductInremental(
+  Future<Either<AbstractFailure, Product>> updateAvailableQuantityOfProductInremental(
     Product product,
     int newQuantityIncremental,
     Marketplace? marketplaceToSkip,
@@ -669,8 +627,12 @@ class ProductRepositoryImpl implements ProductRepository {
       if (updatedProduct == null) return left(GeneralFailure());
       await marketplaceEditRepository.setProdcutPrestaQuantity(updatedProduct!, updatedProduct!.availableStock, marketplaceToSkip);
       return right(updatedProduct!);
-    } on FirebaseException {
-      return left(GeneralFailure());
+    } on FirebaseException catch (e) {
+      final customMessage = 'Beim inkrementellen updaten des Bestandes vom Artikel: "${product.name}" ist ein Fehler aufgetreten';
+      logger.e('$customMessage ERROR: $e');
+      return left(
+        GeneralFailure(customMessage: customMessage, e: e),
+      );
     }
   }
 

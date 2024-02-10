@@ -16,9 +16,9 @@ String? validatePassword(String? password) {
   }
 }
 
-String? validateGeneral(String? input) {
+String? validateGeneralMin3(String? input) {
   if (input != null && input.length < 3) {
-    return 'Pflichtfeld';
+    return 'Mindestens 3 Zeichen';
   } else {
     return null;
   }
@@ -40,7 +40,7 @@ String? validateGeneralNumber(String? input) {
   }
 }
 
-String? validateChecklistField(String? input) {
+String? validateGeneralMin2(String? input) {
   if (input != null && input.length < 2) {
     return 'Mindesten 2 Zeichen';
   } else {

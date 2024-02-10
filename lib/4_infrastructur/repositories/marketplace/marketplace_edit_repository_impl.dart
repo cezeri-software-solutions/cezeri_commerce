@@ -1,6 +1,7 @@
 import 'package:cezeri_commerce/3_domain/entities/product/product.dart';
 import 'package:cezeri_commerce/3_domain/entities/product/product_image.dart';
 import 'package:cezeri_commerce/3_domain/enums/enums.dart';
+import 'package:cezeri_commerce/core/firebase_failures.dart';
 import 'package:cezeri_commerce/core/presta_failure.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
@@ -14,6 +15,7 @@ import '../../../../3_domain/entities/product/product_marketplace.dart';
 import '../../../../3_domain/repositories/marketplace/marketplace_edit_repository.dart';
 import '../../../3_domain/entities/patch_marketplace_logger.dart';
 import '../../../3_domain/entities_presta/product_presta.dart';
+import '../../../core/abstract_failure.dart';
 import '../prestashop_api/prestashop_api.dart';
 
 class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
@@ -23,12 +25,12 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
   MarketplaceEditRepositoryImpl({required this.db, required this.firebaseAuth});
 
   @override
-  Future<Either<PrestaFailure, Unit>> setProdcutPrestaQuantity(Product product, int newQuantity, Marketplace? marketplaceToSkip) async {
+  Future<Either<List<AbstractFailure>, Unit>> setProdcutPrestaQuantity(Product product, int newQuantity, Marketplace? marketplaceToSkip) async {
     final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(PrestaGeneralFailure());
+    if (!isConnected) return left([NoConnectionFailure()]);
 
     final currentUserUid = firebaseAuth.currentUser!.uid;
-    bool isAllSuccess = false;
+    final List<AbstractFailure> failures = [];
 
     for (ProductMarketplace productMarketplace in product.productMarketplaces) {
       // TODO: if (!productMarketplace.active!) continue;
@@ -41,16 +43,20 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
 
       final api = PrestashopApi(Client(), PrestashopApiConfig(apiKey: marketplace.key, webserviceUrl: marketplace.fullUrl));
 
-      if (productMarketplace.marketplaceProduct == null) return left(ProductHasNoMarketplaceFailure());
+      if (productMarketplace.marketplaceProduct == null) return left([ProductHasNoMarketplaceFailure()]);
       final marketplaceProduct = switch (productMarketplace.marketplaceProduct!.marketplaceType) {
         MarketplaceType.prestashop => productMarketplace.marketplaceProduct as MarketplaceProductPresta,
         MarketplaceType.shop => throw Error(),
       };
 
-      final isSuccess = await api.patchProductQuantity(marketplaceProduct.id, newQuantity, marketplace);
-      if (isSuccess) {
-        isAllSuccess = true;
-      } else {
+      print('################################ patchProductQuantity ANFANG ################################# asdfjklöö');
+      final fos = await api.patchProductQuantity(marketplaceProduct.id, newQuantity, marketplace);
+      print('################################ patchProductQuantity ENDE ################################# asdfjklöö');
+      fos.fold(
+        (failure) => failures.add(failure),
+        (unit) => null,
+      );
+      if (fos.isLeft()) {
         final patchMarketplaceLogger = PatchMarketplaceLogger.empty().copyWith(
           loggerType: LoggerType.product,
           loggerActionType: LoggerActionType.setStocks,
@@ -65,18 +71,18 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
       }
     }
 
-    if (isAllSuccess) return right(unit);
-    return left(PrestaGeneralFailure());
+    if (failures.isEmpty) return right(unit);
+    return left(failures);
   }
 
   @override
-  Future<Either<PrestaFailure, Unit>> editProdcutPresta(Product product, List<Marketplace>? toEditMarketplaces) async {
+  Future<Either<List<AbstractFailure>, Unit>> editProdcutPresta(Product product, List<Marketplace>? toEditMarketplaces) async {
     final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(PrestaGeneralFailure());
+    if (!isConnected) return left([NoConnectionFailure()]);
 
     final currentUserUid = firebaseAuth.currentUser!.uid;
 
-    bool isSuccess = true;
+    final List<AbstractFailure> failures = [];
 
     for (final productMarketplace in product.productMarketplaces) {
       // TODO: if (!productMarketplace.active!) continue;
@@ -86,6 +92,7 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
       final docRef = db.collection('Marketetplaces').doc(currentUserUid).collection('Marketetplaces').doc(productMarketplace.idMarketplace);
 
       final marketplaceSnapshot = await docRef.get();
+      if (!marketplaceSnapshot.exists) return left([GeneralFailure(customMessage: 'Marktplatz kontte nicht geladen werden')]);
       final marketplace = Marketplace.fromJson(marketplaceSnapshot.data()!);
 
       final api = PrestashopApi(Client(), PrestashopApiConfig(apiKey: marketplace.key, webserviceUrl: marketplace.fullUrl));
@@ -98,19 +105,33 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
         for (final partProductIdWithQuantity in product.listOfProductIdWithQuantity) {
           final docRefPartProduct = db.collection('Products').doc(currentUserUid).collection('Products').doc(partProductIdWithQuantity.productId);
           final partProductDs = await docRefPartProduct.get();
-          if (!partProductDs.exists) return left(PrestaGeneralFailure()); //TODO: ist kein PrestashopFailure
+          if (!partProductDs.exists) {
+            failures.add(GeneralFailure(customMessage: fFEMpartOfSetProductNotFoundById(partProductIdWithQuantity.productId, product.name)));
+            continue;
+          }
           Product partProduct = Product.fromJson(partProductDs.data()!);
           listOfSetPartProducts.add(partProduct);
         }
-        if (listOfSetPartProducts.isEmpty) return left(PrestaGeneralFailure()); //TODO: ist kein PrestashopFailure
-        isSuccess = await api.patchSetProduct(marketplaceProduct.id, product, listOfSetPartProducts, productMarketplace, marketplace);
+        if (listOfSetPartProducts.isEmpty) {
+          failures.add(GeneralFailure(customMessage: fFEMnoPartProductsFound()));
+          continue;
+        }
+        final fos = await api.patchSetProduct(marketplaceProduct.id, product, listOfSetPartProducts, productMarketplace, marketplace);
+        fos.fold(
+          (failure) => failures.add(failure),
+          (unit) => null,
+        );
       } else {
-        isSuccess = await api.patchProduct(marketplaceProduct.id, product, productMarketplace, marketplace);
+        final fos = await api.patchProduct(marketplaceProduct.id, product, productMarketplace, marketplace);
+        fos.fold(
+          (failure) => failures.add(failure),
+          (unit) => null,
+        );
       }
       await setProdcutPrestaQuantity(product, product.availableStock, null);
     }
-    if (isSuccess) return right(unit);
-    return left(PrestaGeneralFailure());
+    if (failures.isEmpty) return right(unit);
+    return left(failures);
   }
 
   @override

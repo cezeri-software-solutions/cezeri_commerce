@@ -22,12 +22,12 @@ class ProductState {
   final Option<Either<FirebaseFailure, List<Supplier>>> fosProductSuppliersOnObserveOption;
 
   final bool isLoadingOnMassEditActivateProductMarketplace;
-  final Option<Either<FirebaseFailure, Product>> fosProductOnUpdateQuantityOption;
+  final Option<Either<AbstractFailure, Product>> fosProductOnUpdateQuantityOption;
   final Option<Either<FirebaseFailure, Unit>> fosMassEditActivateProductMarketplaceOption;
   final Option<Either<FirebaseFailure, Unit>> fosMassEditProductsOption;
 
   //* Prestashop States
-  final Option<Either<PrestaFailure, Unit>> fosProductOnEditQuantityPrestaOption;
+  final Option<Either<List<AbstractFailure>, Unit>> fosProductOnEditQuantityPrestaOption;
   //* Helpers
   final TextEditingController productSearchController;
   final bool triggerPop;
@@ -119,10 +119,10 @@ class ProductState {
     Option<Either<FirebaseFailure, Unit>>? fosProductOnDeleteOption,
     Option<Either<FirebaseFailure, List<Supplier>>>? fosProductSuppliersOnObserveOption,
     bool? isLoadingOnMassEditActivateProductMarketplace,
-    Option<Either<FirebaseFailure, Product>>? fosProductOnUpdateQuantityOption,
+    Option<Either<AbstractFailure, Product>>? fosProductOnUpdateQuantityOption,
     Option<Either<FirebaseFailure, Unit>>? fosMassEditActivateProductMarketplaceOption,
     Option<Either<FirebaseFailure, Unit>>? fosMassEditProductsOption,
-    Option<Either<PrestaFailure, Unit>>? fosProductOnEditQuantityPrestaOption,
+    Option<Either<List<AbstractFailure>, Unit>>? fosProductOnEditQuantityPrestaOption,
     TextEditingController? productSearchController,
     bool? triggerPop,
     bool? isWidthSearchActive,

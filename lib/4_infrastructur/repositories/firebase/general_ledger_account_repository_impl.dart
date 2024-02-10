@@ -20,8 +20,7 @@ class GeneralLedgerAccountRepositoryImpl implements GeneralLedgerAccountReposito
 
   @override
   Future<Either<AbstractFailure, GeneralLedgerAccount>> createGLAccount(GeneralLedgerAccount gLAccount) async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(NoConnectionFailure());
+    if (!await checkInternetConnection()) return left(NoConnectionFailure());
 
     final currentUserUid = firebaseAuth.currentUser!.uid;
     final docRef = ColRef.get(ColRefType.generalLedgerAccount, db, currentUserUid).doc();
@@ -39,8 +38,7 @@ class GeneralLedgerAccountRepositoryImpl implements GeneralLedgerAccountReposito
 
   @override
   Future<Either<AbstractFailure, GeneralLedgerAccount>> getGLAccount(String id) async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(NoConnectionFailure());
+    if (!await checkInternetConnection()) return left(NoConnectionFailure());
 
     final currentUserUid = firebaseAuth.currentUser!.uid;
     final docRef = ColRef.get(ColRefType.generalLedgerAccount, db, currentUserUid).doc(id);
@@ -56,8 +54,7 @@ class GeneralLedgerAccountRepositoryImpl implements GeneralLedgerAccountReposito
 
   @override
   Future<Either<AbstractFailure, List<GeneralLedgerAccount>>> getListOfGLAccounts() async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(NoConnectionFailure());
+    if (!await checkInternetConnection()) return left(NoConnectionFailure());
 
     final currentUserUid = firebaseAuth.currentUser!.uid;
     final docRef = ColRef.get(ColRefType.generalLedgerAccount, db, currentUserUid);
@@ -75,8 +72,7 @@ class GeneralLedgerAccountRepositoryImpl implements GeneralLedgerAccountReposito
 
   @override
   Future<Either<AbstractFailure, GeneralLedgerAccount>> updateGLAccount(GeneralLedgerAccount gLAccount) async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(NoConnectionFailure());
+    if (!await checkInternetConnection()) return left(NoConnectionFailure());
 
     final currentUserUid = firebaseAuth.currentUser!.uid;
     final docRef = ColRef.get(ColRefType.generalLedgerAccount, db, currentUserUid).doc(gLAccount.id);
@@ -93,8 +89,7 @@ class GeneralLedgerAccountRepositoryImpl implements GeneralLedgerAccountReposito
 
   @override
   Future<Either<AbstractFailure, Unit>> deleteGLAccount(String id) async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(NoConnectionFailure());
+    if (!await checkInternetConnection()) return left(NoConnectionFailure());
 
     final currentUserUid = firebaseAuth.currentUser!.uid;
     final docRef = ColRef.get(ColRefType.generalLedgerAccount, db, currentUserUid).doc(id);

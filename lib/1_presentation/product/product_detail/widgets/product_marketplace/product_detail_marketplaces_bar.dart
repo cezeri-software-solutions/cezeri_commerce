@@ -1,19 +1,21 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:cezeri_commerce/routes/router.gr.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 
-import '../../../../2_application/firebase/marketplace_product/marketplace_product_bloc.dart';
-import '../../../../2_application/firebase/product_detail/product_detail_bloc.dart';
-import '../../../../3_domain/entities/marketplace/marketplace.dart';
-import '../../../../3_domain/entities/product/marketplace_product_presta.dart';
-import '../../../../3_domain/entities/product/product_marketplace.dart';
-import '../../../../3_domain/entities_presta/product_presta.dart';
-import '../../../../constants.dart';
-import '../../../../injection.dart';
-import '../../../core/widgets/my_circular_progress_indicator.dart';
-import '../../../core/widgets/my_outlined_button.dart';
-import 'product_marketplace/edit_marketplace_product_presta.dart';
+import '../../../../../2_application/firebase/marketplace_product/marketplace_product_bloc.dart';
+import '../../../../../2_application/firebase/product_detail/product_detail_bloc.dart';
+import '../../../../../3_domain/entities/marketplace/marketplace.dart';
+import '../../../../../3_domain/entities/product/marketplace_product_presta.dart';
+import '../../../../../3_domain/entities/product/product_marketplace.dart';
+import '../../../../../3_domain/entities_presta/product_presta.dart';
+import '../../../../../constants.dart';
+import '../../../../../injection.dart';
+import '../../../../core/functions/dialogs.dart';
+import '../../../../core/widgets/my_circular_progress_indicator.dart';
+import '../../../../core/widgets/my_outlined_button.dart';
+import 'edit_marketplace_product_presta.dart';
 
 class ProductDetailMarketplacesBar extends StatelessWidget {
   final ProductDetailBloc productDetailBloc;
@@ -196,10 +198,27 @@ Future<void> showEditProductInMarketplace(
     pageIndexNotifier.value = 0;
   }
 
-  final leading = IconButton(
+  void onRemoveMarketplaceFromProduct() {
+    showMyDialogDelete(
+      context: context,
+      content: 'Bist du sicher, dass du diesen Marktplatz von diesem Artikel löschen willst?',
+      onConfirm: () {
+        productDetailBloc.add(DeleteMarketplaceFromProductEvent(marketplaceId: productMarketplace.idMarketplace));
+        context.router.popUntilRouteWithName(ProductDetailRoute.name);
+      },
+    );
+  }
+
+  final leadingPage1 = IconButton(
+    padding: const EdgeInsets.only(left: 24),
+    icon: const Icon(Icons.delete, color: Colors.red),
+    onPressed: onRemoveMarketplaceFromProduct,
+  );
+
+  final leadingPage2 = IconButton(
     padding: const EdgeInsets.only(left: 24),
     icon: const Icon(Icons.arrow_back),
-    onPressed: () => onPopFromSecondToFirstPage(),
+    onPressed: onPopFromSecondToFirstPage,
   );
 
   final trailing = IconButton(
@@ -228,6 +247,7 @@ Future<void> showEditProductInMarketplace(
           hasTopBarLayer: true,
           isTopBarLayerAlwaysVisible: true,
           topBarTitle: Text(productMarketplace.nameMarketplace, style: TextStyles.h3Bold),
+          leadingNavBarWidget: leadingPage1,
           trailingNavBarWidget: trailing,
           child: switch (productMarketplace.marketplaceProduct!.marketplaceType) {
             MarketplaceType.prestashop => EditMarketplaceProductPresta(
@@ -245,7 +265,7 @@ Future<void> showEditProductInMarketplace(
           hasTopBarLayer: true,
           isTopBarLayerAlwaysVisible: true,
           topBarTitle: const Text('Kategorien', style: TextStyles.h3Bold),
-          leadingNavBarWidget: leading,
+          leadingNavBarWidget: leadingPage2,
           trailingNavBarWidget: trailing,
           child: EditMarketplaceProductPrestaCategories(marketplaceProductBloc: marketplaceProductBloc),
           stickyActionBar: Row(

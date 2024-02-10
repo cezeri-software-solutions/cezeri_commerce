@@ -14,17 +14,24 @@ import '../customer_detail/customer_detail_screen.dart';
 import 'customers_overview_page.dart';
 
 @RoutePage()
-class CustomersOverviewScreen extends StatelessWidget {
+class CustomersOverviewScreen extends StatefulWidget {
   const CustomersOverviewScreen({super.key});
 
   @override
+  State<CustomersOverviewScreen> createState() => _CustomersOverviewScreenState();
+}
+
+class _CustomersOverviewScreenState extends State<CustomersOverviewScreen> with AutomaticKeepAliveClientMixin {
+  final customerBloc = sl<CustomerBloc>()..add(GetAllCustomersEvent());
+
+  final searchController = TextEditingController();
+
+  @override
   Widget build(BuildContext context) {
-    final customerBloc = sl<CustomerBloc>()..add(GetAllCustomersEvent());
+    super.build(context);
 
-    final searchController = TextEditingController();
-
-    return BlocProvider(
-      create: (context) => customerBloc,
+    return BlocProvider.value(
+      value: customerBloc,
       child: MultiBlocListener(
         listeners: [
           BlocListener<CustomerBloc, CustomerState>(
@@ -120,4 +127,7 @@ class CustomersOverviewScreen extends StatelessWidget {
       ),
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }

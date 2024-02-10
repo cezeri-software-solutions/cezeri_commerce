@@ -50,7 +50,7 @@ Future<Either<AbstractFailure, Product>> getOrCreateProductFromPrestaOnImportPro
     );
     if (createdProductFirestore == null) {
       logger.e('Artikel konnte nicht in der Datenbank angelegt werden');
-      return left(MixedFailure(errorMessage: 'Artikel konnte nicht in der Datenbank angelegt werden'));
+      return left(GeneralFailure(customMessage: 'Artikel konnte nicht in der Datenbank angelegt werden'));
     }
     newCreatedOrUpdatedProduct = createdProductFirestore;
     return right(newCreatedOrUpdatedProduct);

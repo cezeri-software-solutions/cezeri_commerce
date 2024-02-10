@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:cezeri_commerce/core/firebase_failures.dart';
 import 'package:dartz/dartz.dart';
 
+import '../../../core/abstract_failure.dart';
 import '../../entities/marketplace/marketplace.dart';
 import '../../entities/product/product.dart';
 import '../../entities/product/product_image.dart';
@@ -32,8 +33,8 @@ abstract class ProductRepository {
   Future<Either<FirebaseFailure, List<Product>>> getListOfSoldOutProducts();
   Future<Either<FirebaseFailure, List<Product>>> getListOfUnderMinimumQuantityProducts();
 
-  Future<Either<FirebaseFailure, Product>> updateAllQuantityOfProductAbsolut(Product product, int newQuantity, bool updateOnlyAvailableQuantity);
-  Future<Either<FirebaseFailure, Product>> updateAvailableQuantityOfProductInremental(
+  Future<Either<AbstractFailure, Product>> updateAllQuantityOfProductAbsolut(Product product, int newQuantity, bool updateOnlyAvailableQuantity);
+  Future<Either<AbstractFailure, Product>> updateAvailableQuantityOfProductInremental(
     Product product,
     int newQuantityIncremental,
     Marketplace? marketplaceToSkip,

@@ -4,6 +4,7 @@ import 'dart:typed_data';
 
 import 'package:cezeri_commerce/1_presentation/core/extensions/string_to_int.dart';
 import 'package:cezeri_commerce/3_domain/entities/marketplace/marketplace.dart';
+import 'package:dartz/dartz.dart';
 import 'package:http/http.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:logger/logger.dart';
@@ -12,6 +13,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:quiver/core.dart';
 import 'package:xml/xml.dart';
 
+import '../../../core/presta_failure.dart';
 import '/3_domain/entities/product/marketplace_product_presta.dart';
 import '/3_domain/entities/product/product.dart';
 import '/3_domain/entities/product/product_image.dart';
@@ -237,15 +239,19 @@ class PrestashopApi with UiLoggy {
 //? ##################################################################################################################################
 //? ################################## PATCH START ###################################################################################
   //* Order
+  //TODO: statt bool fos zurückgeben
   Future<bool> patchOrderStatus(final int orderId, final int statusId, final bool isPresta8) async {
     bool payload = false;
     if (isPresta8) {
       final builder = patchOrderStatusBuilder(orderId, statusId);
-      final payloadDoPatch = await _doPatch(
+      final fosPayload = await _doPatch(
         '${_conf.webserviceUrl}orders/$orderId',
         builder,
       );
-      payload = payloadDoPatch;
+      fosPayload.fold(
+        (failure) => payload = false,
+        (unit) => payload = true,
+      );
     }
     // else {
     //   final optionalOrder = await getOrderAsXml(orderId);
@@ -262,34 +268,51 @@ class PrestashopApi with UiLoggy {
   }
 
   //* Product
-  Future<bool> patchProductQuantity(final int marketplaceProductPrestaId, final int quantity, final Marketplace marketplace) async {
+  Future<Either<PrestaFailure, Unit>> patchProductQuantity(
+      final int marketplaceProductPrestaId, final int quantity, final Marketplace marketplace) async {
+    final errorC1 = PrestaGeneralFailure(
+      errorMessage:
+          'Artikel mit der ID: "$marketplaceProductPrestaId" konnte im Marktplatz: "${marketplace.name}" nicht gefunden werden.\nTechnischer Fehler im: getProduct',
+    );
+
     final optionalProductPresta = await getProduct(marketplaceProductPrestaId, marketplace);
-    if (optionalProductPresta.isNotPresent) return false;
+    if (optionalProductPresta.isNotPresent) return left(errorC1);
     final productPresta = optionalProductPresta.value;
     final stockAvailableId = productPresta.associations.associationsStockAvailables!.first.id;
-    print('################################ $stockAvailableId #################################');
-    print('################################ $quantity #################################');
-    bool payload = false;
+
+    final errorC2 = PrestaGeneralFailure(
+      errorMessage:
+          'Bestandsdaten des Artikels: "${productPresta.name}" konnten im Marktplatz: "${marketplace.name}" nichgt gefunden werden.\nTechnischer Fehler im: getStockAvailableAsXml',
+    );
+
+    final errorC3 = 'Beim Aktualisieren des Artikels: "${productPresta.name}" im Marktplatz: "${marketplace.name}" ist ein Fehler aufgetreten.';
+
     if (marketplace.isPresta8) {
       final builder = patchStockAvailableBuilder(stockAvailableId, quantity);
-      final payloadDoPatch = await _doPatch(
+      final fosPayload = await _doPatch(
         '${_conf.webserviceUrl}stock_availables/$stockAvailableId',
         builder,
       );
-      payload = payloadDoPatch;
+      fosPayload.fold(
+        (failure) => left(failure.copyWith(customMessage: errorC3)),
+        (unit) => right(unit),
+      );
     } else {
       final optionaStockAvailableAsXml = await getStockAvailableAsXml(stockAvailableId.toMyInt());
-      if (optionaStockAvailableAsXml.isNotPresent) return false;
+      if (optionaStockAvailableAsXml.isNotPresent) return left(errorC2);
       final stockAvailableAsXml = optionaStockAvailableAsXml.value;
       final updatedDocument = stockAvailableUpdater(stockAvailableAsXml, quantity);
-      final payloadDoPut = await _doPut(
+      final fosPayload = await _doPut(
         '${_conf.webserviceUrl}stock_availables/$stockAvailableId',
         updatedDocument,
       );
-      payload = payloadDoPut;
+      fosPayload.fold(
+        (failure) => left(failure.copyWith(customMessage: errorC3)),
+        (unit) => right(unit),
+      );
     }
 
-    return payload;
+    return right(unit);
   }
 
   Future<bool> uploadProductImageFromUrl(String productID, ProductImage productImage) async {
@@ -349,6 +372,7 @@ class PrestashopApi with UiLoggy {
     }
   }
 
+  //TODO: statt bool fos zurückgeben
   Future<bool> patchProductImages(final int marketplaceProductPrestaId, final int quantity, final Marketplace marketplace) async {
     // #################################################################################################
     final optionalProductPresta = await getProduct(marketplaceProductPrestaId, marketplace);
@@ -358,36 +382,57 @@ class PrestashopApi with UiLoggy {
     bool payload = false;
     if (marketplace.isPresta8) {
       final builder = patchStockAvailableBuilder(stockAvailableId, quantity);
-      final payloadDoPatch = await _doPatch(
+      final fosPayload = await _doPatch(
         '${_conf.webserviceUrl}stock_availables/$stockAvailableId',
         builder,
       );
-      payload = payloadDoPatch;
+      fosPayload.fold(
+        (failure) => payload = false,
+        (unit) => payload = true,
+      );
     } else {
       final optionaStockAvailableAsXml = await getStockAvailableAsXml(stockAvailableId.toMyInt());
       if (optionaStockAvailableAsXml.isNotPresent) return false;
       final stockAvailableAsXml = optionaStockAvailableAsXml.value;
       final updatedDocument = stockAvailableUpdater(stockAvailableAsXml, quantity);
-      final payloadDoPut = await _doPut(
+      final fosPayload = await _doPut(
         '${_conf.webserviceUrl}stock_availables/$stockAvailableId',
         updatedDocument,
       );
-      payload = payloadDoPut;
+      fosPayload.fold(
+        (failure) => payload = false,
+        (unit) => payload = true,
+      );
     }
 
     return payload;
   }
 
-  Future<bool> patchProduct(
+  Future<Either<PrestaFailure, Unit>> patchProduct(
     final int marketplaceProductPrestaId,
     Product product,
     ProductMarketplace productMarketplace,
     Marketplace marketplace,
   ) async {
+    final errorC1 = PrestaGeneralFailure(
+      errorMessage:
+          'Artikel: "${product.name}" konnte im Marktplatz: "${marketplace.name}" nicht gefunden werden.\nTechnischer Fehler im: getProduct',
+    );
+    final errorC2 = PrestaGeneralFailure(
+      errorMessage:
+          'Beim bearbeiten des Artikels: "${product.name}" im Marktplatz: "${marketplace.name}" ist ein Fehler aufgetreten.\nTechnischer Fehler im: patchProductBuilder',
+    );
+    final errorC3 = PrestaGeneralFailure(
+      errorMessage:
+          'Artikel: "${product.name}" konnte im Marktplatz: "${marketplace.name}" nicht gefunden werden.\nTechnischer Fehler im: getProductAsXml',
+    );
+
+    final errorC4 = 'Beim Aktualisieren des Artikels: "${product.name}" im Marktplatz: "${marketplace.name}" ist ein Fehler aufgetreten.';
+
     final optionalProductPresta = await getProduct(marketplaceProductPrestaId, marketplace);
-    if (optionalProductPresta.isNotPresent) return false;
+    if (optionalProductPresta.isNotPresent) return left(errorC1);
+
     final productPresta = optionalProductPresta.value;
-    bool payload = false;
     if (marketplace.isPresta8) {
       final builder = patchProductBuilder(
         id: marketplaceProductPrestaId,
@@ -395,15 +440,18 @@ class PrestashopApi with UiLoggy {
         productMarketplace: productMarketplace,
         productPresta: productPresta,
       );
-      if (builder == null) return false;
-      final payloadDoPatch = await _doPatch(
+      if (builder == null) return left(errorC2);
+      final fosPayload = await _doPatch(
         '${_conf.webserviceUrl}products/$marketplaceProductPrestaId',
         builder,
       );
-      payload = payloadDoPatch;
+      fosPayload.fold(
+        (failure) => left(failure.copyWith(customMessage: errorC4)),
+        (unit) => right(unit),
+      );
     } else {
       final optionalProductAsXml = await getProductAsXml(marketplaceProductPrestaId);
-      if (optionalProductAsXml.isNotPresent) return false;
+      if (optionalProductAsXml.isNotPresent) return left(errorC3);
       final productAsXml = optionalProductAsXml.value;
       final updatedProductAsXml = productUpdater(
         document: productAsXml,
@@ -411,24 +459,42 @@ class PrestashopApi with UiLoggy {
         productMarketplace: productMarketplace,
         productPresta: productPresta,
       );
-      final payloadDoPut = await _doPut(
+      final fosPayload = await _doPut(
         '${_conf.webserviceUrl}products/$marketplaceProductPrestaId',
         updatedProductAsXml,
       );
-      payload = payloadDoPut;
+      fosPayload.fold(
+        (failure) => left(failure.copyWith(customMessage: errorC4)),
+        (unit) => right(unit),
+      );
     }
-    return payload;
+    return right(unit);
   }
 
-  Future<bool> patchSetProduct(
+  Future<Either<PrestaFailure, Unit>> patchSetProduct(
     final int marketplaceProductPrestaId,
     Product product,
     List<Product> listOfPartOfSetArticles,
     ProductMarketplace productMarketplace,
     Marketplace marketplace,
   ) async {
+    final errorC1 = PrestaGeneralFailure(
+      errorMessage:
+          'Artikel: "${product.name}" konnte im Marktplatz: "${marketplace.name}" nicht gefunden werden.\nTechnischer Fehler im: getProduct',
+    );
+    final errorC2 = PrestaGeneralFailure(
+      errorMessage:
+          'Beim bearbeiten des Artikels: "${product.name}" im Marktplatz: "${marketplace.name}" ist ein Fehler aufgetreten.\nTechnischer Fehler im: patchProductBuilder',
+    );
+    final errorC3 = PrestaGeneralFailure(
+      errorMessage:
+          'Artikel: "${product.name}" konnte im Marktplatz: "${marketplace.name}" nicht gefunden werden.\nTechnischer Fehler im: getProductAsXml',
+    );
+
+    final errorC4 = 'Beim Aktualisieren des Artikels: "${product.name}" im Marktplatz: "${marketplace.name}" ist ein Fehler aufgetreten.';
+
     final optionalProductPresta = await getProduct(marketplaceProductPrestaId, marketplace);
-    if (optionalProductPresta.isNotPresent) return false;
+    if (optionalProductPresta.isNotPresent) return left(errorC1);
     final productPresta = optionalProductPresta.value;
 
     //* Lädt die Einzelartikel des Set-Artikels aus Prestashop
@@ -436,20 +502,21 @@ class PrestashopApi with UiLoggy {
     for (final partProduct in listOfPartOfSetArticles) {
       final partProductMarketplace = partProduct.productMarketplaces.where((e) => e.idMarketplace == productMarketplace.idMarketplace).firstOrNull;
       if (partProductMarketplace == null) {
-        logger.e('Der Artikel: "${partProduct.name}" konnte im Marktplatz: "${marketplace.name}" nicht gefunden werden');
-        return false;
+        final e = 'Der Einzelartikel: "${partProduct.name}" des Set-Artikels  konnte im Marktplatz: "${marketplace.name}" nicht gefunden werden';
+        logger.e(e);
+        return left(PrestaGeneralFailure(errorMessage: e));
       }
       final partMarketplaceProductPresta = partProductMarketplace.marketplaceProduct as MarketplaceProductPresta;
       final optionalPartProductPresta = await getProduct(partMarketplaceProductPresta.id, marketplace);
       if (optionalPartProductPresta.isNotPresent) {
-        logger.e('Der Artikel: "${partProduct.name}" konnte aus dem Marktplatz: "${marketplace.name}" nicht geladen werden');
-        return false;
+        final e = 'Der Einzelartikel: "${partProduct.name}" des Set-Artikels konnte aus dem Marktplatz: "${marketplace.name}" nicht geladen werden';
+        logger.e(e);
+        return left(PrestaGeneralFailure(errorMessage: e));
       }
       final partProductPresta = optionalPartProductPresta.value;
       final quantity = product.listOfProductIdWithQuantity.where((e) => e.productId == partProduct.id).first.quantity;
       listOfPartProductsPresta.add(partProductPresta.copyWith(quantity: quantity.toString()));
     }
-    bool payload = false;
     if (marketplace.isPresta8) {
       final builder = patchProductBuilder(
         id: marketplaceProductPrestaId,
@@ -458,16 +525,19 @@ class PrestashopApi with UiLoggy {
         productPresta: productPresta,
         listOfPartProductsPresta: listOfPartProductsPresta,
       );
-      if (builder == null) return false;
-      final payloadDoPatch = await _doPatch(
+      if (builder == null) return left(errorC2);
+      final fosPayload = await _doPatch(
         '${_conf.webserviceUrl}products/$marketplaceProductPrestaId',
         builder,
       );
-      payload = payloadDoPatch;
+      fosPayload.fold(
+        (failure) => left(failure.copyWith(customMessage: errorC4)),
+        (unit) => right(unit),
+      );
     } else {
       final optionalProductAsXml = await getProductAsXml(marketplaceProductPrestaId);
       logger.i(optionalProductAsXml.isNotPresent);
-      if (optionalProductAsXml.isNotPresent) return false;
+      if (optionalProductAsXml.isNotPresent) return left(errorC3);
       final productAsXml = optionalProductAsXml.value;
       final updatedProductAsXml = productUpdater(
         document: productAsXml,
@@ -476,13 +546,16 @@ class PrestashopApi with UiLoggy {
         productPresta: productPresta,
         listOfPartProductsPresta: listOfPartProductsPresta,
       );
-      final payloadDoPut = await _doPut(
+      final fosPayload = await _doPut(
         '${_conf.webserviceUrl}products/$marketplaceProductPrestaId',
         updatedProductAsXml,
       );
-      payload = payloadDoPut;
+      fosPayload.fold(
+        (failure) => left(failure.copyWith(customMessage: errorC4)),
+        (unit) => right(unit),
+      );
     }
-    return payload;
+    return right(unit);
   }
 
 //? ################################## PATCH ENDE #####################################################################################
@@ -564,7 +637,7 @@ class PrestashopApi with UiLoggy {
     throw PrestashopApiException(response);
   }
 
-  Future<bool> _doPatch(String uri, XmlBuilder builder) async {
+  Future<Either<PrestaUpdateFailure, Unit>> _doPatch(String uri, XmlBuilder builder) async {
     loggy.debug('Fetching $uri');
     final document = builder.buildDocument();
     final response = await _http.patch(
@@ -578,14 +651,15 @@ class PrestashopApi with UiLoggy {
 
     if (response.statusCode == 200) {
       logger.i('Artikel _doPatch erfolgreich durchgeführt');
-      return true;
+      return right(unit);
     }
     loggy.error(response);
     logger.e('Artikel _doPatch Fehler: ${response.body}');
-    throw PrestashopApiException(response);
+    return left(PrestaUpdateFailure(response: response));
+    // throw PrestashopApiException(response);
   }
 
-  Future<bool> _doPut(String uri, XmlDocument document) async {
+  Future<Either<PrestaUpdateFailure, Unit>> _doPut(String uri, XmlDocument document) async {
     final response = await _http.put(
       Uri.parse(uri),
       headers: {
@@ -597,13 +671,14 @@ class PrestashopApi with UiLoggy {
 
     if (response.statusCode == 200) {
       logger.i('Artikel _doPut erfolgreich durchgeführt');
-      return true;
+      return right(unit);
     }
     loggy.error(response);
     logger.e(uri);
     logger.e('StatusCode: ${response.statusCode}');
     logger.e('Artikel _doPut Fehler: ${response.body}');
-    throw PrestashopApiException(response);
+    return left(PrestaUpdateFailure(response: response));
+    // throw PrestashopApiException(response);
   }
 
   //* Zum erstellen von Daten in Prestashop (z.B. das Erstellen eines Artikels)

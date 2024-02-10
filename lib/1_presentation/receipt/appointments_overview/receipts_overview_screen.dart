@@ -24,6 +24,7 @@ import '../../../injection.dart';
 import '../../../routes/router.gr.dart';
 import '../../core/functions/dialogs.dart';
 import '../../core/functions/my_scaffold_messanger.dart';
+import '../../core/renderer/failure_renderer.dart';
 import '../../core/widgets/my_circular_progress_indicator.dart';
 import '../../core/widgets/my_form_field_small.dart';
 import '../../core/widgets/my_modal_scrollable.dart';
@@ -76,9 +77,10 @@ class ReceiptsOverviewScreen extends StatelessWidget {
               state.fosAppointmentOnObserveFromMarketplacesOption.fold(
                 () => null,
                 (a) => a.fold(
-                  (failure) {
+                  (failure) async {
                     context.router.popTop();
-                    myScaffoldMessenger(context, null, null, null, 'Beim Laden der Bestellung ist etwas schief gegangen');
+                    await failureRenderer(context, [failure]);
+                    if (context.mounted) myScaffoldMessenger(context, null, null, null, 'Beim Laden der Bestellung ist etwas schief gegangen');
                   },
                   (unit) {
                     context.router.popTop();
@@ -94,9 +96,12 @@ class ReceiptsOverviewScreen extends StatelessWidget {
               state.fosAppointmentsOnObserveFromMarketplacesOption.fold(
                 () => null,
                 (a) => a.fold(
-                  (failure) {
+                  (failure) async {
                     context.router.popTop();
-                    myScaffoldMessenger(context, null, null, null, 'Beim Laden von mindestens einer Bestellung ist etwas schief gegangen');
+                    await failureRenderer(context, [failure]);
+                    if (context.mounted) {
+                      myScaffoldMessenger(context, null, null, null, 'Beim Laden von mindestens einer Bestellung ist etwas schief gegangen');
+                    }
                   },
                   (unit) {
                     context.router.popTop();
@@ -113,7 +118,7 @@ class ReceiptsOverviewScreen extends StatelessWidget {
                 () => null,
                 (a) => a.fold(
                   (failure) {
-                    myScaffoldMessenger(context, failure, null, null, null);
+                    (failure) => failureRenderer(context, [failure]);
                     context.router.popUntilRouteWithName(switch (receiptTyp) {
                       ReceiptTyp.offer => OffersOverviewRoute.name,
                       ReceiptTyp.appointment => OffersOverviewRoute.name,
@@ -185,7 +190,7 @@ class ReceiptsOverviewScreen extends StatelessWidget {
                 ),
                 actions: [
                   IconButton(
-                    onPressed: () async => _onGeneratePdfTable(context, state.listOfAllReceipts!),
+                    onPressed: () async => _onGeneratePdfTable(context, state.listOfAllReceipts!, state.selectedReceipts),
                     icon: const Icon(Icons.table_chart_rounded, color: CustomColors.primaryColor),
                   ),
                   IconButton(onPressed: () => appointmentBloc.add(SendEmailToCustomerReceiptEvent()), icon: const Icon(Icons.mail)),
@@ -384,18 +389,25 @@ class ReceiptsOverviewScreen extends StatelessWidget {
     );
   }
 
-  Future<void> _onGeneratePdfTable(BuildContext context, List<Receipt> listOfReceipts) async {
+  Future<void> _onGeneratePdfTable(BuildContext context, List<Receipt> listOfReceipts, List<Receipt> listOfSelectedReceipts) async {
     final now = DateTime.now();
-    final dateRange = await showDateRangePicker(context: context, firstDate: DateTime(now.year - 2), lastDate: now);
-    if (dateRange == null) return;
+    List<Receipt> listOfReceiptsToShow = [];
+    DateTimeRange? dateRange;
 
-    if (context.mounted) showMyDialogLoading(context: context, text: 'PDF wird erstellt...');
+    if (listOfSelectedReceipts.isEmpty) {
+      dateRange = await showDateRangePicker(context: context, firstDate: DateTime(now.year - 2), lastDate: now);
+      if (dateRange == null) return;
 
-    final listOfReceiptsInDateRange = listOfReceipts
-        .where((e) => e.creationDate.isAfter(dateRange.start) && e.creationDate.isBefore(dateRange.end.add(const Duration(days: 1))))
-        .toList();
+      if (context.mounted) showMyDialogLoading(context: context, text: 'PDF wird erstellt...');
 
-    final generatedPdf = await PdfOutgoingInvoicesGenerator.generate(listOfReceipts: listOfReceiptsInDateRange, dateRange: dateRange);
+      listOfReceiptsToShow = listOfReceipts
+          .where((e) => e.creationDate.isAfter(dateRange!.start) && e.creationDate.isBefore(dateRange.end.add(const Duration(days: 1))))
+          .toList();
+    } else {
+      listOfReceiptsToShow = listOfSelectedReceipts;
+    }
+
+    final generatedPdf = await PdfOutgoingInvoicesGenerator.generate(listOfReceipts: listOfReceiptsToShow, dateRange: dateRange);
 
     if (context.mounted) {
       switch (receiptTyp) {
@@ -410,17 +422,20 @@ class ReceiptsOverviewScreen extends StatelessWidget {
       }
     }
 
+    final documentType = switch (listOfReceiptsToShow.first.receiptTyp) {
+      ReceiptTyp.offer => 'Angebote',
+      ReceiptTyp.appointment => 'Aufträge',
+      ReceiptTyp.deliveryNote => 'Lieferscheine',
+      ReceiptTyp.invoice || ReceiptTyp.credit => 'Rechnungen',
+    };
+    final title = dateRange != null
+        ? '$documentType ${dateRange.start.year}-${dateRange.start.month}-${dateRange.start.day} - ${dateRange.end.year}-${dateRange.end.month}-${dateRange.end.day}.pdf'
+        : '$documentType.pdf';
+
     if (kIsWeb) {
-      await PdfApiWeb.saveDocument(
-          name:
-              'Rechnungen ${dateRange.start.year}-${dateRange.start.month}-${dateRange.start.day} - ${dateRange.end.year}-${dateRange.end.month}-${dateRange.end.day}.pdf',
-          byteList: generatedPdf,
-          showInBrowser: true);
+      await PdfApiWeb.saveDocument(name: title, byteList: generatedPdf, showInBrowser: true);
     } else {
-      await PdfApiMobile.saveDocument(
-          name:
-              'Rechnungen ${dateRange.start.year}-${dateRange.start.month}-${dateRange.start.day} - ${dateRange.end.year}-${dateRange.end.month}-${dateRange.end.day}.pdf',
-          byteList: generatedPdf);
+      await PdfApiMobile.saveDocument(name: title, byteList: generatedPdf);
     }
   }
 
@@ -429,8 +444,7 @@ class ReceiptsOverviewScreen extends StatelessWidget {
       ReceiptTyp.offer => 'Angebot / Angebote erfolgreich gelöscht',
       ReceiptTyp.appointment => 'Autrag / Aufträge erfolgreich gelöscht',
       ReceiptTyp.deliveryNote => 'Lieferschein / Lieferscheine erfolgreich gelöscht',
-      ReceiptTyp.invoice => 'Rechnung / Rechnungen erfolgreich gelöscht',
-      ReceiptTyp.credit => 'Rechnung / Rechnungen erfolgreich gelöscht',
+      ReceiptTyp.invoice || ReceiptTyp.credit => 'Rechnung / Rechnungen erfolgreich gelöscht',
     };
   }
 
@@ -888,7 +902,6 @@ class _SelectToLoadAppointmentFromMarketplaceSheetState extends State<_SelectToL
   @override
   Widget build(BuildContext context) {
     final items = listOfMarketplaces.map((e) => e.name).toList();
-    print(selectedMarketplace);
 
     return MyModalScrollable(
       title: 'Bestellung Laden',

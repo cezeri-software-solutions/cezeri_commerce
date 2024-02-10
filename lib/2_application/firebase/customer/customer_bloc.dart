@@ -2,6 +2,7 @@ import 'package:bloc/bloc.dart';
 import 'package:cezeri_commerce/core/firebase_failures.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
+import 'package:logger/logger.dart';
 
 import '/3_domain/entities/address.dart';
 import '/3_domain/entities/customer/customer.dart';
@@ -12,6 +13,8 @@ import '/3_domain/repositories/firebase/main_settings_respository.dart';
 
 part 'customer_event.dart';
 part 'customer_state.dart';
+
+final logger = Logger();
 
 class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
   final CustomerRepository _customerRepository;
@@ -40,7 +43,7 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
     on<OnCustomerControllerChangedEvent>(_onCustomerControllerChanged);
   }
 
-  Future<void> _onSetCustomerStateToInitial(SetCustomerStateToInitialEvent event, Emitter<CustomerState> emit) async {
+  void _onSetCustomerStateToInitial(SetCustomerStateToInitialEvent event, Emitter<CustomerState> emit) async {
     emit(CustomerState.initial());
   }
 
@@ -186,12 +189,16 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
   }
 
   Future<void> _onAddEditCustomerAddress(OnAddEditCustomerAddressEvent event, Emitter<CustomerState> emit) async {
+    logger.i(event.address);
+    logger.i(event.address.addressType);
     final List<Address> currentAddresses = List.from(state.customer!.listOfAddress);
     final int addressIndex = currentAddresses.indexWhere((address) => address.id == event.address.id);
 
     if (addressIndex == -1) {
+      print('adresse NEU');
       _addNewAddress(event.address, currentAddresses, emit);
     } else {
+      print('adresse VORHANDEN');
       _editExistingAddress(addressIndex, event.address, currentAddresses, emit);
     }
   }
@@ -208,6 +215,7 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
   void _editExistingAddress(int index, Address updatedAddress, List<Address> currentAddresses, Emitter<CustomerState> emit) {
     currentAddresses[index] = updatedAddress;
     _ensureOnlyOneDefaultAddress(updatedAddress, currentAddresses);
+    logger.i(currentAddresses);
 
     emit(state.copyWith(customer: state.customer!.copyWith(listOfAddress: currentAddresses)));
   }
@@ -215,7 +223,7 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
   void _ensureOnlyOneDefaultAddress(Address address, List<Address> addresses) {
     if (address.isDefault) {
       for (var i = 0; i < addresses.length; i++) {
-        if (addresses[i].isDefault && addresses[i].addressType == address.addressType) {
+        if (addresses[i].isDefault && addresses[i].addressType == address.addressType && addresses[i] != address) {
           addresses[i] = addresses[i].copyWith(isDefault: false);
         }
       }

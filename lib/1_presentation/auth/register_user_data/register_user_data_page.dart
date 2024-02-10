@@ -83,7 +83,7 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
                           ),
                           textInputAction: TextInputAction.next,
                           textCapitalization: TextCapitalization.words,
-                          validator: (input) => validateGeneral(input),
+                          validator: (input) => validateGeneralMin3(input),
                         ),
                         TextFormField(
                           controller: _firstNameController,
@@ -94,7 +94,7 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
                           ),
                           textInputAction: TextInputAction.next,
                           textCapitalization: TextCapitalization.words,
-                          validator: (input) => validateGeneral(input),
+                          validator: (input) => validateGeneralMin3(input),
                         ),
                         TextFormField(
                           controller: _lastNameController,
@@ -105,7 +105,7 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
                           ),
                           textInputAction: TextInputAction.next,
                           textCapitalization: TextCapitalization.words,
-                          validator: (input) => validateGeneral(input),
+                          validator: (input) => validateGeneralMin3(input),
                         ),
                         TextFormField(
                           controller: _tel1Controller,

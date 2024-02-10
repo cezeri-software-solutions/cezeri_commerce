@@ -13,6 +13,7 @@ import '../../../3_domain/entities/marketplace/marketplace.dart';
 import '../../../injection.dart';
 import '../../../routes/router.gr.dart';
 import '../../core/functions/my_scaffold_messanger.dart';
+import '../../core/renderer/failure_renderer.dart';
 import 'appointment_detail_page.dart';
 
 enum ReceiptCreateOrEdit { create, edit }
@@ -107,9 +108,7 @@ class AppointmentDetailScreen extends StatelessWidget {
               state.fosReceiptOnDeleteOption.fold(
                 () => null,
                 (a) => a.fold(
-                  (failure) {
-                    myScaffoldMessenger(context, failure, null, null, null);
-                  },
+                  (failure) => failureRenderer(context, [failure]),
                   (unit) {
                     myScaffoldMessenger(context, null, null, 'Autrag / Aufträge erfolgreich gelöscht', null);
                     context.router.popUntilRouteWithName(AppointmentsOverviewRoute.name);

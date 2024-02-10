@@ -28,7 +28,7 @@ class AppointmentState {
   final Option<Either<AbstractFailure, Unit>> fosAppointmentsOnObserveFromMarketplacesOption;
   final Option<Either<FirebaseFailure, Receipt>> fosReceiptOnCreateOption;
   final Option<Either<FirebaseFailure, Unit>> fosReceiptOnUpdateOption;
-  final Option<Either<FirebaseFailure, Unit>> fosReceiptOnDeleteOption;
+  final Option<Either<AbstractFailure, Unit>> fosReceiptOnDeleteOption;
   final Option<Either<FirebaseFailure, Receipt>> fosReceiptOnGenerateOption;
   final Option<Either<FirebaseFailure, List<Receipt>>> fosReceiptsOnGenerateOption;
   final Option<Either<FirebaseFailure, Product>> fosProductOnObserveOption;
@@ -160,7 +160,7 @@ class AppointmentState {
     Option<Either<AbstractFailure, Unit>>? fosAppointmentsOnObserveFromMarketplacesOption,
     Option<Either<FirebaseFailure, Receipt>>? fosReceiptOnCreateOption,
     Option<Either<FirebaseFailure, Unit>>? fosReceiptOnUpdateOption,
-    Option<Either<FirebaseFailure, Unit>>? fosReceiptOnDeleteOption,
+    Option<Either<AbstractFailure, Unit>>? fosReceiptOnDeleteOption,
     Option<Either<FirebaseFailure, Receipt>>? fosReceiptOnGenerateOption,
     Option<Either<FirebaseFailure, List<Receipt>>>? fosReceiptsOnGenerateOption,
     Option<Either<FirebaseFailure, Product>>? fosProductOnObserveOption,
@@ -198,8 +198,10 @@ class AppointmentState {
       isLoadingParcelLabelOnCreate: isLoadingParcelLabelOnCreate ?? this.isLoadingParcelLabelOnCreate,
       fosReceiptOnObserveOption: fosReceiptOnObserveOption ?? this.fosReceiptOnObserveOption,
       fosReceiptsOnObserveOption: fosReceiptsOnObserveOption ?? this.fosReceiptsOnObserveOption,
-      fosAppointmentOnObserveFromMarketplacesOption: fosAppointmentOnObserveFromMarketplacesOption ?? this.fosAppointmentOnObserveFromMarketplacesOption,
-      fosAppointmentsOnObserveFromMarketplacesOption: fosAppointmentsOnObserveFromMarketplacesOption ?? this.fosAppointmentsOnObserveFromMarketplacesOption,
+      fosAppointmentOnObserveFromMarketplacesOption:
+          fosAppointmentOnObserveFromMarketplacesOption ?? this.fosAppointmentOnObserveFromMarketplacesOption,
+      fosAppointmentsOnObserveFromMarketplacesOption:
+          fosAppointmentsOnObserveFromMarketplacesOption ?? this.fosAppointmentsOnObserveFromMarketplacesOption,
       fosReceiptOnCreateOption: fosReceiptOnCreateOption ?? this.fosReceiptOnCreateOption,
       fosReceiptOnUpdateOption: fosReceiptOnUpdateOption ?? this.fosReceiptOnUpdateOption,
       fosReceiptOnDeleteOption: fosReceiptOnDeleteOption ?? this.fosReceiptOnDeleteOption,

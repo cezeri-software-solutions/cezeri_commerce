@@ -16,6 +16,7 @@ class ProductDetailState {
   final bool isLoadingProductSuppliersOnObseve;
   final bool isLoadingProductMarketplacesOnObseve;
   final bool isLoadingProductOnCreateInMarketplaces;
+  final bool isLoadingOnDeleteMarketplaceFromProduct; // Aktuelle nicht genutz (Artikel wird im Marktplatz nicht gelöscht)
   final Option<Either<FirebaseFailure, Product>> fosProductOnObserveOption;
   final Option<Either<FirebaseFailure, List<Product>>> fosProductsOnObserveOption;
   final Option<Either<FirebaseFailure, Product>> fosProductOnUpdateOption;
@@ -24,8 +25,9 @@ class ProductDetailState {
   final Option<Either<FirebaseFailure, List<Supplier>>> fosProductSuppliersOnObserveOption;
   final Option<Either<FirebaseFailure, List<Marketplace>>> fosProductMarketplacesOnObserveOption;
   final Option<Either<PrestaFailure, Unit>> fosProductOnUploadImagesInMarketplaceOption;
-  final Option<Either<PrestaFailure, Unit>> fosProductOnUpdateInMarketplaceOption;
+  final Option<Either<List<AbstractFailure>, Unit>> fosProductOnUpdateInMarketplaceOption;
   final Option<Either<PrestaFailure, ProductPresta>> fosProductOnCreateInMarketplaceOption;
+  final Option<Either<AbstractFailure, ProductPresta>> fosDeleteMarketplaceFromProductOption; // Aktuelle nicht genutz (Artikel wird im Marktplatz nicht gelöscht)
 
   //* Chart
   final List<StatProduct>? listOfStatProducts;
@@ -89,6 +91,7 @@ class ProductDetailState {
     required this.isLoadingProductSuppliersOnObseve,
     required this.isLoadingProductMarketplacesOnObseve,
     required this.isLoadingProductOnCreateInMarketplaces,
+    required this.isLoadingOnDeleteMarketplaceFromProduct,
     required this.fosProductOnObserveOption,
     required this.fosProductsOnObserveOption,
     required this.fosProductOnUpdateOption,
@@ -99,6 +102,7 @@ class ProductDetailState {
     required this.fosProductOnUploadImagesInMarketplaceOption,
     required this.fosProductOnUpdateInMarketplaceOption,
     required this.fosProductOnCreateInMarketplaceOption,
+    required this.fosDeleteMarketplaceFromProductOption,
     required this.listOfStatProducts,
     required this.isShowingSalesVolumeOnChart,
     required this.isLoadingStatProductsOnObserve,
@@ -156,6 +160,7 @@ class ProductDetailState {
       isLoadingProductSuppliersOnObseve: false,
       isLoadingProductMarketplacesOnObseve: false,
       isLoadingProductOnCreateInMarketplaces: false,
+      isLoadingOnDeleteMarketplaceFromProduct: false,
       fosProductOnObserveOption: none(),
       fosProductsOnObserveOption: none(),
       fosProductOnUpdateOption: none(),
@@ -166,6 +171,7 @@ class ProductDetailState {
       fosProductOnUploadImagesInMarketplaceOption: none(),
       fosProductOnUpdateInMarketplaceOption: none(),
       fosProductOnCreateInMarketplaceOption: none(),
+      fosDeleteMarketplaceFromProductOption: none(),
       listOfStatProducts: null,
       isShowingSalesVolumeOnChart: true,
       isLoadingStatProductsOnObserve: false,
@@ -223,6 +229,7 @@ class ProductDetailState {
     bool? isLoadingProductSuppliersOnObseve,
     bool? isLoadingProductMarketplacesOnObseve,
     bool? isLoadingProductOnCreateInMarketplaces,
+    bool? isLoadingOnDeleteMarketplaceFromProduct,
     Option<Either<FirebaseFailure, Product>>? fosProductOnObserveOption,
     Option<Either<FirebaseFailure, List<Product>>>? fosProductsOnObserveOption,
     Option<Either<FirebaseFailure, Product>>? fosProductOnUpdateOption,
@@ -231,8 +238,9 @@ class ProductDetailState {
     Option<Either<FirebaseFailure, List<Supplier>>>? fosProductSuppliersOnObserveOption,
     Option<Either<FirebaseFailure, List<Marketplace>>>? fosProductMarketplacesOnObserveOption,
     Option<Either<PrestaFailure, Unit>>? fosProductOnUploadImagesInMarketplaceOption,
-    Option<Either<PrestaFailure, Unit>>? fosProductOnUpdateInMarketplaceOption,
+    Option<Either<List<AbstractFailure>, Unit>>? fosProductOnUpdateInMarketplaceOption,
     Option<Either<PrestaFailure, ProductPresta>>? fosProductOnCreateInMarketplaceOption,
+    Option<Either<AbstractFailure, ProductPresta>>? fosDeleteMarketplaceFromProductOption,
     List<StatProduct>? listOfStatProducts,
     bool? isShowingSalesVolumeOnChart,
     bool? isLoadingStatProductsOnObserve,
@@ -288,6 +296,7 @@ class ProductDetailState {
       isLoadingProductSuppliersOnObseve: isLoadingProductSuppliersOnObseve ?? this.isLoadingProductSuppliersOnObseve,
       isLoadingProductMarketplacesOnObseve: isLoadingProductMarketplacesOnObseve ?? this.isLoadingProductMarketplacesOnObseve,
       isLoadingProductOnCreateInMarketplaces: isLoadingProductOnCreateInMarketplaces ?? this.isLoadingProductOnCreateInMarketplaces,
+      isLoadingOnDeleteMarketplaceFromProduct: isLoadingOnDeleteMarketplaceFromProduct ?? this.isLoadingOnDeleteMarketplaceFromProduct,
       fosProductOnObserveOption: fosProductOnObserveOption ?? this.fosProductOnObserveOption,
       fosProductsOnObserveOption: fosProductsOnObserveOption ?? this.fosProductsOnObserveOption,
       fosProductOnUpdateOption: fosProductOnUpdateOption ?? this.fosProductOnUpdateOption,
@@ -298,6 +307,7 @@ class ProductDetailState {
       fosProductOnUploadImagesInMarketplaceOption: fosProductOnUploadImagesInMarketplaceOption ?? this.fosProductOnUploadImagesInMarketplaceOption,
       fosProductOnUpdateInMarketplaceOption: fosProductOnUpdateInMarketplaceOption ?? this.fosProductOnUpdateInMarketplaceOption,
       fosProductOnCreateInMarketplaceOption: fosProductOnCreateInMarketplaceOption ?? this.fosProductOnCreateInMarketplaceOption,
+      fosDeleteMarketplaceFromProductOption: fosDeleteMarketplaceFromProductOption ?? this.fosDeleteMarketplaceFromProductOption,
       listOfStatProducts: listOfStatProducts ?? this.listOfStatProducts,
       isShowingSalesVolumeOnChart: isShowingSalesVolumeOnChart ?? this.isShowingSalesVolumeOnChart,
       isLoadingStatProductsOnObserve: isLoadingStatProductsOnObserve ?? this.isLoadingStatProductsOnObserve,

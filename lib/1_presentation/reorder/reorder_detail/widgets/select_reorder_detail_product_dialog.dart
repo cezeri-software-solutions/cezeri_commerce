@@ -1,5 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:cezeri_commerce/1_presentation/core/extensions/string_to_int.dart';
+import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.dart';
 import 'package:cezeri_commerce/1_presentation/core/widgets/my_outlined_button.dart';
 import 'package:cezeri_commerce/1_presentation/core/widgets/my_text_form_field_small_double.dart';
 import 'package:flutter/cupertino.dart';
@@ -51,10 +52,18 @@ class SelectReorderDetailProductDialog extends StatelessWidget {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      CupertinoSearchTextField(
-                        controller: state.productSearchController,
-                        onChanged: (value) => reorderDetailBloc.add(OnReorderDetailSetFilteredProductsEvent()),
-                        onSuffixTap: () => reorderDetailBloc.add(OnReorderDetailProductSearchTextClearedEvent()),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: CupertinoSearchTextField(
+                              controller: state.productSearchController,
+                              onChanged: (value) => reorderDetailBloc.add(OnReorderDetailSetFilteredProductsEvent()),
+                              onSuffixTap: () => reorderDetailBloc.add(OnReorderDetailProductSearchTextClearedEvent()),
+                            ),
+                          ),
+                          Gaps.w8,
+                          Text(state.reorder!.totalPriceNet.toMyCurrencyStringToShow()),
+                        ],
                       ),
                       Gaps.h10,
                       if (state.statProductDateRange != null)
