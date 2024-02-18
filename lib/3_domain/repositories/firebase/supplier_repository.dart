@@ -1,12 +1,12 @@
-import 'package:cezeri_commerce/core/firebase_failures.dart';
 import 'package:dartz/dartz.dart';
 
+import '../../../core/abstract_failure.dart';
 import '../../entities/reorder/supplier.dart';
 
 abstract class SupplierRepository {
-  Future<Either<FirebaseFailure, Supplier>> createSupplier(Supplier supplier);
-  Future<Either<FirebaseFailure, Supplier>> getSupplier(String id);
-  Future<Either<FirebaseFailure, List<Supplier>>> getListOfSuppliers();
-  Future<Either<FirebaseFailure, Supplier>> updateSupplier(Supplier supplier);
-  Future<Either<FirebaseFailure, Unit>> deleteSupplier(String id);
+  Future<Either<AbstractFailure, Supplier>> createSupplier(Supplier supplier);
+  Future<Either<AbstractFailure, Supplier>> getSupplier(String id);
+  Future<Either<AbstractFailure, List<Supplier>>> getListOfSuppliers();
+  Future<Either<AbstractFailure, Supplier>> updateSupplier(Supplier supplier);
+  Future<Either<AbstractFailure, Unit>> deleteSupplier(String id);
 }

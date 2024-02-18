@@ -4,10 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../2_application/firebase/marketplace/marketplace_bloc.dart';
-import '../../../core/firebase_failures.dart';
 import '../../../injection.dart';
 import '../../app_drawer.dart';
 import '../../core/functions/my_scaffold_messanger.dart';
+import '../../core/renderer/failure_renderer.dart';
 import 'e_mail_automation_page.dart';
 
 @RoutePage()
@@ -28,7 +28,7 @@ class EMailAutomationScreen extends StatelessWidget {
               state.fosMarketplacesOnObserveOption.fold(
                 () => null,
                 (a) => a.fold(
-                  (failure) => myScaffoldMessenger(context, failure, null, null, null),
+                  (failure) => failureRenderer(context, [failure]),
                   (marketplaces) => null,
                 ),
               );
@@ -40,7 +40,7 @@ class EMailAutomationScreen extends StatelessWidget {
               state.fosMarketplaceOnUpdateOption.fold(
                 () => null,
                 (a) => a.fold(
-                  (failure) => myScaffoldMessenger(context, failure, null, null, null),
+                  (failure) => failureRenderer(context, [failure]),
                   (unit) {
                     myScaffoldMessenger(context, null, null, 'Marktplätze erfolgreich aktualisiert', null);
                     marketplaceBloc.add(GetAllMarketplacesEvent());
@@ -72,13 +72,11 @@ class EMailAutomationBody extends StatelessWidget {
         if (state.isLoadingMarketplacesOnObserve) return const Center(child: MyCircularProgressIndicator());
 
         if (state.firebaseFailure != null && state.isAnyFailure) {
-          return switch (state.firebaseFailure!.runtimeType) {
-            EmptyFailure => const Center(child: Text('Sie haben bisher keine Marktplätze angelegt')),
-            _ => const Center(child: Text('Ein Fehler beim Laden der Marktplätze ist aufgetreten!')),
-          };
+          return const Center(child: Text('Ein Fehler beim Laden der Marktplätze ist aufgetreten!'));
         }
 
         if (state.listOfMarketplace == null) return const Center(child: MyCircularProgressIndicator());
+        if (state.listOfMarketplace!.isEmpty) return const Center(child: Text('Sie haben bisher keine Marktplätze angelegt'));
 
         return EMailAutomationPage(marketplaceBloc: marketplaceBloc);
       },

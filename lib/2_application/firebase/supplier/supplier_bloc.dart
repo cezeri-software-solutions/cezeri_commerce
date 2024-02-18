@@ -6,7 +6,7 @@ import '../../../3_domain/entities/address.dart';
 import '../../../3_domain/entities/reorder/supplier.dart';
 import '../../../3_domain/entities/settings/tax.dart';
 import '../../../3_domain/repositories/firebase/supplier_repository.dart';
-import '../../../core/firebase_failures.dart';
+import '../../../core/abstract_failure.dart';
 
 part 'supplier_event.dart';
 part 'supplier_state.dart';

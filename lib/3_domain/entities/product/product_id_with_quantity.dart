@@ -1,9 +1,11 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'product_id_with_quantity.g.dart';
 
 @JsonSerializable()
-class ProductIdWithQuantity {
+class ProductIdWithQuantity extends Equatable {
   final String productId;
   final int quantity;
 
@@ -25,4 +27,10 @@ class ProductIdWithQuantity {
       quantity: quantity ?? this.quantity,
     );
   }
+
+  @override
+  List<Object?> get props => [productId, quantity];
+
+  @override
+  bool get stringify => true;
 }

@@ -2,7 +2,6 @@ import 'package:auto_route/auto_route.dart';
 import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.dart';
 import 'package:cezeri_commerce/1_presentation/core/widgets/my_circular_progress_indicator.dart';
 import 'package:cezeri_commerce/3_domain/entities/receipt/receipt_product.dart';
-import 'package:cezeri_commerce/core/firebase_failures.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -41,13 +40,7 @@ class _ReceiptDetailProductsCardState extends State<ReceiptDetailProductsCard> {
             state.fosProductOnObserveOption.fold(
               () => null,
               (a) => a.fold(
-                (failure) {
-                  if (failure.runtimeType == EmptyFailure) {
-                    setState(() => _errorMessageEanNotFound = 'Artikel konnte nicht in der Datenbank gefunden werden');
-                  } else {
-                    setState(() => _errorMessageEanNotFound = 'Artikel konnten nicht aus der Datenbank geladen werden');
-                  }
-                },
+                (failure) => setState(() => _errorMessageEanNotFound = 'Artikel konnten nicht aus der Datenbank geladen werden'),
                 (product) {
                   widget.receiptDetailBloc.add(AddProductToReceiptProductsEvent(receiptProduct: ReceiptProduct.fromProduct(product)));
                   setState(() => _errorMessageEanNotFound = '');

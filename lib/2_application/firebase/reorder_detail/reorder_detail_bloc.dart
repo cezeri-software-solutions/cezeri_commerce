@@ -23,7 +23,7 @@ import '../../../3_domain/repositories/firebase/product_repository.dart';
 import '../../../3_domain/repositories/firebase/reorder_repository.dart';
 import '../../../3_domain/repositories/firebase/stat_product_repository.dart';
 import '../../../3_domain/repositories/firebase/supplier_repository.dart';
-import '../../../core/firebase_failures.dart';
+import '../../../core/abstract_failure.dart';
 
 part 'reorder_detail_event.dart';
 part 'reorder_detail_state.dart';

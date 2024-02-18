@@ -26,7 +26,6 @@ import '/3_domain/pdf/pdf_api_mobile.dart';
 import '/3_domain/pdf/pdf_api_web.dart';
 import '/3_domain/pdf/pdf_receipt_generator.dart';
 import '/constants.dart';
-import '/core/firebase_failures.dart';
 import '/routes/router.gr.dart';
 
 class ReceiptsOverviewPage extends StatefulWidget {
@@ -51,21 +50,19 @@ class _ReceiptsOverviewPageState extends State<ReceiptsOverviewPage> {
               return const Expanded(child: Center(child: CircularProgressIndicator()));
             }
             if (state.firebaseFailure != null && state.isAnyFailure) {
-              return switch (state.firebaseFailure.runtimeType) {
-                EmptyFailure => const Expanded(child: Center(child: Text('Du hast noch keine Dokumente angelegt oder importiert!'))),
-                (_) => const Expanded(child: Center(child: Text('Ein Fehler beim Laden der Artikel ist aufgetreten!'))),
-              };
+              return const Expanded(child: Center(child: Text('Ein Fehler beim Laden der Artikel ist aufgetreten!')));
             }
 
             if (stateMarketplace.firebaseFailure != null && stateMarketplace.isAnyFailure) {
-              return switch (stateMarketplace.firebaseFailure.runtimeType) {
-                EmptyFailure => const Expanded(child: Center(child: Text('Du hast noch keine Marktplätze angelegt!'))),
-                (_) => const Expanded(child: Center(child: Text('Ein Fehler beim Laden der Marktplätze ist aufgetreten!'))),
-              };
+              return const Expanded(child: Center(child: Text('Ein Fehler beim Laden der Marktplätze ist aufgetreten!')));
             }
 
             if (state.listOfAllReceipts == null || state.listOfFilteredReceipts == null || stateMarketplace.listOfMarketplace == null) {
               return const Expanded(child: Center(child: CircularProgressIndicator()));
+            }
+
+            if (state.listOfAllReceipts!.isEmpty || state.listOfFilteredReceipts!.isEmpty) {
+              return const Expanded(child: Center(child: Text('Keine Dokumente vorhanden')));
             }
 
             return Expanded(

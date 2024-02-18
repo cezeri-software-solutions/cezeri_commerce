@@ -14,7 +14,7 @@ import '../../../2_application/firebase/product_detail/product_detail_bloc.dart'
 import '../../../3_domain/entities/product/product.dart';
 import '../../../3_domain/repositories/firebase/product_repository.dart';
 import '../../../constants.dart';
-import '../../../core/firebase_failures.dart';
+import '../../../core/abstract_failure.dart';
 import '../../product/product_detail/widgets/charts/product_bart_chart_items_sold.dart';
 import '../../product/product_detail/widgets/charts/product_line_chart_sales_volume.dart';
 import '../widgets/my_avatar.dart';
@@ -47,12 +47,12 @@ void showMyProductQuickView({required BuildContext context, required Product pro
 
 Future<void> showMyProductQuickViewById({required BuildContext context, required String productId, bool showStatProduct = false}) async {
   Product? product;
-  FirebaseFailure? failure;
+  AbstractFailure? abstractFailure;
 
   final productRepository = GetIt.I.get<ProductRepository>();
   final fosProduct = await productRepository.getProduct(productId);
   fosProduct.fold(
-    (firebaseFailure) => failure = firebaseFailure,
+    (failure) => abstractFailure = failure,
     (loadedProduct) => product = loadedProduct,
   );
 
@@ -73,7 +73,7 @@ Future<void> showMyProductQuickViewById({required BuildContext context, required
             isTopBarLayerAlwaysVisible: true,
             topBarTitle: Text(product != null ? product!.articleNumber : 'Fehler', style: TextStyles.h3Bold),
             trailingNavBarWidget: trailing,
-            child: _ProductQuickView(product: product, showStatProduct: showStatProduct, failure: failure),
+            child: _ProductQuickView(product: product, showStatProduct: showStatProduct, failure: abstractFailure),
           ),
         ];
       },
@@ -84,7 +84,7 @@ Future<void> showMyProductQuickViewById({required BuildContext context, required
 class _ProductQuickView extends StatefulWidget {
   final Product? product;
   final bool showStatProduct;
-  final FirebaseFailure? failure;
+  final AbstractFailure? failure;
 
   const _ProductQuickView({required this.product, required this.showStatProduct, this.failure});
 

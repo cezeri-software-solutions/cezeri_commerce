@@ -6,18 +6,18 @@ class SupplierState {
   final List<Supplier>? listOfAllSuppliers;
   final List<Supplier>? listOfFilteredSuppliers;
   final List<Supplier> selectedSuppliers;
-  final FirebaseFailure? firebaseFailure;
+  final AbstractFailure? firebaseFailure;
   final bool isAnyFailure;
   final bool isLoadingSupplierOnObserve;
   final bool isLoadingSuppliersOnObserve;
   final bool isLoadingSupplierOnCreate;
   final bool isLoadingSupplierOnUpdate;
   final bool isLoadingSupplierOnDelete;
-  final Option<Either<FirebaseFailure, Supplier>> fosSupplierOnObserveOption;
-  final Option<Either<FirebaseFailure, List<Supplier>>> fosSuppliersOnObserveOption;
-  final Option<Either<FirebaseFailure, Supplier>> fosSupplierOnCreateOption;
-  final Option<Either<FirebaseFailure, Supplier>> fosSupplierOnUpdateOption;
-  final Option<Either<FirebaseFailure, Unit>> fosSupplierOnDeleteOption;
+  final Option<Either<AbstractFailure, Supplier>> fosSupplierOnObserveOption;
+  final Option<Either<AbstractFailure, List<Supplier>>> fosSuppliersOnObserveOption;
+  final Option<Either<AbstractFailure, Supplier>> fosSupplierOnCreateOption;
+  final Option<Either<AbstractFailure, Supplier>> fosSupplierOnUpdateOption;
+  final Option<Either<AbstractFailure, Unit>> fosSupplierOnDeleteOption;
 
   //* Helpers
   final bool isAllSuppliersSelected;
@@ -95,18 +95,18 @@ class SupplierState {
     List<Supplier>? listOfAllSuppliers,
     List<Supplier>? listOfFilteredSuppliers,
     List<Supplier>? selectedSuppliers,
-    FirebaseFailure? firebaseFailure,
+    AbstractFailure? firebaseFailure,
     bool? isAnyFailure,
     bool? isLoadingSupplierOnObserve,
     bool? isLoadingSuppliersOnObserve,
     bool? isLoadingSupplierOnCreate,
     bool? isLoadingSupplierOnUpdate,
     bool? isLoadingSupplierOnDelete,
-    Option<Either<FirebaseFailure, Supplier>>? fosSupplierOnObserveOption,
-    Option<Either<FirebaseFailure, List<Supplier>>>? fosSuppliersOnObserveOption,
-    Option<Either<FirebaseFailure, Supplier>>? fosSupplierOnCreateOption,
-    Option<Either<FirebaseFailure, Supplier>>? fosSupplierOnUpdateOption,
-    Option<Either<FirebaseFailure, Unit>>? fosSupplierOnDeleteOption,
+    Option<Either<AbstractFailure, Supplier>>? fosSupplierOnObserveOption,
+    Option<Either<AbstractFailure, List<Supplier>>>? fosSuppliersOnObserveOption,
+    Option<Either<AbstractFailure, Supplier>>? fosSupplierOnCreateOption,
+    Option<Either<AbstractFailure, Supplier>>? fosSupplierOnUpdateOption,
+    Option<Either<AbstractFailure, Unit>>? fosSupplierOnDeleteOption,
     bool? isAllSuppliersSelected,
     String? supplierSearchText,
     TextEditingController? companyNameController,

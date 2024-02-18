@@ -8,7 +8,7 @@ class ProductState {
   final List<Supplier>? listOfSuppliers;
   final List<Product> listOfNotUpdatedProductsOnMassEditing;
   final MainSettings? mainSettings;
-  final FirebaseFailure? firebaseFailure;
+  final AbstractFailure? firebaseFailure;
   final bool isAnyFailure;
   final bool isLoadingProductOnUpdateQuantity;
   final bool isLoadingProductsOnObserve;
@@ -16,15 +16,16 @@ class ProductState {
   final bool isLoadingProductOnDelete;
   final bool isLoadingProductSuppliersOnObseve;
   final bool isLoadingProductOnMassEditing;
-  final Option<Either<FirebaseFailure, List<Product>>> fosProductsOnObserveOption;
-  final Option<Either<FirebaseFailure, Product>> fosProductOnCreateOption;
-  final Option<Either<FirebaseFailure, Unit>> fosProductOnDeleteOption;
-  final Option<Either<FirebaseFailure, List<Supplier>>> fosProductSuppliersOnObserveOption;
+  final Option<Either<AbstractFailure, List<Product>>> fosProductsOnObserveOption;
+  final Option<Either<AbstractFailure, Product>> fosProductOnCreateOption;
+  final Option<Either<AbstractFailure, Unit>> fosProductOnDeleteOption;
+  final Option<Either<AbstractFailure, List<Supplier>>> fosProductSuppliersOnObserveOption;
+  final Option<Either<List<AbstractFailure>, Unit>> fosProductAbstractFailuresOption;
 
   final bool isLoadingOnMassEditActivateProductMarketplace;
   final Option<Either<AbstractFailure, Product>> fosProductOnUpdateQuantityOption;
-  final Option<Either<FirebaseFailure, Unit>> fosMassEditActivateProductMarketplaceOption;
-  final Option<Either<FirebaseFailure, Unit>> fosMassEditProductsOption;
+  final Option<Either<AbstractFailure, Unit>> fosMassEditActivateProductMarketplaceOption;
+  final Option<Either<AbstractFailure, Unit>> fosMassEditProductsOption;
 
   //* Prestashop States
   final Option<Either<List<AbstractFailure>, Unit>> fosProductOnEditQuantityPrestaOption;
@@ -34,6 +35,7 @@ class ProductState {
   final bool isWidthSearchActive;
   final bool isSelectedAllProducts;
   final bool isLoadingPdf;
+  final String loadingText;
 
   const ProductState({
     required this.listOfAllProducts,
@@ -54,6 +56,7 @@ class ProductState {
     required this.fosProductOnCreateOption,
     required this.fosProductOnDeleteOption,
     required this.fosProductSuppliersOnObserveOption,
+    required this.fosProductAbstractFailuresOption,
     required this.isLoadingOnMassEditActivateProductMarketplace,
     required this.fosProductOnUpdateQuantityOption,
     required this.fosMassEditActivateProductMarketplaceOption,
@@ -64,6 +67,7 @@ class ProductState {
     required this.isWidthSearchActive,
     required this.isSelectedAllProducts,
     required this.isLoadingPdf,
+    required this.loadingText,
   });
 
   factory ProductState.initial() {
@@ -86,6 +90,7 @@ class ProductState {
       fosProductOnCreateOption: none(),
       fosProductOnDeleteOption: none(),
       fosProductSuppliersOnObserveOption: none(),
+      fosProductAbstractFailuresOption: none(),
       isLoadingOnMassEditActivateProductMarketplace: false,
       fosProductOnUpdateQuantityOption: none(),
       fosMassEditActivateProductMarketplaceOption: none(),
@@ -96,6 +101,7 @@ class ProductState {
       isWidthSearchActive: false,
       isSelectedAllProducts: false,
       isLoadingPdf: false,
+      loadingText: '',
     );
   }
 
@@ -106,7 +112,7 @@ class ProductState {
     List<Supplier>? listOfSuppliers,
     List<Product>? listOfNotUpdatedProductsOnMassEditing,
     MainSettings? mainSettings,
-    FirebaseFailure? firebaseFailure,
+    AbstractFailure? firebaseFailure,
     bool? isAnyFailure,
     bool? isLoadingProductOnUpdateQuantity,
     bool? isLoadingProductsOnObserve,
@@ -114,20 +120,22 @@ class ProductState {
     bool? isLoadingProductOnDelete,
     bool? isLoadingProductSuppliersOnObseve,
     bool? isLoadingProductOnMassEditing,
-    Option<Either<FirebaseFailure, List<Product>>>? fosProductsOnObserveOption,
-    Option<Either<FirebaseFailure, Product>>? fosProductOnCreateOption,
-    Option<Either<FirebaseFailure, Unit>>? fosProductOnDeleteOption,
-    Option<Either<FirebaseFailure, List<Supplier>>>? fosProductSuppliersOnObserveOption,
+    Option<Either<AbstractFailure, List<Product>>>? fosProductsOnObserveOption,
+    Option<Either<AbstractFailure, Product>>? fosProductOnCreateOption,
+    Option<Either<AbstractFailure, Unit>>? fosProductOnDeleteOption,
+    Option<Either<AbstractFailure, List<Supplier>>>? fosProductSuppliersOnObserveOption,
+    Option<Either<List<AbstractFailure>, Unit>>? fosProductAbstractFailuresOption,
     bool? isLoadingOnMassEditActivateProductMarketplace,
     Option<Either<AbstractFailure, Product>>? fosProductOnUpdateQuantityOption,
-    Option<Either<FirebaseFailure, Unit>>? fosMassEditActivateProductMarketplaceOption,
-    Option<Either<FirebaseFailure, Unit>>? fosMassEditProductsOption,
+    Option<Either<AbstractFailure, Unit>>? fosMassEditActivateProductMarketplaceOption,
+    Option<Either<AbstractFailure, Unit>>? fosMassEditProductsOption,
     Option<Either<List<AbstractFailure>, Unit>>? fosProductOnEditQuantityPrestaOption,
     TextEditingController? productSearchController,
     bool? triggerPop,
     bool? isWidthSearchActive,
     bool? isSelectedAllProducts,
     bool? isLoadingPdf,
+    String? loadingText,
   }) {
     return ProductState(
       listOfAllProducts: listOfAllProducts ?? this.listOfAllProducts,
@@ -148,6 +156,7 @@ class ProductState {
       fosProductOnCreateOption: fosProductOnCreateOption ?? this.fosProductOnCreateOption,
       fosProductOnDeleteOption: fosProductOnDeleteOption ?? this.fosProductOnDeleteOption,
       fosProductSuppliersOnObserveOption: fosProductSuppliersOnObserveOption ?? this.fosProductSuppliersOnObserveOption,
+      fosProductAbstractFailuresOption: fosProductAbstractFailuresOption ?? this.fosProductAbstractFailuresOption,
       isLoadingOnMassEditActivateProductMarketplace:
           isLoadingOnMassEditActivateProductMarketplace ?? this.isLoadingOnMassEditActivateProductMarketplace,
       fosProductOnUpdateQuantityOption: fosProductOnUpdateQuantityOption ?? this.fosProductOnUpdateQuantityOption,
@@ -159,6 +168,7 @@ class ProductState {
       isWidthSearchActive: isWidthSearchActive ?? this.isWidthSearchActive,
       isSelectedAllProducts: isSelectedAllProducts ?? this.isSelectedAllProducts,
       isLoadingPdf: isLoadingPdf ?? this.isLoadingPdf,
+      loadingText: loadingText ?? this.loadingText,
     );
   }
 }

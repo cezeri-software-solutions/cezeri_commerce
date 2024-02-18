@@ -11,7 +11,6 @@ import '../../../3_domain/entities/carrier/carrier.dart';
 import '../../../3_domain/entities/marketplace/marketplace.dart';
 import '../../../3_domain/entities/receipt/receipt.dart';
 import '../../../constants.dart';
-import '../../../core/firebase_failures.dart';
 import '../../../routes/router.gr.dart';
 import '../../core/widgets/my_avatar.dart';
 import '../../core/widgets/my_country_flag.dart';
@@ -32,19 +31,17 @@ class PackingStationOverviewPage extends StatelessWidget {
               return const Expanded(child: Center(child: CircularProgressIndicator()));
             }
             if (state.firebaseFailure != null && state.isAnyFailure) {
-              return switch (state.firebaseFailure.runtimeType) {
-                EmptyFailure => const Expanded(child: Center(child: Text('Aktuell sind keine offenen Aufträge vorhanden'))),
-                (_) => const Expanded(child: Center(child: Text('Ein Fehler beim Laden der Aufträge ist aufgetreten!')))
-              };
+              return const Expanded(child: Center(child: Text('Ein Fehler beim Laden der Aufträge ist aufgetreten!')));
             }
             if (stateMarketplace.firebaseFailure != null && stateMarketplace.isAnyFailure) {
-              return switch (stateMarketplace.firebaseFailure.runtimeType) {
-                EmptyFailure => const Expanded(child: Center(child: Text('Du hast noch keine Marktplätze angelegt!'))),
-                (_) => const Expanded(child: Center(child: Text('Ein Fehler beim Laden der Marktplätze ist aufgetreten!'))),
-              };
+              return const Expanded(child: Center(child: Text('Ein Fehler beim Laden der Marktplätze ist aufgetreten!')));
             }
             if (state.listOfAllAppointments == null || stateMarketplace.listOfMarketplace == null) {
               return const Expanded(child: Center(child: CircularProgressIndicator()));
+            }
+
+            if (state.listOfAllAppointments!.isEmpty) {
+              return const Expanded(child: Center(child: Text('Keine Aufträge vorhanden')));
             }
 
             if (state.listOfFilteredAppointments.isEmpty) {

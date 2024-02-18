@@ -9,7 +9,7 @@ import '../../../3_domain/entities_presta/category_presta.dart';
 import '../../../3_domain/entities_presta/product_presta.dart';
 import '../../../3_domain/repositories/firebase/marketplace_repository.dart';
 import '../../../3_domain/repositories/marketplace/marketplace_import_repository.dart';
-import '../../../core/firebase_failures.dart';
+import '../../../core/abstract_failure.dart';
 import '../../../core/presta_failure.dart';
 
 part 'marketplace_product_event.dart';

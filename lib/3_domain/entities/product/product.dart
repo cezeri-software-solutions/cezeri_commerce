@@ -1,6 +1,7 @@
 import 'package:cezeri_commerce/1_presentation/core/extensions/string_to_int.dart';
 import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.dart';
 import 'package:cezeri_commerce/3_domain/entities/product/field_language.dart';
+import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 import '../../../1_presentation/core/functions/mixed_functions.dart';
@@ -17,7 +18,7 @@ import 'set_product.dart';
 part 'product.g.dart';
 
 @JsonSerializable(explicitToJson: true)
-class Product {
+class Product extends Equatable {
   final String id;
   final String articleNumber;
   final String supplierArticleNumber; // Lieferanten Artikel-Nr.
@@ -69,7 +70,7 @@ class Product {
   final List<SetProduct> listOfSetProducts;
   final List<ProductMarketplace> productMarketplaces;
 
-  Product({
+  const Product({
     required this.id,
     required this.articleNumber,
     required this.supplierArticleNumber,
@@ -134,9 +135,9 @@ class Product {
       sku: '',
       ean: '',
       name: '',
-      listOfName: [],
+      listOfName: const [],
       tax: Tax.empty(),
-      imageUrls: [],
+      imageUrls: const [],
       isActive: true,
       ordered: 0,
       brandName: '',
@@ -152,8 +153,8 @@ class Product {
       recommendedRetailPrice: 0,
       haveVariants: false,
       isSetArticle: false,
-      listOfIsPartOfSetIds: [],
-      listOfProductIdWithQuantity: [],
+      listOfIsPartOfSetIds: const [],
+      listOfProductIdWithQuantity: const [],
       isSetSelfQuantityManaged: false,
       manufacturerNumber: '',
       manufacturer: '',
@@ -164,16 +165,16 @@ class Product {
       minimumReorderQuantity: 1,
       packagingUnitOnReorder: 1,
       description: '',
-      listOfDescription: [],
+      listOfDescription: const [],
       descriptionShort: '',
-      listOfDescriptionShort: [],
+      listOfDescriptionShort: const [],
       metaTitle: '',
-      listOfMetaTitle: [],
+      listOfMetaTitle: const [],
       metaDescription: '',
-      listOfMetaDescription: [],
-      listOfProductImages: [],
-      listOfSetProducts: [],
-      productMarketplaces: [],
+      listOfMetaDescription: const [],
+      listOfProductImages: const [],
+      listOfSetProducts: const [],
+      productMarketplaces: const [],
     );
   }
 
@@ -381,7 +382,57 @@ class Product {
   }
 
   @override
-  String toString() {
-    return 'Product(id: $id, articleNumber: $articleNumber, supplierArticleNumber: $supplierArticleNumber, supplierNumber: $supplierNumber, supplier: $supplier, sku: $sku, ean: $ean, name: $name, listOfName: $listOfName, tax: $tax, imageUrls: $imageUrls, isActive: $isActive, ordered: $ordered, brandName: $brandName, unity: $unity, unitPrice: $unitPrice, width: $width, height: $height, depth: $depth, weight: $weight, netPrice: $netPrice, grossPrice: $grossPrice, wholesalePrice: $wholesalePrice, recommendedRetailPrice: $recommendedRetailPrice, haveVariants: $haveVariants, isSetArticle: $isSetArticle, listOfIsPartOfSetIds: $listOfIsPartOfSetIds, listOfProductIdWithQuantity: $listOfProductIdWithQuantity, isSetSelfQuantityManaged: $isSetSelfQuantityManaged, manufacturerNumber: $manufacturerNumber, manufacturer: $manufacturer, warehouseStock: $warehouseStock, availableStock: $availableStock, minimumStock: $minimumStock, isUnderMinimumStock: $isUnderMinimumStock, minimumReorderQuantity: $minimumReorderQuantity, packagingUnitOnReorder: $packagingUnitOnReorder, description: $description, listOfDescription: $listOfDescription, descriptionShort: $descriptionShort, listOfDescriptionShort: $listOfDescriptionShort, metaTitle: $metaTitle, listOfMetaTitle: $listOfMetaTitle, metaDescription: $metaDescription, listOfMetaDescription: $listOfMetaDescription, volume: $volume, listOfProductImages: $listOfProductImages, listOfSetProducts: $listOfSetProducts, productMarketplaces: $productMarketplaces)';
-  }
+  List<Object?> get props => [
+        id,
+        articleNumber,
+        supplierArticleNumber,
+        supplierNumber,
+        supplier,
+        sku,
+        ean,
+        name,
+        listOfName,
+        tax,
+        imageUrls,
+        isActive,
+        ordered,
+        brandName,
+        unity,
+        unitPrice,
+        width,
+        height,
+        depth,
+        weight,
+        netPrice,
+        grossPrice,
+        wholesalePrice,
+        recommendedRetailPrice,
+        haveVariants,
+        isSetArticle,
+        listOfIsPartOfSetIds,
+        listOfProductIdWithQuantity,
+        isSetSelfQuantityManaged,
+        manufacturerNumber,
+        manufacturer,
+        warehouseStock,
+        availableStock,
+        minimumStock,
+        isUnderMinimumStock,
+        minimumReorderQuantity,
+        packagingUnitOnReorder,
+        description,
+        listOfDescription,
+        descriptionShort,
+        listOfDescriptionShort,
+        metaTitle,
+        listOfMetaTitle,
+        metaDescription,
+        listOfMetaDescription,
+        listOfProductImages,
+        listOfSetProducts,
+        productMarketplaces,
+      ];
+
+  @override
+  bool get stringify => true;
 }

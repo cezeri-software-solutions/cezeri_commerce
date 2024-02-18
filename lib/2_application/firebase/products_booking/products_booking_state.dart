@@ -7,14 +7,14 @@ class ProductsBookingState {
   final List<Reorder>? listOfFilteredReorders;
   final List<BookingProduct> listOfBookingProductsFromReorders; // screen2 alle offenen Artikel
   final List<BookingProduct> selectedReorderProducts; // screen2 ausgewählte Artikel
-  final FirebaseFailure? firebaseFailure;
+  final AbstractFailure? firebaseFailure;
   final bool isAnyFailure;
   final bool isLoadingProductsBookingProductsOnObserve;
   final bool isLoadingProductsBookingReordersOnObserve;
   final bool isLoadingProductsBookingOnUpdate;
-  final Option<Either<FirebaseFailure, List<Product>>> fosProductsBookingProductsOnObserveOption;
-  final Option<Either<FirebaseFailure, List<Reorder>>> fosProductsBookingReordersOnObserveOption;
-  final Option<Either<FirebaseFailure, Unit>> fosProductsBookingOnUpdateOption;
+  final Option<Either<AbstractFailure, List<Product>>> fosProductsBookingProductsOnObserveOption;
+  final Option<Either<AbstractFailure, List<Reorder>>> fosProductsBookingReordersOnObserveOption;
+  final Option<Either<AbstractFailure, Unit>> fosProductsBookingOnUpdateOption;
 
   //* Helpers
   final String reorderFilter;
@@ -90,14 +90,14 @@ class ProductsBookingState {
     List<Reorder>? listOfAllReorders,
     List<Reorder>? listOfFilteredReorders,
     List<BookingProduct>? selectedReorderProducts,
-    FirebaseFailure? firebaseFailure,
+    AbstractFailure? firebaseFailure,
     bool? isAnyFailure,
     bool? isLoadingProductsBookingProductsOnObserve,
     bool? isLoadingProductsBookingReordersOnObserve,
     bool? isLoadingProductsBookingOnUpdate,
-    Option<Either<FirebaseFailure, List<Product>>>? fosProductsBookingProductsOnObserveOption,
-    Option<Either<FirebaseFailure, List<Reorder>>>? fosProductsBookingReordersOnObserveOption,
-    Option<Either<FirebaseFailure, Unit>>? fosProductsBookingOnUpdateOption,
+    Option<Either<AbstractFailure, List<Product>>>? fosProductsBookingProductsOnObserveOption,
+    Option<Either<AbstractFailure, List<Reorder>>>? fosProductsBookingReordersOnObserveOption,
+    Option<Either<AbstractFailure, Unit>>? fosProductsBookingOnUpdateOption,
     String? reorderFilter,
     bool? isAllReorderProductsSelected,
     List<TextEditingController>? quantityControllers,

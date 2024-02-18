@@ -25,6 +25,7 @@ import '../../../routes/router.gr.dart';
 import '../../core/functions/dialogs.dart';
 import '../../core/functions/my_scaffold_messanger.dart';
 import '../../core/widgets/my_circular_progress_indicator.dart';
+import 'functions/products_overview_create_export.dart';
 import 'products_overview_page.dart';
 import 'widgets/products_mass_editing_failure_dialog.dart';
 import 'widgets/products_mass_editing_select_marketplaces_dialog.dart';
@@ -55,7 +56,7 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> with Au
               state.fosProductsOnObserveOption.fold(
                 () => null,
                 (a) => a.fold(
-                  (failure) => myScaffoldMessenger(context, failure, null, null, null),
+                  (failure) => failureRenderer(context, [failure]),
                   (listOfProducts) => null,
                 ),
               );
@@ -71,7 +72,22 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> with Au
                     failureRenderer(context, [failure]);
                     context.router.popUntilRouteWithName(ProductsOverviewRoute.name);
                   },
-                  (unit) => context.router.popUntilRouteWithName(ProductsOverviewRoute.name),
+                  (unit) {
+                    myScaffoldMessenger(context, null, null, 'Bestand erfolgreich aktualisiert', null);
+                    context.router.popUntilRouteWithName(ProductsOverviewRoute.name);
+                  },
+                ),
+              );
+            },
+          ),
+          BlocListener<ProductBloc, ProductState>(
+            listenWhen: (p, c) => p.fosProductAbstractFailuresOption != c.fosProductAbstractFailuresOption,
+            listener: (context, state) {
+              state.fosProductAbstractFailuresOption.fold(
+                () => null,
+                (a) => a.fold(
+                  (failure) => failureRenderer(context, failure),
+                  (unit) => null,
                 ),
               );
             },
@@ -131,9 +147,10 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> with Au
                 actions: [
                   IconButton(
                     key: iconButtonKey,
-                    onPressed: () {
-                      final csvString = _generateCsvString(state.selectedProducts);
-                      _saveAndShareCsv(csvString);
+                    onPressed: () async {
+                      // final csvString = _generateCsvString(state.selectedProducts);
+                      // _saveAndShareCsv(csvString);
+                      await generateTableExportFromProductsOverview(context, iconButtonKey, state.selectedProducts);
                     },
                     icon: const Icon(Icons.table_chart_outlined, color: CustomColors.primaryColor),
                   ),
@@ -235,12 +252,16 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> with Au
         'Name',
         'Beschreibung',
         'Beschreibung (HTML)',
+        'Kurzbeschreibung',
+        'Kurzbeschreibung (HTML)',
         'Hersteller',
-        'Gewicht',
+        'Gewicht in kg',
+        'Gewicht in g',
         'Preis Netto',
         'Preis Brutto',
         'Lagerbestand',
         'Verfügbarer Bestand',
+        'EAN',
         'Set-Artikel',
         'Aktiv',
       ],
@@ -248,20 +269,27 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> with Au
 
     int pos = 1;
     for (final product in selectedProducts) {
-      final document = parse(product.description);
-      final blancDescription = document.body!.text;
+      final documentDescription = parse(product.description);
+      final blancDescription = documentDescription.body!.text;
+      final documentDescriptionShort = parse(product.descriptionShort);
+      final blancDescriptionShort = documentDescriptionShort.body!.text;
+
       final row = [
         pos,
         product.articleNumber,
         product.name,
-        blancDescription,
         product.description,
+        blancDescription,
+        product.descriptionShort,
+        blancDescriptionShort,
         product.manufacturer,
         product.weight,
+        (product.weight * 1000).toStringAsFixed(0),
         product.netPrice,
         product.grossPrice,
         product.warehouseStock,
         product.availableStock,
+        product.ean,
         product.isSetArticle,
         product.isActive,
       ];

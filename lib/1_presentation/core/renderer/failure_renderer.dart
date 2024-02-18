@@ -10,6 +10,7 @@ import '../functions/dialogs.dart';
 final logger = Logger();
 
 Future<void> failureRenderer(BuildContext context, List<AbstractFailure> abstractFailures) async {
+  if (abstractFailures.isEmpty) return;
   for (final failure in abstractFailures) {
     switch (failure.abstractFailureType) {
       case AbstractFailureType.auth:
@@ -33,7 +34,7 @@ Future<void> _firebaseFailureRenderer(BuildContext context, FirebaseFailure fail
     case FirebaseFailureType.general:
       await _firebaseGeneralFailureRenderer(context, failure as GeneralFailure);
     case FirebaseFailureType.empty:
-      //TODO:
+    //TODO:
     case FirebaseFailureType.noConnection:
       await _showScaffoldMessager(context, 'Es konnte keine Verbindung zum Internet hergestellt werden.\nBitte Internetverbindung überprüfen.');
   }
@@ -46,7 +47,9 @@ Future<void> _firebaseGeneralFailureRenderer(BuildContext context, GeneralFailur
 }
 
 Future<void> _prestaFailureRenderer(BuildContext context, PrestaFailure failure) async {}
-Future<void> _mixedFailureRenderer(BuildContext context, MixedFailure failure) async {}
+Future<void> _mixedFailureRenderer(BuildContext context, MixedFailure failure) async {
+  await _showScaffoldMessager(context, failure.errorMessage ?? 'Ein Fehler ist aufgetreten.');
+}
 
 Future<void> _showScaffoldMessager(BuildContext context, String message) async {
   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -60,11 +63,11 @@ Future<void> _showScaffoldMessager(BuildContext context, String message) async {
 String _mapAuthFailureMessage(AuthFailure failure) {
   return switch (failure.runtimeType) {
     AuthServerFailure => 'Etwas ist schifgelaufen',
-    WrongPasswordFailure => 'Sie haben ein falsches Passwort eingegeben',
-    UserDisabledFailure => 'Dieser User wurde deaktiviert\nBitte melden Sie sich beim Support',
-    InvalidEmailFailure => 'Bitte geben Sie eine valide E-Mail Adresse ein',
+    WrongPasswordFailure => 'Du hast ein falsches Passwort eingegeben',
+    UserDisabledFailure => 'Dieser User wurde deaktiviert\nBitte melde dich beim Support',
+    InvalidEmailFailure => 'Bitte gib eine valide E-Mail Adresse ein',
     EmailAlreadyInUseFailure => 'Diese E-Mail ist bereits registriert',
-    WeakPasswordFailure => 'Bitte geben Sie ein sichereres Passwort ein',
+    WeakPasswordFailure => 'Bitte gib ein sichereres Passwort ein',
     EmailNotFoundFailure => 'Diese E-Mail konnte nicht gefunden werden',
     (_) => 'Etwas ist schifgelaufen',
   };

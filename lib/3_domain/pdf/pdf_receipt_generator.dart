@@ -474,6 +474,10 @@ class PdfReceiptGenerator {
               text: ' ab Belegdatum, ${appointment.termOfPayment.toString()} Tage netto.',
               style: pw.TextStyle(fontSize: 8, fontWeight: pw.FontWeight.normal),
             ),
+            // pw.TextSpan(
+            //   text: ' Vorkasse',
+            //   style: pw.TextStyle(fontSize: 8, fontWeight: pw.FontWeight.normal),
+            // ),
           ],
         ),
       );

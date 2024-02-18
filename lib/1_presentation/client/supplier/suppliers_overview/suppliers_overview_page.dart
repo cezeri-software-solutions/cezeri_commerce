@@ -6,7 +6,6 @@ import 'package:intl/intl.dart';
 import '../../../../2_application/firebase/supplier/supplier_bloc.dart';
 import '../../../../3_domain/entities/reorder/supplier.dart';
 import '../../../../constants.dart';
-import '../../../../core/firebase_failures.dart';
 import '../../../../routes/router.gr.dart';
 import '../../../core/widgets/my_country_flag.dart';
 import '../supplier_detail/supplier_detail_screen.dart';
@@ -24,13 +23,13 @@ class SuppliersOverviewPage extends StatelessWidget {
           return const Expanded(child: Center(child: CircularProgressIndicator()));
         }
         if (state.firebaseFailure != null && state.isAnyFailure) {
-          return switch (state.firebaseFailure.runtimeType) {
-            EmptyFailure => const Expanded(child: Center(child: Text('Du hast noch keine Lieferanten angelegt oder importiert!'))),
-            (_) => const Expanded(child: Center(child: Text('Ein Fehler beim Laden der Lieferanten ist aufgetreten!')))
-          };
+          return const Expanded(child: Center(child: Text('Ein Fehler beim Laden der Lieferanten ist aufgetreten!')));
         }
         if (state.listOfAllSuppliers == null || state.listOfFilteredSuppliers == null) {
           return const Expanded(child: Center(child: CircularProgressIndicator()));
+        }
+        if (state.listOfAllSuppliers!.isEmpty) {
+          return const Expanded(child: Center(child: Text('Du hast noch keine Lieferanten angelegt oder importiert!')));
         }
 
         return Expanded(

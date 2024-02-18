@@ -1,38 +1,37 @@
 import 'package:dartz/dartz.dart';
 
 import '../../../core/abstract_failure.dart';
-import '../../../core/firebase_failures.dart';
 import '../../entities/carrier/parcel_tracking.dart';
 import '../../entities/receipt/load_appointments_helper/to_load_appointments_from_marketplace.dart';
 import '../../entities/receipt/receipt.dart';
 import '../../entities/receipt/receipt_product.dart';
 
 abstract class ReceiptRepository {
-  Future<Either<FirebaseFailure, Receipt>> getReceipt(Receipt receipt);
-  Future<Either<FirebaseFailure, List<Receipt>>> getListOfReceipts(int value, ReceiptTyp receiptTyp);
-  Future<Either<FirebaseFailure, Unit>> updateReceipt(
+  Future<Either<AbstractFailure, Receipt>> getReceipt(Receipt receipt);
+  Future<Either<AbstractFailure, List<Receipt>>> getListOfReceipts(int value, ReceiptTyp receiptTyp);
+  Future<Either<AbstractFailure, Unit>> updateReceipt(
     Receipt receipt,
     List<ReceiptProduct> oldListOfReceiptProducts,
     List<ReceiptProduct> newListOfReceiptProducts,
   );
-  Future<Either<FirebaseFailure, Receipt>> createReceiptManually(Receipt receipt);
+  Future<Either<AbstractFailure, Receipt>> createReceiptManually(Receipt receipt);
   Future<Either<AbstractFailure, Unit>> deleteListOfReceipts(List<Receipt> listOfReceipts);
   //* ###### Generate Receipts #####
-  Future<Either<FirebaseFailure, List<Receipt>>> generateFromListOfOffersNewAppointments(List<Receipt> listOfOffers);
-  Future<Either<FirebaseFailure, List<Receipt>>> generateFromListOfAppointments(
+  Future<Either<AbstractFailure, List<Receipt>>> generateFromListOfOffersNewAppointments(List<Receipt> listOfOffers);
+  Future<Either<AbstractFailure, List<Receipt>>> generateFromListOfAppointments(
     List<Receipt> listOfReceipts,
     bool generateDeliveryNote,
     bool generateInvoice,
   );
-  Future<Either<FirebaseFailure, List<Receipt>>> generateFromAppointment(
+  Future<Either<AbstractFailure, List<Receipt>>> generateFromAppointment(
     Receipt incomingAppointment,
     Receipt originalAppointment,
     bool generateDeliveryNote,
     bool generateInvoice,
   );
-  Future<Either<FirebaseFailure, Receipt>> generateFromListOfDeliveryNotesNewInvoice(List<Receipt> listOfDeliveryNotes);
-  Future<Either<FirebaseFailure, Receipt>> generateFromInvoiceNewCredit(Receipt invoice);
-  Future<Either<FirebaseFailure, Unit>> sendEmails();
+  Future<Either<AbstractFailure, Receipt>> generateFromListOfDeliveryNotesNewInvoice(List<Receipt> listOfDeliveryNotes);
+  Future<Either<AbstractFailure, Receipt>> generateFromInvoiceNewCredit(Receipt invoice);
+  Future<Either<AbstractFailure, Unit>> sendEmails();
   Future<Either<AbstractFailure, ParcelTracking>> createNewParcelForReceipt(Receipt deliveryNote);
   //* ###### Load Appointments from Marketplaces #####
   Future<Either<AbstractFailure, List<ToLoadAppointmentsFromMarketplace>>> getToLoadAppointmentsFromMarketplaces();

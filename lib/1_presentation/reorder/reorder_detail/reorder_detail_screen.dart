@@ -1,6 +1,5 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:cezeri_commerce/1_presentation/reorder/reorder_detail/functions/on_pdf_pressed.dart';
-import 'package:cezeri_commerce/core/firebase_failures.dart';
 import 'package:cezeri_commerce/routes/router.gr.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -10,6 +9,7 @@ import '../../../2_application/firebase/reorder_detail/reorder_detail_bloc.dart'
 import '../../../3_domain/entities/reorder/supplier.dart';
 import '../../../injection.dart';
 import '../../core/functions/my_scaffold_messanger.dart';
+import '../../core/renderer/failure_renderer.dart';
 import 'functions/show_reorder_detail_products_dialog.dart';
 import 'reorder_detail_page.dart';
 
@@ -46,7 +46,7 @@ class ReorderDetailScreen extends StatelessWidget {
               state.fosReorderDetailOnObserveOption.fold(
                 () => null,
                 (a) => a.fold(
-                  (failure) => myScaffoldMessenger(context, failure, null, null, null),
+                  (failure) => failureRenderer(context, [failure]),
                   (unit) => myScaffoldMessenger(context, null, null, 'Nachbestellung erfolgreich geladen', null),
                 ),
               );
@@ -58,7 +58,7 @@ class ReorderDetailScreen extends StatelessWidget {
               state.fosReorderDetailOnObserveProductsOption.fold(
                 () => null,
                 (a) => a.fold(
-                  (failure) => myScaffoldMessenger(context, failure, null, null, null),
+                  (failure) => failureRenderer(context, [failure]),
                   (listOfLoadedProducts) => showReorderDetailProductsDialog(context, reorderDetailBloc),
                 ),
               );
@@ -70,7 +70,7 @@ class ReorderDetailScreen extends StatelessWidget {
               state.fosReorderDetailOnCreateOption.fold(
                 () => null,
                 (a) => a.fold(
-                  (failure) => myScaffoldMessenger(context, failure, null, null, null),
+                  (failure) => failureRenderer(context, [failure]),
                   (createdReorder) {
                     context.router.popUntilRouteWithName(ReordersOverviewRoute.name);
                     context.router.push(ReorderDetailRoute(reorderCreateOrEdit: ReorderCreateOrEdit.edit, reorderId: createdReorder.id));
@@ -85,7 +85,7 @@ class ReorderDetailScreen extends StatelessWidget {
               state.fosReorderDetailOnOUpdateOption.fold(
                 () => null,
                 (a) => a.fold(
-                  (failure) => myScaffoldMessenger(context, failure, null, null, null),
+                  (failure) => failureRenderer(context, [failure]),
                   (updatedReorder) => myScaffoldMessenger(context, null, null, 'Nachbestellung wurde erfolgreich aktualisiert', null),
                 ),
               );
@@ -97,7 +97,7 @@ class ReorderDetailScreen extends StatelessWidget {
               state.fosReorderDetailOnPdfDataOption.fold(
                 () => null,
                 (a) => a.fold(
-                  (failure) => myScaffoldMessenger(context, failure, null, null, null),
+                  (failure) => failureRenderer(context, [failure]),
                   (marketplaces) => onPdfPressed(context: context, reorder: state.reorder!, marketplaces: marketplaces),
                 ),
               );
@@ -108,7 +108,7 @@ class ReorderDetailScreen extends StatelessWidget {
           bloc: reorderDetailBloc,
           builder: (context, state) {
             if (state.isLoadingReorderDetailOnObserve) return Scaffold(appBar: appBar, body: const Center(child: CircularProgressIndicator()));
-            if (state.firebaseFailure != null && state.firebaseFailure.runtimeType != EmptyFailure && state.isAnyFailure) {
+            if (state.firebaseFailure != null) {
               return Scaffold(appBar: appBar, body: const Center(child: Text('Ein Fehler ist aufgetreten')));
             }
             if (state.reorder == null) return Scaffold(appBar: appBar, body: const Center(child: CircularProgressIndicator()));

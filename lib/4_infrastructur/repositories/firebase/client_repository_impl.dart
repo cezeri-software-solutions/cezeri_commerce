@@ -3,9 +3,13 @@ import 'package:cezeri_commerce/core/firebase_failures.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:logger/logger.dart';
 
-import '../../../3_domain/entities/settings/main_settings.dart';
-import '../../../3_domain/repositories/firebase/client_repository.dart';
+import '../../../core/abstract_failure.dart';
+import '/3_domain/entities/settings/main_settings.dart';
+import '/3_domain/repositories/firebase/client_repository.dart';
+
+final logger = Logger();
 
 class ClientRepositoryImpl implements ClientRepository {
   final FirebaseFirestore db;
@@ -14,7 +18,7 @@ class ClientRepositoryImpl implements ClientRepository {
   const ClientRepositoryImpl({required this.db, required this.firebaseAuth});
 
   @override
-  Future<Either<FirebaseFailure, Unit>> createClient(Client client) async {
+  Future<Either<AbstractFailure, Unit>> createClient(Client client) async {
     final currentUserUid = firebaseAuth.currentUser!.uid;
     try {
       final docRef = db.collection('Users').doc(currentUserUid);
@@ -27,21 +31,23 @@ class ClientRepositoryImpl implements ClientRepository {
       await docRefSettings.set(newSettings.toJson());
 
       return right(unit);
-    } on FirebaseAuthException {
-      return left(GeneralFailure());
+    } on FirebaseException catch (e) {
+      logger.e(e.message);
+      return left(GeneralFailure(customMessage: 'Beim Erstellen des Nutzers ist ein Fehler aufgetreten.', e: e));
     }
   }
 
   @override
-  Future<Either<FirebaseFailure, Client>> getCurClient() async {
+  Future<Either<AbstractFailure, Client>> getCurClient() async {
     final currentUserUid = firebaseAuth.currentUser!.uid;
     final docRef = db.collection('Users').doc(currentUserUid);
     try {
       final client = await docRef.get();
-      if (client.data() == null) return left(EmptyFailure());
+      if (client.data() == null) return left(GeneralFailure(customMessage: 'Beim Laden des Nutzers ist ein Fehler aufgetreten.'));
       return right(Client.fromJson(client.data()!));
-    } on FirebaseException {
-      return left(GeneralFailure());
+    } on FirebaseException catch (e) {
+      logger.e(e.message);
+      return left(GeneralFailure(customMessage: 'Beim Laden des Nutzers ist ein Fehler aufgetreten.', e: e));
     }
   }
 }

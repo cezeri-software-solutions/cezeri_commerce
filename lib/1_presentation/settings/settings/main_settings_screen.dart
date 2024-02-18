@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../2_application/firebase/main_settings/main_settings_bloc.dart';
 import '../../app_drawer.dart';
 import '../../core/functions/my_scaffold_messanger.dart';
+import '../../core/renderer/failure_renderer.dart';
 import 'main_settings_page.dart';
 
 @RoutePage()
@@ -24,7 +25,7 @@ class MainSettingsScreen extends StatelessWidget {
             state.fosMainSettingsOnObserveOption.fold(
               () => null,
               (a) => a.fold(
-                (failure) => myScaffoldMessenger(context, failure, null, null, null),
+                (failure) => failureRenderer(context, [failure]),
                 (mainSettings) => null,
               ),
             );
@@ -35,10 +36,13 @@ class MainSettingsScreen extends StatelessWidget {
           listener: (context, state) {
             state.fosMainSettingsOnUpdateOption.fold(
               () => null,
-              (a) => a.fold((failure) => myScaffoldMessenger(context, failure, null, null, null), (unit) {
-                myScaffoldMessenger(context, null, null, 'Einstellungen erfolgreich aktualisiert', null);
-                context.read<MainSettingsBloc>().add(GetMainSettingsEvent());
-              }),
+              (a) => a.fold(
+                (failure) => failureRenderer(context, [failure]),
+                (unit) {
+                  myScaffoldMessenger(context, null, null, 'Einstellungen erfolgreich aktualisiert', null);
+                  context.read<MainSettingsBloc>().add(GetMainSettingsEvent());
+                },
+              ),
             );
           },
         ),
@@ -58,7 +62,7 @@ class MainSettingsScreen extends StatelessWidget {
           }
 
           if (state.firebaseFailure != null && state.isAnyFailure) {
-            return Scaffold(appBar: appBar, drawer: drawer, body: Center(child: Text(mapFirebaseFailureMessage(state.firebaseFailure!))));
+            return Scaffold(appBar: appBar, drawer: drawer, body: const Center(child: Text('Ein Fehler ist aufgetreten.')));
           }
           return MainSettingsPage(mSettings: state.mainSettings!);
         },

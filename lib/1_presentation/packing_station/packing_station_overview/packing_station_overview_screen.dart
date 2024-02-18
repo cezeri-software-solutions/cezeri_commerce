@@ -10,6 +10,7 @@ import '../../../injection.dart';
 import '../../../routes/router.gr.dart';
 import '../../app_drawer.dart';
 import '../../core/functions/my_scaffold_messanger.dart';
+import '../../core/renderer/failure_renderer.dart';
 import '../../core/widgets/my_outlined_button.dart';
 import 'packing_station_overview_page.dart';
 
@@ -39,7 +40,7 @@ class PackingStationOverviewScreen extends StatelessWidget {
               state.fosAppointmentOnObserveOption.fold(
                 () => null,
                 (a) => a.fold(
-                  (failure) => myScaffoldMessenger(context, failure, null, null, null),
+                  (failure) => failureRenderer(context, [failure]),
                   (appointment) => null,
                 ),
               );
@@ -51,7 +52,7 @@ class PackingStationOverviewScreen extends StatelessWidget {
               state.fosAppointmentsOnObserveOption.fold(
                 () => null,
                 (a) => a.fold(
-                  (failure) => myScaffoldMessenger(context, failure, null, null, null),
+                  (failure) => failureRenderer(context, [failure]),
                   (appointments) => myScaffoldMessenger(context, null, null, 'Aufträge erfolgreich geladen', null),
                 ),
               );
@@ -63,7 +64,7 @@ class PackingStationOverviewScreen extends StatelessWidget {
               state.fosPicklistOnCreateOption.fold(
                 () => null,
                 (a) => a.fold(
-                  (failure) => myScaffoldMessenger(context, failure, null, null, null),
+                  (failure) => failureRenderer(context, [failure]),
                   (picklist) {
                     packingStationBloc.add(PicklistOnSetPicklistEvent(picklist: picklist));
                     context.router.push(PicklistDetailRoute(packingStationBloc: packingStationBloc));

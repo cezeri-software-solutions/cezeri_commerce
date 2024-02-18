@@ -10,6 +10,7 @@ import '../../../constants.dart';
 import '../../../injection.dart';
 import '../../../routes/router.gr.dart';
 import '../../core/functions/my_scaffold_messanger.dart';
+import '../../core/renderer/failure_renderer.dart';
 import '../../core/widgets/my_dialog_suppliers.dart';
 import '../../core/widgets/my_outlined_button.dart';
 import 'widgets/description_page.dart';
@@ -113,7 +114,7 @@ List<BlocListener<ProductDetailBloc, ProductDetailState>> _getProductDetailBlocL
         state.fosProductOnUpdateOption.fold(
           () => null,
           (a) => a.fold(
-            (failure) => myScaffoldMessenger(context, failure, null, null, null),
+            (failure) => failureRenderer(context, [failure]),
             (listOfProducts) => myScaffoldMessenger(context, null, null, 'Artikel erfolgreich aktualisiert', null),
           ),
         );
@@ -125,7 +126,7 @@ List<BlocListener<ProductDetailBloc, ProductDetailState>> _getProductDetailBlocL
         state.fosProductOnUpdateInMarketplaceOption.fold(
           () => null,
           (a) => a.fold(
-            (failure) => myScaffoldMessenger(context, null, null, null, 'Artikel konnte in mindestens einem Marktplatz nicht aktualisert werden'),
+            (failure) => failureRenderer(context, failure),
             (listOfProducts) => myScaffoldMessenger(context, null, null, 'Artikel erfolgreich im Marktplatz aktualisiert', null),
           ),
         );
@@ -182,6 +183,18 @@ List<BlocListener<ProductDetailBloc, ProductDetailState>> _getProductDetailBlocL
               context.router.popUntilRouteWithName(ProductDetailRoute.name);
               showSelectProductSheet(context, productDetailBloc);
             },
+          ),
+        );
+      },
+    ),
+    BlocListener<ProductDetailBloc, ProductDetailState>(
+      listenWhen: (p, c) => p.fosProductAbstractFailuresOption != c.fosProductAbstractFailuresOption,
+      listener: (context, state) {
+        state.fosProductAbstractFailuresOption.fold(
+          () => null,
+          (a) => a.fold(
+            (failure) => failureRenderer(context, failure),
+            (unit) => null,
           ),
         );
       },

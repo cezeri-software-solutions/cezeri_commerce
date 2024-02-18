@@ -6,7 +6,6 @@ import 'package:intl/intl.dart';
 import '../../../../2_application/packing_station/packing_station_bloc.dart';
 import '../../../../3_domain/entities/picklist/picklist.dart';
 import '../../../../3_domain/enums/enums.dart';
-import '../../../../core/firebase_failures.dart';
 import '../../../../routes/router.gr.dart';
 import '../../../core/widgets/my_circular_progress_indicator.dart';
 
@@ -22,12 +21,10 @@ class PicklistsOverviewPage extends StatelessWidget {
       builder: (context, state) {
         if (state.isLoadingPicklistsOnObserve) return const Center(child: MyCircularProgressIndicator());
         if (state.firebaseFailure != null && state.isAnyFailure) {
-          return switch (state.firebaseFailure.runtimeType) {
-            EmptyFailure => const Center(child: Text('Aktuell sind keine Picklisten vorhanden')),
-            (_) => const Center(child: Text('Ein Fehler beim Laden der Picklisten ist aufgetreten!'))
-          };
+          return const Center(child: Text('Ein Fehler beim Laden der Picklisten ist aufgetreten!'));
         }
         if (state.listOfPicklists == null) return const Center(child: MyCircularProgressIndicator());
+        if (state.listOfPicklists!.isEmpty) return const Center(child: Text('Aktuell sind keine Picklisten vorhanden'));
 
         return ListView.builder(
           itemCount: state.listOfPicklists!.length,

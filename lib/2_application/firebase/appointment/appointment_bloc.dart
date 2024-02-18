@@ -1,8 +1,8 @@
 import 'package:bloc/bloc.dart';
 import 'package:cezeri_commerce/3_domain/repositories/firebase/product_repository.dart';
 import 'package:dartz/dartz.dart';
+import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
-import 'package:meta/meta.dart';
 
 import '../../../3_domain/entities/address.dart';
 import '../../../3_domain/entities/carrier/carrier_product.dart';
@@ -18,7 +18,6 @@ import '../../../3_domain/entities/receipt/receipt_product.dart';
 import '../../../3_domain/entities/settings/payment_method.dart';
 import '../../../3_domain/repositories/firebase/receipt_respository.dart';
 import '../../../core/abstract_failure.dart';
-import '../../../core/firebase_failures.dart';
 
 part 'appointment_event.dart';
 part 'appointment_state.dart';
@@ -100,7 +99,7 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
       bool isSuccess = true;
       emit(state.copyWith(
         isLoadingAppointmentFromPrestaOnObserve: true,
-        loadedAppointments: 0,
+        loadedAppointments: 1,
         numberOfToLoadAppointments: 1,
         loadingText: 'Bestellung wird geladen',
       ));
@@ -338,24 +337,27 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
     });
 
     on<OnSearchFieldSubmittedAppointmentsEvent>((event, emit) async {
-      List<Receipt> listOfReceipts = switch (state.listOfAllReceipts!.first.receiptTyp) {
-        ReceiptTyp.offer => switch (state.tabValue) {
-            0 => state.listOfAllReceipts!.where((e) => e.offerStatus == OfferStatus.open).toList(),
-            _ => state.listOfAllReceipts!,
-          },
-        ReceiptTyp.appointment => switch (state.tabValue) {
-            0 => state.listOfAllReceipts!.where((e) => e.appointmentStatus != AppointmentStatus.completed).toList(),
-            _ => state.listOfAllReceipts!,
-          },
-        ReceiptTyp.deliveryNote => switch (state.tabValue) {
-            0 => state.listOfAllReceipts!.where((e) => e.paymentStatus != PaymentStatus.paid).toList(),
-            _ => state.listOfAllReceipts!,
-          },
-        ReceiptTyp.invoice || ReceiptTyp.credit => switch (state.tabValue) {
-            0 => state.listOfAllReceipts!.where((e) => e.paymentStatus != PaymentStatus.paid).toList(),
-            _ => state.listOfAllReceipts!,
-          },
-      };
+      List<Receipt> listOfReceipts = [];
+      if (state.listOfAllReceipts!.isNotEmpty) {
+        listOfReceipts = switch (state.listOfAllReceipts!.first.receiptTyp) {
+          ReceiptTyp.offer => switch (state.tabValue) {
+              0 => state.listOfAllReceipts!.where((e) => e.offerStatus == OfferStatus.open).toList(),
+              _ => state.listOfAllReceipts!,
+            },
+          ReceiptTyp.appointment => switch (state.tabValue) {
+              0 => state.listOfAllReceipts!.where((e) => e.appointmentStatus != AppointmentStatus.completed).toList(),
+              _ => state.listOfAllReceipts!,
+            },
+          ReceiptTyp.deliveryNote => switch (state.tabValue) {
+              0 => state.listOfAllReceipts!.where((e) => e.paymentStatus != PaymentStatus.paid).toList(),
+              _ => state.listOfAllReceipts!,
+            },
+          ReceiptTyp.invoice || ReceiptTyp.credit => switch (state.tabValue) {
+              0 => state.listOfAllReceipts!.where((e) => e.paymentStatus != PaymentStatus.paid).toList(),
+              _ => state.listOfAllReceipts!,
+            },
+        };
+      }
 
       listOfReceipts = switch (state.receiptSearchText) {
         '' => listOfReceipts,

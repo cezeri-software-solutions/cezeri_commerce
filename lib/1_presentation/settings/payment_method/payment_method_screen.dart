@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../2_application/firebase/main_settings/main_settings_bloc.dart';
 import '../../core/functions/my_scaffold_messanger.dart';
+import '../../core/renderer/failure_renderer.dart';
 import 'payment_method_page.dart';
 
 @RoutePage()
@@ -23,7 +24,7 @@ class PaymentMethodScreen extends StatelessWidget {
             state.fosMainSettingsOnObserveOption.fold(
               () => null,
               (a) => a.fold(
-                (failure) => myScaffoldMessenger(context, failure, null, null, null),
+                (failure) => failureRenderer(context, [failure]),
                 (mainSettings) => null,
               ),
             );
@@ -35,7 +36,7 @@ class PaymentMethodScreen extends StatelessWidget {
             state.fosMainSettingsOnUpdateOption.fold(
               () => null,
               (a) => a.fold(
-                (failure) => myScaffoldMessenger(context, failure, null, null, null),
+                (failure) => failureRenderer(context, [failure]),
                 (unit) {
                   myScaffoldMessenger(context, null, null, 'Einstellungen erfolgreich aktualisiert', null);
                   context.read<MainSettingsBloc>().add(GetMainSettingsEvent());

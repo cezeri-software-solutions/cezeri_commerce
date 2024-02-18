@@ -8,6 +8,7 @@ import '../../../injection.dart';
 import '../../app_drawer.dart';
 import '../../core/functions/dialogs.dart';
 import '../../core/functions/my_scaffold_messanger.dart';
+import '../../core/renderer/failure_renderer.dart';
 import 'reorders_overview_page.dart';
 import 'widgets/select_reorder_supplier_dialog.dart';
 
@@ -31,7 +32,7 @@ class ReordersOverviewScreen extends StatelessWidget {
               state.fosReordersOnObserveOption.fold(
                 () => null,
                 (a) => a.fold(
-                  (failure) => myScaffoldMessenger(context, failure, null, null, null),
+                  (failure) => failureRenderer(context, [failure]),
                   (listOfProducts) => myScaffoldMessenger(context, null, null, 'Nachbestellungen wurden erfolgreich geladen', null),
                 ),
               );
@@ -43,7 +44,7 @@ class ReordersOverviewScreen extends StatelessWidget {
               state.fosReorderOnDeleteOption.fold(
                 () => null,
                 (a) => a.fold(
-                  (failure) => myScaffoldMessenger(context, failure, null, null, null),
+                  (failure) => failureRenderer(context, [failure]),
                   (reorder) => myScaffoldMessenger(context, null, null, 'Ausgewählte Nachbestellungen erfolgreich gelöscht', null),
                 ),
               );
@@ -55,7 +56,7 @@ class ReordersOverviewScreen extends StatelessWidget {
               state.fosReorderOnObserveSuppliersOption.fold(
                 () => null,
                 (a) => a.fold(
-                  (failure) => myScaffoldMessenger(context, failure, null, null, null),
+                  (failure) => failureRenderer(context, [failure]),
                   (suppliers) => _openSelectSupplierDialog(context, reorderBloc),
                 ),
               );

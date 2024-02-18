@@ -25,7 +25,8 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
   MarketplaceEditRepositoryImpl({required this.db, required this.firebaseAuth});
 
   @override
-  Future<Either<List<AbstractFailure>, Unit>> setProdcutPrestaQuantity(Product product, int newQuantity, Marketplace? marketplaceToSkip) async {
+  Future<Either<List<AbstractFailure>, Unit>> setQuantityMPInAllProductMarketplaces(
+      Product product, int newQuantity, Marketplace? marketplaceToSkip) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left([NoConnectionFailure()]);
 
@@ -49,9 +50,7 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
         MarketplaceType.shop => throw Error(),
       };
 
-      print('################################ patchProductQuantity ANFANG ################################# asdfjklöö');
       final fos = await api.patchProductQuantity(marketplaceProduct.id, newQuantity, marketplace);
-      print('################################ patchProductQuantity ENDE ################################# asdfjklöö');
       fos.fold(
         (failure) => failures.add(failure),
         (unit) => null,
@@ -76,7 +75,7 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
   }
 
   @override
-  Future<Either<List<AbstractFailure>, Unit>> editProdcutPresta(Product product, List<Marketplace>? toEditMarketplaces) async {
+  Future<Either<List<AbstractFailure>, Unit>> editProdcutInMarketplace(Product product, List<Marketplace>? toEditMarketplaces) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left([NoConnectionFailure()]);
 
@@ -92,7 +91,10 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
       final docRef = db.collection('Marketetplaces').doc(currentUserUid).collection('Marketetplaces').doc(productMarketplace.idMarketplace);
 
       final marketplaceSnapshot = await docRef.get();
-      if (!marketplaceSnapshot.exists) return left([GeneralFailure(customMessage: 'Marktplatz kontte nicht geladen werden')]);
+      if (!marketplaceSnapshot.exists) {
+        failures.add(GeneralFailure(customMessage: 'Mindestens ein Marktplatz kontte nicht geladen werden'));
+        continue;
+      }
       final marketplace = Marketplace.fromJson(marketplaceSnapshot.data()!);
 
       final api = PrestashopApi(Client(), PrestashopApiConfig(apiKey: marketplace.key, webserviceUrl: marketplace.fullUrl));
@@ -128,14 +130,14 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
           (unit) => null,
         );
       }
-      await setProdcutPrestaQuantity(product, product.availableStock, null);
+      await setQuantityMPInAllProductMarketplaces(product, product.availableStock, null);
     }
     if (failures.isEmpty) return right(unit);
     return left(failures);
   }
 
   @override
-  Future<Either<PrestaFailure, ProductPresta>> createProdcutPresta(
+  Future<Either<PrestaFailure, ProductPresta>> createProdcutInMarketplace(
     Product product,
     ProductMarketplace productMarketplace,
     ProductMarketplace anotherProductMarketplaceWithSameManufacturer,
@@ -169,9 +171,11 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
   }
 
   @override
-  Future<Either<PrestaFailure, Unit>> uploadProductImages(Product product, List<ProductImage> productImages) async {
+  Future<Either<List<AbstractFailure>, Unit>> uploadProductImagesToMarketplace(Product product, List<ProductImage> productImages) async {
     final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(PrestaGeneralFailure());
+    if (!isConnected) return left([NoConnectionFailure()]);
+
+    final List<AbstractFailure> failures = [];
 
     final currentUserUid = firebaseAuth.currentUser!.uid;
 
@@ -181,25 +185,41 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
       final docRef = db.collection('Marketetplaces').doc(currentUserUid).collection('Marketetplaces').doc(productMarketplace.idMarketplace);
 
       final marketplaceSnapshot = await docRef.get();
-      if (!marketplaceSnapshot.exists) return left(PrestaGeneralFailure());
+      if (!marketplaceSnapshot.exists) {
+        failures.add(PrestaGeneralFailure(
+            errorMessage: 'Beim aktualisieren der Artikelbilder im Marktplatz konnte mindestens ein Marktplatz nicht geladen werden'));
+        continue;
+      }
       final marketplace = Marketplace.fromJson(marketplaceSnapshot.data()!);
 
       final api = PrestashopApi(Client(), PrestashopApiConfig(apiKey: marketplace.key, webserviceUrl: marketplace.fullUrl));
 
-      if (productMarketplace.marketplaceProduct == null) return left(ProductHasNoMarketplaceFailure());
+      if (productMarketplace.marketplaceProduct == null) return left([ProductHasNoMarketplaceFailure()]);
       final marketplaceProduct = switch (productMarketplace.marketplaceProduct!.marketplaceType) {
         MarketplaceType.prestashop => productMarketplace.marketplaceProduct as MarketplaceProductPresta,
         MarketplaceType.shop => throw Error(),
       };
 
       final optionalProductPresta = await api.getProduct(marketplaceProduct.id, marketplace);
-      if (optionalProductPresta.isNotPresent) return left(PrestaGeneralFailure());
+      if (optionalProductPresta.isNotPresent) {
+        failures.add(PrestaGeneralFailure(
+            errorMessage: 'Artikel: "${marketplaceProduct.name}" konnte nicht vom Marktplatz: "${marketplace.name}" geladen werden.'));
+        continue;
+      }
       final productPresta = optionalProductPresta.value;
 
       bool isSuccessOnDelete = false;
       if (productPresta.associations.associationsImages != null && productPresta.associations.associationsImages!.isNotEmpty) {
         for (final image in productPresta.associations.associationsImages!) {
           isSuccessOnDelete = await api.deleteProductImage(productPresta.id.toString(), image.id);
+        }
+        if (!isSuccessOnDelete) {
+          failures.add(
+            PrestaGeneralFailure(
+              errorMessage:
+                  'Artikelbilder vom Artikel: "${marketplaceProduct.name}" im Marktplatz: "${marketplace.name}" konnten nicht gelöscht werden.',
+            ),
+          );
         }
       } else {
         isSuccessOnDelete = true;
@@ -210,19 +230,25 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
         for (final image in productImages) {
           isSuccessOnCreate = await api.uploadProductImageFromUrl(marketplaceProduct.id.toString(), image);
         }
+        if (!isSuccessOnCreate) {
+          failures.add(
+            PrestaGeneralFailure(
+              errorMessage:
+                  'Artikelbilder vom Artikel: "${marketplaceProduct.name}" im Marktplatz: "${marketplace.name}" konnten nicht aktualisiert werden werden.',
+            ),
+          );
+        }
       } else {
         isSuccessOnCreate = true;
       }
-
-      isSuccess = isSuccessOnDelete && isSuccessOnCreate;
     }
 
-    if (isSuccess) return right(unit);
-    return left(PrestaGeneralFailure());
+    if (failures.isEmpty) return right(unit);
+    return left(failures);
   }
 
   @override
-  Future<Either<PrestaFailure, Unit>> setOrderStatus(
+  Future<Either<PrestaFailure, Unit>> setOrderStatusInMarketplace(
     Marketplace marketplace,
     int orderId,
     OrderStatusUpdateType orderStatusUpdateType,

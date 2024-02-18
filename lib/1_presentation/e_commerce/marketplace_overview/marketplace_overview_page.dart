@@ -1,4 +1,3 @@
-import 'package:cezeri_commerce/1_presentation/core/functions/my_scaffold_messanger.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -38,7 +37,7 @@ class MarketplaceOverviewPage extends StatelessWidget {
           return Scaffold(appBar: appBar, drawer: drawer, body: const Center(child: CircularProgressIndicator()));
         }
         if (state.firebaseFailure != null && state.isAnyFailure) {
-          return Scaffold(appBar: appBar, drawer: drawer, body: Center(child: Text(mapFirebaseFailureMessage(state.firebaseFailure!))));
+          return Scaffold(appBar: appBar, drawer: drawer, body: const Center(child: Text('Ein Fehler ist aufgetreten')));
         }
 
         void createMarketplaceItems(List<Marketplace> listOfMarketplace) {

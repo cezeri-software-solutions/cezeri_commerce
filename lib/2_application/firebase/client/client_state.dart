@@ -3,10 +3,10 @@ part of 'client_bloc.dart';
 @immutable
 class ClientState {
   final Client? client;
-  final FirebaseFailure? firebaseFailure;
+  final AbstractFailure? firebaseFailure;
   final bool isAnyFailure;
   final bool isLoadingClientOnObserve;
-  final Option<Either<FirebaseFailure, Client>> fosClientOnObserveOption;
+  final Option<Either<AbstractFailure, Client>> fosClientOnObserveOption;
 
   const ClientState({
     required this.client,
@@ -26,10 +26,10 @@ class ClientState {
 
   ClientState copyWith({
     Client? client,
-    FirebaseFailure? firebaseFailure,
+    AbstractFailure? firebaseFailure,
     bool? isAnyFailure,
     bool? isLoadingClientOnObserve,
-    Option<Either<FirebaseFailure, Client>>? fosClientOnObserveOption,
+    Option<Either<AbstractFailure, Client>>? fosClientOnObserveOption,
   }) {
     return ClientState(
       client: client ?? this.client,

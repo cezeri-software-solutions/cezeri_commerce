@@ -6,6 +6,7 @@ import '../../../2_application/firebase/products_booking/products_booking_bloc.d
 import '../../../injection.dart';
 import '../../app_drawer.dart';
 import '../../core/functions/my_scaffold_messanger.dart';
+import '../../core/renderer/failure_renderer.dart';
 import 'products_booking_page.dart';
 import 'widgets/products_booking_select_products_dialog.dart';
 
@@ -27,7 +28,7 @@ class ProductsBookingScreen extends StatelessWidget {
               state.fosProductsBookingReordersOnObserveOption.fold(
                 () => null,
                 (a) => a.fold(
-                  (failure) => myScaffoldMessenger(context, failure, null, null, null),
+                  (failure) => failureRenderer(context, [failure]),
                   (listOfReorders) => showDialog(
                     context: context,
                     builder: (context) => BlocProvider.value(
@@ -45,7 +46,7 @@ class ProductsBookingScreen extends StatelessWidget {
               state.fosProductsBookingOnUpdateOption.fold(
                 () => null,
                 (a) => a.fold(
-                  (failure) => myScaffoldMessenger(context, failure, null, null, null),
+                  (failure) => failureRenderer(context, [failure]),
                   (unit) => myScaffoldMessenger(context, null, null, 'Nachbestellungen und Artikel erfolgreich aktualisiert', null),
                 ),
               );

@@ -1,9 +1,9 @@
 import 'package:bloc/bloc.dart';
-import 'package:cezeri_commerce/core/firebase_failures.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 
+import '../../../core/abstract_failure.dart';
 import '/3_domain/entities/address.dart';
 import '/3_domain/entities/customer/customer.dart';
 import '/3_domain/entities/settings/main_settings.dart';

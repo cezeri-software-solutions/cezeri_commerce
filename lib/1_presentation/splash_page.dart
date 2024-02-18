@@ -9,7 +9,7 @@ import '../2_application/firebase/main_settings/main_settings_bloc.dart';
 import '../3_domain/entities/client.dart';
 import '../core/firebase_failures.dart';
 import '../injection.dart';
-import 'core/functions/my_scaffold_messanger.dart';
+import 'core/renderer/failure_renderer.dart';
 
 enum ComeFromToSplashPage { appDrawer }
 
@@ -76,7 +76,7 @@ class _SplashPageState extends State<SplashPage> {
               state.fosMainSettingsOnObserveOption.fold(
                 () => null,
                 (a) => a.fold(
-                  (failure) => myScaffoldMessenger(context, failure, null, null, null),
+                  (failure) => failureRenderer(context, [failure]),
                   (mainSettings) => context.router.replaceAll([const HomeRoute()]),
                 ),
               );

@@ -3,10 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../2_application/firebase/dashboard/dashboard_bloc.dart';
-import '../../core/firebase_failures.dart';
 import '../../injection.dart';
 import '../app_drawer.dart';
-import '../core/functions/my_scaffold_messanger.dart';
+import '../core/renderer/failure_renderer.dart';
 import '../core/widgets/my_circular_progress_indicator.dart';
 import 'dahsboard_page.dart';
 
@@ -26,7 +25,7 @@ class DashboardScreen extends StatelessWidget {
           state.fosListOfStatDashboardsOption.fold(
             () => null,
             (a) => a.fold(
-              (failure) => myScaffoldMessenger(context, failure, null, null, null),
+              (failure) => failureRenderer(context, [failure]),
               (r) => null,
             ),
           );
@@ -59,13 +58,11 @@ class DashboardScreenScaffoldBody extends StatelessWidget {
     if (state.isLoadingOnObserve) return const Center(child: MyCircularProgressIndicator());
 
     if (state.firebaseFailure != null && state.isAnyFailure) {
-      return switch (state.firebaseFailure.runtimeType) {
-        EmptyFailure => const Center(child: Text('Es existieren aktuell keine Dashboard-Daten.')),
-        _ => Center(child: Text(mapFirebaseFailureMessage(state.firebaseFailure!))),
-      };
+      return const Center(child: Text('Beim Laden der Dashboard-Daten ist ein Fehler aufgetreten.'));
     }
 
     if (state.curStatDashboard == null || state.listOfStatDashboards == null) return const Center(child: MyCircularProgressIndicator());
+    if (state.listOfStatDashboards!.isEmpty) return const Text('Es existieren aktuell keine Dashboard-Daten.');
 
     return DashboardPage(dashboardBloc: dashboardBloc);
   }

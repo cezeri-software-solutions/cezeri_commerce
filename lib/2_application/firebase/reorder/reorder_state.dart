@@ -8,7 +8,7 @@ class ReorderState {
   final List<Supplier> listOfSuppliers;
   final List<Supplier> listOfFilteredSuppliers;
   final List<Reorder> selectedReorders;
-  final FirebaseFailure? firebaseFailure;
+  final AbstractFailure? firebaseFailure;
   final bool isAnyFailure;
   final bool isLoadingReorderOnObserve;
   final bool isLoadingReordersOnObserve;
@@ -16,13 +16,13 @@ class ReorderState {
   final bool isLoadingReorderOnUpdate;
   final bool isLoadingReorderOnDelete;
   final bool isLoadingReorderSuppliersOnObserve;
-  final Option<Either<FirebaseFailure, Reorder>> fosReorderOnObserveOption;
-  final Option<Either<FirebaseFailure, List<Reorder>>> fosReordersOnObserveOption;
-  final Option<Either<FirebaseFailure, Reorder>> fosReorderOnCreateOption;
-  final Option<Either<FirebaseFailure, Reorder>> fosReorderOnUpdateOption;
-  final Option<Either<FirebaseFailure, Unit>> fosReorderOnDeleteOption;
-  final Option<Either<FirebaseFailure, Unit>> fosReordersOnDeleteOption;
-  final Option<Either<FirebaseFailure, List<Supplier>>> fosReorderOnObserveSuppliersOption;
+  final Option<Either<AbstractFailure, Reorder>> fosReorderOnObserveOption;
+  final Option<Either<AbstractFailure, List<Reorder>>> fosReordersOnObserveOption;
+  final Option<Either<AbstractFailure, Reorder>> fosReorderOnCreateOption;
+  final Option<Either<AbstractFailure, Reorder>> fosReorderOnUpdateOption;
+  final Option<Either<AbstractFailure, Unit>> fosReorderOnDeleteOption;
+  final Option<Either<AbstractFailure, Unit>> fosReordersOnDeleteOption;
+  final Option<Either<AbstractFailure, List<Supplier>>> fosReorderOnObserveSuppliersOption;
 
   //* Helpers
   final bool isAllReordersSelected;
@@ -97,7 +97,7 @@ class ReorderState {
     List<Supplier>? listOfSuppliers,
     List<Supplier>? listOfFilteredSuppliers,
     List<Reorder>? selectedReorders,
-    FirebaseFailure? firebaseFailure,
+    AbstractFailure? firebaseFailure,
     bool? isAnyFailure,
     bool? isLoadingReorderOnObserve,
     bool? isLoadingReordersOnObserve,
@@ -105,13 +105,13 @@ class ReorderState {
     bool? isLoadingReorderOnUpdate,
     bool? isLoadingReorderOnDelete,
     bool? isLoadingReorderSuppliersOnObserve,
-    Option<Either<FirebaseFailure, Reorder>>? fosReorderOnObserveOption,
-    Option<Either<FirebaseFailure, List<Reorder>>>? fosReordersOnObserveOption,
-    Option<Either<FirebaseFailure, Reorder>>? fosReorderOnCreateOption,
-    Option<Either<FirebaseFailure, Reorder>>? fosReorderOnUpdateOption,
-    Option<Either<FirebaseFailure, Unit>>? fosReorderOnDeleteOption,
-    Option<Either<FirebaseFailure, Unit>>? fosReordersOnDeleteOption,
-    Option<Either<FirebaseFailure, List<Supplier>>>? fosReorderOnObserveSuppliersOption,
+    Option<Either<AbstractFailure, Reorder>>? fosReorderOnObserveOption,
+    Option<Either<AbstractFailure, List<Reorder>>>? fosReordersOnObserveOption,
+    Option<Either<AbstractFailure, Reorder>>? fosReorderOnCreateOption,
+    Option<Either<AbstractFailure, Reorder>>? fosReorderOnUpdateOption,
+    Option<Either<AbstractFailure, Unit>>? fosReorderOnDeleteOption,
+    Option<Either<AbstractFailure, Unit>>? fosReordersOnDeleteOption,
+    Option<Either<AbstractFailure, List<Supplier>>>? fosReorderOnObserveSuppliersOption,
     bool? isAllReordersSelected,
     String? reorderSearchText,
     int? tabValue,

@@ -6,7 +6,6 @@ import '../../../2_application/firebase/main_settings/main_settings_bloc.dart';
 import '../../../3_domain/entities/settings/tax.dart';
 import '../../../constants.dart';
 import '../../app_drawer.dart';
-import '../../core/functions/my_scaffold_messanger.dart';
 import 'widgets/add_edit_tax_rules.dart';
 
 class TaxRulesPage extends StatefulWidget {
@@ -33,7 +32,7 @@ class _TaxRulesPageState extends State<TaxRulesPage> {
         }
 
         if (state.firebaseFailure != null && state.isAnyFailure) {
-          return Scaffold(appBar: appBar, drawer: drawer, body: Center(child: Text(mapFirebaseFailureMessage(state.firebaseFailure!))));
+          return Scaffold(appBar: appBar, drawer: drawer, body: const Center(child: Text('Ein Fehler ist aufgetreten')));
         }
 
         final taxRuleDefault = state.mainSettings!.taxes.where((e) => e.isDefault == true).firstOrNull;

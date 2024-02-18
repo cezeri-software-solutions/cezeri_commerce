@@ -7,7 +7,6 @@ import 'package:intl/intl.dart';
 import '../../../2_application/firebase/reorder/reorder_bloc.dart';
 import '../../../3_domain/entities/reorder/reorder.dart';
 import '../../../constants.dart';
-import '../../../core/firebase_failures.dart';
 import '../../../routes/router.gr.dart';
 import '../reorder_detail/reorder_detail_screen.dart';
 
@@ -25,13 +24,13 @@ class ReordersOverviewPage extends StatelessWidget {
           return const Expanded(child: Center(child: CircularProgressIndicator()));
         }
         if (state.firebaseFailure != null && state.isAnyFailure) {
-          return switch (state.firebaseFailure.runtimeType) {
-            EmptyFailure => const Expanded(child: Center(child: Text('Du hast noch keine Nachbestellungen angelegt oder importiert!'))),
-            (_) => const Expanded(child: Center(child: Text('Ein Fehler beim Laden der Nachbestellungen ist aufgetreten!')))
-          };
+          return const Expanded(child: Center(child: Text('Ein Fehler ist aufgetreten!')));
         }
         if (state.listOfAllReorders == null || state.listOfFilteredReorders == null) {
           return const Expanded(child: Center(child: CircularProgressIndicator()));
+        }
+        if (state.listOfFilteredReorders!.isEmpty) {
+          return const Expanded(child: Center(child: Text('Es sind keine Nachbestellungen vorhanden.')));
         }
 
         final screenWidth = MediaQuery.sizeOf(context).width;

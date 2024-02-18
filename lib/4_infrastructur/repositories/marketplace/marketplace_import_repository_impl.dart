@@ -17,8 +17,8 @@ import '../../../../core/abstract_failure.dart';
 import '../../../../core/firebase_failures.dart';
 import '../../../../core/presta_failure.dart';
 import '../../../3_domain/entities/product/product_id_with_quantity.dart';
-import '../firebase/product_repository_impl.dart';
 import '../functions/product_import.dart';
+import '../functions/product_repository_helper.dart';
 import '../prestashop_api/prestashop_api.dart';
 
 final logger = Logger();

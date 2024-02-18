@@ -11,6 +11,7 @@ import '../../../constants.dart';
 import '../../../injection.dart';
 import '../../app_drawer.dart';
 import '../../core/functions/my_scaffold_messanger.dart';
+import '../../core/renderer/failure_renderer.dart';
 import 'product_import_page.dart';
 import 'products_import_page.dart';
 
@@ -117,7 +118,7 @@ class _ProductImportScreenState extends State<ProductImportScreen> {
               state.fosProductOnCreateOption.fold(
                 () => null,
                 (a) => a.fold(
-                  (failure) => myScaffoldMessenger(context, failure, null, null, null),
+                  (failure) => failureRenderer(context, [failure]),
                   (unit) => myScaffoldMessenger(context, null, null, 'Artikel erfolgreich angelegt', null),
                 ),
               );
@@ -129,7 +130,7 @@ class _ProductImportScreenState extends State<ProductImportScreen> {
               state.fosMarketplacesOnObserveOption.fold(
                 () => null,
                 (a) => a.fold(
-                  (failure) => myScaffoldMessenger(context, failure, null, null, null),
+                  (failure) => failureRenderer(context, [failure]),
                   (listMarketplace) => productImportBloc.add(SetSelectedMarketplaceProductImportEvent(marketplace: listMarketplace.first)),
                 ),
               );
@@ -145,8 +146,7 @@ class _ProductImportScreenState extends State<ProductImportScreen> {
               return Scaffold(appBar: appBar, drawer: drawer, body: const Center(child: CircularProgressIndicator()));
             }
             if (stateMarketplace.firebaseFailure != null && stateMarketplace.isAnyFailure) {
-              return Scaffold(
-                  appBar: appBar, drawer: drawer, body: Center(child: Text(mapFirebaseFailureMessage(stateMarketplace.firebaseFailure!))));
+              return Scaffold(appBar: appBar, drawer: drawer, body: const Center(child: Text('Ein Fehler ist aufgetreten.')));
             }
 
             _selectedMarketplace = stateMarketplace.listOfMarketplace![_selectedMarketplaceIndex];

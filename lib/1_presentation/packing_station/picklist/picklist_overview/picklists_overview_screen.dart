@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../2_application/packing_station/packing_station_bloc.dart';
 import '../../../core/functions/my_scaffold_messanger.dart';
+import '../../../core/renderer/failure_renderer.dart';
 import 'picklists_overview_page.dart';
 
 @RoutePage()
@@ -25,7 +26,7 @@ class PicklistsOverviewScreen extends StatelessWidget {
             state.fosPicklistsOnObserveOption.fold(
               () => null,
               (a) => a.fold(
-                (failure) => myScaffoldMessenger(context, failure, null, null, null),
+                (failure) => failureRenderer(context, [failure]),
                 (picklists) => myScaffoldMessenger(context, null, null, 'Picklisten erfolgreich geladen', null),
               ),
             );
@@ -38,7 +39,7 @@ class PicklistsOverviewScreen extends StatelessWidget {
             state.fosPicklistOnUpdateOption.fold(
               () => null,
               (a) => a.fold(
-                (failure) => myScaffoldMessenger(context, failure, null, null, null),
+                (failure) => failureRenderer(context, [failure]),
                 (_) => myScaffoldMessenger(context, null, null, 'Pickliste erfolgreich aktualisiert', null),
               ),
             );

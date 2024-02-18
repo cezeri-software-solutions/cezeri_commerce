@@ -3,10 +3,14 @@ import 'package:cezeri_commerce/core/firebase_failures.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:logger/logger.dart';
 
-import '../../../1_presentation/core/functions/check_internet_connection.dart';
-import '../../../3_domain/entities/settings/main_settings.dart';
-import '../../../3_domain/entities/settings/packaging_box.dart';
+import '../../../core/abstract_failure.dart';
+import '/1_presentation/core/functions/check_internet_connection.dart';
+import '/3_domain/entities/settings/main_settings.dart';
+import '/3_domain/entities/settings/packaging_box.dart';
+
+final logger = Logger();
 
 class MainSettingsRepositoryImpl implements MainSettingsRepository {
   final FirebaseFirestore db;
@@ -15,7 +19,7 @@ class MainSettingsRepositoryImpl implements MainSettingsRepository {
   MainSettingsRepositoryImpl({required this.db, required this.firebaseAuth});
 
   @override
-  Future<Either<FirebaseFailure, MainSettings>> getSettings() async {
+  Future<Either<AbstractFailure, MainSettings>> getSettings() async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
 
@@ -30,13 +34,14 @@ class MainSettingsRepositoryImpl implements MainSettingsRepository {
       // await docRef.update(mainSettings.toJson());
       //
       return right(MainSettings.fromJson(settings.data()!));
-    } on FirebaseException {
-      return left(GeneralFailure());
+    } on FirebaseException catch (e) {
+      logger.e(e.message);
+      return left(GeneralFailure(customMessage: 'Beim Laden der Einstellungen ist ein Fehler aufgetreten.', e: e));
     }
   }
 
   @override
-  Future<Either<FirebaseFailure, Unit>> updateSettings(MainSettings settings) async {
+  Future<Either<AbstractFailure, Unit>> updateSettings(MainSettings settings) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
 
@@ -46,13 +51,14 @@ class MainSettingsRepositoryImpl implements MainSettingsRepository {
     try {
       await docRef.update(settings.toJson());
       return right(unit);
-    } on FirebaseException {
-      return left(GeneralFailure());
+    } on FirebaseException catch (e) {
+      logger.e(e.message);
+      return left(GeneralFailure(customMessage: 'Beim Aktualisieren der Einstellungen ist ein Fehler aufgetreten.', e: e));
     }
   }
 
   @override
-  Future<Either<FirebaseFailure, Unit>> createSettings(MainSettings settings) async {
+  Future<Either<AbstractFailure, Unit>> createSettings(MainSettings settings) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
 
@@ -64,13 +70,14 @@ class MainSettingsRepositoryImpl implements MainSettingsRepository {
     try {
       await docRef.set(toCreateSettings.toJson());
       return right(unit);
-    } on FirebaseException {
-      return left(GeneralFailure());
+    } on FirebaseException catch (e) {
+      logger.e(e.message);
+      return left(GeneralFailure(customMessage: 'Beim Erstellen der Einstellungen ist ein Fehler aufgetreten.', e: e));
     }
   }
 
   @override
-  Future<Either<FirebaseFailure, MainSettings>> updateSettingsPackagingBoxs(List<PackagingBox> packagingBoxes) async {
+  Future<Either<AbstractFailure, MainSettings>> updateSettingsPackagingBoxs(List<PackagingBox> packagingBoxes) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
 
@@ -87,8 +94,9 @@ class MainSettingsRepositoryImpl implements MainSettingsRepository {
         transaction.update(docRef, updatedSettings!.toJson());
       });
       return right(updatedSettings!);
-    } on FirebaseException {
-      return left(GeneralFailure());
+    } on FirebaseException catch (e) {
+      logger.e(e.message);
+      return left(GeneralFailure(customMessage: 'Beim Aktualisieren der Verpackungsboxen ist ein Fehler aufgetreten.', e: e));
     }
   }
 }

@@ -10,6 +10,9 @@ import '../../../1_presentation/core/functions/check_internet_connection.dart';
 import '../../../3_domain/entities/picklist/picklist_product.dart';
 import '../../../3_domain/entities/receipt/receipt.dart';
 import '../../../3_domain/repositories/firebase/packing_station_repository.dart';
+import '../../../core/abstract_failure.dart';
+
+final logger = Logger();
 
 class PackingStationRepositoryImpl implements PackingStationRepository {
   final FirebaseFirestore db;
@@ -18,7 +21,7 @@ class PackingStationRepositoryImpl implements PackingStationRepository {
   PackingStationRepositoryImpl({required this.db, required this.firebaseAuth});
 
   @override
-  Future<Either<FirebaseFailure, List<Product>>> getListOfProducts(List<String> productIds) async {
+  Future<Either<AbstractFailure, List<Product>>> getListOfProducts(List<String> productIds) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
 
@@ -34,17 +37,17 @@ class PackingStationRepositoryImpl implements PackingStationRepository {
         if (productSnapshot.data() != null) listOfProducts.add(Product.fromJson(productSnapshot.data()!));
       }
 
-      if (listOfProducts.isEmpty) return left(EmptyFailure());
       return right(listOfProducts);
-    } on FirebaseException {
-      return left(GeneralFailure());
-    } catch (_) {
-      return left(GeneralFailure());
+    } on FirebaseException catch (e) {
+      logger.e(e.message);
+      return left(GeneralFailure(customMessage: 'Beim Laden der Artikel ist ein Fehler aufgetreten.', e: e));
+    } catch (e) {
+      return left(GeneralFailure(customMessage: 'Beim Laden der Artikel ist ein Fehler aufgetreten.'));
     }
   }
 
   @override
-  Future<Either<FirebaseFailure, Picklist>> createPicklist(List<Receipt> listOfAppointments) async {
+  Future<Either<AbstractFailure, Picklist>> createPicklist(List<Receipt> listOfAppointments) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
 
@@ -104,13 +107,14 @@ class PackingStationRepositoryImpl implements PackingStationRepository {
       });
 
       return right(toCreatePicklist);
-    } on FirebaseException {
-      return left(GeneralFailure());
+    } on FirebaseException catch (e) {
+      logger.e(e.message);
+      return left(GeneralFailure(customMessage: 'Beim Erstellen der Pickliste ist ein Fehler aufgetreten.', e: e));
     }
   }
 
   @override
-  Future<Either<FirebaseFailure, Unit>> updatePicklist(Picklist picklist) async {
+  Future<Either<AbstractFailure, Unit>> updatePicklist(Picklist picklist) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
 
@@ -121,16 +125,16 @@ class PackingStationRepositoryImpl implements PackingStationRepository {
     try {
       await docRef.update(toUpdatePicklist.toJson());
       return right(unit);
-    } on FirebaseException {
-      return left(GeneralFailure());
+    } on FirebaseException catch (e) {
+      logger.e(e.message);
+      return left(GeneralFailure(customMessage: 'Beim Aktualisieren der Pickliste ist ein Fehler aufgetreten.', e: e));
     } catch (_) {
       return left(GeneralFailure());
     }
   }
 
   @override
-  Future<Either<FirebaseFailure, List<Picklist>>> getListOfPicklists() async {
-    final logger = Logger();
+  Future<Either<AbstractFailure, List<Picklist>>> getListOfPicklists() async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
 
@@ -139,10 +143,11 @@ class PackingStationRepositoryImpl implements PackingStationRepository {
 
     try {
       final listOfPicklists = await docRef.get().then((value) => value.docs.map((querySnapshot) => Picklist.fromJson(querySnapshot.data())).toList());
-      if (listOfPicklists.isEmpty) return left(EmptyFailure());
+
       return right(listOfPicklists);
-    } on FirebaseException {
-      return left(GeneralFailure());
+    } on FirebaseException catch (e) {
+      logger.e(e.message);
+      return left(GeneralFailure(customMessage: 'Beim Laden der Picklisten ist ein Fehler aufgetreten.', e: e));
     }
   }
 }

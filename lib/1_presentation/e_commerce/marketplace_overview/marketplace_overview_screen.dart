@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../2_application/firebase/marketplace/marketplace_bloc.dart';
 import '../../../injection.dart';
 import '../../core/functions/my_scaffold_messanger.dart';
+import '../../core/renderer/failure_renderer.dart';
 import 'marketplace_overview_page.dart';
 
 @RoutePage()
@@ -26,7 +27,7 @@ class MarketplaceOverviewScreen extends StatelessWidget {
               state.fosMarketplacesOnObserveOption.fold(
                 () => null,
                 (a) => a.fold(
-                  (failure) => myScaffoldMessenger(context, failure, null, null, null),
+                  (failure) => failureRenderer(context, [failure]),
                   (listMarketplace) => null,
                 ),
               );
@@ -38,7 +39,7 @@ class MarketplaceOverviewScreen extends StatelessWidget {
               state.fosMarketplaceOnCreateOption.fold(
                 () => null,
                 (a) => a.fold(
-                  (failure) => myScaffoldMessenger(context, failure, null, null, null),
+                  (failure) => failureRenderer(context, [failure]),
                   (unit) {
                     context.router.popUntilRouteWithName(MarketplaceOverviewRoute.name);
                     myScaffoldMessenger(context, null, null, 'Marktplatz wurde erfolgreich erstellt', null);
@@ -54,7 +55,7 @@ class MarketplaceOverviewScreen extends StatelessWidget {
               state.fosMarketplaceOnUpdateOption.fold(
                 () => null,
                 (a) => a.fold(
-                  (failure) => myScaffoldMessenger(context, failure, null, null, null),
+                  (failure) => failureRenderer(context, [failure]),
                   (unit) {
                     context.router.popUntilRouteWithName(MarketplaceOverviewRoute.name);
                     myScaffoldMessenger(context, null, null, 'Marktplatz wurde erfogreich bearbeitet', null);
@@ -70,7 +71,7 @@ class MarketplaceOverviewScreen extends StatelessWidget {
               state.fosMarketplaceOnDeleteOption.fold(
                 () => null,
                 (a) => a.fold(
-                  (failure) => myScaffoldMessenger(context, failure, null, null, null),
+                  (failure) => failureRenderer(context, [failure]),
                   (unit) {
                     context.router.popUntilRouteWithName(MarketplaceOverviewRoute.name);
                     myScaffoldMessenger(context, null, null, 'Marktplatz wurde erfogreich gelöscht', null);

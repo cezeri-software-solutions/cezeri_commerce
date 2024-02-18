@@ -11,7 +11,7 @@ class PackingStationState {
   final List<Receipt> selectedAppointments;
   final List<Product>? listOfProducts;
   final List<Picklist>? listOfPicklists;
-  final FirebaseFailure? firebaseFailure;
+  final AbstractFailure? firebaseFailure;
   final bool isAnyFailure;
   final bool isLoadingAppointmentOnObserve;
   final bool isLoadingAppointmentsOnObserve;
@@ -21,14 +21,14 @@ class PackingStationState {
   final bool isLoadingPicklistsOnObserve;
   final bool isLoadingPicklistOnUpdate;
   final bool isLoadingPicklistOnCreate;
-  final Option<Either<FirebaseFailure, Receipt>> fosAppointmentOnObserveOption;
-  final Option<Either<FirebaseFailure, List<Receipt>>> fosAppointmentsOnObserveOption;
-  final Option<Either<FirebaseFailure, Unit>> fosAppointmentOnUpdateOption;
-  final Option<Either<FirebaseFailure, List<Product>>> fosProductsOnObserveOption;
-  final Option<Either<FirebaseFailure, List<Receipt>>> fosOnGenerateAppointmentsOption;
-  final Option<Either<FirebaseFailure, List<Picklist>>> fosPicklistsOnObserveOption;
-  final Option<Either<FirebaseFailure, Picklist>> fosPicklistOnCreateOption;
-  final Option<Either<FirebaseFailure, Unit>> fosPicklistOnUpdateOption;
+  final Option<Either<AbstractFailure, Receipt>> fosAppointmentOnObserveOption;
+  final Option<Either<AbstractFailure, List<Receipt>>> fosAppointmentsOnObserveOption;
+  final Option<Either<AbstractFailure, Unit>> fosAppointmentOnUpdateOption;
+  final Option<Either<AbstractFailure, List<Product>>> fosProductsOnObserveOption;
+  final Option<Either<AbstractFailure, List<Receipt>>> fosOnGenerateAppointmentsOption;
+  final Option<Either<AbstractFailure, List<Picklist>>> fosPicklistsOnObserveOption;
+  final Option<Either<AbstractFailure, Picklist>> fosPicklistOnCreateOption;
+  final Option<Either<AbstractFailure, Unit>> fosPicklistOnUpdateOption;
 
   //* #### Helper #####
 
@@ -133,7 +133,7 @@ class PackingStationState {
     List<Receipt>? selectedAppointments,
     List<Product>? listOfProducts,
     List<Picklist>? listOfPicklists,
-    FirebaseFailure? firebaseFailure,
+    AbstractFailure? firebaseFailure,
     bool? isAnyFailure,
     bool? isLoadingAppointmentOnObserve,
     bool? isLoadingAppointmentsOnObserve,
@@ -143,14 +143,14 @@ class PackingStationState {
     bool? isLoadingPicklistsOnObserve,
     bool? isLoadingPicklistOnUpdate,
     bool? isLoadingPicklistOnCreate,
-    Option<Either<FirebaseFailure, Receipt>>? fosAppointmentOnObserveOption,
-    Option<Either<FirebaseFailure, List<Receipt>>>? fosAppointmentsOnObserveOption,
-    Option<Either<FirebaseFailure, Unit>>? fosAppointmentOnUpdateOption,
-    Option<Either<FirebaseFailure, List<Product>>>? fosProductsOnObserveOption,
-    Option<Either<FirebaseFailure, List<Receipt>>>? fosOnGenerateAppointmentsOption,
-    Option<Either<FirebaseFailure, List<Picklist>>>? fosPicklistsOnObserveOption,
-    Option<Either<FirebaseFailure, Picklist>>? fosPicklistOnCreateOption,
-    Option<Either<FirebaseFailure, Unit>>? fosPicklistOnUpdateOption,
+    Option<Either<AbstractFailure, Receipt>>? fosAppointmentOnObserveOption,
+    Option<Either<AbstractFailure, List<Receipt>>>? fosAppointmentsOnObserveOption,
+    Option<Either<AbstractFailure, Unit>>? fosAppointmentOnUpdateOption,
+    Option<Either<AbstractFailure, List<Product>>>? fosProductsOnObserveOption,
+    Option<Either<AbstractFailure, List<Receipt>>>? fosOnGenerateAppointmentsOption,
+    Option<Either<AbstractFailure, List<Picklist>>>? fosPicklistsOnObserveOption,
+    Option<Either<AbstractFailure, Picklist>>? fosPicklistOnCreateOption,
+    Option<Either<AbstractFailure, Unit>>? fosPicklistOnUpdateOption,
     PackingStationFilter? packingStationFilter,
     bool? isAllReceiptsSelected,
     bool? isCompletelyPicked,

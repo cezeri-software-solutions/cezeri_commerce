@@ -1,12 +1,16 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:logger/logger.dart';
 
 import '../../../1_presentation/core/functions/check_internet_connection.dart';
 import '../../../3_domain/entities/receipt/receipt.dart';
 import '../../../3_domain/entities/statistic/stat_dashboard.dart';
 import '../../../3_domain/repositories/firebase/stat_dashboard_repository.dart';
+import '../../../core/abstract_failure.dart';
 import '../../../core/firebase_failures.dart';
+
+final logger = Logger();
 
 class StatDashboardRepositoryImpl implements StatDashboardRepository {
   final FirebaseFirestore db;
@@ -16,7 +20,7 @@ class StatDashboardRepositoryImpl implements StatDashboardRepository {
   //? #######################################################################################################################################
 
   @override
-  Future<Either<FirebaseFailure, StatDashboard>> getStatDashboard() async {
+  Future<Either<AbstractFailure, StatDashboard>> getStatDashboard() async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
 
@@ -32,15 +36,16 @@ class StatDashboardRepositoryImpl implements StatDashboardRepository {
       if (!statDashboard.exists) return right(StatDashboard.empty());
 
       return right(StatDashboard.fromJson(statDashboard.data()!));
-    } on FirebaseException {
-      return left(GeneralFailure());
+    } on FirebaseException catch (e) {
+      logger.e(e.message);
+      return left(GeneralFailure(customMessage: 'Beim Laden der Vertriebsauswertungen für den aktuellen Monat ist ein Fehler aufgetreten', e: e));
     }
   }
 
   //? #######################################################################################################################################
 
   @override
-  Future<Either<FirebaseFailure, List<StatDashboard>>> getLast13StatDashboards() async {
+  Future<Either<AbstractFailure, List<StatDashboard>>> getLast13StatDashboards() async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
 
@@ -49,19 +54,18 @@ class StatDashboardRepositoryImpl implements StatDashboardRepository {
 
     try {
       final listOfStatDashboards = await docRef.get().then((value) => value.docs.map((document) => StatDashboard.fromJson(document.data())).toList());
-      if (listOfStatDashboards.isEmpty) return left(EmptyFailure());
 
       return right(listOfStatDashboards);
-    } on FirebaseException {
-      return left(GeneralFailure());
+    } on FirebaseException catch (e) {
+      logger.e(e.message);
+      return left(GeneralFailure(customMessage: 'Beim Laden der Vertriebsauswertungen der letzten 13 Monate ist ein Fehler aufgetreten', e: e));
     }
-    //}
   }
 
   //? #######################################################################################################################################
 
   @override
-  Future<Either<FirebaseFailure, List<Receipt>>> getAppointmentsOfTodayAndTomorrow() async {
+  Future<Either<AbstractFailure, List<Receipt>>> getAppointmentsOfTodayAndTomorrow() async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
 
@@ -91,14 +95,12 @@ class StatDashboardRepositoryImpl implements StatDashboardRepository {
       var listOfAppointments = await docRef.get().then(
             (value) => value.docs.map((document) => Receipt.fromJson(document.data())).toList(),
           );
-      if (listOfAppointments.isEmpty) {
-        return left(EmptyFailure());
-      }
+
       return right(listOfAppointments);
-    } on FirebaseException {
-      return left(GeneralFailure());
+    } on FirebaseException catch (e) {
+      logger.e(e.message);
+      return left(GeneralFailure(customMessage: 'Beim Laden der Vertriebsauswertungen von heute und morgen ist ein Fehler aufgetreten', e: e));
     }
-    //}
   }
 
   //? #######################################################################################################################################

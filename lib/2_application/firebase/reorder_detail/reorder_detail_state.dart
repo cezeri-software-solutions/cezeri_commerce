@@ -8,18 +8,18 @@ class ReorderDetailState {
   final List<Marketplace>? listOfMarketplaces;
   final List<StatProductReorder>? listOfStatProductsInvoice;
   final List<StatProductReorder>? listOfStatProductsAppointment;
-  final FirebaseFailure? firebaseFailure;
+  final AbstractFailure? firebaseFailure;
   final bool isAnyFailure;
   final bool isLoadingReorderDetailOnObserve;
   final bool isLoadingOnCreateReorder;
   final bool isLoadingOnUpdateReorder;
   final bool isLoadingOnObserveReorderDetailProducts;
   final bool isLoadingPdfData;
-  final Option<Either<FirebaseFailure, Unit>> fosReorderDetailOnObserveOption;
-  final Option<Either<FirebaseFailure, Reorder>> fosReorderDetailOnCreateOption;
-  final Option<Either<FirebaseFailure, Reorder>> fosReorderDetailOnOUpdateOption;
-  final Option<Either<FirebaseFailure, List<Product>>> fosReorderDetailOnObserveProductsOption;
-  final Option<Either<FirebaseFailure, List<Marketplace>>> fosReorderDetailOnPdfDataOption;
+  final Option<Either<AbstractFailure, Unit>> fosReorderDetailOnObserveOption;
+  final Option<Either<AbstractFailure, Reorder>> fosReorderDetailOnCreateOption;
+  final Option<Either<AbstractFailure, Reorder>> fosReorderDetailOnOUpdateOption;
+  final Option<Either<AbstractFailure, List<Product>>> fosReorderDetailOnObserveProductsOption;
+  final Option<Either<AbstractFailure, List<Marketplace>>> fosReorderDetailOnPdfDataOption;
 
   //* Helper
   final DateTimeRange? statProductDateRange;
@@ -128,18 +128,18 @@ class ReorderDetailState {
     List<Marketplace>? listOfMarketplaces,
     List<StatProductReorder>? listOfStatProductsInvoice,
     List<StatProductReorder>? listOfStatProductsAppointment,
-    FirebaseFailure? firebaseFailure,
+    AbstractFailure? firebaseFailure,
     bool? isAnyFailure,
     bool? isLoadingReorderDetailOnObserve,
     bool? isLoadingOnCreateReorder,
     bool? isLoadingOnUpdateReorder,
     bool? isLoadingOnObserveReorderDetailProducts,
     bool? isLoadingPdfData,
-    Option<Either<FirebaseFailure, Unit>>? fosReorderDetailOnObserveOption,
-    Option<Either<FirebaseFailure, Reorder>>? fosReorderDetailOnCreateOption,
-    Option<Either<FirebaseFailure, Reorder>>? fosReorderDetailOnOUpdateOption,
-    Option<Either<FirebaseFailure, List<Product>>>? fosReorderDetailOnObserveProductsOption,
-    Option<Either<FirebaseFailure, List<Marketplace>>>? fosReorderDetailOnPdfDataOption,
+    Option<Either<AbstractFailure, Unit>>? fosReorderDetailOnObserveOption,
+    Option<Either<AbstractFailure, Reorder>>? fosReorderDetailOnCreateOption,
+    Option<Either<AbstractFailure, Reorder>>? fosReorderDetailOnOUpdateOption,
+    Option<Either<AbstractFailure, List<Product>>>? fosReorderDetailOnObserveProductsOption,
+    Option<Either<AbstractFailure, List<Marketplace>>>? fosReorderDetailOnPdfDataOption,
     DateTimeRange? statProductDateRange,
     bool? reloadProducts,
     bool? getAllProducts,

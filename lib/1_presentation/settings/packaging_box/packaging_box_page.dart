@@ -6,7 +6,6 @@ import '../../../../constants.dart';
 import '../../../3_domain/entities/settings/packaging_box.dart';
 import '../../../3_domain/enums/enums.dart';
 import '../../app_drawer.dart';
-import '../../core/functions/my_scaffold_messanger.dart';
 import '../../core/widgets/my_outlined_button.dart';
 import 'widgets/add_edit_packaging_box.dart';
 
@@ -44,7 +43,7 @@ class PackagingBoxesPage extends StatelessWidget {
         }
 
         if (state.firebaseFailure != null && state.isAnyFailure) {
-          return Scaffold(appBar: appBar, drawer: drawer, body: Center(child: Text(mapFirebaseFailureMessage(state.firebaseFailure!))));
+          return Scaffold(appBar: appBar, drawer: drawer, body: const Center(child: Text('Ein Fehler ist aufgetreten.')));
         }
 
         return Scaffold(

@@ -2,7 +2,6 @@ import 'package:auto_route/auto_route.dart';
 import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.dart';
 import 'package:cezeri_commerce/1_presentation/core/widgets/my_outlined_button.dart';
 import 'package:cezeri_commerce/constants.dart';
-import 'package:cezeri_commerce/core/firebase_failures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -30,14 +29,15 @@ class ProductOverviewPage extends StatelessWidget {
         }
 
         if (state.firebaseFailure != null && state.isAnyFailure) {
-          return switch (state.firebaseFailure.runtimeType) {
-            EmptyFailure => const Expanded(child: Center(child: Text('Du hast noch keine Artikel angelegt oder importiert!'))),
-            (_) => const Expanded(child: Center(child: Text('Ein Fehler ist aufgetreten!'))),
-          };
+          return const Expanded(child: Center(child: Text('Ein Fehler ist aufgetreten!')));
         }
 
         if (state.listOfAllProducts == null) {
           return const Expanded(child: Center(child: CircularProgressIndicator()));
+        }
+
+        if (state.listOfAllProducts!.isEmpty) {
+          return const Expanded(child: Center(child: Text('Es konnten keine Artikel gefunden werden.')));
         }
 
         double totalWarehouseStockAmount =

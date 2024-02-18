@@ -10,6 +10,7 @@ import '../../../../injection.dart';
 import '../../../../routes/router.gr.dart';
 import '../../../core/functions/dialogs.dart';
 import '../../../core/functions/my_scaffold_messanger.dart';
+import '../../../core/renderer/failure_renderer.dart';
 import '../customer_detail/customer_detail_screen.dart';
 import 'customers_overview_page.dart';
 
@@ -40,7 +41,7 @@ class _CustomersOverviewScreenState extends State<CustomersOverviewScreen> with 
               state.fosCustomersOnObserveOption.fold(
                 () => null,
                 (a) => a.fold(
-                  (failure) => myScaffoldMessenger(context, failure, null, null, null),
+                  (failure) => failureRenderer(context, [failure]),
                   (listOfProducts) => myScaffoldMessenger(context, null, null, 'Kunden wurden erfolgreich geladen', null),
                 ),
               );
@@ -52,7 +53,7 @@ class _CustomersOverviewScreenState extends State<CustomersOverviewScreen> with 
               state.fosCustomerOnDeleteOption.fold(
                 () => null,
                 (a) => a.fold(
-                  (failure) => myScaffoldMessenger(context, failure, null, null, null),
+                  (failure) => failureRenderer(context, [failure]),
                   (customer) => myScaffoldMessenger(context, null, null, 'Ausgewählte Kunden erfolgreich gelöscht', null),
                 ),
               );
@@ -64,7 +65,7 @@ class _CustomersOverviewScreenState extends State<CustomersOverviewScreen> with 
               state.fosCustomerMainSettingsOnObserveOption.fold(
                 () => null,
                 (a) => a.fold(
-                  (failure) => myScaffoldMessenger(context, failure, null, null, null),
+                  (failure) => failureRenderer(context, [failure]),
                   (customer) =>
                       context.router.push(CustomerDetailRoute(customerBloc: customerBloc, customerCreateOrEdit: CustomerCreateOrEdit.create)),
                 ),

@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../2_application/firebase/auth/sign_in_form/sign_in_form_bloc.dart';
 import '../../../injection.dart';
 import '../../core/functions/my_scaffold_messanger.dart';
+import '../../core/renderer/failure_renderer.dart';
 import 'reset_password_page.dart';
 
 @RoutePage()
@@ -23,7 +24,7 @@ class ResetPasswordScreen extends StatelessWidget {
           state.authFailureOrSuccessOption.fold(
             () => null,
             (a) => a.fold(
-              (authFailure) => myScaffoldMessenger(context, null, authFailure, null, null),
+              (failure) => failureRenderer(context, [failure]),
               (right) =>
                   myScaffoldMessenger(context, null, null, 'Sie haben eine E-Mail erhalten.\nBitte überprüfen Sie auch Ihren SPAM-Ordner!', null),
             ),

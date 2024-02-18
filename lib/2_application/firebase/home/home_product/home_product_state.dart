@@ -9,12 +9,12 @@ class HomeProductState {
   final List<Product>? listOfProductsUnderMinimumQuantity;
   final List<Reorder>? listOfReorders;
   final List<HomeProduct> listOfHomeProducts;
-  final FirebaseFailure? firebaseFailure;
+  final AbstractFailure? firebaseFailure;
   final bool isAnyFailure;
   final bool isLoadingHomeProductsOnObserve;
   final bool isLoadingHomeReordersOnObserve;
-  final Option<Either<FirebaseFailure, List<Product>>> fosHomeProductsOnObserveOption;
-  final Option<Either<FirebaseFailure, List<Reorder>>> fosHomeReordersOnObserveOption;
+  final Option<Either<AbstractFailure, List<Product>>> fosHomeProductsOnObserveOption;
+  final Option<Either<AbstractFailure, List<Reorder>>> fosHomeReordersOnObserveOption;
 
   //* Helpers
   final ShowProductsBy showProductsBy;
@@ -67,12 +67,12 @@ class HomeProductState {
     List<Product>? listOfProductsUnderMinimumQuantity,
     List<Reorder>? listOfReorders,
     List<HomeProduct>? listOfHomeProducts,
-    FirebaseFailure? firebaseFailure,
+    AbstractFailure? firebaseFailure,
     bool? isAnyFailure,
     bool? isLoadingHomeProductsOnObserve,
     bool? isLoadingHomeReordersOnObserve,
-    Option<Either<FirebaseFailure, List<Product>>>? fosHomeProductsOnObserveOption,
-    Option<Either<FirebaseFailure, List<Reorder>>>? fosHomeReordersOnObserveOption,
+    Option<Either<AbstractFailure, List<Product>>>? fosHomeProductsOnObserveOption,
+    Option<Either<AbstractFailure, List<Reorder>>>? fosHomeReordersOnObserveOption,
     ShowProductsBy? showProductsBy,
     GroupProductsBy? groupProductsBy,
     bool? isExpandedProducts,

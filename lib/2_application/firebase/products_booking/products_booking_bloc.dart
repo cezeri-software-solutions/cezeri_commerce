@@ -10,7 +10,7 @@ import '../../../3_domain/entities/product/product.dart';
 import '../../../3_domain/entities/reorder/reorder.dart';
 import '../../../3_domain/repositories/firebase/product_repository.dart';
 import '../../../3_domain/repositories/firebase/reorder_repository.dart';
-import '../../../core/firebase_failures.dart';
+import '../../../core/abstract_failure.dart';
 
 part 'products_booking_event.dart';
 part 'products_booking_state.dart';

@@ -54,7 +54,7 @@ class AppointmentDetailScreen extends StatelessWidget {
               state.fosReceiptOnObserveOption.fold(
                 () => null,
                 (a) => a.fold(
-                  (failure) => myScaffoldMessenger(context, failure, null, null, null),
+                  (failure) => failureRenderer(context, [failure]),
                   (appointment) => receiptDetailBloc.add(SetReceiptReceiptDetailEvent(
                     receipt: appointment,
                     listOfTaxRules: context.read<MainSettingsBloc>().state.mainSettings!.taxes,
@@ -83,7 +83,7 @@ class AppointmentDetailScreen extends StatelessWidget {
               state.fosReceiptOnCreateOption.fold(
                 () => null,
                 (a) => a.fold(
-                  (failure) => myScaffoldMessenger(context, failure, null, null, null),
+                  (failure) => failureRenderer(context, [failure]),
                   (receipt) {
                     myScaffoldMessenger(context, null, null, 'Dokument erfolgreich erstellt', null);
                     context.router.pop();

@@ -1,11 +1,11 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:cezeri_commerce/core/firebase_failures.dart';
 import 'package:cezeri_commerce/routes/router.gr.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../2_application/firebase/supplier/supplier_bloc.dart';
 import '../../../core/functions/my_scaffold_messanger.dart';
+import '../../../core/renderer/failure_renderer.dart';
 import 'supplier_detail_page.dart';
 
 enum SupplierCreateOrEdit { create, edit }
@@ -30,7 +30,7 @@ class SupplierDetailScreen extends StatelessWidget {
             state.fosSupplierOnCreateOption.fold(
               () => null,
               (a) => a.fold(
-                (failure) => myScaffoldMessenger(context, failure, null, null, null),
+                (failure) => failureRenderer(context, [failure]),
                 (createdSupplier) {
                   context.router.popUntilRouteWithName(SuppliersOverviewRoute.name);
                   supplierBloc.add(GetSupplierEvent(supplier: createdSupplier));
@@ -47,7 +47,7 @@ class SupplierDetailScreen extends StatelessWidget {
             state.fosSupplierOnUpdateOption.fold(
               () => null,
               (a) => a.fold(
-                (failure) => myScaffoldMessenger(context, failure, null, null, null),
+                (failure) => failureRenderer(context, [failure]),
                 (updatedSupplier) => myScaffoldMessenger(context, null, null, 'Lieferant wurde erfolgreich aktualisiert', null),
               ),
             );
@@ -58,8 +58,7 @@ class SupplierDetailScreen extends StatelessWidget {
         bloc: supplierBloc,
         builder: (context, state) {
           if (state.isLoadingSupplierOnObserve) return Scaffold(appBar: appBar, body: const Center(child: CircularProgressIndicator()));
-          if ((state.firebaseFailure != null && state.firebaseFailure.runtimeType != EmptyFailure && state.isAnyFailure) ||
-              (supplierCreateOrEdit == SupplierCreateOrEdit.edit && state.supplier == null)) {
+          if ((state.firebaseFailure != null) || (supplierCreateOrEdit == SupplierCreateOrEdit.edit && state.supplier == null)) {
             return Scaffold(appBar: appBar, body: const Center(child: Text('Ein Fehler ist aufgetreten')));
           }
 

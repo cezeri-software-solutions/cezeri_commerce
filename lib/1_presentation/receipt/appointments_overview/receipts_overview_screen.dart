@@ -65,7 +65,7 @@ class ReceiptsOverviewScreen extends StatelessWidget {
               state.fosReceiptsOnObserveOption.fold(
                 () => null,
                 (a) => a.fold(
-                  (failure) => myScaffoldMessenger(context, failure, null, null, null),
+                  (failure) => failureRenderer(context, [failure]),
                   (listOfAppointments) => null,
                 ),
               );
@@ -141,7 +141,7 @@ class ReceiptsOverviewScreen extends StatelessWidget {
                 () => null,
                 (a) => a.fold(
                   (failure) {
-                    myScaffoldMessenger(context, failure, null, null, null);
+                    (failure) => failureRenderer(context, [failure]);
                     context.router.popTop();
                   },
                   (unit) {
@@ -159,7 +159,7 @@ class ReceiptsOverviewScreen extends StatelessWidget {
                 () => null,
                 (a) => a.fold(
                   (failure) {
-                    myScaffoldMessenger(context, failure, null, null, null);
+                    (failure) => failureRenderer(context, [failure]);
                     context.router.popTop();
                   },
                   (unit) {

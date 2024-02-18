@@ -1,6 +1,7 @@
 import 'package:logger/logger.dart';
 import 'package:xml/xml.dart';
 
+import '../../../1_presentation/core/functions/mixed_functions.dart';
 import '../../../3_domain/entities/product/field_language.dart';
 import '../../../3_domain/entities/product/marketplace_product_presta.dart';
 import '../../../3_domain/entities/product/product.dart';
@@ -96,6 +97,8 @@ XmlBuilder? patchProductBuilder({
       valueBuilder(product.name, productPresta.nameMultilanguage, product.listOfName, 'name');
       valueBuilder(product.description, productPresta.descriptionMultilanguage, product.listOfDescription, 'description');
       valueBuilder(product.descriptionShort, productPresta.descriptionShortMultilanguage, product.listOfDescriptionShort, 'description_short');
+      builder.element('meta_description', nest: convertHtmlToString(product.descriptionShort));
+      builder.element('link_rewrite', nest: generateFriendlyUrl(product.name));
       builder.element('associations', nest: () {
         if (marketplaceProductPresta.associations != null && marketplaceProductPresta.associations!.associationsCategories != null) {
           builder.element('categories', nest: () {

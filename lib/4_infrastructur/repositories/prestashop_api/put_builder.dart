@@ -1,6 +1,7 @@
 import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.dart';
 import 'package:xml/xml.dart';
 
+import '../../../1_presentation/core/functions/mixed_functions.dart';
 import '../../../3_domain/entities/product/field_language.dart';
 import '../../../3_domain/entities/product/marketplace_product_presta.dart';
 import '../../../3_domain/entities/product/product.dart';
@@ -58,6 +59,8 @@ XmlDocument productUpdater({
   productElement.findAllElements('unity').first.innerText = product.unity;
   //productElement.findAllElements('unit_price_ratio').first.innerText = (product.netPrice / product.unitPrice).toMyXmlString();
   productElement.findAllElements('active').first.innerText = marketplaceProductPresta.active;
+  productElement.findAllElements('meta_description').first.innerText = convertHtmlToString(product.descriptionShort);
+  productElement.findAllElements('link_rewrite').first.innerText = generateFriendlyUrl(product.name);
   final List<Multilanguage>? nameMultilanguage = productPresta.nameMultilanguage;
   final List<FieldLanguage> listOfName = product.listOfName;
   final String? name = productPresta.name;
@@ -157,7 +160,9 @@ XmlDocument productUpdater({
     if (descriptionShort != null) descriptionShortElement.findAllElements('language').first.innerText = product.descriptionShort;
   }
   var associationsElement = productElement.findElements('associations').firstOrNull;
-  if (associationsElement != null) {
+  if (associationsElement != null &&
+      marketplaceProductPresta.associations != null &&
+      marketplaceProductPresta.associations!.associationsCategories != null) {
     var categoriesElement = associationsElement.findElements('categories').firstOrNull;
     if (categoriesElement != null) {
       categoriesElement.children.clear();

@@ -9,7 +9,7 @@ class AppointmentState {
   final List<Receipt>? listOfFilteredReceipts; // Der State, der im presentation layer ausgegeben wird, egal ob Suchfeld leer oder nicht
   final List<Receipt> selectedReceipts; // Ausgewählte Aufträge zum löschen oder für Massenbearbeitung
   final List<Product>? listOfAllProducts;
-  final FirebaseFailure? firebaseFailure;
+  final AbstractFailure? firebaseFailure;
   final bool isAnyFailure;
   final bool isLoadingReceiptOnObserve;
   final bool isLoadingReceiptsOnObserve;
@@ -22,17 +22,17 @@ class AppointmentState {
   final bool isLoadingProductOnObserve;
   final bool isLoadingProductsOnObserve;
   final bool isLoadingParcelLabelOnCreate;
-  final Option<Either<FirebaseFailure, Receipt>> fosReceiptOnObserveOption;
-  final Option<Either<FirebaseFailure, List<Receipt>>> fosReceiptsOnObserveOption;
+  final Option<Either<AbstractFailure, Receipt>> fosReceiptOnObserveOption;
+  final Option<Either<AbstractFailure, List<Receipt>>> fosReceiptsOnObserveOption;
   final Option<Either<AbstractFailure, Unit>> fosAppointmentOnObserveFromMarketplacesOption;
   final Option<Either<AbstractFailure, Unit>> fosAppointmentsOnObserveFromMarketplacesOption;
-  final Option<Either<FirebaseFailure, Receipt>> fosReceiptOnCreateOption;
-  final Option<Either<FirebaseFailure, Unit>> fosReceiptOnUpdateOption;
+  final Option<Either<AbstractFailure, Receipt>> fosReceiptOnCreateOption;
+  final Option<Either<AbstractFailure, Unit>> fosReceiptOnUpdateOption;
   final Option<Either<AbstractFailure, Unit>> fosReceiptOnDeleteOption;
-  final Option<Either<FirebaseFailure, Receipt>> fosReceiptOnGenerateOption;
-  final Option<Either<FirebaseFailure, List<Receipt>>> fosReceiptsOnGenerateOption;
-  final Option<Either<FirebaseFailure, Product>> fosProductOnObserveOption;
-  final Option<Either<FirebaseFailure, List<Product>>> fosProductsOnObserveOption;
+  final Option<Either<AbstractFailure, Receipt>> fosReceiptOnGenerateOption;
+  final Option<Either<AbstractFailure, List<Receipt>>> fosReceiptsOnGenerateOption;
+  final Option<Either<AbstractFailure, Product>> fosProductOnObserveOption;
+  final Option<Either<AbstractFailure, List<Product>>> fosProductsOnObserveOption;
   final Option<Either<AbstractFailure, ParcelTracking>> fosParcelLabelOnCreate;
 
   //* --- helper --- *//
@@ -141,7 +141,7 @@ class AppointmentState {
     List<Receipt>? listOfFilteredReceipts,
     List<Receipt>? selectedReceipts,
     List<Product>? listOfAllProducts,
-    FirebaseFailure? firebaseFailure,
+    AbstractFailure? firebaseFailure,
     bool? isAnyFailure,
     bool? isLoadingReceiptOnObserve,
     bool? isLoadingReceiptsOnObserve,
@@ -154,17 +154,17 @@ class AppointmentState {
     bool? isLoadingProductOnObserve,
     bool? isLoadingProductsOnObserve,
     bool? isLoadingParcelLabelOnCreate,
-    Option<Either<FirebaseFailure, Receipt>>? fosReceiptOnObserveOption,
-    Option<Either<FirebaseFailure, List<Receipt>>>? fosReceiptsOnObserveOption,
+    Option<Either<AbstractFailure, Receipt>>? fosReceiptOnObserveOption,
+    Option<Either<AbstractFailure, List<Receipt>>>? fosReceiptsOnObserveOption,
     Option<Either<AbstractFailure, Unit>>? fosAppointmentOnObserveFromMarketplacesOption,
     Option<Either<AbstractFailure, Unit>>? fosAppointmentsOnObserveFromMarketplacesOption,
-    Option<Either<FirebaseFailure, Receipt>>? fosReceiptOnCreateOption,
-    Option<Either<FirebaseFailure, Unit>>? fosReceiptOnUpdateOption,
+    Option<Either<AbstractFailure, Receipt>>? fosReceiptOnCreateOption,
+    Option<Either<AbstractFailure, Unit>>? fosReceiptOnUpdateOption,
     Option<Either<AbstractFailure, Unit>>? fosReceiptOnDeleteOption,
-    Option<Either<FirebaseFailure, Receipt>>? fosReceiptOnGenerateOption,
-    Option<Either<FirebaseFailure, List<Receipt>>>? fosReceiptsOnGenerateOption,
-    Option<Either<FirebaseFailure, Product>>? fosProductOnObserveOption,
-    Option<Either<FirebaseFailure, List<Product>>>? fosProductsOnObserveOption,
+    Option<Either<AbstractFailure, Receipt>>? fosReceiptOnGenerateOption,
+    Option<Either<AbstractFailure, List<Receipt>>>? fosReceiptsOnGenerateOption,
+    Option<Either<AbstractFailure, Product>>? fosProductOnObserveOption,
+    Option<Either<AbstractFailure, List<Product>>>? fosProductsOnObserveOption,
     Option<Either<AbstractFailure, ParcelTracking>>? fosParcelLabelOnCreate,
     bool? isAllReceiptsSeledcted,
     List<bool>? isExpanded,

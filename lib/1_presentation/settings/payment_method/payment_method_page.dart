@@ -6,7 +6,6 @@ import '../../../3_domain/entities/settings/main_settings.dart';
 import '../../../3_domain/entities/settings/payment_method.dart';
 import '../../../constants.dart';
 import '../../app_drawer.dart';
-import '../../core/functions/my_scaffold_messanger.dart';
 import 'widgets/add_edti_payment_method_marketplace_name.dart';
 
 class PaymentMethodPage extends StatefulWidget {
@@ -33,7 +32,7 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
         }
 
         if (state.firebaseFailure != null && state.isAnyFailure) {
-          return Scaffold(appBar: appBar, drawer: drawer, body: Center(child: Text(mapFirebaseFailureMessage(state.firebaseFailure!))));
+          return Scaffold(appBar: appBar, drawer: drawer, body: const Center(child: Text('Ein Fehler ist aufgetreten.')));
         }
 
         final unusedPaymentMethods =

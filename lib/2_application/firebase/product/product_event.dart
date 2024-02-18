@@ -128,12 +128,12 @@ class ProductsMassEditingWeightAndDimensionsUpdatedEvent extends ProductEvent {
 // * #################################################################################################################################
 // * Prestashop events
 
-class OnEditQuantityInMarketplacesEvent extends ProductEvent {
-  final Product product;
-  final int newQuantity;
+// class OnEditQuantityInMarketplacesEvent extends ProductEvent {
+//   final Product product;
+//   final int newQuantity;
 
-  OnEditQuantityInMarketplacesEvent({required this.product, required this.newQuantity});
-}
+//   OnEditQuantityInMarketplacesEvent({required this.product, required this.newQuantity});
+// }
 
 class OnEditProductInPresta extends ProductEvent {
   final Product product;

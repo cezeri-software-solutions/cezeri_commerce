@@ -11,16 +11,16 @@ import 'package:flutter/services.dart';
 import 'package:html_editor_enhanced/html_editor.dart';
 import 'package:logger/logger.dart';
 
+import '../../../3_domain/entities/marketplace/marketplace.dart';
+import '../../../3_domain/entities/reorder/supplier.dart';
+import '../../../3_domain/entities/settings/main_settings.dart';
 import '../../../core/abstract_failure.dart';
 import '/1_presentation/core/functions/dialogs.dart';
 import '/1_presentation/core/functions/mixed_functions.dart';
-import '/3_domain/entities/marketplace/marketplace.dart';
 import '/3_domain/entities/product/product.dart';
 import '/3_domain/entities/product/product_id_with_quantity.dart';
 import '/3_domain/entities/product/product_image.dart';
 import '/3_domain/entities/product/product_marketplace.dart';
-import '/3_domain/entities/reorder/supplier.dart';
-import '/3_domain/entities/settings/main_settings.dart';
 import '/3_domain/entities/statistic/stat_product.dart';
 import '/3_domain/entities_presta/product_presta.dart';
 import '/3_domain/repositories/firebase/main_settings_respository.dart';
@@ -39,30 +39,23 @@ part 'product_detail_state.dart';
 final logger = Logger();
 
 class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
-  final ProductRepository _productRepository;
-  final MarketplaceEditRepository _marketplaceEditRepository;
-  final MainSettingsRepository _mainSettingsRepository;
-  final SupplierRepository _supplierRepository;
-  final MarketplaceRepository _marketplaceRepository;
-  final StatProductRepository _statProductRepository;
-  final MarketplaceImportRepository _marketplaceImportRepository;
+  final ProductRepository productRepository;
+  final MarketplaceEditRepository marketplaceEditRepository;
+  final MainSettingsRepository mainSettingsRepository;
+  final SupplierRepository supplierRepository;
+  final MarketplaceRepository marketplaceRepository;
+  final StatProductRepository statProductRepository;
+  final MarketplaceImportRepository marketplaceImportRepository;
 
   ProductDetailBloc({
-    required ProductRepository productRepository,
-    required MarketplaceEditRepository marketplaceEditRepository,
-    required MainSettingsRepository mainSettingsRepository,
-    required SupplierRepository supplierRepository,
-    required MarketplaceRepository marketplaceRepository,
-    required StatProductRepository statProductRepository,
-    required MarketplaceImportRepository marketplaceImportRepository,
-  })  : _productRepository = productRepository,
-        _marketplaceEditRepository = marketplaceEditRepository,
-        _mainSettingsRepository = mainSettingsRepository,
-        _supplierRepository = supplierRepository,
-        _marketplaceRepository = marketplaceRepository,
-        _statProductRepository = statProductRepository,
-        _marketplaceImportRepository = marketplaceImportRepository,
-        super(ProductDetailState.initial()) {
+    required this.productRepository,
+    required this.marketplaceEditRepository,
+    required this.mainSettingsRepository,
+    required this.supplierRepository,
+    required this.marketplaceRepository,
+    required this.statProductRepository,
+    required this.marketplaceImportRepository,
+  }) : super(ProductDetailState.initial()) {
     on<SetProductDetailStatesToInitialEvent>(_onSetProductDetailStatesToInitial);
     on<GetProductEvent>(_onGetProduct);
     on<GetListOfProductsEvent>(_onGetListOfProducts);
@@ -113,14 +106,14 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
     emit(state.copyWith(isLoadingProductOnObserve: true));
 
     if (state.mainSettings == null) {
-      final fosSettings = await _mainSettingsRepository.getSettings();
+      final fosSettings = await mainSettingsRepository.getSettings();
       fosSettings.fold(
         (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
         (settings) => emit(state.copyWith(mainSettings: settings, firebaseFailure: null, isAnyFailure: false)),
       );
     }
 
-    final failureOrSuccess = await _productRepository.getProduct(event.id);
+    final failureOrSuccess = await productRepository.getProduct(event.id);
     failureOrSuccess.fold(
       (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
       (product) {
@@ -143,14 +136,14 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
     emit(state.copyWith(isLoadingProductsOnObserve: true));
 
     if (state.mainSettings == null) {
-      final fosSettings = await _mainSettingsRepository.getSettings();
+      final fosSettings = await mainSettingsRepository.getSettings();
       fosSettings.fold(
         (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
         (settings) => emit(state.copyWith(mainSettings: settings, firebaseFailure: null, isAnyFailure: false)),
       );
     }
 
-    final failureOrSuccess = await _productRepository.getListOfProducts(true);
+    final failureOrSuccess = await productRepository.getListOfProducts(true);
     failureOrSuccess.fold(
       (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
       (loadedProducts) {
@@ -186,14 +179,14 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
     emit(state.copyWith(isLoadingProductOnObserve: true));
 
     if (state.mainSettings == null) {
-      final fosSettings = await _mainSettingsRepository.getSettings();
+      final fosSettings = await mainSettingsRepository.getSettings();
       fosSettings.fold(
         (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
         (settings) => emit(state.copyWith(mainSettings: settings, firebaseFailure: null, isAnyFailure: false)),
       );
     }
 
-    final failureOrSuccess = await _productRepository.getProduct(event.id);
+    final failureOrSuccess = await productRepository.getProduct(event.id);
     failureOrSuccess.fold(
       (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
       (product) {
@@ -328,7 +321,7 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
   Future<void> _onGetProductByEan(GetProductByEanEvent event, Emitter<ProductDetailState> emit) async {
     emit(state.copyWith(isLoadingProductOnObserve: true));
 
-    final failureOrSuccess = await _productRepository.getProductByEan(event.ean);
+    final failureOrSuccess = await productRepository.getProductByEan(event.ean);
     failureOrSuccess.fold(
       (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
       (product) => emit(state.copyWith(product: product, firebaseFailure: null, isAnyFailure: false)),
@@ -344,13 +337,18 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
 //? #########################################################################
 
   Future<void> _onUpdateProduct(UpdateProductEvent event, Emitter<ProductDetailState> emit) async {
+    if (state.product == null) return;
+    emit(state.copyWith(isLoadingProductOnUpdate: true));
+
+    List<AbstractFailure> listOfAbstractFailures = [];
+
     emit(state.copyWith(isLoadingProductOnUpdate: true));
 
     bool isUpdateInFirestoreSucceeded = false;
     Product? updatedProduct;
-    final fos = await _productRepository.updateProduct(state.product!);
+    final fos = await productRepository.updateProductAndSets(state.product!);
     fos.fold(
-      (failure) => null,
+      (failure) => listOfAbstractFailures.add(failure),
       (loadedProduct) {
         emit(state.copyWith(product: loadedProduct, firebaseFailure: null, isAnyFailure: false));
         isUpdateInFirestoreSucceeded = true;
@@ -359,14 +357,35 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
     );
 
     if (isUpdateInFirestoreSucceeded && updatedProduct != null) {
-      await _productRepository.updateAllQuantityOfProductAbsolut(updatedProduct!, updatedProduct!.availableStock, false);
-      add(OnEditProductInPresta(product: state.product!, updateImages: state.isProductImagesEdited));
+      final fosUpdateProductInMarketplace = await marketplaceEditRepository.editProdcutInMarketplace(updatedProduct!, null);
+      fosUpdateProductInMarketplace.fold(
+        (failures) => listOfAbstractFailures.addAll(failures),
+        (unit) => null,
+      );
+      if (state.isProductImagesEdited) {
+        final fosUpdateProductImagesInMarketplace = await marketplaceEditRepository.uploadProductImagesToMarketplace(
+          state.product!,
+          state.listOfProductImages,
+        );
+        fosUpdateProductImagesInMarketplace.fold(
+          (failures) => listOfAbstractFailures.addAll(failures),
+          (unit) => null,
+        );
+      }
+
+      emit(state.copyWith(
+        isLoadingProductOnUpdate: false,
+        fosProductOnUpdateOption: optionOf(fos),
+        fosProductAbstractFailuresOption: optionOf(Left(listOfAbstractFailures)),
+      ));
+      emit(state.copyWith(fosProductOnUpdateOption: none(), fosProductAbstractFailuresOption: none()));
     } else {
       emit(state.copyWith(
         isLoadingProductOnUpdate: false,
         fosProductOnUpdateOption: optionOf(fos),
+        fosProductAbstractFailuresOption: optionOf(Left(listOfAbstractFailures)),
       ));
-      emit(state.copyWith(fosProductOnUpdateOption: none()));
+      emit(state.copyWith(fosProductOnUpdateOption: none(), fosProductAbstractFailuresOption: none()));
     }
   }
 
@@ -381,7 +400,7 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
   Future<void> _onRemoveSelectedProductImages(RemoveSelectedProductImages event, Emitter<ProductDetailState> emit) async {
     emit(state.copyWith(isLoadingProductOnUpdateImages: true));
 
-    final failureOrSuccess = await _productRepository.updateProductRemoveImages(state.product!, state.selectedProductImages);
+    final failureOrSuccess = await productRepository.updateProductRemoveImages(state.product!, state.selectedProductImages);
     failureOrSuccess.fold(
       (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
       (updatedProduct) {
@@ -420,8 +439,7 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
     if (imageFiles.isEmpty) return;
     emit(state.copyWith(isLoadingProductOnUpdateImages: true));
 
-    bool isUpdateInFirestoreSucceeded = false;
-    final failureOrSuccess = await _productRepository.updateProductAddImages(state.product!, imageFiles);
+    final failureOrSuccess = await productRepository.updateProductAddImages(state.product!, imageFiles);
     failureOrSuccess.fold(
       (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
       (updatedProduct) {
@@ -432,11 +450,8 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
           firebaseFailure: null,
           isAnyFailure: false,
         ));
-        isUpdateInFirestoreSucceeded = true;
       },
     );
-
-    // if (isUpdateInFirestoreSucceeded) add(OnEditProductInPresta(product: state.product!));
 
     emit(state.copyWith(
       isLoadingProductOnUpdateImages: false,
@@ -450,7 +465,7 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
   Future<void> _onProductGetSuppliers(OnProductGetSuppliersEvent event, Emitter<ProductDetailState> emit) async {
     emit(state.copyWith(isLoadingProductSuppliersOnObseve: true));
 
-    final failureOrSuccess = await _supplierRepository.getListOfSuppliers();
+    final failureOrSuccess = await supplierRepository.getListOfSuppliers();
     failureOrSuccess.fold(
       (failure) => null,
       (listOfSuppliers) => emit(state.copyWith(listOfSuppliers: listOfSuppliers, firebaseFailure: null, isAnyFailure: false)),
@@ -474,7 +489,7 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
   Future<void> _onProductGetMarketplaces(OnProductGetMarketplacesEvent event, Emitter<ProductDetailState> emit) async {
     emit(state.copyWith(isLoadingProductMarketplacesOnObseve: true));
 
-    final failureOrSuccess = await _marketplaceRepository.getListOfMarketplaces();
+    final failureOrSuccess = await marketplaceRepository.getListOfMarketplaces();
     failureOrSuccess.fold(
       (failure) => null,
       (listOfMarketplaces) {
@@ -497,7 +512,7 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
 
     Product? anotherProductWithSameProductMarketplaceAndSameManufacturer;
 
-    final fosAnotherProduct = await _productRepository.getProductWithSameProductMarketplaceAndSameManufacturer(
+    final fosAnotherProduct = await productRepository.getProductWithSameProductMarketplaceAndSameManufacturer(
       state.product!,
       event.productMarketplace,
     );
@@ -559,7 +574,7 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
     // return;
 
     ProductPresta? productPresta;
-    final failureOrSuccess = await _marketplaceEditRepository.createProdcutPresta(
+    final failureOrSuccess = await marketplaceEditRepository.createProdcutInMarketplace(
       state.product!,
       event.productMarketplace,
       productMarketplaceOfAnotherProduct,
@@ -580,7 +595,7 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
 
     bool isSuccess = true;
 
-    final fosOnUpload = await _marketplaceImportRepository.uploadLoadedProductToFirestore(productPresta!, event.productMarketplace.idMarketplace);
+    final fosOnUpload = await marketplaceImportRepository.uploadLoadedProductToFirestore(productPresta!, event.productMarketplace.idMarketplace);
     fosOnUpload.fold(
       (failure) => isSuccess = false,
       (product) => null,
@@ -772,7 +787,7 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
   Future<void> _onProductGetStatProducts(OnProductGetStatProductsEvent event, Emitter<ProductDetailState> emit) async {
     emit(state.copyWith(isLoadingStatProductsOnObserve: true));
 
-    final fosSettings = await _statProductRepository.getStatProductsOfProductLast13(state.product!.id);
+    final fosSettings = await statProductRepository.getStatProductsOfProductLast13(state.product!.id);
     fosSettings.fold(
       (failure) => emit(state.copyWith(firebaseFailureChart: failure)),
       (statProducts) =>
@@ -792,7 +807,7 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
 
   Future<void> _onEditProductInPresta(OnEditProductInPresta event, Emitter<ProductDetailState> emit) async {
     bool isSuccessfull = true;
-    final failureOrSuccess = await _marketplaceEditRepository.editProdcutPresta(event.product, null);
+    final failureOrSuccess = await marketplaceEditRepository.editProdcutInMarketplace(event.product, null);
     failureOrSuccess.fold(
       (failure) => isSuccessfull = false, // TODO: handle Presta Failure
       (unit) => isSuccessfull = true,
@@ -815,7 +830,7 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
   Future<void> _onUploadProductImageToPresta(UploadProductImageToPrestaEvent event, Emitter<ProductDetailState> emit) async {
     emit(state.copyWith(isLoadingProductOnUploadImages: true));
 
-    final failureOrSuccess = await _marketplaceEditRepository.uploadProductImages(state.product!, state.listOfProductImages);
+    final failureOrSuccess = await marketplaceEditRepository.uploadProductImagesToMarketplace(state.product!, state.listOfProductImages);
     failureOrSuccess.fold(
       (failure) => null, // TODO: handle Presta Failure
       (unit) => null,

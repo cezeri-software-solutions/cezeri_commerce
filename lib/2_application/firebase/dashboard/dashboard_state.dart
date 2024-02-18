@@ -10,10 +10,10 @@ class DashboardState {
   final bool isLoadingOnObserve;
   final bool isAnyFailure;
   final bool isAnyFailureReceipts;
-  final FirebaseFailure? firebaseFailure;
-  final FirebaseFailure? firebaseFailureReceipts;
-  final Option<Either<FirebaseFailure, StatDashboard>> fosDashboardOption;
-  final Option<Either<FirebaseFailure, List<StatDashboard>>> fosListOfStatDashboardsOption;
+  final AbstractFailure? firebaseFailure;
+  final AbstractFailure? firebaseFailureReceipts;
+  final Option<Either<AbstractFailure, StatDashboard>> fosDashboardOption;
+  final Option<Either<AbstractFailure, List<StatDashboard>>> fosListOfStatDashboardsOption;
 
   const DashboardState({
     required this.curStatDashboard,
@@ -54,10 +54,10 @@ class DashboardState {
     bool? isLoadingOnObserve,
     bool? isAnyFailure,
     bool? isAnyFailureReceipts,
-    FirebaseFailure? firebaseFailure,
-    FirebaseFailure? firebaseFailureReceipts,
-    Option<Either<FirebaseFailure, StatDashboard>>? fosDashboardOption,
-    Option<Either<FirebaseFailure, List<StatDashboard>>>? fosListOfStatDashboardsOption,
+    AbstractFailure? firebaseFailure,
+    AbstractFailure? firebaseFailureReceipts,
+    Option<Either<AbstractFailure, StatDashboard>>? fosDashboardOption,
+    Option<Either<AbstractFailure, List<StatDashboard>>>? fosListOfStatDashboardsOption,
   }) {
     return DashboardState(
       curStatDashboard: curStatDashboard ?? this.curStatDashboard,

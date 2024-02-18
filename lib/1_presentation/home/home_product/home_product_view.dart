@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../2_application/firebase/home/home_product/home_product_bloc.dart';
 import '../../../injection.dart';
 import '../../core/functions/my_scaffold_messanger.dart';
+import '../../core/renderer/failure_renderer.dart';
 import 'widgets/home_product_collapsed.dart';
 import 'widgets/home_product_expanded.dart';
 
@@ -25,7 +26,7 @@ class HomeProductView extends StatelessWidget {
               state.fosHomeProductsOnObserveOption.fold(
                 () => null,
                 (a) => a.fold(
-                  (failure) => myScaffoldMessenger(context, failure, null, null, null),
+                  (failure) => failureRenderer(context, [failure]),
                   (products) => myScaffoldMessenger(context, null, null, 'Artikel erfolgreich geladen', null),
                 ),
               );
@@ -37,7 +38,7 @@ class HomeProductView extends StatelessWidget {
               state.fosHomeReordersOnObserveOption.fold(
                 () => null,
                 (a) => a.fold(
-                  (failure) => myScaffoldMessenger(context, failure, null, null, null),
+                  (failure) => failureRenderer(context, [failure]),
                   (reorders) => myScaffoldMessenger(context, null, null, 'Nachbestellungen erfolgreich geladen', null),
                 ),
               );

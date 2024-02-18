@@ -10,6 +10,8 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:logger/logger.dart';
 import 'package:path/path.dart';
 
+import '../../../1_presentation/core/functions/set_product_functions.dart';
+import '../functions/product_repository_helper.dart';
 import '/1_presentation/core/functions/check_internet_connection.dart';
 import '/3_domain/entities/marketplace/marketplace.dart';
 import '/3_domain/entities/product/product.dart';
@@ -63,8 +65,9 @@ class ProductRepositoryImpl implements ProductRepository {
       await docRef.set(toCreateProduct.toJson());
 
       return right(toCreateProduct);
-    } on FirebaseException {
-      return left(GeneralFailure());
+    } on FirebaseException catch (e) {
+      logger.e(e.message);
+      return left(GeneralFailure(customMessage: 'Beim Erstellen des Artikels ist ein Fehler aufgetreten.', e: e));
     }
   }
 
@@ -84,10 +87,10 @@ class ProductRepositoryImpl implements ProductRepository {
             (value) => value.docs.map((querySnapshot) => Product.fromJson(querySnapshot.data())).toList(),
           );
 
-      if (listOfProducts.isEmpty) return left(EmptyFailure());
       return right(listOfProducts);
-    } on FirebaseException {
-      return left(GeneralFailure());
+    } on FirebaseException catch (e) {
+      logger.e(e.message);
+      return left(GeneralFailure(customMessage: 'Beim Laden der Artikel ist ein Fehler aufgetreten.', e: e));
     }
   }
 
@@ -109,8 +112,9 @@ class ProductRepositoryImpl implements ProductRepository {
       }
 
       return right(listOfProducts);
-    } on FirebaseException {
-      return left(GeneralFailure());
+    } on FirebaseException catch (e) {
+      logger.e(e.message);
+      return left(GeneralFailure(customMessage: 'Beim Laden der Artikel ist ein Fehler aufgetreten.', e: e));
     }
   }
 
@@ -137,10 +141,10 @@ class ProductRepositoryImpl implements ProductRepository {
             (value) => value.docs.map((querySnapshot) => Product.fromJson(querySnapshot.data())).toList(),
           );
 
-      if (listOfProducts.isEmpty) return left(EmptyFailure());
       return right(listOfProducts);
-    } on FirebaseException {
-      return left(GeneralFailure());
+    } on FirebaseException catch (e) {
+      logger.e(e.message);
+      return left(GeneralFailure(customMessage: 'Beim Laden der Artikel ist ein Fehler aufgetreten.', e: e));
     }
   }
 
@@ -159,8 +163,9 @@ class ProductRepositoryImpl implements ProductRepository {
           );
 
       return right(listOfProducts);
-    } on FirebaseException {
-      return left(GeneralFailure());
+    } on FirebaseException catch (e) {
+      logger.e(e.message);
+      return left(GeneralFailure(customMessage: 'Beim Laden der ausverkauften Artikel ist ein Fehler aufgetreten.', e: e));
     }
   }
 
@@ -183,8 +188,9 @@ class ProductRepositoryImpl implements ProductRepository {
           );
 
       return right(listOfProducts);
-    } on FirebaseException {
-      return left(GeneralFailure());
+    } on FirebaseException catch (e) {
+      logger.e(e.message);
+      return left(GeneralFailure(customMessage: 'Beim Laden der Artikel, die unter dem Mindestbestand sind ist ein Fehler aufgetreten.', e: e));
     }
   }
 
@@ -199,8 +205,9 @@ class ProductRepositoryImpl implements ProductRepository {
     try {
       final product = await docRef.get();
       return right(Product.fromJson(product.data()!));
-    } on FirebaseException {
-      return left(GeneralFailure());
+    } on FirebaseException catch (e) {
+      logger.e(e.message);
+      return left(GeneralFailure(customMessage: 'Beim Laden des Artikels ist ein Fehler aufgetreten.', e: e));
     }
   }
 
@@ -214,10 +221,13 @@ class ProductRepositoryImpl implements ProductRepository {
 
     try {
       final product = await docRef.get().then((value) => value.docs.map((docSs) => Product.fromJson(docSs.data())).toList().firstOrNull);
-      if (product == null) return left(EmptyFailure());
+      if (product == null) {
+        return left(GeneralFailure(customMessage: 'In der Datenbank konnte kein Artikel mit der Artikelnummer: "$articleNumber" gefunden werden.'));
+      }
       return right(product);
-    } on FirebaseException {
-      return left(GeneralFailure());
+    } on FirebaseException catch (e) {
+      logger.e(e.message);
+      return left(GeneralFailure(customMessage: 'Beim Laden des Artikels ist ein Fehler aufgetreten.', e: e));
     }
   }
 
@@ -231,10 +241,13 @@ class ProductRepositoryImpl implements ProductRepository {
 
     try {
       final product = await docRef.get().then((value) => value.docs.map((docSs) => Product.fromJson(docSs.data())).toList().firstOrNull);
-      if (product == null) return left(EmptyFailure());
+      if (product == null) {
+        return left(GeneralFailure(customMessage: 'In der Datenbank konnte kein Artikel mit der EAN: "$ean" gefunden werden.'));
+      }
       return right(product);
-    } on FirebaseException {
-      return left(GeneralFailure());
+    } on FirebaseException catch (e) {
+      logger.e(e.message);
+      return left(GeneralFailure(customMessage: 'Beim Laden des Artikels ist ein Fehler aufgetreten.', e: e));
     }
   }
 
@@ -248,10 +261,13 @@ class ProductRepositoryImpl implements ProductRepository {
 
     try {
       final product = await docRef.get().then((value) => value.docs.map((docSs) => Product.fromJson(docSs.data())).toList().firstOrNull);
-      if (product == null) return left(EmptyFailure());
+      if (product == null) {
+        return left(GeneralFailure(customMessage: 'In der Datenbank konnte kein Artikel mit dem Namen: "$name" gefunden werden.'));
+      }
       return right(product);
-    } on FirebaseException {
-      return left(GeneralFailure());
+    } on FirebaseException catch (e) {
+      logger.e(e.message);
+      return left(GeneralFailure(customMessage: 'Beim Laden des Artikels ist ein Fehler aufgetreten.', e: e));
     }
   }
 
@@ -276,13 +292,14 @@ class ProductRepositoryImpl implements ProductRepository {
       if (productSameMarketplace == null) return left(GeneralFailure());
 
       return right(productSameMarketplace);
-    } on FirebaseException {
-      return left(GeneralFailure());
+    } on FirebaseException catch (e) {
+      logger.e(e.message);
+      return left(GeneralFailure(customMessage: 'Beim Laden des Artikels ist ein Fehler aufgetreten.', e: e));
     }
   }
 
   @override
-  Future<Either<FirebaseFailure, Product>> updateProduct(Product product) async {
+  Future<Either<AbstractFailure, Product>> updateProduct(Product product) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
 
@@ -290,73 +307,67 @@ class ProductRepositoryImpl implements ProductRepository {
     final docRef = db.collection('Products').doc(currentUserUid).collection('Products').doc(product.id);
 
     try {
-      Product? updatedProduct;
-      if (product.isSetArticle) {
+      docRef.update(product.toJson());
+
+      return right(product);
+    } on FirebaseException catch (e) {
+      logger.e(e.message);
+      return left(GeneralFailure(customMessage: 'Beim Aktualisieren des Bestandes vom Artikel: "${product.name}" ist ein Fehler aufgetreten.', e: e));
+    }
+  }
+
+  @override
+  Future<Either<AbstractFailure, Product>> updateProductAndSets(Product product) async {
+    final isConnected = await checkInternetConnection();
+    if (!isConnected) return left(NoConnectionFailure());
+
+    final currentUserUid = firebaseAuth.currentUser!.uid;
+    final docRef = db.collection('Products').doc(currentUserUid).collection('Products').doc(product.id);
+
+    final fosOriginalProduct = await getProduct(product.id);
+    Product? originalProduct;
+    fosOriginalProduct.fold(
+      (failure) => left(failure),
+      (loadedProduct) => originalProduct = loadedProduct,
+    );
+    if (originalProduct == null) {
+      final errorMessage = 'Der Artikel: "${product.name}" konnte nicht aus der Datenbank geladen werden.';
+      return left(GeneralFailure(customMessage: errorMessage));
+    }
+
+    try {
+      if (product.isSetArticle ||
+          originalProduct!.isSetArticle && (product.listOfProductIdWithQuantity != originalProduct!.listOfProductIdWithQuantity)) {
+        Either<AbstractFailure, Product>? fosHandleNewSetProduct;
         await db.runTransaction((transaction) async {
-          final originalProductDs = await transaction.get(docRef);
-          if (!originalProductDs.exists) return left(GeneralFailure());
-          final originalProduct = Product.fromJson(originalProductDs.data()!);
-
-          //* Alle Einzelartikel des Set-Artikel laden und in eine Liste speichern
-          final listOfSetPartProducts = await getPartProductsOfSetProduct(
+          //* Wenn der Artikel entweder davor ein Set-Artikel war oder jetzt ein Set-Artikel ist
+          fosHandleNewSetProduct = await handleNewSetProduct(
+            product: product,
+            originalProduct: originalProduct!,
             db: db,
             currentUserUid: currentUserUid,
             transaction: transaction,
-            setProduct: product,
+            docRef: docRef,
           );
-          if (listOfSetPartProducts == null) return left(GeneralFailure());
-
-          //* Alle Einzelartikel, die nicht mehr Bestandteil des Set-Artikel sind identitfizieren und aus Einzelartikel das Set Entfernen
-          final newPartArticleIds = listOfSetPartProducts.map((e) => e.id).toList();
-          final originalPartArticleIds = originalProduct.listOfProductIdWithQuantity.map((e) => e.productId).toList();
-          final noMorePartOfSetIds = [];
-          for (final originalId in originalPartArticleIds) {
-            if (!newPartArticleIds.any((e) => e == originalId)) {
-              noMorePartOfSetIds.add(originalId);
-            }
-          }
-          for (final noMorePartId in noMorePartOfSetIds) {
-            final docRefNoMorePartOfSet = db.collection('Products').doc(currentUserUid).collection('Products').doc(noMorePartId);
-            final noMorePartProductDs = await docRefNoMorePartOfSet.get(); //await transaction.get(docRefNoMorePartOfSet);
-            if (!noMorePartProductDs.exists) return left(GeneralFailure());
-            Product noMorePartProduct = Product.fromJson(noMorePartProductDs.data()!);
-            List<String> listOfIsPartOfSetIds = List.from(noMorePartProduct.listOfIsPartOfSetIds);
-            final index = listOfIsPartOfSetIds.indexWhere((e) => e == product.id);
-            if (index == -1) continue;
-            listOfIsPartOfSetIds.removeAt(index);
-
-            noMorePartProduct = noMorePartProduct.copyWith(listOfIsPartOfSetIds: listOfIsPartOfSetIds);
-            transaction.update(docRefNoMorePartOfSet, noMorePartProduct.toJson());
-          }
-
-          //* Berechne Menge des Set-Artikels
-          final quantitySetArticle = calcSetArticleAvailableQuantity(product, listOfSetPartProducts);
-
-          //* Alle Einzelartikel, wo der Set-Artikel noch nicht eingetragen ist in Firestore updaten
-          await addSetProductIdToPartProducts(
-            db: db,
-            currentUserUid: currentUserUid,
-            transaction: transaction,
-            setProduct: product,
-            listOfSetPartProducts: listOfSetPartProducts,
-          );
-
-          //* Update Set-Article
-          final difference = product.warehouseStock - product.availableStock;
-          final setArticle = product.copyWith(availableStock: quantitySetArticle, warehouseStock: quantitySetArticle + difference);
-          transaction.update(docRef, setArticle.toJson());
-          updatedProduct = setArticle;
         });
-        if (updatedProduct == null) return left(GeneralFailure());
-        return right(updatedProduct!);
+        if (fosHandleNewSetProduct == null) return left(GeneralFailure(customMessage: 'Ein Fehler ist aufgetreten'));
+        Product? updatedSetProduct;
+        AbstractFailure? abstractFailure;
+        fosHandleNewSetProduct!.fold(
+          (failure) => abstractFailure = failure,
+          (setProduct) => updatedSetProduct = setProduct,
+        );
+        if (updatedSetProduct != null && fosHandleNewSetProduct!.isRight()) return right(updatedSetProduct!);
+        if (abstractFailure != null && fosHandleNewSetProduct!.isLeft()) return left(abstractFailure!);
+        return left(GeneralFailure(customMessage: 'Ein Fehler ist aufgetreten'));
       } else {
         await docRef.update(product.toJson());
 
         return right(product);
       }
     } on FirebaseException catch (e) {
-      logger.e(e);
-      return left(GeneralFailure());
+      logger.e(e.message);
+      return left(GeneralFailure(customMessage: 'Beim Aktualisieren des Artikels: "${product.name}" ist ein Fehler aufgetreten.', e: e));
     }
   }
 
@@ -381,8 +392,10 @@ class ProductRepositoryImpl implements ProductRepository {
       await docRef.update(updatedProduct.toJson());
 
       return right(updatedProduct);
-    } on FirebaseException {
-      return left(GeneralFailure());
+    } on FirebaseException catch (e) {
+      logger.e(e.message);
+      return left(
+          GeneralFailure(customMessage: 'Beim Aktualisieren der Artikelbilder des Artikels: ${product.name} ist ein Fehler aufgetreten.', e: e));
     }
   }
 
@@ -419,8 +432,8 @@ class ProductRepositoryImpl implements ProductRepository {
 
       return right(updatedProduct);
     } on FirebaseException catch (e) {
-      logger.e(e);
-      return left(GeneralFailure());
+      logger.e(e.message);
+      return left(GeneralFailure(customMessage: 'Beim Löschen der Artikelbilder des Artikels: ${product.name} ist ein Fehler aufgetreten.', e: e));
     }
   }
 
@@ -446,8 +459,9 @@ class ProductRepositoryImpl implements ProductRepository {
         await docRef.delete();
       });
       return right(unit);
-    } on FirebaseException {
-      return left(GeneralFailure());
+    } on FirebaseException catch (e) {
+      logger.e(e.message);
+      return left(GeneralFailure(customMessage: 'Beim Löschen des Artikels ist ein Fehler aufgetreten.', e: e));
     }
   }
 
@@ -471,8 +485,9 @@ class ProductRepositoryImpl implements ProductRepository {
       }
 
       return right(unit);
-    } on FirebaseException {
-      return left(GeneralFailure());
+    } on FirebaseException catch (e) {
+      logger.e(e.message);
+      return left(GeneralFailure(customMessage: 'Beim Löschen des Artikel ist ein Fehler aufgetreten.', e: e));
     }
   }
 
@@ -571,14 +586,14 @@ class ProductRepositoryImpl implements ProductRepository {
       });
 
       for (final updatedSetProduct in listOfUpdatedSetProducts) {
-        await marketplaceEditRepository.setProdcutPrestaQuantity(updatedSetProduct, updatedSetProduct.availableStock, null);
+        await marketplaceEditRepository.setQuantityMPInAllProductMarketplaces(updatedSetProduct, updatedSetProduct.availableStock, null);
       }
       if (updatedProduct == null) return left(GeneralFailure());
-      await marketplaceEditRepository.setProdcutPrestaQuantity(updatedProduct!, updatedProduct!.availableStock, null);
+      await marketplaceEditRepository.setQuantityMPInAllProductMarketplaces(updatedProduct!, updatedProduct!.availableStock, null);
       return right(updatedProduct!);
     } on FirebaseException catch (e) {
-      logger.e(e);
-      return left(GeneralFailure());
+      logger.e(e.message);
+      return left(GeneralFailure(customMessage: 'Beim Aktualisieren des Bestandes vom Artikel: "${product.name}" ist ein Fehler aufgetreten.', e: e));
     }
   }
 
@@ -621,18 +636,18 @@ class ProductRepositoryImpl implements ProductRepository {
       });
 
       for (final updatedSetProduct in listOfUpdatedSetProducts) {
-        await marketplaceEditRepository.setProdcutPrestaQuantity(updatedSetProduct, updatedSetProduct.availableStock, null);
+        await marketplaceEditRepository.setQuantityMPInAllProductMarketplaces(updatedSetProduct, updatedSetProduct.availableStock, null);
       }
 
       if (updatedProduct == null) return left(GeneralFailure());
-      await marketplaceEditRepository.setProdcutPrestaQuantity(updatedProduct!, updatedProduct!.availableStock, marketplaceToSkip);
+      await marketplaceEditRepository.setQuantityMPInAllProductMarketplaces(updatedProduct!, updatedProduct!.availableStock, marketplaceToSkip);
       return right(updatedProduct!);
     } on FirebaseException catch (e) {
-      final customMessage = 'Beim inkrementellen updaten des Bestandes vom Artikel: "${product.name}" ist ein Fehler aufgetreten';
-      logger.e('$customMessage ERROR: $e');
-      return left(
-        GeneralFailure(customMessage: customMessage, e: e),
-      );
+      logger.e(e.message);
+      return left(GeneralFailure(
+        customMessage: 'Beim inkrementellen Aktualisieren des Bestandes vom Artikel: "${product.name}" ist ein Fehler aufgetreten',
+        e: e,
+      ));
     }
   }
 
@@ -653,8 +668,12 @@ class ProductRepositoryImpl implements ProductRepository {
       await docRefProduct.update(updatedProduct.toJson());
 
       return right(updatedProduct);
-    } on FirebaseException {
-      return left(GeneralFailure());
+    } on FirebaseException catch (e) {
+      logger.e(e.message);
+      return left(GeneralFailure(
+        customMessage: 'Beim inkrementellen Aktualisieren des  Lagerbestandes vom Artikel: "${product.name}" ist ein Fehler aufgetreten',
+        e: e,
+      ));
     }
   }
 }
@@ -668,10 +687,9 @@ Future<List<Product>?> updateQuantityOfSetProducts({
   List<Product> listOfUpdatedSetProducts = [];
   //* Set-Artikel laden, wo dieser Artikel ein Bestandteil ist
   final listOfSetProducts = await getSetProductsOfPartProduct(db, currentUserUid, transaction, product);
-  if (listOfSetProducts == null) return Future.value(null);
 
   //* Bestand bei allen Set-Artikeln anpassen
-  for (final setProduct in listOfSetProducts) {
+  for (final setProduct in listOfSetProducts!) {
     final docRefSetProduct = db.collection('Products').doc(currentUserUid).collection('Products').doc(setProduct.id);
     final listOfSetPartProducts = await getPartProductsOfSetProduct(
       db: db,
@@ -693,65 +711,21 @@ Future<List<Product>?> updateQuantityOfSetProducts({
   return listOfUpdatedSetProducts;
 }
 
-Future<List<Product>?> getPartProductsOfSetProduct({
-  required FirebaseFirestore db,
-  required String currentUserUid,
-  required Transaction transaction,
-  required Product setProduct,
-  Product? alreadyLoadedPartProduct,
-}) async {
-  final List<Product> listOfSetPartProducts = [];
-  for (final partProductIdWithQuantity in setProduct.listOfProductIdWithQuantity) {
-    if (alreadyLoadedPartProduct != null && partProductIdWithQuantity.productId == alreadyLoadedPartProduct.id) {
-      listOfSetPartProducts.add(alreadyLoadedPartProduct);
-      continue;
-    }
-    final docRefPartProduct = db.collection('Products').doc(currentUserUid).collection('Products').doc(partProductIdWithQuantity.productId);
-    final partProductDs = await transaction.get(docRefPartProduct);
-    if (!partProductDs.exists) return Future.value(null);
-    Product partProduct = Product.fromJson(partProductDs.data()!);
-    listOfSetPartProducts.add(partProduct);
-  }
-  return listOfSetPartProducts;
-}
-
-Future<void> addSetProductIdToPartProducts({
-  required FirebaseFirestore db,
-  required String currentUserUid,
-  required Transaction? transaction,
-  required Product setProduct,
-  required List<Product> listOfSetPartProducts,
-}) async {
-  for (final partOfSetProduct in listOfSetPartProducts) {
-    final docRefUpdatedPartProduct = db.collection('Products').doc(currentUserUid).collection('Products').doc(partOfSetProduct.id);
-    if (partOfSetProduct.listOfIsPartOfSetIds.any((e) => e == setProduct.id)) continue;
-    final updatedProduct = partOfSetProduct.copyWith(listOfIsPartOfSetIds: partOfSetProduct.listOfIsPartOfSetIds..add(setProduct.id));
-    if (transaction != null) {
-      transaction.update(docRefUpdatedPartProduct, updatedProduct.toJson());
-    } else {
-      docRefUpdatedPartProduct.update(updatedProduct.toJson());
-    }
-  }
-}
-
 Future<List<Product>?> getSetProductsOfPartProduct(FirebaseFirestore db, String currentUserUid, Transaction transaction, Product product) async {
   final List<Product> listOfSetProducts = [];
   for (final setProductId in product.listOfIsPartOfSetIds) {
     final docRefSet = db.collection('Products').doc(currentUserUid).collection('Products').doc(setProductId);
     final setProductDS = await transaction.get(docRefSet);
-    if (!setProductDS.exists) return Future.value(null);
-    final setProduct = Product.fromJson(setProductDS.data()!);
-    listOfSetProducts.add(setProduct);
+    //* Wenn die Liste einen null Wert enthält, wird das Programm nicht unterbrochen, aber es kann ein Fehler geworfen werden, dass es mindestens bei einem Set-Artikel nicht geklappt hat.
+    if (!setProductDS.exists) {
+      // listOfSetProducts.add(null);
+      return Future.value(null);
+    } else {
+      final setProduct = Product.fromJson(setProductDS.data()!);
+      listOfSetProducts.add(setProduct);
+    }
   }
   return listOfSetProducts;
-}
-
-int calcSetArticleAvailableQuantity(Product setProduct, List<Product> listOfSetPartProducts) {
-  final quantitySetArticle = setProduct.listOfProductIdWithQuantity.map((e) {
-    final partProduct = listOfSetPartProducts.firstWhere((element) => element.id == e.productId);
-    return partProduct.availableStock ~/ e.quantity;
-  }).reduce((a, b) => a < b ? a : b);
-  return quantitySetArticle;
 }
 
 Future<List<ProductImage>> uploadImageFilesToStorageFromProductPrestaImage(List<ProductPrestaImage?>? imageFiles, String firebaseStoragePath) async {

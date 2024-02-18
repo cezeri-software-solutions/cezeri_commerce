@@ -6,7 +6,7 @@ import '../../../3_domain/entities/receipt/receipt.dart';
 import '../../../3_domain/entities/statistic/stat_dashboard.dart';
 import '../../../3_domain/repositories/firebase/receipt_respository.dart';
 import '../../../3_domain/repositories/firebase/stat_dashboard_repository.dart';
-import '../../../core/firebase_failures.dart';
+import '../../../core/abstract_failure.dart';
 
 part 'dashboard_event.dart';
 part 'dashboard_state.dart';
@@ -19,7 +19,7 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
 
     on<GetCurStatDashboardEvent>((event, emit) async {
       emit(state.copyWith(isLoadingOnObserve: true));
-      final Either<FirebaseFailure, StatDashboard> failureOrSuccess;
+      final Either<AbstractFailure, StatDashboard> failureOrSuccess;
 
       failureOrSuccess = await dashboardRepository.getStatDashboard();
 
@@ -40,8 +40,8 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
 
     on<GetListOfStatDashboardsEvent>((event, emit) async {
       emit(state.copyWith(isLoadingOnObserve: true));
-      final Either<FirebaseFailure, List<StatDashboard>> failureOrSuccessStatDashboard;
-      final Either<FirebaseFailure, List<Receipt>> failureOrSuccessReceipt;
+      final Either<AbstractFailure, List<StatDashboard>> failureOrSuccessStatDashboard;
+      final Either<AbstractFailure, List<Receipt>> failureOrSuccessReceipt;
 
       failureOrSuccessStatDashboard = await dashboardRepository.getLast13StatDashboards();
 

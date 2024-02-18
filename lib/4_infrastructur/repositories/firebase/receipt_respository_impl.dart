@@ -17,28 +17,28 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart';
 import 'package:logger/logger.dart';
 
-import '../../../1_presentation/core/functions/check_internet_connection.dart';
-import '../../../1_presentation/core/functions/mixed_functions.dart';
-import '../../../3_domain/entities/address.dart';
-import '../../../3_domain/entities/carrier/parcel_tracking.dart';
-import '../../../3_domain/entities/customer/customer.dart';
-import '../../../3_domain/entities/e_mail_automation.dart';
-import '../../../3_domain/entities/marketplace/marketplace.dart';
-import '../../../3_domain/entities/product/product.dart';
-import '../../../3_domain/entities/product/product_id_with_quantity.dart';
-import '../../../3_domain/entities/settings/main_settings.dart';
-import '../../../3_domain/entities_presta/order_presta.dart';
-import '../../../3_domain/entities_presta/product_presta.dart';
-import '../../../3_domain/enums/enums.dart';
-import '../../../3_domain/pdf/pdf_receipt_generator.dart';
-import '../../../3_domain/repositories/firebase/main_settings_respository.dart';
-import '../../../3_domain/repositories/firebase/product_repository.dart';
-import '../../../3_domain/repositories/marketplace/marketplace_edit_repository.dart';
-import '../../../3_domain/repositories/marketplace/marketplace_import_repository.dart';
 import '../functions/product_import.dart';
+import '../functions/product_repository_helper.dart';
 import '../prestashop_api/prestashop_api.dart';
 import '../shipping_methods/austrian_post/austrian_post_api.dart';
-import 'product_repository_impl.dart';
+import '/1_presentation/core/functions/check_internet_connection.dart';
+import '/1_presentation/core/functions/mixed_functions.dart';
+import '/3_domain/entities/address.dart';
+import '/3_domain/entities/carrier/parcel_tracking.dart';
+import '/3_domain/entities/customer/customer.dart';
+import '/3_domain/entities/e_mail_automation.dart';
+import '/3_domain/entities/marketplace/marketplace.dart';
+import '/3_domain/entities/product/product.dart';
+import '/3_domain/entities/product/product_id_with_quantity.dart';
+import '/3_domain/entities/settings/main_settings.dart';
+import '/3_domain/entities_presta/order_presta.dart';
+import '/3_domain/entities_presta/product_presta.dart';
+import '/3_domain/enums/enums.dart';
+import '/3_domain/pdf/pdf_receipt_generator.dart';
+import '/3_domain/repositories/firebase/main_settings_respository.dart';
+import '/3_domain/repositories/firebase/product_repository.dart';
+import '/3_domain/repositories/marketplace/marketplace_edit_repository.dart';
+import '/3_domain/repositories/marketplace/marketplace_import_repository.dart';
 import 'receipt_respository_helper.dart';
 
 final logger = Logger();
@@ -63,7 +63,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
   });
 
   @override
-  Future<Either<FirebaseFailure, Receipt>> getReceipt(Receipt receipt) async {
+  Future<Either<AbstractFailure, Receipt>> getReceipt(Receipt receipt) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
 
@@ -73,13 +73,14 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
     try {
       final loadedAppointment = await docRef.get();
       return right(Receipt.fromJson(loadedAppointment.data()!));
-    } on FirebaseException {
-      return left(GeneralFailure());
+    } on FirebaseException catch (e) {
+      logger.e(e.message);
+      return left(GeneralFailure(customMessage: 'Beim Laden des Dokuments ist ein Fehler aufgetreten', e: e));
     }
   }
 
   @override
-  Future<Either<FirebaseFailure, Unit>> updateReceipt(
+  Future<Either<AbstractFailure, Unit>> updateReceipt(
     Receipt receipt,
     List<ReceiptProduct> oldListOfReceiptProducts,
     List<ReceiptProduct> newListOfReceiptProducts,
@@ -138,13 +139,14 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
         transaction.update(docRef, receipt.toJson());
       });
       return right(unit);
-    } on FirebaseException {
-      return left(GeneralFailure());
+    } on FirebaseException catch (e) {
+      logger.e(e.message);
+      return left(GeneralFailure(customMessage: 'Beim Aktualisieren des Dokuments ist ein Fehler aufgetreten', e: e));
     }
   }
 
   @override
-  Future<Either<FirebaseFailure, Receipt>> createReceiptManually(Receipt receipt) async {
+  Future<Either<AbstractFailure, Receipt>> createReceiptManually(Receipt receipt) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
 
@@ -216,8 +218,9 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
         await createOrIncrementStatProductOnCreateReceipt(toCreateReceipt, currentUserUid, db);
       });
       return right(toCreateReceipt);
-    } on FirebaseException {
-      return left(GeneralFailure());
+    } on FirebaseException catch (e) {
+      logger.e(e.message);
+      return left(GeneralFailure(customMessage: 'Beim Erstellen des Dokuments ist ein Fehler aufgetreten', e: e));
     } catch (e) {
       logger.e(e);
       return left(GeneralFailure());
@@ -225,7 +228,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
   }
 
   @override
-  Future<Either<FirebaseFailure, List<Receipt>>> getListOfReceipts(int value, ReceiptTyp receiptTyp) async {
+  Future<Either<AbstractFailure, List<Receipt>>> getListOfReceipts(int value, ReceiptTyp receiptTyp) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
 
@@ -262,10 +265,10 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
       // }
       //* ENDE Zum hinzufügen StatProducts.
 
-      if (listOfAppointments.isEmpty) return left(EmptyFailure());
       return right(listOfAppointments);
-    } on FirebaseException {
-      return left(GeneralFailure());
+    } on FirebaseException catch (e) {
+      logger.e(e.message);
+      return left(GeneralFailure(customMessage: 'Beim Laden der Dokumente ist ein Fehler aufgetreten', e: e));
     }
   }
 
@@ -306,12 +309,13 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
 
       return right(unit);
     } on FirebaseException catch (e) {
-      return left(GeneralFailure(customMessage: 'Beim Löschen von Dokumenten ist ein Fehler aufgetreten', e: e));
+      logger.e(e.message);
+      return left(GeneralFailure(customMessage: 'Beim Löschen der Dokumente ist ein Fehler aufgetreten', e: e));
     }
   }
 
   @override
-  Future<Either<FirebaseFailure, List<Receipt>>> generateFromListOfOffersNewAppointments(List<Receipt> listOfOffers) async {
+  Future<Either<AbstractFailure, List<Receipt>>> generateFromListOfOffersNewAppointments(List<Receipt> listOfOffers) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
 
@@ -412,15 +416,16 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
       final updatedMainSettings = settings.copyWith(nextAppointmentNumber: nextAppointmentNumber);
       await docRefSettings.update(updatedMainSettings.toJson());
       return right(generatedAppointments);
-    } on FirebaseException {
-      return left(GeneralFailure());
+    } on FirebaseException catch (e) {
+      logger.e(e.message);
+      return left(GeneralFailure(customMessage: 'Beim Generieren von Aufträgen aus Angeboten ist ein Fehler aufgetreten', e: e));
     } catch (e) {
       return left(GeneralFailure());
     }
   }
 
   @override
-  Future<Either<FirebaseFailure, List<Receipt>>> generateFromListOfAppointments(
+  Future<Either<AbstractFailure, List<Receipt>>> generateFromListOfAppointments(
     List<Receipt> listOfReceipts,
     bool generateDeliveryNote,
     bool generateInvoice,
@@ -539,7 +544,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
 
         //* Neuen Bestellstatus im Marktplatz setzen
         if (marketplace != null) {
-          final fosOrderStatus = await marketplaceEditRepository.setOrderStatus(
+          final fosOrderStatus = await marketplaceEditRepository.setOrderStatusInMarketplace(
             marketplace!,
             receipt.receiptMarketplaceId,
             OrderStatusUpdateType.onShipping,
@@ -553,15 +558,19 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
       final updatedMainSettings = settings.copyWith(nextDeliveryNoteNumber: nextDeliveryNoteNumber, nextInvoiceNumber: nextInvoiceNumber);
       await docRefSettings.update(updatedMainSettings.toJson());
       return right(generatedReceipts);
-    } on FirebaseException {
-      return left(GeneralFailure());
+    } on FirebaseException catch (e) {
+      logger.e(e.message);
+      return left(GeneralFailure(
+        customMessage: 'Beim Generieren von Lieferscheinen und/oder Rechnungen aus Aufträgen ist ein Fehler aufgetreten',
+        e: e,
+      ));
     } catch (e) {
       return left(GeneralFailure());
     }
   }
 
   @override
-  Future<Either<FirebaseFailure, List<Receipt>>> generateFromAppointment(
+  Future<Either<AbstractFailure, List<Receipt>>> generateFromAppointment(
     Receipt incomingAppointment,
     Receipt originalAppointment,
     bool generateDeliveryNote,
@@ -724,7 +733,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
       }
 
       //* Neuen Bestellstatus im Marktplatz setzen
-      final fosOrderStatus = await marketplaceEditRepository.setOrderStatus(
+      final fosOrderStatus = await marketplaceEditRepository.setOrderStatusInMarketplace(
         marketplace,
         originalAppointment.receiptMarketplaceId,
         OrderStatusUpdateType.onShipping,
@@ -735,8 +744,12 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
       );
 
       return right(generatedReceipts);
-    } on FirebaseException {
-      return left(GeneralFailure());
+    } on FirebaseException catch (e) {
+      logger.e(e.message);
+      return left(GeneralFailure(
+        customMessage: 'Beim Generieren von einem Lieferschein und/oder Rechnung aus einem Auftrag ist ein Fehler aufgetreten',
+        e: e,
+      ));
     } catch (e) {
       logger.e('Beim Generieren der Dokumente aus einem Auftrag ist ein Fehler aufgetreten: $e');
       return left(GeneralFailure());
@@ -744,7 +757,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
   }
 
   @override
-  Future<Either<FirebaseFailure, Receipt>> generateFromListOfDeliveryNotesNewInvoice(List<Receipt> listOfDeliveryNotes) async {
+  Future<Either<AbstractFailure, Receipt>> generateFromListOfDeliveryNotesNewInvoice(List<Receipt> listOfDeliveryNotes) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
 
@@ -804,13 +817,14 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
       }
 
       return right(generatedReceipt!);
-    } on FirebaseException {
-      return left(GeneralFailure());
+    } on FirebaseException catch (e) {
+      logger.e(e.message);
+      return left(GeneralFailure(customMessage: 'Beim Generieren von Rechnungen aus Lieferscheinen ist ein Fehler aufgetreten', e: e));
     }
   }
 
   @override
-  Future<Either<FirebaseFailure, Receipt>> generateFromInvoiceNewCredit(Receipt invoice) async {
+  Future<Either<AbstractFailure, Receipt>> generateFromInvoiceNewCredit(Receipt invoice) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
 
@@ -900,8 +914,9 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
       final updatedMainSettings = settings.copyWith(nextInvoiceNumber: nextInvoiceNumber);
       await docRefSettings.update(updatedMainSettings.toJson());
       return right(generatedCredit!);
-    } on FirebaseException {
-      return left(GeneralFailure());
+    } on FirebaseException catch (e) {
+      logger.e(e.message);
+      return left(GeneralFailure(customMessage: 'Beim Generieren von einer Gutschrift aus einer Rechnung ist ein Fehler aufgetreten', e: e));
     } catch (e) {
       return left(GeneralFailure());
     }
@@ -1022,10 +1037,10 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
   }
 
   @override
-  Future<Either<FirebaseFailure, Unit>> sendEmails() async {
-    bool isFailure = false;
+  Future<Either<AbstractFailure, Unit>> sendEmails() async {
+    // bool isFailure = false;
     //await sendEmail(to: 'info@ccf-autopflege.at', from: 'ince.ali@msn.com', subject: 'Test-Mail', text: 'Hallo das ist eine Test-Mail');
-    if (isFailure) return left(GeneralFailure());
+    // if (isFailure) return left(GeneralFailure());
     return right(unit);
   }
 
@@ -1041,19 +1056,19 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
 
     try {
       final loadedDeliveryNoteDs = await docRef.get();
-      if (!loadedDeliveryNoteDs.exists) return left(MixedFailure(errorMessage: 'Dokument konnte nicht aus der Datenbank geladen werden'));
+      if (!loadedDeliveryNoteDs.exists) return left(GeneralFailure(customMessage: 'Dokument konnte nicht aus der Datenbank geladen werden'));
       final loadedDeliveryNote = Receipt.fromJson(loadedDeliveryNoteDs.data()!);
 
       final settingsDs = await docRefMS.get();
-      if (!settingsDs.exists) return left(MixedFailure(errorMessage: 'Einstellungen konnten nicht aus der Datenbank geladen werden'));
+      if (!settingsDs.exists) return left(GeneralFailure(customMessage: 'Einstellungen konnten nicht aus der Datenbank geladen werden'));
       final settings = MainSettings.fromJson(settingsDs.data()!);
 
       final marketplaceDs = await docRefMP.get();
-      if (!marketplaceDs.exists) return left(MixedFailure(errorMessage: 'Marktplatz konnten nicht aus der Datenbank geladen werden'));
+      if (!marketplaceDs.exists) return left(GeneralFailure(customMessage: 'Marktplatz konnten nicht aus der Datenbank geladen werden'));
       final marketplace = Marketplace.fromJson(marketplaceDs.data()!);
 
       final parcelTracking = await getParcelTracking(loadedDeliveryNote, settings, loadedDeliveryNote.deliveryNoteId);
-      if (parcelTracking == null) return left(MixedFailure(errorMessage: 'Paketlabel konnte nicht erstellt werden'));
+      if (parcelTracking == null) return left(GeneralFailure(customMessage: 'Paketlabel konnte nicht erstellt werden'));
 
       final List<ParcelTracking> listOfUpdatedParcelTracking = loadedDeliveryNote.listOfParcelTracking;
       listOfUpdatedParcelTracking.add(parcelTracking);
@@ -1064,8 +1079,9 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
       await sendCustomerEmailsOnCreateReceipts([updatedDeliveryNote], marketplace);
 
       return right(parcelTracking);
-    } on FirebaseException {
-      return left(GeneralFailure());
+    } on FirebaseException catch (e) {
+      logger.e(e.message);
+      return left(GeneralFailure(customMessage: 'Beim Erstellen eines Versandlabels ist ein Fehler aufgetreten', e: e));
     }
   }
 
@@ -1085,9 +1101,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
 
       for (final marketplace in listOfActiveMarketplaces) {
         if (!marketplace.isActive) continue;
-        print('################################################');
-        print(marketplace.name);
-        print('################################################');
+
         final api = PrestashopApi(Client(), PrestashopApiConfig(apiKey: marketplace.key, webserviceUrl: marketplace.fullUrl));
 
         if (marketplace.marketplaceType == MarketplaceType.prestashop) {
@@ -1106,7 +1120,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
       return right(listOfToLoadAppointmentsFromMarketplace);
     } catch (e) {
       logger.e('Fehler beim laden der zu ladenden Aufträge von Marktplätzen: $e');
-      return left(MixedFailure(errorMessage: 'Fehler beim laden der zu ladenden Aufträge von Marktplätzen: $e'));
+      return left(GeneralFailure(customMessage: 'Fehler beim laden der zu ladenden Aufträge von Marktplätzen: $e'));
     }
   }
 
@@ -1169,13 +1183,13 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
         await docRefReceipt.get().then((value) => value.docs.map((querySnapshot) => Receipt.fromJson(querySnapshot.data())).toList());
     if (appointmentListFirestore.isNotEmpty) {
       logger.e('Vom Marktplatz geladene Bestellung ist bereits in Firestore gespeicher');
-      return left(MixedFailure(errorMessage: 'Vom Marktplatz geladene Bestellung ist bereits in Firestore gespeicher'));
+      return left(GeneralFailure(customMessage: 'Vom Marktplatz geladene Bestellung ist bereits in Firestore gespeicher'));
     }
 
     final dsMainSettings = await docRefMainSettings.get();
     if (!dsMainSettings.exists) {
       logger.e('MainSettings konnte nicht aus Firestore geladen werden');
-      return left(MixedFailure(errorMessage: 'MainSettings konnte nicht aus Firestore geladen werden'));
+      return left(GeneralFailure(customMessage: 'MainSettings konnte nicht aus Firestore geladen werden'));
     }
     final mainSettings = MainSettings.fromJson(dsMainSettings.data()!);
 
@@ -1185,14 +1199,12 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
       final tax = calcTaxPercent((orderProductPresta.unitPriceTaxIncl).toMyDouble(), (orderProductPresta.unitPriceTaxExcl).toMyDouble());
 
       final api = PrestashopApi(Client(), PrestashopApiConfig(apiKey: marketplace.key, webserviceUrl: marketplace.fullUrl));
-      print('################################ getProduct ################################# asdfjklö');
-      print('${orderProductPresta.productId} asdfjklö');
+
       final optionalProductPresta = await api.getProduct(int.parse(orderProductPresta.productId), marketplace);
       if (optionalProductPresta.isNotPresent) {
         logger.e('Artikel aus Bestellung konnte beim Bestellimport nicht aus Marktplatz geladen werden');
-        return left(MixedFailure(errorMessage: 'Artikel aus Bestellung konnte beim Bestellimport nicht aus Marktplatz geladen werden'));
+        return left(GeneralFailure(customMessage: 'Artikel aus Bestellung konnte beim Bestellimport nicht aus Marktplatz geladen werden'));
       }
-      print('################################ getProduct BITTI ################################# asdfjklö');
       final productPresta = optionalProductPresta.value;
 
       Product? appointmentProduct;
@@ -1201,15 +1213,13 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
       if (productPresta.type == 'pack' &&
           productPresta.associations.associationsProductBundle != null &&
           productPresta.associations.associationsProductBundle!.isNotEmpty) {
-        print('################################ isSet ################################# asdfjklö');
-        print('${productPresta.name} asdfjklö');
         final List<ProductIdWithQuantity> listOfProductIdWithQuantity = [];
         final List<Product> listOfSetPartProducts = [];
         for (final partProductPrestaId in productPresta.associations.associationsProductBundle!) {
           final optionalProductPresta = await api.getProduct(int.parse(partProductPrestaId.id), marketplace);
           if (optionalProductPresta.isNotPresent) {
             logger.e('Artikel aus Bestellung konnte beim Bestellimport nicht aus Marktplatz geladen werden');
-            return left(MixedFailure(errorMessage: 'Artikel aus Bestellung konnte beim Bestellimport nicht aus Marktplatz geladen werden'));
+            return left(GeneralFailure(customMessage: 'Artikel aus Bestellung konnte beim Bestellimport nicht aus Marktplatz geladen werden'));
           }
           final loadedProductPresta = optionalProductPresta.value;
           final fosLoadedOrCreatedProduct = await getOrCreateProductFromPrestaOnImportAppointment(
@@ -1260,7 +1270,6 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
           api,
           null,
         );
-        print('################ getOrCreateProductFromPrestaOnImportAppointment BITTI ######################### asdfjklö');
         fosAppointmentProduct.fold(
           (failure) => left(failure),
           (appProduct) => appointmentProduct = appProduct,
@@ -1274,12 +1283,11 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
         quantity: quantity,
         tax: tax,
       );
-      print('################ generateReceiptProduct BITTI ######################### asdfjklö');
       listOfReceiptproduct.add(receiptProduct);
     }
 
     //* Neuen Bestellstatus im Marktplatz setzen
-    final fosOrderStatus = await marketplaceEditRepository.setOrderStatus(
+    final fosOrderStatus = await marketplaceEditRepository.setOrderStatusInMarketplace(
       marketplace,
       loadedAppointmentFromMarketplace.orderMarketplaceId,
       OrderStatusUpdateType.onImport,
@@ -1376,12 +1384,12 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
         transaction.update(docRefMarketplace, updatedMarketplace.toJson());
       });
     } on FirebaseException catch (e) {
-      return left(MixedFailure(errorMessage: e.message));
+      return left(GeneralFailure(customMessage: e.message));
     }
 
     if (receiptToReturn == null) {
       logger.e('Bestellung wurde aus Marktplatz geladen, konnten aber nicht in Firestore gespeichert werden');
-      return left(MixedFailure(errorMessage: 'Bestellung wurde aus Marktplatz geladen, konnten aber nicht in Firestore gespeichert werden'));
+      return left(GeneralFailure(customMessage: 'Bestellung wurde aus Marktplatz geladen, konnten aber nicht in Firestore gespeichert werden'));
     }
     return right(receiptToReturn!);
     // } catch (e) {
@@ -1649,7 +1657,7 @@ Future<void> updateProductWarehouseQuantityIncremental({
   required Product product,
   required int newQuantityIncremental,
 }) async {
-  //! Wenn diese Funktion bearbeitet wird muss auch die Funktion (product_repository_impl)(updateWarehouseQuantityOfProductIncremental) geupdatet werden
+  //! Wenn diese Funktion bearbeitet wird muss auch die Funktion (product_repository_impl)(updateWarehouseQuantityOfNewProductOnImportIncremental) geupdatet werden
   final docRefProduct = db.collection('Products').doc(currentUserUid).collection('Products').doc(product.id);
 
   try {
@@ -1658,6 +1666,12 @@ Future<void> updateProductWarehouseQuantityIncremental({
       isUnderMinimumStock: product.availableStock <= product.minimumStock ? true : false,
     );
     transaction.update(docRefProduct, updatedProduct.toJson());
+    if (product.isSetArticle && product.listOfProductIdWithQuantity.isNotEmpty) {
+      for (final productIdWithQuantity in product.listOfProductIdWithQuantity) {
+        final docRef = db.collection('Products').doc(currentUserUid).collection('Products').doc(productIdWithQuantity.productId);
+        transaction.update(docRef, {'warehouseStock': FieldValue.increment(newQuantityIncremental * productIdWithQuantity.quantity)});
+      }
+    }
   } catch (error) {
     logger.e('Error on updating product quantity in firebase: $error');
   }

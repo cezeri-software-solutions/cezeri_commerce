@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../2_application/firebase/customer/customer_bloc.dart';
 import '../../../core/functions/my_scaffold_messanger.dart';
+import '../../../core/renderer/failure_renderer.dart';
 import 'customer_detail_page.dart';
 
 enum CustomerCreateOrEdit { create, edit }
@@ -29,7 +30,7 @@ class CustomerDetailScreen extends StatelessWidget {
             state.fosCustomerOnCreateOption.fold(
               () => null,
               (a) => a.fold(
-                (failure) => myScaffoldMessenger(context, failure, null, null, null),
+                (failure) => failureRenderer(context, [failure]),
                 (createdCustomer) {
                   context.router.popUntilRouteWithName(CustomersOverviewRoute.name);
                   customerBloc.add(GetCustomerEvent(customer: createdCustomer));
@@ -46,7 +47,7 @@ class CustomerDetailScreen extends StatelessWidget {
             state.fosCustomerOnUpdateOption.fold(
               () => null,
               (a) => a.fold(
-                (failure) => myScaffoldMessenger(context, failure, null, null, null),
+                (failure) => failureRenderer(context, [failure]),
                 (updatedCustomer) => myScaffoldMessenger(context, null, null, 'Kunde wurde erfolgreich aktualisiert', null),
               ),
             );

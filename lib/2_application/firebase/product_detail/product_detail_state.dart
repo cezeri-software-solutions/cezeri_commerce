@@ -5,7 +5,7 @@ class ProductDetailState {
   final List<Supplier>? listOfSuppliers;
   final List<Marketplace>? listOfNotSynchronizedMarketplaces;
   final MainSettings? mainSettings;
-  final FirebaseFailure? firebaseFailure;
+  final AbstractFailure? firebaseFailure;
   final bool isAnyFailure;
   final bool isLoadingProductOnObserve;
   final bool isLoadingProductsOnObserve;
@@ -17,23 +17,23 @@ class ProductDetailState {
   final bool isLoadingProductMarketplacesOnObseve;
   final bool isLoadingProductOnCreateInMarketplaces;
   final bool isLoadingOnDeleteMarketplaceFromProduct; // Aktuelle nicht genutz (Artikel wird im Marktplatz nicht gelöscht)
-  final Option<Either<FirebaseFailure, Product>> fosProductOnObserveOption;
-  final Option<Either<FirebaseFailure, List<Product>>> fosProductsOnObserveOption;
-  final Option<Either<FirebaseFailure, Product>> fosProductOnUpdateOption;
-  final Option<Either<FirebaseFailure, Product>> fosProductOnUpdateImagesOption;
-  final Option<Either<FirebaseFailure, Unit>> fosProductOnDeleteOption;
-  final Option<Either<FirebaseFailure, List<Supplier>>> fosProductSuppliersOnObserveOption;
-  final Option<Either<FirebaseFailure, List<Marketplace>>> fosProductMarketplacesOnObserveOption;
-  final Option<Either<PrestaFailure, Unit>> fosProductOnUploadImagesInMarketplaceOption;
+  final Option<Either<AbstractFailure, Product>> fosProductOnObserveOption;
+  final Option<Either<AbstractFailure, List<Product>>> fosProductsOnObserveOption;
+  final Option<Either<AbstractFailure, Product>> fosProductOnUpdateOption;
+  final Option<Either<AbstractFailure, Product>> fosProductOnUpdateImagesOption;
+  final Option<Either<AbstractFailure, Unit>> fosProductOnDeleteOption;
+  final Option<Either<AbstractFailure, List<Supplier>>> fosProductSuppliersOnObserveOption;
+  final Option<Either<AbstractFailure, List<Marketplace>>> fosProductMarketplacesOnObserveOption;
+  final Option<Either<List<AbstractFailure>, Unit>> fosProductOnUploadImagesInMarketplaceOption;
   final Option<Either<List<AbstractFailure>, Unit>> fosProductOnUpdateInMarketplaceOption;
   final Option<Either<PrestaFailure, ProductPresta>> fosProductOnCreateInMarketplaceOption;
-  final Option<Either<AbstractFailure, ProductPresta>> fosDeleteMarketplaceFromProductOption; // Aktuelle nicht genutz (Artikel wird im Marktplatz nicht gelöscht)
+  final Option<Either<List<AbstractFailure>, Unit>> fosProductAbstractFailuresOption;
 
   //* Chart
   final List<StatProduct>? listOfStatProducts;
   final bool isShowingSalesVolumeOnChart;
   final bool isLoadingStatProductsOnObserve;
-  final FirebaseFailure? firebaseFailureChart;
+  final AbstractFailure? firebaseFailureChart;
   //* Helpers
   final bool isDescriptionSetFirstTime;
   final bool isDescriptionChanged;
@@ -102,7 +102,7 @@ class ProductDetailState {
     required this.fosProductOnUploadImagesInMarketplaceOption,
     required this.fosProductOnUpdateInMarketplaceOption,
     required this.fosProductOnCreateInMarketplaceOption,
-    required this.fosDeleteMarketplaceFromProductOption,
+    required this.fosProductAbstractFailuresOption,
     required this.listOfStatProducts,
     required this.isShowingSalesVolumeOnChart,
     required this.isLoadingStatProductsOnObserve,
@@ -171,7 +171,7 @@ class ProductDetailState {
       fosProductOnUploadImagesInMarketplaceOption: none(),
       fosProductOnUpdateInMarketplaceOption: none(),
       fosProductOnCreateInMarketplaceOption: none(),
-      fosDeleteMarketplaceFromProductOption: none(),
+      fosProductAbstractFailuresOption: none(),
       listOfStatProducts: null,
       isShowingSalesVolumeOnChart: true,
       isLoadingStatProductsOnObserve: false,
@@ -218,7 +218,7 @@ class ProductDetailState {
     List<Supplier>? listOfSuppliers,
     List<Marketplace>? listOfNotSynchronizedMarketplaces,
     MainSettings? mainSettings,
-    FirebaseFailure? firebaseFailure,
+    AbstractFailure? firebaseFailure,
     bool? isAnyFailure,
     bool? isLoadingProductOnObserve,
     bool? isLoadingProductsOnObserve,
@@ -230,21 +230,21 @@ class ProductDetailState {
     bool? isLoadingProductMarketplacesOnObseve,
     bool? isLoadingProductOnCreateInMarketplaces,
     bool? isLoadingOnDeleteMarketplaceFromProduct,
-    Option<Either<FirebaseFailure, Product>>? fosProductOnObserveOption,
-    Option<Either<FirebaseFailure, List<Product>>>? fosProductsOnObserveOption,
-    Option<Either<FirebaseFailure, Product>>? fosProductOnUpdateOption,
-    Option<Either<FirebaseFailure, Product>>? fosProductOnUpdateImagesOption,
-    Option<Either<FirebaseFailure, Unit>>? fosProductOnDeleteOption,
-    Option<Either<FirebaseFailure, List<Supplier>>>? fosProductSuppliersOnObserveOption,
-    Option<Either<FirebaseFailure, List<Marketplace>>>? fosProductMarketplacesOnObserveOption,
-    Option<Either<PrestaFailure, Unit>>? fosProductOnUploadImagesInMarketplaceOption,
+    Option<Either<AbstractFailure, Product>>? fosProductOnObserveOption,
+    Option<Either<AbstractFailure, List<Product>>>? fosProductsOnObserveOption,
+    Option<Either<AbstractFailure, Product>>? fosProductOnUpdateOption,
+    Option<Either<AbstractFailure, Product>>? fosProductOnUpdateImagesOption,
+    Option<Either<AbstractFailure, Unit>>? fosProductOnDeleteOption,
+    Option<Either<AbstractFailure, List<Supplier>>>? fosProductSuppliersOnObserveOption,
+    Option<Either<AbstractFailure, List<Marketplace>>>? fosProductMarketplacesOnObserveOption,
+    Option<Either<List<AbstractFailure>, Unit>>? fosProductOnUploadImagesInMarketplaceOption,
     Option<Either<List<AbstractFailure>, Unit>>? fosProductOnUpdateInMarketplaceOption,
     Option<Either<PrestaFailure, ProductPresta>>? fosProductOnCreateInMarketplaceOption,
-    Option<Either<AbstractFailure, ProductPresta>>? fosDeleteMarketplaceFromProductOption,
+    Option<Either<List<AbstractFailure>, Unit>>? fosProductAbstractFailuresOption,
     List<StatProduct>? listOfStatProducts,
     bool? isShowingSalesVolumeOnChart,
     bool? isLoadingStatProductsOnObserve,
-    FirebaseFailure? firebaseFailureChart,
+    AbstractFailure? firebaseFailureChart,
     bool? isDescriptionSetFirstTime,
     bool? isDescriptionChanged,
     bool? showHtmlTexts,
@@ -307,7 +307,7 @@ class ProductDetailState {
       fosProductOnUploadImagesInMarketplaceOption: fosProductOnUploadImagesInMarketplaceOption ?? this.fosProductOnUploadImagesInMarketplaceOption,
       fosProductOnUpdateInMarketplaceOption: fosProductOnUpdateInMarketplaceOption ?? this.fosProductOnUpdateInMarketplaceOption,
       fosProductOnCreateInMarketplaceOption: fosProductOnCreateInMarketplaceOption ?? this.fosProductOnCreateInMarketplaceOption,
-      fosDeleteMarketplaceFromProductOption: fosDeleteMarketplaceFromProductOption ?? this.fosDeleteMarketplaceFromProductOption,
+      fosProductAbstractFailuresOption: fosProductAbstractFailuresOption ?? this.fosProductAbstractFailuresOption,
       listOfStatProducts: listOfStatProducts ?? this.listOfStatProducts,
       isShowingSalesVolumeOnChart: isShowingSalesVolumeOnChart ?? this.isShowingSalesVolumeOnChart,
       isLoadingStatProductsOnObserve: isLoadingStatProductsOnObserve ?? this.isLoadingStatProductsOnObserve,

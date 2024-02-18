@@ -12,7 +12,6 @@ import '../../../3_domain/entities/settings/payment_method.dart';
 import '../../../constants.dart';
 import '../../app_drawer.dart';
 import '../../core/functions/dialogs.dart';
-import '../../core/functions/my_scaffold_messanger.dart';
 import '../../core/widgets/my_form_field_container.dart';
 import '../../core/widgets/my_outlined_button.dart';
 import 'widgets/add_payment_method.dart';
@@ -116,7 +115,7 @@ class _MainSettingsPageState extends State<MainSettingsPage> {
         }
 
         if (state.firebaseFailure != null && state.isAnyFailure) {
-          return Scaffold(appBar: appBar, drawer: drawer, body: Center(child: Text(mapFirebaseFailureMessage(state.firebaseFailure!))));
+          return Scaffold(appBar: appBar, drawer: drawer, body: const Center(child: Text('Ein Fehler ist aufgetreten.')));
         }
         return Scaffold(
           appBar: appBar,

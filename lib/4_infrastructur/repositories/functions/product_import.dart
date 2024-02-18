@@ -62,7 +62,7 @@ Future<Either<AbstractFailure, Product>> getOrCreateProductFromPrestaOnImportPro
       final updatedProduct = productFirestore.copyWith(productMarketplaces: productMarketplaces);
       newCreatedOrUpdatedProduct = updatedProduct;
 
-      await productRepository.updateProduct(updatedProduct);
+      await productRepository.updateProductAndSets(updatedProduct);
 
       return right(newCreatedOrUpdatedProduct);
     } else {
@@ -130,7 +130,7 @@ Future<Either<AbstractFailure, Product>> getOrCreateProductFromPrestaOnImportApp
       final updatedProduct = productFirestore.copyWith(productMarketplaces: productMarketplaces);
       newCreatedOrUpdatedProduct = updatedProduct;
 
-      await productRepository.updateProduct(updatedProduct);
+      await productRepository.updateProductAndSets(updatedProduct);
       await productRepository.updateAvailableQuantityOfProductInremental(updatedProduct, quantity * -1, null);
     } else {
       newCreatedOrUpdatedProduct = productFirestore;

@@ -3,15 +3,15 @@ part of 'main_settings_bloc.dart';
 @immutable
 class MainSettingsState {
   final MainSettings? mainSettings;
-  final FirebaseFailure? firebaseFailure;
+  final AbstractFailure? firebaseFailure;
   final bool isAnyFailure;
   final bool isLoadingMainSettingsOnObserve;
   final bool isLoadingMainSettingsOnCreate;
   final bool isLoadingMainSettingsOnUpdate;
-  final Option<Either<FirebaseFailure, MainSettings>> fosMainSettingsOnObserveOption;
-  final Option<Either<FirebaseFailure, Unit>> fosMainSettingsOnCreateOption;
-  final Option<Either<FirebaseFailure, Unit>> fosMainSettingsOnUpdateOption;
-  final Option<Either<FirebaseFailure, MainSettings>> fosMainSettingsOnUpdateWithMsOption;
+  final Option<Either<AbstractFailure, MainSettings>> fosMainSettingsOnObserveOption;
+  final Option<Either<AbstractFailure, Unit>> fosMainSettingsOnCreateOption;
+  final Option<Either<AbstractFailure, Unit>> fosMainSettingsOnUpdateOption;
+  final Option<Either<AbstractFailure, MainSettings>> fosMainSettingsOnUpdateWithMsOption;
 
   //* #################################################################
   //* ############################ Carrier ############################
@@ -65,15 +65,15 @@ class MainSettingsState {
 
   MainSettingsState copyWith({
     MainSettings? mainSettings,
-    FirebaseFailure? firebaseFailure,
+    AbstractFailure? firebaseFailure,
     bool? isAnyFailure,
     bool? isLoadingMainSettingsOnObserve,
     bool? isLoadingMainSettingsOnCreate,
     bool? isLoadingMainSettingsOnUpdate,
-    Option<Either<FirebaseFailure, MainSettings>>? fosMainSettingsOnObserveOption,
-    Option<Either<FirebaseFailure, Unit>>? fosMainSettingsOnCreateOption,
-    Option<Either<FirebaseFailure, Unit>>? fosMainSettingsOnUpdateOption,
-    Option<Either<FirebaseFailure, MainSettings>>? fosMainSettingsOnUpdateWithMsOption,
+    Option<Either<AbstractFailure, MainSettings>>? fosMainSettingsOnObserveOption,
+    Option<Either<AbstractFailure, Unit>>? fosMainSettingsOnCreateOption,
+    Option<Either<AbstractFailure, Unit>>? fosMainSettingsOnUpdateOption,
+    Option<Either<AbstractFailure, MainSettings>>? fosMainSettingsOnUpdateWithMsOption,
     Carrier? curCarrier,
     TextEditingController? marketplaceMappingController,
     TextEditingController? clientIdController,

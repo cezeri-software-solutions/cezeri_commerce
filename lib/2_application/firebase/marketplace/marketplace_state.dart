@@ -4,18 +4,18 @@ part of 'marketplace_bloc.dart';
 class MarketplaceState {
   final Marketplace? marketplace;
   final List<Marketplace>? listOfMarketplace;
-  final FirebaseFailure? firebaseFailure;
+  final AbstractFailure? firebaseFailure;
   final bool isAnyFailure;
   final bool isLoadingMarketplaceOnObserve;
   final bool isLoadingMarketplacesOnObserve;
   final bool isLoadingMarketplaceOnCreate;
   final bool isLoadingMarketplaceOnUpdate;
   final bool isLoadingMarketplaceOnDelete;
-  final Option<Either<FirebaseFailure, Marketplace>> fosMarketplaceOnObserveOption;
-  final Option<Either<FirebaseFailure, List<Marketplace>>> fosMarketplacesOnObserveOption;
-  final Option<Either<FirebaseFailure, Unit>> fosMarketplaceOnCreateOption;
-  final Option<Either<FirebaseFailure, Unit>> fosMarketplaceOnUpdateOption;
-  final Option<Either<FirebaseFailure, Unit>> fosMarketplaceOnDeleteOption;
+  final Option<Either<AbstractFailure, Marketplace>> fosMarketplaceOnObserveOption;
+  final Option<Either<AbstractFailure, List<Marketplace>>> fosMarketplacesOnObserveOption;
+  final Option<Either<AbstractFailure, Unit>> fosMarketplaceOnCreateOption;
+  final Option<Either<AbstractFailure, Unit>> fosMarketplaceOnUpdateOption;
+  final Option<Either<AbstractFailure, Unit>> fosMarketplaceOnDeleteOption;
 
   const MarketplaceState({
     required this.marketplace,
@@ -54,18 +54,18 @@ class MarketplaceState {
   MarketplaceState copyWith({
     Marketplace? marketplace,
     List<Marketplace>? listOfMarketplace,
-    FirebaseFailure? firebaseFailure,
+    AbstractFailure? firebaseFailure,
     bool? isAnyFailure,
     bool? isLoadingMarketplaceOnObserve,
     bool? isLoadingMarketplacesOnObserve,
     bool? isLoadingMarketplaceOnCreate,
     bool? isLoadingMarketplaceOnUpdate,
     bool? isLoadingMarketplaceOnDelete,
-    Option<Either<FirebaseFailure, Marketplace>>? fosMarketplaceOnObserveOption,
-    Option<Either<FirebaseFailure, List<Marketplace>>>? fosMarketplacesOnObserveOption,
-    Option<Either<FirebaseFailure, Unit>>? fosMarketplaceOnCreateOption,
-    Option<Either<FirebaseFailure, Unit>>? fosMarketplaceOnUpdateOption,
-    Option<Either<FirebaseFailure, Unit>>? fosMarketplaceOnDeleteOption,
+    Option<Either<AbstractFailure, Marketplace>>? fosMarketplaceOnObserveOption,
+    Option<Either<AbstractFailure, List<Marketplace>>>? fosMarketplacesOnObserveOption,
+    Option<Either<AbstractFailure, Unit>>? fosMarketplaceOnCreateOption,
+    Option<Either<AbstractFailure, Unit>>? fosMarketplaceOnUpdateOption,
+    Option<Either<AbstractFailure, Unit>>? fosMarketplaceOnDeleteOption,
   }) {
     return MarketplaceState(
       marketplace: marketplace ?? this.marketplace,

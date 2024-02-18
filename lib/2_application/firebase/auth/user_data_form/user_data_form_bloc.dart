@@ -5,7 +5,7 @@ import 'package:meta/meta.dart';
 
 import '../../../../3_domain/entities/client.dart';
 import '../../../../3_domain/enums/enums.dart';
-import '../../../../core/firebase_failures.dart';
+import '../../../../core/abstract_failure.dart';
 
 part 'user_data_form_event.dart';
 part 'user_data_form_state.dart';
@@ -23,7 +23,7 @@ class UserDataFormBloc extends Bloc<UserDataFormEvent, UserDataFormState> {
     });
 
     on<SaveUserDataPressedEvent>((event, emit) async {
-      Either<FirebaseFailure, Unit>? failureOrSuccessClient;
+      Either<AbstractFailure, Unit>? failureOrSuccessClient;
 
       emit(state.copyWith(isLoading: true, failureOrSuccessClientOption: none()));
 

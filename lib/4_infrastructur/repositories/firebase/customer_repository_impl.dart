@@ -3,9 +3,13 @@ import 'package:cezeri_commerce/core/firebase_failures.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:logger/logger.dart';
 
-import '../../../1_presentation/core/functions/check_internet_connection.dart';
-import '../../../3_domain/repositories/firebase/customer_repository.dart';
+import '../../../core/abstract_failure.dart';
+import '/1_presentation/core/functions/check_internet_connection.dart';
+import '/3_domain/repositories/firebase/customer_repository.dart';
+
+final logger = Logger();
 
 class CustomerRepositoryImpl implements CustomerRepository {
   final FirebaseFirestore db;
@@ -14,7 +18,7 @@ class CustomerRepositoryImpl implements CustomerRepository {
   CustomerRepositoryImpl({required this.db, required this.firebaseAuth});
 
   @override
-  Future<Either<FirebaseFailure, Customer>> createCustomer(Customer customer) async {
+  Future<Either<AbstractFailure, Customer>> createCustomer(Customer customer) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
 
@@ -29,13 +33,14 @@ class CustomerRepositoryImpl implements CustomerRepository {
       await docRefSettings.update({'nextCustomerNumber': FieldValue.increment(1)});
 
       return right(toCreateCustomer);
-    } on FirebaseException {
-      return left(GeneralFailure());
+    } on FirebaseException catch (e) {
+      logger.e(e.message);
+      return left(GeneralFailure(customMessage: 'Beim Erstellen des Kunden ist ein Fehler aufgetreten.', e: e));
     }
   }
 
   @override
-  Future<Either<FirebaseFailure, Customer>> getCustomer(String id) async {
+  Future<Either<AbstractFailure, Customer>> getCustomer(String id) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
 
@@ -45,13 +50,14 @@ class CustomerRepositoryImpl implements CustomerRepository {
     try {
       final customer = await docRef.get();
       return right(Customer.fromJson(customer.data()!));
-    } on FirebaseException {
-      return left(GeneralFailure());
+    } on FirebaseException catch (e) {
+      logger.e(e.message);
+      return left(GeneralFailure(customMessage: 'Beim Laden des Kunden ist ein Fehler aufgetreten.', e: e));
     }
   }
 
   @override
-  Future<Either<FirebaseFailure, List<Customer>>> getListOfCustomers() async {
+  Future<Either<AbstractFailure, List<Customer>>> getListOfCustomers() async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
 
@@ -61,15 +67,15 @@ class CustomerRepositoryImpl implements CustomerRepository {
     try {
       final listOfCustomers = await docRef.get().then((value) => value.docs.map((querySnapshot) => Customer.fromJson(querySnapshot.data())).toList());
 
-      if (listOfCustomers.isEmpty) return left(EmptyFailure());
       return right(listOfCustomers);
-    } on FirebaseException {
-      return left(GeneralFailure());
+    } on FirebaseException catch (e) {
+      logger.e(e.message);
+      return left(GeneralFailure(customMessage: 'Beim Laden der Kunden ist ein Fehler aufgetreten.', e: e));
     }
   }
 
   @override
-  Future<Either<FirebaseFailure, Customer>> updateCustomer(Customer customer) async {
+  Future<Either<AbstractFailure, Customer>> updateCustomer(Customer customer) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
 
@@ -80,13 +86,14 @@ class CustomerRepositoryImpl implements CustomerRepository {
       await docRef.update(customer.toJson());
 
       return right(customer);
-    } on FirebaseException {
-      return left(GeneralFailure());
+    } on FirebaseException catch (e) {
+      logger.e(e.message);
+      return left(GeneralFailure(customMessage: 'Beim Aktualisieren des Kunden ist ein Fehler aufgetreten.', e: e));
     }
   }
 
   @override
-  Future<Either<FirebaseFailure, Unit>> deleteCustomer(String id) async {
+  Future<Either<AbstractFailure, Unit>> deleteCustomer(String id) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
 
@@ -97,13 +104,14 @@ class CustomerRepositoryImpl implements CustomerRepository {
       await docRef.delete();
 
       return right(unit);
-    } on FirebaseException {
-      return left(GeneralFailure());
+    } on FirebaseException catch (e) {
+      logger.e(e.message);
+      return left(GeneralFailure(customMessage: 'Beim Löschen des Kunden ist ein Fehler aufgetreten.', e: e));
     }
   }
 
   @override
-  Future<Either<FirebaseFailure, Customer>> getCustomerByCustomerIdInMarketplace(String marketplaceId, int customerIdMarketplace) async {
+  Future<Either<AbstractFailure, Customer>> getCustomerByCustomerIdInMarketplace(String marketplaceId, int customerIdMarketplace) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
 
@@ -117,10 +125,13 @@ class CustomerRepositoryImpl implements CustomerRepository {
 
     try {
       final customer = await docRef.get().then((value) => value.docs.map((docSs) => Customer.fromJson(docSs.data())).toList().firstOrNull);
-      if (customer == null) return left(EmptyFailure());
+      if (customer == null) {
+        return left(GeneralFailure(customMessage: 'In der Datenbank konnte kein Kunde gefunden werden.'));
+      }
       return right(customer);
-    } on FirebaseException {
-      return left(GeneralFailure());
+    } on FirebaseException catch (e) {
+      logger.e(e.message);
+      return left(GeneralFailure(customMessage: 'Beim Laden des Kunden ist ein Fehler aufgetreten.', e: e));
     }
   }
 }

@@ -5,7 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../2_application/firebase/auth/user_data_form/user_data_form_bloc.dart';
 import '../../../injection.dart';
-import '../../core/functions/my_scaffold_messanger.dart';
+import '../../core/renderer/failure_renderer.dart';
 import 'register_user_data_page.dart';
 
 @RoutePage()
@@ -24,16 +24,12 @@ class RegisterUserDataScreen extends StatelessWidget {
           state.failureOrSuccessClientOption.fold(
             () => null,
             (a) => a.fold(
-              (failure) => myScaffoldMessenger(context, failure, null, null, null),
+              (failure) => failureRenderer(context, [failure]),
               (unit) => context.router.replaceAll([const HomeRoute()]),
             ),
           );
         },
-        child: Scaffold(
-          body: RegisterUserDataPage(
-            userDataFormBloc: userDataFormBloc,
-          ),
-        ),
+        child: Scaffold(body: RegisterUserDataPage(userDataFormBloc: userDataFormBloc)),
       ),
     );
   }

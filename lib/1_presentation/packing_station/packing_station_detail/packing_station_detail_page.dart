@@ -13,7 +13,6 @@ import '../../../3_domain/entities/product/product.dart';
 import '../../../3_domain/entities/receipt/receipt.dart';
 import '../../../3_domain/entities/receipt/receipt_product.dart';
 import '../../../constants.dart';
-import '../../../core/firebase_failures.dart';
 import '../../core/functions/dialogs.dart';
 import '../../core/widgets/my_avatar.dart';
 import '../../core/widgets/my_circular_progress_indicator.dart';
@@ -60,10 +59,7 @@ class _PackingStationDetailPageState extends State<PackingStationDetailPage> {
             return const Center(child: MyCircularProgressIndicator());
           }
           if (state.firebaseFailure != null && state.isAnyFailure) {
-            return switch (state.firebaseFailure.runtimeType) {
-              EmptyFailure => const Expanded(child: Center(child: Text('Auftrag nicht in der Datenbank vorhanden'))),
-              (_) => const Expanded(child: Center(child: Text('Ein Fehler beim Laden des Auftrages ist aufgetreten!')))
-            };
+            return const Expanded(child: Center(child: Text('Ein Fehler beim Laden des Auftrages ist aufgetreten!')));
           }
           if (state.appointment == null || state.listOfProducts == null) return const Center(child: MyCircularProgressIndicator());
 

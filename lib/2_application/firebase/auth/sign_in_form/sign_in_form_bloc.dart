@@ -3,7 +3,7 @@ import 'package:dartz/dartz.dart';
 import 'package:meta/meta.dart';
 
 import '../../../../3_domain/repositories/firebase/auth_repository.dart';
-import '../../../../core/auth_failures.dart';
+import '../../../../core/abstract_failure.dart';
 
 part 'sign_in_form_event.dart';
 part 'sign_in_form_state.dart';

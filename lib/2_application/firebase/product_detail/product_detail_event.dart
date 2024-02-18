@@ -63,6 +63,7 @@ class GetProductByEanEvent extends ProductDetailEvent {
 }
 
 class UpdateProductEvent extends ProductDetailEvent {}
+class UpdateProductEventTest extends ProductDetailEvent {}
 
 class OnProductIsActiveChangedEvent extends ProductDetailEvent {}
 

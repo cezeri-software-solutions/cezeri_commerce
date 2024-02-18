@@ -6,7 +6,7 @@ class CustomerState {
   final List<Customer>? listOfAllCustomers;
   final List<Customer>? listOfFilteredCustomers;
   final List<Customer> selectedCustomers;
-  final FirebaseFailure? firebaseFailure;
+  final AbstractFailure? firebaseFailure;
   final bool isAnyFailure;
   final bool isLoadingCustomerOnObserve;
   final bool isLoadingCustomersOnObserve;
@@ -14,12 +14,12 @@ class CustomerState {
   final bool isLoadingCustomerOnUpdate;
   final bool isLoadingCustomerOnDelete;
   final bool isLoadingCustomerMainSettingsOnObserve;
-  final Option<Either<FirebaseFailure, Customer>> fosCustomerOnObserveOption;
-  final Option<Either<FirebaseFailure, List<Customer>>> fosCustomersOnObserveOption;
-  final Option<Either<FirebaseFailure, Customer>> fosCustomerOnCreateOption;
-  final Option<Either<FirebaseFailure, Customer>> fosCustomerOnUpdateOption;
-  final Option<Either<FirebaseFailure, Unit>> fosCustomerOnDeleteOption;
-  final Option<Either<FirebaseFailure, MainSettings>> fosCustomerMainSettingsOnObserveOption;
+  final Option<Either<AbstractFailure, Customer>> fosCustomerOnObserveOption;
+  final Option<Either<AbstractFailure, List<Customer>>> fosCustomersOnObserveOption;
+  final Option<Either<AbstractFailure, Customer>> fosCustomerOnCreateOption;
+  final Option<Either<AbstractFailure, Customer>> fosCustomerOnUpdateOption;
+  final Option<Either<AbstractFailure, Unit>> fosCustomerOnDeleteOption;
+  final Option<Either<AbstractFailure, MainSettings>> fosCustomerMainSettingsOnObserveOption;
 
   //* Helpers
   final bool isAllCustomersSelected;
@@ -104,7 +104,7 @@ class CustomerState {
     List<Customer>? listOfAllCustomers,
     List<Customer>? listOfFilteredCustomers,
     List<Customer>? selectedCustomers,
-    FirebaseFailure? firebaseFailure,
+    AbstractFailure? firebaseFailure,
     bool? isAnyFailure,
     bool? isLoadingCustomerOnObserve,
     bool? isLoadingCustomersOnObserve,
@@ -112,12 +112,12 @@ class CustomerState {
     bool? isLoadingCustomerOnUpdate,
     bool? isLoadingCustomerOnDelete,
     bool? isLoadingCustomerMainSettingsOnObserve,
-    Option<Either<FirebaseFailure, Customer>>? fosCustomerOnObserveOption,
-    Option<Either<FirebaseFailure, List<Customer>>>? fosCustomersOnObserveOption,
-    Option<Either<FirebaseFailure, Customer>>? fosCustomerOnCreateOption,
-    Option<Either<FirebaseFailure, Customer>>? fosCustomerOnUpdateOption,
-    Option<Either<FirebaseFailure, Unit>>? fosCustomerOnDeleteOption,
-    Option<Either<FirebaseFailure, MainSettings>>? fosCustomerMainSettingsOnObserveOption,
+    Option<Either<AbstractFailure, Customer>>? fosCustomerOnObserveOption,
+    Option<Either<AbstractFailure, List<Customer>>>? fosCustomersOnObserveOption,
+    Option<Either<AbstractFailure, Customer>>? fosCustomerOnCreateOption,
+    Option<Either<AbstractFailure, Customer>>? fosCustomerOnUpdateOption,
+    Option<Either<AbstractFailure, Unit>>? fosCustomerOnDeleteOption,
+    Option<Either<AbstractFailure, MainSettings>>? fosCustomerMainSettingsOnObserveOption,
     bool? isAllCustomersSelected,
     String? customerSearchText,
     TextEditingController? companyNameController,

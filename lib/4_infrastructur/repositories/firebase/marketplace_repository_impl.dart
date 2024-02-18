@@ -6,12 +6,16 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:logger/logger.dart';
 import 'package:path/path.dart';
 
-import '../../../1_presentation/core/functions/check_internet_connection.dart';
-import '../../../3_domain/entities/id.dart';
-import '../../../3_domain/entities/marketplace/marketplace.dart';
-import '../../../3_domain/repositories/firebase/marketplace_repository.dart';
+import '../../../core/abstract_failure.dart';
+import '/1_presentation/core/functions/check_internet_connection.dart';
+import '/3_domain/entities/id.dart';
+import '/3_domain/entities/marketplace/marketplace.dart';
+import '/3_domain/repositories/firebase/marketplace_repository.dart';
+
+final logger = Logger();
 
 class MarketplaceRepositoryImpl implements MarketplaceRepository {
   final FirebaseFirestore db;
@@ -20,7 +24,7 @@ class MarketplaceRepositoryImpl implements MarketplaceRepository {
   MarketplaceRepositoryImpl({required this.db, required this.firebaseAuth});
 
   @override
-  Future<Either<FirebaseFailure, Unit>> createMarketplace(Marketplace marketplace, File? imageFile) async {
+  Future<Either<AbstractFailure, Unit>> createMarketplace(Marketplace marketplace, File? imageFile) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
 
@@ -44,13 +48,14 @@ class MarketplaceRepositoryImpl implements MarketplaceRepository {
       await docRef.set(toCreateMarketplace.toJson());
 
       return right(unit);
-    } on FirebaseException {
-      return left(GeneralFailure());
+    } on FirebaseException catch (e) {
+      logger.e(e.message);
+      return left(GeneralFailure(customMessage: 'Beim Erstellen des Marktplatzes ist ein Fehler aufgetreten.', e: e));
     }
   }
 
   @override
-  Future<Either<FirebaseFailure, Unit>> updateMarketplace(Marketplace marketplace, File? imageFile) async {
+  Future<Either<AbstractFailure, Unit>> updateMarketplace(Marketplace marketplace, File? imageFile) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
 
@@ -78,13 +83,14 @@ class MarketplaceRepositoryImpl implements MarketplaceRepository {
       await docRef.update(toUpdateMarketplace.toJson());
 
       return right(unit);
-    } on FirebaseException {
-      return left(GeneralFailure());
+    } on FirebaseException catch (e) {
+      logger.e(e.message);
+      return left(GeneralFailure(customMessage: 'Beim Aktualisieren des Marktplatzes ist ein Fehler aufgetreten.', e: e));
     }
   }
 
   @override
-  Future<Either<FirebaseFailure, Unit>> deleteMarketplace(String id) async {
+  Future<Either<AbstractFailure, Unit>> deleteMarketplace(String id) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
 
@@ -96,13 +102,14 @@ class MarketplaceRepositoryImpl implements MarketplaceRepository {
       await docRef.delete();
 
       return right(unit);
-    } on FirebaseException {
-      return left(GeneralFailure());
+    } on FirebaseException catch (e) {
+      logger.e(e.message);
+      return left(GeneralFailure(customMessage: 'Beim Löschen des Marktplatzes ist ein Fehler aufgetreten.', e: e));
     }
   }
 
   @override
-  Future<Either<FirebaseFailure, Marketplace>> getMarketplace(String id) async {
+  Future<Either<AbstractFailure, Marketplace>> getMarketplace(String id) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
 
@@ -112,13 +119,14 @@ class MarketplaceRepositoryImpl implements MarketplaceRepository {
     try {
       final marketplace = await docRef.get();
       return right(Marketplace.fromJson(marketplace.data()!));
-    } on FirebaseException {
-      return left(GeneralFailure());
+    } on FirebaseException catch (e) {
+      logger.e(e.message);
+      return left(GeneralFailure(customMessage: 'Beim Laden des Marktplatzes ist ein Fehler aufgetreten.', e: e));
     }
   }
 
   @override
-  Future<Either<FirebaseFailure, List<Marketplace>>> getListOfMarketplaces() async {
+  Future<Either<AbstractFailure, List<Marketplace>>> getListOfMarketplaces() async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
 
@@ -137,15 +145,15 @@ class MarketplaceRepositoryImpl implements MarketplaceRepository {
       //   await docRefMp.update(updatedMp.toJson());
       // }
 
-      if (listOfMarketplaces.isEmpty) return left(EmptyFailure());
       return right(listOfMarketplaces);
-    } on FirebaseException {
-      return left(GeneralFailure());
+    } on FirebaseException catch (e) {
+      logger.e(e.message);
+      return left(GeneralFailure(customMessage: 'Beim Laden der Marktplätze ist ein Fehler aufgetreten.', e: e));
     }
   }
 
   @override
-  Future<Either<FirebaseFailure, Unit>> addMarketplaceEMailAutomation(Marketplace marketplace, EMailAutomation eMailAutomation) async {
+  Future<Either<AbstractFailure, Unit>> addMarketplaceEMailAutomation(Marketplace marketplace, EMailAutomation eMailAutomation) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
 
@@ -167,13 +175,14 @@ class MarketplaceRepositoryImpl implements MarketplaceRepository {
       await docRef.update(updatedMarketplace.toJson());
 
       return right(unit);
-    } on FirebaseException {
-      return left(GeneralFailure());
+    } on FirebaseException catch (e) {
+      logger.e(e.message);
+      return left(GeneralFailure(customMessage: 'Beim Hinzufügen einer E-Mail Automatisierung ist ein Fehler aufgetreten.', e: e));
     }
   }
 
   @override
-  Future<Either<FirebaseFailure, Unit>> updateMarketplaceEMailAutomation(Marketplace marketplace, EMailAutomation eMailAutomation) async {
+  Future<Either<AbstractFailure, Unit>> updateMarketplaceEMailAutomation(Marketplace marketplace, EMailAutomation eMailAutomation) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
 
@@ -197,8 +206,9 @@ class MarketplaceRepositoryImpl implements MarketplaceRepository {
       await docRef.update(updatedMarketplace.toJson());
 
       return right(unit);
-    } on FirebaseException {
-      return left(GeneralFailure());
+    } on FirebaseException catch (e) {
+      logger.e(e.message);
+      return left(GeneralFailure(customMessage: 'Beim Aktualisieren einer E-Mail Automatisierung ist ein Fehler aufgetreten.', e: e));
     }
   }
 }

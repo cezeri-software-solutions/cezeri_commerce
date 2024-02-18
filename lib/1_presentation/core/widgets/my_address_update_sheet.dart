@@ -79,29 +79,30 @@ class _MyAddressUpdateSheetState extends State<MyAddressUpdateSheet> {
                 ],
               ),
               Gaps.h16,
-              MyTextFormFieldSmall(labelText: 'Firmenname', controller: _companyNameController),
-              Gaps.h16,
-              Row(
-                children: [
-                  Expanded(
-                    child: MyTextFormFieldSmall(
-                      labelText: 'Vorname',
-                      controller: _firstNameController,
-                      validator: (input) => validateGeneralMin3(input),
-                    ),
-                  ),
-                  Gaps.w8,
-                  Expanded(
-                    child: MyTextFormFieldSmall(
-                      labelText: 'Nachname',
-                      controller: _lastNameController,
-                      validator: (input) => validateGeneralMin3(input),
-                    ),
-                  ),
-                ],
-              ),
-              Gaps.h16,
             ],
+            MyTextFormFieldSmall(labelText: 'Firmenname', controller: _companyNameController),
+            Gaps.h16,
+            Row(
+              children: [
+                Expanded(
+                  child: MyTextFormFieldSmall(
+                    labelText: 'Vorname',
+                    controller: _firstNameController,
+                    validator: (input) => validateGeneralMin3(input),
+                  ),
+                ),
+                Gaps.w8,
+                Expanded(
+                  child: MyTextFormFieldSmall(
+                    labelText: 'Nachname',
+                    controller: _lastNameController,
+                    validator: (input) => validateGeneralMin3(input),
+                  ),
+                ),
+              ],
+            ),
+            Gaps.h16,
+
             Row(
               children: [
                 Expanded(

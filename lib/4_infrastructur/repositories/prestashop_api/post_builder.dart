@@ -155,7 +155,7 @@ XmlBuilder? postProductBuilder({
       builder.element('visibility', nest: 'both');
       builder.element('meta_description', nest: convertHtmlToString(product.descriptionShort));
       builder.element('meta_keywords', nest: '');
-      builder.element('meta_title', nest: product.name);
+      // builder.element('meta_title', nest: product.name);
       builder.element('link_rewrite', nest: generateFriendlyUrl(product.name));
       builder.element('name', nest: product.name);
       builder.element('description', nest: product.description);

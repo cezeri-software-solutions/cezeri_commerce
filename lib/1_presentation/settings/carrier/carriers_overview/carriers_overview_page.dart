@@ -8,7 +8,6 @@ import '../../../../3_domain/entities/carrier/carrier.dart';
 import '../../../../3_domain/entities/settings/main_settings.dart';
 import '../../../../constants.dart';
 import '../../../app_drawer.dart';
-import '../../../core/functions/my_scaffold_messanger.dart';
 
 class CarriersOverviewPage extends StatelessWidget {
   const CarriersOverviewPage({super.key});
@@ -29,7 +28,7 @@ class CarriersOverviewPage extends StatelessWidget {
         }
 
         if (state.firebaseFailure != null && state.isAnyFailure) {
-          return Scaffold(appBar: appBar, drawer: drawer, body: Center(child: Text(mapFirebaseFailureMessage(state.firebaseFailure!))));
+          return Scaffold(appBar: appBar, drawer: drawer, body: const Center(child: Text('Ein Fehler ist aufgetreten')));
         }
 
         final unusedCarriers =

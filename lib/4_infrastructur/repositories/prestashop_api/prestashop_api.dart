@@ -269,7 +269,10 @@ class PrestashopApi with UiLoggy {
 
   //* Product
   Future<Either<PrestaFailure, Unit>> patchProductQuantity(
-      final int marketplaceProductPrestaId, final int quantity, final Marketplace marketplace) async {
+    final int marketplaceProductPrestaId,
+    final int quantity,
+    final Marketplace marketplace,
+  ) async {
     final errorC1 = PrestaGeneralFailure(
       errorMessage:
           'Artikel mit der ID: "$marketplaceProductPrestaId" konnte im Marktplatz: "${marketplace.name}" nicht gefunden werden.\nTechnischer Fehler im: getProduct',
@@ -612,7 +615,6 @@ class PrestashopApi with UiLoggy {
       return null;
     }
     if (response.statusCode == 200) {
-      print(response.body);
       return jsonDecode(utf8.decode(response.bodyBytes));
     }
     loggy.error(response);

@@ -11,6 +11,7 @@ import '../../../../injection.dart';
 import '../../../../routes/router.gr.dart';
 import '../../../core/functions/dialogs.dart';
 import '../../../core/functions/my_scaffold_messanger.dart';
+import '../../../core/renderer/failure_renderer.dart';
 import '../supplier_detail/supplier_detail_screen.dart';
 import 'suppliers_overview_page.dart';
 
@@ -34,7 +35,7 @@ class SuppliersOverviewScreen extends StatelessWidget {
               state.fosSuppliersOnObserveOption.fold(
                 () => null,
                 (a) => a.fold(
-                  (failure) => myScaffoldMessenger(context, failure, null, null, null),
+                  (failure) => failureRenderer(context, [failure]),
                   (listOfProducts) => myScaffoldMessenger(context, null, null, 'Lieferanten wurden erfolgreich geladen', null),
                 ),
               );
@@ -46,7 +47,7 @@ class SuppliersOverviewScreen extends StatelessWidget {
               state.fosSupplierOnDeleteOption.fold(
                 () => null,
                 (a) => a.fold(
-                  (failure) => myScaffoldMessenger(context, failure, null, null, null),
+                  (failure) => failureRenderer(context, [failure]),
                   (supplier) => myScaffoldMessenger(context, null, null, 'Ausgewählte Lieferanten erfolgreich gelöscht', null),
                 ),
               );

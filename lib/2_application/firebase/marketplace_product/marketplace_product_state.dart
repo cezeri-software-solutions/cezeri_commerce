@@ -5,12 +5,12 @@ class MarketplaceProductState {
   final MarketplaceProductPresta? marketplaceProductPresta;
   final List<CategoryPresta>? listOfCategoriesPrestaOriginal;
   final List<CategoryPresta>? listOfCategoriesPresta;
-  final FirebaseFailure? firebaseFailure;
+  final AbstractFailure? firebaseFailure;
   final PrestaFailure? prestaFailure;
   final bool isAnyFirebaseFailure;
   final bool isAnyPrestaFailure;
   final bool isLoadingMarketplaceProductCategoriesOnObserve;
-  final Option<Either<FirebaseFailure, Marketplace>> fosMarketplaceProductMarketplaceOnObserveOption;
+  final Option<Either<AbstractFailure, Marketplace>> fosMarketplaceProductMarketplaceOnObserveOption;
   final Option<Either<PrestaFailure, List<CategoryPresta>>> fosMarketplaceProductCategoriesOnObserveOption;
 
   //* Helper Category
@@ -59,12 +59,12 @@ class MarketplaceProductState {
     MarketplaceProductPresta? marketplaceProductPresta,
     List<CategoryPresta>? listOfCategoriesPrestaOriginal,
     List<CategoryPresta>? listOfCategoriesPresta,
-    FirebaseFailure? firebaseFailure,
+    AbstractFailure? firebaseFailure,
     PrestaFailure? prestaFailure,
     bool? isAnyFirebaseFailure,
     bool? isAnyPrestaFailure,
     bool? isLoadingMarketplaceProductCategoriesOnObserve,
-    Option<Either<FirebaseFailure, Marketplace>>? fosMarketplaceProductMarketplaceOnObserveOption,
+    Option<Either<AbstractFailure, Marketplace>>? fosMarketplaceProductMarketplaceOnObserveOption,
     Option<Either<PrestaFailure, List<CategoryPresta>>>? fosMarketplaceProductCategoriesOnObserveOption,
     List<bool>? isExpanded,
     List<bool>? isSelected,

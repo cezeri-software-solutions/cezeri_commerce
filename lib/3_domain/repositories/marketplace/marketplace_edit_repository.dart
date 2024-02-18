@@ -11,17 +11,17 @@ import '../../enums/enums.dart';
 
 abstract class MarketplaceEditRepository {
   //* Product
-  Future<Either<List<AbstractFailure>, Unit>> setProdcutPrestaQuantity(Product prodcut, int newQuantity, Marketplace? marketplaceToSkip);
-  Future<Either<List<AbstractFailure>, Unit>> editProdcutPresta(Product product, List<Marketplace>? toEditMarketplaces);
-  Future<Either<PrestaFailure, ProductPresta>> createProdcutPresta(
+  Future<Either<List<AbstractFailure>, Unit>> setQuantityMPInAllProductMarketplaces(Product prodcut, int newQuantity, Marketplace? marketplaceToSkip);
+  Future<Either<List<AbstractFailure>, Unit>> editProdcutInMarketplace(Product product, List<Marketplace>? toEditMarketplaces);
+  Future<Either<PrestaFailure, ProductPresta>> createProdcutInMarketplace(
     Product product,
     ProductMarketplace productMarketplace,
     ProductMarketplace anotherProductMarketplaceWithSameManufacturer,
   );
-  Future<Either<PrestaFailure, Unit>> uploadProductImages(Product product, List<ProductImage> productImages);
+  Future<Either<List<AbstractFailure>, Unit>> uploadProductImagesToMarketplace(Product product, List<ProductImage> productImages);
 
   //* Order
-  Future<Either<PrestaFailure, Unit>> setOrderStatus(
+  Future<Either<PrestaFailure, Unit>> setOrderStatusInMarketplace(
     Marketplace marketplace,
     int orderId,
     OrderStatusUpdateType orderStatusUpdateType,

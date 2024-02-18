@@ -4,6 +4,7 @@ import 'package:cezeri_commerce/core/firebase_failures.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:logger/logger.dart';
 
 import '../../../1_presentation/core/functions/check_internet_connection.dart';
 import '../../../3_domain/entities/product/product.dart';
@@ -12,6 +13,9 @@ import '../../../3_domain/enums/enums.dart';
 import '../../../3_domain/repositories/firebase/product_repository.dart';
 import '../../../3_domain/repositories/firebase/reorder_repository.dart';
 import '../../../3_domain/repositories/marketplace/marketplace_edit_repository.dart';
+import '../../../core/abstract_failure.dart';
+
+final logger = Logger();
 
 class ReorderRepositoryImpl implements ReorderRepository {
   final FirebaseFirestore db;
@@ -22,7 +26,7 @@ class ReorderRepositoryImpl implements ReorderRepository {
   ReorderRepositoryImpl({required this.db, required this.firebaseAuth, required this.marketplaceEditRepository, required this.productRepository});
 
   @override
-  Future<Either<FirebaseFailure, Reorder>> createReorder(Reorder reorder) async {
+  Future<Either<AbstractFailure, Reorder>> createReorder(Reorder reorder) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
 
@@ -37,13 +41,14 @@ class ReorderRepositoryImpl implements ReorderRepository {
       await docRefSettings.update({'nextReorderNumber': FieldValue.increment(1)});
 
       return right(toCreateReorder);
-    } on FirebaseException {
-      return left(GeneralFailure());
+    } on FirebaseException catch (e) {
+      logger.e(e.message);
+      return left(GeneralFailure(customMessage: 'Beim Erstellen der Nachbestellung ist ein Fehler aufgetreten.', e: e));
     }
   }
 
   @override
-  Future<Either<FirebaseFailure, Reorder>> getReorder(String id) async {
+  Future<Either<AbstractFailure, Reorder>> getReorder(String id) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
 
@@ -53,13 +58,14 @@ class ReorderRepositoryImpl implements ReorderRepository {
     try {
       final reorder = await docRef.get();
       return right(Reorder.fromJson(reorder.data()!));
-    } on FirebaseException {
-      return left(GeneralFailure());
+    } on FirebaseException catch (e) {
+      logger.e(e.message);
+      return left(GeneralFailure(customMessage: 'Beim Laden der Nachbestellung ist ein Fehler aufgetreten.', e: e));
     }
   }
 
   @override
-  Future<Either<FirebaseFailure, List<Reorder>>> getListOfReorders(GetReordersType getReordersType) async {
+  Future<Either<AbstractFailure, List<Reorder>>> getListOfReorders(GetReordersType getReordersType) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
 
@@ -80,18 +86,16 @@ class ReorderRepositoryImpl implements ReorderRepository {
 
     try {
       final listOfReorders = await docRef.get().then((value) => value.docs.map((querySnapshot) => Reorder.fromJson(querySnapshot.data())).toList());
-      print('Repository');
-      print(listOfReorders.length);
 
-      if (listOfReorders.isEmpty) return left(EmptyFailure());
       return right(listOfReorders);
-    } on FirebaseException {
-      return left(GeneralFailure());
+    } on FirebaseException catch (e) {
+      logger.e(e.message);
+      return left(GeneralFailure(customMessage: 'Beim Laden der Nachbestellungen ist ein Fehler aufgetreten.', e: e));
     }
   }
 
   @override
-  Future<Either<FirebaseFailure, Reorder>> updateReorder(Reorder reorder) async {
+  Future<Either<AbstractFailure, Reorder>> updateReorder(Reorder reorder) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
 
@@ -102,13 +106,14 @@ class ReorderRepositoryImpl implements ReorderRepository {
       await docRef.update(reorder.toJson());
 
       return right(reorder);
-    } on FirebaseException {
-      return left(GeneralFailure());
+    } on FirebaseException catch (e) {
+      logger.e(e.message);
+      return left(GeneralFailure(customMessage: 'Beim Aktualisieren der Nachbestellung ist ein Fehler aufgetreten.', e: e));
     }
   }
 
   @override
-  Future<Either<FirebaseFailure, Unit>> deleteReorder(String id) async {
+  Future<Either<AbstractFailure, Unit>> deleteReorder(String id) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
 
@@ -119,13 +124,14 @@ class ReorderRepositoryImpl implements ReorderRepository {
       await docRef.delete();
 
       return right(unit);
-    } on FirebaseException {
-      return left(GeneralFailure());
+    } on FirebaseException catch (e) {
+      logger.e(e.message);
+      return left(GeneralFailure(customMessage: 'Beim Löschen der Nachbestellung ist ein Fehler aufgetreten.', e: e));
     }
   }
 
   @override
-  Future<Either<FirebaseFailure, Unit>> deleteReorders(List<String> ids) async {
+  Future<Either<AbstractFailure, Unit>> deleteReorders(List<String> ids) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
 
@@ -138,13 +144,14 @@ class ReorderRepositoryImpl implements ReorderRepository {
       }
 
       return right(unit);
-    } on FirebaseException {
-      return left(GeneralFailure());
+    } on FirebaseException catch (e) {
+      logger.e(e.message);
+      return left(GeneralFailure(customMessage: 'Beim Löschen der Nachbestellungen ist ein Fehler aufgetreten.', e: e));
     }
   }
 
   @override
-  Future<Either<FirebaseFailure, Unit>> updateReordersFromProductsBooking(List<BookingProduct> listOfBookingProducts) async {
+  Future<Either<AbstractFailure, Unit>> updateReordersFromProductsBooking(List<BookingProduct> listOfBookingProducts) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
 
@@ -206,11 +213,12 @@ class ReorderRepositoryImpl implements ReorderRepository {
 
         //* Update Product Quantity in Marketplaces
         if (updatedProduct == null) return left(GeneralFailure());
-        await marketplaceEditRepository.setProdcutPrestaQuantity(updatedProduct!, updatedProduct!.availableStock, null);
+        await marketplaceEditRepository.setQuantityMPInAllProductMarketplaces(updatedProduct!, updatedProduct!.availableStock, null);
       }
       return right(unit);
-    } on FirebaseException {
-      return left(GeneralFailure());
+    } on FirebaseException catch (e) {
+      logger.e(e.message);
+      return left(GeneralFailure(customMessage: 'Beim Aktualisieren der Nachbestellung/en ist ein Fehler aufgetreten.', e: e));
     }
   }
 }

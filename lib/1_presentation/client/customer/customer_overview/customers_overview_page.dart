@@ -8,7 +8,6 @@ import 'package:intl/intl.dart';
 import '../../../../2_application/firebase/customer/customer_bloc.dart';
 import '../../../../3_domain/entities/customer/customer.dart';
 import '../../../../constants.dart';
-import '../../../../core/firebase_failures.dart';
 import '../../../../routes/router.gr.dart';
 import '../../../core/widgets/my_country_flag.dart';
 
@@ -25,13 +24,13 @@ class CustomersOverviewPage extends StatelessWidget {
           return const Expanded(child: Center(child: CircularProgressIndicator()));
         }
         if (state.firebaseFailure != null && state.isAnyFailure) {
-          return switch (state.firebaseFailure.runtimeType) {
-            EmptyFailure => const Expanded(child: Center(child: Text('Du hast noch keine Kunden angelegt oder importiert!'))),
-            (_) => const Expanded(child: Center(child: Text('Ein Fehler beim Laden der Kunden ist aufgetreten!')))
-          };
+          return const Expanded(child: Center(child: Text('Ein Fehler beim Laden der Kunden ist aufgetreten!')));
         }
         if (state.listOfAllCustomers == null || state.listOfFilteredCustomers == null) {
           return const Expanded(child: Center(child: CircularProgressIndicator()));
+        }
+        if (state.listOfAllCustomers == null || state.listOfFilteredCustomers == null) {
+          return const Expanded(child: Center(child: Text('Du hast noch keine Kunden angelegt oder importiert!')));
         }
 
         return Expanded(
