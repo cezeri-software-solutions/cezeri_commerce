@@ -5,7 +5,8 @@ import 'package:dartz/dartz.dart';
 import 'package:meta/meta.dart';
 
 import '../../../3_domain/entities/e_mail_automation.dart';
-import '../../../3_domain/entities/marketplace/marketplace.dart';
+import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
+import '../../../3_domain/entities/marketplace/marketplace_presta.dart';
 import '../../../3_domain/repositories/firebase/marketplace_repository.dart';
 import '../../../core/abstract_failure.dart';
 
@@ -116,7 +117,7 @@ class MarketplaceBloc extends Bloc<MarketplaceEvent, MarketplaceState> {
     on<OnAddMarketplaceEMailAutomationEvent>((event, emit) async {
       emit(state.copyWith(isLoadingMarketplaceOnUpdate: true));
 
-      final failureOrSuccess = await marketplaceRepository.addMarketplaceEMailAutomation(event.marketplace, event.eMailAutomation);
+      final failureOrSuccess = await marketplaceRepository.addMarketplaceEMailAutomation(event.marketplace as MarketplacePresta, event.eMailAutomation); //TODO: Shopify
       failureOrSuccess.fold(
         (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
         (unit) => emit(state.copyWith(firebaseFailure: null, isAnyFailure: false)),
@@ -134,7 +135,7 @@ class MarketplaceBloc extends Bloc<MarketplaceEvent, MarketplaceState> {
     on<OnUpdateMarketplaceEMailAutomationEvent>((event, emit) async {
       emit(state.copyWith(isLoadingMarketplaceOnUpdate: true));
 
-      final failureOrSuccess = await marketplaceRepository.updateMarketplaceEMailAutomation(event.marketplace, event.eMailAutomation);
+      final failureOrSuccess = await marketplaceRepository.updateMarketplaceEMailAutomation(event.marketplace as MarketplacePresta, event.eMailAutomation); //TODO: Shopify
       failureOrSuccess.fold(
         (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
         (unit) => emit(state.copyWith(firebaseFailure: null, isAnyFailure: false)),

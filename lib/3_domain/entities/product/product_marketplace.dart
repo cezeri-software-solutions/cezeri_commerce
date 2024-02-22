@@ -1,7 +1,7 @@
 import 'package:json_annotation/json_annotation.dart';
 
 import '../../entities_presta/product_presta.dart';
-import '../marketplace/marketplace.dart';
+import '../marketplace/marketplace_presta.dart';
 import 'marketplace_product.dart';
 import 'marketplace_product_presta.dart';
 
@@ -30,7 +30,7 @@ class ProductMarketplace {
     );
   }
 
-  factory ProductMarketplace.fromProductPresta(ProductPresta pp, Marketplace marketplace) {
+  factory ProductMarketplace.fromProductPresta(ProductPresta pp, MarketplacePresta marketplace) {
     return ProductMarketplace(
       idMarketplace: marketplace.id,
       nameMarketplace: marketplace.name,

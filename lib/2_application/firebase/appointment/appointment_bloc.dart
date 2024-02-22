@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:cezeri_commerce/3_domain/entities/marketplace/marketplace_presta.dart';
 import 'package:cezeri_commerce/3_domain/repositories/firebase/product_repository.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
@@ -8,7 +9,7 @@ import '../../../3_domain/entities/address.dart';
 import '../../../3_domain/entities/carrier/carrier_product.dart';
 import '../../../3_domain/entities/carrier/parcel_tracking.dart';
 import '../../../3_domain/entities/customer/customer.dart';
-import '../../../3_domain/entities/marketplace/marketplace.dart';
+import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
 import '../../../3_domain/entities/product/product.dart';
 import '../../../3_domain/entities/receipt/load_appointments_helper/to_load_appointments_from_marketplace.dart';
 import '../../../3_domain/entities/receipt/receipt.dart';
@@ -548,7 +549,7 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
       emit(state.copyWith(
         receipt: state.receipt!.copyWith(
           marketplaceId: event.marketplace.id,
-          receiptMarketplace: ReceiptMarketplace.fromMarketplace(event.marketplace),
+          receiptMarketplace: ReceiptMarketplace.fromMarketplace(event.marketplace as MarketplacePresta), //TODO: Shopify
         ),
       ));
     });

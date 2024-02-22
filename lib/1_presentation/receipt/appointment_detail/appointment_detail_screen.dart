@@ -9,7 +9,7 @@ import 'package:printing/printing.dart';
 import '../../../2_application/firebase/appointment/appointment_bloc.dart';
 import '../../../2_application/firebase/main_settings/main_settings_bloc.dart';
 import '../../../2_application/firebase/receipt_detail/receipt_detail_bloc.dart';
-import '../../../3_domain/entities/marketplace/marketplace.dart';
+import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
 import '../../../injection.dart';
 import '../../../routes/router.gr.dart';
 import '../../core/functions/my_scaffold_messanger.dart';
@@ -21,7 +21,7 @@ enum ReceiptCreateOrEdit { create, edit }
 @RoutePage()
 class AppointmentDetailScreen extends StatelessWidget {
   final AppointmentBloc appointmentBloc;
-  final List<Marketplace> listOfMarketplaces;
+  final List<AbstractMarketplace> listOfMarketplaces;
   final ReceiptCreateOrEdit receiptCreateOrEdit;
   final ReceiptTyp receiptTyp;
 

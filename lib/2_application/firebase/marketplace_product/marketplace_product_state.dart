@@ -10,7 +10,7 @@ class MarketplaceProductState {
   final bool isAnyFirebaseFailure;
   final bool isAnyPrestaFailure;
   final bool isLoadingMarketplaceProductCategoriesOnObserve;
-  final Option<Either<AbstractFailure, Marketplace>> fosMarketplaceProductMarketplaceOnObserveOption;
+  final Option<Either<AbstractFailure, MarketplacePresta>> fosMarketplaceProductMarketplaceOnObserveOption;
   final Option<Either<PrestaFailure, List<CategoryPresta>>> fosMarketplaceProductCategoriesOnObserveOption;
 
   //* Helper Category
@@ -64,7 +64,7 @@ class MarketplaceProductState {
     bool? isAnyFirebaseFailure,
     bool? isAnyPrestaFailure,
     bool? isLoadingMarketplaceProductCategoriesOnObserve,
-    Option<Either<AbstractFailure, Marketplace>>? fosMarketplaceProductMarketplaceOnObserveOption,
+    Option<Either<AbstractFailure, MarketplacePresta>>? fosMarketplaceProductMarketplaceOnObserveOption,
     Option<Either<PrestaFailure, List<CategoryPresta>>>? fosMarketplaceProductCategoriesOnObserveOption,
     List<bool>? isExpanded,
     List<bool>? isSelected,

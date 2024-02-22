@@ -5,7 +5,7 @@ class ProductImportState {
   final ProductPresta? productPresta;
   final PrestaFailure? prestaFailure;
   final List<ProductPresta>? listOfProductsPresta;
-  final Marketplace? selectedMarketplace;
+  final AbstractMarketplace? selectedMarketplace;
   final bool isAnyFailure;
   final bool isLoadingProductPrestaOnObserve;
   final bool isLoadingProductsPrestaOnObserve;
@@ -62,7 +62,7 @@ class ProductImportState {
     ProductPresta? productPresta,
     PrestaFailure? prestaFailure,
     List<ProductPresta>? listOfProductsPresta,
-    Marketplace? selectedMarketplace,
+    AbstractMarketplace? selectedMarketplace,
     bool? isAnyFailure,
     bool? isLoadingProductPrestaOnObserve,
     bool? isLoadingProductsPrestaOnObserve,

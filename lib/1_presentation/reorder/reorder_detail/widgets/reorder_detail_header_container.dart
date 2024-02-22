@@ -1,3 +1,4 @@
+import 'package:cezeri_commerce/3_domain/entities/marketplace/marketplace_presta.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -101,7 +102,7 @@ class ReorderDetailHeaderContainer extends StatelessWidget {
                             IconButton(
                               padding: EdgeInsets.zero,
                               onPressed: state.listOfMarketplaces != null && state.listOfMarketplaces!.isNotEmpty
-                                  ? () async => await onPdfPressed(context: context, reorder: state.reorder!, marketplaces: state.listOfMarketplaces!)
+                                  ? () async => await onPdfPressed(context: context, reorder: state.reorder!, marketplaces: state.listOfMarketplaces! as List<MarketplacePresta>) //TODO: Shopify
                                   : () => reorderDetailBloc.add(OnReorderDetailGetPdfDataEvent()),
                               icon:
                                   state.isLoadingPdfData ? const MyCircularProgressIndicator() : const Icon(Icons.picture_as_pdf, color: Colors.red),

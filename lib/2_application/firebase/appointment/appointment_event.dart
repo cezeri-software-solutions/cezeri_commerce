@@ -32,7 +32,7 @@ class GetReceiptsEvent extends AppointmentEvent {
 
 class GetNewAppointmentByIdFromPrestaEvent extends AppointmentEvent {
   final int id;
-  final Marketplace marketplace;
+  final AbstractMarketplace marketplace;
 
   GetNewAppointmentByIdFromPrestaEvent({required this.id, required this.marketplace});
 }
@@ -109,7 +109,7 @@ class OnAppointmentSelectedEvent extends AppointmentEvent {
 }
 
 class OnAppointmentMarketplaceChangedEvent extends AppointmentEvent {
-  final Marketplace marketplace;
+  final AbstractMarketplace marketplace;
 
   OnAppointmentMarketplaceChangedEvent({required this.marketplace});
 }

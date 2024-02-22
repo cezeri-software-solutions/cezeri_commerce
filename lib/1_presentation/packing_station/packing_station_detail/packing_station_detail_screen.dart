@@ -8,7 +8,7 @@ import 'package:printing/printing.dart';
 
 import '../../../2_application/firebase/main_settings/main_settings_bloc.dart';
 import '../../../2_application/packing_station/packing_station_bloc.dart';
-import '../../../3_domain/entities/marketplace/marketplace.dart';
+import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
 import '../../../3_domain/pdf/pdf_receipt_generator.dart';
 import '../../../routes/router.gr.dart';
 import '../../core/functions/dialogs.dart';
@@ -17,7 +17,7 @@ import 'packing_station_detail_page.dart';
 @RoutePage()
 class PackingStationDetailScreen extends StatelessWidget {
   final PackingStationBloc packingStationBloc;
-  final Marketplace marketplace;
+  final AbstractMarketplace marketplace;
 
   const PackingStationDetailScreen({super.key, required this.packingStationBloc, required this.marketplace});
 

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../2_application/firebase/product/product_bloc.dart';
-import '../../../../3_domain/entities/marketplace/marketplace.dart';
+import '../../../../3_domain/entities/marketplace/abstract_marketplace.dart';
 import '../../../../constants.dart';
 import '../../../../routes/router.gr.dart';
 import '../../../core/widgets/my_outlined_button.dart';
@@ -12,7 +12,7 @@ import 'products_mass_editing_weight_and_dimensions_dialog.dart';
 
 class ProductsMassEditingSelectOptionDialog extends StatelessWidget {
   final ProductBloc productBloc;
-  final List<Marketplace> selectedMarketplaces;
+  final List<AbstractMarketplace> selectedMarketplaces;
 
   const ProductsMassEditingSelectOptionDialog({super.key, required this.selectedMarketplaces, required this.productBloc});
 

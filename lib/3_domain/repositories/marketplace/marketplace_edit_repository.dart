@@ -2,7 +2,7 @@ import 'package:dartz/dartz.dart';
 
 import '../../../../core/presta_failure.dart';
 import '../../../core/abstract_failure.dart';
-import '../../entities/marketplace/marketplace.dart';
+import '../../entities/marketplace/marketplace_presta.dart';
 import '../../entities/product/product.dart';
 import '../../entities/product/product_image.dart';
 import '../../entities/product/product_marketplace.dart';
@@ -11,8 +11,8 @@ import '../../enums/enums.dart';
 
 abstract class MarketplaceEditRepository {
   //* Product
-  Future<Either<List<AbstractFailure>, Unit>> setQuantityMPInAllProductMarketplaces(Product prodcut, int newQuantity, Marketplace? marketplaceToSkip);
-  Future<Either<List<AbstractFailure>, Unit>> editProdcutInMarketplace(Product product, List<Marketplace>? toEditMarketplaces);
+  Future<Either<List<AbstractFailure>, Unit>> setQuantityMPInAllProductMarketplaces(Product prodcut, int newQuantity, MarketplacePresta? marketplaceToSkip);
+  Future<Either<List<AbstractFailure>, Unit>> editProdcutInMarketplace(Product product, List<MarketplacePresta>? toEditMarketplaces);
   Future<Either<PrestaFailure, ProductPresta>> createProdcutInMarketplace(
     Product product,
     ProductMarketplace productMarketplace,
@@ -22,7 +22,7 @@ abstract class MarketplaceEditRepository {
 
   //* Order
   Future<Either<PrestaFailure, Unit>> setOrderStatusInMarketplace(
-    Marketplace marketplace,
+    MarketplacePresta marketplace,
     int orderId,
     OrderStatusUpdateType orderStatusUpdateType,
   );

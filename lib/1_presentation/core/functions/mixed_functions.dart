@@ -3,6 +3,24 @@ import 'package:flutter/services.dart';
 import 'package:html/dom.dart';
 import 'package:html/parser.dart';
 
+import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
+
+String getMarketplaceLogoAsset(MarketplaceType marketplaceType) {
+  return switch (marketplaceType) {
+    MarketplaceType.prestashop => 'assets/marketplaces/presta_logo.svg',
+    MarketplaceType.shopify => 'assets/marketplaces/shopify_logo.svg',
+    MarketplaceType.shop => 'assets/marketplaces/store_logo.svg',
+  };
+}
+
+String getMarketplaceFontAsset(MarketplaceType marketplaceType) {
+  return switch (marketplaceType) {
+    MarketplaceType.prestashop => 'assets/marketplaces/presta_font.svg',
+    MarketplaceType.shopify => 'assets/marketplaces/shopify_font.svg',
+    MarketplaceType.shop => 'assets/marketplaces/store_logo.svg',
+  };
+}
+
 double getAspectRatio(double width) => 0.00192 * width + 0.873;
 
 String generateFriendlyUrl(String productName) {

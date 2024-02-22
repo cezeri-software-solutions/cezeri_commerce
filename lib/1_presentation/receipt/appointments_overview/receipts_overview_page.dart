@@ -10,6 +10,7 @@ import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
 import 'package:printing/printing.dart';
 
+import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
 import '../../core/functions/mixed_functions.dart';
 import '../../core/widgets/my_animated_expansion_container.dart';
 import '../../core/widgets/my_avatar.dart';
@@ -18,7 +19,6 @@ import '../appointment_detail/appointment_detail_screen.dart';
 import '../widgets/receipts_overview_carrier_bar.dart';
 import '/2_application/firebase/appointment/appointment_bloc.dart';
 import '/2_application/firebase/marketplace/marketplace_bloc.dart';
-import '/3_domain/entities/marketplace/marketplace.dart';
 import '/3_domain/entities/receipt/receipt.dart';
 import '/3_domain/entities/receipt/receipt_product.dart';
 import '/3_domain/enums/enums.dart';
@@ -111,7 +111,7 @@ class _AppointmentContainer extends StatefulWidget {
   final Receipt receipt;
   final int index;
   final AppointmentBloc appointmentBloc;
-  final List<Marketplace> listOfMarketplaces;
+  final List<AbstractMarketplace> listOfMarketplaces;
   final ReceiptTyp receiptTyp;
 
   const _AppointmentContainer({
@@ -404,7 +404,7 @@ class __AppointmentContainerState extends State<_AppointmentContainer> {
     );
   }
 
-  Future<void> _onPdfPressed({required Marketplace marketplace}) async {
+  Future<void> _onPdfPressed({required AbstractMarketplace marketplace}) async {
     setState(() => _isLoadingPdf = true);
     final receiptName = switch (widget.receipt.receiptTyp) {
       ReceiptTyp.offer => widget.receipt.offerNumberAsString,

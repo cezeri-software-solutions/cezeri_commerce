@@ -1,7 +1,7 @@
 import 'package:json_annotation/json_annotation.dart';
 
 import '../../entities_presta/product_presta.dart';
-import '../marketplace/marketplace.dart';
+import '../marketplace/abstract_marketplace.dart';
 import 'marketplace_product.dart';
 
 part 'marketplace_product_presta.g.dart';

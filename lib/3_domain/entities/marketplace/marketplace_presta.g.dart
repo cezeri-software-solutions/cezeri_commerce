@@ -1,23 +1,21 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'marketplace.dart';
+part of 'marketplace_presta.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
-Marketplace _$MarketplaceFromJson(Map<String, dynamic> json) => Marketplace(
+MarketplacePresta _$MarketplacePrestaFromJson(Map<String, dynamic> json) =>
+    MarketplacePresta(
       id: json['id'] as String,
       name: json['name'] as String,
       shortName: json['shortName'] as String,
       logoUrl: json['logoUrl'] as String,
-      marketplaceType:
-          $enumDecode(_$MarketplaceTypeEnumMap, json['marketplaceType']),
       isPresta8: json['isPresta8'] as bool,
       endpointUrl: json['endpointUrl'] as String,
       url: json['url'] as String,
       shopSuffix: json['shopSuffix'] as String,
-      fullUrl: json['fullUrl'] as String,
       key: json['key'] as String,
       isActive: json['isActive'] as bool,
       orderStatusIdList: (json['orderStatusIdList'] as List<dynamic>)
@@ -41,35 +39,28 @@ Marketplace _$MarketplaceFromJson(Map<String, dynamic> json) => Marketplace(
       createnDate: DateTime.parse(json['createnDate'] as String),
     );
 
-Map<String, dynamic> _$MarketplaceToJson(Marketplace instance) =>
+Map<String, dynamic> _$MarketplacePrestaToJson(MarketplacePresta instance) =>
     <String, dynamic>{
       'id': instance.id,
       'name': instance.name,
       'shortName': instance.shortName,
       'logoUrl': instance.logoUrl,
-      'marketplaceType': _$MarketplaceTypeEnumMap[instance.marketplaceType]!,
+      'isActive': instance.isActive,
+      'address': instance.address.toJson(),
+      'marketplaceSettings': instance.marketplaceSettings.toJson(),
+      'bankDetails': instance.bankDetails.toJson(),
+      'lastEditingDate': instance.lastEditingDate.toIso8601String(),
+      'createnDate': instance.createnDate.toIso8601String(),
       'isPresta8': instance.isPresta8,
       'endpointUrl': instance.endpointUrl,
       'url': instance.url,
       'shopSuffix': instance.shopSuffix,
-      'fullUrl': instance.fullUrl,
       'key': instance.key,
-      'isActive': instance.isActive,
       'orderStatusIdList': instance.orderStatusIdList,
       'orderStatusOnSuccessImport': instance.orderStatusOnSuccessImport,
       'orderStatusOnSuccessShipping': instance.orderStatusOnSuccessShipping,
       'warehouseForProductImport': instance.warehouseForProductImport,
       'createMissingProductOnOrderImport':
           instance.createMissingProductOnOrderImport,
-      'marketplaceSettings': instance.marketplaceSettings.toJson(),
       'paymentMethods': instance.paymentMethods.map((e) => e.toJson()).toList(),
-      'address': instance.address.toJson(),
-      'bankDetails': instance.bankDetails.toJson(),
-      'lastEditingDate': instance.lastEditingDate.toIso8601String(),
-      'createnDate': instance.createnDate.toIso8601String(),
     };
-
-const _$MarketplaceTypeEnumMap = {
-  MarketplaceType.shop: 'shop',
-  MarketplaceType.prestashop: 'prestashop',
-};

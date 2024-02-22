@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:dartz/dartz.dart';
 
 import '../../../core/abstract_failure.dart';
-import '../../entities/marketplace/marketplace.dart';
+import '../../entities/marketplace/marketplace_presta.dart';
 import '../../entities/product/product.dart';
 import '../../entities/product/product_image.dart';
 import '../../entities/product/product_marketplace.dart';
@@ -18,7 +18,7 @@ abstract class ProductRepository {
   Future<Either<AbstractFailure, Product>> updateProductRemoveImages(Product product, List<ProductImage> listOfProductImages);
   Future<Either<AbstractFailure, Unit>> deleteProduct(String id);
   Future<Either<AbstractFailure, Unit>> deleteListOfProducts(List<Product> products);
-  Future<Either<AbstractFailure, Unit>> activateMarketplaceInSelectedProducts(List<Product> selectedProducts, Marketplace marketplace);
+  Future<Either<AbstractFailure, Unit>> activateMarketplaceInSelectedProducts(List<Product> selectedProducts, MarketplacePresta marketplace);
   Future<Either<AbstractFailure, Product>> getProduct(String id);
   Future<Either<AbstractFailure, Product>> getProductByArticleNumber(String articleNumber);
   Future<Either<AbstractFailure, Product>> getProductByEan(String ean);
@@ -37,7 +37,7 @@ abstract class ProductRepository {
   Future<Either<AbstractFailure, Product>> updateAvailableQuantityOfProductInremental(
     Product product,
     int newQuantityIncremental,
-    Marketplace? marketplaceToSkip,
+    MarketplacePresta? marketplaceToSkip,
   );
   Future<Either<AbstractFailure, Product>> updateWarehouseQuantityOfNewProductOnImportIncremental(Product product, int newQuantityIncremental);
 }

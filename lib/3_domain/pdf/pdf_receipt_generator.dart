@@ -464,37 +464,28 @@ class PdfReceiptGenerator {
   }
 
   static pw.Widget buildPaymentTermText(Receipt appointment) {
-    if (appointment.paymentStatus != PaymentStatus.paid) {
-      return pw.RichText(
-        text: pw.TextSpan(
-          text: 'Zahlungsziel: ',
-          style: pw.TextStyle(fontSize: 8, fontWeight: pw.FontWeight.bold),
-          children: [
-            pw.TextSpan(
-              text: ' ab Belegdatum, ${appointment.termOfPayment.toString()} Tage netto.',
-              style: pw.TextStyle(fontSize: 8, fontWeight: pw.FontWeight.normal),
-            ),
-            // pw.TextSpan(
-            //   text: ' Vorkasse',
-            //   style: pw.TextStyle(fontSize: 8, fontWeight: pw.FontWeight.normal),
-            // ),
-          ],
-        ),
-      );
-    } else {
-      return pw.RichText(
-        text: pw.TextSpan(
-          text: 'Zahlungsziel: ',
-          style: pw.TextStyle(fontSize: 8, fontWeight: pw.FontWeight.bold),
-          children: [
-            pw.TextSpan(
-              text: ' vollständig bezahlt.',
-              style: pw.TextStyle(fontSize: 8, fontWeight: pw.FontWeight.normal),
-            ),
-          ],
-        ),
-      );
+    String generatePaymentText(Receipt receipt) {
+      if (receipt.paymentStatus != PaymentStatus.paid && receipt.paymentMethod.name == 'Kauf auf Rechnung') {
+        return ' ab Belegdatum, ${receipt.termOfPayment.toString()} Tage netto.';
+      } else if (receipt.paymentStatus != PaymentStatus.paid && receipt.paymentMethod.name == 'Vorkasse') {
+        return ' Bitte begleichen Sie den Rechnungsbetrag vorab innerhalb von 14 Tagen nach Erhalt dieses Beleges. Die Lieferung erfolgt nach Eingang Ihrer Zahlung.';
+      } else {
+        return ' vollständig bezahlt.';
+      }
     }
+
+    return pw.RichText(
+      text: pw.TextSpan(
+        text: 'Zahlungsziel: ',
+        style: pw.TextStyle(fontSize: 8, fontWeight: pw.FontWeight.bold),
+        children: [
+          pw.TextSpan(
+            text: generatePaymentText(appointment),
+            style: pw.TextStyle(fontSize: 8, fontWeight: pw.FontWeight.normal),
+          ),
+        ],
+      ),
+    );
   }
 
   static pw.Widget buildSmallBusinessText() {

@@ -8,7 +8,7 @@ import '../../../2_application/firebase/main_settings/main_settings_bloc.dart';
 import '../../../2_application/firebase/marketplace/marketplace_bloc.dart';
 import '../../../2_application/packing_station/packing_station_bloc.dart';
 import '../../../3_domain/entities/carrier/carrier.dart';
-import '../../../3_domain/entities/marketplace/marketplace.dart';
+import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
 import '../../../3_domain/entities/receipt/receipt.dart';
 import '../../../constants.dart';
 import '../../../routes/router.gr.dart';
@@ -107,7 +107,7 @@ class _PackingStationContainer extends StatelessWidget {
   final Receipt appointment;
   final int index;
   final PackingStationBloc packingStationBloc;
-  final List<Marketplace> listOfMarketplaces;
+  final List<AbstractMarketplace> listOfMarketplaces;
 
   const _PackingStationContainer({
     required this.appointment,

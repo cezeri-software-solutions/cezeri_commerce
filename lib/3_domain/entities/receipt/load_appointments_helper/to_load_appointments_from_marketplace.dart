@@ -1,8 +1,8 @@
 import '../../../entities_presta/order_presta.dart';
-import '../../marketplace/marketplace.dart';
+import '../../marketplace/abstract_marketplace.dart';
 
 class ToLoadAppointmentsFromMarketplace {
-  final Marketplace marketplace;
+  final AbstractMarketplace marketplace;
   final int nextIdToImport;
   final int lastIdToImport;
 
@@ -14,7 +14,7 @@ class ToLoadAppointmentsFromMarketplace {
 }
 
 class ToLoadAppointmentFromMarketplace {
-  final Marketplace marketplace;
+  final AbstractMarketplace marketplace;
   final int orderId;
 
   ToLoadAppointmentFromMarketplace({
@@ -24,7 +24,7 @@ class ToLoadAppointmentFromMarketplace {
 }
 
 class LoadedOrderFromMarketplace {
-  final Marketplace marketplace;
+  final AbstractMarketplace marketplace;
   final OrderPresta orderPresta;
   final int orderMarketplaceId;
 

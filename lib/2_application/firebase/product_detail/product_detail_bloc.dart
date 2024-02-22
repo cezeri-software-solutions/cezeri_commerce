@@ -11,7 +11,8 @@ import 'package:flutter/services.dart';
 import 'package:html_editor_enhanced/html_editor.dart';
 import 'package:logger/logger.dart';
 
-import '../../../3_domain/entities/marketplace/marketplace.dart';
+import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
+import '../../../3_domain/entities/marketplace/marketplace_presta.dart';
 import '../../../3_domain/entities/reorder/supplier.dart';
 import '../../../3_domain/entities/settings/main_settings.dart';
 import '../../../core/abstract_failure.dart';
@@ -494,7 +495,7 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
       (failure) => null,
       (listOfMarketplaces) {
         final notSynchronizedList = listOfMarketplaces.where((e) => !state.product!.productMarketplaces.any((f) => f.idMarketplace == e.id)).toList();
-        emit(state.copyWith(listOfNotSynchronizedMarketplaces: notSynchronizedList, firebaseFailure: null, isAnyFailure: false));
+        emit(state.copyWith(listOfNotSynchronizedMarketplaces: notSynchronizedList as List<MarketplacePresta>, firebaseFailure: null, isAnyFailure: false)); //TODO: Shopify
       },
     );
 

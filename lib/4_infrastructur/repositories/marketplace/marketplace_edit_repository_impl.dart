@@ -9,10 +9,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart';
 
 import '../../../../1_presentation/core/functions/check_internet_connection.dart';
-import '../../../../3_domain/entities/marketplace/marketplace.dart';
+import '../../../3_domain/entities/marketplace/marketplace_presta.dart';
 import '../../../../3_domain/entities/product/marketplace_product_presta.dart';
 import '../../../../3_domain/entities/product/product_marketplace.dart';
 import '../../../../3_domain/repositories/marketplace/marketplace_edit_repository.dart';
+import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
 import '../../../3_domain/entities/patch_marketplace_logger.dart';
 import '../../../3_domain/entities_presta/product_presta.dart';
 import '../../../core/abstract_failure.dart';
@@ -26,7 +27,7 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
 
   @override
   Future<Either<List<AbstractFailure>, Unit>> setQuantityMPInAllProductMarketplaces(
-      Product product, int newQuantity, Marketplace? marketplaceToSkip) async {
+      Product product, int newQuantity, MarketplacePresta? marketplaceToSkip) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left([NoConnectionFailure()]);
 
@@ -39,7 +40,7 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
       final docRef = db.collection('Marketetplaces').doc(currentUserUid).collection('Marketetplaces').doc(productMarketplace.idMarketplace);
 
       final marketplaceSnapshot = await docRef.get();
-      final marketplace = Marketplace.fromJson(marketplaceSnapshot.data()!);
+      final marketplace = MarketplacePresta.fromJson(marketplaceSnapshot.data()!);
       if (!marketplace.isActive) continue;
 
       final api = PrestashopApi(Client(), PrestashopApiConfig(apiKey: marketplace.key, webserviceUrl: marketplace.fullUrl));
@@ -47,7 +48,8 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
       if (productMarketplace.marketplaceProduct == null) return left([ProductHasNoMarketplaceFailure()]);
       final marketplaceProduct = switch (productMarketplace.marketplaceProduct!.marketplaceType) {
         MarketplaceType.prestashop => productMarketplace.marketplaceProduct as MarketplaceProductPresta,
-        MarketplaceType.shop => throw Error(),
+        MarketplaceType.shopify => throw Exception('SHOPIFY not implemented'),
+        MarketplaceType.shop => throw Exception('SHOP not implemented'),
       };
 
       final fos = await api.patchProductQuantity(marketplaceProduct.id, newQuantity, marketplace);
@@ -75,7 +77,7 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
   }
 
   @override
-  Future<Either<List<AbstractFailure>, Unit>> editProdcutInMarketplace(Product product, List<Marketplace>? toEditMarketplaces) async {
+  Future<Either<List<AbstractFailure>, Unit>> editProdcutInMarketplace(Product product, List<MarketplacePresta>? toEditMarketplaces) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left([NoConnectionFailure()]);
 
@@ -95,7 +97,7 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
         failures.add(GeneralFailure(customMessage: 'Mindestens ein Marktplatz kontte nicht geladen werden'));
         continue;
       }
-      final marketplace = Marketplace.fromJson(marketplaceSnapshot.data()!);
+      final marketplace = MarketplacePresta.fromJson(marketplaceSnapshot.data()!);
 
       final api = PrestashopApi(Client(), PrestashopApiConfig(apiKey: marketplace.key, webserviceUrl: marketplace.fullUrl));
 
@@ -150,7 +152,7 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
     final docRef = db.collection('Marketetplaces').doc(currentUserUid).collection('Marketetplaces').doc(productMarketplace.idMarketplace);
 
     final marketplaceSnapshot = await docRef.get();
-    final marketplace = Marketplace.fromJson(marketplaceSnapshot.data()!);
+    final marketplace = MarketplacePresta.fromJson(marketplaceSnapshot.data()!);
 
     final api = PrestashopApi(Client(), PrestashopApiConfig(apiKey: marketplace.key, webserviceUrl: marketplace.fullUrl));
     //* Erstellt den neuen Artikel in Prestashop und gibt die ID des erstellten Artikels zurück
@@ -190,14 +192,15 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
             errorMessage: 'Beim aktualisieren der Artikelbilder im Marktplatz konnte mindestens ein Marktplatz nicht geladen werden'));
         continue;
       }
-      final marketplace = Marketplace.fromJson(marketplaceSnapshot.data()!);
+      final marketplace = MarketplacePresta.fromJson(marketplaceSnapshot.data()!);
 
       final api = PrestashopApi(Client(), PrestashopApiConfig(apiKey: marketplace.key, webserviceUrl: marketplace.fullUrl));
 
       if (productMarketplace.marketplaceProduct == null) return left([ProductHasNoMarketplaceFailure()]);
       final marketplaceProduct = switch (productMarketplace.marketplaceProduct!.marketplaceType) {
         MarketplaceType.prestashop => productMarketplace.marketplaceProduct as MarketplaceProductPresta,
-        MarketplaceType.shop => throw Error(),
+        MarketplaceType.shopify => throw Exception('SHOPIFY not implemented'),
+        MarketplaceType.shop => throw Exception('SHOP not implemented'),
       };
 
       final optionalProductPresta = await api.getProduct(marketplaceProduct.id, marketplace);
@@ -249,7 +252,7 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
 
   @override
   Future<Either<PrestaFailure, Unit>> setOrderStatusInMarketplace(
-    Marketplace marketplace,
+    MarketplacePresta marketplace,
     int orderId,
     OrderStatusUpdateType orderStatusUpdateType,
   ) async {
@@ -259,18 +262,29 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
 
     bool isSuccess = true;
 
-    if (marketplace.marketplaceType == MarketplaceType.prestashop) {
-      final api = PrestashopApi(Client(), PrestashopApiConfig(apiKey: marketplace.key, webserviceUrl: marketplace.fullUrl));
+    switch (marketplace.marketplaceType) {
+      case MarketplaceType.prestashop:
+        {
+          final api = PrestashopApi(Client(), PrestashopApiConfig(apiKey: marketplace.key, webserviceUrl: marketplace.fullUrl));
 
-      final statusId = switch (orderStatusUpdateType) {
-        OrderStatusUpdateType.onImport => marketplace.marketplaceSettings.statusIdAfterImport,
-        OrderStatusUpdateType.onShipping => marketplace.marketplaceSettings.statusIdAfterShipping,
-        OrderStatusUpdateType.onCancel => marketplace.marketplaceSettings.statusIdAfterCancellation,
-        OrderStatusUpdateType.onDelete => marketplace.marketplaceSettings.statusIdAfterDelete,
-      };
+          final statusId = switch (orderStatusUpdateType) {
+            OrderStatusUpdateType.onImport => marketplace.marketplaceSettings.statusIdAfterImport,
+            OrderStatusUpdateType.onShipping => marketplace.marketplaceSettings.statusIdAfterShipping,
+            OrderStatusUpdateType.onCancel => marketplace.marketplaceSettings.statusIdAfterCancellation,
+            OrderStatusUpdateType.onDelete => marketplace.marketplaceSettings.statusIdAfterDelete,
+          };
 
-      isSuccess = await api.patchOrderStatus(orderId, statusId, marketplace.isPresta8);
-      if (isSuccess) return right(unit);
+          isSuccess = await api.patchOrderStatus(orderId, statusId, marketplace.isPresta8);
+          if (isSuccess) return right(unit);
+        }
+      case MarketplaceType.shopify:
+        {
+          throw Exception('SHOPIFY not implemented');
+        }
+      case MarketplaceType.shop:
+        {
+          throw Exception('SHOP not implemented');
+        }
     }
 
     if (isSuccess) return right(unit);

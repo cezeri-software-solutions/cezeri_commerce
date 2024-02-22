@@ -5,7 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:html_editor_enhanced/html_editor.dart';
 
 import '../../../2_application/firebase/marketplace/marketplace_bloc.dart';
-import '../../../3_domain/entities/marketplace/marketplace.dart';
+import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
 import '../../../3_domain/entities/placeholder.dart';
 import '../../../4_infrastructur/repositories/firebase/receipt_respository_impl.dart';
 import '../../../constants.dart';
@@ -96,7 +96,7 @@ class EMailAutomationPage extends StatelessWidget {
 
 class _AutomationRow extends StatelessWidget {
   final MarketplaceBloc marketplaceBloc;
-  final Marketplace marketplace;
+  final AbstractMarketplace marketplace;
   final String title;
   final EMailAutomation? eMailAutomation;
   final EMailAutomationType eMailAutomationType;
@@ -139,7 +139,7 @@ class _AutomationRow extends StatelessWidget {
 
 class _EMailAutomationDialog extends StatefulWidget {
   final MarketplaceBloc marketplaceBloc;
-  final Marketplace marketplace;
+  final AbstractMarketplace marketplace;
   final String title;
   final EMailAutomation? eMailAutomation;
   final EMailAutomationType eMailAutomationType;
@@ -244,7 +244,7 @@ class _EMailAutomationDialogState extends State<_EMailAutomationDialog> {
               Expanded(
                 child: MyHtmlEditor(
                   controller: _htmlController,
-                  initialText: widget.eMailAutomation == null ? null : widget.eMailAutomation!.htmlContent,
+                  initialText: widget.eMailAutomation?.htmlContent,
                   onChangeContent: (content) {}, //widget.marketplaceBloc.add(OnProductDescriptionChangedEvent(content: content)),
                   onFocus: () => setState(() => isFocusOnHtmlEditor = true),
                   onBlur: () => setState(() => isFocusOnHtmlEditor = false),

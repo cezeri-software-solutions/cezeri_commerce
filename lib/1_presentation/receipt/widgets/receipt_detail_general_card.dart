@@ -4,14 +4,15 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
 import '../../../2_application/firebase/appointment/appointment_bloc.dart';
-import '../../../3_domain/entities/marketplace/marketplace.dart';
+import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
+import '../../../3_domain/entities/marketplace/marketplace_presta.dart';
 import '../../../3_domain/entities/receipt/receipt.dart';
 import '../../../constants.dart';
 
 class ReceiptDetailGeneralCard extends StatefulWidget {
   final Receipt receipt;
   final AppointmentBloc appointmentBloc;
-  final List<Marketplace> listOfMarketplaces;
+  final List<AbstractMarketplace> listOfMarketplaces;
 
   const ReceiptDetailGeneralCard({super.key, required this.receipt, required this.appointmentBloc, required this.listOfMarketplaces});
 
@@ -23,7 +24,7 @@ class _ReceiptDetailGeneralCardState extends State<ReceiptDetailGeneralCard> {
   @override
   Widget build(BuildContext context) {
     final marketplaceNames = widget.listOfMarketplaces.map((e) => e.name).toList();
-    marketplaceNames.add(Marketplace.empty().name);
+    marketplaceNames.add(MarketplacePresta.empty().name);
     final receiptHeader = switch (widget.receipt.receiptTyp) {
       ReceiptTyp.offer => 'Angebot: ${widget.receipt.offerNumberAsString}',
       ReceiptTyp.appointment => 'Auftrag: ${widget.receipt.appointmentNumberAsString}',
@@ -34,7 +35,7 @@ class _ReceiptDetailGeneralCardState extends State<ReceiptDetailGeneralCard> {
 
     final selectedMarketplace = widget.listOfMarketplaces.where((e) => e.id == widget.receipt.marketplaceId).firstOrNull;
     String selectedMarketplaceName = switch (selectedMarketplace) {
-      null => Marketplace.empty().name,
+      null => MarketplacePresta.empty().name,
       _ => selectedMarketplace.name,
     };
 

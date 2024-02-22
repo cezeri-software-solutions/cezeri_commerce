@@ -6,7 +6,7 @@ abstract class ProductImportEvent {}
 class SetProducImportStateToInitialEvent extends ProductImportEvent {}
 
 class SetSelectedMarketplaceProductImportEvent extends ProductImportEvent {
-  final Marketplace marketplace;
+  final AbstractMarketplace marketplace;
 
   SetSelectedMarketplaceProductImportEvent({required this.marketplace});
 }
@@ -23,7 +23,7 @@ class OnUploadAllProductsToFirestoreEvent extends ProductImportEvent {}
 
 class GetProductByIdAsJsonFromPrestaEvent extends ProductImportEvent {
   final int id;
-  final Marketplace marketplace;
+  final MarketplacePresta marketplace;
 
   GetProductByIdAsJsonFromPrestaEvent({required this.id, required this.marketplace});
 }

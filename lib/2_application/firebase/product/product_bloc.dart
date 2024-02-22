@@ -5,7 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 
 import '../../../1_presentation/core/functions/set_product_functions.dart';
-import '../../../3_domain/entities/marketplace/marketplace.dart';
+import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
+import '../../../3_domain/entities/marketplace/marketplace_presta.dart';
 import '../../../3_domain/entities/product/product.dart';
 import '../../../3_domain/entities/reorder/supplier.dart';
 import '../../../3_domain/entities/settings/main_settings.dart';
@@ -327,7 +328,8 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
       );
 
       //* Update in Marktplätzen
-      final fosMarketplace = await marketplaceEditRepository.editProdcutInMarketplace(updatedProduct, event.selectedMarketplaces);
+      final fosMarketplace = await marketplaceEditRepository.editProdcutInMarketplace(
+          updatedProduct, event.selectedMarketplaces as List<MarketplacePresta>); //TODO: Shopify
       failureOrSuccess.fold(
         (failure) => marketplaceFailures.add(failure),
         (unit) => emit(state.copyWith(firebaseFailure: null, isAnyFailure: false)),
@@ -384,7 +386,8 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
       );
 
       //* Update in Marktplätzen
-      final fosMarketplace = await marketplaceEditRepository.editProdcutInMarketplace(updatedProduct, event.selectedMarketplaces);
+      final fosMarketplace = await marketplaceEditRepository.editProdcutInMarketplace(
+          updatedProduct, event.selectedMarketplaces as List<MarketplacePresta>); //TODO: Shopify
       fosMarketplace.fold(
         (failure) => marketplaceFailures.addAll(failure),
         (unit) => emit(state.copyWith(firebaseFailure: null, isAnyFailure: false)),

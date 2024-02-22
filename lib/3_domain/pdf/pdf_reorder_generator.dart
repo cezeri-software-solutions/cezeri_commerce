@@ -6,7 +6,7 @@ import 'package:logger/logger.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
-import '../entities/marketplace/marketplace.dart';
+import '../entities/marketplace/marketplace_presta.dart';
 import '../entities/reorder/reorder.dart';
 import 'widgets/pdf_text.dart';
 
@@ -15,7 +15,7 @@ final logger = Logger();
 class PdfReorderGenerator {
   static Future<Uint8List> generate({
     required Reorder reorder,
-    required Marketplace marketplace,
+    required MarketplacePresta marketplace,
   }) async {
     final myTheme = pw.ThemeData.withFont(
       base: pw.Font.ttf(await rootBundle.load('assets/font/Roboto-Regular.ttf')),
@@ -88,7 +88,7 @@ class PdfReorderGenerator {
 
   static pw.Widget buildBranchLogo(pw.MemoryImage url) => pw.SizedBox(height: 80, width: 160, child: pw.Image(url));
 
-  static pw.Widget buildBranchAndCustomerAddress(Marketplace marketplace, Reorder reorder) {
+  static pw.Widget buildBranchAndCustomerAddress(MarketplacePresta marketplace, Reorder reorder) {
     return pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
@@ -248,7 +248,7 @@ class PdfReorderGenerator {
     );
   }
 
-  static pw.Widget buildFooter(Marketplace marketplace) {
+  static pw.Widget buildFooter(MarketplacePresta marketplace) {
     return pw.Column(
       children: [
         pw.Divider(thickness: 0.5),

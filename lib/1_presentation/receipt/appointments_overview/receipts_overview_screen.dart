@@ -13,7 +13,7 @@ import '../../../2_application/firebase/customer/customer_bloc.dart';
 import '../../../2_application/firebase/marketplace/marketplace_bloc.dart';
 import '../../../3_domain/entities/address.dart';
 import '../../../3_domain/entities/customer/customer.dart';
-import '../../../3_domain/entities/marketplace/marketplace.dart';
+import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
 import '../../../3_domain/entities/receipt/receipt.dart';
 import '../../../3_domain/entities/receipt/receipt_customer.dart';
 import '../../../3_domain/pdf/pdf_api_mobile.dart';
@@ -880,7 +880,7 @@ class _MyLoadingDialogOnLoadingAppointments extends StatelessWidget {
 
 class _SelectToLoadAppointmentFromMarketplaceSheet extends StatefulWidget {
   final AppointmentBloc appointmentBloc;
-  final List<Marketplace> listOfMarketplaces;
+  final List<AbstractMarketplace> listOfMarketplaces;
 
   const _SelectToLoadAppointmentFromMarketplaceSheet({super.key, required this.appointmentBloc, required this.listOfMarketplaces});
 
@@ -889,14 +889,14 @@ class _SelectToLoadAppointmentFromMarketplaceSheet extends StatefulWidget {
 }
 
 class _SelectToLoadAppointmentFromMarketplaceSheetState extends State<_SelectToLoadAppointmentFromMarketplaceSheet> {
-  List<Marketplace> listOfMarketplaces = [];
-  Marketplace selectedMarketplace = Marketplace.empty();
+  List<AbstractMarketplace> listOfMarketplaces = [];
+  AbstractMarketplace selectedMarketplace = AbstractMarketplace.empty();
   final _controller = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    listOfMarketplaces = widget.listOfMarketplaces..insert(0, Marketplace.empty());
+    listOfMarketplaces = widget.listOfMarketplaces..insert(0, AbstractMarketplace.empty());
   }
 
   @override

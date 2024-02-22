@@ -1,5 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:cezeri_commerce/1_presentation/reorder/reorder_detail/functions/on_pdf_pressed.dart';
+import 'package:cezeri_commerce/3_domain/entities/marketplace/marketplace_presta.dart';
 import 'package:cezeri_commerce/routes/router.gr.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -98,7 +99,7 @@ class ReorderDetailScreen extends StatelessWidget {
                 () => null,
                 (a) => a.fold(
                   (failure) => failureRenderer(context, [failure]),
-                  (marketplaces) => onPdfPressed(context: context, reorder: state.reorder!, marketplaces: marketplaces),
+                  (marketplaces) => onPdfPressed(context: context, reorder: state.reorder!, marketplaces: marketplaces as List<MarketplacePresta>), //TODO: Shopify
                 ),
               );
             },

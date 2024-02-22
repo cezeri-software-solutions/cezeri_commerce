@@ -1,11 +1,17 @@
+import 'package:cezeri_commerce/3_domain/entities/marketplace/abstract_marketplace.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:responsive_framework/responsive_breakpoints.dart';
 
 import '../../../2_application/firebase/marketplace/marketplace_bloc.dart';
-import '../../../3_domain/entities/marketplace/marketplace.dart';
+import '../../../constants.dart';
 import '../../app_drawer.dart';
+import '../../core/functions/mixed_functions.dart';
 import '../../core/widgets/my_avatar.dart';
 import 'functions/add_edit_marktplace_pressed.dart';
+
+const double padding = 20;
 
 class MarketplaceOverviewPage extends StatelessWidget {
   final MarketplaceBloc marketplaceBloc;
@@ -16,13 +22,13 @@ class MarketplaceOverviewPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<MarketplaceBloc, MarketplaceState>(
       builder: (context, state) {
-        List<_MarktplaceItem> markedplaceItems = [];
+        List<_MarktplaceItemCard> markedplaceItems = [];
 
         final appBar = AppBar(
           title: const Text('Marktplätze'),
           actions: [
             IconButton(
-              onPressed: () => addEditMarketplacepressed(context: context, marketplaceBloc: marketplaceBloc),
+              onPressed: () => onAddEditMarketplace(context: context, marketplaceBloc: marketplaceBloc),
               icon: const Icon(Icons.add, color: Colors.green),
             ),
             IconButton(
@@ -40,9 +46,9 @@ class MarketplaceOverviewPage extends StatelessWidget {
           return Scaffold(appBar: appBar, drawer: drawer, body: const Center(child: Text('Ein Fehler ist aufgetreten')));
         }
 
-        void createMarketplaceItems(List<Marketplace> listOfMarketplace) {
-          for (Marketplace mp in listOfMarketplace) {
-            _MarktplaceItem mpItem = _MarktplaceItem(
+        void createMarketplaceItems(List<AbstractMarketplace> listOfMarketplace) {
+          for (AbstractMarketplace mp in listOfMarketplace) {
+            _MarktplaceItemCard mpItem = _MarktplaceItemCard(
               marketplace: mp,
               marketplaceBloc: marketplaceBloc,
             );
@@ -56,7 +62,7 @@ class MarketplaceOverviewPage extends StatelessWidget {
           drawer: drawer,
           appBar: appBar,
           body: Padding(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(padding),
             child: Wrap(
               spacing: 10,
               runSpacing: 10,
@@ -69,19 +75,19 @@ class MarketplaceOverviewPage extends StatelessWidget {
   }
 }
 
-class _MarktplaceItem extends StatelessWidget {
-  final Marketplace marketplace;
+class _MarktplaceItemCard extends StatelessWidget {
+  final AbstractMarketplace marketplace;
   final MarketplaceBloc marketplaceBloc;
 
-  const _MarktplaceItem({required this.marketplace, required this.marketplaceBloc});
+  const _MarktplaceItemCard({required this.marketplace, required this.marketplaceBloc});
 
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.sizeOf(context).width;
     return SizedBox(
-      width: screenWidth > 500 ? 500 : screenWidth,
+      width: ResponsiveBreakpoints.of(context).largerThan(MOBILE) ? (screenWidth - (2.5 * padding)) / 2 : screenWidth,
       child: InkWell(
-        onTap: () => addEditMarketplacepressed(context: context, marketplaceBloc: marketplaceBloc, marketplace: marketplace),
+        onTap: () => onAddEditMarketplace(context: context, marketplaceBloc: marketplaceBloc, marketplace: marketplace),
         child: Card(
           child: Padding(
             padding: const EdgeInsets.all(18.0),
@@ -90,7 +96,7 @@ class _MarktplaceItem extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const SizedBox(width: 20),
+                    SizedBox(width: 60, height: 60, child: SvgPicture.asset(getMarketplaceLogoAsset(marketplace.marketplaceType))),
                     SizedBox(
                       width: 120,
                       child: MyAvatar(
@@ -101,10 +107,16 @@ class _MarktplaceItem extends StatelessWidget {
                         radius: 60,
                       ),
                     ),
-                    Badge(backgroundColor: marketplace.isActive ? Colors.green : Colors.grey, smallSize: 20),
+                    SizedBox(
+                      height: 60,
+                      width: 60,
+                      child: Center(
+                        child: Badge(backgroundColor: marketplace.isActive ? Colors.green : Colors.grey, smallSize: 20, largeSize: 20),
+                      ),
+                    ),
                   ],
                 ),
-                Text(marketplace.name),
+                Text(marketplace.name, style: TextStyles.h2),
               ],
             ),
           ),

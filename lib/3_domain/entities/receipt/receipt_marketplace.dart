@@ -1,7 +1,7 @@
 import 'package:json_annotation/json_annotation.dart';
 
 import '../address.dart';
-import '../marketplace/marketplace.dart';
+import '../marketplace/marketplace_presta.dart';
 import '../settings/bank_details.dart';
 
 part 'receipt_marketplace.g.dart';
@@ -30,7 +30,7 @@ class ReceiptMarketplace {
     );
   }
 
-  factory ReceiptMarketplace.fromMarketplace(Marketplace marketplace) {
+  factory ReceiptMarketplace.fromMarketplace(MarketplacePresta marketplace) {
     return ReceiptMarketplace(
       address: marketplace.address,
       bankDetails: marketplace.bankDetails,

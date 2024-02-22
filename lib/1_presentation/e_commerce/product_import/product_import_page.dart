@@ -1,4 +1,5 @@
 import 'package:cezeri_commerce/1_presentation/core/widgets/my_outlined_button.dart';
+import 'package:cezeri_commerce/3_domain/entities/marketplace/marketplace_presta.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -6,13 +7,13 @@ import 'package:logger/logger.dart';
 
 import '../../../2_application/firebase/main_settings/main_settings_bloc.dart';
 import '../../../2_application/prestashop/product_import/product_import_bloc.dart';
-import '../../../3_domain/entities/marketplace/marketplace.dart';
+import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
 import '../../../constants.dart';
 import '../../core/widgets/my_avatar.dart';
 
 class ProductImportPage extends StatelessWidget {
   final ProductImportBloc productImportBloc;
-  final Marketplace marketplace;
+  final AbstractMarketplace marketplace;
 
   const ProductImportPage({
     super.key,
@@ -68,14 +69,14 @@ class ProductImportPage extends StatelessWidget {
                         keyboardType: TextInputType.number,
                         onSubmitted: (_) => productImportBloc.add(GetProductByIdAsJsonFromPrestaEvent(
                           id: int.parse(idController.text),
-                          marketplace: state.selectedMarketplace!,
+                          marketplace: state.selectedMarketplace! as MarketplacePresta, //TODO: Shopify
                         )),
                       )),
                   Gaps.h16,
                   OutlinedButton(
                     onPressed: () => (_) => productImportBloc.add(GetProductByIdAsJsonFromPrestaEvent(
                           id: int.parse(idController.text),
-                          marketplace: state.selectedMarketplace!,
+                          marketplace: state.selectedMarketplace! as MarketplacePresta, //TODO: Shopify
                         )),
                     child: const Text('Import Neu Starten'),
                   ),

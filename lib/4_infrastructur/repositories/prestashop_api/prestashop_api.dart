@@ -3,7 +3,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:cezeri_commerce/1_presentation/core/extensions/string_to_int.dart';
-import 'package:cezeri_commerce/3_domain/entities/marketplace/marketplace.dart';
+import 'package:cezeri_commerce/3_domain/entities/marketplace/marketplace_presta.dart';
 import 'package:dartz/dartz.dart';
 import 'package:http/http.dart';
 import 'package:http_parser/http_parser.dart';
@@ -179,7 +179,7 @@ class PrestashopApi with UiLoggy {
     return ProductsIdPresta.fromJson(payload).items;
   }
 
-  Future<Optional<ProductPresta>> getProduct(final int id, final Marketplace marketplace) async {
+  Future<Optional<ProductPresta>> getProduct(final int id, final MarketplacePresta marketplace) async {
     final payload = await _doGetJson(
       '${_conf.webserviceUrl}products?ws_key=${_conf.apiKey}&filter[id]=[$id]&output_format=JSON&display=full',
       single: true,
@@ -191,7 +191,7 @@ class PrestashopApi with UiLoggy {
     return productPresta.isNotPresent ? const Optional.absent() : productPresta;
   }
 
-  Future<Optional<ProductPresta>> getProductByReference(final String reference, final Marketplace marketplace) async {
+  Future<Optional<ProductPresta>> getProductByReference(final String reference, final MarketplacePresta marketplace) async {
     final payload = await _doGetJson(
       '${_conf.webserviceUrl}products?ws_key=${_conf.apiKey}&filter[reference]=[$reference]&output_format=JSON&display=full',
       single: true,
@@ -271,7 +271,7 @@ class PrestashopApi with UiLoggy {
   Future<Either<PrestaFailure, Unit>> patchProductQuantity(
     final int marketplaceProductPrestaId,
     final int quantity,
-    final Marketplace marketplace,
+    final MarketplacePresta marketplace,
   ) async {
     final errorC1 = PrestaGeneralFailure(
       errorMessage:
@@ -376,7 +376,7 @@ class PrestashopApi with UiLoggy {
   }
 
   //TODO: statt bool fos zurückgeben
-  Future<bool> patchProductImages(final int marketplaceProductPrestaId, final int quantity, final Marketplace marketplace) async {
+  Future<bool> patchProductImages(final int marketplaceProductPrestaId, final int quantity, final MarketplacePresta marketplace) async {
     // #################################################################################################
     final optionalProductPresta = await getProduct(marketplaceProductPrestaId, marketplace);
     if (optionalProductPresta.isNotPresent) return false;
@@ -415,7 +415,7 @@ class PrestashopApi with UiLoggy {
     final int marketplaceProductPrestaId,
     Product product,
     ProductMarketplace productMarketplace,
-    Marketplace marketplace,
+    MarketplacePresta marketplace,
   ) async {
     final errorC1 = PrestaGeneralFailure(
       errorMessage:
@@ -479,7 +479,7 @@ class PrestashopApi with UiLoggy {
     Product product,
     List<Product> listOfPartOfSetArticles,
     ProductMarketplace productMarketplace,
-    Marketplace marketplace,
+    MarketplacePresta marketplace,
   ) async {
     final errorC1 = PrestaGeneralFailure(
       errorMessage:
@@ -571,7 +571,7 @@ class PrestashopApi with UiLoggy {
     Product product,
     ProductMarketplace productMarketplace,
     ProductMarketplace anotherProductMarketplaceWithSameManufacturer,
-    Marketplace marketplace,
+    MarketplacePresta marketplace,
   ) async {
     final optionalProductPresta = await getProductByReference(product.articleNumber, marketplace);
     if (optionalProductPresta.isPresent) {
@@ -712,7 +712,7 @@ class PrestashopApi with UiLoggy {
     return 0;
   }
 
-  Future<Optional<ProductPresta>> getProductImpl(ProductPresta phProductPresta, Marketplace marketplace) async {
+  Future<Optional<ProductPresta>> getProductImpl(ProductPresta phProductPresta, MarketplacePresta marketplace) async {
     StockAvailablePresta? stockAvailablesPresta;
     List<LanguagePresta> listOfLanguagesPresta = [];
 

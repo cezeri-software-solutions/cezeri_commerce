@@ -8,7 +8,7 @@ import 'package:http/http.dart';
 import 'package:logger/logger.dart';
 
 import '../../../../1_presentation/core/functions/check_internet_connection.dart';
-import '../../../../3_domain/entities/marketplace/marketplace.dart';
+import '../../../3_domain/entities/marketplace/marketplace_presta.dart';
 import '../../../../3_domain/entities/settings/main_settings.dart';
 import '../../../../3_domain/entities_presta/product_presta.dart';
 import '../../../../3_domain/repositories/firebase/product_repository.dart';
@@ -16,6 +16,7 @@ import '../../../../3_domain/repositories/marketplace/marketplace_import_reposit
 import '../../../../core/abstract_failure.dart';
 import '../../../../core/firebase_failures.dart';
 import '../../../../core/presta_failure.dart';
+import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
 import '../../../3_domain/entities/product/product_id_with_quantity.dart';
 import '../functions/product_import.dart';
 import '../functions/product_repository_helper.dart';
@@ -31,7 +32,7 @@ class MarketplaceImportRepositoryImpl implements MarketplaceImportRepository {
   MarketplaceImportRepositoryImpl({required this.db, required this.firebaseAuth, required this.productRepository});
 
   @override
-  Future<Either<AbstractFailure, List<int>>> getToLoadProductsFromMarketplace(Marketplace marketplace, bool onlyActive) async {
+  Future<Either<AbstractFailure, List<int>>> getToLoadProductsFromMarketplace(MarketplacePresta marketplace, bool onlyActive) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
 
@@ -40,15 +41,26 @@ class MarketplaceImportRepositoryImpl implements MarketplaceImportRepository {
 
       final api = PrestashopApi(Client(), PrestashopApiConfig(apiKey: marketplace.key, webserviceUrl: marketplace.fullUrl));
 
-      if (marketplace.marketplaceType == MarketplaceType.prestashop) {
-        final productIdsPresta = switch (onlyActive) {
-          false => await api.getProductIds(),
-          true => await api.getProductIdsOnlyActive(),
-        };
-        final allProductIds = productIdsPresta.map((e) => e.id).toList();
-        allProductIds.sort((a, b) => a.compareTo(b));
+      switch (marketplace.marketplaceType) {
+        case MarketplaceType.prestashop:
+          {
+            final productIdsPresta = switch (onlyActive) {
+              false => await api.getProductIds(),
+              true => await api.getProductIdsOnlyActive(),
+            };
+            final allProductIds = productIdsPresta.map((e) => e.id).toList();
+            allProductIds.sort((a, b) => a.compareTo(b));
 
-        listOfToLoadAppointmentsFromMarketplace.addAll(allProductIds);
+            listOfToLoadAppointmentsFromMarketplace.addAll(allProductIds);
+          }
+        case MarketplaceType.shopify:
+          {
+            throw Exception('SHOPIFY not implemented');
+          }
+        case MarketplaceType.shop:
+          {
+            throw Exception('SHOP not implemented');
+          }
       }
       return right(listOfToLoadAppointmentsFromMarketplace);
     } catch (e) {
@@ -58,7 +70,7 @@ class MarketplaceImportRepositoryImpl implements MarketplaceImportRepository {
   }
 
   @override
-  Future<Either<AbstractFailure, ProductPresta>> loadProductFromMarketplace(int productId, Marketplace marketplace) async {
+  Future<Either<AbstractFailure, ProductPresta>> loadProductFromMarketplace(int productId, MarketplacePresta marketplace) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
 
@@ -92,7 +104,7 @@ class MarketplaceImportRepositoryImpl implements MarketplaceImportRepository {
     try {
       final marketplaceDs = await docRefMarketplace.get();
       if (!marketplaceDs.exists) return left(GeneralFailure());
-      final marketplace = Marketplace.fromJson(marketplaceDs.data()!);
+      final marketplace = MarketplacePresta.fromJson(marketplaceDs.data()!);
 
       final settingsDs = await docRefSettings.get();
       if (!settingsDs.exists) return left(GeneralFailure());
@@ -171,7 +183,7 @@ class MarketplaceImportRepositoryImpl implements MarketplaceImportRepository {
   }
 
   @override
-  Future<Either<PrestaFailure, ProductPresta>> getProductByIdFromPrestashopAsJson(int id, Marketplace marketplace) async {
+  Future<Either<PrestaFailure, ProductPresta>> getProductByIdFromPrestashopAsJson(int id, MarketplacePresta marketplace) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(PrestaGeneralFailure());
 
@@ -190,7 +202,7 @@ class MarketplaceImportRepositoryImpl implements MarketplaceImportRepository {
   }
 
   @override
-  Future<Either<PrestaFailure, List<CategoryPresta>>> getAllPrestaCategories(Marketplace marketplace) async {
+  Future<Either<PrestaFailure, List<CategoryPresta>>> getAllPrestaCategories(MarketplacePresta marketplace) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(PrestaGeneralFailure());
 

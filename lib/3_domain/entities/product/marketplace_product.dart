@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../marketplace/marketplace.dart';
+import '../marketplace/abstract_marketplace.dart';
 import 'marketplace_product_presta.dart';
 
 abstract class MarketplaceProduct {

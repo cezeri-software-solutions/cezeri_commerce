@@ -3,14 +3,14 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:printing/printing.dart';
 
-import '../../../../3_domain/entities/marketplace/marketplace.dart';
+import '../../../../3_domain/entities/marketplace/marketplace_presta.dart';
 import '../../../../3_domain/entities/reorder/reorder.dart';
 import '../../../../3_domain/pdf/pdf_api_mobile.dart';
 import '../../../../3_domain/pdf/pdf_api_web.dart';
 import '../../../../3_domain/pdf/pdf_reorder_generator.dart';
 
-Future<void> onPdfPressed({required BuildContext context, required Reorder reorder, required List<Marketplace> marketplaces}) async {
-  Marketplace? selectedMarketplace;
+Future<void> onPdfPressed({required BuildContext context, required Reorder reorder, required List<MarketplacePresta> marketplaces}) async {
+  MarketplacePresta? selectedMarketplace;
 
   await showDialog(
     context: context,

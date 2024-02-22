@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:cezeri_commerce/3_domain/entities/e_mail_automation.dart';
+import 'package:cezeri_commerce/3_domain/entities/marketplace/marketplace_shopify.dart';
 import 'package:cezeri_commerce/core/firebase_failures.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
@@ -9,10 +10,11 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:logger/logger.dart';
 import 'package:path/path.dart';
 
+import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
+import '../../../3_domain/entities/marketplace/marketplace_presta.dart';
 import '../../../core/abstract_failure.dart';
 import '/1_presentation/core/functions/check_internet_connection.dart';
 import '/3_domain/entities/id.dart';
-import '/3_domain/entities/marketplace/marketplace.dart';
 import '/3_domain/repositories/firebase/marketplace_repository.dart';
 
 final logger = Logger();
@@ -24,7 +26,7 @@ class MarketplaceRepositoryImpl implements MarketplaceRepository {
   MarketplaceRepositoryImpl({required this.db, required this.firebaseAuth});
 
   @override
-  Future<Either<AbstractFailure, Unit>> createMarketplace(Marketplace marketplace, File? imageFile) async {
+  Future<Either<AbstractFailure, Unit>> createMarketplace(AbstractMarketplace marketplace, File? imageFile) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
 
@@ -33,16 +35,23 @@ class MarketplaceRepositoryImpl implements MarketplaceRepository {
     try {
       final docRef = db.collection('Marketetplaces').doc(currentUserUid).collection('Marketetplaces').doc();
 
-      Marketplace toCreateMarketplace;
+      AbstractMarketplace toCreateMarketplace;
       //* Marktplatzlogo erstellen START
       if (imageFile != null) {
         final firebaseStoragePath = '$currentUserUid/MarketplaceLogo/${docRef.id}';
         final logoUrl = await uploadImageFileToStorage(imageFile, firebaseStoragePath);
-
-        toCreateMarketplace = marketplace.copyWith(id: docRef.id, logoUrl: logoUrl);
+        toCreateMarketplace = switch (marketplace.marketplaceType) {
+          MarketplaceType.prestashop => (marketplace as MarketplacePresta).copyWith(id: docRef.id, logoUrl: logoUrl),
+          MarketplaceType.shopify => (marketplace as MarketplaceShopify).copyWith(id: docRef.id, logoUrl: logoUrl),
+          MarketplaceType.shop => throw Exception(),
+        };
         //* Marktplatzlogo erstellen START
       } else {
-        toCreateMarketplace = marketplace.copyWith(id: docRef.id);
+        toCreateMarketplace = switch (marketplace.marketplaceType) {
+          MarketplaceType.prestashop => (marketplace as MarketplacePresta).copyWith(id: docRef.id),
+          MarketplaceType.shopify => (marketplace as MarketplaceShopify).copyWith(id: docRef.id),
+          MarketplaceType.shop => throw Exception(),
+        };
       }
 
       await docRef.set(toCreateMarketplace.toJson());
@@ -55,7 +64,7 @@ class MarketplaceRepositoryImpl implements MarketplaceRepository {
   }
 
   @override
-  Future<Either<AbstractFailure, Unit>> updateMarketplace(Marketplace marketplace, File? imageFile) async {
+  Future<Either<AbstractFailure, Unit>> updateMarketplace(AbstractMarketplace marketplace, File? imageFile) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
 
@@ -64,23 +73,46 @@ class MarketplaceRepositoryImpl implements MarketplaceRepository {
     try {
       final docRef = db.collection('Marketetplaces').doc(currentUserUid).collection('Marketetplaces').doc(marketplace.id);
 
-      Marketplace toUpdateMarketplace;
+      AbstractMarketplace toUpdateMarketplace;
       //* Marktplatzlogo erstellen oder updaten START
       if (imageFile != null) {
         final firebaseStoragePath = '$currentUserUid/MarketplaceLogo/${docRef.id}';
         if (marketplace.logoUrl == '') {
           final logoUrl = await uploadImageFileToStorage(imageFile, firebaseStoragePath);
-          toUpdateMarketplace = marketplace.copyWith(logoUrl: logoUrl);
+          toUpdateMarketplace = switch (marketplace.marketplaceType) {
+            MarketplaceType.prestashop => (marketplace as MarketplacePresta).copyWith(logoUrl: logoUrl),
+            MarketplaceType.shopify => (marketplace as MarketplaceShopify).copyWith(logoUrl: logoUrl),
+            MarketplaceType.shop => throw Exception(),
+          };
         } else {
           final logoUrl = await updateImageFileInStorage(imageFile, marketplace.logoUrl, firebaseStoragePath);
-          toUpdateMarketplace = marketplace.copyWith(logoUrl: logoUrl);
+          toUpdateMarketplace = switch (marketplace.marketplaceType) {
+            MarketplaceType.prestashop => (marketplace as MarketplacePresta).copyWith(logoUrl: logoUrl),
+            MarketplaceType.shopify => (marketplace as MarketplaceShopify).copyWith(logoUrl: logoUrl),
+            MarketplaceType.shop => throw Exception(),
+          };
         }
         //* Marktplatzlogo erstellen oder updaten START
       } else {
         toUpdateMarketplace = marketplace;
       }
 
-      await docRef.update(toUpdateMarketplace.toJson());
+      await docRef.update((toUpdateMarketplace).toJson());
+
+      // switch (toUpdateMarketplace.marketplaceType) {
+      //   case MarketplaceType.prestashop:
+      //     {
+      //       await docRef.update((toUpdateMarketplace as MarketplacePresta).toJson());
+      //     }
+      //   case MarketplaceType.shopify:
+      //     {
+      //       await docRef.update((toUpdateMarketplace as MarketplaceShopify).toJson());
+      //     }
+      //   case MarketplaceType.shop:
+      //     {
+      //       throw Exception('Unknown Marketplace type: ${toUpdateMarketplace.marketplaceType}');
+      //     }
+      // }
 
       return right(unit);
     } on FirebaseException catch (e) {
@@ -109,7 +141,7 @@ class MarketplaceRepositoryImpl implements MarketplaceRepository {
   }
 
   @override
-  Future<Either<AbstractFailure, Marketplace>> getMarketplace(String id) async {
+  Future<Either<AbstractFailure, MarketplacePresta>> getMarketplace(String id) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
 
@@ -118,7 +150,7 @@ class MarketplaceRepositoryImpl implements MarketplaceRepository {
 
     try {
       final marketplace = await docRef.get();
-      return right(Marketplace.fromJson(marketplace.data()!));
+      return right(MarketplacePresta.fromJson(marketplace.data()!));
     } on FirebaseException catch (e) {
       logger.e(e.message);
       return left(GeneralFailure(customMessage: 'Beim Laden des Marktplatzes ist ein Fehler aufgetreten.', e: e));
@@ -126,7 +158,7 @@ class MarketplaceRepositoryImpl implements MarketplaceRepository {
   }
 
   @override
-  Future<Either<AbstractFailure, List<Marketplace>>> getListOfMarketplaces() async {
+  Future<Either<AbstractFailure, List<AbstractMarketplace>>> getListOfMarketplaces() async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
 
@@ -135,7 +167,7 @@ class MarketplaceRepositoryImpl implements MarketplaceRepository {
 
     try {
       final listOfMarketplaces = await docRef.get().then(
-            (value) => value.docs.map((querySnapshot) => Marketplace.fromJson(querySnapshot.data())).toList(),
+            (value) => value.docs.map((querySnapshot) => AbstractMarketplace.fromJson(querySnapshot.data())).toList(),
           );
 
       //* Zum hinzufügen von neuen Attributen.
@@ -153,7 +185,7 @@ class MarketplaceRepositoryImpl implements MarketplaceRepository {
   }
 
   @override
-  Future<Either<AbstractFailure, Unit>> addMarketplaceEMailAutomation(Marketplace marketplace, EMailAutomation eMailAutomation) async {
+  Future<Either<AbstractFailure, Unit>> addMarketplaceEMailAutomation(MarketplacePresta marketplace, EMailAutomation eMailAutomation) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
 
@@ -162,7 +194,7 @@ class MarketplaceRepositoryImpl implements MarketplaceRepository {
 
     try {
       final dsMarketplace = await docRef.get();
-      final marketplace = Marketplace.fromJson(dsMarketplace.data()!);
+      final marketplace = MarketplacePresta.fromJson(dsMarketplace.data()!);
 
       final newEMailAutomation = eMailAutomation.copyWith(id: UniqueID().value);
 
@@ -182,7 +214,7 @@ class MarketplaceRepositoryImpl implements MarketplaceRepository {
   }
 
   @override
-  Future<Either<AbstractFailure, Unit>> updateMarketplaceEMailAutomation(Marketplace marketplace, EMailAutomation eMailAutomation) async {
+  Future<Either<AbstractFailure, Unit>> updateMarketplaceEMailAutomation(MarketplacePresta marketplace, EMailAutomation eMailAutomation) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
 
@@ -191,7 +223,7 @@ class MarketplaceRepositoryImpl implements MarketplaceRepository {
 
     try {
       final dsMarketplace = await docRef.get();
-      final marketplace = Marketplace.fromJson(dsMarketplace.data()!);
+      final marketplace = MarketplacePresta.fromJson(dsMarketplace.data()!);
 
       List<EMailAutomation> listOfEMailAutomations = List.from(marketplace.marketplaceSettings.listOfEMailAutomations);
       for (int i = 0; i < listOfEMailAutomations.length; i++) {

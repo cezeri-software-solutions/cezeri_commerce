@@ -2,7 +2,7 @@ import 'package:json_annotation/json_annotation.dart';
 
 import '../../../1_presentation/core/functions/mixed_functions.dart';
 import '../../entities_presta/customer_presta.dart';
-import '../marketplace/marketplace.dart';
+import '../marketplace/marketplace_presta.dart';
 
 part 'customer_marketplace.g.dart';
 
@@ -36,7 +36,7 @@ class CustomerMarketplace {
     );
   }
 
-  factory CustomerMarketplace.fromPresta(CustomerPresta customerPresta, Marketplace marketplace) {
+  factory CustomerMarketplace.fromPresta(CustomerPresta customerPresta, MarketplacePresta marketplace) {
     return CustomerMarketplace(
       marketplaceId: marketplace.id,
       marketplaceName: marketplace.name,

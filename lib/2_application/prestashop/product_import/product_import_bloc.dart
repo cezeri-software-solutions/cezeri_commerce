@@ -3,7 +3,8 @@ import 'package:dartz/dartz.dart';
 import 'package:logger/logger.dart';
 import 'package:meta/meta.dart';
 
-import '../../../3_domain/entities/marketplace/marketplace.dart';
+import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
+import '../../../3_domain/entities/marketplace/marketplace_presta.dart';
 import '../../../3_domain/entities_presta/product_presta.dart';
 import '../../../3_domain/repositories/firebase/main_settings_respository.dart';
 import '../../../3_domain/repositories/marketplace/marketplace_import_repository.dart';
@@ -38,7 +39,7 @@ class ProductImportBloc extends Bloc<ProductImportEvent, ProductImportState> {
       emit(state.copyWith(isLoadingProductsPrestaOnObserve: true, loadedProducts: 0, numberOfToLoadProducts: 0, loadingText: ''));
 
       List<int>? toLoadProductsFromMarketplace;
-      final fosToLoadProductsPresta = await productImportRepository.getToLoadProductsFromMarketplace(state.selectedMarketplace!, event.onlyActive);
+      final fosToLoadProductsPresta = await productImportRepository.getToLoadProductsFromMarketplace(state.selectedMarketplace! as MarketplacePresta, event.onlyActive); //TODO: Shopify
       fosToLoadProductsPresta.fold(
         (failure) {
           isSuccess = false;
@@ -55,7 +56,7 @@ class ProductImportBloc extends Bloc<ProductImportEvent, ProductImportState> {
 
       List<ProductPresta> loadedProductsPresta = [];
       for (final productId in toLoadProductsFromMarketplace!) {
-        final fosLoadedProductPrestaFromMarketplace = await productImportRepository.loadProductFromMarketplace(productId, state.selectedMarketplace!);
+        final fosLoadedProductPrestaFromMarketplace = await productImportRepository.loadProductFromMarketplace(productId, state.selectedMarketplace! as MarketplacePresta);
         fosLoadedProductPrestaFromMarketplace.fold(
           (failure) {
             logger.e(failure);

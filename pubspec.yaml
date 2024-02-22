@@ -16,7 +16,7 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 0.1.97+97
+version: 0.1.98+98
 
 environment:
   sdk: ">=3.1.0 <4.0.0"
@@ -59,6 +59,7 @@ dependencies:
   flutter_html: ^3.0.0-beta.2
   flutter_localizations:
     sdk: flutter
+  flutter_svg: ^2.0.10+1
   font_awesome_flutter: ^10.5.0
   get_it: ^7.6.4
   html: ^0.15.4
@@ -111,6 +112,11 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
+    - assets/marketplaces/presta_font.svg
+    - assets/marketplaces/presta_logo.svg
+    - assets/marketplaces/shopify_font.svg
+    - assets/marketplaces/shopify_logo.svg
+    - assets/marketplaces/store_logo.svg
     - assets/payment_methods/paypal.png
     - assets/payment_methods/amazon_pay.png
     - assets/payment_methods/eps.png
@@ -119,6 +125,8 @@ flutter:
     - assets/payment_methods/mastercard.png
     - assets/payment_methods/credit_card.png
     - assets/payment_methods/advance_payment.png
+    - assets/payment_methods/bank_transfer.png
+    - assets/payment_methods/purchase_on_account.png
     - assets/payment_methods/unknown_payment.png
     - assets/font/
     - assets/carriers/

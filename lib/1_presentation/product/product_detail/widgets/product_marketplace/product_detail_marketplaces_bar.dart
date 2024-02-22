@@ -6,7 +6,7 @@ import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 
 import '../../../../../2_application/firebase/marketplace_product/marketplace_product_bloc.dart';
 import '../../../../../2_application/firebase/product_detail/product_detail_bloc.dart';
-import '../../../../../3_domain/entities/marketplace/marketplace.dart';
+import '../../../../../3_domain/entities/marketplace/abstract_marketplace.dart';
 import '../../../../../3_domain/entities/product/marketplace_product_presta.dart';
 import '../../../../../3_domain/entities/product/product_marketplace.dart';
 import '../../../../../3_domain/entities_presta/product_presta.dart';
@@ -138,9 +138,13 @@ class ProductDetailMarketplacesBar extends StatelessWidget {
                                     marketplaceProductBloc.add(SetMarketplaceProductEvent(productMarketplace: productMarketplace));
                                     showEditProductInMarketplace(context, productDetailBloc, marketplaceProductBloc, productMarketplace, false);
                                   }
+                                case MarketplaceType.shopify:
+                                  {
+                                    throw Exception('SHOPIFY not implemented');
+                                  }
                                 case MarketplaceType.shop:
                                   {
-                                    throw Error();
+                                    throw Exception('SHOP not implemented');
                                   }
                               }
                             },
@@ -258,7 +262,8 @@ Future<void> showEditProductInMarketplace(
                 setPage: () => pageIndexNotifier.value = 1,
                 isProductSynchronized: isProductSynchronized,
               ),
-            MarketplaceType.shop => throw Error,
+            MarketplaceType.shopify => throw Exception('SHOPIFY not implemented'),
+            MarketplaceType.shop => throw Exception('SHOP not implemented'),
           },
         ),
         WoltModalSheetPage(

@@ -6,7 +6,7 @@ import '../../../3_domain/entities_presta/order_presta.dart';
 import '../../../core/abstract_failure.dart';
 import '../../../core/firebase_failures.dart';
 import '../prestashop_api/prestashop_api.dart';
-import '/3_domain/entities/marketplace/marketplace.dart';
+import '../../../3_domain/entities/marketplace/marketplace_presta.dart';
 import '/3_domain/entities/product/product.dart';
 import '/3_domain/entities/product/product_marketplace.dart';
 import '/3_domain/entities/settings/main_settings.dart';
@@ -18,7 +18,7 @@ final logger = Logger();
 
 Future<Either<AbstractFailure, Product>> getOrCreateProductFromPrestaOnImportProduct(
   ProductPresta productPresta,
-  Marketplace marketplace,
+  MarketplacePresta marketplace,
   MainSettings mainSettings,
   ProductRepository productRepository,
   List<ProductIdWithQuantity>? listOfProductIdWithQuantity,
@@ -75,7 +75,7 @@ Future<Either<AbstractFailure, Product>> getOrCreateProductFromPrestaOnImportPro
 Future<Either<AbstractFailure, Product>> getOrCreateProductFromPrestaOnImportAppointment(
   OrderProductPresta orderProductPresta,
   int quantity,
-  Marketplace marketplace,
+  MarketplacePresta marketplace,
   MainSettings mainSettings,
   ProductRepository productRepository,
   PrestashopApi api,

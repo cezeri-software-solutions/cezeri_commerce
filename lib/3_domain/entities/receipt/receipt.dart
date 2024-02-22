@@ -15,7 +15,7 @@ import '../address.dart';
 import '../carrier/carrier.dart';
 import '../carrier/parcel_tracking.dart';
 import '../customer/customer.dart';
-import '../marketplace/marketplace.dart';
+import '../marketplace/marketplace_presta.dart';
 import '../settings/bank_details.dart';
 import '../settings/main_settings.dart';
 import '../settings/packaging_box.dart';
@@ -517,7 +517,7 @@ class Receipt {
   }
 
   factory Receipt.fromOrderPresta({
-    required Marketplace marketplace,
+    required MarketplacePresta marketplace,
     required MainSettings mainSettings,
     required List<ReceiptProduct> listOfReceiptproduct,
     required OrderPresta orderPresta,

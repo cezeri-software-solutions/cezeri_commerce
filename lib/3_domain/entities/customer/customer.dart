@@ -5,7 +5,7 @@ import '../../entities_presta/country_presta.dart';
 import '../../entities_presta/customer_presta.dart';
 import '../../enums/enums.dart';
 import '../address.dart';
-import '../marketplace/marketplace.dart';
+import '../marketplace/marketplace_presta.dart';
 import '../settings/tax.dart';
 import 'customer_marketplace.dart';
 
@@ -88,7 +88,7 @@ class Customer {
   factory Customer.fromPresta(
     CustomerPresta customerPresta,
     int customerNumber,
-    Marketplace marketplace,
+    MarketplacePresta marketplace,
     AddressPresta addressInvoicePresta,
     AddressPresta addressDeliveryPresta,
     CountryPresta countryInvoicePresta,

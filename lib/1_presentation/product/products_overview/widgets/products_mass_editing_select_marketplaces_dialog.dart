@@ -5,7 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../2_application/firebase/marketplace/marketplace_bloc.dart';
 import '../../../../2_application/firebase/product/product_bloc.dart';
-import '../../../../3_domain/entities/marketplace/marketplace.dart';
+import '../../../../3_domain/entities/marketplace/abstract_marketplace.dart';
 import '../../../../constants.dart';
 import '../../../../injection.dart';
 import '../../../core/widgets/my_circular_progress_indicator.dart';
@@ -22,7 +22,7 @@ class ProductsMassEditingSelectMarketplacesDialog extends StatefulWidget {
 }
 
 class _ProductsMassEditingSelectMarketplacesDialogState extends State<ProductsMassEditingSelectMarketplacesDialog> {
-  final List<Marketplace> _selectedMarketplaces = [];
+  final List<AbstractMarketplace> _selectedMarketplaces = [];
 
   @override
   Widget build(BuildContext context) {

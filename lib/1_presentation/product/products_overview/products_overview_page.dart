@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../2_application/firebase/product/product_bloc.dart';
-import '../../../3_domain/entities/marketplace/marketplace.dart';
+import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
 import '../../../3_domain/entities/product/marketplace_product_presta.dart';
 import '../../../3_domain/entities/product/product.dart';
 import '../../../3_domain/enums/enums.dart';
@@ -227,7 +227,8 @@ class _ProductContainer extends StatelessWidget {
                             '1' => TextStyles.defaultBold.copyWith(color: Colors.green),
                             _ => throw Exception(),
                           },
-                        _ => throw Exception(),
+                        MarketplaceType.shopify => throw Exception('SHOPIFY not implemented'),
+                        MarketplaceType.shop => throw Exception('SHOP not implemented'),
                       };
                       return Text(
                         productMarketplace.shortNameMarketplace,

@@ -3,7 +3,7 @@ part of 'product_detail_bloc.dart';
 class ProductDetailState {
   final Product? product;
   final List<Supplier>? listOfSuppliers;
-  final List<Marketplace>? listOfNotSynchronizedMarketplaces;
+  final List<AbstractMarketplace>? listOfNotSynchronizedMarketplaces;
   final MainSettings? mainSettings;
   final AbstractFailure? firebaseFailure;
   final bool isAnyFailure;
@@ -23,7 +23,7 @@ class ProductDetailState {
   final Option<Either<AbstractFailure, Product>> fosProductOnUpdateImagesOption;
   final Option<Either<AbstractFailure, Unit>> fosProductOnDeleteOption;
   final Option<Either<AbstractFailure, List<Supplier>>> fosProductSuppliersOnObserveOption;
-  final Option<Either<AbstractFailure, List<Marketplace>>> fosProductMarketplacesOnObserveOption;
+  final Option<Either<AbstractFailure, List<AbstractMarketplace>>> fosProductMarketplacesOnObserveOption;
   final Option<Either<List<AbstractFailure>, Unit>> fosProductOnUploadImagesInMarketplaceOption;
   final Option<Either<List<AbstractFailure>, Unit>> fosProductOnUpdateInMarketplaceOption;
   final Option<Either<PrestaFailure, ProductPresta>> fosProductOnCreateInMarketplaceOption;
@@ -216,7 +216,7 @@ class ProductDetailState {
   ProductDetailState copyWith({
     Product? product,
     List<Supplier>? listOfSuppliers,
-    List<Marketplace>? listOfNotSynchronizedMarketplaces,
+    List<AbstractMarketplace>? listOfNotSynchronizedMarketplaces,
     MainSettings? mainSettings,
     AbstractFailure? firebaseFailure,
     bool? isAnyFailure,
@@ -236,7 +236,7 @@ class ProductDetailState {
     Option<Either<AbstractFailure, Product>>? fosProductOnUpdateImagesOption,
     Option<Either<AbstractFailure, Unit>>? fosProductOnDeleteOption,
     Option<Either<AbstractFailure, List<Supplier>>>? fosProductSuppliersOnObserveOption,
-    Option<Either<AbstractFailure, List<Marketplace>>>? fosProductMarketplacesOnObserveOption,
+    Option<Either<AbstractFailure, List<AbstractMarketplace>>>? fosProductMarketplacesOnObserveOption,
     Option<Either<List<AbstractFailure>, Unit>>? fosProductOnUploadImagesInMarketplaceOption,
     Option<Either<List<AbstractFailure>, Unit>>? fosProductOnUpdateInMarketplaceOption,
     Option<Either<PrestaFailure, ProductPresta>>? fosProductOnCreateInMarketplaceOption,

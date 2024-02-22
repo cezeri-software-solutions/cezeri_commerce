@@ -6,7 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../2_application/prestashop/product_import/product_import_bloc.dart';
-import '../../../3_domain/entities/marketplace/marketplace.dart';
+import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
+import '../../../3_domain/entities/marketplace/marketplace_presta.dart';
 import '../../../constants.dart';
 import '../../../injection.dart';
 import '../../app_drawer.dart';
@@ -26,7 +27,7 @@ class ProductImportScreen extends StatefulWidget {
 class _ProductImportScreenState extends State<ProductImportScreen> {
   int _index = 0;
   final int _selectedMarketplaceIndex = 0;
-  Marketplace _selectedMarketplace = Marketplace.empty();
+  AbstractMarketplace _selectedMarketplace = MarketplacePresta.empty();
 
   final productImportBloc = sl<ProductImportBloc>();
   final marketplaceBloc = sl<MarketplaceBloc>()..add(GetAllMarketplacesEvent());
@@ -215,7 +216,7 @@ class _OneOrMultipleProductImportTabbar extends StatelessWidget {
 }
 
 class _SelectMarketplace extends StatelessWidget {
-  final List<Marketplace> listOfMarketplace;
+  final List<AbstractMarketplace> listOfMarketplace;
   final ProductImportBloc productImportBloc;
 
   const _SelectMarketplace({required this.listOfMarketplace, required this.productImportBloc});

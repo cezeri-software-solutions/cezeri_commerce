@@ -2,8 +2,8 @@ part of 'marketplace_bloc.dart';
 
 @immutable
 class MarketplaceState {
-  final Marketplace? marketplace;
-  final List<Marketplace>? listOfMarketplace;
+  final AbstractMarketplace? marketplace;
+  final List<AbstractMarketplace>? listOfMarketplace;
   final AbstractFailure? firebaseFailure;
   final bool isAnyFailure;
   final bool isLoadingMarketplaceOnObserve;
@@ -11,8 +11,8 @@ class MarketplaceState {
   final bool isLoadingMarketplaceOnCreate;
   final bool isLoadingMarketplaceOnUpdate;
   final bool isLoadingMarketplaceOnDelete;
-  final Option<Either<AbstractFailure, Marketplace>> fosMarketplaceOnObserveOption;
-  final Option<Either<AbstractFailure, List<Marketplace>>> fosMarketplacesOnObserveOption;
+  final Option<Either<AbstractFailure, AbstractMarketplace>> fosMarketplaceOnObserveOption;
+  final Option<Either<AbstractFailure, List<AbstractMarketplace>>> fosMarketplacesOnObserveOption;
   final Option<Either<AbstractFailure, Unit>> fosMarketplaceOnCreateOption;
   final Option<Either<AbstractFailure, Unit>> fosMarketplaceOnUpdateOption;
   final Option<Either<AbstractFailure, Unit>> fosMarketplaceOnDeleteOption;
@@ -52,8 +52,8 @@ class MarketplaceState {
       );
 
   MarketplaceState copyWith({
-    Marketplace? marketplace,
-    List<Marketplace>? listOfMarketplace,
+    AbstractMarketplace? marketplace,
+    List<AbstractMarketplace>? listOfMarketplace,
     AbstractFailure? firebaseFailure,
     bool? isAnyFailure,
     bool? isLoadingMarketplaceOnObserve,
@@ -61,8 +61,8 @@ class MarketplaceState {
     bool? isLoadingMarketplaceOnCreate,
     bool? isLoadingMarketplaceOnUpdate,
     bool? isLoadingMarketplaceOnDelete,
-    Option<Either<AbstractFailure, Marketplace>>? fosMarketplaceOnObserveOption,
-    Option<Either<AbstractFailure, List<Marketplace>>>? fosMarketplacesOnObserveOption,
+    Option<Either<AbstractFailure, AbstractMarketplace>>? fosMarketplaceOnObserveOption,
+    Option<Either<AbstractFailure, List<AbstractMarketplace>>>? fosMarketplacesOnObserveOption,
     Option<Either<AbstractFailure, Unit>>? fosMarketplaceOnCreateOption,
     Option<Either<AbstractFailure, Unit>>? fosMarketplaceOnUpdateOption,
     Option<Either<AbstractFailure, Unit>>? fosMarketplaceOnDeleteOption,

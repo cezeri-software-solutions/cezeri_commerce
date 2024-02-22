@@ -7,7 +7,8 @@ import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 
 import '../../../1_presentation/reorder/reorder_detail/reorder_detail_screen.dart';
-import '../../../3_domain/entities/marketplace/marketplace.dart';
+import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
+import '../../../3_domain/entities/marketplace/marketplace_presta.dart';
 import '../../../3_domain/entities/product/product.dart';
 import '../../../3_domain/entities/receipt/receipt.dart';
 import '../../../3_domain/entities/reorder/reorder.dart';
@@ -215,7 +216,7 @@ class ReorderDetailBloc extends Bloc<ReorderDetailEvent, ReorderDetailState> {
       final failureOrSuccess = await marketplaceRepository.getListOfMarketplaces();
       failureOrSuccess.fold(
         (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
-        (marketplaces) => emit(state.copyWith(listOfMarketplaces: marketplaces, firebaseFailure: null, isAnyFailure: false)),
+        (marketplaces) => emit(state.copyWith(listOfMarketplaces: marketplaces as List<MarketplacePresta>, firebaseFailure: null, isAnyFailure: false)), //TODO: Shopify
       );
 
       emit(state.copyWith(

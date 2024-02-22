@@ -13,7 +13,7 @@ import 'package:path/path.dart';
 import '../../../1_presentation/core/functions/set_product_functions.dart';
 import '../functions/product_repository_helper.dart';
 import '/1_presentation/core/functions/check_internet_connection.dart';
-import '/3_domain/entities/marketplace/marketplace.dart';
+import '../../../3_domain/entities/marketplace/marketplace_presta.dart';
 import '/3_domain/entities/product/product.dart';
 import '/3_domain/entities/product/product_image.dart';
 import '/3_domain/entities/reorder/supplier.dart';
@@ -492,7 +492,7 @@ class ProductRepositoryImpl implements ProductRepository {
   }
 
   @override
-  Future<Either<FirebaseFailure, Unit>> activateMarketplaceInSelectedProducts(List<Product> selectedProducts, Marketplace marketplace) async {
+  Future<Either<FirebaseFailure, Unit>> activateMarketplaceInSelectedProducts(List<Product> selectedProducts, MarketplacePresta marketplace) async {
     // final isConnected = await checkInternetConnection();
     // if (!isConnected) return left(NoConnectionFailure());
 
@@ -601,7 +601,7 @@ class ProductRepositoryImpl implements ProductRepository {
   Future<Either<AbstractFailure, Product>> updateAvailableQuantityOfProductInremental(
     Product product,
     int newQuantityIncremental,
-    Marketplace? marketplaceToSkip,
+    MarketplacePresta? marketplaceToSkip,
   ) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());

@@ -89,7 +89,7 @@ import 'package:cezeri_commerce/2_application/firebase/supplier/supplier_bloc.da
     as _i47;
 import 'package:cezeri_commerce/2_application/packing_station/packing_station_bloc.dart'
     as _i44;
-import 'package:cezeri_commerce/3_domain/entities/marketplace/marketplace.dart'
+import 'package:cezeri_commerce/3_domain/entities/marketplace/abstract_marketplace.dart'
     as _i41;
 import 'package:cezeri_commerce/3_domain/entities/product/product.dart' as _i45;
 import 'package:cezeri_commerce/3_domain/entities/receipt/receipt.dart' as _i42;
@@ -406,7 +406,7 @@ class AppointmentDetailRoute
   AppointmentDetailRoute({
     _i39.Key? key,
     required _i40.AppointmentBloc appointmentBloc,
-    required List<_i41.Marketplace> listOfMarketplaces,
+    required List<_i41.AbstractMarketplace> listOfMarketplaces,
     required _i1.ReceiptCreateOrEdit receiptCreateOrEdit,
     required _i42.ReceiptTyp receiptTyp,
     List<_i38.PageRouteInfo>? children,
@@ -441,7 +441,7 @@ class AppointmentDetailRouteArgs {
 
   final _i40.AppointmentBloc appointmentBloc;
 
-  final List<_i41.Marketplace> listOfMarketplaces;
+  final List<_i41.AbstractMarketplace> listOfMarketplaces;
 
   final _i1.ReceiptCreateOrEdit receiptCreateOrEdit;
 
@@ -871,7 +871,7 @@ class PackingStationDetailRoute
   PackingStationDetailRoute({
     _i39.Key? key,
     required _i44.PackingStationBloc packingStationBloc,
-    required _i41.Marketplace marketplace,
+    required _i41.AbstractMarketplace marketplace,
     List<_i38.PageRouteInfo>? children,
   }) : super(
           PackingStationDetailRoute.name,
@@ -900,7 +900,7 @@ class PackingStationDetailRouteArgs {
 
   final _i44.PackingStationBloc packingStationBloc;
 
-  final _i41.Marketplace marketplace;
+  final _i41.AbstractMarketplace marketplace;
 
   @override
   String toString() {

@@ -7,7 +7,7 @@ import 'package:json_annotation/json_annotation.dart';
 import '../../../1_presentation/core/functions/mixed_functions.dart';
 import '../../entities_presta/product_presta.dart';
 import '../language.dart';
-import '../marketplace/marketplace.dart';
+import '../marketplace/marketplace_presta.dart';
 import '../settings/main_settings.dart';
 import '../settings/tax.dart';
 import 'product_id_with_quantity.dart';
@@ -180,7 +180,7 @@ class Product extends Equatable {
 
   factory Product.fromProductPresta({
     required ProductPresta productPresta,
-    required Marketplace marketplace,
+    required MarketplacePresta marketplace,
     required MainSettings mainSettings,
     required List<ProductIdWithQuantity>? listOfProductIdWithQuantity,
   }) {

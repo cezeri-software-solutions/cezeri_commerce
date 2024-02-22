@@ -8,7 +8,7 @@ import '../../../2_application/firebase/main_settings/main_settings_bloc.dart';
 import '../../../2_application/packing_station/packing_station_bloc.dart';
 import '../../../3_domain/entities/carrier/carrier.dart';
 import '../../../3_domain/entities/customer/customer.dart';
-import '../../../3_domain/entities/marketplace/marketplace.dart';
+import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
 import '../../../3_domain/entities/product/product.dart';
 import '../../../3_domain/entities/receipt/receipt.dart';
 import '../../../3_domain/entities/receipt/receipt_product.dart';
@@ -27,7 +27,7 @@ final ItemPositionsListener _itemPositionsListener = ItemPositionsListener.creat
 
 class PackingStationDetailPage extends StatefulWidget {
   final PackingStationBloc packingStationBloc;
-  final Marketplace marketplace;
+  final AbstractMarketplace marketplace;
 
   const PackingStationDetailPage({super.key, required this.packingStationBloc, required this.marketplace});
 
@@ -322,7 +322,7 @@ class _PackingStationDetailPageState extends State<PackingStationDetailPage> {
 class _PackingStationDetailInfoContainer extends StatelessWidget {
   final Receipt appointment;
   final Carrier carrier;
-  final Marketplace marketplace;
+  final AbstractMarketplace marketplace;
   final Customer? customer;
 
   const _PackingStationDetailInfoContainer({required this.appointment, required this.carrier, required this.marketplace, required this.customer});

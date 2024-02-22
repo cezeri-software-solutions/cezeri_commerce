@@ -17,6 +17,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart';
 import 'package:logger/logger.dart';
 
+import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
+import '../../../3_domain/entities/marketplace/marketplace_presta.dart';
 import '../functions/product_import.dart';
 import '../functions/product_repository_helper.dart';
 import '../prestashop_api/prestashop_api.dart';
@@ -27,7 +29,6 @@ import '/3_domain/entities/address.dart';
 import '/3_domain/entities/carrier/parcel_tracking.dart';
 import '/3_domain/entities/customer/customer.dart';
 import '/3_domain/entities/e_mail_automation.dart';
-import '/3_domain/entities/marketplace/marketplace.dart';
 import '/3_domain/entities/product/product.dart';
 import '/3_domain/entities/product/product_id_with_quantity.dart';
 import '/3_domain/entities/settings/main_settings.dart';
@@ -336,7 +337,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
 
       final dsStatDashboardToCreate = await docRefStatDashboardToCreate.get();
 
-      Marketplace? marketplace;
+      MarketplacePresta? marketplace;
 
       for (final offer in listOfOffers) {
         final docRefStatDashboardToUpdate = db
@@ -348,11 +349,11 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
           final docRefMarketplace = db.collection('Marketetplaces').doc(currentUserUid).collection('Marketetplaces').doc(offer.marketplaceId);
           if (marketplace == null) {
             final dsMarketplace = await docRefMarketplace.get();
-            if (dsMarketplace.exists) marketplace = Marketplace.fromJson(dsMarketplace.data()!);
+            if (dsMarketplace.exists) marketplace = MarketplacePresta.fromJson(dsMarketplace.data()!);
           } else {
             if (offer.marketplaceId != marketplace!.id) {
               final dsMarketplace = await docRefMarketplace.get();
-              if (dsMarketplace.exists) marketplace = Marketplace.fromJson(dsMarketplace.data()!);
+              if (dsMarketplace.exists) marketplace = MarketplacePresta.fromJson(dsMarketplace.data()!);
             }
           }
 
@@ -451,18 +452,18 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
 
       final dsStatDashboard = await docRefStatDashboard.get();
 
-      Marketplace? marketplace;
+      MarketplacePresta? marketplace;
 
       for (final receipt in listOfReceipts) {
         await db.runTransaction((transaction) async {
           final docRefMarketplace = db.collection('Marketetplaces').doc(currentUserUid).collection('Marketetplaces').doc(receipt.marketplaceId);
           if (marketplace == null) {
             final dsMarketplace = await docRefMarketplace.get();
-            if (dsMarketplace.exists) marketplace = Marketplace.fromJson(dsMarketplace.data()!);
+            if (dsMarketplace.exists) marketplace = MarketplacePresta.fromJson(dsMarketplace.data()!);
           } else {
             if (receipt.marketplaceId != marketplace!.id) {
               final dsMarketplace = await docRefMarketplace.get();
-              if (dsMarketplace.exists) marketplace = Marketplace.fromJson(dsMarketplace.data()!);
+              if (dsMarketplace.exists) marketplace = MarketplacePresta.fromJson(dsMarketplace.data()!);
             }
           }
           List<Receipt> generatedReceiptsFromThisReceipt = [];
@@ -600,7 +601,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
       int nextInvoiceNumber = settings.nextInvoiceNumber;
 
       final dsMarketplace = await docRefMarketplace.get();
-      final marketplace = Marketplace.fromJson(dsMarketplace.data()!);
+      final marketplace = MarketplacePresta.fromJson(dsMarketplace.data()!);
 
       ParcelTracking? parcelTracking;
       if (generateDeliveryNote) {
@@ -778,7 +779,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
       final settings = MainSettings.fromJson(settingsSnapshot.data()!);
 
       final dsMarketplace = await docRefMarketplace.get();
-      final marketplace = Marketplace.fromJson(dsMarketplace.data()!);
+      final marketplace = MarketplacePresta.fromJson(dsMarketplace.data()!);
 
       await db.runTransaction((transaction) async {
         final dsStatDashboard = await transaction.get(docRefStatDashboard);
@@ -845,7 +846,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
 
       final dsStatDashboardToCreate = await docRefStatDashboardToCreate.get();
 
-      Marketplace? marketplace;
+      MarketplacePresta? marketplace;
 
       final docRefStatDashboardToUpdate = db
           .collection('StatDashboard')
@@ -856,11 +857,11 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
         final docRefMarketplace = db.collection('Marketetplaces').doc(currentUserUid).collection('Marketetplaces').doc(invoice.marketplaceId);
         if (marketplace == null) {
           final dsMarketplace = await docRefMarketplace.get();
-          if (dsMarketplace.exists) marketplace = Marketplace.fromJson(dsMarketplace.data()!);
+          if (dsMarketplace.exists) marketplace = MarketplacePresta.fromJson(dsMarketplace.data()!);
         } else {
           if (invoice.marketplaceId != marketplace!.id) {
             final dsMarketplace = await docRefMarketplace.get();
-            if (dsMarketplace.exists) marketplace = Marketplace.fromJson(dsMarketplace.data()!);
+            if (dsMarketplace.exists) marketplace = MarketplacePresta.fromJson(dsMarketplace.data()!);
           }
         }
 
@@ -931,7 +932,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
     };
   }
 
-  Future<ProductPresta?> getProductByIdFromPrestashop(int id, Marketplace marketplace) async {
+  Future<ProductPresta?> getProductByIdFromPrestashop(int id, MarketplacePresta marketplace) async {
     ProductPresta? productPresta;
     final fosProductPresta = await productImportRepository.getProductByIdFromPrestashopAsJson(id, marketplace);
     fosProductPresta.fold(
@@ -1065,7 +1066,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
 
       final marketplaceDs = await docRefMP.get();
       if (!marketplaceDs.exists) return left(GeneralFailure(customMessage: 'Marktplatz konnten nicht aus der Datenbank geladen werden'));
-      final marketplace = Marketplace.fromJson(marketplaceDs.data()!);
+      final marketplace = MarketplacePresta.fromJson(marketplaceDs.data()!);
 
       final parcelTracking = await getParcelTracking(loadedDeliveryNote, settings, loadedDeliveryNote.deliveryNoteId);
       if (parcelTracking == null) return left(GeneralFailure(customMessage: 'Paketlabel konnte nicht erstellt werden'));
@@ -1096,7 +1097,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
     try {
       List<ToLoadAppointmentsFromMarketplace> listOfToLoadAppointmentsFromMarketplace = [];
       final listOfActiveMarketplaces = await docRefMarketplaces.get().then(
-            (value) => value.docs.map((querySnapshot) => Marketplace.fromJson(querySnapshot.data())).toList(),
+            (value) => value.docs.map((querySnapshot) => MarketplacePresta.fromJson(querySnapshot.data())).toList(),
           );
 
       for (final marketplace in listOfActiveMarketplaces) {
@@ -1104,17 +1105,28 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
 
         final api = PrestashopApi(Client(), PrestashopApiConfig(apiKey: marketplace.key, webserviceUrl: marketplace.fullUrl));
 
-        if (marketplace.marketplaceType == MarketplaceType.prestashop) {
-          final orderIdsPresta = await api.getOrderIds();
-          final allOrderIds = orderIdsPresta.map((e) => e.id).toList();
-          allOrderIds.sort((a, b) => a.compareTo(b));
+        switch (marketplace.marketplaceType) {
+          case MarketplaceType.prestashop:
+            {
+              final orderIdsPresta = await api.getOrderIds();
+              final allOrderIds = orderIdsPresta.map((e) => e.id).toList();
+              allOrderIds.sort((a, b) => a.compareTo(b));
 
-          final toLoadAppointmentsFromMarketplace = ToLoadAppointmentsFromMarketplace(
-            marketplace: marketplace,
-            nextIdToImport: marketplace.marketplaceSettings.nextIdToImport,
-            lastIdToImport: allOrderIds.last,
-          );
-          listOfToLoadAppointmentsFromMarketplace.add(toLoadAppointmentsFromMarketplace);
+              final toLoadAppointmentsFromMarketplace = ToLoadAppointmentsFromMarketplace(
+                marketplace: marketplace,
+                nextIdToImport: marketplace.marketplaceSettings.nextIdToImport,
+                lastIdToImport: allOrderIds.last,
+              );
+              listOfToLoadAppointmentsFromMarketplace.add(toLoadAppointmentsFromMarketplace);
+            }
+          case MarketplaceType.shopify:
+            {
+              throw Exception('SHOPIFY not implemented');
+            }
+          case MarketplaceType.shop:
+            {
+              throw Exception('SHOP not implemented');
+            }
         }
       }
       return right(listOfToLoadAppointmentsFromMarketplace);
@@ -1131,7 +1143,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
 
-    final marketplace = toLoadAppointment.marketplace;
+    final marketplace = toLoadAppointment.marketplace as MarketplacePresta; //TODO: Shopify
     logger.i(marketplace.name);
     final api = PrestashopApi(Client(), PrestashopApiConfig(apiKey: marketplace.key, webserviceUrl: marketplace.fullUrl));
 
@@ -1159,13 +1171,14 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
   Future<Either<AbstractFailure, Receipt>> uploadLoadedAppointmentToFirestore(LoadedOrderFromMarketplace loadedAppointmentFromMarketplace) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
+    if (loadedAppointmentFromMarketplace.marketplace.marketplaceType != MarketplaceType.prestashop) return left(NoConnectionFailure());
 
     final now = DateTime.now();
     final curYear = now.year;
     final curMonth = now.month;
 
     final currentUserUid = firebaseAuth.currentUser!.uid;
-    final marketplace = loadedAppointmentFromMarketplace.marketplace;
+    final marketplace = loadedAppointmentFromMarketplace.marketplace as MarketplacePresta; //TODO: Shopify
     logger.i(marketplace.name);
     final api = PrestashopApi(Client(), PrestashopApiConfig(apiKey: marketplace.key, webserviceUrl: marketplace.fullUrl));
     logger.i(marketplace.fullUrl);
@@ -1432,7 +1445,7 @@ String fillPlaceholder(Receipt receipt, String value) {
   return newValue;
 }
 
-Future<bool> sendCustomerEmailsOnCreateReceipts(List<Receipt> listOfReceipts, Marketplace marketplace) async {
+Future<bool> sendCustomerEmailsOnCreateReceipts(List<Receipt> listOfReceipts, MarketplacePresta marketplace) async {
   bool isSuccess = false;
   for (final receipt in listOfReceipts) {
     switch (receipt.receiptTyp) {

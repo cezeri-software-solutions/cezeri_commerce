@@ -5,7 +5,7 @@ import 'package:logger/logger.dart';
 import '../../../2_application/firebase/appointment/appointment_bloc.dart';
 import '../../../2_application/firebase/main_settings/main_settings_bloc.dart';
 import '../../../2_application/firebase/receipt_detail/receipt_detail_bloc.dart';
-import '../../../3_domain/entities/marketplace/marketplace.dart';
+import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
 import '../../../3_domain/entities/receipt/receipt.dart';
 import '../../../3_domain/enums/enums.dart';
 import '../../../constants.dart';
@@ -23,7 +23,7 @@ import 'appointment_detail_screen.dart';
 class AppointmentDetailPage extends StatefulWidget {
   final AppointmentBloc appointmentBloc;
   final ReceiptDetailBloc receiptDetailBloc;
-  final List<Marketplace> listOfMarketplaces;
+  final List<AbstractMarketplace> listOfMarketplaces;
   final ReceiptCreateOrEdit receiptCreateOrEdit;
   final ReceiptTyp receiptTyp;
 

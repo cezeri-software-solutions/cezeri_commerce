@@ -2,7 +2,8 @@ import 'package:bloc/bloc.dart';
 import 'package:cezeri_commerce/1_presentation/core/extensions/string_to_int.dart';
 import 'package:dartz/dartz.dart';
 
-import '../../../3_domain/entities/marketplace/marketplace.dart';
+import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
+import '../../../3_domain/entities/marketplace/marketplace_presta.dart';
 import '../../../3_domain/entities/product/marketplace_product_presta.dart';
 import '../../../3_domain/entities/product/product_marketplace.dart';
 import '../../../3_domain/entities_presta/category_presta.dart';
@@ -50,7 +51,14 @@ class MarketplaceProductBloc extends Bloc<MarketplaceProductEvent, MarketplacePr
               defaultCategory: mpp.idCategoryDefault,
             ));
           }
+        case MarketplaceType.shopify:
+          {
+            throw Exception('SHOPIFY not implemented');
+          }
         case MarketplaceType.shop:
+          {
+            throw Exception('SHOP not implemented');
+          }
       }
       add(GetMarketplaceCategoriesEvent());
     });
@@ -67,7 +75,14 @@ class MarketplaceProductBloc extends Bloc<MarketplaceProductEvent, MarketplacePr
               productMarketplace: state.productMarketplace!.copyWith(marketplaceProduct: mpProduct),
             ));
           }
+        case MarketplaceType.shopify:
+          {
+            throw Exception('SHOPIFY not implemented');
+          }
         case MarketplaceType.shop:
+          {
+            throw Exception('SHOP not implemented');
+          }
       }
     });
 
@@ -100,7 +115,14 @@ class MarketplaceProductBloc extends Bloc<MarketplaceProductEvent, MarketplacePr
               productMarketplace: state.productMarketplace!.copyWith(marketplaceProduct: mpProduct),
             ));
           }
+        case MarketplaceType.shopify:
+          {
+            throw Exception('SHOPIFY not implemented');
+          }
         case MarketplaceType.shop:
+          {
+            throw Exception('SHOP not implemented');
+          }
       }
     });
 
@@ -109,7 +131,7 @@ class MarketplaceProductBloc extends Bloc<MarketplaceProductEvent, MarketplacePr
     on<GetMarketplaceCategoriesEvent>((event, emit) async {
       emit(state.copyWith(isLoadingMarketplaceProductCategoriesOnObserve: true));
 
-      Marketplace? marketplace;
+      MarketplacePresta? marketplace;
       final fosMarketplace = await marketplaceRepository.getMarketplace(state.productMarketplace!.idMarketplace);
       fosMarketplace.fold(
         (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFirebaseFailure: true)),
@@ -203,7 +225,14 @@ class MarketplaceProductBloc extends Bloc<MarketplaceProductEvent, MarketplacePr
               productMarketplace: state.productMarketplace!.copyWith(marketplaceProduct: mpProduct),
             ));
           }
+        case MarketplaceType.shopify:
+          {
+            throw Exception('SHOPIFY not implemented');
+          }
         case MarketplaceType.shop:
+          {
+            throw Exception('SHOP not implemented');
+          }
       }
     });
 

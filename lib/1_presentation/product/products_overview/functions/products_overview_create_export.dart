@@ -11,7 +11,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 
-import '../../../../3_domain/entities/marketplace/marketplace.dart';
+import '../../../../3_domain/entities/marketplace/marketplace_presta.dart';
 import '../../../../3_domain/entities/product/marketplace_product_presta.dart';
 import '../../../../3_domain/entities/product/product.dart';
 import '../../../../3_domain/entities_presta/category_presta.dart';
@@ -31,7 +31,7 @@ Future<void> generateTableExportFromProductsOverview(
     onPressed: () => context.router.pop(),
   );
 
-  Marketplace? marketplace;
+  MarketplacePresta? marketplace;
   final fosMarketplace = await GetIt.I.get<MarketplaceRepository>().getMarketplace('Uh2NdcXphcN7ABnSBAGU'); //TODO: make dynamic
   fosMarketplace.fold(
     (l) => null,

@@ -1,6 +1,6 @@
 import 'package:logger/logger.dart';
 
-import '../../../3_domain/entities/marketplace/marketplace.dart';
+import '../../../3_domain/entities/marketplace/marketplace_presta.dart';
 import '../../../3_domain/entities/product/product.dart';
 import '../../../3_domain/entities/product/product_id_with_quantity.dart';
 import '../../../3_domain/entities/settings/main_settings.dart';
@@ -10,7 +10,7 @@ import '../../../3_domain/repositories/firebase/product_repository.dart';
 Future<Product?> createProductInFirestore(
   Product product,
   ProductPresta productPresta,
-  Marketplace marketplace,
+  MarketplacePresta marketplace,
   MainSettings mainSettings,
   ProductRepository productRepository,
   List<ProductIdWithQuantity>? listOfProductIdWithQuantity,
@@ -38,7 +38,7 @@ Future<Product?> getProductFromFirestoreIfExists(
   String articleNumber,
   String ean,
   String name,
-  Marketplace marketplace,
+  MarketplacePresta marketplace,
   MainSettings mainSettings,
   ProductRepository productRepository,
 ) async {

@@ -64,13 +64,13 @@ class UpdateQuantityOfProductEvent extends ProductEvent {
 //TODO: aktuell deaktiviert
 //? Zum aktivieren von einem Marktplatz bei mehreren ausgewählten Artikeln
 class MassEditActivateProductMarketplaceEvent extends ProductEvent {
-  final Marketplace marketplace;
+  final MarketplacePresta marketplace;
 
   MassEditActivateProductMarketplaceEvent({required this.marketplace});
 }
 
 class ProductsMassEditingPurchaceUpdatedEvent extends ProductEvent {
-  final List<Marketplace> selectedMarketplaces;
+  final List<AbstractMarketplace> selectedMarketplaces;
   final double wholesalePrice;
   final String manufacturer;
   final Supplier supplier;
@@ -102,7 +102,7 @@ class ProductsMassEditingPurchaceUpdatedEvent extends ProductEvent {
 }
 
 class ProductsMassEditingWeightAndDimensionsUpdatedEvent extends ProductEvent {
-  final List<Marketplace> selectedMarketplaces;
+  final List<AbstractMarketplace> selectedMarketplaces;
   final double weight;
   final double height;
   final double depth;

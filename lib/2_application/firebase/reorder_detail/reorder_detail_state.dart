@@ -5,7 +5,7 @@ class ReorderDetailState {
   final Supplier? supplier;
   final List<Product>? listOfProducts;
   final List<Product>? listOfFilteredProducts;
-  final List<Marketplace>? listOfMarketplaces;
+  final List<AbstractMarketplace>? listOfMarketplaces;
   final List<StatProductReorder>? listOfStatProductsInvoice;
   final List<StatProductReorder>? listOfStatProductsAppointment;
   final AbstractFailure? firebaseFailure;
@@ -19,7 +19,7 @@ class ReorderDetailState {
   final Option<Either<AbstractFailure, Reorder>> fosReorderDetailOnCreateOption;
   final Option<Either<AbstractFailure, Reorder>> fosReorderDetailOnOUpdateOption;
   final Option<Either<AbstractFailure, List<Product>>> fosReorderDetailOnObserveProductsOption;
-  final Option<Either<AbstractFailure, List<Marketplace>>> fosReorderDetailOnPdfDataOption;
+  final Option<Either<AbstractFailure, List<AbstractMarketplace>>> fosReorderDetailOnPdfDataOption;
 
   //* Helper
   final DateTimeRange? statProductDateRange;
@@ -125,7 +125,7 @@ class ReorderDetailState {
     Supplier? supplier,
     List<Product>? listOfProducts,
     List<Product>? listOfFilteredProducts,
-    List<Marketplace>? listOfMarketplaces,
+    List<AbstractMarketplace>? listOfMarketplaces,
     List<StatProductReorder>? listOfStatProductsInvoice,
     List<StatProductReorder>? listOfStatProductsAppointment,
     AbstractFailure? firebaseFailure,
@@ -139,7 +139,7 @@ class ReorderDetailState {
     Option<Either<AbstractFailure, Reorder>>? fosReorderDetailOnCreateOption,
     Option<Either<AbstractFailure, Reorder>>? fosReorderDetailOnOUpdateOption,
     Option<Either<AbstractFailure, List<Product>>>? fosReorderDetailOnObserveProductsOption,
-    Option<Either<AbstractFailure, List<Marketplace>>>? fosReorderDetailOnPdfDataOption,
+    Option<Either<AbstractFailure, List<AbstractMarketplace>>>? fosReorderDetailOnPdfDataOption,
     DateTimeRange? statProductDateRange,
     bool? reloadProducts,
     bool? getAllProducts,
