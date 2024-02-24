@@ -934,7 +934,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
 
   Future<ProductPresta?> getProductByIdFromPrestashop(int id, MarketplacePresta marketplace) async {
     ProductPresta? productPresta;
-    final fosProductPresta = await productImportRepository.getProductByIdFromPrestashopAsJson(id, marketplace);
+    final fosProductPresta = await productImportRepository.loadProductByIdFromPrestashopAsJson(id, marketplace);
     fosProductPresta.fold(
       (failure) {
         logger.e('$id konnte nicht von Prestashop geladen werden');

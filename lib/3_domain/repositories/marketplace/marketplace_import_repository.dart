@@ -2,7 +2,9 @@ import 'package:dartz/dartz.dart';
 
 import '../../../../core/abstract_failure.dart';
 import '../../../../core/presta_failure.dart';
+import '../../../4_infrastructur/repositories/shopify_api/shopify.dart';
 import '../../entities/marketplace/marketplace_presta.dart';
+import '../../entities/marketplace/marketplace_shopify.dart';
 import '../../entities/product/product.dart';
 import '../../entities_presta/category_presta.dart';
 import '../../entities_presta/product_presta.dart';
@@ -12,6 +14,7 @@ abstract class MarketplaceImportRepository {
   Future<Either<AbstractFailure, ProductPresta>> loadProductFromMarketplace(int productId, MarketplacePresta marketplace);
   Future<Either<AbstractFailure, Product?>> uploadLoadedProductToFirestore(ProductPresta productPresta, String marketplaceId);
   //
-  Future<Either<PrestaFailure, ProductPresta>> getProductByIdFromPrestashopAsJson(int id, MarketplacePresta marketplace);
+  Future<Either<PrestaFailure, ProductPresta>> loadProductByIdFromPrestashopAsJson(int id, MarketplacePresta marketplace);
+  Future<Either<PrestaFailure, List<ProductShopify>>> loadProductByArticleNumberFromShopify(String articleNumber, MarketplaceShopify marketplace);
   Future<Either<PrestaFailure, List<CategoryPresta>>> getAllPrestaCategories(MarketplacePresta marketplace);
 }

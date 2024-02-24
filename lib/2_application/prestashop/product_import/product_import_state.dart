@@ -2,7 +2,7 @@ part of 'product_import_bloc.dart';
 
 @immutable
 class ProductImportState {
-  final ProductPresta? productPresta;
+  final dynamic marketplaceProduct;
   final PrestaFailure? prestaFailure;
   final List<ProductPresta>? listOfProductsPresta;
   final AbstractMarketplace? selectedMarketplace;
@@ -12,6 +12,7 @@ class ProductImportState {
   final bool isLoadingProductOnCreate;
   final bool isLoadingProductsOnCreate;
   final Option<Either<PrestaFailure, ProductPresta>> fosProductPrestaOnObserveOption;
+  final Option<Either<PrestaFailure, List<ProductShopify>>> fosListProductShopifyOnObserveOption;
   final Option<Either<PrestaFailure, Unit>> fosProductsPrestaOnObserveOption;
   final Option<Either<AbstractFailure, Unit>> fosProductOnCreateOption;
   final Option<Either<AbstractFailure, Unit>> fosProductsOnCreateOption;
@@ -21,7 +22,7 @@ class ProductImportState {
   final String loadingText;
 
   const ProductImportState({
-    required this.productPresta,
+    required this.marketplaceProduct,
     required this.prestaFailure,
     required this.listOfProductsPresta,
     required this.selectedMarketplace,
@@ -31,6 +32,7 @@ class ProductImportState {
     required this.isLoadingProductOnCreate,
     required this.isLoadingProductsOnCreate,
     required this.fosProductPrestaOnObserveOption,
+    required this.fosListProductShopifyOnObserveOption,
     required this.fosProductsPrestaOnObserveOption,
     required this.fosProductOnCreateOption,
     required this.fosProductsOnCreateOption,
@@ -40,7 +42,7 @@ class ProductImportState {
   });
 
   factory ProductImportState.initial() => ProductImportState(
-        productPresta: null,
+        marketplaceProduct: null,
         prestaFailure: null,
         listOfProductsPresta: null,
         selectedMarketplace: null,
@@ -50,6 +52,7 @@ class ProductImportState {
         isLoadingProductOnCreate: false,
         isLoadingProductsOnCreate: false,
         fosProductPrestaOnObserveOption: none(),
+        fosListProductShopifyOnObserveOption: none(),
         fosProductsPrestaOnObserveOption: none(),
         fosProductOnCreateOption: none(),
         fosProductsOnCreateOption: none(),
@@ -59,7 +62,7 @@ class ProductImportState {
       );
 
   ProductImportState copyWith({
-    ProductPresta? productPresta,
+    dynamic marketplaceProduct,
     PrestaFailure? prestaFailure,
     List<ProductPresta>? listOfProductsPresta,
     AbstractMarketplace? selectedMarketplace,
@@ -69,6 +72,7 @@ class ProductImportState {
     bool? isLoadingProductOnCreate,
     bool? isLoadingProductsOnCreate,
     Option<Either<PrestaFailure, ProductPresta>>? fosProductPrestaOnObserveOption,
+    Option<Either<PrestaFailure, List<ProductShopify>>>? fosListProductShopifyOnObserveOption,
     Option<Either<PrestaFailure, Unit>>? fosProductsPrestaOnObserveOption,
     Option<Either<AbstractFailure, Unit>>? fosProductOnCreateOption,
     Option<Either<AbstractFailure, Unit>>? fosProductsOnCreateOption,
@@ -77,7 +81,7 @@ class ProductImportState {
     String? loadingText,
   }) {
     return ProductImportState(
-      productPresta: productPresta ?? this.productPresta,
+      marketplaceProduct: marketplaceProduct ?? this.marketplaceProduct,
       prestaFailure: prestaFailure ?? this.prestaFailure,
       listOfProductsPresta: listOfProductsPresta ?? this.listOfProductsPresta,
       selectedMarketplace: selectedMarketplace ?? this.selectedMarketplace,
@@ -87,6 +91,7 @@ class ProductImportState {
       isLoadingProductOnCreate: isLoadingProductOnCreate ?? this.isLoadingProductOnCreate,
       isLoadingProductsOnCreate: isLoadingProductsOnCreate ?? this.isLoadingProductsOnCreate,
       fosProductPrestaOnObserveOption: fosProductPrestaOnObserveOption ?? this.fosProductPrestaOnObserveOption,
+      fosListProductShopifyOnObserveOption: fosListProductShopifyOnObserveOption ?? this.fosListProductShopifyOnObserveOption,
       fosProductsPrestaOnObserveOption: fosProductsPrestaOnObserveOption ?? this.fosProductsPrestaOnObserveOption,
       fosProductOnCreateOption: fosProductOnCreateOption ?? this.fosProductOnCreateOption,
       fosProductsOnCreateOption: fosProductsOnCreateOption ?? this.fosProductsOnCreateOption,

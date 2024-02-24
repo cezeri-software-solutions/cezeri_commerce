@@ -4,6 +4,7 @@ import 'package:cezeri_commerce/2_application/firebase/product/product_bloc.dart
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../../2_application/prestashop/product_import/product_import_bloc.dart';
 import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
@@ -11,6 +12,7 @@ import '../../../3_domain/entities/marketplace/marketplace_presta.dart';
 import '../../../constants.dart';
 import '../../../injection.dart';
 import '../../app_drawer.dart';
+import '../../core/functions/mixed_functions.dart';
 import '../../core/functions/my_scaffold_messanger.dart';
 import '../../core/renderer/failure_renderer.dart';
 import 'product_import_page.dart';
@@ -240,7 +242,13 @@ class _SelectMarketplace extends StatelessWidget {
                   color: marketplace.id == state.selectedMarketplace!.id ? Colors.orange : Colors.orange[50],
                   child: Padding(
                     padding: const EdgeInsets.all(10),
-                    child: Text(listOfMarketplace[index].name),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(listOfMarketplace[index].name),
+                        SizedBox(height: 40,width: 40, child: SvgPicture.asset(getMarketplaceLogoAsset(listOfMarketplace[index].marketplaceType))),
+                      ],
+                    ),
                   ),
                 ),
               );

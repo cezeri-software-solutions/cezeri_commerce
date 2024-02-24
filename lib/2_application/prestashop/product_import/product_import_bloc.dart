@@ -1,13 +1,16 @@
 import 'package:bloc/bloc.dart';
+import 'package:cezeri_commerce/1_presentation/core/extensions/string_to_int.dart';
 import 'package:dartz/dartz.dart';
 import 'package:logger/logger.dart';
 import 'package:meta/meta.dart';
 
 import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
 import '../../../3_domain/entities/marketplace/marketplace_presta.dart';
+import '../../../3_domain/entities/marketplace/marketplace_shopify.dart';
 import '../../../3_domain/entities_presta/product_presta.dart';
 import '../../../3_domain/repositories/firebase/main_settings_respository.dart';
 import '../../../3_domain/repositories/marketplace/marketplace_import_repository.dart';
+import '../../../4_infrastructur/repositories/shopify_api/shopify.dart';
 import '../../../core/abstract_failure.dart';
 import '../../../core/presta_failure.dart';
 
@@ -39,7 +42,8 @@ class ProductImportBloc extends Bloc<ProductImportEvent, ProductImportState> {
       emit(state.copyWith(isLoadingProductsPrestaOnObserve: true, loadedProducts: 0, numberOfToLoadProducts: 0, loadingText: ''));
 
       List<int>? toLoadProductsFromMarketplace;
-      final fosToLoadProductsPresta = await productImportRepository.getToLoadProductsFromMarketplace(state.selectedMarketplace! as MarketplacePresta, event.onlyActive); //TODO: Shopify
+      final fosToLoadProductsPresta = await productImportRepository.getToLoadProductsFromMarketplace(
+          state.selectedMarketplace! as MarketplacePresta, event.onlyActive); //TODO: Shopify
       fosToLoadProductsPresta.fold(
         (failure) {
           isSuccess = false;
@@ -56,7 +60,8 @@ class ProductImportBloc extends Bloc<ProductImportEvent, ProductImportState> {
 
       List<ProductPresta> loadedProductsPresta = [];
       for (final productId in toLoadProductsFromMarketplace!) {
-        final fosLoadedProductPrestaFromMarketplace = await productImportRepository.loadProductFromMarketplace(productId, state.selectedMarketplace! as MarketplacePresta);
+        final fosLoadedProductPrestaFromMarketplace =
+            await productImportRepository.loadProductFromMarketplace(productId, state.selectedMarketplace! as MarketplacePresta);
         fosLoadedProductPrestaFromMarketplace.fold(
           (failure) {
             logger.e(failure);
@@ -86,7 +91,7 @@ class ProductImportBloc extends Bloc<ProductImportEvent, ProductImportState> {
 
       bool isSuccess = true;
 
-      final failureOrSuccess = await productImportRepository.uploadLoadedProductToFirestore(state.productPresta!, state.selectedMarketplace!.id);
+      final failureOrSuccess = await productImportRepository.uploadLoadedProductToFirestore(state.marketplaceProduct!, state.selectedMarketplace!.id);
       failureOrSuccess.fold(
         (failure) => isSuccess = false,
         (product) => null,
@@ -128,19 +133,50 @@ class ProductImportBloc extends Bloc<ProductImportEvent, ProductImportState> {
 
 //? #########################################################################
 
-    on<GetProductByIdAsJsonFromPrestaEvent>((event, emit) async {
+    on<LoadProductFromMarketplaceEvent>((event, emit) async {
       emit(state.copyWith(isLoadingProductPrestaOnObserve: true));
 
-      final failureOrSuccess = await productImportRepository.getProductByIdFromPrestashopAsJson(event.id, event.marketplace);
-      failureOrSuccess.fold(
-        (failure) => emit(state.copyWith(prestaFailure: failure, isAnyFailure: true)),
-        (productPresta) => emit(state.copyWith(productPresta: productPresta, prestaFailure: null, isAnyFailure: false)),
-      );
+      switch (event.marketplace.marketplaceType) {
+        case MarketplaceType.prestashop:
+          {
+            final failureOrSuccess = await productImportRepository.loadProductByIdFromPrestashopAsJson(
+              event.value.toMyInt(),
+              event.marketplace as MarketplacePresta,
+            );
+            failureOrSuccess.fold(
+              (failure) => emit(state.copyWith(prestaFailure: failure, isAnyFailure: true)),
+              (productPresta) => emit(state.copyWith(marketplaceProduct: productPresta, prestaFailure: null, isAnyFailure: false)),
+            );
 
-      emit(state.copyWith(
-        isLoadingProductPrestaOnObserve: false,
-        fosProductPrestaOnObserveOption: optionOf(failureOrSuccess),
-      ));
+            emit(state.copyWith(
+              isLoadingProductPrestaOnObserve: false,
+              fosProductPrestaOnObserveOption: optionOf(failureOrSuccess),
+            ));
+            emit(state.copyWith(fosProductPrestaOnObserveOption: none()));
+            return;
+          }
+        case MarketplaceType.shopify:
+          {
+            final failureOrSuccess =
+                await productImportRepository.loadProductByArticleNumberFromShopify(event.value, event.marketplace as MarketplaceShopify);
+            failureOrSuccess.fold(
+              (failure) => emit(state.copyWith(prestaFailure: failure, isAnyFailure: true)),
+              (productPresta) => emit(state.copyWith(marketplaceProduct: productPresta, prestaFailure: null, isAnyFailure: false)),
+            );
+
+            emit(state.copyWith(
+              isLoadingProductPrestaOnObserve: false,
+              fosListProductShopifyOnObserveOption: optionOf(failureOrSuccess),
+            ));
+            emit(state.copyWith(fosListProductShopifyOnObserveOption: none()));
+            return;
+          }
+        case MarketplaceType.shop:
+          {
+            emit(state.copyWith(isLoadingProductPrestaOnObserve: false));
+            throw Exception('Aus einem Ladengeschäft können keine Artikel importiert werden.');
+          }
+      }
     });
 
 //? #########################################################################

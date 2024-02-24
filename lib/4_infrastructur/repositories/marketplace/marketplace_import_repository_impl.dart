@@ -1,6 +1,8 @@
 import 'package:cezeri_commerce/1_presentation/core/extensions/string_to_int.dart';
+import 'package:cezeri_commerce/3_domain/entities/marketplace/marketplace_shopify.dart';
 import 'package:cezeri_commerce/3_domain/entities/product/product.dart';
 import 'package:cezeri_commerce/3_domain/entities_presta/category_presta.dart';
+import 'package:cezeri_commerce/4_infrastructur/repositories/shopify_api/models/products/product_shopify.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -8,7 +10,6 @@ import 'package:http/http.dart';
 import 'package:logger/logger.dart';
 
 import '../../../../1_presentation/core/functions/check_internet_connection.dart';
-import '../../../3_domain/entities/marketplace/marketplace_presta.dart';
 import '../../../../3_domain/entities/settings/main_settings.dart';
 import '../../../../3_domain/entities_presta/product_presta.dart';
 import '../../../../3_domain/repositories/firebase/product_repository.dart';
@@ -17,6 +18,7 @@ import '../../../../core/abstract_failure.dart';
 import '../../../../core/firebase_failures.dart';
 import '../../../../core/presta_failure.dart';
 import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
+import '../../../3_domain/entities/marketplace/marketplace_presta.dart';
 import '../../../3_domain/entities/product/product_id_with_quantity.dart';
 import '../functions/product_import.dart';
 import '../functions/product_repository_helper.dart';
@@ -183,7 +185,7 @@ class MarketplaceImportRepositoryImpl implements MarketplaceImportRepository {
   }
 
   @override
-  Future<Either<PrestaFailure, ProductPresta>> getProductByIdFromPrestashopAsJson(int id, MarketplacePresta marketplace) async {
+  Future<Either<PrestaFailure, ProductPresta>> loadProductByIdFromPrestashopAsJson(int id, MarketplacePresta marketplace) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(PrestaGeneralFailure());
 
@@ -202,6 +204,12 @@ class MarketplaceImportRepositoryImpl implements MarketplaceImportRepository {
   }
 
   @override
+  Future<Either<PrestaFailure, List<ProductShopify>>> loadProductByArticleNumberFromShopify(String articleNumber, MarketplaceShopify marketplace) {
+    // TODO: implement loadProductByArticleNumberFromShopify
+    throw UnimplementedError();
+  }
+
+  @override
   Future<Either<PrestaFailure, List<CategoryPresta>>> getAllPrestaCategories(MarketplacePresta marketplace) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(PrestaGeneralFailure());
@@ -217,4 +225,6 @@ class MarketplaceImportRepositoryImpl implements MarketplaceImportRepository {
       return left(PrestaGeneralFailure());
     }
   }
+
+  
 }

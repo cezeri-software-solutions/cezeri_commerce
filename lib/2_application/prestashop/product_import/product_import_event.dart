@@ -21,9 +21,9 @@ class OnUploadProductToFirestoreEvent extends ProductImportEvent {}
 
 class OnUploadAllProductsToFirestoreEvent extends ProductImportEvent {}
 
-class GetProductByIdAsJsonFromPrestaEvent extends ProductImportEvent {
-  final int id;
-  final MarketplacePresta marketplace;
+class LoadProductFromMarketplaceEvent extends ProductImportEvent {
+  final String value;
+  final AbstractMarketplace marketplace;
 
-  GetProductByIdAsJsonFromPrestaEvent({required this.id, required this.marketplace});
+  LoadProductFromMarketplaceEvent({required this.value, required this.marketplace});
 }
