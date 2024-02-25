@@ -3,10 +3,10 @@ import 'package:xml/xml.dart';
 
 import '../../../1_presentation/core/functions/mixed_functions.dart';
 import '../../../3_domain/entities/product/field_language.dart';
-import '../../../3_domain/entities/product/marketplace_product_presta.dart';
 import '../../../3_domain/entities/product/product.dart';
 import '../../../3_domain/entities/product/product_marketplace.dart';
-import '../../../3_domain/entities_presta/product_presta.dart';
+import '../../../3_domain/entities/product/product_presta.dart';
+import 'models/product_raw_presta.dart';
 
 final logger = Logger();
 
@@ -40,8 +40,8 @@ XmlBuilder? patchProductBuilder({
   required int id,
   required Product product,
   required ProductMarketplace productMarketplace,
-  required ProductPresta productPresta,
-  List<ProductPresta>? listOfPartProductsPresta,
+  required ProductRawPresta productPresta,
+  List<ProductRawPresta>? listOfPartProductsPresta,
 }) {
   // int boolToInt(bool bool) => switch (bool) {
   //       true => 1,
@@ -49,7 +49,7 @@ XmlBuilder? patchProductBuilder({
   //     };
   final builder = XmlBuilder();
   bool isAnyFailure = false;
-  final marketplaceProductPresta = productMarketplace.marketplaceProduct as MarketplaceProductPresta;
+  final marketplaceProductPresta = productMarketplace.marketplaceProduct as ProductPresta;
   final marketplaceLanguages = productPresta.marketplaceLanguages;
   void valueBuilder(String? value, List<Multilanguage>? valuesMultilanguage, List<FieldLanguage> listOfProductLanguages, String fieldName) {
     if (valuesMultilanguage != null && valuesMultilanguage.isNotEmpty) {

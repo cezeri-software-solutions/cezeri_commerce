@@ -4,12 +4,12 @@ import 'package:cezeri_commerce/3_domain/entities/carrier/carrier_product.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 import '../../../1_presentation/core/functions/mixed_functions.dart';
-import '../../entities_presta/address_presta.dart';
-import '../../entities_presta/carrier_presta.dart';
-import '../../entities_presta/country_presta.dart';
-import '../../entities_presta/currency_presta.dart';
-import '../../entities_presta/customer_presta.dart';
-import '../../entities_presta/order_presta.dart';
+import '../../../4_infrastructur/repositories/prestashop_api/models/address_presta.dart';
+import '../../../4_infrastructur/repositories/prestashop_api/models/carrier_presta.dart';
+import '../../../4_infrastructur/repositories/prestashop_api/models/country_presta.dart';
+import '../../../4_infrastructur/repositories/prestashop_api/models/currency_presta.dart';
+import '../../../4_infrastructur/repositories/prestashop_api/models/customer_presta.dart';
+import '../../../4_infrastructur/repositories/prestashop_api/models/order_presta.dart';
 import '../../enums/enums.dart';
 import '../address.dart';
 import '../carrier/carrier.dart';

@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'product_presta.dart';
+part of 'product_raw_presta.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
@@ -9,7 +9,7 @@ part of 'product_presta.dart';
 ProductsPresta _$ProductsPrestaFromJson(Map<String, dynamic> json) =>
     ProductsPresta(
       items: (json['products'] as List<dynamic>)
-          .map((e) => ProductPresta.fromJson(e as Map<String, dynamic>))
+          .map((e) => ProductRawPresta.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
 
@@ -18,8 +18,8 @@ Map<String, dynamic> _$ProductsPrestaToJson(ProductsPresta instance) =>
       'products': instance.items,
     };
 
-ProductPresta _$ProductPrestaFromJson(Map<String, dynamic> json) =>
-    ProductPresta(
+ProductRawPresta _$ProductRawPrestaFromJson(Map<String, dynamic> json) =>
+    ProductRawPresta(
       id: json['id'] as int,
       idManufacturer: json['idManufacturer'] as String,
       idSupplier: json['idSupplier'] as String,
@@ -139,7 +139,7 @@ ProductPresta _$ProductPrestaFromJson(Map<String, dynamic> json) =>
           Associations.fromJson(json['associations'] as Map<String, dynamic>),
     );
 
-Map<String, dynamic> _$ProductPrestaToJson(ProductPresta instance) =>
+Map<String, dynamic> _$ProductRawPrestaToJson(ProductRawPresta instance) =>
     <String, dynamic>{
       'id': instance.id,
       'idManufacturer': instance.idManufacturer,

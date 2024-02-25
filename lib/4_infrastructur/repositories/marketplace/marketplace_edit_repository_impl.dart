@@ -9,14 +9,14 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart';
 
 import '../../../../1_presentation/core/functions/check_internet_connection.dart';
-import '../../../3_domain/entities/marketplace/marketplace_presta.dart';
-import '../../../../3_domain/entities/product/marketplace_product_presta.dart';
 import '../../../../3_domain/entities/product/product_marketplace.dart';
 import '../../../../3_domain/repositories/marketplace/marketplace_edit_repository.dart';
 import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
+import '../../../3_domain/entities/marketplace/marketplace_presta.dart';
 import '../../../3_domain/entities/patch_marketplace_logger.dart';
-import '../../../3_domain/entities_presta/product_presta.dart';
+import '../../../3_domain/entities/product/product_presta.dart';
 import '../../../core/abstract_failure.dart';
+import '../prestashop_api/models/product_raw_presta.dart';
 import '../prestashop_api/prestashop_api.dart';
 
 class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
@@ -47,7 +47,7 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
 
       if (productMarketplace.marketplaceProduct == null) return left([ProductHasNoMarketplaceFailure()]);
       final marketplaceProduct = switch (productMarketplace.marketplaceProduct!.marketplaceType) {
-        MarketplaceType.prestashop => productMarketplace.marketplaceProduct as MarketplaceProductPresta,
+        MarketplaceType.prestashop => productMarketplace.marketplaceProduct as ProductPresta,
         MarketplaceType.shopify => throw Exception('SHOPIFY not implemented'),
         MarketplaceType.shop => throw Exception('SHOP not implemented'),
       };
@@ -101,7 +101,7 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
 
       final api = PrestashopApi(Client(), PrestashopApiConfig(apiKey: marketplace.key, webserviceUrl: marketplace.fullUrl));
 
-      final marketplaceProduct = productMarketplace.marketplaceProduct as MarketplaceProductPresta;
+      final marketplaceProduct = productMarketplace.marketplaceProduct as ProductPresta;
 
       if (product.isSetArticle) {
         //* Alle Einzelartikel des Set-Artikel laden und in eine Liste speichern
@@ -139,7 +139,7 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
   }
 
   @override
-  Future<Either<PrestaFailure, ProductPresta>> createProdcutInMarketplace(
+  Future<Either<PrestaFailure, ProductRawPresta>> createProdcutInMarketplace(
     Product product,
     ProductMarketplace productMarketplace,
     ProductMarketplace anotherProductMarketplaceWithSameManufacturer,
@@ -198,7 +198,7 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
 
       if (productMarketplace.marketplaceProduct == null) return left([ProductHasNoMarketplaceFailure()]);
       final marketplaceProduct = switch (productMarketplace.marketplaceProduct!.marketplaceType) {
-        MarketplaceType.prestashop => productMarketplace.marketplaceProduct as MarketplaceProductPresta,
+        MarketplaceType.prestashop => productMarketplace.marketplaceProduct as ProductPresta,
         MarketplaceType.shopify => throw Exception('SHOPIFY not implemented'),
         MarketplaceType.shop => throw Exception('SHOP not implemented'),
       };

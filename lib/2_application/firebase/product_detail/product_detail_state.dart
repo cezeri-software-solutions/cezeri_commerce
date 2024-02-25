@@ -26,7 +26,7 @@ class ProductDetailState {
   final Option<Either<AbstractFailure, List<AbstractMarketplace>>> fosProductMarketplacesOnObserveOption;
   final Option<Either<List<AbstractFailure>, Unit>> fosProductOnUploadImagesInMarketplaceOption;
   final Option<Either<List<AbstractFailure>, Unit>> fosProductOnUpdateInMarketplaceOption;
-  final Option<Either<PrestaFailure, ProductPresta>> fosProductOnCreateInMarketplaceOption;
+  final Option<Either<PrestaFailure, ProductRawPresta>> fosProductOnCreateInMarketplaceOption;
   final Option<Either<List<AbstractFailure>, Unit>> fosProductAbstractFailuresOption;
 
   //* Chart
@@ -239,7 +239,7 @@ class ProductDetailState {
     Option<Either<AbstractFailure, List<AbstractMarketplace>>>? fosProductMarketplacesOnObserveOption,
     Option<Either<List<AbstractFailure>, Unit>>? fosProductOnUploadImagesInMarketplaceOption,
     Option<Either<List<AbstractFailure>, Unit>>? fosProductOnUpdateInMarketplaceOption,
-    Option<Either<PrestaFailure, ProductPresta>>? fosProductOnCreateInMarketplaceOption,
+    Option<Either<PrestaFailure, ProductRawPresta>>? fosProductOnCreateInMarketplaceOption,
     Option<Either<List<AbstractFailure>, Unit>>? fosProductAbstractFailuresOption,
     List<StatProduct>? listOfStatProducts,
     bool? isShowingSalesVolumeOnChart,

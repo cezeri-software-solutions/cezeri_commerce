@@ -5,7 +5,7 @@ part 'product_variant_shopify.g.dart';
 
 @JsonSerializable()
 class ProductVariantShopify extends Equatable {
-  final String barcode;
+  final String? barcode;
   @JsonKey(name: 'compare_at_price')
   final String? compareAtPrice;
   @JsonKey(name: 'created_at')
@@ -24,7 +24,7 @@ class ProductVariantShopify extends Equatable {
   final String inventoryPolicy;
   @JsonKey(name: 'inventory_quantity')
   final int inventoryQuantity;
-  final double price;
+  final String price;
   @JsonKey(name: 'product_id')
   final int productId;
   final String sku;
@@ -76,7 +76,7 @@ class ProductVariantShopify extends Equatable {
     String? inventoryManagement,
     String? inventoryPolicy,
     int? inventoryQuantity,
-    double? price,
+    String? price,
     int? productId,
     String? sku,
     bool? taxable,

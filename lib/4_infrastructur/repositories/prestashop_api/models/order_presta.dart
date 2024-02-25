@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:json_annotation/json_annotation.dart';
 
-import 'product_presta.dart';
+import 'product_raw_presta.dart';
 
 part 'order_presta.g.dart';
 
@@ -118,7 +118,7 @@ class OrderPresta {
   final String? crnInvoiceNumber;
   @JsonKey(name: 'crn_delivery_number')
   final String? crnDeliveryNumber;
-  final Associations? associations;
+  final OrderAssociations? associations;
 
   OrderPresta({
     required this.id,
@@ -183,16 +183,16 @@ class OrderPresta {
 }
 
 @JsonSerializable()
-class Associations {
+class OrderAssociations {
   static const _encoder = JsonEncoder.withIndent('  ');
 
   @JsonKey(name: 'order_rows')
   final List<OrderProductPresta> orderRows;
 
-  Associations({required this.orderRows});
+  OrderAssociations({required this.orderRows});
 
-  factory Associations.fromJson(Map<String, dynamic> json) => _$AssociationsFromJson(json);
-  Map<String, dynamic> toJson() => _$AssociationsToJson(this);
+  factory OrderAssociations.fromJson(Map<String, dynamic> json) => _$OrderAssociationsFromJson(json);
+  Map<String, dynamic> toJson() => _$OrderAssociationsToJson(this);
 
   List<Object?> get props => [orderRows];
 
@@ -249,7 +249,7 @@ class OrderProductPresta {
   factory OrderProductPresta.fromJson(Map<String, dynamic> json) => _$OrderProductPrestaFromJson(json);
   Map<String, dynamic> toJson() => _$OrderProductPrestaToJson(this);
 
-  factory OrderProductPresta.fromProductPresta(ProductPresta pp) {
+  factory OrderProductPresta.fromProductPresta(ProductRawPresta pp) {
     return OrderProductPresta(
       id: '',
       productId: pp.id.toString(),

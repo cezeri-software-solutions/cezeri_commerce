@@ -1,7 +1,6 @@
-import 'package:cezeri_commerce/1_presentation/core/extensions/string_to_int.dart';
 import 'package:cezeri_commerce/3_domain/entities/marketplace/marketplace_shopify.dart';
 import 'package:cezeri_commerce/3_domain/entities/product/product.dart';
-import 'package:cezeri_commerce/3_domain/entities_presta/category_presta.dart';
+import 'package:cezeri_commerce/4_infrastructur/repositories/shopify_api/api/shopify_api.dart';
 import 'package:cezeri_commerce/4_infrastructur/repositories/shopify_api/models/products/product_shopify.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
@@ -11,7 +10,6 @@ import 'package:logger/logger.dart';
 
 import '../../../../1_presentation/core/functions/check_internet_connection.dart';
 import '../../../../3_domain/entities/settings/main_settings.dart';
-import '../../../../3_domain/entities_presta/product_presta.dart';
 import '../../../../3_domain/repositories/firebase/product_repository.dart';
 import '../../../../3_domain/repositories/marketplace/marketplace_import_repository.dart';
 import '../../../../core/abstract_failure.dart';
@@ -19,10 +17,12 @@ import '../../../../core/firebase_failures.dart';
 import '../../../../core/presta_failure.dart';
 import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
 import '../../../3_domain/entities/marketplace/marketplace_presta.dart';
-import '../../../3_domain/entities/product/product_id_with_quantity.dart';
-import '../functions/product_import.dart';
-import '../functions/product_repository_helper.dart';
+import '../../../3_domain/entities/product/marketplace_product.dart';
+import '../../../3_domain/entities/product/product_presta.dart';
+import '../../../core/shopify_failure.dart';
+import '../prestashop_api/models/product_raw_presta.dart';
 import '../prestashop_api/prestashop_api.dart';
+import 'marketplace_import_repository_helper.dart';
 
 final logger = Logger();
 
@@ -72,7 +72,7 @@ class MarketplaceImportRepositoryImpl implements MarketplaceImportRepository {
   }
 
   @override
-  Future<Either<AbstractFailure, ProductPresta>> loadProductFromMarketplace(int productId, MarketplacePresta marketplace) async {
+  Future<Either<AbstractFailure, ProductRawPresta>> loadProductFromMarketplace(int productId, MarketplacePresta marketplace) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
 
@@ -94,90 +94,54 @@ class MarketplaceImportRepositoryImpl implements MarketplaceImportRepository {
   }
 
   @override
-  Future<Either<AbstractFailure, Product?>> uploadLoadedProductToFirestore(ProductPresta productPresta, String marketplaceId) async {
+  Future<Either<AbstractFailure, Product?>> uploadLoadedMarketplaceProductToFirestore(
+      MarketplaceProduct marketplaceProduct, String marketplaceId) async {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
 
     final currentUserUid = firebaseAuth.currentUser!.uid;
 
-    final docRefMarketplace = db.collection('Marketetplaces').doc(currentUserUid).collection('Marketetplaces').doc(marketplaceId);
     final docRefSettings = db.collection('Settings').doc(currentUserUid).collection('Settings').doc(currentUserUid);
 
     try {
-      final marketplaceDs = await docRefMarketplace.get();
-      if (!marketplaceDs.exists) return left(GeneralFailure());
-      final marketplace = MarketplacePresta.fromJson(marketplaceDs.data()!);
-
       final settingsDs = await docRefSettings.get();
       if (!settingsDs.exists) return left(GeneralFailure());
       final mainSettings = MainSettings.fromJson(settingsDs.data()!);
 
-      final api = PrestashopApi(Client(), PrestashopApiConfig(apiKey: marketplace.key, webserviceUrl: marketplace.fullUrl));
-
-      Product? newCreatedOrUpdatedProduct;
-
-      //* Wenn Set-Artikel werden auch die Einzelartikel des Sets mitgeladen
-      if (productPresta.type == 'pack' &&
-          productPresta.associations.associationsProductBundle != null &&
-          productPresta.associations.associationsProductBundle!.isNotEmpty) {
-        final List<ProductIdWithQuantity> listOfProductIdWithQuantity = [];
-        final List<Product> listOfSetPartProducts = [];
-        for (final partProductPrestaId in productPresta.associations.associationsProductBundle!) {
-          final optionalProductPresta = await api.getProduct(int.parse(partProductPrestaId.id), marketplace);
-          if (optionalProductPresta.isNotPresent) {
-            logger.e('Artikel aus Bestellung konnte beim Bestellimport nicht aus Marktplatz geladen werden');
-            return left(MixedFailure(errorMessage: 'Artikel aus Bestellung konnte beim Bestellimport nicht aus Marktplatz geladen werden'));
+      switch (marketplaceProduct.marketplaceType) {
+        case MarketplaceType.prestashop:
+          {
+            final fos = await createOrUpdateProductFromMarketplacePresta(
+              marketplaceId: marketplaceId,
+              currentUserUid: currentUserUid,
+              productPresta: marketplaceProduct as ProductPresta,
+              mainSettings: mainSettings,
+              productRepository: productRepository,
+              db: db,
+            );
+            return fos.fold(
+              (failure) => Left(failure),
+              (product) => Right(product),
+            );
           }
-          final loadedProductPresta = optionalProductPresta.value;
-          final fosLoadedOrCreatedProduct = await getOrCreateProductFromPrestaOnImportProduct(
-            loadedProductPresta,
-            marketplace,
-            mainSettings,
-            productRepository,
-            null,
-          );
-          fosLoadedOrCreatedProduct.fold(
-            (failure) => left(failure),
-            (locProduct) {
-              listOfSetPartProducts.add(locProduct);
-              listOfProductIdWithQuantity.add(ProductIdWithQuantity(productId: locProduct.id, quantity: partProductPrestaId.quantity.toMyInt()));
-            },
-          );
-        }
-        final fosToImportProduct = await getOrCreateProductFromPrestaOnImportProduct(
-          productPresta,
-          marketplace,
-          mainSettings,
-          productRepository,
-          listOfProductIdWithQuantity,
-        );
-        fosToImportProduct.fold(
-          (failure) => left(failure),
-          (appProduct) => newCreatedOrUpdatedProduct = appProduct,
-        );
-
-        await addSetProductIdToPartProducts(
-          db: db,
-          currentUserUid: currentUserUid,
-          transaction: null,
-          setProduct: newCreatedOrUpdatedProduct!,
-          listOfSetPartProducts: listOfSetPartProducts,
-        );
-      } else {
-        final fosToImportProduct = await getOrCreateProductFromPrestaOnImportProduct(
-          productPresta,
-          marketplace,
-          mainSettings,
-          productRepository,
-          null,
-        );
-        fosToImportProduct.fold(
-          (failure) => left(failure),
-          (appProduct) => newCreatedOrUpdatedProduct = appProduct,
-        );
+        case MarketplaceType.shopify:
+          {
+            final fos = await createOrUpdateProductFromMarketplaceShopify(
+              marketplaceId: marketplaceId,
+              currentUserUid: currentUserUid,
+              productShopify: marketplaceProduct as ProductShopify,
+              mainSettings: mainSettings,
+              productRepository: productRepository,
+              db: db,
+            );
+            return fos.fold(
+              (failure) => Left(failure),
+              (product) => Right(product),
+            );
+          }
+        case MarketplaceType.shop:
+          throw Exception('Von einem Ladengeschäft kann kein Artikel importiert werden.');
       }
-
-      return right(newCreatedOrUpdatedProduct);
     } catch (e) {
       logger.e('Fehler beim hochladen des Artikels zu Firestore: $e');
       return left(PrestaGeneralFailure(errorMessage: 'Fehler beim hochladen des Artikels zu Firestore: $e'));
@@ -185,16 +149,15 @@ class MarketplaceImportRepositoryImpl implements MarketplaceImportRepository {
   }
 
   @override
-  Future<Either<PrestaFailure, ProductPresta>> loadProductByIdFromPrestashopAsJson(int id, MarketplacePresta marketplace) async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(PrestaGeneralFailure());
+  Future<Either<AbstractFailure, ProductPresta>> loadProductByIdFromPrestashopAsJson(int id, MarketplacePresta marketplace) async {
+    if (!await checkInternetConnection()) return left(PrestaGeneralFailure());
 
     final api = PrestashopApi(Client(), PrestashopApiConfig(apiKey: marketplace.key, webserviceUrl: marketplace.fullUrl));
 
     try {
       final optionalProductPresta = await api.getProduct(id, marketplace);
       if (optionalProductPresta.isNotPresent) return left(PrestaGeneralFailure());
-      final productPresta = optionalProductPresta.value;
+      final productPresta = ProductPresta.fromProductRawPresta(optionalProductPresta.value);
 
       return right(productPresta);
     } catch (e) {
@@ -204,27 +167,64 @@ class MarketplaceImportRepositoryImpl implements MarketplaceImportRepository {
   }
 
   @override
-  Future<Either<PrestaFailure, List<ProductShopify>>> loadProductByArticleNumberFromShopify(String articleNumber, MarketplaceShopify marketplace) {
-    // TODO: implement loadProductByArticleNumberFromShopify
-    throw UnimplementedError();
+  Future<Either<AbstractFailure, List<ProductShopify>>> loadProductByArticleNumberFromShopify(
+    String articleNumber,
+    MarketplaceShopify marketplace,
+  ) async {
+    if (!await checkInternetConnection()) return left(NoConnectionFailure());
+
+    final api = ShopifyApi(
+      ShopifyApiConfig(storefrontToken: marketplace.storefrontAccessToken, adminToken: marketplace.adminAccessToken),
+      marketplace.fullUrl,
+    );
+
+    try {
+      final fosProductShopify = await api.getProductsByArticleNumber(articleNumber);
+      return fosProductShopify.fold(
+        (failure) => left(failure),
+        (products) => right(products),
+      );
+    } catch (e) {
+      logger.e(e);
+      return left(ShopifyGeneralFailure());
+    }
   }
 
   @override
-  Future<Either<PrestaFailure, List<CategoryPresta>>> getAllPrestaCategories(MarketplacePresta marketplace) async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(PrestaGeneralFailure());
+  Future<Either<AbstractFailure, List<dynamic>>> getAllMarketplaceCategories(AbstractMarketplace marketplace) async {
+    if (!await checkInternetConnection()) return left(PrestaGeneralFailure());
 
-    final api = PrestashopApi(Client(), PrestashopApiConfig(apiKey: marketplace.key, webserviceUrl: marketplace.fullUrl));
+    final api = switch (marketplace.marketplaceType) {
+      MarketplaceType.prestashop =>
+        PrestashopApi(Client(), PrestashopApiConfig(apiKey: (marketplace as MarketplacePresta).key, webserviceUrl: marketplace.fullUrl)),
+      MarketplaceType.shopify => ShopifyApi(
+          ShopifyApiConfig(storefrontToken: (marketplace as MarketplaceShopify).storefrontAccessToken, adminToken: marketplace.adminAccessToken),
+          marketplace.fullUrl,
+        ),
+      MarketplaceType.shop => throw Exception('Ein Ladengeschäft kann keine Schnitstelle haben.'),
+    };
 
     try {
-      final categoriesPresta = await api.getCategories();
-
-      return right(categoriesPresta);
+      switch (marketplace.marketplaceType) {
+        case MarketplaceType.prestashop:
+          {
+            final categoriesPresta = await (api as PrestashopApi).getCategories();
+            return right(categoriesPresta);
+          }
+        case MarketplaceType.shopify:
+          {
+            final fosCategoriesShopify = await (api as ShopifyApi).getCustomCollectionsAll();
+            return fosCategoriesShopify.fold(
+              (failure) => left(failure),
+              (customCollections) => right(customCollections),
+            );
+          }
+        case MarketplaceType.shop:
+          return left(GeneralFailure(customMessage: 'Ein Ladengeschäft kann keine Schnitstelle haben.'));
+      }
     } catch (e) {
       logger.e(e);
       return left(PrestaGeneralFailure());
     }
   }
-
-  
 }

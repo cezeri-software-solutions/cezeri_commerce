@@ -13,24 +13,12 @@ import 'package:path_provider/path_provider.dart';
 import 'package:quiver/core.dart';
 import 'package:xml/xml.dart';
 
+import '../../../3_domain/entities/product/product_presta.dart';
 import '../../../core/presta_failure.dart';
-import '/3_domain/entities/product/marketplace_product_presta.dart';
 import '/3_domain/entities/product/product.dart';
 import '/3_domain/entities/product/product_image.dart';
 import '/3_domain/entities/product/product_marketplace.dart';
-import '/3_domain/entities_presta/address_presta.dart';
-import '/3_domain/entities_presta/carrier_presta.dart';
-import '/3_domain/entities_presta/category_presta.dart';
-import '/3_domain/entities_presta/country_presta.dart';
-import '/3_domain/entities_presta/currency_presta.dart';
-import '/3_domain/entities_presta/customer_presta.dart';
-import '/3_domain/entities_presta/language_presta.dart';
-import '/3_domain/entities_presta/order_id_presta.dart';
-import '/3_domain/entities_presta/order_presta.dart';
-import '/3_domain/entities_presta/product_id_presta.dart';
-import '/3_domain/entities_presta/product_presta.dart';
-import '/3_domain/entities_presta/product_presta_image.dart';
-import '/3_domain/entities_presta/stock_available_presta.dart';
+import 'models/models.dart';
 import 'patch_builders.dart';
 import 'post_builder.dart';
 import 'put_builder.dart';
@@ -179,7 +167,7 @@ class PrestashopApi with UiLoggy {
     return ProductsIdPresta.fromJson(payload).items;
   }
 
-  Future<Optional<ProductPresta>> getProduct(final int id, final MarketplacePresta marketplace) async {
+  Future<Optional<ProductRawPresta>> getProduct(final int id, final MarketplacePresta marketplace) async {
     final payload = await _doGetJson(
       '${_conf.webserviceUrl}products?ws_key=${_conf.apiKey}&filter[id]=[$id]&output_format=JSON&display=full',
       single: true,
@@ -191,7 +179,7 @@ class PrestashopApi with UiLoggy {
     return productPresta.isNotPresent ? const Optional.absent() : productPresta;
   }
 
-  Future<Optional<ProductPresta>> getProductByReference(final String reference, final MarketplacePresta marketplace) async {
+  Future<Optional<ProductRawPresta>> getProductByReference(final String reference, final MarketplacePresta marketplace) async {
     final payload = await _doGetJson(
       '${_conf.webserviceUrl}products?ws_key=${_conf.apiKey}&filter[reference]=[$reference]&output_format=JSON&display=full',
       single: true,
@@ -501,7 +489,7 @@ class PrestashopApi with UiLoggy {
     final productPresta = optionalProductPresta.value;
 
     //* Lädt die Einzelartikel des Set-Artikels aus Prestashop
-    final List<ProductPresta> listOfPartProductsPresta = [];
+    final List<ProductRawPresta> listOfPartProductsPresta = [];
     for (final partProduct in listOfPartOfSetArticles) {
       final partProductMarketplace = partProduct.productMarketplaces.where((e) => e.idMarketplace == productMarketplace.idMarketplace).firstOrNull;
       if (partProductMarketplace == null) {
@@ -509,7 +497,7 @@ class PrestashopApi with UiLoggy {
         logger.e(e);
         return left(PrestaGeneralFailure(errorMessage: e));
       }
-      final partMarketplaceProductPresta = partProductMarketplace.marketplaceProduct as MarketplaceProductPresta;
+      final partMarketplaceProductPresta = partProductMarketplace.marketplaceProduct as ProductPresta;
       final optionalPartProductPresta = await getProduct(partMarketplaceProductPresta.id, marketplace);
       if (optionalPartProductPresta.isNotPresent) {
         final e = 'Der Einzelartikel: "${partProduct.name}" des Set-Artikels konnte aus dem Marktplatz: "${marketplace.name}" nicht geladen werden';
@@ -578,7 +566,7 @@ class PrestashopApi with UiLoggy {
       logger.e('Ein Artikel mit der Artikelnummer: "${product.articleNumber}" ist bereits im Marktplatz: "${marketplace.name}" vorhanden');
       return 0;
     }
-    final aMpp = anotherProductMarketplaceWithSameManufacturer.marketplaceProduct as MarketplaceProductPresta;
+    final aMpp = anotherProductMarketplaceWithSameManufacturer.marketplaceProduct as ProductPresta;
     final optionalAnotherProductPresta = await getProduct(aMpp.id, marketplace);
     if (optionalAnotherProductPresta.isNotPresent) return 0;
     final productPrestaWithSameManufacturer = optionalAnotherProductPresta.value;
@@ -712,7 +700,7 @@ class PrestashopApi with UiLoggy {
     return 0;
   }
 
-  Future<Optional<ProductPresta>> getProductImpl(ProductPresta phProductPresta, MarketplacePresta marketplace) async {
+  Future<Optional<ProductRawPresta>> getProductImpl(ProductRawPresta phProductPresta, MarketplacePresta marketplace) async {
     StockAvailablePresta? stockAvailablesPresta;
     List<LanguagePresta> listOfLanguagesPresta = [];
 
@@ -774,7 +762,7 @@ class PrestashopApi with UiLoggy {
       }
     }
 
-    List<ProductPresta> listOfBundleProduct = [];
+    List<ProductRawPresta> listOfBundleProduct = [];
     //* Wenn Set-Artikel auch richtig importiert und bearbeitet werden können
     // if (phProductPresta.associations.associationsProductBundle != null && phProductPresta.associations.associationsProductBundle!.isNotEmpty) {
     //   for (final id in phProductPresta.associations.associationsProductBundle!) {

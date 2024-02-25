@@ -11,10 +11,12 @@ CustomCollectionShopify _$CustomCollectionShopifyFromJson(
     CustomCollectionShopify(
       bodyHtml: json['body_html'] as String,
       handle: json['handle'] as String,
-      image:
-          CustomCollectionImage.fromJson(json['image'] as Map<String, dynamic>),
+      image: json['image'] == null
+          ? null
+          : CustomCollectionImage.fromJson(
+              json['image'] as Map<String, dynamic>),
       id: json['id'] as int,
-      published: json['published'] as bool,
+      published: json['published'] as bool?,
       publishedAt: json['published_at'] == null
           ? null
           : DateTime.parse(json['published_at'] as String),
@@ -30,7 +32,7 @@ Map<String, dynamic> _$CustomCollectionShopifyToJson(
     <String, dynamic>{
       'body_html': instance.bodyHtml,
       'handle': instance.handle,
-      'image': instance.image.toJson(),
+      'image': instance.image?.toJson(),
       'id': instance.id,
       'published': instance.published,
       'published_at': instance.publishedAt?.toIso8601String(),

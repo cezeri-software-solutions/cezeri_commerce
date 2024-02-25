@@ -1,5 +1,8 @@
+import 'package:cezeri_commerce/4_infrastructur/repositories/shopify_api/enums/metafield_type.dart';
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
+
+import '../enums/enums.dart';
 
 part 'metafield_shopify.g.dart';
 
@@ -7,7 +10,7 @@ part 'metafield_shopify.g.dart';
 class MetafieldShopify extends Equatable {
   @JsonKey(name: 'created_at')
   final DateTime createdAt;
-  final String description;
+  final String? description;
   final int id;
   final String key;
   final String namespace;
@@ -19,8 +22,9 @@ class MetafieldShopify extends Equatable {
   final DateTime updatedAt;
   final String value;
   final dynamic type;
+  final MetafieldType metafieldType;
 
-  const MetafieldShopify({
+  MetafieldShopify({
     required this.createdAt,
     required this.description,
     required this.id,
@@ -31,7 +35,18 @@ class MetafieldShopify extends Equatable {
     required this.updatedAt,
     required this.value,
     required this.type,
-  });
+  }) : metafieldType = _getMetafieldType(key, ownerResource);
+
+  static MetafieldType _getMetafieldType(String key, String ownerResource) {
+    if (key == 'product') {
+      return switch (ownerResource) {
+        'title_tag' => MetafieldType.productMetaTitle,
+        'description_tag' => MetafieldType.productMetaDescription,
+        _ => MetafieldType.unknown,
+      };
+    }
+    return MetafieldType.unknown;
+  }
 
   factory MetafieldShopify.fromJson(Map<String, dynamic> json) => _$MetafieldShopifyFromJson(json);
   Map<String, dynamic> toJson() => _$MetafieldShopifyToJson(this);

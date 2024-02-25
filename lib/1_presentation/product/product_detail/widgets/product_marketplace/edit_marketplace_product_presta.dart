@@ -5,21 +5,21 @@ import 'package:cezeri_commerce/1_presentation/core/functions/dialogs.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../../2_application/firebase/marketplace_product/marketplace_product_bloc.dart';
-import '../../../../../2_application/firebase/product_detail/product_detail_bloc.dart';
-import '../../../../../3_domain/entities/product/marketplace_product_presta.dart';
-import '../../../../../3_domain/entities/product/product_marketplace.dart';
-import '../../../../../3_domain/entities_presta/category_presta.dart';
-import '../../../../../constants.dart';
 import '../../../../core/widgets/my_animated_expansion_container.dart';
 import '../../../../core/widgets/my_circular_progress_indicator.dart';
 import '../../../../core/widgets/my_outlined_button.dart';
+import '/2_application/firebase/marketplace_product/marketplace_product_bloc.dart';
+import '/2_application/firebase/product_detail/product_detail_bloc.dart';
+import '/3_domain/entities/product/product_marketplace.dart';
+import '/3_domain/entities/product/product_presta.dart';
+import '/4_infrastructur/repositories/prestashop_api/models/category_presta.dart';
+import '/constants.dart';
 
 class EditMarketplaceProductPresta extends StatelessWidget {
   final ProductDetailBloc productDetailBloc;
   final MarketplaceProductBloc marketplaceProductBloc;
   final ProductMarketplace productMarketplace;
-  final MarketplaceProductPresta marketplaceProductPresta;
+  final ProductPresta marketplaceProductPresta;
   final VoidCallback setPage;
   final bool isProductSynchronized;
 

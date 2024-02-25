@@ -4,14 +4,14 @@ import 'package:dartz/dartz.dart';
 
 import '../../../core/abstract_failure.dart';
 import '../../entities/marketplace/marketplace_presta.dart';
+import '../../entities/product/marketplace_product.dart';
 import '../../entities/product/product.dart';
 import '../../entities/product/product_image.dart';
 import '../../entities/product/product_marketplace.dart';
 import '../../entities/reorder/supplier.dart';
-import '../../entities_presta/product_presta.dart';
 
 abstract class ProductRepository {
-  Future<Either<AbstractFailure, Product>> createProduct(Product product, ProductPresta? productPresta);
+  Future<Either<AbstractFailure, Product>> createProduct(Product product, MarketplaceProduct? marketplaceProduct);
   Future<Either<AbstractFailure, Product>> updateProduct(Product product);
   Future<Either<AbstractFailure, Product>> updateProductAndSets(Product product);
   Future<Either<AbstractFailure, Product>> updateProductAddImages(Product product, List<File> imageFiles);

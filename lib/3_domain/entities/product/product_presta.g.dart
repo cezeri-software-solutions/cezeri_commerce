@@ -1,14 +1,13 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'marketplace_product_presta.dart';
+part of 'product_presta.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
-MarketplaceProductPresta _$MarketplaceProductPrestaFromJson(
-        Map<String, dynamic> json) =>
-    MarketplaceProductPresta(
+ProductPresta _$ProductPrestaFromJson(Map<String, dynamic> json) =>
+    ProductPresta(
       id: json['id'] as int,
       idManufacturer: json['idManufacturer'] as String,
       idSupplier: json['idSupplier'] as String,
@@ -121,13 +120,15 @@ MarketplaceProductPresta _$MarketplaceProductPrestaFromJson(
           (json['availableLaterMultilanguage'] as List<dynamic>?)
               ?.map((e) => Multilanguage.fromJson(e as Map<String, dynamic>))
               .toList(),
+      marketplaceLanguages: (json['marketplaceLanguages'] as List<dynamic>?)
+          ?.map((e) => LanguagePresta.fromJson(e as Map<String, dynamic>))
+          .toList(),
       associations: json['associations'] == null
           ? null
           : Associations.fromJson(json['associations'] as Map<String, dynamic>),
     );
 
-Map<String, dynamic> _$MarketplaceProductPrestaToJson(
-        MarketplaceProductPresta instance) =>
+Map<String, dynamic> _$ProductPrestaToJson(ProductPresta instance) =>
     <String, dynamic>{
       'id': instance.id,
       'idManufacturer': instance.idManufacturer,
@@ -225,5 +226,7 @@ Map<String, dynamic> _$MarketplaceProductPrestaToJson(
       'availableLater': instance.availableLater,
       'availableLaterMultilanguage':
           instance.availableLaterMultilanguage?.map((e) => e.toJson()).toList(),
+      'marketplaceLanguages':
+          instance.marketplaceLanguages?.map((e) => e.toJson()).toList(),
       'associations': instance.associations?.toJson(),
     };

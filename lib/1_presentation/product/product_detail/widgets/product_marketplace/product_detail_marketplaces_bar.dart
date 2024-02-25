@@ -2,20 +2,24 @@ import 'package:auto_route/auto_route.dart';
 import 'package:cezeri_commerce/routes/router.gr.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 
 import '../../../../../2_application/firebase/marketplace_product/marketplace_product_bloc.dart';
 import '../../../../../2_application/firebase/product_detail/product_detail_bloc.dart';
 import '../../../../../3_domain/entities/marketplace/abstract_marketplace.dart';
-import '../../../../../3_domain/entities/product/marketplace_product_presta.dart';
 import '../../../../../3_domain/entities/product/product_marketplace.dart';
-import '../../../../../3_domain/entities_presta/product_presta.dart';
+import '../../../../../3_domain/entities/product/product_presta.dart';
+import '../../../../../4_infrastructur/repositories/prestashop_api/models/product_raw_presta.dart';
+import '../../../../../4_infrastructur/repositories/shopify_api/shopify.dart';
 import '../../../../../constants.dart';
 import '../../../../../injection.dart';
 import '../../../../core/functions/dialogs.dart';
+import '../../../../core/functions/mixed_functions.dart';
 import '../../../../core/widgets/my_circular_progress_indicator.dart';
 import '../../../../core/widgets/my_outlined_button.dart';
 import 'edit_marketplace_product_presta.dart';
+import 'edit_marketplace_product_shopify.dart';
 
 class ProductDetailMarketplacesBar extends StatelessWidget {
   final ProductDetailBloc productDetailBloc;
@@ -49,7 +53,6 @@ class ProductDetailMarketplacesBar extends StatelessWidget {
                   itemCount: state.product!.productMarketplaces.length,
                   itemBuilder: (context, index) {
                     final pm = state.product!.productMarketplaces[index];
-                    final marketplaceProduct = pm.marketplaceProduct as MarketplaceProductPresta;
                     return Row(
                       children: [
                         InkWell(
@@ -58,29 +61,14 @@ class ProductDetailMarketplacesBar extends StatelessWidget {
                             marketplaceProductBloc.add(SetMarketplaceProductEvent(productMarketplace: pm));
                             showEditProductInMarketplace(context, productDetailBloc, marketplaceProductBloc, pm, true);
                           },
-                          child: SizedBox(
-                            height: 110,
-                            width: 200,
-                            child: Card(
-                              elevation: 4.0,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Text(pm.nameMarketplace, style: const TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold)),
-                                  ),
-                                  Container(
-                                    height: 5.0,
-                                    decoration: BoxDecoration(
-                                      color: marketplaceProduct.active == '1' ? Colors.green : Colors.grey,
-                                      borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(8.0), bottomRight: Radius.circular(8.0)),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
+                          child: _MarketplaceCard(
+                            marketplaceName: pm.nameMarketplace,
+                            logoPath: getMarketplaceLogoAsset(pm.marketplaceProduct!.marketplaceType),
+                            isActive: switch (pm.marketplaceProduct!.marketplaceType) {
+                              MarketplaceType.prestashop => (pm.marketplaceProduct as ProductPresta).active == '1',
+                              MarketplaceType.shopify => (pm.marketplaceProduct as ProductShopify).status == 'active',
+                              MarketplaceType.shop => throw Exception('Marktplatz SHOP ist noch nicht implementiert.'),
+                            },
                           ),
                         ),
                         Gaps.w16,
@@ -117,7 +105,7 @@ class ProductDetailMarketplacesBar extends StatelessWidget {
                                 case MarketplaceType.prestashop:
                                   {
                                     marketplaceProductBloc.add(SetMarketplaceProductStatesToInitialEvent());
-                                    final emptyMarketplaceProductPresta = MarketplaceProductPresta.empty();
+                                    final emptyMarketplaceProductPresta = ProductPresta.empty();
                                     final marketplaceProductPresta = emptyMarketplaceProductPresta.copyWith(
                                       associations: Associations(
                                           associationsCategories: [AssociationsCategory(id: '2')],
@@ -148,29 +136,10 @@ class ProductDetailMarketplacesBar extends StatelessWidget {
                                   }
                               }
                             },
-                            child: SizedBox(
-                              height: 110,
-                              width: 200,
-                              child: Card(
-                                elevation: 4.0,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Text(marketplace.name, style: const TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold)),
-                                    ),
-                                    Container(
-                                      height: 5.0,
-                                      decoration: const BoxDecoration(
-                                        color: Colors.grey,
-                                        borderRadius: BorderRadius.only(bottomLeft: Radius.circular(8.0), bottomRight: Radius.circular(8.0)),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
+                            child: _MarketplaceCard(
+                              marketplaceName: marketplace.name,
+                              logoPath: getMarketplaceLogoAsset(marketplace.marketplaceType),
+                              isActive: false,
                             ),
                           ),
                           Gaps.w16,
@@ -183,6 +152,47 @@ class ProductDetailMarketplacesBar extends StatelessWidget {
             ],
           );
         },
+      ),
+    );
+  }
+}
+
+class _MarketplaceCard extends StatelessWidget {
+  final String marketplaceName;
+  final String logoPath;
+  final bool isActive;
+
+  const _MarketplaceCard({required this.marketplaceName, required this.logoPath, required this.isActive});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 110,
+      width: 200,
+      child: Card(
+        elevation: 4.0,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(marketplaceName, style: const TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold)),
+            ),
+            SizedBox(
+              height: 40,
+              width: 40,
+              child: SvgPicture.asset(logoPath),
+            ),
+            Container(
+              height: 5.0,
+              decoration: BoxDecoration(
+                color: isActive ? Colors.green : Colors.grey,
+                borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(8.0), bottomRight: Radius.circular(8.0)),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -258,11 +268,18 @@ Future<void> showEditProductInMarketplace(
                 productDetailBloc: productDetailBloc,
                 marketplaceProductBloc: marketplaceProductBloc,
                 productMarketplace: productMarketplace,
-                marketplaceProductPresta: productMarketplace.marketplaceProduct as MarketplaceProductPresta,
+                marketplaceProductPresta: productMarketplace.marketplaceProduct as ProductPresta,
                 setPage: () => pageIndexNotifier.value = 1,
                 isProductSynchronized: isProductSynchronized,
               ),
-            MarketplaceType.shopify => throw Exception('SHOPIFY not implemented'),
+            MarketplaceType.shopify => EditMarketplaceProductShopify(
+                productDetailBloc: productDetailBloc,
+                marketplaceProductBloc: marketplaceProductBloc,
+                productMarketplace: productMarketplace,
+                marketplaceProductShopify: productMarketplace.marketplaceProduct as ProductShopify,
+                setPage: () => pageIndexNotifier.value = 1,
+                isProductSynchronized: isProductSynchronized,
+              ),
             MarketplaceType.shop => throw Exception('SHOP not implemented'),
           },
         ),
@@ -272,7 +289,11 @@ Future<void> showEditProductInMarketplace(
           topBarTitle: const Text('Kategorien', style: TextStyles.h3Bold),
           leadingNavBarWidget: leadingPage2,
           trailingNavBarWidget: trailing,
-          child: EditMarketplaceProductPrestaCategories(marketplaceProductBloc: marketplaceProductBloc),
+          child: switch (productMarketplace.marketplaceProduct!.marketplaceType) {
+            MarketplaceType.prestashop => EditMarketplaceProductPrestaCategories(marketplaceProductBloc: marketplaceProductBloc),
+            MarketplaceType.shopify => EditMarketplaceProductShopifyCategories(marketplaceProductBloc: marketplaceProductBloc),
+            MarketplaceType.shop => throw Exception('Ladengeschäft kann keine Kategorien haben.'),
+          },
           stickyActionBar: Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [

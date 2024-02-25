@@ -16,34 +16,12 @@ class PdfReceiptGenerator {
     required Receipt receipt,
     required String logoUrl,
   }) async {
-    //final fontRegular = await PdfGoogleFonts.robotoRegular();
-    //final fontBold = await PdfGoogleFonts.robotoBold();
-
     final myTheme = pw.ThemeData.withFont(
       base: pw.Font.ttf(await rootBundle.load('assets/font/Roboto-Regular.ttf')),
       bold: pw.Font.ttf(await rootBundle.load('assets/font/Roboto-Bold.ttf')),
     );
 
     final pdf = pw.Document(theme: myTheme);
-
-    // pw.ImageProvider? url;
-
-    // bool isUrlValid = false;
-
-    // final String imageUrl = logoUrl;
-    // try {
-    //   final response = await http.head(Uri.parse(imageUrl));
-    //   if (response.statusCode == 200) {
-    //     // imageUrl ist ein gültiger Pfad zu einem Bild
-    //     url = await networkImage(imageUrl);
-    //     isUrlValid = true;
-    //   } else {
-    //     // imageUrl ist kein gültiger Pfad zu einem Bild
-    //     isUrlValid = false;
-    //   }
-    // } catch (e) {
-    //   // Fehler beim Überprüfen der URL
-    // }
 
     pw.MemoryImage? logoImage;
     bool isUrlValid = false;

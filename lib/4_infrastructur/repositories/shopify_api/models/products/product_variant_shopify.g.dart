@@ -9,7 +9,7 @@ part of 'product_variant_shopify.dart';
 ProductVariantShopify _$ProductVariantShopifyFromJson(
         Map<String, dynamic> json) =>
     ProductVariantShopify(
-      barcode: json['barcode'] as String,
+      barcode: json['barcode'] as String?,
       compareAtPrice: json['compare_at_price'] as String?,
       createdAt: DateTime.parse(json['created_at'] as String),
       fulfillmentService: json['fulfillment_service'] as String,
@@ -20,7 +20,7 @@ ProductVariantShopify _$ProductVariantShopifyFromJson(
       inventoryManagement: json['inventory_management'] as String,
       inventoryPolicy: json['inventory_policy'] as String,
       inventoryQuantity: json['inventory_quantity'] as int,
-      price: (json['price'] as num).toDouble(),
+      price: json['price'] as String,
       productId: json['product_id'] as int,
       sku: json['sku'] as String,
       taxable: json['taxable'] as bool,

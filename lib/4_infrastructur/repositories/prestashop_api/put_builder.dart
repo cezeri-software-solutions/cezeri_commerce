@@ -3,11 +3,11 @@ import 'package:xml/xml.dart';
 
 import '../../../1_presentation/core/functions/mixed_functions.dart';
 import '../../../3_domain/entities/product/field_language.dart';
-import '../../../3_domain/entities/product/marketplace_product_presta.dart';
 import '../../../3_domain/entities/product/product.dart';
 import '../../../3_domain/entities/product/product_marketplace.dart';
-import '../../../3_domain/entities_presta/language_presta.dart';
-import '../../../3_domain/entities_presta/product_presta.dart';
+import '../../../3_domain/entities/product/product_presta.dart';
+import 'models/language_presta.dart';
+import 'models/product_raw_presta.dart';
 
 //* Order
 XmlDocument orderStatusUpdater(XmlDocument document, int statusId) {
@@ -31,10 +31,10 @@ XmlDocument productUpdater({
   required XmlDocument document,
   required Product product,
   required ProductMarketplace productMarketplace,
-  required ProductPresta productPresta,
-  List<ProductPresta>? listOfPartProductsPresta,
+  required ProductRawPresta productPresta,
+  List<ProductRawPresta>? listOfPartProductsPresta,
 }) {
-  final marketplaceProductPresta = productMarketplace.marketplaceProduct as MarketplaceProductPresta;
+  final marketplaceProductPresta = productMarketplace.marketplaceProduct as ProductPresta;
   final List<LanguagePresta>? marketplaceLanguages = productPresta.marketplaceLanguages;
 
   var toUpdateDocument = document;

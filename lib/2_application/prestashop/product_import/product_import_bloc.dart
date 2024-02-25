@@ -7,15 +7,18 @@ import 'package:meta/meta.dart';
 import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
 import '../../../3_domain/entities/marketplace/marketplace_presta.dart';
 import '../../../3_domain/entities/marketplace/marketplace_shopify.dart';
-import '../../../3_domain/entities_presta/product_presta.dart';
+import '../../../3_domain/entities/product/marketplace_product.dart';
+import '../../../3_domain/entities/product/product_presta.dart';
 import '../../../3_domain/repositories/firebase/main_settings_respository.dart';
 import '../../../3_domain/repositories/marketplace/marketplace_import_repository.dart';
+import '../../../4_infrastructur/repositories/prestashop_api/models/product_raw_presta.dart';
 import '../../../4_infrastructur/repositories/shopify_api/shopify.dart';
 import '../../../core/abstract_failure.dart';
-import '../../../core/presta_failure.dart';
 
 part 'product_import_event.dart';
 part 'product_import_state.dart';
+
+final logger = Logger();
 
 class ProductImportBloc extends Bloc<ProductImportEvent, ProductImportState> {
   final MarketplaceImportRepository productImportRepository;
@@ -37,7 +40,6 @@ class ProductImportBloc extends Bloc<ProductImportEvent, ProductImportState> {
 //? #########################################################################
 
     on<GetAllProductsFromPrestaEvent>((event, emit) async {
-      final logger = Logger();
       bool isSuccess = true;
       emit(state.copyWith(isLoadingProductsPrestaOnObserve: true, loadedProducts: 0, numberOfToLoadProducts: 0, loadingText: ''));
 
@@ -58,7 +60,7 @@ class ProductImportBloc extends Bloc<ProductImportEvent, ProductImportState> {
 
       emit(state.copyWith(loadedProducts: 0, loadingText: 'Lädt Produkte vom Marktplatz...'));
 
-      List<ProductPresta> loadedProductsPresta = [];
+      List<ProductRawPresta> loadedProductsPresta = [];
       for (final productId in toLoadProductsFromMarketplace!) {
         final fosLoadedProductPrestaFromMarketplace =
             await productImportRepository.loadProductFromMarketplace(productId, state.selectedMarketplace! as MarketplacePresta);
@@ -91,7 +93,10 @@ class ProductImportBloc extends Bloc<ProductImportEvent, ProductImportState> {
 
       bool isSuccess = true;
 
-      final failureOrSuccess = await productImportRepository.uploadLoadedProductToFirestore(state.marketplaceProduct!, state.selectedMarketplace!.id);
+      final failureOrSuccess = await productImportRepository.uploadLoadedMarketplaceProductToFirestore(
+        event.marketplaceProduct,
+        state.selectedMarketplace!.id,
+      );
       failureOrSuccess.fold(
         (failure) => isSuccess = false,
         (product) => null,
@@ -117,7 +122,8 @@ class ProductImportBloc extends Bloc<ProductImportEvent, ProductImportState> {
       bool isSuccess = true;
 
       for (final productPresta in state.listOfProductsPresta!) {
-        final failureOrSuccess = await productImportRepository.uploadLoadedProductToFirestore(productPresta, state.selectedMarketplace!.id);
+        final failureOrSuccess = await productImportRepository.uploadLoadedMarketplaceProductToFirestore(
+            productPresta as ProductPresta, state.selectedMarketplace!.id); //TODO: Shopify
         failureOrSuccess.fold(
           (failure) => isSuccess = false,
           (product) => emit(state.copyWith(loadedProducts: state.loadedProducts + 1)),
@@ -144,8 +150,8 @@ class ProductImportBloc extends Bloc<ProductImportEvent, ProductImportState> {
               event.marketplace as MarketplacePresta,
             );
             failureOrSuccess.fold(
-              (failure) => emit(state.copyWith(prestaFailure: failure, isAnyFailure: true)),
-              (productPresta) => emit(state.copyWith(marketplaceProduct: productPresta, prestaFailure: null, isAnyFailure: false)),
+              (failure) => emit(state.copyWith(marketplaceFailure: failure, isAnyFailure: true)),
+              (productPresta) => emit(state.copyWith(marketplaceProduct: [productPresta], marketplaceFailure: null, isAnyFailure: false)),
             );
 
             emit(state.copyWith(
@@ -160,8 +166,8 @@ class ProductImportBloc extends Bloc<ProductImportEvent, ProductImportState> {
             final failureOrSuccess =
                 await productImportRepository.loadProductByArticleNumberFromShopify(event.value, event.marketplace as MarketplaceShopify);
             failureOrSuccess.fold(
-              (failure) => emit(state.copyWith(prestaFailure: failure, isAnyFailure: true)),
-              (productPresta) => emit(state.copyWith(marketplaceProduct: productPresta, prestaFailure: null, isAnyFailure: false)),
+              (failure) => emit(state.copyWith(marketplaceFailure: failure, isAnyFailure: true)),
+              (productPresta) => emit(state.copyWith(marketplaceProduct: productPresta, marketplaceFailure: null, isAnyFailure: false)),
             );
 
             emit(state.copyWith(

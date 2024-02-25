@@ -1,10 +1,10 @@
 import 'package:xml/xml.dart';
 
 import '../../../1_presentation/core/functions/mixed_functions.dart';
-import '../../../3_domain/entities/product/marketplace_product_presta.dart';
 import '../../../3_domain/entities/product/product.dart';
 import '../../../3_domain/entities/product/product_marketplace.dart';
-import '../../../3_domain/entities_presta/product_presta.dart';
+import '../../../3_domain/entities/product/product_presta.dart';
+import 'models/product_raw_presta.dart';
 
 XmlBuilder? postProductBuilderOriginal({
   required Product product,
@@ -16,7 +16,7 @@ XmlBuilder? postProductBuilderOriginal({
   //     };
   final builder = XmlBuilder();
   bool isAnyFailure = false;
-  final marketplaceProductPresta = productMarketplace.marketplaceProduct as MarketplaceProductPresta;
+  final marketplaceProductPresta = productMarketplace.marketplaceProduct as ProductPresta;
   // final marketplaceLanguages = productPresta.marketplaceLanguages;
   // void valueBuilder(String? value, List<Multilanguage>? valuesMultilanguage, List<FieldLanguage> listOfProductLanguages, String fieldName) {
   //   if (valuesMultilanguage != null && valuesMultilanguage.isNotEmpty) {
@@ -91,7 +91,7 @@ XmlBuilder? postProductBuilderOriginal({
 XmlBuilder? postProductBuilder({
   required Product product,
   required ProductMarketplace productMarketplace,
-  required ProductPresta productPrestaWithSameManufacturer,
+  required ProductRawPresta productPrestaWithSameManufacturer,
 }) {
   // int boolToInt(bool bool) => switch (bool) {
   //       true => 1,
@@ -99,7 +99,7 @@ XmlBuilder? postProductBuilder({
   //     };
   final builder = XmlBuilder();
   bool isAnyFailure = false;
-  final mpp = productMarketplace.marketplaceProduct as MarketplaceProductPresta;
+  final mpp = productMarketplace.marketplaceProduct as ProductPresta;
   // final marketplaceLanguages = productPresta.marketplaceLanguages;
   // void valueBuilder(String? value, List<Multilanguage>? valuesMultilanguage, List<FieldLanguage> listOfProductLanguages, String fieldName) {
   //   if (valuesMultilanguage != null && valuesMultilanguage.isNotEmpty) {

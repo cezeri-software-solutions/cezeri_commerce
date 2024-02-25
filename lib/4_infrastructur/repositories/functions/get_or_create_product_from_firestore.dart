@@ -1,47 +1,14 @@
 import 'package:logger/logger.dart';
 
-import '../../../3_domain/entities/marketplace/marketplace_presta.dart';
-import '../../../3_domain/entities/product/product.dart';
-import '../../../3_domain/entities/product/product_id_with_quantity.dart';
-import '../../../3_domain/entities/settings/main_settings.dart';
-import '../../../3_domain/entities_presta/product_presta.dart';
-import '../../../3_domain/repositories/firebase/product_repository.dart';
+import '/3_domain/entities/product/product.dart';
+import '/3_domain/repositories/firebase/product_repository.dart';
 
-Future<Product?> createProductInFirestore(
-  Product product,
-  ProductPresta productPresta,
-  MarketplacePresta marketplace,
-  MainSettings mainSettings,
-  ProductRepository productRepository,
-  List<ProductIdWithQuantity>? listOfProductIdWithQuantity,
-) async {
-  final logger = Logger();
-  Product? createdProduct;
-  final fosProduct = await productRepository.createProduct(
-    Product.fromProductPresta(
-      productPresta: productPresta,
-      marketplace: marketplace,
-      mainSettings: mainSettings,
-      listOfProductIdWithQuantity: listOfProductIdWithQuantity,
-    ),
-    productPresta,
-  );
-  fosProduct.fold(
-    (failure) => logger.e('Artikel: ${product.name} konte nicht in der Firestore Datenbank angelegt werden. \n Error: $failure'),
-    (productFirestore) => createdProduct = productFirestore,
-  );
-
-  return createdProduct;
-}
-
-Future<Product?> getProductFromFirestoreIfExists(
-  String articleNumber,
-  String ean,
-  String name,
-  MarketplacePresta marketplace,
-  MainSettings mainSettings,
-  ProductRepository productRepository,
-) async {
+Future<Product?> getProductFromFirestoreIfExists({
+  required String articleNumber,
+  required String ean,
+  required String name,
+  required ProductRepository productRepository,
+}) async {
   final logger = Logger();
 
   Product? product;

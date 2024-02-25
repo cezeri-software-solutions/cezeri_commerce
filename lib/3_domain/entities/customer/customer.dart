@@ -1,8 +1,8 @@
 import 'package:json_annotation/json_annotation.dart';
 
-import '../../entities_presta/address_presta.dart';
-import '../../entities_presta/country_presta.dart';
-import '../../entities_presta/customer_presta.dart';
+import '../../../4_infrastructur/repositories/prestashop_api/models/address_presta.dart';
+import '../../../4_infrastructur/repositories/prestashop_api/models/country_presta.dart';
+import '../../../4_infrastructur/repositories/prestashop_api/models/customer_presta.dart';
 import '../../enums/enums.dart';
 import '../address.dart';
 import '../marketplace/marketplace_presta.dart';

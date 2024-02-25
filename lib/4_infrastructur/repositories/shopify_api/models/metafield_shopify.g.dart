@@ -9,7 +9,7 @@ part of 'metafield_shopify.dart';
 MetafieldShopify _$MetafieldShopifyFromJson(Map<String, dynamic> json) =>
     MetafieldShopify(
       createdAt: DateTime.parse(json['created_at'] as String),
-      description: json['description'] as String,
+      description: json['description'] as String?,
       id: json['id'] as int,
       key: json['key'] as String,
       namespace: json['namespace'] as String,

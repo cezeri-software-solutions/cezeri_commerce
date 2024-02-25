@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:json_annotation/json_annotation.dart';
 
-import 'product_presta.dart';
+import 'product_raw_presta.dart';
 
 part 'category_presta.g.dart';
 

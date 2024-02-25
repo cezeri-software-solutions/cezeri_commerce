@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:json_annotation/json_annotation.dart';
 
-import '../entities/country.dart';
+import '../../../../3_domain/entities/country.dart';
 
 part 'country_presta.g.dart';
 

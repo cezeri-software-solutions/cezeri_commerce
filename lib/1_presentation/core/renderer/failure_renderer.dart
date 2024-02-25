@@ -5,6 +5,7 @@ import '../../../core/abstract_failure.dart';
 import '../../../core/auth_failures.dart';
 import '../../../core/firebase_failures.dart';
 import '../../../core/presta_failure.dart';
+import '../../../core/shopify_failure.dart';
 import '../functions/dialogs.dart';
 
 final logger = Logger();
@@ -21,6 +22,8 @@ Future<void> failureRenderer(BuildContext context, List<AbstractFailure> abstrac
         await _prestaFailureRenderer(context, failure as PrestaFailure);
       case AbstractFailureType.mixed:
         await _mixedFailureRenderer(context, failure as MixedFailure);
+      case AbstractFailureType.shopify:
+        await _shopifyFailureRenderer(context, failure as ShopifyFailure);
     }
   }
 }
@@ -50,6 +53,7 @@ Future<void> _prestaFailureRenderer(BuildContext context, PrestaFailure failure)
 Future<void> _mixedFailureRenderer(BuildContext context, MixedFailure failure) async {
   await _showScaffoldMessager(context, failure.errorMessage ?? 'Ein Fehler ist aufgetreten.');
 }
+Future<void> _shopifyFailureRenderer(BuildContext context, ShopifyFailure failure) async {}
 
 Future<void> _showScaffoldMessager(BuildContext context, String message) async {
   ScaffoldMessenger.of(context).showSnackBar(SnackBar(

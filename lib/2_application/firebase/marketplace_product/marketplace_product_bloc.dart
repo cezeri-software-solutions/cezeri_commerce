@@ -3,15 +3,14 @@ import 'package:cezeri_commerce/1_presentation/core/extensions/string_to_int.dar
 import 'package:dartz/dartz.dart';
 
 import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
-import '../../../3_domain/entities/marketplace/marketplace_presta.dart';
-import '../../../3_domain/entities/product/marketplace_product_presta.dart';
 import '../../../3_domain/entities/product/product_marketplace.dart';
-import '../../../3_domain/entities_presta/category_presta.dart';
-import '../../../3_domain/entities_presta/product_presta.dart';
+import '../../../3_domain/entities/product/product_presta.dart';
 import '../../../3_domain/repositories/firebase/marketplace_repository.dart';
 import '../../../3_domain/repositories/marketplace/marketplace_import_repository.dart';
+import '../../../4_infrastructur/repositories/prestashop_api/models/category_presta.dart';
+import '../../../4_infrastructur/repositories/prestashop_api/models/product_raw_presta.dart';
+import '../../../4_infrastructur/repositories/shopify_api/shopify.dart';
 import '../../../core/abstract_failure.dart';
-import '../../../core/presta_failure.dart';
 
 part 'marketplace_product_event.dart';
 part 'marketplace_product_state.dart';
@@ -36,7 +35,7 @@ class MarketplaceProductBloc extends Bloc<MarketplaceProductEvent, MarketplacePr
       switch (event.productMarketplace.marketplaceProduct!.marketplaceType) {
         case MarketplaceType.prestashop:
           {
-            final phMpp = event.productMarketplace.marketplaceProduct as MarketplaceProductPresta;
+            final phMpp = event.productMarketplace.marketplaceProduct as ProductPresta;
             final mpp = switch (phMpp.associations) {
               null => phMpp.copyWith(associations: Associations.empty().copyWith(associationsCategories: [])),
               _ => switch (phMpp.associations!.associationsCategories) {
@@ -45,15 +44,14 @@ class MarketplaceProductBloc extends Bloc<MarketplaceProductEvent, MarketplacePr
                 },
             };
             final pm = event.productMarketplace.copyWith(marketplaceProduct: mpp);
-            emit(state.copyWith(
-              productMarketplace: pm,
-              marketplaceProductPresta: mpp,
-              defaultCategory: mpp.idCategoryDefault,
-            ));
+            emit(state.copyWith(productMarketplace: pm, marketplaceProductPresta: mpp, defaultCategory: mpp.idCategoryDefault));
           }
         case MarketplaceType.shopify:
           {
-            throw Exception('SHOPIFY not implemented');
+            final phMps = event.productMarketplace.marketplaceProduct as ProductShopify;
+            final pm = event.productMarketplace.copyWith(marketplaceProduct: phMps);
+
+            emit(state.copyWith(productMarketplace: pm, marketplaceProductShopify: phMps));
           }
         case MarketplaceType.shop:
           {
@@ -77,7 +75,11 @@ class MarketplaceProductBloc extends Bloc<MarketplaceProductEvent, MarketplacePr
           }
         case MarketplaceType.shopify:
           {
-            throw Exception('SHOPIFY not implemented');
+            final mpProduct = state.marketplaceProductShopify!.copyWith(status: switch (event.value) { true => 'active', false => 'draft' });
+            emit(state.copyWith(
+              marketplaceProductShopify: mpProduct,
+              productMarketplace: state.productMarketplace!.copyWith(marketplaceProduct: mpProduct),
+            ));
           }
         case MarketplaceType.shop:
           {
@@ -91,7 +93,7 @@ class MarketplaceProductBloc extends Bloc<MarketplaceProductEvent, MarketplacePr
     on<SetListOfCategoriesPrestaToOriginalEvent>((event, emit) {
       final isSelected = List.generate(
         state.listOfCategoriesPrestaOriginal!.length,
-        (index) => (state.productMarketplace!.marketplaceProduct as MarketplaceProductPresta)
+        (index) => (state.productMarketplace!.marketplaceProduct as ProductPresta)
                 .associations!
                 .associationsCategories!
                 .any((e) => e.id.toMyInt() == state.listOfCategoriesPrestaOriginal![index].id)
@@ -131,7 +133,7 @@ class MarketplaceProductBloc extends Bloc<MarketplaceProductEvent, MarketplacePr
     on<GetMarketplaceCategoriesEvent>((event, emit) async {
       emit(state.copyWith(isLoadingMarketplaceProductCategoriesOnObserve: true));
 
-      MarketplacePresta? marketplace;
+      AbstractMarketplace? marketplace;
       final fosMarketplace = await marketplaceRepository.getMarketplace(state.productMarketplace!.idMarketplace);
       fosMarketplace.fold(
         (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFirebaseFailure: true)),
@@ -143,37 +145,64 @@ class MarketplaceProductBloc extends Bloc<MarketplaceProductEvent, MarketplacePr
 
       if (marketplace == null) throw Exception();
 
-      final failureOrSuccess = await marketplaceImportRepository.getAllPrestaCategories(marketplace!);
+      final failureOrSuccess = await marketplaceImportRepository.getAllMarketplaceCategories(marketplace!);
       failureOrSuccess.fold(
-        (failure) => emit(state.copyWith(prestaFailure: failure, isAnyPrestaFailure: true)),
-        (categoriesPresta) {
-          final activeCategories = categoriesPresta.where((e) => e.active == '1').toList();
-          // final isExpanded = List.generate(activeCategories.length, (index) => index == 0 || index == 1 ? true : false);
-          final isSelected = List.generate(
-            activeCategories.length,
-            (index) => (state.productMarketplace!.marketplaceProduct as MarketplaceProductPresta)
-                    .associations!
-                    .associationsCategories!
-                    .any((e) => e.id.toMyInt() == activeCategories[index].id)
-                ? true
-                : false,
-          );
-          final isExpanded = List.generate(isSelected.length, (index) => index == 0 || isSelected[index] ? true : false);
-          emit(state.copyWith(
-            listOfCategoriesPrestaOriginal: activeCategories,
-            listOfCategoriesPresta: activeCategories,
-            prestaFailure: null,
-            isExpanded: isExpanded,
-            isSelected: isSelected,
-            isAnyPrestaFailure: false,
-          ));
+        (failure) => emit(state.copyWith(marketplaceFailure: failure, isAnyPrestaFailure: true)),
+        (loadedCategories) {
+          switch (state.productMarketplace!.marketplaceProduct!.marketplaceType) {
+            case MarketplaceType.prestashop:
+              {
+                final marketplaceCategories = loadedCategories as List<CategoryPresta>;
+                final activeCategories = marketplaceCategories.where((e) => e.active == '1').toList();
+                final isSelected = List.generate(
+                  activeCategories.length,
+                  (index) => (state.productMarketplace!.marketplaceProduct as ProductPresta)
+                          .associations!
+                          .associationsCategories!
+                          .any((e) => e.id.toMyInt() == activeCategories[index].id)
+                      ? true
+                      : false,
+                );
+                final isExpanded = List.generate(isSelected.length, (index) => index == 0 || isSelected[index] ? true : false);
+                emit(state.copyWith(
+                  listOfCategoriesPrestaOriginal: activeCategories,
+                  listOfCategoriesPresta: activeCategories,
+                  marketplaceFailure: null,
+                  isExpanded: isExpanded,
+                  isSelected: isSelected,
+                  isAnyPrestaFailure: false,
+                ));
+              }
+            case MarketplaceType.shopify:
+              {
+                final marketplaceCategories = loadedCategories as List<CustomCollectionShopify>;
+                final activeCategories = marketplaceCategories;
+                final isSelected = List.generate(
+                  activeCategories.length,
+                  (index) => (state.productMarketplace!.marketplaceProduct as ProductShopify)
+                          .customCollections
+                          .any((e) => e.id == activeCategories[index].id)
+                      ? true
+                      : false,
+                );
+                emit(state.copyWith(
+                  listOfCategoriesShopifyOriginal: activeCategories,
+                  listOfCategoriesShopify: activeCategories,
+                  marketplaceFailure: null,
+                  isSelected: isSelected,
+                  isAnyPrestaFailure: false,
+                ));
+              }
+            case MarketplaceType.shop:
+              throw Exception('Ein Ladengeschäft kann keine Kategorien haben.');
+          }
         },
       );
 
       emit(state.copyWith(
           isLoadingMarketplaceProductCategoriesOnObserve: false,
           fosMarketplaceProductMarketplaceOnObserveOption: optionOf(fosMarketplace),
-          fosMarketplaceProductCategoriesOnObserveOption: optionOf(failureOrSuccess)));
+          fosMarketplaceProductCategoriesOnObserveOption: optionOf(failureOrSuccess as Either<AbstractFailure, List<CategoryPresta>>?)));
       emit(state.copyWith(fosMarketplaceProductMarketplaceOnObserveOption: none(), fosMarketplaceProductCategoriesOnObserveOption: none()));
     });
 

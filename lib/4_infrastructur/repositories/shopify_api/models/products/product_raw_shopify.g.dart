@@ -8,7 +8,7 @@ part of 'product_raw_shopify.dart';
 
 ProductRawShopify _$ProductRawShopifyFromJson(Map<String, dynamic> json) =>
     ProductRawShopify(
-      bodyHtml: json['bodyHtml'] as String,
+      bodyHtml: json['body_html'] as String?,
       createdAt: DateTime.parse(json['created_at'] as String),
       handle: json['handle'] as String,
       id: json['id'] as int,
@@ -36,7 +36,7 @@ ProductRawShopify _$ProductRawShopifyFromJson(Map<String, dynamic> json) =>
 
 Map<String, dynamic> _$ProductRawShopifyToJson(ProductRawShopify instance) =>
     <String, dynamic>{
-      'bodyHtml': instance.bodyHtml,
+      'body_html': instance.bodyHtml,
       'created_at': instance.createdAt.toIso8601String(),
       'handle': instance.handle,
       'id': instance.id,

@@ -11,7 +11,8 @@ part 'product_raw_shopify.g.dart';
 
 @JsonSerializable(explicitToJson: true)
 class ProductRawShopify extends Equatable {
-  final String bodyHtml;
+  @JsonKey(name: 'body_html')
+  final String? bodyHtml;
   @JsonKey(name: 'created_at')
   final DateTime createdAt;
   final String handle;

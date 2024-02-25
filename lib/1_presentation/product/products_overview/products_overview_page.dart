@@ -4,14 +4,17 @@ import 'package:cezeri_commerce/1_presentation/core/widgets/my_outlined_button.d
 import 'package:cezeri_commerce/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../../2_application/firebase/product/product_bloc.dart';
 import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
-import '../../../3_domain/entities/product/marketplace_product_presta.dart';
 import '../../../3_domain/entities/product/product.dart';
+import '../../../3_domain/entities/product/product_presta.dart';
 import '../../../3_domain/enums/enums.dart';
+import '../../../4_infrastructur/repositories/shopify_api/shopify.dart';
 import '../../../routes/router.gr.dart';
 import '../../core/functions/dialogs.dart';
+import '../../core/functions/mixed_functions.dart';
 import '../../core/functions/show_my_product_quick_view.dart';
 import '../../core/widgets/my_avatar.dart';
 
@@ -222,17 +225,24 @@ class _ProductContainer extends StatelessWidget {
                     itemBuilder: (context, index) {
                       final productMarketplace = product.productMarketplaces[index];
                       final style = switch (productMarketplace.marketplaceProduct!.marketplaceType) {
-                        MarketplaceType.prestashop => switch ((productMarketplace.marketplaceProduct as MarketplaceProductPresta).active) {
-                            '0' => TextStyles.defaultBold.copyWith(color: Colors.red),
-                            '1' => TextStyles.defaultBold.copyWith(color: Colors.green),
-                            _ => throw Exception(),
-                          },
-                        MarketplaceType.shopify => throw Exception('SHOPIFY not implemented'),
+                        MarketplaceType.prestashop => (productMarketplace.marketplaceProduct as ProductPresta).active == '0'
+                            ? TextStyles.defaultBold.copyWith(color: Colors.red)
+                            : TextStyles.defaultBold.copyWith(color: Colors.green),
+                        MarketplaceType.shopify => (productMarketplace.marketplaceProduct as ProductShopify).status != 'active'
+                            ? TextStyles.defaultBold.copyWith(color: Colors.red)
+                            : TextStyles.defaultBold.copyWith(color: Colors.green),
                         MarketplaceType.shop => throw Exception('SHOP not implemented'),
                       };
-                      return Text(
-                        productMarketplace.shortNameMarketplace,
-                        style: style,
+                      return Row(
+                        children: [
+                          SizedBox(
+                            height: 15,
+                            width: 15,
+                            child: SvgPicture.asset(getMarketplaceLogoAsset(productMarketplace.marketplaceProduct!.marketplaceType)),
+                          ),
+                          Gaps.w4,
+                          Text(productMarketplace.shortNameMarketplace, style: style),
+                        ],
                       );
                     },
                   ),

@@ -17,7 +17,11 @@ class GetAllProductsFromPrestaEvent extends ProductImportEvent {
   GetAllProductsFromPrestaEvent({required this.onlyActive});
 }
 
-class OnUploadProductToFirestoreEvent extends ProductImportEvent {}
+class OnUploadProductToFirestoreEvent extends ProductImportEvent {
+  final MarketplaceProduct marketplaceProduct;
+
+  OnUploadProductToFirestoreEvent({required this.marketplaceProduct});
+}
 
 class OnUploadAllProductsToFirestoreEvent extends ProductImportEvent {}
 

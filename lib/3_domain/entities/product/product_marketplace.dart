@@ -1,9 +1,11 @@
 import 'package:json_annotation/json_annotation.dart';
 
-import '../../entities_presta/product_presta.dart';
+import '../../../4_infrastructur/repositories/shopify_api/shopify.dart';
+import '../marketplace/abstract_marketplace.dart';
 import '../marketplace/marketplace_presta.dart';
+import '../marketplace/marketplace_shopify.dart';
 import 'marketplace_product.dart';
-import 'marketplace_product_presta.dart';
+import 'product_presta.dart';
 
 part 'product_marketplace.g.dart';
 
@@ -30,12 +32,29 @@ class ProductMarketplace {
     );
   }
 
-  factory ProductMarketplace.fromProductPresta(ProductPresta pp, MarketplacePresta marketplace) {
+  factory ProductMarketplace.fromMarketplaceProduct(MarketplaceProduct mp, AbstractMarketplace marketplace) {
+    return switch (mp.marketplaceType) {
+      MarketplaceType.prestashop => ProductMarketplace._fromProductPresta(mp as ProductPresta, marketplace as MarketplacePresta),
+      MarketplaceType.shopify => ProductMarketplace._fromProductShopify(mp as ProductShopify, marketplace as MarketplaceShopify),
+      MarketplaceType.shop => throw Exception('Ladengeschäft wird nicht unterstützt.'),
+    };
+  }
+
+  factory ProductMarketplace._fromProductPresta(ProductPresta pp, MarketplacePresta marketplace) {
     return ProductMarketplace(
       idMarketplace: marketplace.id,
       nameMarketplace: marketplace.name,
       shortNameMarketplace: marketplace.shortName,
-      marketplaceProduct: MarketplaceProductPresta.fromProductPresta(pp),
+      marketplaceProduct: pp,
+    );
+  }
+
+  factory ProductMarketplace._fromProductShopify(ProductShopify ps, MarketplaceShopify marketplace) {
+    return ProductMarketplace(
+      idMarketplace: marketplace.id,
+      nameMarketplace: marketplace.name,
+      shortNameMarketplace: marketplace.shortName,
+      marketplaceProduct: ps,
     );
   }
 

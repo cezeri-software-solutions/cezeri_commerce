@@ -2,18 +2,18 @@ part of 'product_import_bloc.dart';
 
 @immutable
 class ProductImportState {
-  final dynamic marketplaceProduct;
-  final PrestaFailure? prestaFailure;
-  final List<ProductPresta>? listOfProductsPresta;
+  final List<MarketplaceProduct>? marketplaceProducts;
+  final AbstractFailure? marketplaceFailure;
+  final List<ProductRawPresta>? listOfProductsPresta;
   final AbstractMarketplace? selectedMarketplace;
   final bool isAnyFailure;
   final bool isLoadingProductPrestaOnObserve;
   final bool isLoadingProductsPrestaOnObserve;
   final bool isLoadingProductOnCreate;
   final bool isLoadingProductsOnCreate;
-  final Option<Either<PrestaFailure, ProductPresta>> fosProductPrestaOnObserveOption;
-  final Option<Either<PrestaFailure, List<ProductShopify>>> fosListProductShopifyOnObserveOption;
-  final Option<Either<PrestaFailure, Unit>> fosProductsPrestaOnObserveOption;
+  final Option<Either<AbstractFailure, ProductPresta>> fosProductPrestaOnObserveOption;
+  final Option<Either<AbstractFailure, List<ProductShopify>>> fosListProductShopifyOnObserveOption;
+  final Option<Either<AbstractFailure, Unit>> fosProductsPrestaOnObserveOption;
   final Option<Either<AbstractFailure, Unit>> fosProductOnCreateOption;
   final Option<Either<AbstractFailure, Unit>> fosProductsOnCreateOption;
   //* Helper
@@ -22,8 +22,8 @@ class ProductImportState {
   final String loadingText;
 
   const ProductImportState({
-    required this.marketplaceProduct,
-    required this.prestaFailure,
+    required this.marketplaceProducts,
+    required this.marketplaceFailure,
     required this.listOfProductsPresta,
     required this.selectedMarketplace,
     required this.isAnyFailure,
@@ -42,8 +42,8 @@ class ProductImportState {
   });
 
   factory ProductImportState.initial() => ProductImportState(
-        marketplaceProduct: null,
-        prestaFailure: null,
+        marketplaceProducts: null,
+        marketplaceFailure: null,
         listOfProductsPresta: null,
         selectedMarketplace: null,
         isAnyFailure: false,
@@ -62,18 +62,18 @@ class ProductImportState {
       );
 
   ProductImportState copyWith({
-    dynamic marketplaceProduct,
-    PrestaFailure? prestaFailure,
-    List<ProductPresta>? listOfProductsPresta,
+    List<MarketplaceProduct>? marketplaceProduct,
+    AbstractFailure? marketplaceFailure,
+    List<ProductRawPresta>? listOfProductsPresta,
     AbstractMarketplace? selectedMarketplace,
     bool? isAnyFailure,
     bool? isLoadingProductPrestaOnObserve,
     bool? isLoadingProductsPrestaOnObserve,
     bool? isLoadingProductOnCreate,
     bool? isLoadingProductsOnCreate,
-    Option<Either<PrestaFailure, ProductPresta>>? fosProductPrestaOnObserveOption,
-    Option<Either<PrestaFailure, List<ProductShopify>>>? fosListProductShopifyOnObserveOption,
-    Option<Either<PrestaFailure, Unit>>? fosProductsPrestaOnObserveOption,
+    Option<Either<AbstractFailure, ProductPresta>>? fosProductPrestaOnObserveOption,
+    Option<Either<AbstractFailure, List<ProductShopify>>>? fosListProductShopifyOnObserveOption,
+    Option<Either<AbstractFailure, Unit>>? fosProductsPrestaOnObserveOption,
     Option<Either<AbstractFailure, Unit>>? fosProductOnCreateOption,
     Option<Either<AbstractFailure, Unit>>? fosProductsOnCreateOption,
     int? numberOfToLoadProducts,
@@ -81,8 +81,8 @@ class ProductImportState {
     String? loadingText,
   }) {
     return ProductImportState(
-      marketplaceProduct: marketplaceProduct ?? this.marketplaceProduct,
-      prestaFailure: prestaFailure ?? this.prestaFailure,
+      marketplaceProducts: marketplaceProduct ?? marketplaceProducts,
+      marketplaceFailure: marketplaceFailure ?? this.marketplaceFailure,
       listOfProductsPresta: listOfProductsPresta ?? this.listOfProductsPresta,
       selectedMarketplace: selectedMarketplace ?? this.selectedMarketplace,
       isAnyFailure: isAnyFailure ?? this.isAnyFailure,

@@ -1,12 +1,24 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:get_it/get_it.dart';
+import 'package:http/http.dart' as http;
+import 'package:path/path.dart';
+import 'package:path_provider/path_provider.dart';
 
-import '../../../1_presentation/core/functions/set_product_functions.dart';
-import '../../../3_domain/entities/product/product.dart';
-import '../../../3_domain/repositories/firebase/product_repository.dart';
-import '../../../core/abstract_failure.dart';
-import '../../../core/firebase_failures.dart';
+import '../prestashop_api/models/models.dart';
+import '../shopify_api/shopify.dart';
+import '/1_presentation/core/functions/set_product_functions.dart';
+import '/3_domain/entities/marketplace/abstract_marketplace.dart';
+import '/3_domain/entities/product/marketplace_product.dart';
+import '/3_domain/entities/product/product.dart';
+import '/3_domain/entities/product/product_image.dart';
+import '/3_domain/entities/product/product_presta.dart';
+import '/3_domain/repositories/firebase/product_repository.dart';
+import '/core/abstract_failure.dart';
+import '/core/firebase_failures.dart';
 
 Future<Either<AbstractFailure, Product>> handleNewSetProduct({
   required Product product,
@@ -154,4 +166,154 @@ Future<void> addSetProductIdToPartProducts({
       docRefUpdatedPartProduct.update(updatedProduct.toJson());
     }
   }
+}
+
+Future<List<ProductImage>?> uploadImageFilesToStorageFromMarketplaceProduct({
+  required String currentUserUid,
+  required DocumentReference<Map<String, dynamic>> docRef,
+  required MarketplaceProduct marketplaceProduct,
+}) async {
+  final firebaseStoragePath = '$currentUserUid/ProductImages/${docRef.id}';
+
+  switch (marketplaceProduct.marketplaceType) {
+    case MarketplaceType.prestashop:
+      {
+        final productPresta = marketplaceProduct as ProductPresta;
+        if (productPresta.imageFiles == null) return null;
+
+        final List<ProductImage> listOfProductImages =
+            await uploadImageFilesToStorageFromProductPrestaImage(productPresta.imageFiles, firebaseStoragePath);
+        return listOfProductImages;
+      }
+    case MarketplaceType.shopify:
+      {
+        final productShopify = marketplaceProduct as ProductShopify;
+        if (productShopify.images.isEmpty) return null;
+
+        final List<ProductImage> listOfProductImages = await uploadImageFilesToStorageFromProductShopify(productShopify.images, firebaseStoragePath);
+        return listOfProductImages;
+      }
+    case MarketplaceType.shop:
+      throw Exception('Aus einem Ladengeschäft können keine Artikelbilder importieret werden.');
+  }
+}
+
+Future<List<ProductImage>> uploadImageFilesToStorageFromProductPrestaImage(List<ProductPrestaImage?>? imageFiles, String firebaseStoragePath) async {
+  final FirebaseStorage storage = FirebaseStorage.instance;
+
+  final List<ProductImage> listOfProductImages = [];
+
+  int sortId = 0;
+
+  for (final myFile in imageFiles!) {
+    if (myFile == null) continue;
+
+    sortId++;
+
+    final File file = myFile.imageFile;
+    // Erstelle einen eindeutigen Dateinamen, um Kollisionen zu vermeiden
+    final fileName = basename(file.path);
+    // Erstelle einen Verweis auf den Firebase Cloud Storage-Pfad, an dem das Bild gespeichert werden soll
+    final Reference firebaseStorageRef = storage.ref().child('$firebaseStoragePath/$fileName');
+    // Erstelle einen Byte-Datenstrom aus der Datei
+    final bytes = await file.readAsBytes();
+    // Lade die Byte-Daten in Firebase Cloud Storage hoch
+    await firebaseStorageRef.putData(bytes);
+    // Speichere die URL des hochgeladenen Bildes in Firestore
+    final String fileUrl = await firebaseStorageRef.getDownloadURL();
+    final imageFile = ProductImage.empty().copyWith(
+      fileName: fileName,
+      fileUrl: fileUrl,
+      sortId: sortId,
+      isDefault: sortId == 1 ? true : false,
+    );
+    listOfProductImages.add(imageFile);
+  }
+  return listOfProductImages;
+}
+
+Future<List<ProductImage>> uploadImageFilesToStorageFromProductShopify(
+    List<ProductImageShopify> productImagesShopify, String firebaseStoragePath) async {
+  final FirebaseStorage storage = FirebaseStorage.instance;
+
+  final List<ProductImage> listOfProductImages = [];
+  final List<File> imageFiles = [];
+
+  for (final shopifyImage in productImagesShopify) {
+    // HTTP-Anfrage, um die Bilddaten als Bytes zu erhalten
+    final response = await http.get(Uri.parse(shopifyImage.src));
+    if (response.statusCode == 200) {
+      // Erhalten des temporären Verzeichnisses
+      final directory = await getTemporaryDirectory();
+      // Erstellen eines Dateipfads im temporären Verzeichnis
+      final filePath = '${directory.path}/product_${shopifyImage.id}_${shopifyImage.productId}.jpg';
+      // Datei mit den Bilddaten erstellen
+      final file = File(filePath);
+
+      // Schreiben der Byte-Daten in die Datei und Rückgabe der Datei
+      final imageFile = await file.writeAsBytes(response.bodyBytes);
+      imageFiles.add(imageFile);
+    }
+  }
+
+  int sortId = 0;
+
+  for (final myFile in imageFiles) {
+    sortId++;
+
+    // Erstelle einen eindeutigen Dateinamen, um Kollisionen zu vermeiden
+    final fileName = basename(myFile.path);
+    // Erstelle einen Verweis auf den Firebase Cloud Storage-Pfad, an dem das Bild gespeichert werden soll
+    final Reference firebaseStorageRef = storage.ref().child('$firebaseStoragePath/$fileName');
+    // Erstelle einen Byte-Datenstrom aus der Datei
+    final bytes = await myFile.readAsBytes();
+    // Lade die Byte-Daten in Firebase Cloud Storage hoch
+    await firebaseStorageRef.putData(bytes);
+    // Speichere die URL des hochgeladenen Bildes in Firestore
+    final String fileUrl = await firebaseStorageRef.getDownloadURL();
+    final imageFile = ProductImage.empty().copyWith(
+      fileName: fileName,
+      fileUrl: fileUrl,
+      sortId: sortId,
+      isDefault: sortId == 1 ? true : false,
+    );
+    listOfProductImages.add(imageFile);
+  }
+  return listOfProductImages;
+}
+
+Future<List<ProductImage>> uploadImageFilesToStorageFromFlutter(
+  List<ProductImage> listOfProductImages,
+  List<File> imageFiles,
+  String firebaseStoragePath,
+) async {
+  final FirebaseStorage storage = FirebaseStorage.instance;
+
+  final List<ProductImage> newListOfProductImages = [];
+
+  int sortId = listOfProductImages.length;
+
+  for (final myFile in imageFiles) {
+    sortId++;
+
+    final File file = myFile;
+    // Erstelle einen eindeutigen Dateinamen, um Kollisionen zu vermeiden
+    final fileName = basename(file.path);
+    // Erstelle einen Verweis auf den Firebase Cloud Storage-Pfad, an dem das Bild gespeichert werden soll
+    final Reference firebaseStorageRef = storage.ref().child('$firebaseStoragePath/$fileName');
+    // Erstelle einen Byte-Datenstrom aus der Datei
+    final bytes = await file.readAsBytes();
+    // Lade die Byte-Daten in Firebase Cloud Storage hoch
+    await firebaseStorageRef.putData(bytes);
+    // Speichere die URL des hochgeladenen Bildes in Firestore
+    final String fileUrl = await firebaseStorageRef.getDownloadURL();
+    final imageFile = ProductImage.empty().copyWith(
+      fileName: fileName,
+      fileUrl: fileUrl,
+      sortId: sortId,
+      isDefault: listOfProductImages.isEmpty && sortId == 1 ? true : false,
+    );
+    newListOfProductImages.add(imageFile);
+  }
+  return newListOfProductImages;
 }

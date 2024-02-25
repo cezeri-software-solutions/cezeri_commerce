@@ -2,16 +2,22 @@ part of 'marketplace_product_bloc.dart';
 
 class MarketplaceProductState {
   final ProductMarketplace? productMarketplace;
-  final MarketplaceProductPresta? marketplaceProductPresta;
+  //* Prestashop
+  final ProductPresta? marketplaceProductPresta;
   final List<CategoryPresta>? listOfCategoriesPrestaOriginal;
   final List<CategoryPresta>? listOfCategoriesPresta;
+  //* Shopify
+  final ProductShopify? marketplaceProductShopify;
+  final List<CustomCollectionShopify>? listOfCategoriesShopifyOriginal;
+  final List<CustomCollectionShopify>? listOfCategoriesShopify;
+  //* ###############
   final AbstractFailure? firebaseFailure;
-  final PrestaFailure? prestaFailure;
+  final AbstractFailure? marketplaceFailure;
   final bool isAnyFirebaseFailure;
   final bool isAnyPrestaFailure;
   final bool isLoadingMarketplaceProductCategoriesOnObserve;
-  final Option<Either<AbstractFailure, MarketplacePresta>> fosMarketplaceProductMarketplaceOnObserveOption;
-  final Option<Either<PrestaFailure, List<CategoryPresta>>> fosMarketplaceProductCategoriesOnObserveOption;
+  final Option<Either<AbstractFailure, AbstractMarketplace>> fosMarketplaceProductMarketplaceOnObserveOption;
+  final Option<Either<AbstractFailure, List<CategoryPresta>>> fosMarketplaceProductCategoriesOnObserveOption;
 
   //* Helper Category
   final List<bool> isExpanded;
@@ -23,8 +29,11 @@ class MarketplaceProductState {
     required this.marketplaceProductPresta,
     required this.listOfCategoriesPrestaOriginal,
     required this.listOfCategoriesPresta,
+    required this.marketplaceProductShopify,
+    required this.listOfCategoriesShopifyOriginal,
+    required this.listOfCategoriesShopify,
     required this.firebaseFailure,
-    required this.prestaFailure,
+    required this.marketplaceFailure,
     required this.isAnyFirebaseFailure,
     required this.isAnyPrestaFailure,
     required this.isLoadingMarketplaceProductCategoriesOnObserve,
@@ -41,8 +50,11 @@ class MarketplaceProductState {
       marketplaceProductPresta: null,
       listOfCategoriesPrestaOriginal: null,
       listOfCategoriesPresta: null,
+      marketplaceProductShopify: null,
+      listOfCategoriesShopifyOriginal: null,
+      listOfCategoriesShopify: null,
       firebaseFailure: null,
-      prestaFailure: null,
+      marketplaceFailure: null,
       isAnyFirebaseFailure: false,
       isAnyPrestaFailure: false,
       isLoadingMarketplaceProductCategoriesOnObserve: false,
@@ -56,16 +68,19 @@ class MarketplaceProductState {
 
   MarketplaceProductState copyWith({
     ProductMarketplace? productMarketplace,
-    MarketplaceProductPresta? marketplaceProductPresta,
+    ProductPresta? marketplaceProductPresta,
     List<CategoryPresta>? listOfCategoriesPrestaOriginal,
     List<CategoryPresta>? listOfCategoriesPresta,
+    ProductShopify? marketplaceProductShopify,
+    List<CustomCollectionShopify>? listOfCategoriesShopifyOriginal,
+    List<CustomCollectionShopify>? listOfCategoriesShopify,
     AbstractFailure? firebaseFailure,
-    PrestaFailure? prestaFailure,
+    AbstractFailure? marketplaceFailure,
     bool? isAnyFirebaseFailure,
     bool? isAnyPrestaFailure,
     bool? isLoadingMarketplaceProductCategoriesOnObserve,
-    Option<Either<AbstractFailure, MarketplacePresta>>? fosMarketplaceProductMarketplaceOnObserveOption,
-    Option<Either<PrestaFailure, List<CategoryPresta>>>? fosMarketplaceProductCategoriesOnObserveOption,
+    Option<Either<AbstractFailure, AbstractMarketplace>>? fosMarketplaceProductMarketplaceOnObserveOption,
+    Option<Either<AbstractFailure, List<CategoryPresta>>>? fosMarketplaceProductCategoriesOnObserveOption,
     List<bool>? isExpanded,
     List<bool>? isSelected,
     String? defaultCategory,
@@ -75,8 +90,11 @@ class MarketplaceProductState {
       marketplaceProductPresta: marketplaceProductPresta ?? this.marketplaceProductPresta,
       listOfCategoriesPrestaOriginal: listOfCategoriesPrestaOriginal ?? this.listOfCategoriesPrestaOriginal,
       listOfCategoriesPresta: listOfCategoriesPresta ?? this.listOfCategoriesPresta,
+      marketplaceProductShopify: marketplaceProductShopify ?? this.marketplaceProductShopify,
+      listOfCategoriesShopifyOriginal: listOfCategoriesShopifyOriginal ?? this.listOfCategoriesShopifyOriginal,
+      listOfCategoriesShopify: listOfCategoriesShopify ?? this.listOfCategoriesShopify,
       firebaseFailure: firebaseFailure ?? this.firebaseFailure,
-      prestaFailure: prestaFailure ?? this.prestaFailure,
+      marketplaceFailure: marketplaceFailure ?? this.marketplaceFailure,
       isAnyFirebaseFailure: isAnyFirebaseFailure ?? this.isAnyFirebaseFailure,
       isAnyPrestaFailure: isAnyPrestaFailure ?? this.isAnyPrestaFailure,
       isLoadingMarketplaceProductCategoriesOnObserve:

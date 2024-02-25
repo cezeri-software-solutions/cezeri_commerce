@@ -1,5 +1,6 @@
 import 'package:cezeri_commerce/1_presentation/core/widgets/my_outlined_button.dart';
 import 'package:cezeri_commerce/3_domain/entities/marketplace/marketplace_presta.dart';
+import 'package:cezeri_commerce/3_domain/entities/marketplace/marketplace_shopify.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -8,10 +9,12 @@ import 'package:logger/logger.dart';
 import '../../../2_application/firebase/main_settings/main_settings_bloc.dart';
 import '../../../2_application/prestashop/product_import/product_import_bloc.dart';
 import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
-import '../../../3_domain/entities_presta/product_presta.dart';
+import '../../../3_domain/entities/product/product_presta.dart';
 import '../../../4_infrastructur/repositories/shopify_api/shopify.dart';
 import '../../../constants.dart';
 import '../../core/widgets/my_avatar.dart';
+
+final logger = Logger();
 
 class ProductImportPage extends StatelessWidget {
   final ProductImportBloc productImportBloc;
@@ -26,34 +29,36 @@ class ProductImportPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final idController = TextEditingController();
-    final logger = Logger();
 
     return BlocBuilder<ProductImportBloc, ProductImportState>(
       builder: (context, state) {
         final mainSettings = context.read<MainSettingsBloc>().state.mainSettings!;
-        print(state.marketplaceProduct);
+        print(state.marketplaceProducts);
         print(state.isLoadingProductPrestaOnObserve);
         print(state.isAnyFailure);
 
         void onImportProductPressed() {
           productImportBloc.add(LoadProductFromMarketplaceEvent(
-            value: idController.text,
-            marketplace: state.selectedMarketplace! as MarketplacePresta, //TODO: Shopify
-          ));
+              value: idController.text,
+              marketplace: switch (state.selectedMarketplace!.marketplaceType) {
+                MarketplaceType.prestashop => state.selectedMarketplace! as MarketplacePresta,
+                MarketplaceType.shopify => state.selectedMarketplace! as MarketplaceShopify,
+                MarketplaceType.shop => throw Exception('Should not be selectable!'),
+              }));
         }
 
-        if (state.prestaFailure != null && state.isAnyFailure) const Text('Ein Fehler ist aufgetreten');
-        if (state.isLoadingProductPrestaOnObserve && !state.isAnyFailure) const CircularProgressIndicator();
-
+        if (state.marketplaceFailure != null && state.isAnyFailure) const Text('Ein Fehler ist aufgetreten');
+        if (state.isLoadingProductPrestaOnObserve) const CircularProgressIndicator();
         return SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (state.marketplaceProduct != null && !state.isLoadingProductPrestaOnObserve && !state.isAnyFailure) ...[
-                if (state.marketplaceProduct.runtimeType == ProductPresta)
-                  _MarketplaceProductPrestaRenderer(productImportBloc: productImportBloc, product: state.marketplaceProduct as ProductPresta),
-                if (state.marketplaceProduct.runtimeType == ProductShopify)
-                  _MarketplaceProductShopifyRenderer(productImportBloc: productImportBloc, product: state.marketplaceProduct as ProductShopify),
+              if (state.marketplaceProducts != null && !state.isLoadingProductPrestaOnObserve && !state.isAnyFailure) ...[
+                if (state.marketplaceProducts!.first.runtimeType == ProductPresta)
+                  _MarketplaceProductPrestaRenderer(productImportBloc: productImportBloc, product: state.marketplaceProducts!.first as ProductPresta),
+                if (state.marketplaceProducts!.first.runtimeType == ProductShopify)
+                  _MarketplaceProductShopifyRenderer(
+                      productImportBloc: productImportBloc, products: state.marketplaceProducts as List<ProductShopify>),
               ],
               Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -94,6 +99,7 @@ class _MarketplaceProductPrestaRenderer extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<ProductImportBloc, ProductImportState>(
       builder: (context, state) {
+        if (state.isLoadingProductPrestaOnObserve) const CircularProgressIndicator();
         return ListTile(
           leading: MyAvatar(
             name: 'name',
@@ -104,7 +110,8 @@ class _MarketplaceProductPrestaRenderer extends StatelessWidget {
           trailing: MyOutlinedButton(
             buttonText: 'Artikel speichern',
             isLoading: state.isLoadingProductOnCreate,
-            onPressed: () => !state.isLoadingProductOnCreate ? productImportBloc.add(OnUploadProductToFirestoreEvent()) : null,
+            onPressed: () =>
+                !state.isLoadingProductOnCreate ? productImportBloc.add(OnUploadProductToFirestoreEvent(marketplaceProduct: product)) : null,
           ),
         );
       },
@@ -114,26 +121,35 @@ class _MarketplaceProductPrestaRenderer extends StatelessWidget {
 
 class _MarketplaceProductShopifyRenderer extends StatelessWidget {
   final ProductImportBloc productImportBloc;
-  final ProductShopify product;
+  final List<ProductShopify> products;
 
-  const _MarketplaceProductShopifyRenderer({required this.productImportBloc, required this.product});
+  const _MarketplaceProductShopifyRenderer({required this.productImportBloc, required this.products});
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<ProductImportBloc, ProductImportState>(
       builder: (context, state) {
-        return ListTile(
-          leading: MyAvatar(
-            name: 'name',
-            imageUrl: product.images.isNotEmpty ? product.images.first.src : null,
-          ),
-          title: Text(product.title),
-          subtitle: Text('ID: ${product.id} / Artikelnummer: ${product.variants.first.sku}'),
-          trailing: MyOutlinedButton(
-            buttonText: 'Artikel speichern',
-            isLoading: state.isLoadingProductOnCreate,
-            onPressed: () => !state.isLoadingProductOnCreate ? productImportBloc.add(OnUploadProductToFirestoreEvent()) : null,
-          ),
+        if (state.isLoadingProductPrestaOnObserve) const CircularProgressIndicator();
+        return ListView.builder(
+          shrinkWrap: true,
+          itemCount: products.length,
+          itemBuilder: (context, index) {
+            final product = products[index];
+            return ListTile(
+              leading: MyAvatar(
+                name: 'name',
+                imageUrl: product.images.isNotEmpty ? product.images.first.src : null,
+              ),
+              title: Text('SHOPIFY ${product.title}'),
+              subtitle: Text('ID: ${product.id} / Artikelnummer: ${product.variants.first.sku}'),
+              trailing: MyOutlinedButton(
+                buttonText: 'Artikel speichern',
+                isLoading: state.isLoadingProductOnCreate,
+                onPressed: () =>
+                    !state.isLoadingProductOnCreate ? productImportBloc.add(OnUploadProductToFirestoreEvent(marketplaceProduct: product)) : null,
+              ),
+            );
+          },
         );
       },
     );

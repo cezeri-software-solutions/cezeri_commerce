@@ -12,11 +12,11 @@ import 'package:share_plus/share_plus.dart';
 import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 
 import '../../../../3_domain/entities/marketplace/marketplace_presta.dart';
-import '../../../../3_domain/entities/product/marketplace_product_presta.dart';
 import '../../../../3_domain/entities/product/product.dart';
-import '../../../../3_domain/entities_presta/category_presta.dart';
+import '../../../../3_domain/entities/product/product_presta.dart';
 import '../../../../3_domain/repositories/firebase/marketplace_repository.dart';
 import '../../../../3_domain/repositories/marketplace/marketplace_import_repository.dart';
+import '../../../../4_infrastructur/repositories/prestashop_api/models/category_presta.dart';
 import '../../../../constants.dart';
 import '../../../core/functions/mixed_functions.dart';
 
@@ -35,15 +35,15 @@ Future<void> generateTableExportFromProductsOverview(
   final fosMarketplace = await GetIt.I.get<MarketplaceRepository>().getMarketplace('Uh2NdcXphcN7ABnSBAGU'); //TODO: make dynamic
   fosMarketplace.fold(
     (l) => null,
-    (mp) => marketplace = mp,
+    (mp) => marketplace = mp as MarketplacePresta, // TODO: Shopify
   );
   List<CategoryPresta>? categories;
   if (marketplace != null) {
     List<CategoryPresta>? allCategories;
-    final fosCategories = await GetIt.I.get<MarketplaceImportRepository>().getAllPrestaCategories(marketplace!);
+    final fosCategories = await GetIt.I.get<MarketplaceImportRepository>().getAllMarketplaceCategories(marketplace!);
     fosCategories.fold(
       (l) => null,
-      (cat) => allCategories = cat,
+      (cat) => allCategories = cat as List<CategoryPresta>?, // TODO: Shopify
     );
     if (allCategories != null) categories = allCategories!.where((e) => e.active == '1').toList();
   }
@@ -155,10 +155,7 @@ String _getCategories(Product product, List<CategoryPresta> categoriesPresta) {
   final productMarketplace = product.productMarketplaces[index];
 
   final categories = categoriesPresta
-      .where((e) => (productMarketplace.marketplaceProduct as MarketplaceProductPresta)
-          .associations!
-          .associationsCategories!
-          .any((f) => f.id.toMyInt() == e.id))
+      .where((e) => (productMarketplace.marketplaceProduct as ProductPresta).associations!.associationsCategories!.any((f) => f.id.toMyInt() == e.id))
       .toList();
 
   if (categories.isEmpty) return '';

@@ -228,6 +228,7 @@ class _SelectMarketplace extends StatelessWidget {
     return BlocBuilder<ProductImportBloc, ProductImportState>(
       bloc: productImportBloc,
       builder: (context, state) {
+        if (state.isLoadingProductPrestaOnObserve) const CircularProgressIndicator();
         return SizedBox(
           height: 100,
           child: ListView.builder(
@@ -246,7 +247,7 @@ class _SelectMarketplace extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(listOfMarketplace[index].name),
-                        SizedBox(height: 40,width: 40, child: SvgPicture.asset(getMarketplaceLogoAsset(listOfMarketplace[index].marketplaceType))),
+                        SizedBox(height: 40, width: 40, child: SvgPicture.asset(getMarketplaceLogoAsset(listOfMarketplace[index].marketplaceType))),
                       ],
                     ),
                   ),

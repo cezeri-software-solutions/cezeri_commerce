@@ -5,14 +5,19 @@ import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 import '../../../1_presentation/core/functions/mixed_functions.dart';
-import '../../entities_presta/product_presta.dart';
+import '../../../4_infrastructur/repositories/prestashop_api/models/product_raw_presta.dart';
+import '../../../4_infrastructur/repositories/shopify_api/shopify.dart';
 import '../language.dart';
+import '../marketplace/abstract_marketplace.dart';
 import '../marketplace/marketplace_presta.dart';
+import '../marketplace/marketplace_shopify.dart';
 import '../settings/main_settings.dart';
 import '../settings/tax.dart';
+import 'marketplace_product.dart';
 import 'product_id_with_quantity.dart';
 import 'product_image.dart';
 import 'product_marketplace.dart';
+import 'product_presta.dart';
 import 'set_product.dart';
 
 part 'product.g.dart';
@@ -178,7 +183,30 @@ class Product extends Equatable {
     );
   }
 
-  factory Product.fromProductPresta({
+  factory Product.fromMarketplaceProduct({
+    required MarketplaceProduct marketplaceProduct,
+    required AbstractMarketplace marketplace,
+    required MainSettings mainSettings,
+    required List<ProductIdWithQuantity>? listOfProductIdWithQuantity,
+  }) {
+    return switch (marketplaceProduct.marketplaceType) {
+      MarketplaceType.prestashop => Product._fromProductPresta(
+          productPresta: marketplaceProduct as ProductPresta,
+          marketplace: marketplace as MarketplacePresta,
+          mainSettings: mainSettings,
+          listOfProductIdWithQuantity: listOfProductIdWithQuantity,
+        ),
+      MarketplaceType.shopify => Product._fromProductShopify(
+          productShopify: marketplaceProduct as ProductShopify,
+          marketplace: marketplace as MarketplaceShopify,
+          mainSettings: mainSettings,
+          listOfProductIdWithQuantity: listOfProductIdWithQuantity,
+        ),
+      MarketplaceType.shop => throw Exception('Ladengeschäft wird nicht unterstützt.'),
+    };
+  }
+
+  factory Product._fromProductPresta({
     required ProductPresta productPresta,
     required MarketplacePresta marketplace,
     required MainSettings mainSettings,
@@ -216,7 +244,7 @@ class Product extends Equatable {
       return toReturnValue;
     }
 
-    final productMarketplaces = [ProductMarketplace.fromProductPresta(productPresta, marketplace)];
+    final productMarketplaces = [ProductMarketplace.fromMarketplaceProduct(productPresta, marketplace)];
     final taxRule = mainSettings.taxes.where((e) => e.isDefault).first;
 
     final listOfName = getListOfProductLanguages(productPresta.nameMultilanguage);
@@ -255,7 +283,7 @@ class Product extends Equatable {
       grossPrice: (productPresta.price.toMyDouble() * taxToCalc(taxRule.taxRate)).toMyRoundedDouble(),
       wholesalePrice: productPresta.wholesalePrice.toMyDouble(),
       recommendedRetailPrice: productPresta.price.toMyDouble() * taxToCalc(taxRule.taxRate),
-      haveVariants: productPresta.associations.associationsCombinations != null,
+      haveVariants: productPresta.associations!.associationsCombinations != null,
       isSetArticle: switch (productPresta.type) {
         'simple' => false,
         'pack' => true,
@@ -267,6 +295,106 @@ class Product extends Equatable {
       manufacturer: productPresta.manufacturerName,
       warehouseStock: productPresta.quantity.toMyInt(),
       availableStock: productPresta.quantity.toMyInt(),
+      description: description,
+      listOfDescription: listOfDescription,
+      descriptionShort: descriptionShort,
+      listOfDescriptionShort: listOfDescriptionShort,
+      metaTitle: metaTitle,
+      listOfMetaTitle: listOfMetaTitle,
+      metaDescription: metaDescription,
+      listOfMetaDescription: listOfMetaDescription,
+      productMarketplaces: productMarketplaces,
+    );
+  }
+
+  factory Product._fromProductShopify({
+    required ProductShopify productShopify,
+    required MarketplaceShopify marketplace,
+    required MainSettings mainSettings,
+    required List<ProductIdWithQuantity>? listOfProductIdWithQuantity,
+  }) {
+    // List<FieldLanguage> getListOfProductLanguages(List<Multilanguage>? valueMultilanguage) {
+    //   List<FieldLanguage> listOfProductLanguages = [];
+    //   if (valueMultilanguage != null &&
+    //       valueMultilanguage.isNotEmpty &&
+    //       productShopify.marketplaceLanguages != null &&
+    //       productShopify.marketplaceLanguages!.isNotEmpty) {
+    //     final marketplaceLanguages = productShopify.marketplaceLanguages!;
+    //     for (final value in valueMultilanguage) {
+    //       final mLanguage = marketplaceLanguages.where((e) => e.id.toString() == value.id).firstOrNull;
+    //       if (mLanguage == null) continue;
+    //       final language = Language.languageList.where((e) => e.isoCode.toUpperCase() == mLanguage.isoCode.toUpperCase()).firstOrNull;
+    //       if (language == null) continue;
+    //       final id = language.id;
+    //       listOfProductLanguages.add(FieldLanguage(id: id, value: value.value, isoCode: language.isoCode));
+    //     }
+    //   }
+    //   return listOfProductLanguages;
+    // }
+
+    // String getProductValue(List<FieldLanguage> listOfProductLanguages, String? value) {
+    //   String toReturnValue = '';
+    //   if (listOfProductLanguages.isNotEmpty) {
+    //     final phValue = listOfProductLanguages.where((e) => e.isoCode.toUpperCase() == 'DE').firstOrNull;
+    //     if (phValue != null) {
+    //       toReturnValue = phValue.value;
+    //     }
+    //   } else {
+    //     toReturnValue = value ?? '';
+    //   }
+    //   return toReturnValue;
+    // }
+
+    final productMarketplaces = [ProductMarketplace.fromMarketplaceProduct(productShopify, marketplace)];
+    final taxRule = mainSettings.taxes.where((e) => e.isDefault).first;
+
+    final listOfName = <FieldLanguage>[]; //getListOfProductLanguages(productShopify.nameMultilanguage);
+    final listOfDescription = <FieldLanguage>[]; // getListOfProductLanguages(productShopify.descriptionMultilanguage);
+    final listOfDescriptionShort = <FieldLanguage>[]; //getListOfProductLanguages(productShopify.descriptionShortMultilanguage);
+    final listOfMetaTitle = <FieldLanguage>[]; //getListOfProductLanguages(productShopify.metaTitleMultilanguage);
+    final listOfMetaDescription = <FieldLanguage>[]; // getListOfProductLanguages(productShopify.metaDescriptionMultilanguage);
+
+    final name = productShopify.title;
+    final description = productShopify.bodyHtml;
+    const descriptionShort = '';
+    final metaTitle = productShopify.metafields.where((e) => e.metafieldType == MetafieldType.productMetaTitle).firstOrNull?.value ?? '';
+    final metaDescription = productShopify.metafields.where((e) => e.metafieldType == MetafieldType.productMetaDescription).firstOrNull?.value ?? '';
+
+    final grossPrice = productShopify.variants.first.price.toMyDouble();
+    final netPrice = (grossPrice / taxToCalc(taxRule.taxRate)).toMyRoundedDouble();
+
+    return Product.empty().copyWith(
+      articleNumber: productShopify.variants.first.sku,
+      supplierArticleNumber: productShopify.variants.first.sku,
+      // TODO: Lieferanten anlegen und id(number) mit übergenben
+      supplierNumber: Product.empty().supplierNumber,
+      supplier: Product.empty().supplier,
+      sku: productShopify.variants.first.barcode,
+      ean: productShopify.variants.first.barcode,
+      name: name,
+      listOfName: listOfName,
+      tax: taxRule,
+      isActive: Product.empty().isActive,
+      // TODO: Wieviele von diesem Artikel schon nachbestellt wurden
+      // ordered: productPresta.reference ?? Product.empty().articleNumber,
+      brandName: productShopify.vendor,
+      unity: null, //TODO: https://help.shopify.com/de/manual/intro-to-shopify/initial-setup/sell-in-germany/price-per-unit
+      width: 0.0,
+      height: 0.0,
+      depth: 0.0,
+      weight: productShopify.variants.first.weight,
+      netPrice: netPrice,
+      grossPrice: grossPrice,
+      wholesalePrice: 0.0,
+      recommendedRetailPrice: grossPrice,
+      haveVariants: productShopify.variants.length > 1,
+      isSetArticle: false, //TODO: Set-Artikel muss noch in Shopify erkundet werden
+      listOfProductIdWithQuantity: listOfProductIdWithQuantity ?? [],
+      // TODO: Hersteller anlegen und Nummer übergeben
+      manufacturerNumber: Product.empty().manufacturerNumber,
+      manufacturer: productShopify.vendor,
+      warehouseStock: productShopify.variants.first.inventoryQuantity,
+      availableStock: productShopify.variants.first.inventoryQuantity,
       description: description,
       listOfDescription: listOfDescription,
       descriptionShort: descriptionShort,

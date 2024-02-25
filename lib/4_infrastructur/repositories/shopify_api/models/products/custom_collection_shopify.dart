@@ -8,9 +8,9 @@ class CustomCollectionShopify extends Equatable {
   @JsonKey(name: 'body_html')
   final String bodyHtml;
   final String handle;
-  final CustomCollectionImage image; // Annahme, dass eine CustomCollectionImage-Klasse existiert oder erstellt werden muss.
+  final CustomCollectionImage? image; // Annahme, dass eine CustomCollectionImage-Klasse existiert oder erstellt werden muss.
   final int id;
-  final bool published;
+  final bool? published;
   @JsonKey(name: 'published_at')
   final DateTime? publishedAt;
   @JsonKey(name: 'published_scope')

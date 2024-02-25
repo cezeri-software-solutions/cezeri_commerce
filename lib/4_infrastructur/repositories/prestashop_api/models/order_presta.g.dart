@@ -69,7 +69,8 @@ OrderPresta _$OrderPrestaFromJson(Map<String, dynamic> json) => OrderPresta(
       crnDeliveryNumber: json['crn_delivery_number'] as String?,
       associations: json['associations'] == null
           ? null
-          : Associations.fromJson(json['associations'] as Map<String, dynamic>),
+          : OrderAssociations.fromJson(
+              json['associations'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$OrderPrestaToJson(OrderPresta instance) =>
@@ -126,13 +127,14 @@ Map<String, dynamic> _$OrderPrestaToJson(OrderPresta instance) =>
       'associations': instance.associations,
     };
 
-Associations _$AssociationsFromJson(Map<String, dynamic> json) => Associations(
+OrderAssociations _$OrderAssociationsFromJson(Map<String, dynamic> json) =>
+    OrderAssociations(
       orderRows: (json['order_rows'] as List<dynamic>)
           .map((e) => OrderProductPresta.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
 
-Map<String, dynamic> _$AssociationsToJson(Associations instance) =>
+Map<String, dynamic> _$OrderAssociationsToJson(OrderAssociations instance) =>
     <String, dynamic>{
       'order_rows': instance.orderRows,
     };

@@ -5,14 +5,14 @@ import 'package:json_annotation/json_annotation.dart';
 import 'language_presta.dart';
 import 'product_presta_image.dart';
 
-part 'product_presta.g.dart';
+part 'product_raw_presta.g.dart';
 
 @JsonSerializable()
 class ProductsPresta {
   static const _encoder = JsonEncoder.withIndent('  ');
 
   @JsonKey(name: 'products')
-  final List<ProductPresta> items;
+  final List<ProductRawPresta> items;
 
   const ProductsPresta({required this.items});
 
@@ -24,7 +24,7 @@ class ProductsPresta {
 }
 
 @JsonSerializable(explicitToJson: true)
-class ProductPresta {
+class ProductRawPresta {
   static const _encoder = JsonEncoder.withIndent('  ');
 
   final int id;
@@ -113,7 +113,7 @@ class ProductPresta {
   final List<LanguagePresta>? marketplaceLanguages;
   final Associations associations;
 
-  ProductPresta({
+  ProductRawPresta({
     required this.id,
     required this.idManufacturer,
     required this.idSupplier,
@@ -200,7 +200,7 @@ class ProductPresta {
     required this.associations,
   });
 
-  factory ProductPresta.fromJson(Map<String, dynamic> json) {
+  factory ProductRawPresta.fromJson(Map<String, dynamic> json) {
     String? deliveryInStock;
     List<Multilanguage>? deliveryInStockMultilanguage;
     String? deliveryOutStock;
@@ -333,7 +333,7 @@ class ProductPresta {
     }
     print('#################### $name ########################## asdfjklö');
     print('+++++++++++++ ${Associations.fromJson(json['associations'] as Map<String, dynamic>)} ++++++++++++++ asdfjklööö');
-    return ProductPresta(
+    return ProductRawPresta(
       id: json['id'] as int,
       idManufacturer: json['id_manufacturer'] as String,
       idSupplier: json['id_supplier'] as String,
@@ -341,7 +341,7 @@ class ProductPresta {
       newProduct: json['new'] as String?,
       cacheDefaultAttribute: json['cache_default_attribute'] != null ? json['cache_default_attribute'] as String : '',
       idDefaultImage: json['id_default_image'] as String,
-      idDefaultCombination: ProductPresta._idDefaultCombinationFromJson(json['id_default_combination']),
+      idDefaultCombination: ProductRawPresta._idDefaultCombinationFromJson(json['id_default_combination']),
       idTaxRulesGroup: json['id_tax_rules_group'] as String,
       positionInCategory: json['position_in_category'] as String,
       manufacturerName: json['manufacturer_name'] is String ? json['manufacturer_name'] as String : '',
@@ -420,7 +420,7 @@ class ProductPresta {
     );
   }
 
-  Map<String, dynamic> toJson() => _$ProductPrestaToJson(this);
+  Map<String, dynamic> toJson() => _$ProductRawPrestaToJson(this);
 
   @override
   String toString() => _encoder.convert(toJson());
@@ -435,7 +435,7 @@ class ProductPresta {
   //   return null;
   // }
 
-  ProductPresta copyWith({
+  ProductRawPresta copyWith({
     int? id,
     String? idManufacturer,
     String? idSupplier,
@@ -521,7 +521,7 @@ class ProductPresta {
     List<LanguagePresta>? marketplaceLanguages,
     Associations? associations,
   }) {
-    return ProductPresta(
+    return ProductRawPresta(
       id: id ?? this.id,
       idManufacturer: idManufacturer ?? this.idManufacturer,
       idSupplier: idSupplier ?? this.idSupplier,

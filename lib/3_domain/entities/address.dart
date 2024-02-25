@@ -2,8 +2,8 @@ import 'package:cezeri_commerce/3_domain/entities/id.dart';
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 
-import '../entities_presta/address_presta.dart';
-import '../entities_presta/country_presta.dart';
+import '../../4_infrastructur/repositories/prestashop_api/models/address_presta.dart';
+import '../../4_infrastructur/repositories/prestashop_api/models/country_presta.dart';
 import 'country.dart';
 
 part 'address.g.dart';

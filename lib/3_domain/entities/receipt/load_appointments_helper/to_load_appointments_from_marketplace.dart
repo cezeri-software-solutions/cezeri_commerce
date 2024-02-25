@@ -1,4 +1,4 @@
-import '../../../entities_presta/order_presta.dart';
+import '../../../../4_infrastructur/repositories/prestashop_api/models/order_presta.dart';
 import '../../marketplace/abstract_marketplace.dart';
 
 class ToLoadAppointmentsFromMarketplace {

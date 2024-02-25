@@ -1,4 +1,4 @@
-enum AbstractFailureType { firebase, auth, presta, mixed }
+enum AbstractFailureType { firebase, auth, presta, shopify, mixed }
 
 abstract class AbstractFailure {
   final AbstractFailureType abstractFailureType;

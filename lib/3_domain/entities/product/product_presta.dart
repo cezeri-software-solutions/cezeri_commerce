@@ -1,13 +1,15 @@
 import 'package:json_annotation/json_annotation.dart';
 
-import '../../entities_presta/product_presta.dart';
+import '../../../4_infrastructur/repositories/prestashop_api/models/language_presta.dart';
+import '../../../4_infrastructur/repositories/prestashop_api/models/product_presta_image.dart';
+import '../../../4_infrastructur/repositories/prestashop_api/models/product_raw_presta.dart';
 import '../marketplace/abstract_marketplace.dart';
 import 'marketplace_product.dart';
 
-part 'marketplace_product_presta.g.dart';
+part 'product_presta.g.dart';
 
 @JsonSerializable(explicitToJson: true)
-class MarketplaceProductPresta extends MarketplaceProduct {
+class ProductPresta extends MarketplaceProduct {
   final int id;
   final String idManufacturer;
   final String idSupplier;
@@ -89,9 +91,12 @@ class MarketplaceProductPresta extends MarketplaceProduct {
   final List<Multilanguage>? availableNowMultilanguage;
   final String? availableLater;
   final List<Multilanguage>? availableLaterMultilanguage;
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  final List<ProductPrestaImage>? imageFiles;
+  final List<LanguagePresta>? marketplaceLanguages;
   final Associations? associations;
 
-  MarketplaceProductPresta({
+  const ProductPresta({
     required this.id,
     required this.idManufacturer,
     required this.idSupplier,
@@ -173,15 +178,17 @@ class MarketplaceProductPresta extends MarketplaceProduct {
     required this.availableNowMultilanguage,
     required this.availableLater,
     required this.availableLaterMultilanguage,
+    this.imageFiles,
+    this.marketplaceLanguages,
     required this.associations,
   }) : super(MarketplaceType.prestashop);
 
-  factory MarketplaceProductPresta.fromJson(Map<String, dynamic> json) => _$MarketplaceProductPrestaFromJson(json);
+  factory ProductPresta.fromJson(Map<String, dynamic> json) => _$ProductPrestaFromJson(json);
   @override
-  Map<String, dynamic> toJson() => _$MarketplaceProductPrestaToJson(this);
+  Map<String, dynamic> toJson() => _$ProductPrestaToJson(this);
 
-  factory MarketplaceProductPresta.empty() {
-    return MarketplaceProductPresta(
+  factory ProductPresta.empty() {
+    return ProductPresta(
       id: 0,
       idManufacturer: '',
       idSupplier: '',
@@ -214,9 +221,9 @@ class MarketplaceProductPresta extends MarketplaceProduct {
       state: '',
       additionalDeliveryTimes: '',
       deliveryInStock: '',
-      deliveryInStockMultilanguage: [],
+      deliveryInStockMultilanguage: const [],
       deliveryOutStock: '',
-      deliveryOutStockMultilanguage: [],
+      deliveryOutStockMultilanguage: const [],
       onSale: '',
       onlineOnly: '',
       ecotax: '',
@@ -246,29 +253,31 @@ class MarketplaceProductPresta extends MarketplaceProduct {
       dateUpd: '',
       packStockType: '',
       metaDescription: '',
-      metaDescriptionMultilanguage: [],
+      metaDescriptionMultilanguage: const [],
       metaKeywords: '',
-      metaKeywordsMultilanguage: [],
+      metaKeywordsMultilanguage: const [],
       metaTitle: '',
-      metaTitleMultilanguage: [],
+      metaTitleMultilanguage: const [],
       linkRewrite: '',
-      linkRewriteMultilanguage: [],
+      linkRewriteMultilanguage: const [],
       name: '',
-      nameMultilanguage: [],
+      nameMultilanguage: const [],
       description: '',
-      descriptionMultilanguage: [],
+      descriptionMultilanguage: const [],
       descriptionShort: '',
-      descriptionShortMultilanguage: [],
+      descriptionShortMultilanguage: const [],
       availableNow: '',
-      availableNowMultilanguage: [],
+      availableNowMultilanguage: const [],
       availableLater: '',
-      availableLaterMultilanguage: [],
+      availableLaterMultilanguage: const [],
+      imageFiles: const [],
+      marketplaceLanguages: const [],
       associations: Associations.empty(),
     );
   }
 
-  factory MarketplaceProductPresta.fromProductPresta(ProductPresta pp) {
-    return MarketplaceProductPresta(
+  factory ProductPresta.fromProductRawPresta(ProductRawPresta pp) {
+    return ProductPresta(
       id: pp.id,
       idManufacturer: pp.idManufacturer,
       idSupplier: pp.idSupplier,
@@ -350,11 +359,13 @@ class MarketplaceProductPresta extends MarketplaceProduct {
       availableNowMultilanguage: pp.availableNowMultilanguage,
       availableLater: pp.availableLater,
       availableLaterMultilanguage: pp.availableLaterMultilanguage,
+      imageFiles: pp.imageFiles,
+      marketplaceLanguages: pp.marketplaceLanguages,
       associations: pp.associations,
     );
   }
 
-  MarketplaceProductPresta copyWith({
+  ProductPresta copyWith({
     int? id,
     String? idManufacturer,
     String? idSupplier,
@@ -436,9 +447,11 @@ class MarketplaceProductPresta extends MarketplaceProduct {
     List<Multilanguage>? availableNowMultilanguage,
     String? availableLater,
     List<Multilanguage>? availableLaterMultilanguage,
+    List<ProductPrestaImage>? imageFiles,
+    List<LanguagePresta>? marketplaceLanguages,
     Associations? associations,
   }) {
-    return MarketplaceProductPresta(
+    return ProductPresta(
       id: id ?? this.id,
       idManufacturer: idManufacturer ?? this.idManufacturer,
       idSupplier: idSupplier ?? this.idSupplier,
@@ -520,12 +533,100 @@ class MarketplaceProductPresta extends MarketplaceProduct {
       availableNowMultilanguage: availableNowMultilanguage ?? this.availableNowMultilanguage,
       availableLater: availableLater ?? this.availableLater,
       availableLaterMultilanguage: availableLaterMultilanguage ?? this.availableLaterMultilanguage,
+      imageFiles: imageFiles ?? this.imageFiles,
+      marketplaceLanguages: marketplaceLanguages ?? this.marketplaceLanguages,
       associations: associations ?? this.associations,
     );
   }
 
   @override
-  String toString() {
-    return 'MarketplaceProductPresta(id: $id, idManufacturer: $idManufacturer, idSupplier: $idSupplier, idCategoryDefault: $idCategoryDefault, newProduct: $newProduct, cacheDefaultAttribute: $cacheDefaultAttribute, idDefaultImage: $idDefaultImage, idDefaultCombination: $idDefaultCombination, idTaxRulesGroup: $idTaxRulesGroup, positionInCategory: $positionInCategory, manufacturerName: $manufacturerName, quantity: $quantity, type: $type, idShopDefault: $idShopDefault, reference: $reference, supplierReference: $supplierReference, location: $location, width: $width, height: $height, depth: $depth, weight: $weight, quantityDiscount: $quantityDiscount, ean13: $ean13, isbn: $isbn, upc: $upc, mpn: $mpn, cacheIsPack: $cacheIsPack, cacheHasAttachments: $cacheHasAttachments, isVirtual: $isVirtual, state: $state, additionalDeliveryTimes: $additionalDeliveryTimes, deliveryInStock: $deliveryInStock, deliveryInStockMultilanguage: $deliveryInStockMultilanguage, deliveryOutStock: $deliveryOutStock, deliveryOutStockMultilanguage: $deliveryOutStockMultilanguage, onSale: $onSale, onlineOnly: $onlineOnly, ecotax: $ecotax, minimalQuantity: $minimalQuantity, lowStockThreshold: $lowStockThreshold, lowStockAlert: $lowStockAlert, price: $price, wholesalePrice: $wholesalePrice, unity: $unity, unitPriceRatio: $unitPriceRatio, additionalShippingCost: $additionalShippingCost, customizable: $customizable, textFields: $textFields, uploadableFiles: $uploadableFiles, active: $active, redirectType: $redirectType, idTypeRedirected: $idTypeRedirected, availableForOrder: $availableForOrder, availableDate: $availableDate, showCondition: $showCondition, condition: $condition, showPrice: $showPrice, indexed: $indexed, visibility: $visibility, advancedStockManagement: $advancedStockManagement, dateAdd: $dateAdd, dateUpd: $dateUpd, packStockType: $packStockType, metaDescription: $metaDescription, metaDescriptionMultilanguage: $metaDescriptionMultilanguage, metaKeywords: $metaKeywords, metaKeywordsMultilanguage: $metaKeywordsMultilanguage, metaTitle: $metaTitle, metaTitleMultilanguage: $metaTitleMultilanguage, linkRewrite: $linkRewrite, linkRewriteMultilanguage: $linkRewriteMultilanguage, name: $name, nameMultilanguage: $nameMultilanguage, description: $description, descriptionMultilanguage: $descriptionMultilanguage, descriptionShort: $descriptionShort, descriptionShortMultilanguage: $descriptionShortMultilanguage, availableNow: $availableNow, availableNowMultilanguage: $availableNowMultilanguage, availableLater: $availableLater, availableLaterMultilanguage: $availableLaterMultilanguage, associations: $associations)';
-  }
+  List<Object?> get props => [
+        id,
+        idManufacturer,
+        idSupplier,
+        idCategoryDefault,
+        newProduct,
+        cacheDefaultAttribute,
+        idDefaultImage,
+        idDefaultCombination,
+        idTaxRulesGroup,
+        positionInCategory,
+        manufacturerName,
+        quantity,
+        type,
+        idShopDefault,
+        reference,
+        supplierReference,
+        location,
+        width,
+        height,
+        depth,
+        weight,
+        quantityDiscount,
+        ean13,
+        isbn,
+        upc,
+        mpn,
+        cacheIsPack,
+        cacheHasAttachments,
+        isVirtual,
+        state,
+        additionalDeliveryTimes,
+        deliveryInStock,
+        deliveryInStockMultilanguage,
+        deliveryOutStock,
+        deliveryOutStockMultilanguage,
+        onSale,
+        onlineOnly,
+        ecotax,
+        minimalQuantity,
+        lowStockThreshold,
+        lowStockAlert,
+        price,
+        wholesalePrice,
+        unity,
+        unitPriceRatio,
+        additionalShippingCost,
+        customizable,
+        textFields,
+        uploadableFiles,
+        active,
+        redirectType,
+        idTypeRedirected,
+        availableForOrder,
+        availableDate,
+        showCondition,
+        condition,
+        showPrice,
+        indexed,
+        visibility,
+        advancedStockManagement,
+        dateAdd,
+        dateUpd,
+        packStockType,
+        metaDescription,
+        metaDescriptionMultilanguage,
+        metaKeywords,
+        metaKeywordsMultilanguage,
+        metaTitle,
+        metaTitleMultilanguage,
+        linkRewrite,
+        linkRewriteMultilanguage,
+        name,
+        nameMultilanguage,
+        description,
+        descriptionMultilanguage,
+        descriptionShort,
+        descriptionShortMultilanguage,
+        availableNow,
+        availableNowMultilanguage,
+        availableLater,
+        availableLaterMultilanguage,
+        imageFiles,
+        marketplaceLanguages,
+        associations,
+      ];
+
+  @override
+  bool get stringify => true;
 }

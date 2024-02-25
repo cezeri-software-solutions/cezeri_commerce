@@ -21,6 +21,7 @@ import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
 import '../../../3_domain/entities/marketplace/marketplace_presta.dart';
 import '../functions/product_import.dart';
 import '../functions/product_repository_helper.dart';
+import '../prestashop_api/models/order_presta.dart';
 import '../prestashop_api/prestashop_api.dart';
 import '../shipping_methods/austrian_post/austrian_post_api.dart';
 import '/1_presentation/core/functions/check_internet_connection.dart';
@@ -32,8 +33,6 @@ import '/3_domain/entities/e_mail_automation.dart';
 import '/3_domain/entities/product/product.dart';
 import '/3_domain/entities/product/product_id_with_quantity.dart';
 import '/3_domain/entities/settings/main_settings.dart';
-import '/3_domain/entities_presta/order_presta.dart';
-import '/3_domain/entities_presta/product_presta.dart';
 import '/3_domain/enums/enums.dart';
 import '/3_domain/pdf/pdf_receipt_generator.dart';
 import '/3_domain/repositories/firebase/main_settings_respository.dart';
@@ -930,19 +929,6 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
       ReceiptTyp.deliveryNote => db.collection('Receipts').doc(currentUserUid).collection('DeliveryNotes'),
       ReceiptTyp.invoice || ReceiptTyp.credit => db.collection('Receipts').doc(currentUserUid).collection('Invoices'),
     };
-  }
-
-  Future<ProductPresta?> getProductByIdFromPrestashop(int id, MarketplacePresta marketplace) async {
-    ProductPresta? productPresta;
-    final fosProductPresta = await productImportRepository.loadProductByIdFromPrestashopAsJson(id, marketplace);
-    fosProductPresta.fold(
-      (failure) {
-        logger.e('$id konnte nicht von Prestashop geladen werden');
-      },
-      (product) => productPresta = product,
-    );
-
-    return productPresta;
   }
 
   Future<Customer?> getCustomerByMarketplaceId(String marketplaceId, int customerIdMarketplace) async {

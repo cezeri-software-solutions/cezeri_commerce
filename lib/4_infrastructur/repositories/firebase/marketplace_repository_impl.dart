@@ -141,16 +141,15 @@ class MarketplaceRepositoryImpl implements MarketplaceRepository {
   }
 
   @override
-  Future<Either<AbstractFailure, MarketplacePresta>> getMarketplace(String id) async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(NoConnectionFailure());
+  Future<Either<AbstractFailure, AbstractMarketplace>> getMarketplace(String id) async {
+    if (!await checkInternetConnection()) return left(NoConnectionFailure());
 
     final currentUserUid = firebaseAuth.currentUser!.uid;
     final docRef = db.collection('Marketetplaces').doc(currentUserUid).collection('Marketetplaces').doc(id);
 
     try {
       final marketplace = await docRef.get();
-      return right(MarketplacePresta.fromJson(marketplace.data()!));
+      return right(AbstractMarketplace.fromJson(marketplace.data()!));
     } on FirebaseException catch (e) {
       logger.e(e.message);
       return left(GeneralFailure(customMessage: 'Beim Laden des Marktplatzes ist ein Fehler aufgetreten.', e: e));
