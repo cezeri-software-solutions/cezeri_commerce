@@ -10,6 +10,7 @@ MarketplaceSettings _$MarketplaceSettingsFromJson(Map<String, dynamic> json) =>
     MarketplaceSettings(
       id: json['id'] as String,
       nextIdToImport: json['nextIdToImport'] as int,
+      lastImportDateTime: DateTime.parse(json['lastImportDateTime'] as String),
       orderStatusIdsToImport: (json['orderStatusIdsToImport'] as List<dynamic>)
           .map((e) => e as int)
           .toList(),
@@ -27,6 +28,7 @@ Map<String, dynamic> _$MarketplaceSettingsToJson(
     <String, dynamic>{
       'id': instance.id,
       'nextIdToImport': instance.nextIdToImport,
+      'lastImportDateTime': instance.lastImportDateTime.toIso8601String(),
       'orderStatusIdsToImport': instance.orderStatusIdsToImport,
       'statusIdAfterImport': instance.statusIdAfterImport,
       'statusIdAfterShipping': instance.statusIdAfterShipping,

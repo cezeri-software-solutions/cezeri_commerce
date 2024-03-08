@@ -37,7 +37,7 @@ class GetNewAppointmentByIdFromPrestaEvent extends AppointmentEvent {
   GetNewAppointmentByIdFromPrestaEvent({required this.id, required this.marketplace});
 }
 
-class GetNewAppointmentsFromPrestaEvent extends AppointmentEvent {}
+class GetNewAppointmentsFromMarketplacesEvent extends AppointmentEvent {}
 
 class CreateNewAppointmentManuallyEvent extends AppointmentEvent {
   final Receipt receipt;

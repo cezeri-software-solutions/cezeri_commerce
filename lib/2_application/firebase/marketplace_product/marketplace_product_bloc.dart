@@ -1,7 +1,9 @@
 import 'package:bloc/bloc.dart';
 import 'package:cezeri_commerce/1_presentation/core/extensions/string_to_int.dart';
 import 'package:dartz/dartz.dart';
+import 'package:flutter/material.dart';
 
+import '../../../1_presentation/core/widgets/my_chip_with_three_options.dart';
 import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
 import '../../../3_domain/entities/product/product_marketplace.dart';
 import '../../../3_domain/entities/product/product_presta.dart';
@@ -67,7 +69,7 @@ class MarketplaceProductBloc extends Bloc<MarketplaceProductEvent, MarketplacePr
       switch (state.productMarketplace!.marketplaceProduct!.marketplaceType) {
         case MarketplaceType.prestashop:
           {
-            final mpProduct = state.marketplaceProductPresta!.copyWith(active: switch (event.value) { true => '1', false => '0' });
+            final mpProduct = state.marketplaceProductPresta!.copyWith(active: switch (event.value as bool) { true => '1', false => '0' });
             emit(state.copyWith(
               marketplaceProductPresta: mpProduct,
               productMarketplace: state.productMarketplace!.copyWith(marketplaceProduct: mpProduct),
@@ -75,7 +77,12 @@ class MarketplaceProductBloc extends Bloc<MarketplaceProductEvent, MarketplacePr
           }
         case MarketplaceType.shopify:
           {
-            final mpProduct = state.marketplaceProductShopify!.copyWith(status: switch (event.value) { true => 'active', false => 'draft' });
+            final mpProduct = state.marketplaceProductShopify!.copyWith(
+                status: switch (event.value as TappingPlace) {
+              TappingPlace.left => ProductShopifyStatus.active,
+              TappingPlace.middle => ProductShopifyStatus.draft,
+              TappingPlace.right => ProductShopifyStatus.archived
+            });
             emit(state.copyWith(
               marketplaceProductShopify: mpProduct,
               productMarketplace: state.productMarketplace!.copyWith(marketplaceProduct: mpProduct),
@@ -91,35 +98,44 @@ class MarketplaceProductBloc extends Bloc<MarketplaceProductEvent, MarketplacePr
 //? #########################################################################
 
     on<SetListOfCategoriesPrestaToOriginalEvent>((event, emit) {
-      final isSelected = List.generate(
-        state.listOfCategoriesPrestaOriginal!.length,
-        (index) => (state.productMarketplace!.marketplaceProduct as ProductPresta)
-                .associations!
-                .associationsCategories!
-                .any((e) => e.id.toMyInt() == state.listOfCategoriesPrestaOriginal![index].id)
-            ? true
-            : false,
-      );
-      final isExpanded = List.generate(isSelected.length, (index) => index == 0 || isSelected[index] ? true : false);
-
-      emit(state.copyWith(
-        listOfCategoriesPresta: state.listOfCategoriesPrestaOriginal,
-        isExpanded: isExpanded,
-        isSelected: isSelected,
-      ));
-
       switch (state.productMarketplace!.marketplaceProduct!.marketplaceType) {
         case MarketplaceType.prestashop:
           {
+            final isSelected = List.generate(
+              state.listOfCategoriesPrestaOriginal!.length,
+              (index) => (state.productMarketplace!.marketplaceProduct as ProductPresta)
+                      .associations!
+                      .associationsCategories!
+                      .any((e) => e.id.toMyInt() == state.listOfCategoriesPrestaOriginal![index].id)
+                  ? true
+                  : false,
+            );
+            final isExpanded = List.generate(isSelected.length, (index) => index == 0 || isSelected[index] ? true : false);
+
             final mpProduct = state.marketplaceProductPresta!.copyWith(idCategoryDefault: state.defaultCategory);
             emit(state.copyWith(
+              listOfCategoriesPresta: state.listOfCategoriesPrestaOriginal,
+              isExpanded: isExpanded,
+              isSelected: isSelected,
               marketplaceProductPresta: mpProduct,
               productMarketplace: state.productMarketplace!.copyWith(marketplaceProduct: mpProduct),
             ));
           }
         case MarketplaceType.shopify:
           {
-            throw Exception('SHOPIFY not implemented');
+            final isSelectedICategories = state.listOfCategoriesShopifyOriginal!
+                .where((e) {
+                  return state.marketplaceProductShopify!.customCollections.any((f) => f.id == e.id);
+                })
+                .map((e) => e)
+                .toList();
+
+            emit(state.copyWith(
+              listOfCategoriesShopify: state.listOfCategoriesShopifyOriginal,
+              listOfSelectedCategoiesShopify: isSelectedICategories,
+              listOfFilteredCategoriesShopify: state.listOfCategoriesShopify,
+              searchController: SearchController(),
+            ));
           }
         case MarketplaceType.shop:
           {
@@ -177,19 +193,17 @@ class MarketplaceProductBloc extends Bloc<MarketplaceProductEvent, MarketplacePr
               {
                 final marketplaceCategories = loadedCategories as List<CustomCollectionShopify>;
                 final activeCategories = marketplaceCategories;
-                final isSelected = List.generate(
-                  activeCategories.length,
-                  (index) => (state.productMarketplace!.marketplaceProduct as ProductShopify)
-                          .customCollections
-                          .any((e) => e.id == activeCategories[index].id)
-                      ? true
-                      : false,
-                );
+                final isSelectedIds = activeCategories
+                    .where((e) {
+                      return state.marketplaceProductShopify!.customCollections.any((f) => f.id == e.id);
+                    })
+                    .map((e) => e)
+                    .toList();
                 emit(state.copyWith(
                   listOfCategoriesShopifyOriginal: activeCategories,
                   listOfCategoriesShopify: activeCategories,
                   marketplaceFailure: null,
-                  isSelected: isSelected,
+                  listOfSelectedCategoiesShopify: isSelectedIds,
                   isAnyPrestaFailure: false,
                 ));
               }
@@ -202,7 +216,7 @@ class MarketplaceProductBloc extends Bloc<MarketplaceProductEvent, MarketplacePr
       emit(state.copyWith(
           isLoadingMarketplaceProductCategoriesOnObserve: false,
           fosMarketplaceProductMarketplaceOnObserveOption: optionOf(fosMarketplace),
-          fosMarketplaceProductCategoriesOnObserveOption: optionOf(failureOrSuccess as Either<AbstractFailure, List<CategoryPresta>>?)));
+          fosMarketplaceProductCategoriesOnObserveOption: optionOf(failureOrSuccess)));
       emit(state.copyWith(fosMarketplaceProductMarketplaceOnObserveOption: none(), fosMarketplaceProductCategoriesOnObserveOption: none()));
     });
 
@@ -217,9 +231,29 @@ class MarketplaceProductBloc extends Bloc<MarketplaceProductEvent, MarketplacePr
 //? #########################################################################
 
     on<OnCategoriesIsSelectedChangedEvent>((event, emit) {
-      List<bool> newListOfIsSelected = List.from(state.isSelected);
-      newListOfIsSelected[event.index] = event.value;
-      emit(state.copyWith(isSelected: newListOfIsSelected));
+      switch (state.productMarketplace!.marketplaceProduct!.marketplaceType) {
+        case MarketplaceType.prestashop:
+          {
+            List<bool> newListOfIsSelected = List.from(state.isSelected);
+            newListOfIsSelected[event.index] = event.value;
+            emit(state.copyWith(isSelected: newListOfIsSelected));
+          }
+        case MarketplaceType.shopify:
+          {
+            if (event.id == null) return;
+            List<CustomCollectionShopify> newListOfIsSelectedIds = List.from(state.listOfSelectedCategoiesShopify);
+            final index = newListOfIsSelectedIds.indexWhere((e) => e.id == event.id);
+            if (index != -1) {
+              newListOfIsSelectedIds.removeAt(index);
+            } else {
+              newListOfIsSelectedIds.add(state.listOfCategoriesShopify!.where((e) => e.id == event.id!).first);
+            }
+            emit(state.copyWith(listOfSelectedCategoiesShopify: newListOfIsSelectedIds));
+            add(OnSearchControllerChangedEvent());
+          }
+        case MarketplaceType.shop:
+          throw Exception('Ein Ladengeschäft kann keine Kategorien haben.');
+      }
     });
 
 //? #########################################################################
@@ -256,13 +290,57 @@ class MarketplaceProductBloc extends Bloc<MarketplaceProductEvent, MarketplacePr
           }
         case MarketplaceType.shopify:
           {
-            throw Exception('SHOPIFY not implemented');
+            final listOfSelectedCategories =
+                state.listOfCategoriesShopify!.where((e) => state.listOfSelectedCategoiesShopify.any((f) => f.id == e.id)).toList();
+            final mpProduct = state.marketplaceProductShopify!.copyWith(customCollections: listOfSelectedCategories);
+
+            emit(state.copyWith(
+              marketplaceProductShopify: mpProduct,
+              productMarketplace: state.productMarketplace!.copyWith(marketplaceProduct: mpProduct),
+              listOfFilteredCategoriesShopify: state.listOfCategoriesShopify,
+              searchController: SearchController(),
+            ));
           }
         case MarketplaceType.shop:
           {
             throw Exception('SHOP not implemented');
           }
       }
+    });
+
+//? #########################################################################
+
+    on<OnSearchControllerChangedEvent>((event, emit) {
+      List<CustomCollectionShopify> listOfSelectedCategories = state.listOfSelectedCategoiesShopify;
+      List<CustomCollectionShopify>? listOfCategories = switch (state.searchController.text) {
+        '' => state.listOfCategoriesShopify,
+        (_) => state.listOfCategoriesShopify!.where((e) => e.title.toLowerCase().contains(state.searchController.text.toLowerCase())).toList()
+      };
+
+      if (listOfCategories != null && listOfCategories.isNotEmpty && state.searchController.text.isNotEmpty) {
+        List<CustomCollectionShopify> selectedCategories = [];
+        List<CustomCollectionShopify> unselectedCategories = [];
+
+        for (var category in listOfCategories) {
+          if (state.listOfSelectedCategoiesShopify.any((e) => e.id == category.id)) {
+            selectedCategories.add(category);
+          } else {
+            unselectedCategories.add(category);
+          }
+        }
+
+        listOfCategories = [];
+        listOfCategories = unselectedCategories;
+        listOfCategories.sort((a, b) => a.title.compareTo(b.title));
+      }
+
+      if (listOfSelectedCategories.isNotEmpty) listOfSelectedCategories.sort((a, b) => a.title.compareTo(b.title));
+
+      emit(state.copyWith(listOfFilteredCategoriesShopify: listOfCategories, listOfSelectedCategoiesShopify: listOfSelectedCategories));
+    });
+
+    on<OnSearchControllerClearedEvent>((event, emit) {
+      emit(state.copyWith(searchController: SearchController(), listOfFilteredCategoriesShopify: state.listOfCategoriesShopify));
     });
 
 //? #########################################################################

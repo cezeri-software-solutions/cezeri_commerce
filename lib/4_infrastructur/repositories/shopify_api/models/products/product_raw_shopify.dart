@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 //* Diese Klasse representiert exakt das Format, wie ein Artikel aus Shopify geladen wird.
 //* Viele Attribute wie Bestand, Preis... usw. sind in anderen Klassen
 
@@ -9,12 +10,29 @@ import 'product_variant_shopify.dart';
 
 part 'product_raw_shopify.g.dart';
 
+enum ProductShopifyStatus { active, archived, draft }
+
+extension ProductStatusExtension on ProductShopifyStatus {
+  String toPrettyString() {
+    switch (this) {
+      case ProductShopifyStatus.active:
+        return 'active';
+      case ProductShopifyStatus.archived:
+        return 'archived';
+      case ProductShopifyStatus.draft:
+        return 'draft';
+      default:
+        return 'Unknown';
+    }
+  }
+}
+
 @JsonSerializable(explicitToJson: true)
 class ProductRawShopify extends Equatable {
   @JsonKey(name: 'body_html')
   final String? bodyHtml;
   @JsonKey(name: 'created_at')
-  final DateTime createdAt;
+  final DateTime? createdAt;
   final String handle;
   final int id;
   final List<ProductImageShopify> images;
@@ -25,13 +43,14 @@ class ProductRawShopify extends Equatable {
   final DateTime? publishedAt;
   @JsonKey(name: 'published_scope')
   final String publishedScope;
-  final String status;
+  @JsonKey(name: 'status', fromJson: _statusFromJson, toJson: _statusToJson)
+  final ProductShopifyStatus status;
   final String tags;
   @JsonKey(name: 'template_suffix')
   final String? templateSuffix;
   final String title;
   @JsonKey(name: 'updated_at')
-  final DateTime updatedAt;
+  final DateTime? updatedAt;
   final List<ProductVariantShopify> variants;
   final String vendor;
 
@@ -56,6 +75,20 @@ class ProductRawShopify extends Equatable {
 
   factory ProductRawShopify.fromJson(Map<String, dynamic> json) => _$ProductRawShopifyFromJson(json);
   Map<String, dynamic> toJson() => _$ProductRawShopifyToJson(this);
+  static ProductShopifyStatus _statusFromJson(String value) {
+    switch (value) {
+      case 'active':
+        return ProductShopifyStatus.active;
+      case 'archived':
+        return ProductShopifyStatus.archived;
+      case 'draft':
+        return ProductShopifyStatus.draft;
+      default:
+        throw ArgumentError('Unknown product status: $value');
+    }
+  }
+
+  static String _statusToJson(ProductShopifyStatus status) => status.toString().split('.').last;
 
   ProductRawShopify copyWith({
     String? bodyHtml,
@@ -67,7 +100,7 @@ class ProductRawShopify extends Equatable {
     String? productType,
     DateTime? publishedAt,
     String? publishedScope,
-    String? status,
+    ProductShopifyStatus? status,
     String? tags,
     String? templateSuffix,
     String? title,

@@ -259,7 +259,6 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
       company: state.companyNameController.text,
       firstName: state.firstNameController.text,
       lastName: state.lastNameController.text,
-      name: '${state.firstNameController.text} ${state.lastNameController.text}',
       email: state.emailController.text,
       phone: state.phoneController.text,
       phoneMobile: state.phoneMobileController.text,

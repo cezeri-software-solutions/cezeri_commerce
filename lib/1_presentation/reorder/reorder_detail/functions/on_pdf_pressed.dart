@@ -1,16 +1,16 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:cezeri_commerce/3_domain/entities/marketplace/abstract_marketplace.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:printing/printing.dart';
 
-import '../../../../3_domain/entities/marketplace/marketplace_presta.dart';
 import '../../../../3_domain/entities/reorder/reorder.dart';
 import '../../../../3_domain/pdf/pdf_api_mobile.dart';
 import '../../../../3_domain/pdf/pdf_api_web.dart';
 import '../../../../3_domain/pdf/pdf_reorder_generator.dart';
 
-Future<void> onPdfPressed({required BuildContext context, required Reorder reorder, required List<MarketplacePresta> marketplaces}) async {
-  MarketplacePresta? selectedMarketplace;
+Future<void> onPdfPressed({required BuildContext context, required Reorder reorder, required List<AbstractMarketplace> marketplaces}) async {
+  AbstractMarketplace? selectedMarketplace;
 
   await showDialog(
     context: context,

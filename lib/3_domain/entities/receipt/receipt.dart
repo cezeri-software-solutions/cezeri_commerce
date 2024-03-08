@@ -1,4 +1,5 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'package:cezeri_commerce/1_presentation/core/extensions/string_to_int.dart';
 import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.dart';
 import 'package:cezeri_commerce/3_domain/entities/carrier/carrier_product.dart';
 import 'package:json_annotation/json_annotation.dart';
@@ -10,12 +11,14 @@ import '../../../4_infrastructur/repositories/prestashop_api/models/country_pres
 import '../../../4_infrastructur/repositories/prestashop_api/models/currency_presta.dart';
 import '../../../4_infrastructur/repositories/prestashop_api/models/customer_presta.dart';
 import '../../../4_infrastructur/repositories/prestashop_api/models/order_presta.dart';
+import '../../../4_infrastructur/repositories/shopify_api/shopify.dart';
 import '../../enums/enums.dart';
 import '../address.dart';
 import '../carrier/carrier.dart';
 import '../carrier/parcel_tracking.dart';
 import '../customer/customer.dart';
 import '../marketplace/marketplace_presta.dart';
+import '../marketplace/marketplace_shopify.dart';
 import '../settings/bank_details.dart';
 import '../settings/main_settings.dart';
 import '../settings/packaging_box.dart';
@@ -692,6 +695,191 @@ class Receipt {
       creationDate: DateTime.now(),
       creationDateInt: DateTime.parse(orderPresta.dateAdd).microsecondsSinceEpoch,
       lastEditingDate: DateTime.parse(orderPresta.dateAdd),
+    );
+  }
+
+  factory Receipt.fromOrderShopify({
+    required MarketplaceShopify marketplace,
+    required MainSettings mainSettings,
+    required List<ReceiptProduct> listOfReceiptproduct,
+    required OrderShopify orderShopify,
+    required Customer customer,
+  }) {
+    final tax = mainSettings.taxes.where((e) => e.taxRate.round() == ((orderShopify.taxLines.first.rate * 100).toStringAsFixed(0)).toMyInt()).first;
+    final taxPercent = (orderShopify.taxLines.first.rate * 100).toInt();
+
+    // Summer aller Artikel ohne Rabatte
+    final subTotalGross = (orderShopify.totalLineItemsPrice).toMyDouble();
+    final subTotalNet = (orderShopify.totalLineItemsPrice.toMyDouble() / taxToCalc(taxPercent)).toMyRoundedDouble();
+    final subTotalTax = subTotalGross - subTotalNet;
+
+    final totalGross = orderShopify.totalPrice.toMyDouble();
+    final totalNet = totalGross - orderShopify.totalTax.toMyDouble();
+
+    String getCurrency(String? currencyString) {
+      return switch (currencyString) {
+        null => '€',
+        'EUR' => '€',
+        _ => '€',
+      };
+    }
+
+    PaymentMethod getPaymentMethod() {
+      // TODO: sobald PaymentMethod in AddEditMarketplace gemappt werden kann, muss payment Methods darüber aufegrufen werden
+      // TODO:  marketplace.paymentMethods.where((e) => e.nameInMarketplace == orderPresta.payment).firstOrNull;
+      final paymentMethod = mainSettings.paymentMethods.where((e) => e.nameInMarketplace == orderShopify.paymentGatewayNames.first).firstOrNull;
+      if (paymentMethod != null) return paymentMethod;
+      return PaymentMethod.empty().copyWith(
+        name: orderShopify.paymentGatewayNames.first,
+        nameInMarketplace: orderShopify.paymentGatewayNames.first,
+        isPaidAutomatically: false,
+        logoPath: 'assets/payment_methods/unknown_payment.png',
+      );
+    }
+
+    PaymentStatus getPaymentStatus() {
+      if (getPaymentMethod().isPaidAutomatically) return PaymentStatus.paid;
+      if (orderShopify.financialStatus == OrderShopifyFinancialStatus.paid) return PaymentStatus.paid;
+      return PaymentStatus.open;
+    }
+
+    final addressInvoice = Address.fromShopify(orderShopify.billingAddress, AddressType.invoice);
+
+    final addressDelivery = Address.fromShopify(orderShopify.shippingAddress, AddressType.delivery);
+
+    // String getUidNumber(String uidFromAddressInvoice, String uidFromAddressDelivery) {
+    //   if (uidFromAddressInvoice != '') return uidFromAddressInvoice;
+    //   if (uidFromAddressDelivery != '') return uidFromAddressDelivery;
+    //   return '';
+    // }
+
+    double profit = 0;
+    for (final receiptProduct in listOfReceiptproduct) {
+      profit += receiptProduct.profit;
+    }
+
+    final totalDiscountGross = orderShopify.totalDiscounts.toMyDouble();
+    final totalDiscountNet = (orderShopify.totalDiscounts.toMyDouble() / taxToCalc(taxPercent)).toMyRoundedDouble();
+    final totalShippingGross = orderShopify.totalShippingPriceSet.shopMoney.amount.toMyDouble();
+    final totalShippingNet = (totalShippingGross / taxToCalc(taxPercent)).toMyRoundedDouble();
+    profit = profit - totalDiscountNet + totalShippingNet;
+    final profitExclShipping = profit - totalShippingNet;
+    final profitExclWrapping = profit - 0;
+    final profitExclShippingAndWrapping = profit - totalShippingNet - 0;
+
+    final carrierMapping = mainSettings.listOfCarriers.where((e) => e.marketplaceMapping == orderShopify.shippingLines.first.title).firstOrNull;
+    final carrier = switch (carrierMapping) {
+      null => mainSettings.listOfCarriers.where((e) => e.isDefault).first,
+      _ => carrierMapping,
+    };
+    CarrierProduct getCarrierProduct() {
+      final isAutomationGiven = carrier.carrierAutomations
+          .any((e) => e.country.isoCode.toUpperCase() == orderShopify.shippingAddress.countryCode.toUpperCase() && !e.isReturn);
+      return switch (isAutomationGiven) {
+        true => carrier.carrierAutomations
+            .where((e) => e.country.isoCode.toUpperCase() == orderShopify.shippingAddress.countryCode.toUpperCase() && !e.isReturn)
+            .first,
+        false => carrier.carrierAutomations.where((e) => e.country.name == '').firstOrNull ?? carrier.carrierAutomations.first,
+      };
+    }
+
+    final carrierProduct = switch (carrier.carrierAutomations) {
+      [] => switch (carrier.carrierTyp) {
+          CarrierTyp.austrianPost => CarrierProduct.carrierProductListAustrianPost.first,
+          CarrierTyp.dpd => CarrierProduct.carrierProductListDpd.first,
+          CarrierTyp.empty => CarrierProduct.empty(),
+        },
+      _ => getCarrierProduct(),
+    };
+    final receiptCarrier = ReceiptCarrier(receiptCarrierName: carrier.name, carrierTyp: carrier.carrierTyp, carrierProduct: carrierProduct);
+
+    final receiptMarketplace = ReceiptMarketplace(address: marketplace.address, bankDetails: marketplace.bankDetails, url: marketplace.url);
+
+    // TODO: Look if needed or just solve in bloc
+    //final searchField = '${customer.name} / ${customer.company} / ${customer.name} / ';
+
+    return Receipt(
+      id: '',
+      receiptId: '',
+      offerId: 0,
+      offerNumberAsString: '',
+      appointmentId: mainSettings.nextAppointmentNumber,
+      appointmentNumberAsString: mainSettings.appointmentPraefix + mainSettings.nextAppointmentNumber.toString(),
+      deliveryNoteId: 0,
+      deliveryNoteNumberAsString: '',
+      listOfDeliveryNoteIds: [],
+      invoiceId: 0,
+      invoiceNumberAsString: '',
+      creditId: 0,
+      creditNumberAsString: '',
+      marketplaceId: marketplace.id,
+      receiptMarketplaceId: orderShopify.id,
+      receiptMarketplaceReference: orderShopify.name,
+      paymentMethod: getPaymentMethod(),
+      commentInternal: '',
+      commentGlobal: orderShopify.note ?? '',
+      currency: getCurrency(orderShopify.currency),
+      receiptDocumentText: mainSettings.appointmentDocumentText,
+      uidNumber: '',
+      searchField: '', // TODO: searchfield
+      customerId: customer.id,
+      receiptCustomer: ReceiptCustomer.fromCustomer(customer),
+      addressInvoice: addressInvoice,
+      addressDelivery: addressDelivery,
+      receiptTyp: ReceiptTyp.appointment,
+      offerStatus: OfferStatus.noOffer,
+      appointmentStatus: AppointmentStatus.open,
+      paymentStatus: getPaymentStatus(),
+      tax: tax,
+      isSmallBusiness: mainSettings.isSmallBusiness,
+      isPicked: false,
+      termOfPayment: mainSettings.termOfPayment,
+      weight: listOfReceiptproduct.map((e) => e.weight).toList().fold(0.0, (a, b) => a + b),
+      totalGross: totalGross,
+      totalNet: totalNet,
+      totalTax: totalGross - totalNet,
+      subTotalNet: subTotalNet,
+      subTotalTax: subTotalTax,
+      subTotalGross: subTotalGross,
+      totalPaidGross: getPaymentStatus() == PaymentStatus.open ? 0 : totalGross,
+      totalPaidNet: getPaymentStatus() == PaymentStatus.open ? 0 : totalNet,
+      totalPaidTax: getPaymentStatus() == PaymentStatus.open ? 0 : totalGross - totalNet,
+      totalShippingGross: totalShippingGross,
+      totalShippingNet: totalShippingNet,
+      totalShippingTax: totalShippingGross - totalShippingNet,
+      totalWrappingGross: 0,
+      totalWrappingNet: 0,
+      totalWrappingTax: 0,
+      discountGross: totalDiscountGross,
+      discountNet: totalDiscountNet,
+      discountTax: totalDiscountGross - totalDiscountNet,
+      // Von Prestashop kommen sowohl normale Rabatte als auch Prozenrabatte als normales Rabatt
+      discountPercent: 0, //calcDiscountPercentage((orderPresta.totalProducts).toMyDouble(), (orderPresta.totalDiscountsTaxExcl).toMyDouble()),
+      discountPercentAmountGross: 0,
+      discountPercentAmountNet: 0,
+      discountPercentAmountTax: 0,
+      posDiscountPercentAmountGross: 0,
+      posDiscountPercentAmountNet: 0,
+      posDiscountPercentAmountTax: 0,
+      additionalAmountNet: 0.0,
+      additionalAmountTax: 0.0,
+      additionalAmountGross: 0.0,
+      profit: profit,
+      profitExclShipping: profitExclShipping,
+      profitExclWrapping: profitExclWrapping,
+      profitExclShippingAndWrapping: profitExclShippingAndWrapping,
+      bankDetails: mainSettings.bankDetails,
+      listOfPayments: getPaymentStatus() != PaymentStatus.open
+          ? [Payment(totalGross, '', DateTime.parse(orderShopify.createdAt))]
+          : [],
+      listOfReceiptProduct: listOfReceiptproduct,
+      listOfParcelTracking: [],
+      receiptCarrier: receiptCarrier,
+      receiptMarketplace: receiptMarketplace,
+      creationDateMarektplace: DateTime.parse(orderShopify.createdAt),
+      creationDate: DateTime.now(),
+      creationDateInt: DateTime.parse(orderShopify.createdAt).microsecondsSinceEpoch,
+      lastEditingDate: DateTime.parse(orderShopify.updatedAt),
     );
   }
 

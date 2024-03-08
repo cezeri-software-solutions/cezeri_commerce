@@ -24,7 +24,7 @@ class MyOutlinedButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return OutlinedButton(
-      onPressed: onPressed,
+      onPressed: !isLoading ? onPressed : null,
       style: OutlinedButton.styleFrom(
         minimumSize: const Size(100.0, 36.0),
         backgroundColor: buttonBackgroundColor,

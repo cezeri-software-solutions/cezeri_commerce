@@ -7,17 +7,23 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart';
+import 'package:logger/logger.dart';
 
 import '../../../../1_presentation/core/functions/check_internet_connection.dart';
 import '../../../../3_domain/entities/product/product_marketplace.dart';
 import '../../../../3_domain/repositories/marketplace/marketplace_edit_repository.dart';
 import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
 import '../../../3_domain/entities/marketplace/marketplace_presta.dart';
+import '../../../3_domain/entities/marketplace/marketplace_shopify.dart';
 import '../../../3_domain/entities/patch_marketplace_logger.dart';
 import '../../../3_domain/entities/product/product_presta.dart';
 import '../../../core/abstract_failure.dart';
 import '../prestashop_api/models/product_raw_presta.dart';
 import '../prestashop_api/prestashop_api.dart';
+import '../shopify_api/api/shopify_api.dart';
+import '../shopify_api/shopify.dart';
+
+final logger = Logger();
 
 class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
   final FirebaseFirestore db;
@@ -27,9 +33,11 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
 
   @override
   Future<Either<List<AbstractFailure>, Unit>> setQuantityMPInAllProductMarketplaces(
-      Product product, int newQuantity, MarketplacePresta? marketplaceToSkip) async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left([NoConnectionFailure()]);
+    Product product,
+    int newQuantity,
+    MarketplacePresta? marketplaceToSkip,
+  ) async {
+    if (!await checkInternetConnection()) return left([NoConnectionFailure()]);
 
     final currentUserUid = firebaseAuth.currentUser!.uid;
     final List<AbstractFailure> failures = [];
@@ -40,24 +48,47 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
       final docRef = db.collection('Marketetplaces').doc(currentUserUid).collection('Marketetplaces').doc(productMarketplace.idMarketplace);
 
       final marketplaceSnapshot = await docRef.get();
-      final marketplace = MarketplacePresta.fromJson(marketplaceSnapshot.data()!);
-      if (!marketplace.isActive) continue;
-
-      final api = PrestashopApi(Client(), PrestashopApiConfig(apiKey: marketplace.key, webserviceUrl: marketplace.fullUrl));
+      final marketplace = AbstractMarketplace.fromJson(marketplaceSnapshot.data()!);
+      // if (!marketplace.isActive) continue;
 
       if (productMarketplace.marketplaceProduct == null) return left([ProductHasNoMarketplaceFailure()]);
-      final marketplaceProduct = switch (productMarketplace.marketplaceProduct!.marketplaceType) {
-        MarketplaceType.prestashop => productMarketplace.marketplaceProduct as ProductPresta,
-        MarketplaceType.shopify => throw Exception('SHOPIFY not implemented'),
-        MarketplaceType.shop => throw Exception('SHOP not implemented'),
-      };
+      Either<AbstractFailure, Unit>? fosAbstract;
 
-      final fos = await api.patchProductQuantity(marketplaceProduct.id, newQuantity, marketplace);
-      fos.fold(
-        (failure) => failures.add(failure),
-        (unit) => null,
-      );
-      if (fos.isLeft()) {
+      switch (productMarketplace.marketplaceProduct!.marketplaceType) {
+        case MarketplaceType.prestashop:
+          {
+            final api = PrestashopApi(
+              Client(),
+              PrestashopApiConfig(apiKey: (marketplace as MarketplacePresta).key, webserviceUrl: marketplace.fullUrl),
+            );
+            final marketplaceProduct = productMarketplace.marketplaceProduct as ProductPresta;
+            final fos = await api.patchProductQuantity(marketplaceProduct.id, newQuantity, marketplace);
+            fos.fold(
+              (failure) => failures.add(failure),
+              (unit) => null,
+            );
+            fosAbstract = fos;
+          }
+        case MarketplaceType.shopify:
+          {
+            final api = ShopifyApi(
+              ShopifyApiConfig(storefrontToken: (marketplace as MarketplaceShopify).storefrontAccessToken, adminToken: marketplace.adminAccessToken),
+              marketplace.fullUrl,
+            );
+            final marketplaceProduct = productMarketplace.marketplaceProduct as ProductShopify;
+            final fos = await api.postProductStock(marketplaceProduct, newQuantity);
+            fos.fold(
+              (failure) => failures.add(failure),
+              (unit) => null,
+            );
+            fosAbstract = fos;
+          }
+
+        case MarketplaceType.shop:
+          throw Exception('Ladengeschäft kann keine Artikel zum aktualisieren des Bestandes haben.');
+      }
+
+      if (fosAbstract.isLeft()) {
         final patchMarketplaceLogger = PatchMarketplaceLogger.empty().copyWith(
           loggerType: LoggerType.product,
           loggerActionType: LoggerActionType.setStocks,
@@ -97,11 +128,7 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
         failures.add(GeneralFailure(customMessage: 'Mindestens ein Marktplatz kontte nicht geladen werden'));
         continue;
       }
-      final marketplace = MarketplacePresta.fromJson(marketplaceSnapshot.data()!);
-
-      final api = PrestashopApi(Client(), PrestashopApiConfig(apiKey: marketplace.key, webserviceUrl: marketplace.fullUrl));
-
-      final marketplaceProduct = productMarketplace.marketplaceProduct as ProductPresta;
+      final marketplace = AbstractMarketplace.fromJson(marketplaceSnapshot.data()!);
 
       if (product.isSetArticle) {
         //* Alle Einzelartikel des Set-Artikel laden und in eine Liste speichern
@@ -120,17 +147,79 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
           failures.add(GeneralFailure(customMessage: fFEMnoPartProductsFound()));
           continue;
         }
-        final fos = await api.patchSetProduct(marketplaceProduct.id, product, listOfSetPartProducts, productMarketplace, marketplace);
-        fos.fold(
-          (failure) => failures.add(failure),
-          (unit) => null,
-        );
+        switch (marketplace.marketplaceType) {
+          case MarketplaceType.prestashop:
+            {
+              final api = PrestashopApi(
+                Client(),
+                PrestashopApiConfig(apiKey: (marketplace as MarketplacePresta).key, webserviceUrl: marketplace.fullUrl),
+              );
+              final marketplaceProduct = productMarketplace.marketplaceProduct as ProductPresta;
+              final fos = await api.patchSetProduct(
+                marketplaceProduct.id,
+                product,
+                listOfSetPartProducts,
+                productMarketplace,
+                marketplace,
+              );
+              fos.fold(
+                (failure) => failures.add(failure),
+                (unit) => null,
+              );
+            }
+          case MarketplaceType.shopify:
+            {
+              final api = ShopifyApi(
+                ShopifyApiConfig(
+                  storefrontToken: (marketplace as MarketplaceShopify).storefrontAccessToken,
+                  adminToken: marketplace.adminAccessToken,
+                ),
+                marketplace.fullUrl,
+              );
+              final marketplaceProduct = productMarketplace.marketplaceProduct as ProductShopify;
+              final fos = await api.putProduct(marketplaceProduct, product);
+              fos.fold(
+                (failure) => failures.addAll(failure),
+                (unit) => null,
+              );
+            }
+          case MarketplaceType.shop:
+            throw Exception('Ladengeschäft kann keine Artikel haben.');
+        }
       } else {
-        final fos = await api.patchProduct(marketplaceProduct.id, product, productMarketplace, marketplace);
-        fos.fold(
-          (failure) => failures.add(failure),
-          (unit) => null,
-        );
+        switch (marketplace.marketplaceType) {
+          case MarketplaceType.prestashop:
+            {
+              final api = PrestashopApi(
+                Client(),
+                PrestashopApiConfig(apiKey: (marketplace as MarketplacePresta).key, webserviceUrl: marketplace.fullUrl),
+              );
+              final marketplaceProduct = productMarketplace.marketplaceProduct as ProductPresta;
+              final fos = await api.patchProduct(marketplaceProduct.id, product, productMarketplace, marketplace);
+              fos.fold(
+                (failure) => failures.add(failure),
+                (unit) => null,
+              );
+            }
+          case MarketplaceType.shopify:
+            {
+              final api = ShopifyApi(
+                ShopifyApiConfig(
+                  storefrontToken: (marketplace as MarketplaceShopify).storefrontAccessToken,
+                  adminToken: marketplace.adminAccessToken,
+                ),
+                marketplace.fullUrl,
+              );
+              final marketplaceProduct = productMarketplace.marketplaceProduct as ProductShopify;
+              final fos = await api.putProduct(marketplaceProduct, product);
+              fos.fold(
+                (failure) => failures.addAll(failure),
+                (unit) => null,
+              );
+            }
+          case MarketplaceType.shop:
+            throw Exception('Ladengeschäft kann keine Artikel haben.');
+        }
       }
       await setQuantityMPInAllProductMarketplaces(product, product.availableStock, null);
     }
@@ -181,7 +270,6 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
 
     final currentUserUid = firebaseAuth.currentUser!.uid;
 
-    bool isSuccess = true;
     for (ProductMarketplace productMarketplace in product.productMarketplaces) {
       // TODO: if (!productMarketplace.active!) continue;
       final docRef = db.collection('Marketetplaces').doc(currentUserUid).collection('Marketetplaces').doc(productMarketplace.idMarketplace);
@@ -192,57 +280,81 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
             errorMessage: 'Beim aktualisieren der Artikelbilder im Marktplatz konnte mindestens ein Marktplatz nicht geladen werden'));
         continue;
       }
-      final marketplace = MarketplacePresta.fromJson(marketplaceSnapshot.data()!);
-
-      final api = PrestashopApi(Client(), PrestashopApiConfig(apiKey: marketplace.key, webserviceUrl: marketplace.fullUrl));
+      final marketplace = AbstractMarketplace.fromJson(marketplaceSnapshot.data()!);
 
       if (productMarketplace.marketplaceProduct == null) return left([ProductHasNoMarketplaceFailure()]);
-      final marketplaceProduct = switch (productMarketplace.marketplaceProduct!.marketplaceType) {
-        MarketplaceType.prestashop => productMarketplace.marketplaceProduct as ProductPresta,
-        MarketplaceType.shopify => throw Exception('SHOPIFY not implemented'),
-        MarketplaceType.shop => throw Exception('SHOP not implemented'),
-      };
 
-      final optionalProductPresta = await api.getProduct(marketplaceProduct.id, marketplace);
-      if (optionalProductPresta.isNotPresent) {
-        failures.add(PrestaGeneralFailure(
-            errorMessage: 'Artikel: "${marketplaceProduct.name}" konnte nicht vom Marktplatz: "${marketplace.name}" geladen werden.'));
-        continue;
-      }
-      final productPresta = optionalProductPresta.value;
+      switch (marketplace.marketplaceType) {
+        case MarketplaceType.prestashop:
+          {
+            final api = PrestashopApi(
+              Client(),
+              PrestashopApiConfig(apiKey: (marketplace as MarketplacePresta).key, webserviceUrl: marketplace.fullUrl),
+            );
+            final marketplaceProduct = productMarketplace.marketplaceProduct as ProductPresta;
 
-      bool isSuccessOnDelete = false;
-      if (productPresta.associations.associationsImages != null && productPresta.associations.associationsImages!.isNotEmpty) {
-        for (final image in productPresta.associations.associationsImages!) {
-          isSuccessOnDelete = await api.deleteProductImage(productPresta.id.toString(), image.id);
-        }
-        if (!isSuccessOnDelete) {
-          failures.add(
-            PrestaGeneralFailure(
-              errorMessage:
-                  'Artikelbilder vom Artikel: "${marketplaceProduct.name}" im Marktplatz: "${marketplace.name}" konnten nicht gelöscht werden.',
-            ),
-          );
-        }
-      } else {
-        isSuccessOnDelete = true;
-      }
+            final optionalProductPresta = await api.getProduct(marketplaceProduct.id, marketplace);
+            if (optionalProductPresta.isNotPresent) {
+              failures.add(PrestaGeneralFailure(
+                  errorMessage: 'Artikel: "${marketplaceProduct.name}" konnte nicht vom Marktplatz: "${marketplace.name}" geladen werden.'));
+              continue;
+            }
+            final productPresta = optionalProductPresta.value;
 
-      bool isSuccessOnCreate = false;
-      if (productImages.isNotEmpty) {
-        for (final image in productImages) {
-          isSuccessOnCreate = await api.uploadProductImageFromUrl(marketplaceProduct.id.toString(), image);
-        }
-        if (!isSuccessOnCreate) {
-          failures.add(
-            PrestaGeneralFailure(
-              errorMessage:
-                  'Artikelbilder vom Artikel: "${marketplaceProduct.name}" im Marktplatz: "${marketplace.name}" konnten nicht aktualisiert werden werden.',
-            ),
-          );
-        }
-      } else {
-        isSuccessOnCreate = true;
+            bool isSuccessOnDelete = false;
+            if (productPresta.associations.associationsImages != null && productPresta.associations.associationsImages!.isNotEmpty) {
+              for (final image in productPresta.associations.associationsImages!) {
+                isSuccessOnDelete = await api.deleteProductImage(productPresta.id.toString(), image.id);
+              }
+              if (!isSuccessOnDelete) {
+                failures.add(
+                  PrestaGeneralFailure(
+                    errorMessage:
+                        'Artikelbilder vom Artikel: "${marketplaceProduct.name}" im Marktplatz: "${marketplace.name}" konnten nicht gelöscht werden.',
+                  ),
+                );
+              }
+            }
+
+            bool isSuccessOnCreate = false;
+            if (productImages.isNotEmpty) {
+              for (final image in productImages) {
+                isSuccessOnCreate = await api.uploadProductImageFromUrl(marketplaceProduct.id.toString(), image);
+              }
+              if (!isSuccessOnCreate) {
+                failures.add(
+                  PrestaGeneralFailure(
+                    errorMessage:
+                        'Artikelbilder vom Artikel: "${marketplaceProduct.name}" im Marktplatz: "${marketplace.name}" konnten nicht aktualisiert werden werden.',
+                  ),
+                );
+              }
+            }
+          }
+        case MarketplaceType.shopify:
+          {
+            final api = ShopifyApi(
+              ShopifyApiConfig(
+                storefrontToken: (marketplace as MarketplaceShopify).storefrontAccessToken,
+                adminToken: marketplace.adminAccessToken,
+              ),
+              marketplace.fullUrl,
+            );
+            final marketplaceProduct = productMarketplace.marketplaceProduct as ProductShopify;
+            final fosDeleteImages = await api.deleteProductImages(marketplaceProduct.id);
+            fosDeleteImages.fold(
+              (deleteFailures) => failures.addAll(deleteFailures),
+              (_) => null,
+            );
+
+            final fosPostImages = await api.postProductImages(marketplaceProduct.id, productImages);
+            fosPostImages.fold(
+              (postFailures) => failures.addAll(postFailures),
+              (_) => null,
+            );
+          }
+        case MarketplaceType.shop:
+          throw Exception('Ladengeschäft kann keine Artikelbilder haben.');
       }
     }
 

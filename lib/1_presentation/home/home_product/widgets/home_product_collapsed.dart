@@ -6,7 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../2_application/firebase/home/home_product/home_product_bloc.dart';
 import '../../../../3_domain/enums/enums.dart';
 import '../../../../constants.dart';
-import '../../../core/widgets/my_chip_two_options.dart';
+import '../../../core/widgets/my_chip_with_two_options.dart';
 
 class HomeProductCollapsed extends StatelessWidget {
   final HomeProductBloc homeProductBloc;

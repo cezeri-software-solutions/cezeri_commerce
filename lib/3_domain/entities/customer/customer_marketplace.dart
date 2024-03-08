@@ -2,7 +2,9 @@ import 'package:json_annotation/json_annotation.dart';
 
 import '../../../1_presentation/core/functions/mixed_functions.dart';
 import '../../../4_infrastructur/repositories/prestashop_api/models/customer_presta.dart';
+import '../../../4_infrastructur/repositories/shopify_api/shopify.dart';
 import '../marketplace/marketplace_presta.dart';
+import '../marketplace/marketplace_shopify.dart';
 
 part 'customer_marketplace.g.dart';
 
@@ -43,6 +45,16 @@ class CustomerMarketplace {
       customerIdMarketplace: customerPresta.id,
       isNewsletterAccepted: stringToBool(customerPresta.newsletter),
       isGuest: stringToBool(customerPresta.isGuest),
+    );
+  }
+
+  factory CustomerMarketplace.fromShopify(OrderCustomerShopify customerShopify, MarketplaceShopify marketplace) {
+    return CustomerMarketplace(
+      marketplaceId: marketplace.id,
+      marketplaceName: marketplace.name,
+      customerIdMarketplace: customerShopify.id,
+      isNewsletterAccepted: false,
+      isGuest: true,
     );
   }
 

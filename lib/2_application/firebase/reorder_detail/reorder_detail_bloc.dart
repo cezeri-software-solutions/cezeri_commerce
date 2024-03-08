@@ -6,25 +6,24 @@ import 'package:cezeri_commerce/3_domain/entities/reorder/reorder_supplier.dart'
 import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 
-import '../../../1_presentation/reorder/reorder_detail/reorder_detail_screen.dart';
-import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
-import '../../../3_domain/entities/marketplace/marketplace_presta.dart';
-import '../../../3_domain/entities/product/product.dart';
-import '../../../3_domain/entities/receipt/receipt.dart';
-import '../../../3_domain/entities/reorder/reorder.dart';
-import '../../../3_domain/entities/reorder/reorder_product.dart';
-import '../../../3_domain/entities/reorder/supplier.dart';
-import '../../../3_domain/entities/settings/main_settings.dart';
-import '../../../3_domain/entities/settings/tax.dart';
-import '../../../3_domain/entities/statistic/stat_product.dart';
-import '../../../3_domain/entities/statistic/stat_product_reorder.dart';
-import '../../../3_domain/repositories/firebase/main_settings_respository.dart';
-import '../../../3_domain/repositories/firebase/marketplace_repository.dart';
-import '../../../3_domain/repositories/firebase/product_repository.dart';
-import '../../../3_domain/repositories/firebase/reorder_repository.dart';
-import '../../../3_domain/repositories/firebase/stat_product_repository.dart';
-import '../../../3_domain/repositories/firebase/supplier_repository.dart';
-import '../../../core/abstract_failure.dart';
+import '/1_presentation/reorder/reorder_detail/reorder_detail_screen.dart';
+import '/3_domain/entities/marketplace/abstract_marketplace.dart';
+import '/3_domain/entities/product/product.dart';
+import '/3_domain/entities/receipt/receipt.dart';
+import '/3_domain/entities/reorder/reorder.dart';
+import '/3_domain/entities/reorder/reorder_product.dart';
+import '/3_domain/entities/reorder/supplier.dart';
+import '/3_domain/entities/settings/main_settings.dart';
+import '/3_domain/entities/settings/tax.dart';
+import '/3_domain/entities/statistic/stat_product.dart';
+import '/3_domain/entities/statistic/stat_product_reorder.dart';
+import '/3_domain/repositories/firebase/main_settings_respository.dart';
+import '/3_domain/repositories/firebase/marketplace_repository.dart';
+import '/3_domain/repositories/firebase/product_repository.dart';
+import '/3_domain/repositories/firebase/reorder_repository.dart';
+import '/3_domain/repositories/firebase/stat_product_repository.dart';
+import '/3_domain/repositories/firebase/supplier_repository.dart';
+import '/core/abstract_failure.dart';
 
 part 'reorder_detail_event.dart';
 part 'reorder_detail_state.dart';
@@ -216,7 +215,7 @@ class ReorderDetailBloc extends Bloc<ReorderDetailEvent, ReorderDetailState> {
       final failureOrSuccess = await marketplaceRepository.getListOfMarketplaces();
       failureOrSuccess.fold(
         (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
-        (marketplaces) => emit(state.copyWith(listOfMarketplaces: marketplaces as List<MarketplacePresta>, firebaseFailure: null, isAnyFailure: false)), //TODO: Shopify
+        (marketplaces) => emit(state.copyWith(listOfMarketplaces: marketplaces, firebaseFailure: null, isAnyFailure: false)),
       );
 
       emit(state.copyWith(

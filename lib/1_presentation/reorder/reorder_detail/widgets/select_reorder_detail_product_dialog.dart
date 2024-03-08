@@ -213,7 +213,7 @@ class SelectReorderDetailProductDialog extends StatelessWidget {
                                 fontSize: 16,
                               ),
                             ),
-                            title: Text(product.name, style: TextStyles.defaultt),
+                            title: Text('${product.articleNumber} / ${product.name}', style: TextStyles.defaultt),
                             subtitle: state.statProductDateRange != null
                                 ? Row(
                                     children: [

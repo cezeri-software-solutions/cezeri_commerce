@@ -8,20 +8,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../2_application/firebase/appointment/appointment_bloc.dart';
-import '../../../2_application/firebase/customer/customer_bloc.dart';
-import '../../../2_application/firebase/marketplace/marketplace_bloc.dart';
-import '../../../3_domain/entities/address.dart';
-import '../../../3_domain/entities/customer/customer.dart';
-import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
-import '../../../3_domain/entities/receipt/receipt.dart';
-import '../../../3_domain/entities/receipt/receipt_customer.dart';
-import '../../../3_domain/pdf/pdf_api_mobile.dart';
-import '../../../3_domain/pdf/pdf_api_web.dart';
-import '../../../3_domain/pdf/pdf_outgoing_invoices_generator.dart';
-import '../../../constants.dart';
-import '../../../injection.dart';
-import '../../../routes/router.gr.dart';
 import '../../core/functions/dialogs.dart';
 import '../../core/functions/my_scaffold_messanger.dart';
 import '../../core/renderer/failure_renderer.dart';
@@ -30,6 +16,20 @@ import '../../core/widgets/my_form_field_small.dart';
 import '../../core/widgets/my_modal_scrollable.dart';
 import '../../core/widgets/my_outlined_button.dart';
 import '../appointment_detail/appointment_detail_screen.dart';
+import '/2_application/firebase/appointment/appointment_bloc.dart';
+import '/2_application/firebase/customer/customer_bloc.dart';
+import '/2_application/firebase/marketplace/marketplace_bloc.dart';
+import '/3_domain/entities/address.dart';
+import '/3_domain/entities/customer/customer.dart';
+import '/3_domain/entities/marketplace/abstract_marketplace.dart';
+import '/3_domain/entities/receipt/receipt.dart';
+import '/3_domain/entities/receipt/receipt_customer.dart';
+import '/3_domain/pdf/pdf_api_mobile.dart';
+import '/3_domain/pdf/pdf_api_web.dart';
+import '/3_domain/pdf/pdf_outgoing_invoices_generator.dart';
+import '/constants.dart';
+import '/injection.dart';
+import '/routes/router.gr.dart';
 import 'receipts_overview_page.dart';
 
 class ReceiptsOverviewScreen extends StatelessWidget {
@@ -96,9 +96,9 @@ class ReceiptsOverviewScreen extends StatelessWidget {
               state.fosAppointmentsOnObserveFromMarketplacesOption.fold(
                 () => null,
                 (a) => a.fold(
-                  (failure) async {
+                  (failures) async {
                     context.router.popTop();
-                    await failureRenderer(context, [failure]);
+                    await failureRenderer(context, failures);
                     if (context.mounted) {
                       myScaffoldMessenger(context, null, null, null, 'Beim Laden von mindestens einer Bestellung ist etwas schief gegangen');
                     }
@@ -212,7 +212,7 @@ class ReceiptsOverviewScreen extends StatelessWidget {
                               ),
                             ReceiptTyp.deliveryNote => state.selectedReceipts.isEmpty ||
                                     (state.selectedReceipts.length > 1 &&
-                                        state.selectedReceipts.any((e) => e.receiptCustomer.id != state.selectedReceipts.first.id))
+                                        state.selectedReceipts.any((e) => e.receiptCustomer.id != state.selectedReceipts.first.receiptCustomer.id))
                                 ? _ReceiptsAlertDialog(
                                     title: 'Achtug',
                                     content: _getErrorMessageOnGenerateFromDeliveryNotesNewInvoice(state.selectedReceipts),
@@ -303,7 +303,7 @@ class ReceiptsOverviewScreen extends StatelessWidget {
                       ),
                     IconButton(
                       onPressed: () {
-                        context.read<AppointmentBloc>().add(GetNewAppointmentsFromPrestaEvent());
+                        context.read<AppointmentBloc>().add(GetNewAppointmentsFromMarketplacesEvent());
                         showDialog(
                           context: context,
                           builder: (context) => BlocProvider.value(
@@ -450,7 +450,7 @@ class ReceiptsOverviewScreen extends StatelessWidget {
 
   String _getErrorMessageOnGenerateFromDeliveryNotesNewInvoice(List<Receipt> selectedReceipts) {
     if (selectedReceipts.isEmpty) return 'Du musst mindestens ein Lieferschein auswählen, zum generieren einer Sammelrechnung';
-    if (selectedReceipts.any((e) => e.receiptCustomer.id != selectedReceipts.first.id)) {
+    if (selectedReceipts.any((e) => e.receiptCustomer.id != selectedReceipts.first.receiptCustomer.id)) {
       return 'Alle Lieferscheine die zu einer Sammelrechnung generiert werden sollen, müssen vom selben Kunden sein.';
     }
     return 'Ein Fehler ist aufgetreten';

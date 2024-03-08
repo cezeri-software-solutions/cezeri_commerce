@@ -37,11 +37,15 @@ ProductShopify _$ProductShopifyFromJson(Map<String, dynamic> json) =>
           ? null
           : DateTime.parse(json['publishedAt'] as String),
       publishedScope: json['publishedScope'] as String,
-      status: json['status'] as String,
+      status: ProductShopify._statusFromJson(json['status'] as String),
       tags: json['tags'] as String,
       templateSuffix: json['templateSuffix'] as String?,
-      updatedAt: DateTime.parse(json['updatedAt'] as String),
-      createdAt: DateTime.parse(json['createdAt'] as String),
+      updatedAt: json['updatedAt'] == null
+          ? null
+          : DateTime.parse(json['updatedAt'] as String),
+      createdAt: json['createdAt'] == null
+          ? null
+          : DateTime.parse(json['createdAt'] as String),
     );
 
 Map<String, dynamic> _$ProductShopifyToJson(ProductShopify instance) =>
@@ -61,9 +65,9 @@ Map<String, dynamic> _$ProductShopifyToJson(ProductShopify instance) =>
       'productType': instance.productType,
       'publishedAt': instance.publishedAt?.toIso8601String(),
       'publishedScope': instance.publishedScope,
-      'status': instance.status,
+      'status': ProductShopify.statusToJson(instance.status),
       'tags': instance.tags,
       'templateSuffix': instance.templateSuffix,
-      'updatedAt': instance.updatedAt.toIso8601String(),
-      'createdAt': instance.createdAt.toIso8601String(),
+      'updatedAt': instance.updatedAt?.toIso8601String(),
+      'createdAt': instance.createdAt?.toIso8601String(),
     };

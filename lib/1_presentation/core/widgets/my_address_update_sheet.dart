@@ -175,7 +175,6 @@ class _MyAddressUpdateSheetState extends State<MyAddressUpdateSheet> {
                   companyName: _companyNameController.text,
                   firstName: _firstNameController.text,
                   lastName: _lastNameController.text,
-                  name: '${_firstNameController.text} ${_lastNameController.text}',
                   street: _streetNameController.text,
                   street2: _street2NameController.text,
                   postcode: _postcodeNameController.text,

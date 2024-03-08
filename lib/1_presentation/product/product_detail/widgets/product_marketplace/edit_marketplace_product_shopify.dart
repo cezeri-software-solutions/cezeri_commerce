@@ -1,9 +1,11 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:cezeri_commerce/1_presentation/core/functions/dialogs.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../../4_infrastructur/repositories/shopify_api/shopify.dart';
+import '../../../../core/widgets/my_chip_with_three_options.dart';
 import '../../../../core/widgets/my_circular_progress_indicator.dart';
 import '../../../../core/widgets/my_outlined_button.dart';
 import '/2_application/firebase/marketplace_product/marketplace_product_bloc.dart';
@@ -53,12 +55,22 @@ class EditMarketplaceProductShopify extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const Text('Aktiv:', style: TextStyles.defaultBold),
-                  Switch.adaptive(
-                    value: switch (state.marketplaceProductShopify!.status) {
-                      'active' => true,
-                      _ => false,
-                    },
-                    onChanged: (value) => marketplaceProductBloc.add(SetMarketplaceProductIsActiveEvent(value: value)),
+                  MyChipWithThreeOptions(
+                    titleLeft: 'Akiv',
+                    titleMiddle: 'Entwurf',
+                    titleRight: 'Archiviert',
+                    onTapLeft: () => marketplaceProductBloc.add(SetMarketplaceProductIsActiveEvent(value: TappingPlace.left)),
+                    onTapMiddle: () => marketplaceProductBloc.add(SetMarketplaceProductIsActiveEvent(value: TappingPlace.middle)),
+                    onTapRight: () => marketplaceProductBloc.add(SetMarketplaceProductIsActiveEvent(value: TappingPlace.right)),
+                    colorLeft: state.marketplaceProductShopify!.status == ProductShopifyStatus.active
+                        ? CustomColors.todoScaleGreenActive
+                        : CustomColors.todoScaleGreenDisabled,
+                    colorMiddle: state.marketplaceProductShopify!.status == ProductShopifyStatus.draft
+                        ? CustomColors.chipSelectedColor
+                        : CustomColors.chipBackgroundColor,
+                    colorRight: state.marketplaceProductShopify!.status == ProductShopifyStatus.archived
+                        ? CustomColors.todoScaleRedActive
+                        : CustomColors.todoScaleRedDisabled,
                   ),
                 ],
               ),
@@ -67,13 +79,19 @@ class EditMarketplaceProductShopify extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const Text('Kategorien:', style: TextStyles.defaultBold),
-                  IconButton(
-                    onPressed: state.listOfCategoriesShopify != null ? () => setPage() : null,
-                    icon: const Icon(Icons.edit, color: CustomColors.primaryColor),
-                  )
+                  state.isLoadingMarketplaceProductCategoriesOnObserve
+                      ? const MyCircularProgressIndicator()
+                      : IconButton(
+                          onPressed: state.listOfCategoriesShopify != null
+                              ? () {
+                                  marketplaceProductBloc.add(OnSearchControllerClearedEvent());
+                                  setPage();
+                                }
+                              : null,
+                          icon: const Icon(Icons.edit, color: CustomColors.primaryColor),
+                        )
                 ],
               ),
-              // Text(state.marketplaceProductShopify!.associations!.associationsCategories!.map((e) => e.id).toList().toString()),
               ListView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
@@ -139,17 +157,55 @@ class EditMarketplaceProductShopifyCategories extends StatelessWidget {
       builder: (context, state) {
         return Padding(
           padding: const EdgeInsets.all(8.0),
-          child: ListView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: state.listOfCategoriesShopify!.length,
-            itemBuilder: (context, index) {
-              final category = state.listOfCategoriesShopify![index];
-              return ListTile(
-                leading: Checkbox.adaptive(value: state.isSelected[index], onChanged: (_) {}),
-                title: Text(category.title),
-              );
-            },
+          child: Column(
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              CupertinoSearchTextField(
+                controller: state.searchController,
+                onChanged: (_) => marketplaceProductBloc.add(OnSearchControllerChangedEvent()),
+                onSuffixTap: () => marketplaceProductBloc.add(OnSearchControllerClearedEvent()),
+              ),
+              if (state.searchController.text.isNotEmpty)
+                ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: state.listOfSelectedCategoiesShopify.length,
+                  itemBuilder: (context, index) {
+                    final category = state.listOfSelectedCategoiesShopify[index];
+                    return ListTile(
+                      leading: Checkbox.adaptive(
+                        value: state.listOfSelectedCategoiesShopify.any((e) => e.id == category.id),
+                        onChanged: (value) => marketplaceProductBloc.add(OnCategoriesIsSelectedChangedEvent(
+                          index: index,
+                          value: value!,
+                          id: category.id,
+                        )),
+                      ),
+                      title: Text(category.title),
+                    );
+                  },
+                ),
+              ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: state.listOfFilteredCategoriesShopify.length,
+                itemBuilder: (context, index) {
+                  final category = state.listOfFilteredCategoriesShopify[index];
+                  return ListTile(
+                    leading: Checkbox.adaptive(
+                      value: state.listOfSelectedCategoiesShopify.any((e) => e.id == category.id),
+                      onChanged: (value) => marketplaceProductBloc.add(OnCategoriesIsSelectedChangedEvent(
+                        index: index,
+                        value: value!,
+                        id: category.id,
+                      )),
+                    ),
+                    title: Text(category.title),
+                  );
+                },
+              ),
+              Container(height: screenHeight / 1.30),
+            ],
           ),
         );
       },

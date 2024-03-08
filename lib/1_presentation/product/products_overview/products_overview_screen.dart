@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:auto_route/auto_route.dart';
 import 'package:cezeri_commerce/1_presentation/app_drawer.dart';
 import 'package:cezeri_commerce/1_presentation/core/renderer/failure_renderer.dart';
@@ -10,9 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:html/parser.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:responsive_framework/responsive_framework.dart';
-import 'package:share_plus/share_plus.dart';
 
 import '../../../2_application/firebase/product/product_bloc.dart';
 import '../../../3_domain/entities/product/product.dart';
@@ -297,19 +293,6 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> with Au
       pos++;
     }
     return const ListToCsvConverter().convert(rows);
-  }
-
-  Future<void> _saveAndShareCsv(String csvString) async {
-    final box = iconButtonKey.currentContext!.findRenderObject() as RenderBox;
-    final directory = await getApplicationDocumentsDirectory();
-    final path = '${directory.path}/Artikel.csv';
-    final file = File(path);
-
-    await file.writeAsString(csvString);
-
-    final XFile csvFile = XFile(path);
-
-    Share.shareXFiles([csvFile], sharePositionOrigin: box.localToGlobal(Offset.zero) & box.size);
   }
 
   void _onRemovePressed(BuildContext context, List<Product> selectedProducts) {

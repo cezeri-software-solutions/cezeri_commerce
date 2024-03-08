@@ -11,7 +11,7 @@ class SetMarketplaceProductEvent extends MarketplaceProductEvent {
 }
 
 class SetMarketplaceProductIsActiveEvent extends MarketplaceProductEvent {
-  final bool value;
+  final dynamic value;
 
   SetMarketplaceProductIsActiveEvent({required this.value});
 }
@@ -29,8 +29,9 @@ class OnCategoriesIsExpandedChangedEvent extends MarketplaceProductEvent {
 class OnCategoriesIsSelectedChangedEvent extends MarketplaceProductEvent {
   final int index;
   final bool value;
+  final int? id;
 
-  OnCategoriesIsSelectedChangedEvent({required this.index, required this.value});
+  OnCategoriesIsSelectedChangedEvent({required this.index, required this.value, this.id});
 }
 
 class OnDefaultCategoryChangedEvent extends MarketplaceProductEvent {
@@ -41,3 +42,6 @@ class OnDefaultCategoryChangedEvent extends MarketplaceProductEvent {
 }
 
 class OnSetUpdatedCategoriesEvent extends MarketplaceProductEvent {}
+
+class OnSearchControllerChangedEvent extends MarketplaceProductEvent {}
+class OnSearchControllerClearedEvent extends MarketplaceProductEvent {}

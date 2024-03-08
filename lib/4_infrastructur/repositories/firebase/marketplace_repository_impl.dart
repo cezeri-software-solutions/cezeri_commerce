@@ -172,7 +172,13 @@ class MarketplaceRepositoryImpl implements MarketplaceRepository {
       //* Zum hinzufügen von neuen Attributen.
       // for (final marketplace in listOfMarketplaces) {
       //   final docRefMp = db.collection('Marketetplaces').doc(currentUserUid).collection('Marketetplaces').doc(marketplace.id);
-      //   final updatedMp = marketplace.copyWith(address: Address.empty(), bankDetails: BankDetails.empty());
+      //   final updatedMp = switch (marketplace.marketplaceType) {
+      //     MarketplaceType.prestashop => (marketplace as MarketplacePresta)
+      //         .copyWith(marketplaceSettings: marketplace.marketplaceSettings.copyWith(lastImportDateTime: DateTime.now())),
+      //     MarketplaceType.shopify => (marketplace as MarketplaceShopify)
+      //         .copyWith(marketplaceSettings: marketplace.marketplaceSettings.copyWith(lastImportDateTime: DateTime.now())),
+      //     MarketplaceType.shop => throw Exception('Ladengeschäft not supportet for NOW'),
+      //   };
       //   await docRefMp.update(updatedMp.toJson());
       // }
 

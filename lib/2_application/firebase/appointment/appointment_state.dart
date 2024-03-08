@@ -25,7 +25,7 @@ class AppointmentState {
   final Option<Either<AbstractFailure, Receipt>> fosReceiptOnObserveOption;
   final Option<Either<AbstractFailure, List<Receipt>>> fosReceiptsOnObserveOption;
   final Option<Either<AbstractFailure, Unit>> fosAppointmentOnObserveFromMarketplacesOption;
-  final Option<Either<AbstractFailure, Unit>> fosAppointmentsOnObserveFromMarketplacesOption;
+  final Option<Either<List<AbstractFailure>, Unit>> fosAppointmentsOnObserveFromMarketplacesOption;
   final Option<Either<AbstractFailure, Receipt>> fosReceiptOnCreateOption;
   final Option<Either<AbstractFailure, Unit>> fosReceiptOnUpdateOption;
   final Option<Either<AbstractFailure, Unit>> fosReceiptOnDeleteOption;
@@ -157,7 +157,7 @@ class AppointmentState {
     Option<Either<AbstractFailure, Receipt>>? fosReceiptOnObserveOption,
     Option<Either<AbstractFailure, List<Receipt>>>? fosReceiptsOnObserveOption,
     Option<Either<AbstractFailure, Unit>>? fosAppointmentOnObserveFromMarketplacesOption,
-    Option<Either<AbstractFailure, Unit>>? fosAppointmentsOnObserveFromMarketplacesOption,
+    Option<Either<List<AbstractFailure>, Unit>>? fosAppointmentsOnObserveFromMarketplacesOption,
     Option<Either<AbstractFailure, Receipt>>? fosReceiptOnCreateOption,
     Option<Either<AbstractFailure, Unit>>? fosReceiptOnUpdateOption,
     Option<Either<AbstractFailure, Unit>>? fosReceiptOnDeleteOption,

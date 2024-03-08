@@ -140,7 +140,7 @@ class _MarketplaceProductShopifyRenderer extends StatelessWidget {
                 name: 'name',
                 imageUrl: product.images.isNotEmpty ? product.images.first.src : null,
               ),
-              title: Text('SHOPIFY ${product.title}'),
+              title: Text(product.title),
               subtitle: Text('ID: ${product.id} / Artikelnummer: ${product.variants.first.sku}'),
               trailing: MyOutlinedButton(
                 buttonText: 'Artikel speichern',

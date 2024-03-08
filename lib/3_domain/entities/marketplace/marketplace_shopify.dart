@@ -13,6 +13,7 @@ class MarketplaceShopify extends AbstractMarketplace {
   final String endpointUrl; // http:// oder https://
   final String storeName; // your_shop.com
   final String shopSuffix; // Ändung z.B. admin/
+  final String url;
   final String fullUrl; // endpointUrl + {storeName}..myshopify.com/ + shopSuffix
   final String adminAccessToken; // API-Schlüssel
   final String storefrontAccessToken; // Admin-API-Zugriffstoken
@@ -26,6 +27,7 @@ class MarketplaceShopify extends AbstractMarketplace {
     required this.endpointUrl,
     required this.storeName,
     required this.shopSuffix,
+    required this.url,
     required this.adminAccessToken,
     required this.storefrontAccessToken,
     required super.isActive,
@@ -51,6 +53,7 @@ class MarketplaceShopify extends AbstractMarketplace {
       endpointUrl: '',
       storeName: '',
       shopSuffix: '',
+      url: '',
       adminAccessToken: '',
       storefrontAccessToken: '',
       isActive: false,
@@ -71,6 +74,7 @@ class MarketplaceShopify extends AbstractMarketplace {
     String? endpointUrl,
     String? storeName,
     String? shopSuffix,
+    String? url,
     String? adminAccessToken,
     String? storefrontAccessToken,
     bool? isActive,
@@ -89,6 +93,7 @@ class MarketplaceShopify extends AbstractMarketplace {
       endpointUrl: endpointUrl ?? this.endpointUrl,
       storeName: storeName ?? this.storeName,
       shopSuffix: shopSuffix ?? this.shopSuffix,
+      url: url ?? this.url,
       adminAccessToken: adminAccessToken ?? this.adminAccessToken,
       storefrontAccessToken: storefrontAccessToken ?? this.storefrontAccessToken,
       isActive: isActive ?? this.isActive,
@@ -110,6 +115,7 @@ class MarketplaceShopify extends AbstractMarketplace {
         endpointUrl,
         storeName,
         shopSuffix,
+        url,
         adminAccessToken,
         storefrontAccessToken,
         isActive,

@@ -10,6 +10,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
 
 import '../../../../2_application/firebase/marketplace/marketplace_bloc.dart';
@@ -234,6 +235,11 @@ class _AddEditMarketplacePrestaState extends State<AddEditMarketplacePresta> {
                       controller: _nextIdToImportController,
                       labelText: 'Auftrags-Id:',
                     ),
+                    if (widget.marketplace != null) ...[
+                      Gaps.h10,
+                      const Text('Zuletzt importiert am:', style: TextStyles.infoOnTextField),
+                      Text(DateFormat('dd.MM.yyy - HH:mm:ss', 'de').format(widget.marketplace!.marketplaceSettings.lastImportDateTime)),
+                    ],
                     const Divider(height: 50),
                     Row(
                       children: [
@@ -302,6 +308,7 @@ class _AddEditMarketplacePrestaState extends State<AddEditMarketplacePresta> {
                         shopSuffix: _shopSuffixController.text,
                         marketplaceSettings: widget.marketplace!.marketplaceSettings.copyWith(
                           nextIdToImport: int.parse(_nextIdToImportController.text),
+                          lastImportDateTime: widget.marketplace!.marketplaceSettings.lastImportDateTime,
                           statusIdAfterImport: int.parse(_statusIdAfterImportController.text),
                           statusIdAfterShipping: int.parse(_statusIdAfterShippingController.text),
                           statusIdAfterCancellation: int.parse(_statusIdAfterCancellationController.text),
@@ -311,7 +318,6 @@ class _AddEditMarketplacePrestaState extends State<AddEditMarketplacePresta> {
                           companyName: _companyNameController.text,
                           firstName: _firstNameController.text,
                           lastName: _lastNameController.text,
-                          name: '${_firstNameController.text} ${_lastNameController.text}',
                           street: _streetController.text,
                           street2: _street2Controller.text,
                           postcode: _postcodeController.text,
@@ -341,6 +347,7 @@ class _AddEditMarketplacePrestaState extends State<AddEditMarketplacePresta> {
                         shopSuffix: _shopSuffixController.text,
                         marketplaceSettings: MarketplaceSettings.empty().copyWith(
                           nextIdToImport: int.parse(_nextIdToImportController.text),
+                          lastImportDateTime: DateTime.now(),
                           statusIdAfterImport: int.parse(_statusIdAfterImportController.text),
                           statusIdAfterShipping: int.parse(_statusIdAfterShippingController.text),
                           statusIdAfterCancellation: int.parse(_statusIdAfterCancellationController.text),
@@ -350,7 +357,6 @@ class _AddEditMarketplacePrestaState extends State<AddEditMarketplacePresta> {
                           companyName: _companyNameController.text,
                           firstName: _firstNameController.text,
                           lastName: _lastNameController.text,
-                          name: '${_firstNameController.text} ${_lastNameController.text}',
                           street: _streetController.text,
                           street2: _street2Controller.text,
                           postcode: _postcodeController.text,

@@ -5,6 +5,7 @@ import 'package:cezeri_commerce/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:logger/logger.dart';
 
 import '../../../2_application/firebase/product/product_bloc.dart';
 import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
@@ -17,6 +18,8 @@ import '../../core/functions/dialogs.dart';
 import '../../core/functions/mixed_functions.dart';
 import '../../core/functions/show_my_product_quick_view.dart';
 import '../../core/widgets/my_avatar.dart';
+
+final logger = Logger();
 
 class ProductOverviewPage extends StatelessWidget {
   final ProductBloc productBloc;

@@ -66,7 +66,7 @@ class ProductDetailMarketplacesBar extends StatelessWidget {
                             logoPath: getMarketplaceLogoAsset(pm.marketplaceProduct!.marketplaceType),
                             isActive: switch (pm.marketplaceProduct!.marketplaceType) {
                               MarketplaceType.prestashop => (pm.marketplaceProduct as ProductPresta).active == '1',
-                              MarketplaceType.shopify => (pm.marketplaceProduct as ProductShopify).status == 'active',
+                              MarketplaceType.shopify => (pm.marketplaceProduct as ProductShopify).status == ProductShopifyStatus.active,
                               MarketplaceType.shop => throw Exception('Marktplatz SHOP ist noch nicht implementiert.'),
                             },
                           ),

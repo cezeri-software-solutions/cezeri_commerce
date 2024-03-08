@@ -3,9 +3,11 @@ import 'package:json_annotation/json_annotation.dart';
 import '../../../4_infrastructur/repositories/prestashop_api/models/address_presta.dart';
 import '../../../4_infrastructur/repositories/prestashop_api/models/country_presta.dart';
 import '../../../4_infrastructur/repositories/prestashop_api/models/customer_presta.dart';
+import '../../../4_infrastructur/repositories/shopify_api/shopify.dart';
 import '../../enums/enums.dart';
 import '../address.dart';
 import '../marketplace/marketplace_presta.dart';
+import '../marketplace/marketplace_shopify.dart';
 import '../settings/tax.dart';
 import 'customer_marketplace.dart';
 
@@ -42,7 +44,6 @@ class Customer {
     required this.company,
     required this.firstName,
     required this.lastName,
-    required this.name,
     required this.email,
     required this.gender,
     required this.birthday,
@@ -55,7 +56,7 @@ class Customer {
     required this.tax,
     required this.creationDate,
     required this.lastEditingDate,
-  });
+  }) : name = '$firstName $lastName';
 
   factory Customer.fromJson(Map<String, dynamic> json) => _$CustomerFromJson(json);
 
@@ -69,7 +70,6 @@ class Customer {
       company: null,
       firstName: '',
       lastName: '',
-      name: '',
       email: '',
       gender: Gender.empty,
       birthday: '',
@@ -130,7 +130,6 @@ class Customer {
       company: getCompany(),
       firstName: customerPresta.firstname,
       lastName: customerPresta.lastname,
-      name: '${customerPresta.firstname} ${customerPresta.lastname}',
       email: customerPresta.email,
       gender: switch (customerPresta.idGender) {
         '1' => Gender.male,
@@ -153,6 +152,52 @@ class Customer {
     );
   }
 
+  factory Customer.fromShopify(
+    OrderCustomerShopify customerShopify,
+    int customerNumer,
+    String email,
+    MarketplaceShopify marketplace,
+    CustomerAddressShopify addressInvoiceShopify,
+    CustomerAddressShopify addressDeliveryShopify,
+    Tax tax,
+  ) {
+    String getPhone(String phoneFromAddressInvoice, String phoneFromAddressDelivery) {
+      if (phoneFromAddressInvoice != '') return phoneFromAddressInvoice;
+      if (phoneFromAddressDelivery != '') return phoneFromAddressDelivery;
+      return '';
+    }
+
+    String getPhoneMobile(String phoneFromAddressInvoice, String phoneFromAddressDelivery) {
+      if (phoneFromAddressInvoice != '') return phoneFromAddressInvoice;
+      if (phoneFromAddressDelivery != '') return phoneFromAddressDelivery;
+      return '';
+    }
+
+    return Customer(
+      id: '',
+      customerNumber: customerNumer,
+      customerMarketplace: CustomerMarketplace.fromShopify(customerShopify, marketplace),
+      company: addressInvoiceShopify.company,
+      firstName: addressInvoiceShopify.firstName ?? '',
+      lastName: addressInvoiceShopify.lastName ?? '',
+      email: email,
+      gender: Gender.empty,
+      birthday: '',
+      phone: getPhone(addressInvoiceShopify.phone ?? '', addressDeliveryShopify.phone ?? ''),
+      phoneMobile: getPhoneMobile(addressInvoiceShopify.phone ?? '', addressDeliveryShopify.phone ?? ''),
+      listOfAddress: [
+        Address.fromShopify(addressInvoiceShopify, AddressType.invoice),
+        Address.fromShopify(addressDeliveryShopify, AddressType.delivery),
+      ],
+      customerInvoiceType: CustomerInvoiceType.standardInvoice,
+      uidNumber: '',
+      taxNumber: '',
+      tax: tax,
+      creationDate: DateTime.now(),
+      lastEditingDate: DateTime.now(),
+    );
+  }
+
   Customer copyWith({
     String? id,
     int? customerNumber,
@@ -160,7 +205,6 @@ class Customer {
     String? company,
     String? firstName,
     String? lastName,
-    String? name,
     String? email,
     Gender? gender,
     String? birthday,
@@ -181,7 +225,6 @@ class Customer {
       company: company ?? this.company,
       firstName: firstName ?? this.firstName,
       lastName: lastName ?? this.lastName,
-      name: name ?? this.name,
       email: email ?? this.email,
       gender: gender ?? this.gender,
       birthday: birthday ?? this.birthday,

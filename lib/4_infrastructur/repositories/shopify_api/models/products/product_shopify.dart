@@ -22,11 +22,12 @@ class ProductShopify extends MarketplaceProduct {
   final String productType;
   final DateTime? publishedAt;
   final String publishedScope;
-  final String status;
+  @JsonKey(name: 'status', fromJson: _statusFromJson, toJson: statusToJson)
+  final ProductShopifyStatus status;
   final String tags;
   final String? templateSuffix;
-  final DateTime updatedAt;
-  final DateTime createdAt;
+  final DateTime? updatedAt;
+  final DateTime? createdAt;
 
   const ProductShopify({
     required this.id,
@@ -53,6 +54,20 @@ class ProductShopify extends MarketplaceProduct {
   factory ProductShopify.fromJson(Map<String, dynamic> json) => _$ProductShopifyFromJson(json);
   @override
   Map<String, dynamic> toJson() => _$ProductShopifyToJson(this);
+  static ProductShopifyStatus _statusFromJson(String value) {
+    switch (value) {
+      case 'active':
+        return ProductShopifyStatus.active;
+      case 'archived':
+        return ProductShopifyStatus.archived;
+      case 'draft':
+        return ProductShopifyStatus.draft;
+      default:
+        throw ArgumentError('Unknown product status: $value');
+    }
+  }
+
+  static String statusToJson(ProductShopifyStatus status) => status.toString().split('.').last;
 
   factory ProductShopify.fromRaw({
     required ProductRawShopify productRaw,
@@ -124,7 +139,7 @@ class ProductShopify extends MarketplaceProduct {
     String? productType,
     DateTime? publishedAt,
     String? publishedScope,
-    String? status,
+    ProductShopifyStatus? status,
     String? tags,
     String? templateSuffix,
     DateTime? updatedAt,

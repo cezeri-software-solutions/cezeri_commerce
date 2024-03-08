@@ -1,4 +1,5 @@
 import '../../../../4_infrastructur/repositories/prestashop_api/models/order_presta.dart';
+import '../../../../4_infrastructur/repositories/shopify_api/shopify.dart';
 import '../../marketplace/abstract_marketplace.dart';
 
 class ToLoadAppointmentsFromMarketplace {
@@ -25,12 +26,14 @@ class ToLoadAppointmentFromMarketplace {
 
 class LoadedOrderFromMarketplace {
   final AbstractMarketplace marketplace;
-  final OrderPresta orderPresta;
+  final OrderPresta? orderPresta;
+  final OrderShopify? orderShopify;
   final int orderMarketplaceId;
 
   LoadedOrderFromMarketplace({
     required this.marketplace,
-    required this.orderPresta,
+    this.orderPresta,
+    this.orderShopify,
     required this.orderMarketplaceId,
   });
 }

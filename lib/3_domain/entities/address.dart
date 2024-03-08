@@ -4,6 +4,7 @@ import 'package:json_annotation/json_annotation.dart';
 
 import '../../4_infrastructur/repositories/prestashop_api/models/address_presta.dart';
 import '../../4_infrastructur/repositories/prestashop_api/models/country_presta.dart';
+import '../../4_infrastructur/repositories/shopify_api/shopify.dart';
 import 'country.dart';
 
 part 'address.g.dart';
@@ -34,7 +35,6 @@ class Address extends Equatable {
     required this.companyName,
     required this.firstName,
     required this.lastName,
-    required this.name,
     required this.street,
     required this.street2,
     required this.postcode,
@@ -46,7 +46,7 @@ class Address extends Equatable {
     required this.isDefault,
     required this.creationDate,
     required this.lastEditingDate,
-  });
+  }) : name = '$firstName $lastName';
 
   factory Address.fromJson(Map<String, dynamic> json) => _$AddressFromJson(json);
 
@@ -58,7 +58,6 @@ class Address extends Equatable {
       companyName: '',
       firstName: '',
       lastName: '',
-      name: '',
       street: '',
       street2: '',
       postcode: '',
@@ -79,7 +78,6 @@ class Address extends Equatable {
       companyName: addressPresta.company,
       firstName: addressPresta.firstname,
       lastName: addressPresta.lastname,
-      name: '${addressPresta.firstname} ${addressPresta.lastname}',
       street: addressPresta.address1,
       street2: addressPresta.address2,
       postcode: addressPresta.postcode,
@@ -94,12 +92,31 @@ class Address extends Equatable {
     );
   }
 
+  factory Address.fromShopify(CustomerAddressShopify addressShopify, AddressType addressType) {
+    return Address(
+      id: UniqueID().value,
+      companyName: addressShopify.company ?? '',
+      firstName: addressShopify.firstName ?? '',
+      lastName: addressShopify.lastName ?? '',
+      street: addressShopify.address1 ?? '',
+      street2: addressShopify.address2 ?? '',
+      postcode: addressShopify.zip ?? '',
+      city: addressShopify.city ?? '',
+      country: Country.countryList.where((e) => e.isoCode.toUpperCase() == addressShopify.countryCode.toUpperCase()).first,
+      phone: addressShopify.phone ?? '',
+      phoneMobile: addressShopify.phone ?? '',
+      addressType: addressType,
+      isDefault: true,
+      creationDate: DateTime.now(),
+      lastEditingDate: DateTime.now(),
+    );
+  }
+
   Address copyWith({
     String? id,
     String? companyName,
     String? firstName,
     String? lastName,
-    String? name,
     String? street,
     String? street2,
     String? postcode,
@@ -117,7 +134,6 @@ class Address extends Equatable {
       companyName: companyName ?? this.companyName,
       firstName: firstName ?? this.firstName,
       lastName: lastName ?? this.lastName,
-      name: name ?? this.name,
       street: street ?? this.street,
       street2: street2 ?? this.street2,
       postcode: postcode ?? this.postcode,
@@ -134,7 +150,7 @@ class Address extends Equatable {
 
   @override
   String toString() {
-    return 'Address(id: $id, companyName: $companyName, firstName: $firstName, lastName: $lastName, name: $name, street: $street, street2: $street2, postcode: $postcode, city: $city, country: $country, phone: $phone, phoneMobile: $phoneMobile, addressType: $addressType, isDefault: $isDefault, creationDate: $creationDate, lastEditingDate: $lastEditingDate)';
+    return 'Address(id: $id, companyName: $companyName, firstName: $firstName, lastName: $lastName, street: $street, street2: $street2, postcode: $postcode, city: $city, country: $country, phone: $phone, phoneMobile: $phoneMobile, addressType: $addressType, isDefault: $isDefault, creationDate: $creationDate, lastEditingDate: $lastEditingDate)';
   }
 
   @override
@@ -143,7 +159,6 @@ class Address extends Equatable {
       companyName,
       firstName,
       lastName,
-      name,
       street,
       street2,
       postcode,

@@ -72,10 +72,12 @@ class EditMarketplaceProductPresta extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const Text('Kategorien:', style: TextStyles.defaultBold),
-                  IconButton(
-                    onPressed: state.listOfCategoriesPresta != null ? () => setPage() : null,
-                    icon: const Icon(Icons.edit, color: CustomColors.primaryColor),
-                  )
+                  state.isLoadingMarketplaceProductCategoriesOnObserve
+                      ? const MyCircularProgressIndicator()
+                      : IconButton(
+                          onPressed: state.listOfCategoriesPresta != null ? () => setPage() : null,
+                          icon: const Icon(Icons.edit, color: CustomColors.primaryColor),
+                        )
                 ],
               ),
               // Text(state.marketplaceProductPresta!.associations!.associationsCategories!.map((e) => e.id).toList().toString()),

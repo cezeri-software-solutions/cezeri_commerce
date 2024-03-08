@@ -108,7 +108,7 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
       List<LoadedOrderFromMarketplace> listOfLoadedOrderFromMarketplace = [];
 
       final toLoadOrderFromMarketplace = ToLoadAppointmentFromMarketplace(marketplace: event.marketplace, orderId: event.id);
-      final fosLoadedAppointmentFromMarketplace = await receiptRepository.loadAppointmentsFromMarketplace(toLoadOrderFromMarketplace);
+      final fosLoadedAppointmentFromMarketplace = await receiptRepository.loadAppointmentsFromMarketplacePresta(toLoadOrderFromMarketplace);
       fosLoadedAppointmentFromMarketplace.fold(
         (failure) {
           logger.e(failure);
@@ -161,16 +161,16 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
 
 //? #########################################################################
 
-    on<GetNewAppointmentsFromPrestaEvent>((event, emit) async {
+    on<GetNewAppointmentsFromMarketplacesEvent>((event, emit) async {
       final logger = Logger();
-      bool isSuccess = true;
+      List<AbstractFailure> failures = [];
       emit(state.copyWith(isLoadingAppointmentsFromPrestaOnObserve: true, loadedAppointments: 0, numberOfToLoadAppointments: 0, loadingText: ''));
 
       List<ToLoadAppointmentsFromMarketplace>? toLoadAppointmentsFromMarketplace;
       final fosToLoadAppointments = await receiptRepository.getToLoadAppointmentsFromMarketplaces();
       fosToLoadAppointments.fold(
         (failure) {
-          isSuccess = false;
+          failures.add(failure);
           emit(state.copyWith(isLoadingAppointmentsFromPrestaOnObserve: false));
           return;
         },
@@ -184,27 +184,48 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
         },
       );
 
-      emit(state.copyWith(loadedAppointments: 0, loadingText: 'Lädt Bestellungen vom Marktplatz...'));
+      emit(state.copyWith(loadedAppointments: 1, loadingText: 'Lädt Bestellungen vom Marktplatz...'));
 
       List<LoadedOrderFromMarketplace> listOfLoadedOrderFromMarketplace = [];
       for (final toLoadAppointment in toLoadAppointmentsFromMarketplace!) {
-        for (int i = toLoadAppointment.nextIdToImport; i < toLoadAppointment.lastIdToImport + 1; i++) {
-          final toLoadOrderFromMarketplace = ToLoadAppointmentFromMarketplace(marketplace: toLoadAppointment.marketplace, orderId: i);
-          final fosLoadedAppointmentFromMarketplace = await receiptRepository.loadAppointmentsFromMarketplace(toLoadOrderFromMarketplace);
-          fosLoadedAppointmentFromMarketplace.fold(
-            (failure) {
-              logger.e(failure);
-              isSuccess = false;
-            },
-            (loadedOrderFromMarketplace) {
-              listOfLoadedOrderFromMarketplace.add(loadedOrderFromMarketplace);
-              emit(state.copyWith(loadedAppointments: state.loadedAppointments + 1));
-            },
-          );
+        switch (toLoadAppointment.marketplace.marketplaceType) {
+          case MarketplaceType.prestashop:
+            {
+              for (int i = toLoadAppointment.nextIdToImport; i < toLoadAppointment.lastIdToImport + 1; i++) {
+                final toLoadOrderFromMarketplace = ToLoadAppointmentFromMarketplace(marketplace: toLoadAppointment.marketplace, orderId: i);
+                final fosLoadedAppointmentFromMarketplace = await receiptRepository.loadAppointmentsFromMarketplacePresta(toLoadOrderFromMarketplace);
+                fosLoadedAppointmentFromMarketplace.fold(
+                  (failure) {
+                    logger.e(failure);
+                    failures.add(failure);
+                  },
+                  (loadedOrderFromMarketplace) {
+                    listOfLoadedOrderFromMarketplace.add(loadedOrderFromMarketplace);
+                    emit(state.copyWith(loadedAppointments: state.loadedAppointments + 1));
+                  },
+                );
+              }
+            }
+          case MarketplaceType.shopify:
+            {
+              final fosLoadedAppointmentFromShopify = await receiptRepository.loadAppointmentsFromMarketplaceShopify(toLoadAppointment);
+              fosLoadedAppointmentFromShopify.fold(
+                (failure) {
+                  logger.e(failure);
+                  failures.add(failure);
+                },
+                (loadedOrderFromMarketplace) {
+                  listOfLoadedOrderFromMarketplace.addAll(loadedOrderFromMarketplace);
+                  emit(state.copyWith(loadedAppointments: state.loadedAppointments + 1));
+                },
+              );
+            }
+          case MarketplaceType.shop:
+            throw Exception('Aus einem Ladengeschäft können keine Bestellungen importiert werden.');
         }
       }
 
-      emit(state.copyWith(loadedAppointments: 0, loadingText: 'Lädt Bestellungen zu Cezeri Commerce hoch...'));
+      emit(state.copyWith(loadedAppointments: 1, loadingText: 'Lädt Bestellungen zu Cezeri Commerce hoch...'));
 
       List<Receipt> listWithNewAppointments = List.from(state.listOfAllReceipts ?? []);
       for (final toUploadAppointment in listOfLoadedOrderFromMarketplace) {
@@ -212,7 +233,7 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
         fosLoadedAppointment.fold(
           (failure) {
             logger.e(failure);
-            isSuccess = false;
+            failures.add(failure);
           },
           (loadedAppointment) {
             listWithNewAppointments.add(loadedAppointment);
@@ -220,23 +241,6 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
           },
         );
       }
-
-      // List<Receipt> listWithNewAppointments = List.from(state.listOfAllReceipts ?? []);
-      // for (final toLoadAppointment in toLoadAppointmentsFromMarketplace!) {
-      //   for (int i = toLoadAppointment.nextIdToImport; i < toLoadAppointment.lastIdToImport + 1; i++) {
-      //     final fosLoadedAppointment = await receiptRepository.loadAppointmentFromMarketplaceAndUploadToFirestore(toLoadAppointment.marketplace, i);
-      //     fosLoadedAppointment.fold(
-      //       (failure) {
-      //         logger.e(failure);
-      //         isSuccess = false;
-      //       },
-      //       (loadedAppointment) {
-      //         listWithNewAppointments.add(loadedAppointment);
-      //         emit(state.copyWith(loadedAppointments: state.loadedAppointments + 1));
-      //       },
-      //     );
-      //   }
-      // }
 
       listWithNewAppointments.sort((a, b) => switch (listWithNewAppointments.first.receiptTyp) {
             ReceiptTyp.offer => b.offerId.compareTo(a.offerId),
@@ -255,7 +259,7 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
 
       emit(state.copyWith(
         isLoadingAppointmentsFromPrestaOnObserve: false,
-        fosAppointmentsOnObserveFromMarketplacesOption: isSuccess ? const Some(Right(unit)) : const None(),
+        fosAppointmentsOnObserveFromMarketplacesOption: failures.isEmpty ? const Some(Right(unit)) : Some(Left(failures)),
       ));
       emit(state.copyWith(fosAppointmentsOnObserveFromMarketplacesOption: none()));
     });
@@ -363,16 +367,23 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
       listOfReceipts = switch (state.receiptSearchText) {
         '' => listOfReceipts,
         (_) => listOfReceipts
-            .where((element) =>
-                element.offerNumberAsString.toLowerCase().contains(state.receiptSearchText.toLowerCase()) ||
-                element.appointmentNumberAsString.toLowerCase().contains(state.receiptSearchText.toLowerCase()) ||
-                element.deliveryNoteNumberAsString.toLowerCase().contains(state.receiptSearchText.toLowerCase()) ||
-                element.invoiceNumberAsString.toLowerCase().contains(state.receiptSearchText.toLowerCase()) ||
-                element.creditNumberAsString.toLowerCase().contains(state.receiptSearchText.toLowerCase()) ||
-                element.receiptMarketplaceId.toString().toLowerCase().contains(state.receiptSearchText.toLowerCase()) ||
-                element.receiptMarketplaceReference.toString().toLowerCase().contains(state.receiptSearchText.toLowerCase()) ||
-                element.receiptCustomer.name.toString().toLowerCase().contains(state.receiptSearchText.toLowerCase()) ||
-                element.receiptCustomer.id.toString().toLowerCase().contains(state.receiptSearchText.toLowerCase()))
+            .where((e) =>
+                e.offerNumberAsString.toLowerCase().contains(state.receiptSearchText.toLowerCase()) ||
+                e.appointmentNumberAsString.toLowerCase().contains(state.receiptSearchText.toLowerCase()) ||
+                e.deliveryNoteNumberAsString.toLowerCase().contains(state.receiptSearchText.toLowerCase()) ||
+                e.invoiceNumberAsString.toLowerCase().contains(state.receiptSearchText.toLowerCase()) ||
+                e.creditNumberAsString.toLowerCase().contains(state.receiptSearchText.toLowerCase()) ||
+                e.receiptMarketplaceId.toString().toLowerCase().contains(state.receiptSearchText.toLowerCase()) ||
+                e.receiptMarketplaceReference.toString().toLowerCase().contains(state.receiptSearchText.toLowerCase()) ||
+                (e.receiptCustomer.company ?? '').toString().toLowerCase().contains(state.receiptSearchText.toLowerCase()) ||
+                e.receiptCustomer.name.toString().toLowerCase().contains(state.receiptSearchText.toLowerCase()) ||
+                e.receiptCustomer.id.toString().toLowerCase().contains(state.receiptSearchText.toLowerCase()) ||
+                e.addressInvoice.companyName.toString().toLowerCase().contains(state.receiptSearchText.toLowerCase()) ||
+                e.addressInvoice.name.toString().toLowerCase().contains(state.receiptSearchText.toLowerCase()) ||
+                e.addressDelivery.companyName.toString().toLowerCase().contains(state.receiptSearchText.toLowerCase()) ||
+                e.addressDelivery.name.toString().toLowerCase().contains(state.receiptSearchText.toLowerCase()) ||
+                e.listOfReceiptProduct.any((p) => p.name.toLowerCase().contains(state.receiptSearchText.toLowerCase())) ||
+                e.listOfReceiptProduct.any((p) => p.articleNumber.toLowerCase().contains(state.receiptSearchText.toLowerCase())))
             .toList()
       };
       emit(state.copyWith(listOfFilteredReceipts: listOfReceipts));

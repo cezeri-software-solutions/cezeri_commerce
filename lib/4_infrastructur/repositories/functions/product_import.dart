@@ -5,6 +5,7 @@ import 'package:logger/logger.dart';
 
 import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
 import '../../../3_domain/entities/marketplace/marketplace_presta.dart';
+import '../../../3_domain/entities/marketplace/marketplace_shopify.dart';
 import '../../../3_domain/entities/product/marketplace_product.dart';
 import '../../../3_domain/entities/product/product_id_with_quantity.dart';
 import '../../../3_domain/entities/product/product_presta.dart';
@@ -128,7 +129,7 @@ Future<Either<AbstractFailure, Product>> getOrCreateProductFromPrestaOnImportApp
       },
       (productFirestore) => createdProductFirestore = productFirestore,
     );
-    if (createdProductFirestore == null) return left(GeneralFailure as FirebaseFailure);
+    if (createdProductFirestore == null) return left(GeneralFailure());
     await productRepository.updateWarehouseQuantityOfNewProductOnImportIncremental(createdProductFirestore!, quantity);
     newCreatedOrUpdatedProduct = createdProductFirestore;
     return right(newCreatedOrUpdatedProduct!);
@@ -142,6 +143,62 @@ Future<Either<AbstractFailure, Product>> getOrCreateProductFromPrestaOnImportApp
       final productPresta = optionalProductPresta.value;
       final productMarketplace =
           ProductMarketplace.fromMarketplaceProduct(ProductPresta.fromProductRawPresta(productPresta), marketplace); //TODO: Shopify
+      List<ProductMarketplace> productMarketplaces = List.from(productFirestore.productMarketplaces);
+      productMarketplaces.add(productMarketplace);
+      final updatedProduct = productFirestore.copyWith(productMarketplaces: productMarketplaces);
+      newCreatedOrUpdatedProduct = updatedProduct;
+
+      await productRepository.updateProductAndSets(updatedProduct);
+      await productRepository.updateAvailableQuantityOfProductInremental(updatedProduct, quantity * -1, null);
+    } else {
+      newCreatedOrUpdatedProduct = productFirestore;
+      await productRepository.updateAvailableQuantityOfProductInremental(productFirestore, quantity * -1, null);
+    }
+    return right(newCreatedOrUpdatedProduct);
+  }
+}
+
+Future<Either<AbstractFailure, Product>> getOrCreateProductFromShopifyOnImportAppointment(
+  ProductShopify productShopify,
+  int quantity,
+  MarketplaceShopify marketplace,
+  MainSettings mainSettings,
+  ProductRepository productRepository,
+  List<ProductIdWithQuantity>? listOfProductIdWithQuantity,
+) async {
+  Product? newCreatedOrUpdatedProduct;
+
+  final productFirestore = await getProductFromFirestoreIfExists(
+    articleNumber: productShopify.variants.first.sku,
+    ean: productShopify.variants.first.barcode ?? '',
+    name: productShopify.title,
+    productRepository: productRepository,
+  );
+  if (productFirestore == null) {
+    Product? createdProductFirestore;
+    final fosProduct = await productRepository.createProduct(
+      Product.fromMarketplaceProduct(
+        marketplaceProduct: productShopify,
+        marketplace: marketplace,
+        mainSettings: mainSettings,
+        listOfProductIdWithQuantity: listOfProductIdWithQuantity,
+      ),
+      productShopify,
+    );
+    fosProduct.fold(
+      (failure) {
+        logger.e('Artikel: ${productShopify.title} konte nicht in der Datenbank angelegt werden. \n Error: $failure');
+        return left(GeneralFailure(customMessage: 'Artikel: ${productShopify.title} konnte nicht in der Datenbank angelegt werden'));
+      },
+      (productFirestore) => createdProductFirestore = productFirestore,
+    );
+    if (createdProductFirestore == null) return left(GeneralFailure());
+    await productRepository.updateWarehouseQuantityOfNewProductOnImportIncremental(createdProductFirestore!, quantity);
+    newCreatedOrUpdatedProduct = createdProductFirestore;
+    return right(newCreatedOrUpdatedProduct!);
+  } else {
+    if (!productFirestore.productMarketplaces.any((e) => e.idMarketplace == marketplace.id)) {
+      final productMarketplace = ProductMarketplace.fromMarketplaceProduct(productShopify, marketplace);
       List<ProductMarketplace> productMarketplaces = List.from(productFirestore.productMarketplaces);
       productMarketplaces.add(productMarketplace);
       final updatedProduct = productFirestore.copyWith(productMarketplaces: productMarketplaces);

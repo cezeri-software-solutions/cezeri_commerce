@@ -1,9 +1,14 @@
 import 'dart:convert';
 
+import 'package:cezeri_commerce/4_infrastructur/repositories/shopify_api/models/inventory/inventory_level_shopify.dart';
+import 'package:cezeri_commerce/core/abstract_failure.dart';
 import 'package:dartz/dartz.dart';
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
 
+import '../../../../1_presentation/core/functions/mixed_functions.dart';
+import '../../../../3_domain/entities/product/product.dart';
+import '../../../../3_domain/entities/product/product_image.dart';
 import '../../../../core/shopify_failure.dart';
 import '../shopify.dart';
 
@@ -22,6 +27,51 @@ class ShopifyApi {
   final String _url;
 
   ShopifyApi(this._config, this._url);
+
+  Future<Either<ShopifyGeneralFailure, ProductRawShopify>> getProductRawById(int productId) async {
+    const key = 'product';
+    final collectsResult = await _doGet(uri: '$_url/api/$_apiVersion/products/$productId.json', key: key, isList: false);
+
+    return collectsResult.fold(
+      (failure) => Left(failure),
+      (data) => Right(ProductRawShopify.fromJson(data)),
+    );
+  }
+
+  Future<Either<ShopifyGeneralFailure, ProductShopify>> getProductsById(int productId) async {
+    const defaultErrorMessage = 'Artikel konnte aus Shopify nicht geladen werden.';
+    final fosProductsRaw = await getProductRawById(productId);
+    ProductRawShopify? productRaw;
+    ShopifyGeneralFailure? failureOnLoadProduct;
+    fosProductsRaw.fold(
+      (failure) => failureOnLoadProduct = failure,
+      (loadedProductRaw) => productRaw = loadedProductRaw,
+    );
+    if (failureOnLoadProduct != null) return Left(failureOnLoadProduct!);
+    if (productRaw == null) {
+      return Left(ShopifyGeneralFailure(errorMessage: 'Artikel konnte nicht in Shopify gefunden werden.'));
+    }
+
+    List<CustomCollectionShopify>? customCollections;
+    final fosCustomCollections = await getCustomCollectionsByProductId(productRaw!.variants.first.productId);
+    fosCustomCollections.fold(
+      (failure) => Left(failure),
+      (data) => customCollections = data,
+    );
+    if (customCollections == null) return Left(ShopifyGeneralFailure(errorMessage: defaultErrorMessage));
+
+    List<MetafieldShopify>? metafields;
+    final fosMetafields = await getMetafieldsByProductId(productRaw!.variants.first.productId);
+    fosMetafields.fold(
+      (failure) => Left(failure),
+      (data) => metafields = data,
+    );
+    if (metafields == null) return Left(ShopifyGeneralFailure(errorMessage: defaultErrorMessage));
+
+    final productShopify = ProductShopify.fromRaw(productRaw: productRaw!, customCollections: customCollections!, metafields: metafields!);
+
+    return Right(productShopify);
+  }
 
   Future<Either<ShopifyGeneralFailure, List<ProductShopify>>> getProductsByArticleNumber(String articleNumber) async {
     final defaultErrorMessage = 'Artikel mit der Artikelnummer: "$articleNumber" konnte nicht geladen werden.';
@@ -101,6 +151,244 @@ class ShopifyApi {
     );
   }
 
+  Future<Either<ShopifyGeneralFailure, InventoryLevelShopify>> getInventoryLevelByInventoryItemId(int inventoryItemId) async {
+    const key = 'inventory_levels';
+    final collectsResult = await _doGet(uri: '$_url/api/$_apiVersion/$key.json?inventory_item_ids=$inventoryItemId', key: key, isList: true);
+
+    return collectsResult.fold(
+      (failure) => Left(failure),
+      (data) {
+        final inventoryLevels = List<InventoryLevelShopify>.from(data.map((model) => InventoryLevelShopify.fromJson(model)));
+        return Right(inventoryLevels.first);
+      },
+    );
+  }
+
+  Future<Either<ShopifyGeneralFailure, List<OrderShopify>>> getOrdersByCreatedAtMin(DateTime minDateTime) async {
+    const key = 'orders';
+    final createdAtMin = minDateTime.toIso8601String();
+    print(createdAtMin);
+    print(_url);
+    final collectsResult = await _doGet(uri: '$_url/api/$_apiVersion/$key.json?created_at_min=$createdAtMin', key: key, isList: true);
+
+    return collectsResult.fold(
+      (failure) => Left(failure),
+      (data) {
+        print(const JsonEncoder.withIndent('  ').convert(data));
+        final orders = List<OrderShopify>.from(data.map((model) => OrderShopify.fromJson(model)));
+        print('--- ORDERS ---');
+        print(orders.toString());
+        print('--------------------------------');
+        return Right(orders);
+      },
+    );
+  }
+
+  Future<Either<List<AbstractFailure>, Unit>> putProduct(ProductShopify productShopify, Product product) async {
+    const key = 'products';
+    List<AbstractFailure> putProductFailures = [];
+
+    final body = jsonEncode({
+      "product": {
+        "id": productShopify.id,
+        "title": product.name,
+        "body_html": product.description,
+        "status": productShopify.status.toPrettyString(),
+        "vendor": product.manufacturer,
+        "variants": [
+          {"price": product.grossPrice, "sku": product.articleNumber, "weight": product.weight, "barcode": product.ean}
+        ],
+        "metafields_global_title_tag": product.name,
+        "metafields_global_description_tag": convertHtmlToString(product.descriptionShort),
+        "handle": generateFriendlyUrl(product.name),
+      }
+    });
+    final productResult = await _doPut(uri: '$_url/api/$_apiVersion/$key/${productShopify.id}.json', body: body);
+    productResult.fold(
+      (failure) => putProductFailures = [failure],
+      (_) => null,
+    );
+    if (putProductFailures.isNotEmpty) return Left(putProductFailures);
+
+    List<CollectShopify>? listOfCollects;
+    final collectsResult = await getCollectsOfProduct(productShopify.id);
+    collectsResult.fold(
+      (failure) => putProductFailures = [failure],
+      (collects) => listOfCollects = collects,
+    );
+    if (putProductFailures.isNotEmpty) return Left(putProductFailures);
+
+    List<CustomCollectionShopify>? listOfCustomCollections;
+    final customCollectionsResult = await getCustomCollectionsByProductId(productShopify.id);
+    customCollectionsResult.fold(
+      (failure) => putProductFailures = [failure],
+      (collections) => listOfCustomCollections = collections,
+    );
+    if (putProductFailures.isNotEmpty) return Left(putProductFailures);
+
+    // Neue und entfernte Custom Collections identifizieren
+    List<CustomCollectionShopify> newAddedCustomCollections = [];
+    List<CustomCollectionShopify> removedCustomCollections = [];
+
+    Set<int> existingCollectionIds = Set.from(listOfCustomCollections?.map((e) => e.id) ?? []);
+    Set<int> productCollectionIds = Set.from(productShopify.customCollections.map((e) => e.id));
+
+    // Neue hinzugefügte Custom Collections
+    for (final customCollection in productShopify.customCollections) {
+      if (!existingCollectionIds.contains(customCollection.id)) newAddedCustomCollections.add(customCollection);
+    }
+
+    // Entfernte Custom Collections
+    for (final customCollection in listOfCustomCollections ?? []) {
+      if (!productCollectionIds.contains(customCollection.id)) removedCustomCollections.add(customCollection);
+    }
+
+    if (newAddedCustomCollections.isNotEmpty) {
+      for (final newCustomCollection in newAddedCustomCollections) {
+        if (!listOfCollects!.any((e) => e.collectionId == newCustomCollection.id)) {
+          final newCollectResult = await postCollect(productShopify.id, newCustomCollection.id);
+          newCollectResult.fold(
+            (failure) => putProductFailures.add(failure),
+            (_) => null,
+          );
+        }
+      }
+    }
+
+    if (removedCustomCollections.isNotEmpty) {
+      for (final removedCustomCollection in removedCustomCollections) {
+        final index = listOfCollects!.indexWhere((e) => e.collectionId == removedCustomCollection.id);
+        if (index == -1) continue;
+        final deletedCollectResult = await deleteCollect(listOfCollects![index].id);
+        deletedCollectResult.fold(
+          (failure) => putProductFailures.add(failure),
+          (_) => null,
+        );
+      }
+    }
+
+    return putProductFailures.isEmpty ? const Right(unit) : Left(putProductFailures);
+  }
+
+  Future<Either<ShopifyGeneralFailure, Unit>> postProductStock(ProductShopify productShopify, int newQuantity) async {
+    const key = 'inventory_levels';
+
+    int? inventoryItemId;
+    final fosProductRaw = await getProductRawById(productShopify.id);
+    fosProductRaw.fold(
+      (failure) => Left(failure),
+      (productRaw) => inventoryItemId = productRaw.variants.first.inventoryItemId,
+    );
+
+    int? locationId;
+    final fosInventoryLevel = await getInventoryLevelByInventoryItemId(inventoryItemId!);
+    fosInventoryLevel.fold(
+      (failure) => Left(failure),
+      (inventoryLevel) => locationId = inventoryLevel.locationId,
+    );
+
+    final body = jsonEncode({
+      "location_id": locationId,
+      "inventory_item_id": inventoryItemId,
+      "available": newQuantity,
+    });
+    final inventoryResult = await _doPost(uri: '$_url/api/$_apiVersion/$key/set.json', body: body);
+
+    return inventoryResult.fold(
+      (failure) => Left(failure),
+      (unit) => Right(unit),
+    );
+  }
+
+  Future<Either<ShopifyGeneralFailure, Unit>> postCollect(int productId, int customCollectionId) async {
+    const key = 'collects';
+
+    final body = jsonEncode({
+      "collect": {
+        "product_id": productId,
+        "collection_id": customCollectionId,
+      }
+    });
+    final inventoryResult = await _doPost(uri: '$_url/api/$_apiVersion/$key.json', body: body);
+
+    return inventoryResult.fold(
+      (failure) => Left(failure),
+      (unit) => Right(unit),
+    );
+  }
+
+  Future<Either<List<ShopifyGeneralFailure>, Unit>> postProductImages(int productId, List<ProductImage> productImages) async {
+    const key = 'products';
+
+    List<ShopifyGeneralFailure> failures = [];
+
+    int pos = 1;
+    for (final image in productImages) {
+      final response = await http.get(Uri.parse(image.fileUrl));
+      String? imageData;
+      if (response.statusCode == 200) imageData = base64Encode(response.bodyBytes);
+      if (imageData == null) {
+        failures.add(ShopifyGeneralFailure(errorMessage: 'Artikelbild konnte nicht aus der Datenbank geladen werden.'));
+        continue;
+      }
+
+      final body = jsonEncode({
+        "image": {
+          "position": pos,
+          // "metafields": [{"key": "new", "value": image.fileName, "type": "single_line_text_field", "namespace": "global"}],
+          "alt": image.fileName,
+          "attachment": imageData,
+          "filename": image.fileName,
+        }
+      });
+      final productResult = await _doPost(uri: '$_url/api/$_apiVersion/$key/$productId/images.json', body: body);
+
+      productResult.fold(
+        (failure) => failures.add(failure),
+        (_) => null,
+      );
+      pos++;
+    }
+
+    if (failures.isNotEmpty) return Left(failures);
+    return const Right(unit);
+  }
+
+  Future<Either<ShopifyGeneralFailure, Unit>> deleteCollect(int collectId) async {
+    const key = 'collects';
+    final inventoryResult = await _doDel(uri: '$_url/api/$_apiVersion/$key/$collectId.json');
+
+    return inventoryResult.fold(
+      (failure) => Left(failure),
+      (unit) => Right(unit),
+    );
+  }
+
+  Future<Either<List<ShopifyGeneralFailure>, Unit>> deleteProductImages(int productShopifyId) async {
+    const key = 'products';
+
+    List<ShopifyGeneralFailure> deleteImagesFailures = [];
+    ProductRawShopify? productRawShopify;
+    final fosProductRaw = await getProductRawById(productShopifyId);
+    fosProductRaw.fold(
+      (failure) => deleteImagesFailures = [failure],
+      (productRaw) => productRawShopify = productRaw,
+    );
+    if (deleteImagesFailures.isNotEmpty) return Left(deleteImagesFailures);
+    if (productRawShopify == null) return Left([ShopifyGeneralFailure(errorMessage: 'Artikelbilder konnten nicht gelöscht werden.')]);
+    // Wenn der Artikel keine Bilder auf Shopify hat, soll "unit" zurückgegeben werden
+    if (productRawShopify!.images.isEmpty) return const Right(unit);
+
+    for (final image in productRawShopify!.images) {
+      final deleteResult = await _doDel(uri: '$_url/api/$_apiVersion/$key/${productRawShopify!.id}/images/${image.id}.json');
+      deleteResult.fold(
+        (failure) => deleteImagesFailures.add(failure),
+        (_) => null,
+      );
+    }
+    return deleteImagesFailures.isEmpty ? const Right(unit) : Left(deleteImagesFailures);
+  }
+
   //? ###############################################################################################################################################
   //? ###############################################################################################################################################
   //? ###############################################################################################################################################
@@ -113,7 +401,7 @@ class ShopifyApi {
       final response = await http.get(Uri.parse(uri), headers: headers);
 
       if (response.statusCode == 200) {
-        return Right(isList ? jsonDecode(response.body)[key] : jsonDecode(response.body));
+        return Right(isList ? jsonDecode(response.body)[key] : jsonDecode(response.body)[key]);
       } else {
         var errorResponse = jsonDecode(response.body);
         var errorMessage = errorResponse['errors'] ?? 'Unknown error';
@@ -152,7 +440,7 @@ class ShopifyApi {
 
           // Extrahiere die URL für die nächste Seite aus dem Link-Header
           final linkHeader = response.headers['link'];
-          final nextPageUrl = linkHeader == null ? null : extractNextPageUrl(linkHeader);
+          final nextPageUrl = linkHeader == null ? null : _extractNextPageUrl(linkHeader);
           nextUri = nextPageUrl != null ? Uri.parse(nextPageUrl) : null;
         } else {
           var errorResponse = jsonDecode(response.body);
@@ -171,7 +459,74 @@ class ShopifyApi {
 
   //* ###############################################################################################################################################
 
-  String? extractNextPageUrl(String linkHeader) {
+  Future<Either<ShopifyUpdateFailure, Unit>> _doPut({required String uri, required Object body}) async {
+    final authHeader = base64Encode(utf8.encode('${_config.storefrontToken}:${_config.adminToken}'));
+    final headers = {'Authorization': 'Basic $authHeader', 'Content-Type': 'application/json'};
+
+    try {
+      final response = await http.put(Uri.parse(uri), headers: headers, body: body);
+
+      if (response.statusCode == 200) {
+        return const Right(unit);
+      } else {
+        var errorResponse = jsonDecode(response.body);
+        var errorMessage = errorResponse['errors'] ?? 'Unknown error';
+        logger.e('Shopify error: $errorMessage');
+        return Left(ShopifyUpdateFailure(response: response, customResponseMessage: 'Shopify error: $errorMessage'));
+      }
+    } catch (e) {
+      logger.e('Unexpected error: $e');
+      return Left(ShopifyUpdateFailure(customResponseMessage: 'Unexpected error: $e'));
+    }
+  }
+
+  Future<Either<ShopifyGeneralFailure, Unit>> _doPost({required String uri, required Object body}) async {
+    final authHeader = base64Encode(utf8.encode('${_config.storefrontToken}:${_config.adminToken}'));
+    final headers = {'Authorization': 'Basic $authHeader', 'Content-Type': 'application/json'};
+
+    try {
+      final response = await http.post(Uri.parse(uri), headers: headers, body: body);
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return const Right(unit);
+      } else {
+        logger.i(response.statusCode);
+        logger.e(response.body);
+        var errorResponse = jsonDecode(response.body);
+        var errorMessage = errorResponse['errors'] ?? 'Unknown error';
+        logger.e('Shopify error: $errorMessage');
+        return Left(ShopifyGeneralFailure(errorMessage: 'Shopify error: $errorMessage'));
+      }
+    } catch (e) {
+      logger.e('Unexpected error: $e');
+      return Left(ShopifyGeneralFailure(errorMessage: 'Unexpected error: $e'));
+    }
+  }
+
+  Future<Either<ShopifyGeneralFailure, Unit>> _doDel({required String uri}) async {
+    final authHeader = base64Encode(utf8.encode('${_config.storefrontToken}:${_config.adminToken}'));
+    final headers = {'Authorization': 'Basic $authHeader', 'Content-Type': 'application/json'};
+
+    try {
+      final response = await http.delete(Uri.parse(uri), headers: headers);
+
+      if (response.statusCode == 200) {
+        return const Right(unit);
+      } else {
+        logger.i(response.statusCode);
+        logger.e(response.body);
+        var errorResponse = jsonDecode(response.body);
+        var errorMessage = errorResponse['errors'] ?? 'Unknown error';
+        logger.e('Shopify error: $errorMessage');
+        return Left(ShopifyGeneralFailure(errorMessage: 'Shopify error: $errorMessage'));
+      }
+    } catch (e) {
+      logger.e('Unexpected error: $e');
+      return Left(ShopifyGeneralFailure(errorMessage: 'Unexpected error: $e'));
+    }
+  }
+
+  String? _extractNextPageUrl(String linkHeader) {
     final regex = RegExp(r'<([^>]+)>; rel="next"');
     final match = regex.firstMatch(linkHeader);
     return match?.group(1);

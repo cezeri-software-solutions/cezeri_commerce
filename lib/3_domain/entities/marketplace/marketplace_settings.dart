@@ -8,6 +8,7 @@ part 'marketplace_settings.g.dart';
 class MarketplaceSettings {
   final String id;
   final int nextIdToImport;
+  final DateTime lastImportDateTime;
   final List<int> orderStatusIdsToImport;
   final int statusIdAfterImport;
   final int statusIdAfterShipping;
@@ -18,6 +19,7 @@ class MarketplaceSettings {
   const MarketplaceSettings({
     required this.id,
     required this.nextIdToImport,
+    required this.lastImportDateTime,
     required this.orderStatusIdsToImport,
     required this.statusIdAfterImport,
     required this.statusIdAfterShipping,
@@ -31,9 +33,10 @@ class MarketplaceSettings {
   Map<String, dynamic> toJson() => _$MarketplaceSettingsToJson(this);
 
   factory MarketplaceSettings.empty() {
-    return const MarketplaceSettings(
+    return MarketplaceSettings(
       id: '',
       nextIdToImport: 1,
+      lastImportDateTime: DateTime.now(),
       orderStatusIdsToImport: [],
       statusIdAfterImport: 0,
       statusIdAfterShipping: 0,
@@ -46,6 +49,7 @@ class MarketplaceSettings {
   MarketplaceSettings copyWith({
     String? id,
     int? nextIdToImport,
+    DateTime? lastImportDateTime,
     List<int>? orderStatusIdsToImport,
     int? statusIdAfterImport,
     int? statusIdAfterShipping,
@@ -56,6 +60,7 @@ class MarketplaceSettings {
     return MarketplaceSettings(
       id: id ?? this.id,
       nextIdToImport: nextIdToImport ?? this.nextIdToImport,
+      lastImportDateTime: lastImportDateTime ?? this.lastImportDateTime,
       orderStatusIdsToImport: orderStatusIdsToImport ?? this.orderStatusIdsToImport,
       statusIdAfterImport: statusIdAfterImport ?? this.statusIdAfterImport,
       statusIdAfterShipping: statusIdAfterShipping ?? this.statusIdAfterShipping,
@@ -67,6 +72,6 @@ class MarketplaceSettings {
 
   @override
   String toString() {
-    return 'MarketplaceSettings(id: $id, nextIdToImport: $nextIdToImport, orderStatusIdsToImport: $orderStatusIdsToImport, statusIdAfterImport: $statusIdAfterImport, statusIdAfterShipping: $statusIdAfterShipping, statusIdAfterCancellation: $statusIdAfterCancellation, statusIdAfterDelete: $statusIdAfterDelete, listOfEMailAutomations: $listOfEMailAutomations)';
+    return 'MarketplaceSettings(id: $id, nextIdToImport: $nextIdToImport, lastImportDateTime: $lastImportDateTime, orderStatusIdsToImport: $orderStatusIdsToImport, statusIdAfterImport: $statusIdAfterImport, statusIdAfterShipping: $statusIdAfterShipping, statusIdAfterCancellation: $statusIdAfterCancellation, statusIdAfterDelete: $statusIdAfterDelete, listOfEMailAutomations: $listOfEMailAutomations)';
   }
 }

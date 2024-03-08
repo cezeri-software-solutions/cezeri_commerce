@@ -6,8 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
 
 import '../../../../2_application/firebase/marketplace/marketplace_bloc.dart';
@@ -17,6 +19,7 @@ import '../../../../3_domain/entities/marketplace/abstract_marketplace.dart';
 import '../../../../3_domain/entities/marketplace/marketplace_settings.dart';
 import '../../../../3_domain/entities/marketplace/marketplace_shopify.dart';
 import '../../../../3_domain/entities/settings/bank_details.dart';
+import '../../../../4_infrastructur/repositories/shopify_api/api/shopify_api.dart';
 import '../../../../constants.dart';
 import '../../../core/functions/mixed_functions.dart';
 import '../../../core/widgets/my_avatar.dart';
@@ -38,12 +41,14 @@ class AddEditMarketplaceShopify extends StatefulWidget {
 
 class _AddEditMarketplaceShopifyState extends State<AddEditMarketplaceShopify> {
   bool _isActive = false;
+  DateTime _lastImportDateTime = DateTime.now();
   File? _imageFile;
 
   Country _country = Country.countryList.where((e) => e.name == 'Österreich').first;
 
   late TextEditingController _nameController;
   late TextEditingController _shortNameController;
+  late TextEditingController _urlController;
   late TextEditingController _endpointUrlController;
   late TextEditingController _storeNameController;
   late TextEditingController _adminAccessTokenController;
@@ -73,11 +78,13 @@ class _AddEditMarketplaceShopifyState extends State<AddEditMarketplaceShopify> {
 
     if (widget.marketplace != null) {
       _isActive = widget.marketplace!.isActive;
+      _lastImportDateTime = widget.marketplace!.marketplaceSettings.lastImportDateTime;
       _country = widget.marketplace!.address.country.name != ''
           ? widget.marketplace!.address.country
           : Country.countryList.where((e) => e.name == 'Österreich').first;
       _nameController = TextEditingController(text: widget.marketplace!.name);
       _shortNameController = TextEditingController(text: widget.marketplace!.shortName);
+      _urlController = TextEditingController(text: widget.marketplace!.url);
       _endpointUrlController = TextEditingController(text: widget.marketplace!.endpointUrl);
       _storeNameController = TextEditingController(text: widget.marketplace!.storeName);
       _adminAccessTokenController = TextEditingController(text: widget.marketplace!.adminAccessToken);
@@ -99,8 +106,10 @@ class _AddEditMarketplaceShopifyState extends State<AddEditMarketplaceShopify> {
       _paypalEmailController = TextEditingController(text: widget.marketplace!.bankDetails.paypalEmail);
     } else {
       _isActive = false;
+      _lastImportDateTime = DateTime.now();
       _nameController = TextEditingController();
       _shortNameController = TextEditingController();
+      _urlController = TextEditingController();
       _endpointUrlController = TextEditingController(text: 'https://');
       _storeNameController = TextEditingController();
       _adminAccessTokenController = TextEditingController();
@@ -180,6 +189,11 @@ class _AddEditMarketplaceShopifyState extends State<AddEditMarketplaceShopify> {
                     ),
                     Gaps.h10,
                     MyTextFormField(
+                      controller: _urlController,
+                      labelText: 'Marktplatz URL:',
+                    ),
+                    Gaps.h10,
+                    MyTextFormField(
                       controller: _storeNameController,
                       labelText: 'Shop Name:',
                     ),
@@ -213,6 +227,12 @@ class _AddEditMarketplaceShopifyState extends State<AddEditMarketplaceShopify> {
                     MyTextFormField(
                       controller: _nextIdToImportController,
                       labelText: 'Auftrags-Id:',
+                    ),
+                    Gaps.h10,
+                    const Text('Zuletzt importiert am:', style: TextStyles.infoOnTextField),
+                    TextButton(
+                      onPressed: () async => await _pickLastImportDateTime(),
+                      child: Text(DateFormat('dd.MM.yyy - HH:mm:ss', 'de').format(_lastImportDateTime)),
                     ),
                     const Divider(height: 50),
                     MyTextFormField(labelText: 'Firmenname', controller: _companyNameController),
@@ -259,6 +279,7 @@ class _AddEditMarketplaceShopifyState extends State<AddEditMarketplaceShopify> {
                       final updatedMarketplace = widget.marketplace!.copyWith(
                         name: _nameController.text,
                         shortName: _shortNameController.text,
+                        url: _urlController.text,
                         isActive: _isActive,
                         endpointUrl: _endpointUrlController.text,
                         storeName: _storeNameController.text,
@@ -267,12 +288,12 @@ class _AddEditMarketplaceShopifyState extends State<AddEditMarketplaceShopify> {
                         shopSuffix: _shopSuffixController.text,
                         marketplaceSettings: widget.marketplace!.marketplaceSettings.copyWith(
                           nextIdToImport: int.parse(_nextIdToImportController.text),
+                          lastImportDateTime: _lastImportDateTime,
                         ),
                         address: widget.marketplace!.address.copyWith(
                           companyName: _companyNameController.text,
                           firstName: _firstNameController.text,
                           lastName: _lastNameController.text,
-                          name: '${_firstNameController.text} ${_lastNameController.text}',
                           street: _streetController.text,
                           street2: _street2Controller.text,
                           postcode: _postcodeController.text,
@@ -294,6 +315,7 @@ class _AddEditMarketplaceShopifyState extends State<AddEditMarketplaceShopify> {
                       final newMarketplace = MarketplaceShopify.empty().copyWith(
                         name: _nameController.text,
                         shortName: _shortNameController.text,
+                        url: _urlController.text,
                         isActive: _isActive,
                         endpointUrl: _endpointUrlController.text,
                         storeName: _storeNameController.text,
@@ -302,12 +324,12 @@ class _AddEditMarketplaceShopifyState extends State<AddEditMarketplaceShopify> {
                         shopSuffix: _shopSuffixController.text,
                         marketplaceSettings: MarketplaceSettings.empty().copyWith(
                           nextIdToImport: int.parse(_nextIdToImportController.text),
+                          lastImportDateTime: _lastImportDateTime,
                         ),
                         address: Address.empty().copyWith(
                           companyName: _companyNameController.text,
                           firstName: _firstNameController.text,
                           lastName: _lastNameController.text,
-                          name: '${_firstNameController.text} ${_lastNameController.text}',
                           street: _streetController.text,
                           street2: _street2Controller.text,
                           postcode: _postcodeController.text,
@@ -349,6 +371,13 @@ class _AddEditMarketplaceShopifyState extends State<AddEditMarketplaceShopify> {
                 Text(
                     '${_endpointUrlController.text}${_storeNameController.text}.myShopify.com/${_shopSuffixController.text}oauth/access_scopes.json'),
                 if (widget.marketplace != null) Text(widget.marketplace!.fullUrl),
+                Gaps.h10,
+                MyOutlinedButton(
+                  buttonText: 'Test Order',
+                  buttonBackgroundColor: Colors.red,
+                  isLoading: state.isLoadingMarketplaceOnDelete,
+                  onPressed: () async => await _getOrder(),
+                ),
                 const SizedBox(height: 50),
               ],
             ),
@@ -380,6 +409,20 @@ class _AddEditMarketplaceShopifyState extends State<AddEditMarketplaceShopify> {
     }
   }
 
+  Future<void> _getOrder() async {
+    final phUrl = '${_endpointUrlController.text}${_storeNameController.text}.myShopify.com/${_shopSuffixController.text}';
+    final url = phUrl.substring(0, phUrl.length - 1);
+    final api = ShopifyApi(
+      ShopifyApiConfig(storefrontToken: _storefrontAccessTokenController.text, adminToken: _adminAccessTokenController.text),
+      url,
+    );
+
+    final order = await api.getOrdersByCreatedAtMin(_lastImportDateTime);
+    print('---------------- ORDER ----------------');
+    print(order);
+    print('---------------- ORDER ----------------');
+  }
+
   Future<void> _pickFile(ImageSource imageSource) async {
     try {
       final FilePickerResult? result = await FilePicker.platform.pickFiles();
@@ -389,5 +432,79 @@ class _AddEditMarketplaceShopifyState extends State<AddEditMarketplaceShopify> {
     } on PlatformException catch (e) {
       logger.e('Fehler: $e');
     }
+  }
+
+  void loadOrders() async {
+    final String token = _storefrontAccessTokenController.text;
+
+    final HttpLink httpLink = HttpLink(
+      'DEINE_GRAPHQL_ENDPOINT_URL',
+    );
+
+    // Füge den Authorization-Header hinzu
+    final AuthLink authLink = AuthLink(
+      getToken: () => 'Bearer $token',
+    );
+
+    // Verknüpfe den authLink mit deinem httpLink
+    final Link link = authLink.concat(httpLink);
+
+    final GraphQLClient client = GraphQLClient(
+      link: link,
+      cache: GraphQLCache(store: InMemoryStore()),
+    );
+
+    const String getAllOrdersQuery = """
+      query GetAllOrders {
+        allOrders {
+          id
+          itemName
+          quantity
+          price
+        }
+      }
+    """;
+
+    final QueryResult result = await client.query(
+      QueryOptions(
+        document: gql(getAllOrdersQuery),
+      ),
+    );
+
+    if (result.hasException) {
+      print(result.exception.toString());
+    } else {
+      final List<dynamic> orders = result.data!['allOrders'];
+      for (var order in orders) {
+        print(order); // Drucke jede Bestellung in der Konsole
+      }
+    }
+  }
+
+  Future<void> _pickLastImportDateTime() async {
+    DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2025),
+    );
+    pickedDate ??= _lastImportDateTime;
+
+    if (!mounted) return;
+    TimeOfDay? pickedTime = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+    );
+    pickedTime ??= TimeOfDay(hour: _lastImportDateTime.hour, minute: _lastImportDateTime.minute);
+
+    setState(() {
+      _lastImportDateTime = DateTime(
+        pickedDate!.year,
+        pickedDate.month,
+        pickedDate.day,
+        pickedTime!.hour,
+        pickedTime.minute,
+      );
+    });
   }
 }
