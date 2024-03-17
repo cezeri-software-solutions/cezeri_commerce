@@ -48,12 +48,12 @@ class _CustomersOverviewScreenState extends State<CustomersOverviewScreen> with 
             },
           ),
           BlocListener<CustomerBloc, CustomerState>(
-            listenWhen: (p, c) => p.fosCustomerOnDeleteOption != c.fosCustomerOnDeleteOption,
+            listenWhen: (p, c) => p.fosCustomersOnDeleteOption != c.fosCustomersOnDeleteOption,
             listener: (context, state) {
-              state.fosCustomerOnDeleteOption.fold(
+              state.fosCustomersOnDeleteOption.fold(
                 () => null,
                 (a) => a.fold(
-                  (failure) => failureRenderer(context, [failure]),
+                  (failure) => failureRenderer(context, failure),
                   (customer) => myScaffoldMessenger(context, null, null, 'Ausgewählte Kunden erfolgreich gelöscht', null),
                 ),
               );

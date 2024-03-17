@@ -2,7 +2,9 @@ import 'package:http/http.dart';
 
 import 'abstract_failure.dart';
 
-enum ShopifyFailureType { general, update }
+enum ShopifyFailureType { general, update, post }
+
+enum ShopifyPostProductFailureType { product, images, categories, stock }
 
 abstract class ShopifyFailure extends AbstractFailure {
   final ShopifyFailureType shopifyFailureType;
@@ -20,8 +22,7 @@ class ShopifyUpdateFailure extends ShopifyFailure {
   final String? customResponseMessage;
   final String? customMessage;
 
-  ShopifyUpdateFailure({this.response, this.customResponseMessage, this.customMessage})
-      : super(shopifyFailureType: ShopifyFailureType.update);
+  ShopifyUpdateFailure({this.response, this.customResponseMessage, this.customMessage}) : super(shopifyFailureType: ShopifyFailureType.update);
 
   ShopifyUpdateFailure copyWith({
     Response? response,
@@ -34,4 +35,18 @@ class ShopifyUpdateFailure extends ShopifyFailure {
       customMessage: customMessage ?? this.customMessage,
     );
   }
+}
+
+class ShopifyPostProductFailure extends ShopifyFailure {
+  final ShopifyPostProductFailureType postProductFailureType;
+  final Response? response;
+  final String? customResponseMessage;
+  final String? customMessage;
+
+  ShopifyPostProductFailure({
+    required this.postProductFailureType,
+    this.response,
+    this.customResponseMessage,
+    this.customMessage,
+  }) : super(shopifyFailureType: ShopifyFailureType.post);
 }

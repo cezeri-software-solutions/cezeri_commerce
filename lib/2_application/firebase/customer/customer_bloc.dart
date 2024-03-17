@@ -32,6 +32,7 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
     on<SetEmptyCustomerOnCreateNewCustomerEvent>(_onSetEmptyCustomerOnCreateNewCustomer);
     on<CreateCustomerEvent>(_onCreateCustomer);
     on<UpdateCustomerEvent>(_onUpdateCustomer);
+    on<DeleteSelectedCustomersEvent>(_onDeleteSelectedCustomers);
     on<SetSearchFieldTextEvent>(_onSetSearchFieldText);
     on<OnSearchFieldSubmittedEvent>(_onSearchFieldSubmitted);
     on<OnSelectAllCustomersEvent>(_onSelectAllCustomers);
@@ -134,6 +135,25 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
       fosCustomerOnUpdateOption: optionOf(failureOrSuccess),
     ));
     emit(state.copyWith(fosCustomerOnObserveOption: none()));
+  }
+
+  Future<void> _onDeleteSelectedCustomers(DeleteSelectedCustomersEvent event, Emitter<CustomerState> emit) async {
+    emit(state.copyWith(isLoadingCustomerOnDelete: true));
+    List<AbstractFailure> failures = [];
+
+    for (final selectedCustomer in event.selectedCustomers) {
+      final fos = await _customerRepository.deleteCustomer(selectedCustomer.id);
+      fos.fold(
+        (failure) => failures.add(failure),
+        (unit) => null,
+      );
+    }
+
+    emit(state.copyWith(
+      isLoadingCustomerOnDelete: false,
+      fosCustomersOnDeleteOption: failures.isEmpty ? optionOf(const Right(unit)) : optionOf(Left(failures)),
+    ));
+    emit(state.copyWith(fosCustomersOnDeleteOption: none()));
   }
 
   Future<void> _onSetSearchFieldText(SetSearchFieldTextEvent event, Emitter<CustomerState> emit) async {

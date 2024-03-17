@@ -23,8 +23,9 @@ import '2_application/firebase/receipt_detail/receipt_detail_bloc.dart';
 import '2_application/firebase/reorder/reorder_bloc.dart';
 import '2_application/firebase/reorder_detail/reorder_detail_bloc.dart';
 import '2_application/firebase/supplier/supplier_bloc.dart';
+import '2_application/marketplace/product_export/bloc/product_export_bloc.dart';
+import '2_application/marketplace/product_import/product_import_bloc.dart';
 import '2_application/packing_station/packing_station_bloc.dart';
-import '2_application/prestashop/product_import/product_import_bloc.dart';
 import '3_domain/repositories/firebase/auth_repository.dart';
 import '3_domain/repositories/firebase/client_repository.dart';
 import '3_domain/repositories/firebase/customer_repository.dart';
@@ -59,6 +60,12 @@ final sl = GetIt.I;
 Future<void> init() async {
   //! state management
   sl.registerFactory(() => ProductImportBloc(productImportRepository: sl(), mainSettingsRepository: sl()));
+  sl.registerFactory(() => ProductExportBloc(
+        productRepository: sl(),
+        marketplaceRepository: sl(),
+        marketplaceEditRepository: sl(),
+        marketplaceImportRepository: sl(),
+      ));
   sl.registerFactory(() => ProductBloc(
         productRepository: sl(),
         marketplaceEditRepository: sl(),

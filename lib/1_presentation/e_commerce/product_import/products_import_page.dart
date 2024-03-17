@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../2_application/prestashop/product_import/product_import_bloc.dart';
+import '../../../2_application/marketplace/product_import/product_import_bloc.dart';
 import '../../../constants.dart';
 import '../../core/widgets/my_avatar.dart';
 import '../../core/widgets/my_circular_progress_indicator.dart';

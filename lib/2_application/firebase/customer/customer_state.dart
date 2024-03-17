@@ -18,7 +18,7 @@ class CustomerState {
   final Option<Either<AbstractFailure, List<Customer>>> fosCustomersOnObserveOption;
   final Option<Either<AbstractFailure, Customer>> fosCustomerOnCreateOption;
   final Option<Either<AbstractFailure, Customer>> fosCustomerOnUpdateOption;
-  final Option<Either<AbstractFailure, Unit>> fosCustomerOnDeleteOption;
+  final Option<Either<List<AbstractFailure>, Unit>> fosCustomersOnDeleteOption;
   final Option<Either<AbstractFailure, MainSettings>> fosCustomerMainSettingsOnObserveOption;
 
   //* Helpers
@@ -52,7 +52,7 @@ class CustomerState {
     required this.fosCustomersOnObserveOption,
     required this.fosCustomerOnCreateOption,
     required this.fosCustomerOnUpdateOption,
-    required this.fosCustomerOnDeleteOption,
+    required this.fosCustomersOnDeleteOption,
     required this.fosCustomerMainSettingsOnObserveOption,
     required this.isAllCustomersSelected,
     required this.customerSearchText,
@@ -84,7 +84,7 @@ class CustomerState {
       fosCustomersOnObserveOption: none(),
       fosCustomerOnCreateOption: none(),
       fosCustomerOnUpdateOption: none(),
-      fosCustomerOnDeleteOption: none(),
+      fosCustomersOnDeleteOption: none(),
       fosCustomerMainSettingsOnObserveOption: none(),
       isAllCustomersSelected: false,
       customerSearchText: '',
@@ -116,7 +116,7 @@ class CustomerState {
     Option<Either<AbstractFailure, List<Customer>>>? fosCustomersOnObserveOption,
     Option<Either<AbstractFailure, Customer>>? fosCustomerOnCreateOption,
     Option<Either<AbstractFailure, Customer>>? fosCustomerOnUpdateOption,
-    Option<Either<AbstractFailure, Unit>>? fosCustomerOnDeleteOption,
+    Option<Either<List<AbstractFailure>, Unit>>? fosCustomersOnDeleteOption,
     Option<Either<AbstractFailure, MainSettings>>? fosCustomerMainSettingsOnObserveOption,
     bool? isAllCustomersSelected,
     String? customerSearchText,
@@ -146,7 +146,7 @@ class CustomerState {
       fosCustomersOnObserveOption: fosCustomersOnObserveOption ?? this.fosCustomersOnObserveOption,
       fosCustomerOnCreateOption: fosCustomerOnCreateOption ?? this.fosCustomerOnCreateOption,
       fosCustomerOnUpdateOption: fosCustomerOnUpdateOption ?? this.fosCustomerOnUpdateOption,
-      fosCustomerOnDeleteOption: fosCustomerOnDeleteOption ?? this.fosCustomerOnDeleteOption,
+      fosCustomersOnDeleteOption: fosCustomersOnDeleteOption ?? this.fosCustomersOnDeleteOption,
       fosCustomerMainSettingsOnObserveOption: fosCustomerMainSettingsOnObserveOption ?? this.fosCustomerMainSettingsOnObserveOption,
       isAllCustomersSelected: isAllCustomersSelected ?? this.isAllCustomersSelected,
       customerSearchText: customerSearchText ?? this.customerSearchText,

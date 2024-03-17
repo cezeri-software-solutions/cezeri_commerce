@@ -130,7 +130,7 @@ Future<Either<AbstractFailure, List<ReceiptProduct>>> getListOfReceiptProductsFr
 
     ProductShopify? phProductShopify;
     AbstractFailure? fosProductShopifyFailure;
-    final fosProductShopify = await api.getProductsById(orderProductShopify.productId!);
+    final fosProductShopify = await api.getProductById(orderProductShopify.productId!);
     fosProductShopify.fold(
       (failure) => fosProductShopifyFailure = failure,
       (loadedProductShopify) => phProductShopify = loadedProductShopify,

@@ -34,7 +34,15 @@ class _ReceiptDetailAddressCardState extends State<ReceiptDetailAddressCard> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Align(alignment: Alignment.center, child: Text(widget.receipt.receiptCustomer.name, style: TextStyles.h3BoldPrimary)),
+            // Align(alignment: Alignment.center, child: Text(widget.receipt.receiptCustomer.name, style: TextStyles.h3BoldPrimary)),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(widget.receipt.receiptCustomer.customerNumber.toString(), style: TextStyles.defaultBold),
+                Text(widget.receipt.receiptCustomer.name, style: TextStyles.h3BoldPrimary),
+                InkWell(onTap: () {}, child: const Icon(Icons.edit, color: CustomColors.primaryColor)),
+              ],
+            ),
             const Divider(height: 30),
             DefaultTabController(
               length: 2,

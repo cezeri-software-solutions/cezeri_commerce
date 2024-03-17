@@ -213,6 +213,17 @@ class AppDrawer extends StatelessWidget {
                           },
                         ),
                         ListTile(
+                          leading: const Icon(Icons.import_export),
+                          title: const Text('Artikel exportieren'),
+                          onTap: () {
+                            if (context.router.current.name == ProductExportRoute.name) {
+                              context.router.pop();
+                            } else {
+                              context.router.replaceAll([const ProductExportRoute()]);
+                            }
+                          },
+                        ),
+                        ListTile(
                           leading: const Icon(Icons.business),
                           title: const Text('Marktplätze'),
                           onTap: () {

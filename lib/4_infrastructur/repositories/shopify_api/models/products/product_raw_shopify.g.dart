@@ -12,7 +12,7 @@ ProductRawShopify _$ProductRawShopifyFromJson(Map<String, dynamic> json) =>
       createdAt: json['created_at'] == null
           ? null
           : DateTime.parse(json['created_at'] as String),
-      handle: json['handle'] as String,
+      handle: json['handle'] as String?,
       id: json['id'] as int,
       images: (json['images'] as List<dynamic>)
           .map((e) => ProductImageShopify.fromJson(e as Map<String, dynamic>))

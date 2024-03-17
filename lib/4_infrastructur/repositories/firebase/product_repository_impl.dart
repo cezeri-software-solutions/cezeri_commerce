@@ -412,14 +412,19 @@ class ProductRepositoryImpl implements ProductRepository {
 
     final FirebaseStorage storage = FirebaseStorage.instance;
 
-    try {
-      final List<ProductImage> updatedListOfProductImages = List.from(product.listOfProductImages);
-      for (final image in listOfProductImages) {
+    final List<ProductImage> updatedListOfProductImages = List.from(product.listOfProductImages);
+    for (final image in listOfProductImages) {
+      try {
         final firebaseStoragePathToDelete = storage.refFromURL(image.fileUrl);
         await firebaseStoragePathToDelete.delete();
         updatedListOfProductImages.removeWhere((e) => e.fileUrl == image.fileUrl);
+      } on FirebaseException catch (e) {
+        logger.e(e.message);
+        updatedListOfProductImages.removeWhere((e) => e.fileUrl == image.fileUrl);
       }
+    }
 
+    try {
       final List<ProductImage> newListOfProductImages = [];
       for (int i = 0; i < updatedListOfProductImages.length; i++) {
         final productImage = updatedListOfProductImages[i].copyWith(isDefault: i == 0 ? true : false, sortId: i + 1);

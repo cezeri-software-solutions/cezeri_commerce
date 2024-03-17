@@ -21,6 +21,7 @@ import '../../../routes/router.gr.dart';
 import '../../core/functions/dialogs.dart';
 import '../../core/functions/my_scaffold_messanger.dart';
 import '../../core/widgets/my_circular_progress_indicator.dart';
+import 'functions/get_products_app_bar_title.dart';
 import 'functions/products_overview_create_export.dart';
 import 'products_overview_page.dart';
 import 'widgets/products_mass_editing_failure_dialog.dart';
@@ -139,7 +140,7 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> with Au
             return Scaffold(
               drawer: const AppDrawer(),
               appBar: AppBar(
-                title: _getAppBarTitle(context, state.listOfFilteredProducts, state.selectedProducts),
+                title: getProductsAppBarTitle(context, state.listOfFilteredProducts, state.selectedProducts),
                 actions: [
                   IconButton(
                     key: iconButtonKey,
@@ -318,45 +319,6 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> with Au
         context.router.pop();
       },
     );
-  }
-
-  Widget _getAppBarTitle(BuildContext context, List<Product>? listOfFilteredProducts, List<Product> selectedProducts) {
-    if (listOfFilteredProducts == null) return const Text('Artikel');
-    final isTablet = ResponsiveBreakpoints.of(context).largerOrEqualTo(TABLET);
-
-    final row = Row(
-        children: switch (isTablet) {
-      true => [
-          Text('Artikel (${listOfFilteredProducts.length})'),
-          Gaps.w8,
-          InkWell(
-            onTap: () => showMyDialogProducts(context: context, productsList: selectedProducts),
-            child: Text('Ausgewählte Artikel (${selectedProducts.length})'),
-          ),
-        ],
-      _ => [
-          Text('Artikel (${listOfFilteredProducts.length})'),
-          Gaps.w8,
-          Tooltip(
-            message: 'Ausgewählte Artikel',
-            child: InkWell(
-              onTap: () => showMyDialogProducts(context: context, productsList: selectedProducts),
-              child: Text('(${selectedProducts.length})'),
-            ),
-          ),
-        ],
-    });
-
-    return switch (isTablet) {
-      true => switch (selectedProducts.length) {
-          0 => Text('Artikel (${listOfFilteredProducts.length})'),
-          _ => row,
-        },
-      _ => switch (selectedProducts.length) {
-          0 => Text('Artikel (${listOfFilteredProducts.length})'),
-          _ => row,
-        },
-    };
   }
 
   @override

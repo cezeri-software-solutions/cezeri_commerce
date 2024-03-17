@@ -16,6 +16,7 @@ class AppRouter extends $AppRouter {
         AutoRoute(page: HomeRoute.page, path: '/home'),
         AutoRoute(page: DashboardRoute.page, path: '/dashboard'),
         AutoRoute(page: ProductImportRoute.page, path: '/product_import'),
+        AutoRoute(page: ProductExportRoute.page, path: '/product_export'),
         AutoRoute(page: ProductsOverviewRoute.page, path: '/products_overview'),
         AutoRoute(page: ProductDetailRoute.page, path: '/products_overview/products_detail'),
         AutoRoute(page: MarketplaceOverviewRoute.page, path: '/marketplace_overview'),

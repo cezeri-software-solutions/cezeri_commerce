@@ -173,8 +173,9 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
       products.add(event.product);
     }
     emit(state.copyWith(
-        isSelectedAllProducts: state.isSelectedAllProducts && products.length < state.selectedProducts.length ? false : state.isSelectedAllProducts,
-        selectedProducts: products));
+      isSelectedAllProducts: state.isSelectedAllProducts && products.length < state.selectedProducts.length ? false : state.isSelectedAllProducts,
+      selectedProducts: products,
+    ));
   }
 
   Future<void> _onOnProductGetSuppliers(OnProductGetSuppliersEvent event, Emitter<ProductState> emit) async {

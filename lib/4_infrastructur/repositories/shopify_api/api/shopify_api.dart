@@ -28,6 +28,16 @@ class ShopifyApi {
 
   ShopifyApi(this._config, this._url);
 
+  Future<Either<ShopifyGeneralFailure, List<ProductRawShopify>>> getProductsAllRaw() async {
+    const key = 'products';
+    final fosProductsRaw = await _doGetAll(uri: '$_url/api/$_apiVersion/$key.json', key: key, isList: true);
+
+    return fosProductsRaw.fold(
+      (failure) => Left(failure),
+      (data) => Right(List<ProductRawShopify>.from(data.map((model) => ProductRawShopify.fromJson(model)))),
+    );
+  }
+
   Future<Either<ShopifyGeneralFailure, ProductRawShopify>> getProductRawById(int productId) async {
     const key = 'product';
     final collectsResult = await _doGet(uri: '$_url/api/$_apiVersion/products/$productId.json', key: key, isList: false);
@@ -38,7 +48,7 @@ class ShopifyApi {
     );
   }
 
-  Future<Either<ShopifyGeneralFailure, ProductShopify>> getProductsById(int productId) async {
+  Future<Either<ShopifyGeneralFailure, ProductShopify>> getProductById(int productId) async {
     const defaultErrorMessage = 'Artikel konnte aus Shopify nicht geladen werden.';
     final fosProductsRaw = await getProductRawById(productId);
     ProductRawShopify? productRaw;
@@ -196,7 +206,14 @@ class ShopifyApi {
         "status": productShopify.status.toPrettyString(),
         "vendor": product.manufacturer,
         "variants": [
-          {"price": product.grossPrice, "sku": product.articleNumber, "weight": product.weight, "barcode": product.ean}
+          {
+            "price": product.grossPrice,
+            "cost": product.wholesalePrice, // EK-Preis
+            "sku": product.articleNumber,
+            "weight": product.weight,
+            "barcode": product.ean,
+            // "compare_at_price": product.grossPrice,
+          }
         ],
         "metafields_global_title_tag": product.name,
         "metafields_global_description_tag": convertHtmlToString(product.descriptionShort),
@@ -270,11 +287,96 @@ class ShopifyApi {
     return putProductFailures.isEmpty ? const Right(unit) : Left(putProductFailures);
   }
 
-  Future<Either<ShopifyGeneralFailure, Unit>> postProductStock(ProductShopify productShopify, int newQuantity) async {
+  //* Erstellt einen neuen Artikel in Shopify
+  Future<Either<List<AbstractFailure>, ProductShopify>> postProduct(Product product, List<int> customCollectionIds) async {
+    const key = 'products';
+    List<AbstractFailure> postProductFailures = [];
+
+    final body = jsonEncode({
+      "product": {
+        "title": product.name,
+        "body_html": product.description,
+        "status": ProductShopifyStatus.active.toPrettyString(),
+        "vendor": product.manufacturer,
+        "variants": [
+          {
+            "price": product.grossPrice,
+            "cost": product.wholesalePrice, // EK-Preis
+            "sku": product.articleNumber,
+            "weight": product.weight,
+            "barcode": product.ean,
+            "inventory_management": "shopify",
+            // "compare_at_price": product.grossPrice,
+          }
+        ],
+        "metafields_global_title_tag": product.name,
+        "metafields_global_description_tag": convertHtmlToString(product.descriptionShort),
+        "handle": generateFriendlyUrl(product.name),
+      }
+    });
+    final productResult = await _doPost(uri: '$_url/api/$_apiVersion/$key.json', body: body);
+    ProductRawShopify? newCreatedProduct;
+    productResult.fold(
+      (failure) => postProductFailures.add(ShopifyPostProductFailure(
+        postProductFailureType: ShopifyPostProductFailureType.product,
+        customMessage: failure.errorMessage,
+      )),
+      (data) {
+        print(const JsonEncoder.withIndent('  ').convert(data['product']));
+        newCreatedProduct = ProductRawShopify.fromJson(data['product']);
+      },
+    );
+    if (postProductFailures.isNotEmpty || newCreatedProduct == null) return Left(postProductFailures);
+
+    //* Artikelbilder hinzufügen
+    final fosImages = await postProductImages(newCreatedProduct!.id, product.name, product.listOfProductImages);
+    fosImages.fold(
+      (failure) => postProductFailures.add(ShopifyPostProductFailure(
+        postProductFailureType: ShopifyPostProductFailureType.images,
+        customMessage: failure.first.errorMessage,
+      )),
+      (_) => null,
+    );
+
+    //* Kategorien zuweisen
+    for (final id in customCollectionIds) {
+      final newCollectResult = await postCollect(newCreatedProduct!.id, id);
+      newCollectResult.fold(
+        (failure) => postProductFailures.add(ShopifyPostProductFailure(
+          postProductFailureType: ShopifyPostProductFailureType.categories,
+          customMessage: failure.errorMessage,
+        )),
+        (_) => null,
+      );
+    }
+
+    //* Bestand hinzufügen
+    final fosStock = await postProductStock(newCreatedProduct!.id, product.availableStock);
+    fosStock.fold(
+      (failure) => postProductFailures.add(ShopifyPostProductFailure(
+        postProductFailureType: ShopifyPostProductFailureType.stock,
+        customMessage: failure.errorMessage,
+      )),
+      (_) => null,
+    );
+
+    //* Neu erstellten Artikel laden als ProductPresta
+    ProductShopify? newProductShopify;
+    final fosNewProduct = await getProductById(newCreatedProduct!.id);
+    fosNewProduct.fold(
+      (failure) => postProductFailures.add(failure),
+      (newProduct) => newProductShopify = newProduct,
+    );
+    if (newProductShopify == null) return Left(postProductFailures);
+
+    return postProductFailures.isEmpty ? Right(newProductShopify!) : Left(postProductFailures);
+  }
+
+  Future<Either<ShopifyGeneralFailure, Unit>> postProductStock(int productShopifyId, int newQuantity) async {
     const key = 'inventory_levels';
 
     int? inventoryItemId;
-    final fosProductRaw = await getProductRawById(productShopify.id);
+    final fosProductRaw = await getProductRawById(productShopifyId);
     fosProductRaw.fold(
       (failure) => Left(failure),
       (productRaw) => inventoryItemId = productRaw.variants.first.inventoryItemId,
@@ -296,7 +398,7 @@ class ShopifyApi {
 
     return inventoryResult.fold(
       (failure) => Left(failure),
-      (unit) => Right(unit),
+      (_) => const Right(unit),
     );
   }
 
@@ -313,11 +415,11 @@ class ShopifyApi {
 
     return inventoryResult.fold(
       (failure) => Left(failure),
-      (unit) => Right(unit),
+      (_) => const Right(unit),
     );
   }
 
-  Future<Either<List<ShopifyGeneralFailure>, Unit>> postProductImages(int productId, List<ProductImage> productImages) async {
+  Future<Either<List<ShopifyGeneralFailure>, Unit>> postProductImages(int productId, String productName, List<ProductImage> productImages) async {
     const key = 'products';
 
     List<ShopifyGeneralFailure> failures = [];
@@ -332,11 +434,16 @@ class ShopifyApi {
         continue;
       }
 
+      final alt = switch (pos) {
+        1 => productName,
+        _ => '${productName}_$pos',
+      };
+
       final body = jsonEncode({
         "image": {
           "position": pos,
           // "metafields": [{"key": "new", "value": image.fileName, "type": "single_line_text_field", "namespace": "global"}],
-          "alt": image.fileName,
+          "alt": alt,
           "attachment": imageData,
           "filename": image.fileName,
         }
@@ -480,7 +587,7 @@ class ShopifyApi {
     }
   }
 
-  Future<Either<ShopifyGeneralFailure, Unit>> _doPost({required String uri, required Object body}) async {
+  Future<Either<ShopifyGeneralFailure, dynamic>> _doPost({required String uri, required Object body}) async {
     final authHeader = base64Encode(utf8.encode('${_config.storefrontToken}:${_config.adminToken}'));
     final headers = {'Authorization': 'Basic $authHeader', 'Content-Type': 'application/json'};
 
@@ -488,7 +595,7 @@ class ShopifyApi {
       final response = await http.post(Uri.parse(uri), headers: headers, body: body);
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        return const Right(unit);
+        return Right(jsonDecode(response.body));
       } else {
         logger.i(response.statusCode);
         logger.e(response.body);

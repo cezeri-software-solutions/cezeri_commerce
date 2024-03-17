@@ -33,7 +33,7 @@ class ProductRawShopify extends Equatable {
   final String? bodyHtml;
   @JsonKey(name: 'created_at')
   final DateTime? createdAt;
-  final String handle;
+  final String? handle;
   final int id;
   final List<ProductImageShopify> images;
   final List<ProductOptionShopify> options;

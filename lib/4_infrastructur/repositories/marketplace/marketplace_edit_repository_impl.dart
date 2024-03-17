@@ -20,7 +20,6 @@ import '../../../3_domain/entities/product/product_presta.dart';
 import '../../../core/abstract_failure.dart';
 import '../prestashop_api/models/product_raw_presta.dart';
 import '../prestashop_api/prestashop_api.dart';
-import '../shopify_api/api/shopify_api.dart';
 import '../shopify_api/shopify.dart';
 
 final logger = Logger();
@@ -76,7 +75,7 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
               marketplace.fullUrl,
             );
             final marketplaceProduct = productMarketplace.marketplaceProduct as ProductShopify;
-            final fos = await api.postProductStock(marketplaceProduct, newQuantity);
+            final fos = await api.postProductStock(marketplaceProduct.id, newQuantity);
             fos.fold(
               (failure) => failures.add(failure),
               (unit) => null,
@@ -347,7 +346,7 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
               (_) => null,
             );
 
-            final fosPostImages = await api.postProductImages(marketplaceProduct.id, productImages);
+            final fosPostImages = await api.postProductImages(marketplaceProduct.id, product.name, productImages);
             fosPostImages.fold(
               (postFailures) => failures.addAll(postFailures),
               (_) => null,

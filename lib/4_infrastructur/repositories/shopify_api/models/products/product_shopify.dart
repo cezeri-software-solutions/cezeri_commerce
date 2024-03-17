@@ -79,7 +79,7 @@ class ProductShopify extends MarketplaceProduct {
       id: productRaw.id,
       title: productRaw.title,
       bodyHtml: productRaw.bodyHtml ?? '',
-      handle: productRaw.handle,
+      handle: productRaw.handle ?? '',
       images: productRaw.images,
       options: productRaw.options,
       variants: productRaw.variants,
