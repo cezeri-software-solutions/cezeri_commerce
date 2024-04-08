@@ -6,6 +6,7 @@ import 'package:cezeri_commerce/1_presentation/core/widgets/my_circular_progress
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
 import 'package:printing/printing.dart';
@@ -271,18 +272,33 @@ class __AppointmentContainerState extends State<_AppointmentContainer> {
                     ),
                   ),
                   SizedBox(
-                    width: 120,
+                    width: 140,
                     child: Column(
                       children: [
-                        MyAvatar(
-                          name: marketplace.shortName,
-                          radius: 12,
-                          fontSize: 12,
-                          imageUrl: marketplace.logoUrl,
-                          shape: BoxShape.rectangle,
-                          fit: BoxFit.scaleDown,
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            SizedBox(
+                              height: 28,
+                            width: 48,
+                              child: MyAvatar(
+                                name: marketplace.shortName,
+                                radius: 12,
+                                fontSize: 12,
+                                imageUrl: marketplace.logoUrl,
+                                shape: BoxShape.rectangle,
+                                fit: BoxFit.scaleDown,
+                              ),
+                            ),
+                            Gaps.w8,
+                            SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: SvgPicture.asset(getMarketplaceLogoAsset(marketplace.marketplaceType)),
+                          ),
+                          ],
                         ),
-                        Text(marketplace.name),
+                        Text(marketplace.name, textAlign: TextAlign.center),
                         Text(DateFormat('dd.MM.yyy', 'de').format(widget.receipt.creationDateMarektplace)),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,

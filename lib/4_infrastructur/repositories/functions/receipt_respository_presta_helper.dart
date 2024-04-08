@@ -5,6 +5,7 @@ import 'package:dartz/dartz.dart';
 import 'package:http/http.dart';
 import 'package:logger/logger.dart';
 
+import '../../../3_domain/entities/settings/tax.dart';
 import '../prestashop_api/models/order_presta.dart';
 import '../prestashop_api/prestashop_api.dart';
 import '/1_presentation/core/functions/mixed_functions.dart';
@@ -94,7 +95,9 @@ Future<Either<AbstractFailure, ({Receipt receipt, int customerNumber})>> createR
         (orderPresta.totalShippingTaxIncl).toMyDouble() +
         (orderPresta.totalWrappingTaxIncl).toMyDouble() -
         (orderPresta.totalDiscountsTaxIncl).toMyDouble();
-    final tax = mainSettings.taxes.where((e) => e.taxRate.round() == calcTaxPercent(getTotalGross(), getTotalNet()).round()).first;
+    Tax? tax = mainSettings.taxes.where((e) => e.taxRate.round() == calcTaxPercent(getTotalGross(), getTotalNet()).round()).firstOrNull;
+    tax ??= mainSettings.taxes.where((e) => e.isDefault).first;
+
     final createdCustomerInFirestore = await createCustomerFromMarketplace(
       customerRepository,
       Customer.fromPresta(customer, nextCustomerNumber, marketplace, addressInvoice, addressDelivery, countryInvoice, countryDelivery, tax),

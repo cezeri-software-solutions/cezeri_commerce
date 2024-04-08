@@ -599,6 +599,10 @@ class PrestashopApi with UiLoggy {
     final response = await _http.get(Uri.parse(uri), headers: headers);
     loggy.debug('Received response with code ${response.statusCode}');
 
+    print('------------------------------------------------------------------------------------------------');
+    print(response.bodyBytes);
+    print('------------------------------------------------------------------------------------------------');
+
     if (single && response.statusCode == 404) {
       return null;
     }

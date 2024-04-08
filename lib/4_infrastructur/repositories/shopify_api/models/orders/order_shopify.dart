@@ -97,7 +97,7 @@ class OrderShopify extends Equatable {
   @JsonKey(name: 'id')
   final int id;
   @JsonKey(name: 'landing_site')
-  final String landingSite;
+  final String? landingSite;
   @JsonKey(name: 'line_items')
   final List<LineItemShopify> lineItems;
   @JsonKey(name: 'location_id')
@@ -131,7 +131,7 @@ class OrderShopify extends Equatable {
   @JsonKey(name: 'processed_at')
   final String processedAt;
   @JsonKey(name: 'referring_site')
-  final String referringSite;
+  final String? referringSite;
   @JsonKey(name: 'refunds')
   final List<Map<String, dynamic>> refunds;
   @JsonKey(name: 'shipping_address')
@@ -187,7 +187,7 @@ class OrderShopify extends Equatable {
   @JsonKey(name: 'user_id')
   final int? userId;
   @JsonKey(name: 'order_status_url')
-  final String orderStatusUrl;
+  final String? orderStatusUrl;
 
   const OrderShopify({
     required this.appId,
@@ -224,7 +224,7 @@ class OrderShopify extends Equatable {
     required this.fulfillments,
     required this.fulfillmentStatus,
     required this.id,
-    required this.landingSite,
+    this.landingSite,
     required this.lineItems,
     required this.locationId,
     required this.merchantOfRecordAppId,
@@ -241,7 +241,7 @@ class OrderShopify extends Equatable {
     required this.poNumber,
     required this.presentmentCurrency,
     required this.processedAt,
-    required this.referringSite,
+    this.referringSite,
     required this.refunds,
     required this.shippingAddress,
     required this.shippingLines,
@@ -269,7 +269,7 @@ class OrderShopify extends Equatable {
     required this.totalWeight,
     required this.updatedAt,
     required this.userId,
-    required this.orderStatusUrl,
+    this.orderStatusUrl,
   });
 
   factory OrderShopify.fromJson(Map<String, dynamic> json) => _$OrderShopifyFromJson(json);

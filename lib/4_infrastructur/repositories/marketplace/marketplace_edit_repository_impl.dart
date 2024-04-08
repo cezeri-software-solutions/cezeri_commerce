@@ -363,7 +363,7 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
 
   @override
   Future<Either<PrestaFailure, Unit>> setOrderStatusInMarketplace(
-    MarketplacePresta marketplace,
+    AbstractMarketplace abstractMarketplace,
     int orderId,
     OrderStatusUpdateType orderStatusUpdateType,
   ) async {
@@ -373,9 +373,10 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
 
     bool isSuccess = true;
 
-    switch (marketplace.marketplaceType) {
+    switch (abstractMarketplace.marketplaceType) {
       case MarketplaceType.prestashop:
         {
+          final marketplace = abstractMarketplace as MarketplacePresta;
           final api = PrestashopApi(Client(), PrestashopApiConfig(apiKey: marketplace.key, webserviceUrl: marketplace.fullUrl));
 
           final statusId = switch (orderStatusUpdateType) {
@@ -390,7 +391,12 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
         }
       case MarketplaceType.shopify:
         {
-          throw Exception('SHOPIFY not implemented');
+          // TODO: Shopify Fulfillment
+          final mp = abstractMarketplace as MarketplaceShopify;
+          final api = ShopifyApi(ShopifyApiConfig(storefrontToken: mp.storefrontAccessToken, adminToken: mp.adminAccessToken), mp.fullUrl);
+
+          final result = await api.postFulfillment();
+          if (result.isRight()) return const Right(unit);
         }
       case MarketplaceType.shop:
         {

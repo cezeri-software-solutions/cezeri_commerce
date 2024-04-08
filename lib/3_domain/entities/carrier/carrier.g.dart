@@ -12,6 +12,7 @@ Carrier _$CarrierFromJson(Map<String, dynamic> json) => Carrier(
       marketplaceMapping: json['marketplaceMapping'] as String,
       imagePath: json['imagePath'] as String,
       trackingUrl: json['trackingUrl'] as String,
+      trackingUrl2: json['trackingUrl2'] as String?,
       carrierKey:
           CarrierKey.fromJson(json['carrierKey'] as Map<String, dynamic>),
       carrierTyp: $enumDecode(_$CarrierTypEnumMap, json['carrierTyp']),
@@ -40,6 +41,7 @@ Map<String, dynamic> _$CarrierToJson(Carrier instance) => <String, dynamic>{
       'marketplaceMapping': instance.marketplaceMapping,
       'imagePath': instance.imagePath,
       'trackingUrl': instance.trackingUrl,
+      'trackingUrl2': instance.trackingUrl2,
       'carrierKey': instance.carrierKey.toJson(),
       'carrierTyp': _$CarrierTypEnumMap[instance.carrierTyp]!,
       'carrierAutomations':

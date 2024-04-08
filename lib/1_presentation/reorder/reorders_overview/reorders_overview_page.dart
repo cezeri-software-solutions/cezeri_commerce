@@ -175,11 +175,13 @@ class ReordersOverviewPage extends StatelessWidget {
           );
         }
 
-        return SingleChildScrollView(
-          scrollDirection: Axis.vertical,
+        return Expanded(
           child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: buildReorderTable(state.listOfFilteredReorders!),
+            scrollDirection: Axis.vertical,
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: buildReorderTable(state.listOfFilteredReorders!),
+            ),
           ),
         );
       },

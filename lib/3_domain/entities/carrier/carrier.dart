@@ -14,6 +14,7 @@ class Carrier {
   final String marketplaceMapping;
   final String imagePath;
   final String trackingUrl;
+  final String? trackingUrl2;
   final CarrierKey carrierKey;
   final CarrierTyp carrierTyp;
   final List<CarrierProduct> carrierAutomations;
@@ -32,6 +33,7 @@ class Carrier {
     required this.marketplaceMapping,
     required this.imagePath,
     required this.trackingUrl,
+    this.trackingUrl2,
     required this.carrierKey,
     required this.carrierTyp,
     required this.carrierAutomations,
@@ -56,6 +58,7 @@ class Carrier {
       marketplaceMapping: '',
       imagePath: '',
       trackingUrl: '',
+      trackingUrl2: null,
       carrierKey: CarrierKey.empty(),
       carrierTyp: CarrierTyp.empty,
       carrierAutomations: [],
@@ -76,6 +79,7 @@ class Carrier {
     String? marketplaceMapping,
     String? imagePath,
     String? trackingUrl,
+    String? trackingUrl2,
     CarrierKey? carrierKey,
     CarrierTyp? carrierTyp,
     List<CarrierProduct>? carrierAutomations,
@@ -94,6 +98,7 @@ class Carrier {
       marketplaceMapping: marketplaceMapping ?? this.marketplaceMapping,
       imagePath: imagePath ?? this.imagePath,
       trackingUrl: trackingUrl ?? this.trackingUrl,
+      trackingUrl2: trackingUrl2 ?? this.trackingUrl2,
       carrierKey: carrierKey ?? this.carrierKey,
       carrierTyp: carrierTyp ?? this.carrierTyp,
       carrierAutomations: carrierAutomations ?? this.carrierAutomations,
@@ -119,6 +124,7 @@ class Carrier {
       name: 'Österreichische Post',
       imagePath: 'assets/carriers/AustrianPost.jpg',
       trackingUrl: 'https://www.post.at/s/sendungsdetails?snr=',
+      trackingUrl2: 'https://www.dhl.de/de/privatkunden/dhl-sendungsverfolgung.html?piececode=',
       carrierTyp: CarrierTyp.austrianPost,
       listOfPaperLayout: ['2xA5inA4', 'A6', 'A5', 'A4'],
       paperLayout: '2xA5inA4',

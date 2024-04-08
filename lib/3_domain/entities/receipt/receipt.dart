@@ -645,7 +645,8 @@ class Receipt {
       offerStatus: OfferStatus.noOffer,
       appointmentStatus: AppointmentStatus.open,
       paymentStatus: getPaymentStatus(),
-      tax: mainSettings.taxes.where((e) => e.taxRate.round() == calcTaxPercent(getTotalGross(), getTotalNet()).round()).first,
+      tax: mainSettings.taxes.where((e) => e.taxRate.round() == calcTaxPercent(getTotalGross(), getTotalNet()).round()).firstOrNull ??
+          mainSettings.taxes.where((e) => e.isDefault).first,
       isSmallBusiness: mainSettings.isSmallBusiness,
       isPicked: false,
       termOfPayment: mainSettings.termOfPayment,
@@ -727,7 +728,9 @@ class Receipt {
     PaymentMethod getPaymentMethod() {
       // TODO: sobald PaymentMethod in AddEditMarketplace gemappt werden kann, muss payment Methods darüber aufegrufen werden
       // TODO:  marketplace.paymentMethods.where((e) => e.nameInMarketplace == orderPresta.payment).firstOrNull;
-      final paymentMethod = mainSettings.paymentMethods.where((e) => e.nameInMarketplace == orderShopify.paymentGatewayNames.first).firstOrNull;
+      final paymentMethod = mainSettings.paymentMethods
+          .where((e) => e.nameInMarketplace.toLowerCase() == orderShopify.paymentGatewayNames.first.toLowerCase())
+          .firstOrNull;
       if (paymentMethod != null) return paymentMethod;
       return PaymentMethod.empty().copyWith(
         name: orderShopify.paymentGatewayNames.first,
@@ -869,9 +872,7 @@ class Receipt {
       profitExclWrapping: profitExclWrapping,
       profitExclShippingAndWrapping: profitExclShippingAndWrapping,
       bankDetails: mainSettings.bankDetails,
-      listOfPayments: getPaymentStatus() != PaymentStatus.open
-          ? [Payment(totalGross, '', DateTime.parse(orderShopify.createdAt))]
-          : [],
+      listOfPayments: getPaymentStatus() != PaymentStatus.open ? [Payment(totalGross, '', DateTime.parse(orderShopify.createdAt))] : [],
       listOfReceiptProduct: listOfReceiptproduct,
       listOfParcelTracking: [],
       receiptCarrier: receiptCarrier,

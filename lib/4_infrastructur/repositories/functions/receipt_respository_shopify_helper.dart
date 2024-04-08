@@ -80,6 +80,7 @@ Future<Either<AbstractFailure, ({Receipt receipt, int customerNumber})>> createR
     customerFirestore = createdCustomerInFirestore;
     nextCustomerNumber += 1;
   } else {
+    customerFirestore = loadedCustomerFromFirestore;
     // TODO: SHOPIFY Wenn Adrssen richtig von des SChnittstelle ausgegeben werden aktivieren und anpassen
     // final invoiceAddress = Address.fromShopify(addressInvoice, AddressType.invoice);
     // final deliveryAddress = Address.fromShopify(addressDelivery, AddressType.delivery);

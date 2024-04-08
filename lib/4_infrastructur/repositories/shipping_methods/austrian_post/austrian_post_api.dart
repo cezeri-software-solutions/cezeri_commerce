@@ -134,10 +134,25 @@ class AustrianPostApi {
     return document.toXmlString();
   }
 
-  String getTrackingNumber(String response) {
+  ({String trackingNumber, String? trackingNumber2}) getTrackingNumber(String response) {
     final document = XmlDocument.parse(response);
-    final pdfDataElement = document.findAllElements('Code').first;
-    return pdfDataElement.innerText;
+    print('########################################################################################################################################');
+    print('#######################################################################################################################################');
+    print('######################################################################################################################################');
+    print('#####################################################################################################################################');
+    print(document);
+    print('#####################################################################################################################################');
+    print('######################################################################################################################################');
+    print('#######################################################################################################################################');
+    print('########################################################################################################################################');
+    final code2 = document.findAllElements('Code').elementAtOrNull(1);
+    print('############## Element 2 START ##################');
+    print(code2);
+    if(code2 != null) code2.innerText;
+    print('############## Element 2 END ##################');
+    final trackingCode = document.findAllElements('Code').first;
+    final trackingCode2 = code2?.innerText;
+    return (trackingNumber: trackingCode.innerText, trackingNumber2: trackingCode2);
   }
 
   String getPdfLabel(String response) {

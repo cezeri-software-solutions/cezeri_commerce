@@ -461,6 +461,12 @@ class ShopifyApi {
     return const Right(unit);
   }
 
+  Future<Either<List<ShopifyGeneralFailure>, Unit>> postFulfillment() async {
+    // TODO: Shopify Fulfillment
+    // if (failures.isNotEmpty) return Left(failures);
+    return const Right(unit);
+  }
+
   Future<Either<ShopifyGeneralFailure, Unit>> deleteCollect(int collectId) async {
     const key = 'collects';
     final inventoryResult = await _doDel(uri: '$_url/api/$_apiVersion/$key/$collectId.json');

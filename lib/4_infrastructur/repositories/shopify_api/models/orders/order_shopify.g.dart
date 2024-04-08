@@ -56,7 +56,7 @@ OrderShopify _$OrderShopifyFromJson(Map<String, dynamic> json) => OrderShopify(
       fulfillmentStatus: OrderShopify._fulfillmentStatusFromJson(
           json['fulfillment_status'] as String?),
       id: json['id'] as int,
-      landingSite: json['landing_site'] as String,
+      landingSite: json['landing_site'] as String?,
       lineItems: (json['line_items'] as List<dynamic>)
           .map((e) => LineItemShopify.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -81,7 +81,7 @@ OrderShopify _$OrderShopifyFromJson(Map<String, dynamic> json) => OrderShopify(
       poNumber: json['po_number'] as String?,
       presentmentCurrency: json['presentment_currency'] as String,
       processedAt: json['processed_at'] as String,
-      referringSite: json['referring_site'] as String,
+      referringSite: json['referring_site'] as String?,
       refunds: (json['refunds'] as List<dynamic>)
           .map((e) => e as Map<String, dynamic>)
           .toList(),
@@ -118,7 +118,7 @@ OrderShopify _$OrderShopifyFromJson(Map<String, dynamic> json) => OrderShopify(
       totalWeight: json['total_weight'] as int,
       updatedAt: json['updated_at'] as String,
       userId: json['user_id'] as int?,
-      orderStatusUrl: json['order_status_url'] as String,
+      orderStatusUrl: json['order_status_url'] as String?,
     );
 
 Map<String, dynamic> _$OrderShopifyToJson(OrderShopify instance) =>

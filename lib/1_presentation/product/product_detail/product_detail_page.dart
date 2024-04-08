@@ -1,7 +1,7 @@
 import 'package:cezeri_commerce/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:responsive_framework/responsive_breakpoints.dart';
+import 'package:responsive_framework/responsive_framework.dart';
 
 import '../../../2_application/firebase/product_detail/product_detail_bloc.dart';
 import 'product_detail_screen.dart';

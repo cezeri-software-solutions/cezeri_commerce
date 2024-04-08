@@ -3,7 +3,7 @@ import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.da
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:responsive_framework/responsive_breakpoints.dart';
+import 'package:responsive_framework/responsive_framework.dart';
 
 import '../../../2_application/marketplace/product_export/bloc/product_export_bloc.dart';
 import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';

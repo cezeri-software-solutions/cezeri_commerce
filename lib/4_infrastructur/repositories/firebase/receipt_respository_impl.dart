@@ -596,7 +596,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
       int nextInvoiceNumber = settings.nextInvoiceNumber;
 
       final dsMarketplace = await docRefMarketplace.get();
-      final marketplace = MarketplacePresta.fromJson(dsMarketplace.data()!);
+      final marketplace = AbstractMarketplace.fromJson(dsMarketplace.data()!);
 
       ParcelTracking? parcelTracking;
       if (generateDeliveryNote) {
@@ -729,15 +729,27 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
       }
 
       //* Neuen Bestellstatus im Marktplatz setzen
-      final fosOrderStatus = await marketplaceEditRepository.setOrderStatusInMarketplace(
-        marketplace,
-        originalAppointment.receiptMarketplaceId,
-        OrderStatusUpdateType.onShipping,
-      );
-      fosOrderStatus.fold(
-        (failure) => logger.e('Bestellstatus für Bestellung mit der ID: ${originalAppointment.receiptMarketplaceId} konnte nicht gesetzt werden'),
-        (unit) => logger.i('Bestellstatus für die Bestellung mit der ID: ${originalAppointment.receiptMarketplaceId} wurde erfolgreich aktualisiert'),
-      );
+      switch (marketplace.marketplaceType) {
+        case MarketplaceType.prestashop:
+          {
+            final fosOrderStatus = await marketplaceEditRepository.setOrderStatusInMarketplace(
+              marketplace as MarketplacePresta,
+              originalAppointment.receiptMarketplaceId,
+              OrderStatusUpdateType.onShipping,
+            );
+            fosOrderStatus.fold(
+              (failure) =>
+                  logger.e('Bestellstatus für Bestellung mit der ID: ${originalAppointment.receiptMarketplaceId} konnte nicht gesetzt werden'),
+              (unit) =>
+                  logger.i('Bestellstatus für die Bestellung mit der ID: ${originalAppointment.receiptMarketplaceId} wurde erfolgreich aktualisiert'),
+            );
+          }
+        case MarketplaceType.shopify:
+          {
+            // TODO: Shopify
+          }
+        case MarketplaceType.shop:
+      }
 
       return right(generatedReceipts);
     } on FirebaseException catch (e) {
@@ -746,10 +758,11 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
         customMessage: 'Beim Generieren von einem Lieferschein und/oder Rechnung aus einem Auftrag ist ein Fehler aufgetreten',
         e: e,
       ));
-    } catch (e) {
-      logger.e('Beim Generieren der Dokumente aus einem Auftrag ist ein Fehler aufgetreten: $e');
-      return left(GeneralFailure());
     }
+    // catch (e) {
+    //   logger.e('Beim Generieren der Dokumente aus einem Auftrag ist ein Fehler aufgetreten: $e');
+    //   return left(GeneralFailure());
+    // }
   }
 
   @override
@@ -1092,23 +1105,23 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
     AbstractFailure? abstractFailure;
     final List<LoadedOrderFromMarketplace> loadedOrders = [];
 
-    try {
-      final fosOrders = await api.getOrdersByCreatedAtMin(toLoadAppointments.marketplace.marketplaceSettings.lastImportDateTime);
-      fosOrders.fold(
-        (failure) => abstractFailure = failure,
-        (orders) {
-          for (final order in orders) {
-            loadedOrders.add(LoadedOrderFromMarketplace(marketplace: marketplace, orderShopify: order, orderMarketplaceId: order.id));
-          }
-        },
-      );
+    // try {
+    final fosOrders = await api.getOrdersByCreatedAtMin(toLoadAppointments.marketplace.marketplaceSettings.lastImportDateTime);
+    fosOrders.fold(
+      (failure) => abstractFailure = failure,
+      (orders) {
+        for (final order in orders) {
+          loadedOrders.add(LoadedOrderFromMarketplace(marketplace: marketplace, orderShopify: order, orderMarketplaceId: order.id));
+        }
+      },
+    );
 
-      if (abstractFailure != null) return Left(abstractFailure!);
-      return Right(loadedOrders);
-    } catch (e) {
-      logger.e('Fehler beim laden der Aufträge von Marktplätzen: $e');
-      return left(PrestaGeneralFailure(errorMessage: 'Fehler beim laden der Aufträge von Marktplätzen: $e'));
-    }
+    if (abstractFailure != null) return Left(abstractFailure!);
+    return Right(loadedOrders);
+    // } catch (e) {
+    //   logger.e('Fehler beim laden der Aufträge von Marktplätzen: $e');
+    //   return left(PrestaGeneralFailure(errorMessage: 'Fehler beim laden der Aufträge von Marktplätzen: $e'));
+    // }
   }
 
   @override
@@ -1294,7 +1307,7 @@ String fillPlaceholder(Receipt receipt, String value) {
   return newValue;
 }
 
-Future<bool> sendCustomerEmailsOnCreateReceipts(List<Receipt> listOfReceipts, MarketplacePresta marketplace) async {
+Future<bool> sendCustomerEmailsOnCreateReceipts(List<Receipt> listOfReceipts, AbstractMarketplace marketplace) async {
   bool isSuccess = false;
   for (final receipt in listOfReceipts) {
     switch (receipt.receiptTyp) {
@@ -1542,12 +1555,17 @@ Future<ParcelTracking?> getParcelTracking(Receipt receipt, MainSettings ms, int 
     return null;
   }
 
-  final trackingNumber = service.getTrackingNumber(responseString);
+  final trackingNumberTupel = service.getTrackingNumber(responseString);
+  final trackingNumber = trackingNumberTupel.trackingNumber2 != null && carrier.trackingUrl2 != null
+      ? trackingNumberTupel.trackingNumber2!
+      : trackingNumberTupel.trackingNumber;
+  final trackingUrl = trackingNumberTupel.trackingNumber2 != null && carrier.trackingUrl2 != null ? carrier.trackingUrl2! : carrier.trackingUrl;
+
   final pdfString = service.getPdfLabel(responseString);
 
   final parcelTracking = ParcelTracking(
     deliveryNoteId: deliveryNoteNumber,
-    trackingUrl: carrier.trackingUrl,
+    trackingUrl: trackingUrl,
     trackingNumber: trackingNumber,
     pdfString: pdfString,
   );

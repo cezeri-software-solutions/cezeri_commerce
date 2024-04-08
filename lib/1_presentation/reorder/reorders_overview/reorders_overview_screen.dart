@@ -98,32 +98,34 @@ class ReordersOverviewScreen extends StatelessWidget {
                   ),
                 ],
               ),
-              body: Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(left: 20, right: 20, bottom: 10),
-                    child: CupertinoSearchTextField(
-                      controller: searchController,
-                      onChanged: (value) => context.read<ReorderBloc>().add(SetSearchFieldTextEvent(searchText: value)),
-                      onSubmitted: (value) => context.read<ReorderBloc>().add(OnSearchFieldSubmittedEvent()),
-                      onSuffixTap: () {
-                        searchController.clear();
-                        context.read<ReorderBloc>().add(SetSearchFieldTextEvent(searchText: ''));
-                        context.read<ReorderBloc>().add(OnSearchFieldSubmittedEvent());
-                      },
+              body: SafeArea(
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(left: 20, right: 20, bottom: 10),
+                      child: CupertinoSearchTextField(
+                        controller: searchController,
+                        onChanged: (value) => context.read<ReorderBloc>().add(SetSearchFieldTextEvent(searchText: value)),
+                        onSubmitted: (value) => context.read<ReorderBloc>().add(OnSearchFieldSubmittedEvent()),
+                        onSuffixTap: () {
+                          searchController.clear();
+                          context.read<ReorderBloc>().add(SetSearchFieldTextEvent(searchText: ''));
+                          context.read<ReorderBloc>().add(OnSearchFieldSubmittedEvent());
+                        },
+                      ),
                     ),
-                  ),
-                  DefaultTabController(
-                    length: 4,
-                    child: TabBar(
-                      tabs: const [Tab(text: 'Offen'), Tab(text: 'Teilweise offen'), Tab(text: 'Geschlossen'), Tab(text: 'Alle')],
-                      labelStyle: const TextStyle(fontWeight: FontWeight.bold),
-                      unselectedLabelStyle: const TextStyle(),
-                      onTap: (value) => reorderBloc.add(GetReordersEvenet(tabValue: value)),
+                    DefaultTabController(
+                      length: 4,
+                      child: TabBar(
+                        tabs: const [Tab(text: 'Offen'), Tab(text: 'Teilweise offen'), Tab(text: 'Geschlossen'), Tab(text: 'Alle')],
+                        labelStyle: const TextStyle(fontWeight: FontWeight.bold),
+                        unselectedLabelStyle: const TextStyle(),
+                        onTap: (value) => reorderBloc.add(GetReordersEvenet(tabValue: value)),
+                      ),
                     ),
-                  ),
-                  ReordersOverviewPage(reorderBloc: reorderBloc),
-                ],
+                    ReordersOverviewPage(reorderBloc: reorderBloc),
+                  ],
+                ),
               ),
             );
           },
