@@ -4,6 +4,8 @@ abstract class HomeProductEvent {}
 
 class SetHomeProductStateToInitailEvent extends HomeProductEvent {}
 
+class GetHomeProductsOutletProductsEvent extends HomeProductEvent {}
+
 class GetHomeProductSoldOutProductsEvent extends HomeProductEvent {}
 
 class GetHomeProductUnderMinimumQuantityProductsEvent extends HomeProductEvent {}
@@ -26,8 +28,6 @@ class GenerateProductHomeProductsEvent extends HomeProductEvent {}
 
 //* Helpers isExpanded
 
-class OnHomeProductIsExpandedProductsChangedEvent extends HomeProductEvent {}
+class OnHomeProductIsExpandedOutletChangedEvent extends HomeProductEvent {}
 
-//* Controllers
-
-class OnHomeProductSearchControllerChangedEvent extends HomeProductEvent {}
+class OnHomeProductIsExpandedSoldOutChangedEvent extends HomeProductEvent {}

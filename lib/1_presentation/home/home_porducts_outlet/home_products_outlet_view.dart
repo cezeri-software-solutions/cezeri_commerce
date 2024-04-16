@@ -5,17 +5,16 @@ import '../../../2_application/firebase/home/home_product/home_product_bloc.dart
 import '../../../injection.dart';
 import '../../core/functions/my_scaffold_messanger.dart';
 import '../../core/renderer/failure_renderer.dart';
-import 'widgets/home_product_collapsed.dart';
-import 'widgets/home_product_expanded.dart';
+import 'widgets/home_products_outlet_collapsed.dart';
+import 'widgets/home_products_outlet_expanded.dart';
 
-class HomeProductView extends StatelessWidget {
-  const HomeProductView({super.key});
+class HomeProductsOutletView extends StatelessWidget {
+  const HomeProductsOutletView({super.key});
 
   @override
   Widget build(BuildContext context) {
     final homeProductBloc = sl<HomeProductBloc>();
-    // ..add(GetHomeProductSoldOutProductsEvent())
-    // ..add(GetHomeReordersEvent());
+
     return BlocProvider(
       create: (context) => homeProductBloc,
       child: MultiBlocListener(
@@ -52,8 +51,8 @@ class HomeProductView extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  HomeProductCollapsed(homeProductBloc: homeProductBloc),
-                  HomeProductExpanded(homeProductBloc: homeProductBloc),
+                  HomeProductsOutletCollapsed(homeProductBloc: homeProductBloc),
+                  HomeProductsOutletExpanded(homeProductBloc: homeProductBloc),
                   const Divider(),
                 ],
               ),

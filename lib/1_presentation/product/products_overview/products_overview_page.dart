@@ -163,7 +163,11 @@ class _ProductContainer extends StatelessWidget {
                         productBloc.add(GetProductEvent(id: product.id));
                       },
                       onLongPress: () => showMyProductQuickView(context: context, product: product, showStatProduct: true),
-                      style: TextButton.styleFrom(padding: EdgeInsets.zero, tapTargetSize: MaterialTapTargetSize.shrinkWrap),
+                      style: TextButton.styleFrom(
+                        padding: EdgeInsets.zero,
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        foregroundColor: _getTextButtonColor(product),
+                      ),
                       child: Text(product.name, maxLines: 2, overflow: TextOverflow.ellipsis),
                     ),
                     Text('EAN: ${product.ean}'),
@@ -254,6 +258,13 @@ class _ProductContainer extends StatelessWidget {
         );
       },
     );
+  }
+
+  Color? _getTextButtonColor(Product product) {
+    if (!product.isActive) return null;
+    if (product.isOutlet && product.warehouseStock <= 0) return Colors.red;
+    if (product.isOutlet) return Colors.orange;
+    return null;
   }
 }
 

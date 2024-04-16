@@ -288,7 +288,8 @@ abstract class $AppRouter extends _i39.RootStackRouter {
       );
     },
     ProductDetailRoute.name: (routeData) {
-      final args = routeData.argsAs<ProductDetailRouteArgs>();
+      final args = routeData.argsAs<ProductDetailRouteArgs>(
+          orElse: () => const ProductDetailRouteArgs());
       return _i39.AutoRoutePage<dynamic>(
         routeData: routeData,
         child: _i23.ProductDetailScreen(
@@ -1027,7 +1028,7 @@ class ProductDetailRoute extends _i39.PageRouteInfo<ProductDetailRouteArgs> {
   ProductDetailRoute({
     _i40.Key? key,
     String? productId,
-    required List<_i46.Product> listOfProducts,
+    List<_i46.Product>? listOfProducts,
     List<_i39.PageRouteInfo>? children,
   }) : super(
           ProductDetailRoute.name,
@@ -1049,14 +1050,14 @@ class ProductDetailRouteArgs {
   const ProductDetailRouteArgs({
     this.key,
     this.productId,
-    required this.listOfProducts,
+    this.listOfProducts,
   });
 
   final _i40.Key? key;
 
   final String? productId;
 
-  final List<_i46.Product> listOfProducts;
+  final List<_i46.Product>? listOfProducts;
 
   @override
   String toString() {

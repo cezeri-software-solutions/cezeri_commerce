@@ -10,7 +10,7 @@ import '2_application/firebase/main_settings/main_settings_bloc.dart';
 import 'firebase_options.dart';
 import 'injection.dart';
 import 'routes/router.dart';
-import 'theme.dart';
+import 'themes/theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -35,6 +35,8 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         title: 'Flutter Demo',
         theme: AppTheme.lightTheme,
+        darkTheme: AppTheme.darkTheme,
+        themeMode: ThemeMode.light,
         builder: (context, child) {
           return ResponsiveBreakpoints.builder(
             child: child!,

@@ -117,7 +117,7 @@ class PurchaseCard extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        const Text('Ist unter Mindestbestand: '),
+                        const Text('Unter Mindestbestand: '),
                         Checkbox.adaptive(value: state.product!.isUnderMinimumStock, onChanged: null),
                       ],
                     ),

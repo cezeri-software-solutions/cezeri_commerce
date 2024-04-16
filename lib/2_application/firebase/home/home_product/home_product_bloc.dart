@@ -26,6 +26,26 @@ class HomeProductBloc extends Bloc<HomeProductEvent, HomeProductState> {
 
 //? #########################################################################
 
+    on<GetHomeProductsOutletProductsEvent>((event, emit) async {
+      emit(state.copyWith(isLoadingHomeProductsOnObserve: true));
+
+      final failureOrSuccess = await productRepository.getListOfSoldOutOutletProducts();
+      failureOrSuccess.fold(
+        (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
+        (listOfProducts) {
+          emit(state.copyWith(listOfProductsOutlet: listOfProducts, firebaseFailure: null, isAnyFailure: false));
+        },
+      );
+
+      emit(state.copyWith(
+        isLoadingHomeProductsOnObserve: false,
+        fosHomeProductsOnObserveOption: optionOf(failureOrSuccess),
+      ));
+      emit(state.copyWith(fosHomeProductsOnObserveOption: none()));
+    });
+
+//? #########################################################################
+
     on<GetHomeProductSoldOutProductsEvent>((event, emit) async {
       emit(state.copyWith(isLoadingHomeProductsOnObserve: true));
 
@@ -93,7 +113,7 @@ class HomeProductBloc extends Bloc<HomeProductEvent, HomeProductState> {
 
     on<OnHomeProductShowProductsByChangedEvent>((event, emit) async {
       emit(state.copyWith(showProductsBy: event.showProductsBy));
-      if (state.isExpandedProducts) {
+      if (state.isExpandedProductsSoldOut) {
         if (event.showProductsBy == ShowProductsBy.soldOut && state.listOfProductsSoldOut == null) {
           add(GetHomeProductSoldOutProductsEvent());
         } else if (event.showProductsBy == ShowProductsBy.underMinimumQuantity && state.listOfProductsUnderMinimumQuantity == null) {
@@ -108,7 +128,7 @@ class HomeProductBloc extends Bloc<HomeProductEvent, HomeProductState> {
 
     on<OnHomeProductGroupProductsByChangedEvent>((event, emit) async {
       emit(state.copyWith(groupProductsBy: event.groupProductsBy));
-      if (state.isExpandedProducts) {
+      if (state.isExpandedProductsSoldOut) {
         if (state.showProductsBy == ShowProductsBy.soldOut && state.listOfProductsSoldOut == null) {
           add(GetHomeProductSoldOutProductsEvent());
         } else if (state.showProductsBy == ShowProductsBy.underMinimumQuantity && state.listOfProductsUnderMinimumQuantity == null) {
@@ -174,45 +194,24 @@ class HomeProductBloc extends Bloc<HomeProductEvent, HomeProductState> {
 
 //? #########################################################################
 
-    on<OnHomeProductIsExpandedProductsChangedEvent>((event, emit) async {
+    on<OnHomeProductIsExpandedOutletChangedEvent>((event, emit) async {
+      if (state.listOfProductsOutlet == null) {
+        add(GetHomeProductsOutletProductsEvent());
+      }
+
+      emit(state.copyWith(isExpandedProductsOutlet: !state.isExpandedProductsOutlet));
+    });
+
+//? #########################################################################
+
+    on<OnHomeProductIsExpandedSoldOutChangedEvent>((event, emit) async {
       if (state.showProductsBy == ShowProductsBy.soldOut && state.listOfProductsSoldOut == null) {
         add(GetHomeProductSoldOutProductsEvent());
       }
       if (state.showProductsBy == ShowProductsBy.underMinimumQuantity && state.listOfProductsUnderMinimumQuantity == null) {
         add(GetHomeProductUnderMinimumQuantityProductsEvent());
       }
-      emit(state.copyWith(isExpandedProducts: !state.isExpandedProducts));
-    });
-
-//? #########################################################################
-
-    on<OnHomeProductSearchControllerChangedEvent>((event, emit) async {
-      // final widthSearchText = state.productSearchController.text.toLowerCase().split(' ');
-
-      // List<Product>? listOfProducts = switch (state.productSearchController.text) {
-      //   '' => state.listOfAllProducts,
-      //   (_) => switch (state.isWidthSearchActive) {
-      //       true => state.listOfAllProducts!
-      //           .where((e) => widthSearchText.every((entry) =>
-      //               e.name.toLowerCase().contains(entry) ||
-      //               e.ean.toLowerCase().contains(entry) ||
-      //               e.supplier.toLowerCase().contains(entry) ||
-      //               e.articleNumber.toLowerCase().contains(entry)))
-      //           .toList(),
-      //       _ => state.listOfAllProducts!
-      //           .where((element) =>
-      //               element.name.toLowerCase().contains(state.productSearchController.text.toLowerCase()) ||
-      //               element.ean.toLowerCase().contains(state.productSearchController.text.toLowerCase()) ||
-      //               element.supplier.toLowerCase().contains(state.productSearchController.text.toLowerCase()) ||
-      //               element.articleNumber.toLowerCase().contains(state.productSearchController.text.toLowerCase()))
-      //           .toList()
-      //     },
-      // };
-
-      // if (listOfProducts != null && listOfProducts.isNotEmpty) listOfProducts.sort((a, b) => a.name.compareTo(b.name));
-      // // if (listOfProducts != null && listOfProducts.length > 20) listOfProducts = listOfProducts.sublist(0, 20);
-
-      // emit(state.copyWith(listOfFilteredProducts: listOfProducts));
+      emit(state.copyWith(isExpandedProductsSoldOut: !state.isExpandedProductsSoldOut));
     });
 
 //? #########################################################################

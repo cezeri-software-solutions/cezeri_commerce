@@ -37,6 +37,7 @@ Product _$ProductFromJson(Map<String, dynamic> json) => Product(
           (json['recommendedRetailPrice'] as num).toDouble(),
       haveVariants: json['haveVariants'] as bool,
       isSetArticle: json['isSetArticle'] as bool,
+      isOutlet: json['isOutlet'] as bool,
       listOfIsPartOfSetIds: (json['listOfIsPartOfSetIds'] as List<dynamic>)
           .map((e) => e as String)
           .toList(),
@@ -107,6 +108,7 @@ Map<String, dynamic> _$ProductToJson(Product instance) => <String, dynamic>{
       'recommendedRetailPrice': instance.recommendedRetailPrice,
       'haveVariants': instance.haveVariants,
       'isSetArticle': instance.isSetArticle,
+      'isOutlet': instance.isOutlet,
       'listOfIsPartOfSetIds': instance.listOfIsPartOfSetIds,
       'listOfProductIdWithQuantity':
           instance.listOfProductIdWithQuantity.map((e) => e.toJson()).toList(),

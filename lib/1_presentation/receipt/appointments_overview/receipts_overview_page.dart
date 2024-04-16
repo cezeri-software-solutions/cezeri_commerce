@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:auto_route/auto_route.dart';
 import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.dart';
 import 'package:cezeri_commerce/1_presentation/core/widgets/my_circular_progress_indicator.dart';
@@ -13,6 +11,7 @@ import 'package:printing/printing.dart';
 
 import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
 import '../../core/functions/mixed_functions.dart';
+import '../../core/widgets/my_animated_arrow_icon_button.dart';
 import '../../core/widgets/my_animated_expansion_container.dart';
 import '../../core/widgets/my_avatar.dart';
 import '../../core/widgets/my_country_flag.dart';
@@ -176,16 +175,9 @@ class __AppointmentContainerState extends State<_AppointmentContainer> {
                                     child: Center(child: Text(widget.receipt.listOfReceiptProduct.length.toString())),
                                   )
                                 : const SizedBox(),
-                            IconButton(
-                              padding: EdgeInsets.zero,
+                            MyAnimatedIconButtonArrow(
+                              boolValue: state.isExpanded[widget.index],
                               onPressed: () => widget.appointmentBloc.add(SetAppointmentIsExpandedEvent(index: widget.index)),
-                              icon: switch (state.isExpanded[widget.index]) {
-                                true => const Icon(Icons.arrow_drop_down_circle, size: 30, color: CustomColors.primaryColor),
-                                false => Transform.rotate(
-                                    angle: -pi / 2,
-                                    child: const Icon(Icons.arrow_drop_down_circle, size: 30, color: Colors.grey, grade: 25),
-                                  ),
-                              },
                             ),
                             ConstrainedBox(
                               constraints: const BoxConstraints(maxHeight: 30),
@@ -280,7 +272,7 @@ class __AppointmentContainerState extends State<_AppointmentContainer> {
                           children: [
                             SizedBox(
                               height: 28,
-                            width: 48,
+                              width: 48,
                               child: MyAvatar(
                                 name: marketplace.shortName,
                                 radius: 12,
@@ -292,10 +284,10 @@ class __AppointmentContainerState extends State<_AppointmentContainer> {
                             ),
                             Gaps.w8,
                             SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: SvgPicture.asset(getMarketplaceLogoAsset(marketplace.marketplaceType)),
-                          ),
+                              height: 20,
+                              width: 20,
+                              child: SvgPicture.asset(getMarketplaceLogoAsset(marketplace.marketplaceType)),
+                            ),
                           ],
                         ),
                         Text(marketplace.name, textAlign: TextAlign.center),

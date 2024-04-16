@@ -13,10 +13,10 @@ import 'home_product_name_widget.dart';
 
 final logger = Logger();
 
-class HomeProductExpanded extends StatelessWidget {
+class HomeProductsSoldOutExpanded extends StatelessWidget {
   final HomeProductBloc homeProductBloc;
 
-  const HomeProductExpanded({super.key, required this.homeProductBloc});
+  const HomeProductsSoldOutExpanded({super.key, required this.homeProductBloc});
 
   @override
   Widget build(BuildContext context) {
@@ -29,25 +29,25 @@ class HomeProductExpanded extends StatelessWidget {
       builder: (context, state) {
         if (state.isLoadingHomeProductsOnObserve || state.isLoadingHomeReordersOnObserve) {
           return MyAnimatedExpansionContainer(
-              isExpanded: state.isExpandedProducts,
+              isExpanded: state.isExpandedProductsSoldOut,
               child: SizedBox(height: expandedHeight, child: const Center(child: MyCircularProgressIndicator())));
         } else if (state.firebaseFailure != null && state.isAnyFailure) {
           return MyAnimatedExpansionContainer(
-              isExpanded: state.isExpandedProducts,
+              isExpanded: state.isExpandedProductsSoldOut,
               child: SizedBox(height: expandedHeight, child: const Center(child: Text('Beim Laden der Daten ist ein Fehler aufgetreten'))));
         } else if (state.showProductsBy == ShowProductsBy.soldOut && state.listOfProductsSoldOut == null || state.listOfReorders == null) {
           return MyAnimatedExpansionContainer(
-              isExpanded: state.isExpandedProducts,
+              isExpanded: state.isExpandedProductsSoldOut,
               child: SizedBox(height: expandedHeight, child: const Center(child: MyCircularProgressIndicator())));
         } else if (state.showProductsBy == ShowProductsBy.underMinimumQuantity && state.listOfProductsUnderMinimumQuantity == null ||
             state.listOfReorders == null) {
           return MyAnimatedExpansionContainer(
-              isExpanded: state.isExpandedProducts,
+              isExpanded: state.isExpandedProductsSoldOut,
               child: SizedBox(height: expandedHeight, child: const Center(child: MyCircularProgressIndicator())));
         }
 
         return MyAnimatedExpansionContainer(
-          isExpanded: state.isExpandedProducts,
+          isExpanded: state.isExpandedProductsSoldOut,
           child: SizedBox(
             height: expandedHeight,
             child: ListView.builder(

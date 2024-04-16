@@ -20,9 +20,8 @@ class SetListOfProductsEvent extends ProductDetailEvent {
 
 class GetProductAfterExportNewProductToMarketplaceEvent extends ProductDetailEvent {
   final String id;
-  final List<Product> listOfAllProducts;
 
-  GetProductAfterExportNewProductToMarketplaceEvent({required this.id, required this.listOfAllProducts});
+  GetProductAfterExportNewProductToMarketplaceEvent({required this.id});
 }
 
 class SetProductEvent extends ProductDetailEvent {
@@ -46,6 +45,12 @@ class OnProductSalesPriceControllerChangedEvent extends ProductDetailEvent {
   OnProductSalesPriceControllerChangedEvent({required this.isNet});
 }
 
+class OnProductIsOutletChangedEvent extends ProductDetailEvent {
+  final bool value;
+
+  OnProductIsOutletChangedEvent({required this.value});
+}
+
 class OnProductShowDescriptionChangedEvent extends ProductDetailEvent {}
 
 class OnProductDescriptionChangedEvent extends ProductDetailEvent {
@@ -63,7 +68,6 @@ class GetProductByEanEvent extends ProductDetailEvent {
 }
 
 class UpdateProductEvent extends ProductDetailEvent {}
-class UpdateProductEventTest extends ProductDetailEvent {}
 
 class OnProductIsActiveChangedEvent extends ProductDetailEvent {}
 

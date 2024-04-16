@@ -1,13 +1,11 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:cezeri_commerce/1_presentation/app_drawer.dart';
 import 'package:cezeri_commerce/1_presentation/core/renderer/failure_renderer.dart';
-import 'package:csv/csv.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:html/parser.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
 import '../../../2_application/firebase/product/product_bloc.dart';
@@ -145,8 +143,6 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> with Au
                   IconButton(
                     key: iconButtonKey,
                     onPressed: () async {
-                      // final csvString = _generateCsvString(state.selectedProducts);
-                      // _saveAndShareCsv(csvString);
                       await generateTableExportFromProductsOverview(context, iconButtonKey, state.selectedProducts);
                     },
                     icon: const Icon(Icons.table_chart_outlined, color: CustomColors.primaryColor),
@@ -239,61 +235,6 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> with Au
         ),
       ),
     );
-  }
-
-  String _generateCsvString(List<Product> selectedProducts) {
-    List<List<dynamic>> rows = [
-      [
-        'ID',
-        'Artikelnummer',
-        'Name',
-        'Beschreibung',
-        'Beschreibung (HTML)',
-        'Kurzbeschreibung',
-        'Kurzbeschreibung (HTML)',
-        'Hersteller',
-        'Gewicht in kg',
-        'Gewicht in g',
-        'Preis Netto',
-        'Preis Brutto',
-        'Lagerbestand',
-        'Verfügbarer Bestand',
-        'EAN',
-        'Set-Artikel',
-        'Aktiv',
-      ],
-    ];
-
-    int pos = 1;
-    for (final product in selectedProducts) {
-      final documentDescription = parse(product.description);
-      final blancDescription = documentDescription.body!.text;
-      final documentDescriptionShort = parse(product.descriptionShort);
-      final blancDescriptionShort = documentDescriptionShort.body!.text;
-
-      final row = [
-        pos,
-        product.articleNumber,
-        product.name,
-        product.description,
-        blancDescription,
-        product.descriptionShort,
-        blancDescriptionShort,
-        product.manufacturer,
-        product.weight,
-        (product.weight * 1000).toStringAsFixed(0),
-        product.netPrice,
-        product.grossPrice,
-        product.warehouseStock,
-        product.availableStock,
-        product.ean,
-        product.isSetArticle,
-        product.isActive,
-      ];
-      rows.add(row);
-      pos++;
-    }
-    return const ListToCsvConverter().convert(rows);
   }
 
   void _onRemovePressed(BuildContext context, List<Product> selectedProducts) {

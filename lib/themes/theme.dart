@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'constants.dart';
+import '../constants.dart';
 
 class AppTheme {
   AppTheme._();
@@ -14,6 +14,7 @@ class AppTheme {
       primaryContainer: CustomColors.containerBackgroundLight,
       // BorderColor of Container
       outline: CustomColors.borderColorLight,
+      surface: Colors.white,
     ),
     floatingActionButtonTheme: const FloatingActionButtonThemeData().copyWith(
       backgroundColor: CustomColors.primaryColor,
@@ -28,8 +29,10 @@ class AppTheme {
     colorScheme: ColorScheme.fromSeed(
       seedColor: CustomColors.primaryColor,
       brightness: Brightness.dark,
-      primaryContainer: CustomColors.containerBackgroundDark,
+      // primaryContainer: CustomColors.containerBackgroundDark,
       outline: CustomColors.borderColorDark,
+      background: Colors.black,
+      surface: Colors.grey[850],
     ),
     useMaterial3: true,
   );

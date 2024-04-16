@@ -21,9 +21,9 @@ enum ProductCreateOrEdit { create, edit }
 @RoutePage()
 class ProductDetailScreen extends StatefulWidget {
   final String? productId;
-  final List<Product> listOfProducts;
+  final List<Product>? listOfProducts;
 
-  const ProductDetailScreen({super.key, this.productId, required this.listOfProducts});
+  const ProductDetailScreen({super.key, this.productId, this.listOfProducts});
 
   @override
   State<ProductDetailScreen> createState() => _ProductDetailScreenState();
@@ -37,11 +37,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with Automati
     super.initState();
     productDetailBloc = sl<ProductDetailBloc>();
 
-    if (widget.productId == null) {
-      productDetailBloc.add(SetListOfProductsEvent(listOfProducts: widget.listOfProducts));
-    } else {
+    if (widget.productId != null) {
       productDetailBloc.add(GetProductEvent(id: widget.productId!));
-      productDetailBloc.add(SetListOfProductsEvent(listOfProducts: widget.listOfProducts));
     }
   }
 
@@ -52,7 +49,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with Automati
     return BlocProvider.value(
       value: productDetailBloc,
       child: MultiBlocListener(
-        listeners: _getProductDetailBlocListeners(productDetailBloc, widget.listOfProducts),
+        listeners: _getProductDetailBlocListeners(productDetailBloc),
         child: BlocBuilder<ProductDetailBloc, ProductDetailState>(
           builder: (context, state) {
             final appBar = AppBar(title: const Text('Artikel'));
@@ -85,10 +82,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with Automati
   bool get wantKeepAlive => true;
 }
 
-List<BlocListener<ProductDetailBloc, ProductDetailState>> _getProductDetailBlocListeners(
-  ProductDetailBloc productDetailBloc,
-  List<Product> listOfProducts,
-) {
+List<BlocListener<ProductDetailBloc, ProductDetailState>> _getProductDetailBlocListeners(ProductDetailBloc productDetailBloc) {
   return [
     BlocListener<ProductDetailBloc, ProductDetailState>(
       listenWhen: (p, c) => p.fosProductSuppliersOnObserveOption != c.fosProductSuppliersOnObserveOption,
@@ -156,12 +150,12 @@ List<BlocListener<ProductDetailBloc, ProductDetailState>> _getProductDetailBlocL
           () => null,
           (a) => a.fold(
             (failure) {
-              context.router.popTop();
+              context.router.maybePopTop();
               myScaffoldMessenger(context, null, null, null, 'Artikel konnte nicht im Marktplatz angelegt werden');
             },
             (unit) {
               final curProduct = state.product!;
-              productDetailBloc.add(GetProductAfterExportNewProductToMarketplaceEvent(id: curProduct.id, listOfAllProducts: listOfProducts));
+              productDetailBloc.add(GetProductAfterExportNewProductToMarketplaceEvent(id: curProduct.id));
               context.router.popUntilRouteWithName(ProductDetailRoute.name);
               myScaffoldMessenger(context, null, null, 'Artikel erfolgreich im Marktplatz angelegt', null);
             },

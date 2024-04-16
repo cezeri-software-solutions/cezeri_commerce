@@ -51,6 +51,7 @@ class Product extends Equatable {
   final bool haveVariants; // Gibt es eine Variante
   final bool isSetArticle;
   // Wenn Set Artikle && true, dann wird der Bestand unabhängig von seinen Bestandteilen geführt, ansonsten wird der Bestand durch den niedrigsten Besteand der Besandteile ermittelt
+  final bool isOutlet;
   final List<String> listOfIsPartOfSetIds; // Im Einzelartikel, von welchem Set dies ein Bestandteil ist
   final List<ProductIdWithQuantity> listOfProductIdWithQuantity; // Von welchem Einzelartikel wieviel im Set enthalten sind
   final bool isSetSelfQuantityManaged;
@@ -102,6 +103,7 @@ class Product extends Equatable {
     required this.recommendedRetailPrice,
     required this.haveVariants,
     required this.isSetArticle,
+    required this.isOutlet,
     required this.listOfIsPartOfSetIds,
     required this.listOfProductIdWithQuantity,
     required this.isSetSelfQuantityManaged,
@@ -158,6 +160,7 @@ class Product extends Equatable {
       recommendedRetailPrice: 0,
       haveVariants: false,
       isSetArticle: false,
+      isOutlet: false,
       listOfIsPartOfSetIds: const [],
       listOfProductIdWithQuantity: const [],
       isSetSelfQuantityManaged: false,
@@ -289,6 +292,7 @@ class Product extends Equatable {
         'pack' => true,
         (_) => Product.empty().isSetArticle,
       },
+      isOutlet: false,
       listOfProductIdWithQuantity: listOfProductIdWithQuantity ?? [],
       // TODO: Hersteller anlegen und Nummer übergeben
       manufacturerNumber: Product.empty().manufacturerNumber,
@@ -389,6 +393,7 @@ class Product extends Equatable {
       recommendedRetailPrice: grossPrice,
       haveVariants: productShopify.variants.length > 1,
       isSetArticle: false, //TODO: Set-Artikel muss noch in Shopify erkundet werden
+      isOutlet: false,
       listOfProductIdWithQuantity: listOfProductIdWithQuantity ?? [],
       // TODO: Hersteller anlegen und Nummer übergeben
       manufacturerNumber: Product.empty().manufacturerNumber,
@@ -434,6 +439,7 @@ class Product extends Equatable {
     double? recommendedRetailPrice,
     bool? haveVariants,
     bool? isSetArticle,
+    bool? isOutlet,
     List<String>? listOfIsPartOfSetIds,
     List<ProductIdWithQuantity>? listOfProductIdWithQuantity,
     bool? isSetSelfQuantityManaged,
@@ -484,6 +490,7 @@ class Product extends Equatable {
       recommendedRetailPrice: recommendedRetailPrice ?? this.recommendedRetailPrice,
       haveVariants: haveVariants ?? this.haveVariants,
       isSetArticle: isSetArticle ?? this.isSetArticle,
+      isOutlet: isOutlet ?? this.isOutlet,
       listOfIsPartOfSetIds: listOfIsPartOfSetIds ?? this.listOfIsPartOfSetIds,
       listOfProductIdWithQuantity: listOfProductIdWithQuantity ?? this.listOfProductIdWithQuantity,
       isSetSelfQuantityManaged: isSetSelfQuantityManaged ?? this.isSetSelfQuantityManaged,

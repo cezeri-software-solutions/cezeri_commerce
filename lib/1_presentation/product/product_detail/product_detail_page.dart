@@ -10,6 +10,7 @@ import 'widgets/product_detail_set_article_bar.dart';
 import 'widgets/product_detail_widgets.dart';
 import 'widgets/product_images_container.dart';
 import 'widgets/product_marketplace/product_detail_marketplaces_bar.dart';
+import 'widgets/product_properties_card.dart';
 
 class ProductDetailPage extends StatelessWidget {
   final ProductDetailBloc productDetailBloc;
@@ -54,6 +55,8 @@ class ProductDetailPage extends StatelessWidget {
                             SellingCard(productDetailBloc: productDetailBloc),
                             Gaps.h16,
                             WeightAndDimensionsCard(productDetailBloc: productDetailBloc),
+                            Gaps.h16,
+                            ProductPropertiesCard(productDetailBloc: productDetailBloc),
                           ],
                         ),
                       ),
@@ -79,6 +82,8 @@ class ProductDetailPage extends StatelessWidget {
                 SellingCard(productDetailBloc: productDetailBloc),
                 Gaps.h16,
                 WeightAndDimensionsCard(productDetailBloc: productDetailBloc),
+                Gaps.h16,
+                ProductPropertiesCard(productDetailBloc: productDetailBloc),
                 Gaps.h16,
                 ProductChartCard(productDetailBloc: productDetailBloc),
                 Gaps.h16,

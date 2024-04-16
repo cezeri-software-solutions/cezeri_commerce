@@ -87,6 +87,12 @@ class ProductRepositoryImpl implements ProductRepository {
             (value) => value.docs.map((querySnapshot) => Product.fromJson(querySnapshot.data())).toList(),
           );
 
+      // for (final product in listOfProducts) {
+      //   final docRefPh = db.collection('Products').doc(currentUserUid).collection('Products').doc(product.id);
+      //   final updatedProduct = product.copyWith(isOutlet: false);
+      //   await docRefPh.update(updatedProduct.toJson());
+      // }
+
       return right(listOfProducts);
     } on FirebaseException catch (e) {
       logger.e(e.message);
@@ -145,6 +151,32 @@ class ProductRepositoryImpl implements ProductRepository {
     } on FirebaseException catch (e) {
       logger.e(e.message);
       return left(GeneralFailure(customMessage: 'Beim Laden der Artikel ist ein Fehler aufgetreten.', e: e));
+    }
+  }
+
+  @override
+  Future<Either<FirebaseFailure, List<Product>>> getListOfSoldOutOutletProducts() async {
+    final isConnected = await checkInternetConnection();
+    if (!isConnected) return left(NoConnectionFailure());
+
+    final currentUserUid = firebaseAuth.currentUser!.uid;
+    final docRef = db
+        .collection('Products')
+        .doc(currentUserUid)
+        .collection('Products')
+        .where('isActive', isEqualTo: true)
+        .where('isOutlet', isEqualTo: true)
+        .where('warehouseStock', isEqualTo: 0);
+
+    try {
+      final listOfProducts = await docRef.get().then(
+            (value) => value.docs.map((querySnapshot) => Product.fromJson(querySnapshot.data())).toList(),
+          );
+
+      return right(listOfProducts);
+    } on FirebaseException catch (e) {
+      logger.e(e.message);
+      return left(GeneralFailure(customMessage: 'Beim Laden der ausverkauften Artikel ist ein Fehler aufgetreten.', e: e));
     }
   }
 

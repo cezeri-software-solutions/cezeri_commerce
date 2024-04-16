@@ -37,6 +37,8 @@ class CustomerRepositoryImpl implements CustomerRepository {
       logger.e(e.message);
       return left(GeneralFailure(customMessage: 'Beim Erstellen des Kunden ist ein Fehler aufgetreten.', e: e));
     }
+
+    
   }
 
   @override

@@ -66,6 +66,7 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
     on<SetProductControllerEvent>(_onSetProductController);
     on<OnProductControllerChangedEvent>(_onProductControllerChanged);
     on<OnProductSalesPriceControllerChangedEvent>(_onProductSalesPriceControllerChanged);
+    on<OnProductIsOutletChangedEvent>(_onProductIsOutletChanged);
     on<OnProductShowDescriptionChangedEvent>(_onProductShowDescriptionChanged);
     on<OnProductDescriptionChangedEvent>(_onProductDescriptionChanged);
     on<OnSaveProductDescriptionEvent>(_onSaveProductDescription);
@@ -191,7 +192,7 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
     failureOrSuccess.fold(
       (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
       (product) {
-        emit(state.copyWith(product: product, listOfAllProducts: event.listOfAllProducts, firebaseFailure: null, isAnyFailure: false));
+        emit(state.copyWith(product: product, firebaseFailure: null, isAnyFailure: false));
         add(SetProductControllerEvent(product: product));
         add(OnProductGetStatProductsEvent());
         add(OnEditProductInPresta(product: product, updateImages: true));
@@ -274,18 +275,19 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
     final netPrice = event.isNet ? state.netPriceController.text.toMyDouble() : state.grossPriceController.text.toMyDouble() / taxToCalc(taxRate);
     final grossPrice = event.isNet ? state.netPriceController.text.toMyDouble() * taxToCalc(taxRate) : state.grossPriceController.text.toMyDouble();
 
-    emit(state.copyWith(
-      product: state.product!.copyWith(
-        netPrice: netPrice,
-        grossPrice: grossPrice,
-      ),
-    ));
+    emit(state.copyWith(product: state.product!.copyWith(netPrice: netPrice, grossPrice: grossPrice)));
 
     if (event.isNet) {
       emit(state.copyWith(grossPriceController: TextEditingController(text: grossPrice.toMyCurrencyStringToShow())));
     } else {
       emit(state.copyWith(netPriceController: TextEditingController(text: netPrice.toMyCurrencyStringToShow())));
     }
+  }
+
+//? ###########################################################################################################################
+
+  void _onProductIsOutletChanged(OnProductIsOutletChangedEvent event, Emitter<ProductDetailState> emit) {
+    emit(state.copyWith(product: state.product!.copyWith(isOutlet: event.value)));
   }
 
 //? ###########################################################################################################################

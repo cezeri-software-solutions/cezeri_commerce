@@ -30,6 +30,7 @@ abstract class ProductRepository {
   Future<Either<AbstractFailure, List<Product>>> getListOfProducts(bool onlyActive);
   Future<Either<AbstractFailure, List<Product>>> getListOfProductsByIds(List<String> productIds);
   Future<Either<AbstractFailure, List<Product>>> getListOfProductsBySupplierName({required bool onlyActive, required Supplier supplier});
+  Future<Either<AbstractFailure, List<Product>>> getListOfSoldOutOutletProducts();
   Future<Either<AbstractFailure, List<Product>>> getListOfSoldOutProducts();
   Future<Either<AbstractFailure, List<Product>>> getListOfUnderMinimumQuantityProducts();
 

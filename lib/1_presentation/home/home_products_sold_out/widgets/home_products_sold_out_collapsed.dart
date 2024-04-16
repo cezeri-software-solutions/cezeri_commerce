@@ -1,17 +1,16 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../2_application/firebase/home/home_product/home_product_bloc.dart';
 import '../../../../3_domain/enums/enums.dart';
 import '../../../../constants.dart';
+import '../../../core/widgets/my_animated_arrow_icon_button.dart';
 import '../../../core/widgets/my_chip_with_two_options.dart';
 
-class HomeProductCollapsed extends StatelessWidget {
+class HomeProductsSoldOutCollapsed extends StatelessWidget {
   final HomeProductBloc homeProductBloc;
 
-  const HomeProductCollapsed({super.key, required this.homeProductBloc});
+  const HomeProductsSoldOutCollapsed({super.key, required this.homeProductBloc});
 
   @override
   Widget build(BuildContext context) {
@@ -36,10 +35,10 @@ class HomeProductCollapsed extends StatelessWidget {
                     Row(
                       children: [
                         if (listOfProducts == null)
-                          const Text('Artikel:', style: TextStyles.h2Bold)
+                          const Text('Artikel-Bestand:', style: TextStyles.h2Bold)
                         else
                           Text.rich(TextSpan(children: [
-                            const TextSpan(text: 'Artikel:', style: TextStyles.h2Bold),
+                            const TextSpan(text: 'Artikel-Bestand:', style: TextStyles.h2Bold),
                             const TextSpan(text: ' ', style: TextStyles.h2Bold),
                             TextSpan(text: '(${listOfProducts.length})', style: TextStyles.h2),
                           ])),
@@ -84,16 +83,9 @@ class HomeProductCollapsed extends StatelessWidget {
                           },
                           icon: const Icon(Icons.refresh),
                         ),
-                        IconButton(
-                          padding: EdgeInsets.zero,
-                          onPressed: () => homeProductBloc.add(OnHomeProductIsExpandedProductsChangedEvent()),
-                          icon: switch (state.isExpandedProducts) {
-                            true => const Icon(Icons.arrow_drop_down_circle, size: 30, color: CustomColors.primaryColor),
-                            false => Transform.rotate(
-                                angle: -pi / 2,
-                                child: const Icon(Icons.arrow_drop_down_circle, size: 30, color: Colors.grey, grade: 25),
-                              ),
-                          },
+                        MyAnimatedIconButtonArrow(
+                          boolValue: state.isExpandedProductsSoldOut,
+                          onPressed: () => homeProductBloc.add(OnHomeProductIsExpandedSoldOutChangedEvent()),
                         ),
                       ],
                     ),
