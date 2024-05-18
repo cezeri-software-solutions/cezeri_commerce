@@ -12,18 +12,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:http/http.dart';
 import 'package:logger/logger.dart';
 
-import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
-import '../../../3_domain/entities/marketplace/marketplace_presta.dart';
-import '../../../3_domain/entities/marketplace/marketplace_shopify.dart';
-import '../functions/receipt_respository_presta_helper.dart';
-import '../functions/receipt_respository_shopify_helper.dart';
-import '../functions/receipt_respository_stat_helper.dart';
-import '../prestashop_api/prestashop_api.dart';
-import '../shipping_methods/austrian_post/austrian_post_api.dart';
-import '../shopify_api/api/shopify_api.dart';
 import '/1_presentation/core/functions/check_internet_connection.dart';
 import '/3_domain/entities/carrier/parcel_tracking.dart';
 import '/3_domain/entities/e_mail_automation.dart';
@@ -35,6 +27,15 @@ import '/3_domain/repositories/firebase/main_settings_respository.dart';
 import '/3_domain/repositories/firebase/product_repository.dart';
 import '/3_domain/repositories/marketplace/marketplace_edit_repository.dart';
 import '/3_domain/repositories/marketplace/marketplace_import_repository.dart';
+import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
+import '../../../3_domain/entities/marketplace/marketplace_presta.dart';
+import '../../../3_domain/entities/marketplace/marketplace_shopify.dart';
+import '../functions/receipt_respository_presta_helper.dart';
+import '../functions/receipt_respository_shopify_helper.dart';
+import '../functions/receipt_respository_stat_helper.dart';
+import '../prestashop_api/prestashop_api.dart';
+import '../shipping_methods/austrian_post/austrian_post_api.dart';
+import '../shopify_api/api/shopify_api.dart';
 
 final logger = Logger();
 
@@ -600,7 +601,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
 
       ParcelTracking? parcelTracking;
       if (generateDeliveryNote) {
-        parcelTracking = await getParcelTracking(incomingAppointment, settings, nextDeliveryNoteNumber);
+        parcelTracking = await getParcelTracking(currentUserUid, incomingAppointment, settings, nextDeliveryNoteNumber);
       }
       final isSuccessfulSetParcelTracking =
           parcelTracking != null && parcelTracking.deliveryNoteId != 0 && parcelTracking.trackingNumber != '' && parcelTracking.trackingUrl != '';
@@ -985,7 +986,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
       if (!marketplaceDs.exists) return left(GeneralFailure(customMessage: 'Marktplatz konnten nicht aus der Datenbank geladen werden'));
       final marketplace = MarketplacePresta.fromJson(marketplaceDs.data()!);
 
-      final parcelTracking = await getParcelTracking(loadedDeliveryNote, settings, loadedDeliveryNote.deliveryNoteId);
+      final parcelTracking = await getParcelTracking(currentUserUid, loadedDeliveryNote, settings, loadedDeliveryNote.deliveryNoteId);
       if (parcelTracking == null) return left(GeneralFailure(customMessage: 'Paketlabel konnte nicht erstellt werden'));
 
       final List<ParcelTracking> listOfUpdatedParcelTracking = loadedDeliveryNote.listOfParcelTracking;
@@ -1517,7 +1518,7 @@ Future<void> updateProductWarehouseQuantityIncremental({
   }
 }
 
-Future<ParcelTracking?> getParcelTracking(Receipt receipt, MainSettings ms, int deliveryNoteNumber) async {
+Future<ParcelTracking?> getParcelTracking(String currentUserUid, Receipt receipt, MainSettings ms, int deliveryNoteNumber) async {
   final carrier = ms.listOfCarriers.where((e) => e.carrierTyp == receipt.receiptCarrier.carrierTyp).firstOrNull;
   if (carrier == null) return null;
   final cCredentials = carrier.carrierKey;
@@ -1563,12 +1564,29 @@ Future<ParcelTracking?> getParcelTracking(Receipt receipt, MainSettings ms, int 
 
   final pdfString = service.getPdfLabel(responseString);
 
+  final downloadURL = await uploadLabelToStorage(currentUserUid, receipt.receiptId, pdfString, trackingNumber);
+
   final parcelTracking = ParcelTracking(
     deliveryNoteId: deliveryNoteNumber,
     trackingUrl: trackingUrl,
     trackingNumber: trackingNumber,
-    pdfString: pdfString,
+    pdfString: downloadURL ?? '',
   );
 
   return parcelTracking;
+}
+
+Future<String?> uploadLabelToStorage(String currentUserUid, String receiptId, String pdfString, String trackingNumber) async {
+  final pdfBytes = base64.decode(pdfString);
+
+  FirebaseStorage storage = FirebaseStorage.instance;
+  final storagePath = '$currentUserUid/ParcelLabel/$receiptId';
+  Reference ref = storage.ref().child('$storagePath/$trackingNumber.pdf');
+
+  UploadTask uploadTask = ref.putData(pdfBytes);
+  TaskSnapshot taskSnapshot = await uploadTask;
+
+  final downloadURL = await taskSnapshot.ref.getDownloadURL();
+
+  return downloadURL;
 }

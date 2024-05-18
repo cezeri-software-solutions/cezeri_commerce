@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:auto_route/auto_route.dart';
 import 'package:cezeri_commerce/3_domain/entities/receipt/receipt.dart';
 import 'package:flutter/material.dart';
@@ -12,6 +10,7 @@ import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
 import '../../../3_domain/pdf/pdf_receipt_generator.dart';
 import '../../../routes/router.gr.dart';
 import '../../core/functions/dialogs.dart';
+import '../../core/functions/load_file_from_storage.dart';
 import 'packing_station_detail_page.dart';
 
 @RoutePage()
@@ -59,7 +58,8 @@ class PackingStationDetailScreen extends StatelessWidget {
               await Future.delayed(const Duration(milliseconds: 500));
               if (deliveryNote.listOfParcelTracking.isNotEmpty && deliveryNote.listOfParcelTracking.first.pdfString != '') {
                 final pdfString = deliveryNote.listOfParcelTracking.first.pdfString;
-                final pdfBytes = base64.decode(pdfString);
+                final pdfBytes = await loadFileFromStorage(pdfString);
+                if (pdfBytes == null) return;
                 if (printerLabel != null) {
                   await Printing.directPrintPdf(printer: printerLabel, onLayout: (_) => pdfBytes);
                 } else {

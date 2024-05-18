@@ -16,7 +16,7 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 0.2.04+104
+version: 0.2.05+105
 
 environment:
   sdk: ">=3.1.0 <4.0.0"
@@ -50,8 +50,8 @@ dependencies:
   email_validator: ^2.1.17
   equatable: ^2.0.5
   excel: ^4.0.2
-  file_picker: ^5.2.0+1
-  firebase_auth: ^4.10.1
+  file_picker: ^6.2.1
+  firebase_auth: ^4.19.5
   firebase_core: ^2.15.1
   firebase_storage: ^11.2.8
   fl_chart: ^0.64.0
@@ -64,7 +64,10 @@ dependencies:
   get_it: ^7.6.4
   graphql_flutter: ^5.1.2
   html: ^0.15.4
-  html_editor_enhanced: ^2.5.1
+  #html_editor_enhanced: ^2.5.1
+  html_editor_enhanced:
+    git:
+      url: https://github.com/PROGrand/html-editor-enhanced
   http: ^1.1.0
   http_parser: ^4.0.2
   image_picker: ^1.0.4
@@ -72,11 +75,13 @@ dependencies:
   json_annotation: ^4.8.1
   logger: ^2.0.2+1
   loggy: ^2.0.3
+  meta: any
   open_filex: ^4.3.4
   path: ^1.8.3
   path_provider: ^2.1.1
-  pdf: ^3.10.4
-  printing: ^5.11.0
+  pdf: ^3.10.8
+  pdf_widget_wrapper: ^1.0.4
+  printing: ^5.12.0
   quiver: ^3.2.1
   responsive_framework: ^1.1.1
   scrollable_positioned_list: ^0.3.8

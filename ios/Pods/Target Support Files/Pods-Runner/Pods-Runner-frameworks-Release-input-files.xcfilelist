@@ -25,7 +25,7 @@ ${BUILT_PRODUCTS_DIR}/SwiftyGif/SwiftyGif.framework
 ${BUILT_PRODUCTS_DIR}/abseil/absl.framework
 ${BUILT_PRODUCTS_DIR}/connectivity_plus/connectivity_plus.framework
 ${BUILT_PRODUCTS_DIR}/file_picker/file_picker.framework
-${BUILT_PRODUCTS_DIR}/flutter_inappwebview/flutter_inappwebview.framework
+${BUILT_PRODUCTS_DIR}/flutter_inappwebview_ios/flutter_inappwebview_ios.framework
 ${BUILT_PRODUCTS_DIR}/flutter_keyboard_visibility/flutter_keyboard_visibility.framework
 ${BUILT_PRODUCTS_DIR}/gRPC-C++/grpcpp.framework
 ${BUILT_PRODUCTS_DIR}/gRPC-Core/grpc.framework
@@ -34,6 +34,7 @@ ${BUILT_PRODUCTS_DIR}/leveldb-library/leveldb.framework
 ${BUILT_PRODUCTS_DIR}/nanopb/nanopb.framework
 ${BUILT_PRODUCTS_DIR}/open_filex/open_filex.framework
 ${BUILT_PRODUCTS_DIR}/path_provider_foundation/path_provider_foundation.framework
+${BUILT_PRODUCTS_DIR}/pointer_interceptor_ios/pointer_interceptor_ios.framework
 ${BUILT_PRODUCTS_DIR}/printing/printing.framework
 ${BUILT_PRODUCTS_DIR}/share_plus/share_plus.framework
 ${BUILT_PRODUCTS_DIR}/sqflite/sqflite.framework

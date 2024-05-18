@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:printing/printing.dart';
@@ -8,6 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../3_domain/entities/carrier/parcel_tracking.dart';
 import '../../../3_domain/entities/receipt/receipt.dart';
 import '../../../constants.dart';
+import '../../core/functions/load_file_from_storage.dart';
 
 final logger = Logger();
 
@@ -139,7 +138,6 @@ class _TrackingListDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final screenHeight = MediaQuery.sizeOf(context).height;
     final screenWidth = MediaQuery.sizeOf(context).width;
 
     return Dialog(
@@ -198,7 +196,8 @@ Future<void> _openTrackingLink(BuildContext context, String url) async {
   }
 }
 
-Future<void> _openPrintingDialog(String pdfString) async {
-  final pdfBytes = base64.decode(pdfString);
+Future<void> _openPrintingDialog(String downloadUrl) async {
+  final pdfBytes = await loadFileFromStorage(downloadUrl);
+  if (pdfBytes == null) return;
   await Printing.layoutPdf(onLayout: (_) => pdfBytes);
 }
