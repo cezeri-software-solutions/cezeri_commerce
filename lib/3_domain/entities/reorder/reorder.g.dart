@@ -8,7 +8,7 @@ part of 'reorder.dart';
 
 Reorder _$ReorderFromJson(Map<String, dynamic> json) => Reorder(
       id: json['id'] as String,
-      reorderNumber: json['reorderNumber'] as int,
+      reorderNumber: (json['reorderNumber'] as num).toInt(),
       reorderNumberInternal: json['reorderNumberInternal'] as String,
       closedManually: json['closedManually'] as bool,
       reorderStatus: $enumDecode(_$ReorderStatusEnumMap, json['reorderStatus']),

@@ -13,11 +13,11 @@ StatProductDetail _$StatProductDetailFromJson(Map<String, dynamic> json) =>
       receiptTyp: $enumDecode(_$ReceiptTypEnumMap, json['receiptTyp']),
       receiptId: json['receiptId'] as String,
       uniqueReceiptId: json['uniqueReceiptId'] as String,
-      receiptNumber: json['receiptNumber'] as int,
+      receiptNumber: (json['receiptNumber'] as num).toInt(),
       profit: (json['profit'] as num).toDouble(),
       profitUnit: (json['profitUnit'] as num).toDouble(),
       unitPriceNet: (json['unitPriceNet'] as num).toDouble(),
-      quantity: json['quantity'] as int,
+      quantity: (json['quantity'] as num).toInt(),
       creationDate: DateTime.parse(json['creationDate'] as String),
     );
 

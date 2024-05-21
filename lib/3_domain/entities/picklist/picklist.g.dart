@@ -16,7 +16,7 @@ Picklist _$PicklistFromJson(Map<String, dynamic> json) => Picklist(
           .map((e) => PicklistProduct.fromJson(e as Map<String, dynamic>))
           .toList(),
       creationDate: DateTime.parse(json['creationDate'] as String),
-      creationDateInt: json['creationDateInt'] as int,
+      creationDateInt: (json['creationDateInt'] as num).toInt(),
       lastEditingDate: DateTime.parse(json['lastEditingDate'] as String),
     );
 

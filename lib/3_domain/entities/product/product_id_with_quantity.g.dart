@@ -10,7 +10,7 @@ ProductIdWithQuantity _$ProductIdWithQuantityFromJson(
         Map<String, dynamic> json) =>
     ProductIdWithQuantity(
       productId: json['productId'] as String,
-      quantity: json['quantity'] as int,
+      quantity: (json['quantity'] as num).toInt(),
     );
 
 Map<String, dynamic> _$ProductIdWithQuantityToJson(

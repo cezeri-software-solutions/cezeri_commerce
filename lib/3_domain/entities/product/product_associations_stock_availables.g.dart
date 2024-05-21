@@ -10,8 +10,8 @@ ProductAssociationsStockAvailables _$ProductAssociationsStockAvailablesFromJson(
         Map<String, dynamic> json) =>
     ProductAssociationsStockAvailables(
       href: json['href'] as String?,
-      id: json['id'] as int?,
-      idProductAttribute: json['idProductAttribute'] as int?,
+      id: (json['id'] as num?)?.toInt(),
+      idProductAttribute: (json['idProductAttribute'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$ProductAssociationsStockAvailablesToJson(

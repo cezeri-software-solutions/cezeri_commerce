@@ -20,7 +20,7 @@ Map<String, dynamic> _$LanguagesPrestaToJson(LanguagesPresta instance) =>
 
 LanguagePresta _$LanguagePrestaFromJson(Map<String, dynamic> json) =>
     LanguagePresta(
-      id: json['id'] as int,
+      id: (json['id'] as num).toInt(),
       name: json['name'] as String,
       isoCode: json['iso_code'] as String,
       locale: json['locale'] as String,

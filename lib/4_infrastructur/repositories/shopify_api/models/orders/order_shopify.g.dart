@@ -7,14 +7,14 @@ part of 'order_shopify.dart';
 // **************************************************************************
 
 OrderShopify _$OrderShopifyFromJson(Map<String, dynamic> json) => OrderShopify(
-      appId: json['app_id'] as int,
+      appId: (json['app_id'] as num).toInt(),
       billingAddress: CustomerAddressShopify.fromJson(
           json['billing_address'] as Map<String, dynamic>),
       browserIp: json['browser_ip'] as String,
       buyerAcceptsMarketing: json['buyer_accepts_marketing'] as bool,
       cancelReason: json['cancel_reason'] as String?,
       cancelledAt: json['cancelled_at'] as String?,
-      cartToken: json['cart_token'] as String,
+      cartToken: json['cart_token'] as String?,
       checkoutToken: json['checkout_token'] as String,
       clientDetails: json['client_details'] as Map<String, dynamic>?,
       closedAt: json['closed_at'] as String?,
@@ -55,20 +55,21 @@ OrderShopify _$OrderShopifyFromJson(Map<String, dynamic> json) => OrderShopify(
           .toList(),
       fulfillmentStatus: OrderShopify._fulfillmentStatusFromJson(
           json['fulfillment_status'] as String?),
-      id: json['id'] as int,
+      id: (json['id'] as num).toInt(),
       landingSite: json['landing_site'] as String?,
       lineItems: (json['line_items'] as List<dynamic>)
           .map((e) => LineItemShopify.fromJson(e as Map<String, dynamic>))
           .toList(),
-      locationId: json['location_id'] as int?,
-      merchantOfRecordAppId: json['merchant_of_record_app_id'] as int?,
+      locationId: (json['location_id'] as num?)?.toInt(),
+      merchantOfRecordAppId:
+          (json['merchant_of_record_app_id'] as num?)?.toInt(),
       name: json['name'] as String,
       note: json['note'] as String?,
       noteAttributes: (json['note_attributes'] as List<dynamic>)
           .map((e) => e as Map<String, dynamic>)
           .toList(),
-      number: json['number'] as int,
-      orderNumber: json['order_number'] as int,
+      number: (json['number'] as num).toInt(),
+      orderNumber: (json['order_number'] as num).toInt(),
       originalTotalAdditionalFeesSet:
           json['original_total_additional_fees_set'] as String?,
       originalTotalDutiesSet:
@@ -115,9 +116,9 @@ OrderShopify _$OrderShopifyFromJson(Map<String, dynamic> json) => OrderShopify(
       totalTax: json['total_tax'] as String,
       totalTaxSet: json['total_tax_set'] as Map<String, dynamic>,
       totalTipReceived: json['total_tip_received'] as String,
-      totalWeight: json['total_weight'] as int,
+      totalWeight: (json['total_weight'] as num).toInt(),
       updatedAt: json['updated_at'] as String,
-      userId: json['user_id'] as int?,
+      userId: (json['user_id'] as num?)?.toInt(),
       orderStatusUrl: json['order_status_url'] as String?,
     );
 

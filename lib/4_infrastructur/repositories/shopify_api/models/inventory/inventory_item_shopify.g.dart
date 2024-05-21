@@ -17,7 +17,7 @@ InventoryItemShopify _$InventoryItemShopifyFromJson(
               .toList(),
       createdAt: DateTime.parse(json['created_at'] as String),
       harmonizedSystemCode: json['harmonized_system_code'] as String?,
-      id: json['id'] as int,
+      id: (json['id'] as num).toInt(),
       provinceCodeOfOrigin: json['province_code_of_origin'] as String?,
       sku: json['sku'] as String,
       tracked: json['tracked'] as bool,

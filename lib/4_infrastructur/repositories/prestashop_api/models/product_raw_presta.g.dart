@@ -20,7 +20,7 @@ Map<String, dynamic> _$ProductsPrestaToJson(ProductsPresta instance) =>
 
 ProductRawPresta _$ProductRawPrestaFromJson(Map<String, dynamic> json) =>
     ProductRawPresta(
-      id: json['id'] as int,
+      id: (json['id'] as num).toInt(),
       idManufacturer: json['idManufacturer'] as String,
       idSupplier: json['idSupplier'] as String,
       idCategoryDefault: json['idCategoryDefault'] as String,

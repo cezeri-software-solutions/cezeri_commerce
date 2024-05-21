@@ -15,7 +15,7 @@ CustomCollectionShopify _$CustomCollectionShopifyFromJson(
           ? null
           : CustomCollectionImage.fromJson(
               json['image'] as Map<String, dynamic>),
-      id: json['id'] as int,
+      id: (json['id'] as num).toInt(),
       published: json['published'] as bool?,
       publishedAt: json['published_at'] == null
           ? null
@@ -50,8 +50,8 @@ CustomCollectionImage _$CustomCollectionImageFromJson(
       src: json['src'] as String,
       alt: json['alt'] as String?,
       createdAt: DateTime.parse(json['created_at'] as String),
-      width: json['width'] as int,
-      height: json['height'] as int,
+      width: (json['width'] as num).toInt(),
+      height: (json['height'] as num).toInt(),
     );
 
 Map<String, dynamic> _$CustomCollectionImageToJson(

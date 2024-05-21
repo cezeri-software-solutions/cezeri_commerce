@@ -9,9 +9,9 @@ part of 'inventory_level_shopify.dart';
 InventoryLevelShopify _$InventoryLevelShopifyFromJson(
         Map<String, dynamic> json) =>
     InventoryLevelShopify(
-      available: json['available'] as int?,
-      inventoryItemId: json['inventory_item_id'] as int,
-      locationId: json['location_id'] as int,
+      available: (json['available'] as num?)?.toInt(),
+      inventoryItemId: (json['inventory_item_id'] as num).toInt(),
+      locationId: (json['location_id'] as num).toInt(),
       updatedAt: DateTime.parse(json['updated_at'] as String),
     );
 

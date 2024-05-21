@@ -22,7 +22,7 @@ Product _$ProductFromJson(Map<String, dynamic> json) => Product(
       imageUrls:
           (json['imageUrls'] as List<dynamic>).map((e) => e as String).toList(),
       isActive: json['isActive'] as bool,
-      ordered: json['ordered'] as int,
+      ordered: (json['ordered'] as num).toInt(),
       brandName: json['brandName'] as String,
       unity: json['unity'] as String,
       unitPrice: (json['unitPrice'] as num).toDouble(),
@@ -48,12 +48,12 @@ Product _$ProductFromJson(Map<String, dynamic> json) => Product(
       isSetSelfQuantityManaged: json['isSetSelfQuantityManaged'] as bool,
       manufacturerNumber: json['manufacturerNumber'] as String,
       manufacturer: json['manufacturer'] as String,
-      warehouseStock: json['warehouseStock'] as int,
-      availableStock: json['availableStock'] as int,
-      minimumStock: json['minimumStock'] as int,
+      warehouseStock: (json['warehouseStock'] as num).toInt(),
+      availableStock: (json['availableStock'] as num).toInt(),
+      minimumStock: (json['minimumStock'] as num).toInt(),
       isUnderMinimumStock: json['isUnderMinimumStock'] as bool,
-      minimumReorderQuantity: json['minimumReorderQuantity'] as int,
-      packagingUnitOnReorder: json['packagingUnitOnReorder'] as int,
+      minimumReorderQuantity: (json['minimumReorderQuantity'] as num).toInt(),
+      packagingUnitOnReorder: (json['packagingUnitOnReorder'] as num).toInt(),
       description: json['description'] as String,
       listOfDescription: (json['listOfDescription'] as List<dynamic>)
           .map((e) => FieldLanguage.fromJson(e as Map<String, dynamic>))

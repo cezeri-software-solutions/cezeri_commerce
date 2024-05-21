@@ -8,7 +8,7 @@ part of 'field_language.dart';
 
 FieldLanguage _$FieldLanguageFromJson(Map<String, dynamic> json) =>
     FieldLanguage(
-      id: json['id'] as int,
+      id: (json['id'] as num).toInt(),
       value: json['value'] as String,
       isoCode: json['isoCode'] as String,
     );

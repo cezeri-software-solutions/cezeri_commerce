@@ -9,7 +9,7 @@ part of 'product_associations.dart';
 ProductAssociations _$ProductAssociationsFromJson(Map<String, dynamic> json) =>
     ProductAssociations(
       href: json['href'] as String?,
-      id: json['id'] as int?,
+      id: (json['id'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$ProductAssociationsToJson(

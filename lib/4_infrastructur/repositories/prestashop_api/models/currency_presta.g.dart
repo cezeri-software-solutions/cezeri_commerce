@@ -20,7 +20,7 @@ Map<String, dynamic> _$CurrenciesPrestaToJson(CurrenciesPresta instance) =>
 
 CurrencyPresta _$CurrencyPrestaFromJson(Map<String, dynamic> json) =>
     CurrencyPresta(
-      id: json['id'] as int,
+      id: (json['id'] as num).toInt(),
       names: CurrencyPresta._namesFromJson(json['names']),
       name: json['name'] as String,
       symbol: CurrencyPresta._symbolFromJson(json['symbol']),

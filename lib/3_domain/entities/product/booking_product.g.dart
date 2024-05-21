@@ -15,11 +15,11 @@ BookingProduct _$BookingProductFromJson(Map<String, dynamic> json) =>
       name: json['name'] as String,
       articleNumber: json['articleNumber'] as String,
       ean: json['ean'] as String,
-      quantity: json['quantity'] as int,
-      toBookQuantity: json['toBookQuantity'] as int,
-      bookedQuantity: json['bookedQuantity'] as int,
-      warehouseStock: json['warehouseStock'] as int,
-      availableStock: json['availableStock'] as int,
+      quantity: (json['quantity'] as num).toInt(),
+      toBookQuantity: (json['toBookQuantity'] as num).toInt(),
+      bookedQuantity: (json['bookedQuantity'] as num).toInt(),
+      warehouseStock: (json['warehouseStock'] as num).toInt(),
+      availableStock: (json['availableStock'] as num).toInt(),
       isFromDatabase: json['isFromDatabase'] as bool,
     );
 

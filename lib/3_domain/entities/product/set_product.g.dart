@@ -11,7 +11,7 @@ SetProduct _$SetProductFromJson(Map<String, dynamic> json) => SetProduct(
       articleNumber: json['articleNumber'] as String,
       name: json['name'] as String,
       imageUrl: json['imageUrl'] as String,
-      quantity: json['quantity'] as int,
+      quantity: (json['quantity'] as num).toInt(),
     );
 
 Map<String, dynamic> _$SetProductToJson(SetProduct instance) =>

@@ -10,7 +10,7 @@ PrestashopError _$PrestashopErrorFromJson(Map<String, dynamic> json) =>
     PrestashopError(
       request: json['request'] as String,
       responseBody: json['responseBody'] as String,
-      responseStatusCode: json['responseStatusCode'] as int,
+      responseStatusCode: (json['responseStatusCode'] as num).toInt(),
       message: json['message'] as String,
       prestaErrorOn: $enumDecode(_$PrestaErrorOnEnumMap, json['prestaErrorOn']),
       marketplaceName: json['marketplaceName'] as String,

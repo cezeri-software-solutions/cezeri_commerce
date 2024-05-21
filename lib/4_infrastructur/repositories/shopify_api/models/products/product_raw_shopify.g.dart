@@ -13,7 +13,7 @@ ProductRawShopify _$ProductRawShopifyFromJson(Map<String, dynamic> json) =>
           ? null
           : DateTime.parse(json['created_at'] as String),
       handle: json['handle'] as String?,
-      id: json['id'] as int,
+      id: (json['id'] as num).toInt(),
       images: (json['images'] as List<dynamic>)
           .map((e) => ProductImageShopify.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -61,10 +61,10 @@ Map<String, dynamic> _$ProductRawShopifyToJson(ProductRawShopify instance) =>
 ProductOptionShopify _$ProductOptionShopifyFromJson(
         Map<String, dynamic> json) =>
     ProductOptionShopify(
-      id: json['id'] as int,
-      productId: json['product_id'] as int,
+      id: (json['id'] as num).toInt(),
+      productId: (json['product_id'] as num).toInt(),
       name: json['name'] as String,
-      position: json['position'] as int,
+      position: (json['position'] as num).toInt(),
       values:
           (json['values'] as List<dynamic>?)?.map((e) => e as String).toList(),
     );

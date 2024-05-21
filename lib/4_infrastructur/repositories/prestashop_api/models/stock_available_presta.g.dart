@@ -23,7 +23,7 @@ Map<String, dynamic> _$StockAvailablesPrestaToJson(
 StockAvailablePresta _$StockAvailablePrestaFromJson(
         Map<String, dynamic> json) =>
     StockAvailablePresta(
-      id: json['id'] as int,
+      id: (json['id'] as num).toInt(),
       idProduct: json['id_product'] as String,
       idProductAttribute: json['id_product_attribute'] as String,
       idShop: json['id_shop'] as String,

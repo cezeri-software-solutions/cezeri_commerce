@@ -18,7 +18,7 @@ Map<String, dynamic> _$OrdersPrestaToJson(OrdersPresta instance) =>
     };
 
 OrderPresta _$OrderPrestaFromJson(Map<String, dynamic> json) => OrderPresta(
-      id: json['id'] as int,
+      id: (json['id'] as num).toInt(),
       idAddressDelivery: json['id_address_delivery'] as String,
       idAddressInvoice: json['id_address_invoice'] as String,
       idCart: json['id_cart'] as String,

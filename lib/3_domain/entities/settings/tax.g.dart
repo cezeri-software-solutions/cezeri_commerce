@@ -9,7 +9,7 @@ part of 'tax.dart';
 Tax _$TaxFromJson(Map<String, dynamic> json) => Tax(
       taxId: json['taxId'] as String,
       taxName: json['taxName'] as String,
-      taxRate: json['taxRate'] as int,
+      taxRate: (json['taxRate'] as num).toInt(),
       country: Country.fromJson(json['country'] as Map<String, dynamic>),
       isDefault: json['isDefault'] as bool,
     );

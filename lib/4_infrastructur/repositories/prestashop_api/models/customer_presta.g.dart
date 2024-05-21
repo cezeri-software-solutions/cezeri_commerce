@@ -20,7 +20,7 @@ Map<String, dynamic> _$CustomersPrestaToJson(CustomersPresta instance) =>
 
 CustomerPresta _$CustomerPrestaFromJson(Map<String, dynamic> json) =>
     CustomerPresta(
-      id: json['id'] as int,
+      id: (json['id'] as num).toInt(),
       idDefaultGroup: json['id_default_group'] as String,
       idLang: json['id_lang'] as String,
       newsletterDateAdd: json['newsletter_date_add'] as String,

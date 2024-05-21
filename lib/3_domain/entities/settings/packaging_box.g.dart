@@ -8,18 +8,18 @@ part of 'packaging_box.dart';
 
 PackagingBox _$PackagingBoxFromJson(Map<String, dynamic> json) => PackagingBox(
       id: json['id'] as String,
-      pos: json['pos'] as int,
+      pos: (json['pos'] as num).toInt(),
       name: json['name'] as String,
       shortName: json['shortName'] as String,
       imageUrl: json['imageUrl'] as String?,
-      deliveryNoteId: json['deliveryNoteId'] as int?,
+      deliveryNoteId: (json['deliveryNoteId'] as num?)?.toInt(),
       dimensionsInside:
           Dimensions.fromJson(json['dimensionsInside'] as Map<String, dynamic>),
       dimensionsOutside: Dimensions.fromJson(
           json['dimensionsOutside'] as Map<String, dynamic>),
       weight: (json['weight'] as num).toDouble(),
       wholesalePrice: (json['wholesalePrice'] as num).toDouble(),
-      quantity: json['quantity'] as int,
+      quantity: (json['quantity'] as num).toInt(),
     );
 
 Map<String, dynamic> _$PackagingBoxToJson(PackagingBox instance) =>

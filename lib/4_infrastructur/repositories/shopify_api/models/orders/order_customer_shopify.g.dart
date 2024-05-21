@@ -9,7 +9,7 @@ part of 'order_customer_shopify.dart';
 OrderCustomerShopify _$OrderCustomerShopifyFromJson(
         Map<String, dynamic> json) =>
     OrderCustomerShopify(
-      id: json['id'] as int,
+      id: (json['id'] as num).toInt(),
       createdAt: json['created_at'] as String,
       updatedAt: json['updated_at'] as String,
       state: json['state'] as String,

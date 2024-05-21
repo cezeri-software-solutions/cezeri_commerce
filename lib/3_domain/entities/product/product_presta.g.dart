@@ -8,7 +8,7 @@ part of 'product_presta.dart';
 
 ProductPresta _$ProductPrestaFromJson(Map<String, dynamic> json) =>
     ProductPresta(
-      id: json['id'] as int,
+      id: (json['id'] as num).toInt(),
       idManufacturer: json['idManufacturer'] as String,
       idSupplier: json['idSupplier'] as String,
       idCategoryDefault: json['idCategoryDefault'] as String,

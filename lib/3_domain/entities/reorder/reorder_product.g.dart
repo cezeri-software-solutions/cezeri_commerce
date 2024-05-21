@@ -9,14 +9,14 @@ part of 'reorder_product.dart';
 ReorderProduct _$ReorderProductFromJson(Map<String, dynamic> json) =>
     ReorderProduct(
       productId: json['productId'] as String,
-      pos: json['pos'] as int,
+      pos: (json['pos'] as num).toInt(),
       name: json['name'] as String,
       articleNumber: json['articleNumber'] as String,
       ean: json['ean'] as String,
       tax: Tax.fromJson(json['tax'] as Map<String, dynamic>),
       wholesalePriceNet: (json['wholesalePriceNet'] as num).toDouble(),
-      quantity: json['quantity'] as int,
-      bookedQuantity: json['bookedQuantity'] as int,
+      quantity: (json['quantity'] as num).toInt(),
+      bookedQuantity: (json['bookedQuantity'] as num).toInt(),
       isFromDatabase: json['isFromDatabase'] as bool,
     );
 

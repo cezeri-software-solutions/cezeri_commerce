@@ -10,7 +10,7 @@ PicklistAppointment _$PicklistAppointmentFromJson(Map<String, dynamic> json) =>
     PicklistAppointment(
       id: json['id'] as String,
       receiptId: json['receiptId'] as String,
-      appointmentId: json['appointmentId'] as int,
+      appointmentId: (json['appointmentId'] as num).toInt(),
       appointmentNumberAsString: json['appointmentNumberAsString'] as String,
       customerId: json['customerId'] as String,
       receiptCustomer: ReceiptCustomer.fromJson(

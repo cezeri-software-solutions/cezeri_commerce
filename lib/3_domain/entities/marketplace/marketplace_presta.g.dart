@@ -19,11 +19,12 @@ MarketplacePresta _$MarketplacePrestaFromJson(Map<String, dynamic> json) =>
       key: json['key'] as String,
       isActive: json['isActive'] as bool,
       orderStatusIdList: (json['orderStatusIdList'] as List<dynamic>)
-          .map((e) => e as int)
+          .map((e) => (e as num).toInt())
           .toList(),
-      orderStatusOnSuccessImport: json['orderStatusOnSuccessImport'] as int?,
+      orderStatusOnSuccessImport:
+          (json['orderStatusOnSuccessImport'] as num?)?.toInt(),
       orderStatusOnSuccessShipping:
-          json['orderStatusOnSuccessShipping'] as int?,
+          (json['orderStatusOnSuccessShipping'] as num?)?.toInt(),
       warehouseForProductImport: json['warehouseForProductImport'] as String,
       createMissingProductOnOrderImport:
           json['createMissingProductOnOrderImport'] as bool,

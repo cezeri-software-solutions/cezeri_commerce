@@ -20,7 +20,7 @@ Map<String, dynamic> _$CountriesPrestaToJson(CountriesPresta instance) =>
 
 CountryPresta _$CountryPrestaFromJson(Map<String, dynamic> json) =>
     CountryPresta(
-      id: json['id'] as int,
+      id: (json['id'] as num).toInt(),
       idZone: json['id_zone'] as String,
       idCurrency: json['id_currency'] as String,
       callPrefix: json['call_prefix'] as String,

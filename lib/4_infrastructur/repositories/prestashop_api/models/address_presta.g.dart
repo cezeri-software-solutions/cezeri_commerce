@@ -20,7 +20,7 @@ Map<String, dynamic> _$AddressesPrestaToJson(AddressesPresta instance) =>
 
 AddressPresta _$AddressPrestaFromJson(Map<String, dynamic> json) =>
     AddressPresta(
-      id: json['id'] as int,
+      id: (json['id'] as num).toInt(),
       idCustomer: json['id_customer'] as String,
       idManufacturer: json['id_manufacturer'] as String,
       idSupplier: json['id_supplier'] as String,

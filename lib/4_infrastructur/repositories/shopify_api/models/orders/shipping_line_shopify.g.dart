@@ -8,7 +8,7 @@ part of 'shipping_line_shopify.dart';
 
 ShippingLineShopify _$ShippingLineShopifyFromJson(Map<String, dynamic> json) =>
     ShippingLineShopify(
-      id: json['id'] as int,
+      id: (json['id'] as num).toInt(),
       carrierIdentifier: json['carrier_identifier'] as String,
       code: json['code'] as String,
       discountedPrice: json['discounted_price'] as String,

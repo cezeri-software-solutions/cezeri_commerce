@@ -9,21 +9,21 @@ part of 'receipt.dart';
 Receipt _$ReceiptFromJson(Map<String, dynamic> json) => Receipt(
       id: json['id'] as String,
       receiptId: json['receiptId'] as String,
-      offerId: json['offerId'] as int,
+      offerId: (json['offerId'] as num).toInt(),
       offerNumberAsString: json['offerNumberAsString'] as String,
-      appointmentId: json['appointmentId'] as int,
+      appointmentId: (json['appointmentId'] as num).toInt(),
       appointmentNumberAsString: json['appointmentNumberAsString'] as String,
-      deliveryNoteId: json['deliveryNoteId'] as int,
+      deliveryNoteId: (json['deliveryNoteId'] as num).toInt(),
       deliveryNoteNumberAsString: json['deliveryNoteNumberAsString'] as String,
       listOfDeliveryNoteIds: (json['listOfDeliveryNoteIds'] as List<dynamic>?)
-          ?.map((e) => e as int)
+          ?.map((e) => (e as num).toInt())
           .toList(),
-      invoiceId: json['invoiceId'] as int,
+      invoiceId: (json['invoiceId'] as num).toInt(),
       invoiceNumberAsString: json['invoiceNumberAsString'] as String,
-      creditId: json['creditId'] as int,
+      creditId: (json['creditId'] as num).toInt(),
       creditNumberAsString: json['creditNumberAsString'] as String,
       marketplaceId: json['marketplaceId'] as String,
-      receiptMarketplaceId: json['receiptMarketplaceId'] as int,
+      receiptMarketplaceId: (json['receiptMarketplaceId'] as num).toInt(),
       receiptMarketplaceReference:
           json['receiptMarketplaceReference'] as String,
       paymentMethod:
@@ -49,7 +49,7 @@ Receipt _$ReceiptFromJson(Map<String, dynamic> json) => Receipt(
       tax: Tax.fromJson(json['tax'] as Map<String, dynamic>),
       isSmallBusiness: json['isSmallBusiness'] as bool,
       isPicked: json['isPicked'] as bool,
-      termOfPayment: json['termOfPayment'] as int,
+      termOfPayment: (json['termOfPayment'] as num).toInt(),
       weight: (json['weight'] as num).toDouble(),
       totalGross: (json['totalGross'] as num).toDouble(),
       totalNet: (json['totalNet'] as num).toDouble(),
@@ -111,7 +111,7 @@ Receipt _$ReceiptFromJson(Map<String, dynamic> json) => Receipt(
           ? null
           : PackagingBox.fromJson(json['packagingBox'] as Map<String, dynamic>),
       creationDate: DateTime.parse(json['creationDate'] as String),
-      creationDateInt: json['creationDateInt'] as int,
+      creationDateInt: (json['creationDateInt'] as num).toInt(),
       lastEditingDate: DateTime.parse(json['lastEditingDate'] as String),
     );
 

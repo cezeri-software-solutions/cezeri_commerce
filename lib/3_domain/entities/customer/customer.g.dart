@@ -8,7 +8,7 @@ part of 'customer.dart';
 
 Customer _$CustomerFromJson(Map<String, dynamic> json) => Customer(
       id: json['id'] as String,
-      customerNumber: json['customerNumber'] as int,
+      customerNumber: (json['customerNumber'] as num).toInt(),
       customerMarketplace: CustomerMarketplace.fromJson(
           json['customerMarketplace'] as Map<String, dynamic>),
       company: json['company'] as String?,

@@ -8,7 +8,7 @@ part of 'product_shopify.dart';
 
 ProductShopify _$ProductShopifyFromJson(Map<String, dynamic> json) =>
     ProductShopify(
-      id: json['id'] as int,
+      id: (json['id'] as num).toInt(),
       title: json['title'] as String,
       bodyHtml: json['bodyHtml'] as String,
       handle: json['handle'] as String,

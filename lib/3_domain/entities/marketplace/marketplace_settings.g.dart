@@ -9,15 +9,16 @@ part of 'marketplace_settings.dart';
 MarketplaceSettings _$MarketplaceSettingsFromJson(Map<String, dynamic> json) =>
     MarketplaceSettings(
       id: json['id'] as String,
-      nextIdToImport: json['nextIdToImport'] as int,
+      nextIdToImport: (json['nextIdToImport'] as num).toInt(),
       lastImportDateTime: DateTime.parse(json['lastImportDateTime'] as String),
       orderStatusIdsToImport: (json['orderStatusIdsToImport'] as List<dynamic>)
-          .map((e) => e as int)
+          .map((e) => (e as num).toInt())
           .toList(),
-      statusIdAfterImport: json['statusIdAfterImport'] as int,
-      statusIdAfterShipping: json['statusIdAfterShipping'] as int,
-      statusIdAfterCancellation: json['statusIdAfterCancellation'] as int,
-      statusIdAfterDelete: json['statusIdAfterDelete'] as int,
+      statusIdAfterImport: (json['statusIdAfterImport'] as num).toInt(),
+      statusIdAfterShipping: (json['statusIdAfterShipping'] as num).toInt(),
+      statusIdAfterCancellation:
+          (json['statusIdAfterCancellation'] as num).toInt(),
+      statusIdAfterDelete: (json['statusIdAfterDelete'] as num).toInt(),
       listOfEMailAutomations: (json['listOfEMailAutomations'] as List<dynamic>)
           .map((e) => EMailAutomation.fromJson(e as Map<String, dynamic>))
           .toList(),

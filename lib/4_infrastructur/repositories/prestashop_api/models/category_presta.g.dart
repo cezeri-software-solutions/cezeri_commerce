@@ -20,7 +20,7 @@ Map<String, dynamic> _$CategoriesPrestaToJson(CategoriesPresta instance) =>
 
 CategoryPresta _$CategoryPrestaFromJson(Map<String, dynamic> json) =>
     CategoryPresta(
-      id: json['id'] as int,
+      id: (json['id'] as num).toInt(),
       idParent: json['id_parent'] as String,
       levelDepth: json['level_depth'] as String,
       active: json['active'] as String,

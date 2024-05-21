@@ -9,13 +9,13 @@ part of 'picklist_product.dart';
 PicklistProduct _$PicklistProductFromJson(Map<String, dynamic> json) =>
     PicklistProduct(
       productId: json['productId'] as String,
-      quantity: json['quantity'] as int,
-      pickedQuantity: json['pickedQuantity'] as int,
+      quantity: (json['quantity'] as num).toInt(),
+      pickedQuantity: (json['pickedQuantity'] as num).toInt(),
       imageUrl: json['imageUrl'] as String?,
       name: json['name'] as String,
       articleNumber: json['articleNumber'] as String,
       ean: json['ean'] as String,
-      customization: json['customization'] as int,
+      customization: (json['customization'] as num).toInt(),
       weight: (json['weight'] as num).toDouble(),
     );
 

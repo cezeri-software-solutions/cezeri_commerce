@@ -8,11 +8,11 @@ part of 'collect_shopify.dart';
 
 CollectShopify _$CollectShopifyFromJson(Map<String, dynamic> json) =>
     CollectShopify(
-      collectionId: json['collection_id'] as int,
+      collectionId: (json['collection_id'] as num).toInt(),
       createdAt: DateTime.parse(json['created_at'] as String),
-      id: json['id'] as int,
-      position: json['position'] as int,
-      productId: json['product_id'] as int,
+      id: (json['id'] as num).toInt(),
+      position: (json['position'] as num).toInt(),
+      productId: (json['product_id'] as num).toInt(),
       sortValue: json['sort_value'] as String,
       updatedAt: DateTime.parse(json['updated_at'] as String),
     );

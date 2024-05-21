@@ -9,14 +9,15 @@ part of 'product_image_shopify.dart';
 ProductImageShopify _$ProductImageShopifyFromJson(Map<String, dynamic> json) =>
     ProductImageShopify(
       createdAt: DateTime.parse(json['created_at'] as String),
-      id: json['id'] as int,
-      position: json['position'] as int,
-      productId: json['product_id'] as int,
-      variantIds:
-          (json['variant_ids'] as List<dynamic>).map((e) => e as int).toList(),
+      id: (json['id'] as num).toInt(),
+      position: (json['position'] as num).toInt(),
+      productId: (json['product_id'] as num).toInt(),
+      variantIds: (json['variant_ids'] as List<dynamic>)
+          .map((e) => (e as num).toInt())
+          .toList(),
       src: json['src'] as String,
-      width: json['width'] as int,
-      height: json['height'] as int,
+      width: (json['width'] as num).toInt(),
+      height: (json['height'] as num).toInt(),
       updatedAt: DateTime.parse(json['updated_at'] as String),
     );
 

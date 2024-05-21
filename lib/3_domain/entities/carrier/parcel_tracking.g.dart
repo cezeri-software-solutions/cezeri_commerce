@@ -8,7 +8,7 @@ part of 'parcel_tracking.dart';
 
 ParcelTracking _$ParcelTrackingFromJson(Map<String, dynamic> json) =>
     ParcelTracking(
-      deliveryNoteId: json['deliveryNoteId'] as int,
+      deliveryNoteId: (json['deliveryNoteId'] as num).toInt(),
       trackingUrl: json['trackingUrl'] as String,
       trackingNumber: json['trackingNumber'] as String,
       pdfString: json['pdfString'] as String,

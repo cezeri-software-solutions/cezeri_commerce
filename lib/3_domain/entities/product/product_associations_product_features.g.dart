@@ -10,7 +10,7 @@ ProductAssociationsProductFeatures _$ProductAssociationsProductFeaturesFromJson(
         Map<String, dynamic> json) =>
     ProductAssociationsProductFeatures(
       href: json['href'] as String?,
-      id: json['id'] as int?,
+      id: (json['id'] as num?)?.toInt(),
       idFeatureValue: json['idFeatureValue'] as String?,
     );
 

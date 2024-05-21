@@ -10,10 +10,10 @@ MetafieldShopify _$MetafieldShopifyFromJson(Map<String, dynamic> json) =>
     MetafieldShopify(
       createdAt: DateTime.parse(json['created_at'] as String),
       description: json['description'] as String?,
-      id: json['id'] as int,
+      id: (json['id'] as num).toInt(),
       key: json['key'] as String,
       namespace: json['namespace'] as String,
-      ownerId: json['owner_id'] as int,
+      ownerId: (json['owner_id'] as num).toInt(),
       ownerResource: json['owner_resource'] as String,
       updatedAt: DateTime.parse(json['updated_at'] as String),
       value: json['value'] as String,

@@ -41,7 +41,7 @@ class OrderShopify extends Equatable {
   @JsonKey(name: 'cancelled_at')
   final String? cancelledAt;
   @JsonKey(name: 'cart_token')
-  final String cartToken;
+  final String? cartToken;
   @JsonKey(name: 'checkout_token')
   final String checkoutToken;
   @JsonKey(name: 'client_details')

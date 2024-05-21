@@ -9,7 +9,7 @@ part of 'receipt_customer.dart';
 ReceiptCustomer _$ReceiptCustomerFromJson(Map<String, dynamic> json) =>
     ReceiptCustomer(
       id: json['id'] as String,
-      customerNumber: json['customerNumber'] as int,
+      customerNumber: (json['customerNumber'] as num).toInt(),
       company: json['company'] as String?,
       firstName: json['firstName'] as String,
       lastName: json['lastName'] as String,

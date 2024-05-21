@@ -9,9 +9,9 @@ part of 'product_associations_product_bundle.dart';
 ProductAssociationsProductBundle _$ProductAssociationsProductBundleFromJson(
         Map<String, dynamic> json) =>
     ProductAssociationsProductBundle(
-      id: json['id'] as int?,
-      idProductAttribute: json['idProductAttribute'] as int?,
-      quantity: json['quantity'] as int?,
+      id: (json['id'] as num?)?.toInt(),
+      idProductAttribute: (json['idProductAttribute'] as num?)?.toInt(),
+      quantity: (json['quantity'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$ProductAssociationsProductBundleToJson(

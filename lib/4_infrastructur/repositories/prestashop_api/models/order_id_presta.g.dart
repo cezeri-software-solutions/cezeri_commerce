@@ -20,7 +20,7 @@ Map<String, dynamic> _$OrdersIdPrestaToJson(OrdersIdPresta instance) =>
 
 OrderIdPresta _$OrderIdPrestaFromJson(Map<String, dynamic> json) =>
     OrderIdPresta(
-      id: json['id'] as int,
+      id: (json['id'] as num).toInt(),
     );
 
 Map<String, dynamic> _$OrderIdPrestaToJson(OrderIdPresta instance) =>

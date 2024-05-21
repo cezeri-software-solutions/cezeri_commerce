@@ -20,7 +20,7 @@ Map<String, dynamic> _$CarriersPrestaToJson(CarriersPresta instance) =>
 
 CarrierPresta _$CarrierPrestaFromJson(Map<String, dynamic> json) =>
     CarrierPresta(
-      id: json['id'] as int,
+      id: (json['id'] as num).toInt(),
       deleted: json['deleted'] as String,
       isModule: json['is_module'] as String,
       idTaxRulesGroup:

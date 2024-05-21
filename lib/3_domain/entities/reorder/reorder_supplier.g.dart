@@ -9,7 +9,7 @@ part of 'reorder_supplier.dart';
 ReorderSupplier _$ReorderSupplierFromJson(Map<String, dynamic> json) =>
     ReorderSupplier(
       id: json['id'] as String,
-      supplierNumber: json['supplierNumber'] as int,
+      supplierNumber: (json['supplierNumber'] as num).toInt(),
       company: json['company'] as String,
       name: json['name'] as String,
     );

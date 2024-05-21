@@ -10,7 +10,7 @@ CustomerMarketplace _$CustomerMarketplaceFromJson(Map<String, dynamic> json) =>
     CustomerMarketplace(
       marketplaceId: json['marketplaceId'] as String,
       marketplaceName: json['marketplaceName'] as String,
-      customerIdMarketplace: json['customerIdMarketplace'] as int,
+      customerIdMarketplace: (json['customerIdMarketplace'] as num).toInt(),
       isNewsletterAccepted: json['isNewsletterAccepted'] as bool,
       isGuest: json['isGuest'] as bool,
     );
