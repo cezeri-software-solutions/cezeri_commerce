@@ -72,13 +72,13 @@ class ProductRepositoryImpl implements ProductRepository {
     final ownerId = await getOwnerId();
     if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
-    const limit = 1000; // Anzahl der Zeilen pro Abfrage
+    const limit = 990; // Anzahl der Zeilen pro Abfrage
     int offset = 0; // Startposition
     final allProducts = <Product>[];
 
     try {
       while (true) {
-        final response = await supabase.from('d_products').select().eq('ownerId', ownerId).range(offset, offset + limit - 1);
+        final response = await supabase.from('d_products').select().eq('ownerId', ownerId).order('name').range(offset, offset + limit - 1);
 
         if (response.isEmpty) break;
 
