@@ -1,7 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:cezeri_commerce/1_presentation/core/extensions/string_to_int.dart';
 import 'package:dartz/dartz.dart';
-import 'package:logger/logger.dart';
 import 'package:meta/meta.dart';
 
 import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
@@ -13,12 +12,11 @@ import '../../../3_domain/repositories/firebase/main_settings_respository.dart';
 import '../../../3_domain/repositories/marketplace/marketplace_import_repository.dart';
 import '../../../4_infrastructur/repositories/prestashop_api/models/product_raw_presta.dart';
 import '../../../4_infrastructur/repositories/shopify_api/shopify.dart';
-import '../../../core/abstract_failure.dart';
+import '../../../constants.dart';
+import '../../../failures/abstract_failure.dart';
 
 part 'product_import_event.dart';
 part 'product_import_state.dart';
-
-final logger = Logger();
 
 class ProductImportBloc extends Bloc<ProductImportEvent, ProductImportState> {
   final MarketplaceImportRepository productImportRepository;

@@ -37,6 +37,7 @@ class AppointmentDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final receiptDetailBloc = sl<ReceiptDetailBloc>();
     if (receiptCreateOrEdit == ReceiptCreateOrEdit.create) {
+      print(appointmentBloc.state.receipt!);
       receiptDetailBloc.add(SetListOfReceiptProductssReceiptDetailEvent(
         receipt: appointmentBloc.state.receipt!,
         listOfTaxRules: context.read<MainSettingsBloc>().state.mainSettings!.taxes,

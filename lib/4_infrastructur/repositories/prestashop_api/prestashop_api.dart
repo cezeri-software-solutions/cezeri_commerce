@@ -7,23 +7,21 @@ import 'package:cezeri_commerce/3_domain/entities/marketplace/marketplace_presta
 import 'package:dartz/dartz.dart';
 import 'package:http/http.dart';
 import 'package:http_parser/http_parser.dart';
-import 'package:logger/logger.dart';
 import 'package:loggy/loggy.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:quiver/core.dart';
 import 'package:xml/xml.dart';
 
-import '../../../3_domain/entities/product/product_presta.dart';
-import '../../../core/presta_failure.dart';
 import '/3_domain/entities/product/product.dart';
 import '/3_domain/entities/product/product_image.dart';
 import '/3_domain/entities/product/product_marketplace.dart';
+import '../../../3_domain/entities/product/product_presta.dart';
+import '../../../constants.dart';
+import '../../../failures/presta_failure.dart';
 import 'models/models.dart';
 import 'patch_builders.dart';
 import 'post_builder.dart';
 import 'put_builder.dart';
-
-final logger = Logger();
 
 class PrestashopApiConfig {
   final String apiKey;

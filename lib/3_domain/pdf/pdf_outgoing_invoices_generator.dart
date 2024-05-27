@@ -2,14 +2,11 @@ import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.da
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
-import 'package:logger/logger.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
 import '../entities/receipt/receipt.dart';
 import 'widgets/pdf_text.dart';
-
-final logger = Logger();
 
 class PdfOutgoingInvoicesGenerator {
   static Future<Uint8List> generate({required List<Receipt> listOfReceipts, DateTimeRange? dateRange}) async {

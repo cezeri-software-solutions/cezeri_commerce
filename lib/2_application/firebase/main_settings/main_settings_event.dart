@@ -13,12 +13,6 @@ class UpdateMainSettingsEvent extends MainSettingsEvent {
   UpdateMainSettingsEvent({required this.mainSettings});
 }
 
-class CreateMainSettingsEvent extends MainSettingsEvent {
-  final MainSettings mainSettings;
-
-  CreateMainSettingsEvent({required this.mainSettings});
-}
-
 //? ################################################################
 //? ########################## Tax Rules ###########################
 

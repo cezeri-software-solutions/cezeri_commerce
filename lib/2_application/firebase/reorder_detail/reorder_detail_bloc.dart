@@ -6,6 +6,7 @@ import 'package:cezeri_commerce/3_domain/entities/reorder/reorder_supplier.dart'
 import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 
+import '../../../failures/abstract_failure.dart';
 import '/1_presentation/reorder/reorder_detail/reorder_detail_screen.dart';
 import '/3_domain/entities/marketplace/abstract_marketplace.dart';
 import '/3_domain/entities/product/product.dart';
@@ -23,7 +24,6 @@ import '/3_domain/repositories/firebase/product_repository.dart';
 import '/3_domain/repositories/firebase/reorder_repository.dart';
 import '/3_domain/repositories/firebase/stat_product_repository.dart';
 import '/3_domain/repositories/firebase/supplier_repository.dart';
-import '/core/abstract_failure.dart';
 
 part 'reorder_detail_event.dart';
 part 'reorder_detail_state.dart';

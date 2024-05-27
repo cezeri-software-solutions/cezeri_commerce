@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
 
-import '../../../core/abstract_failure.dart';
+import '../../../failures/abstract_failure.dart';
 import '../../entities/settings/general_ledger_account.dart';
 
 abstract class GeneralLedgerAccountRepository {

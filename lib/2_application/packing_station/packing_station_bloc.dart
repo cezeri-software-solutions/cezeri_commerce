@@ -15,7 +15,7 @@ import '../../3_domain/enums/enums.dart';
 import '../../3_domain/repositories/firebase/customer_repository.dart';
 import '../../3_domain/repositories/firebase/packing_station_repository.dart';
 import '../../3_domain/repositories/firebase/receipt_respository.dart';
-import '../../core/abstract_failure.dart';
+import '../../failures/abstract_failure.dart';
 
 part 'packing_station_event.dart';
 part 'packing_station_state.dart';

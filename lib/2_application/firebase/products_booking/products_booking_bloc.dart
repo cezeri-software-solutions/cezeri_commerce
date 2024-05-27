@@ -3,19 +3,16 @@ import 'package:cezeri_commerce/1_presentation/core/extensions/string_to_int.dar
 import 'package:cezeri_commerce/3_domain/enums/enums.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
-import 'package:logger/logger.dart';
 
 import '../../../3_domain/entities/product/booking_product.dart';
 import '../../../3_domain/entities/product/product.dart';
 import '../../../3_domain/entities/reorder/reorder.dart';
 import '../../../3_domain/repositories/firebase/product_repository.dart';
 import '../../../3_domain/repositories/firebase/reorder_repository.dart';
-import '../../../core/abstract_failure.dart';
+import '../../../failures/abstract_failure.dart';
 
 part 'products_booking_event.dart';
 part 'products_booking_state.dart';
-
-final logger = Logger();
 
 class ProductsBookingBloc extends Bloc<ProductsBookingEvent, ProductsBookingState> {
   final ProductRepository productRepository;

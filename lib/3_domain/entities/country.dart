@@ -1,14 +1,19 @@
+import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'country.g.dart';
 
 @JsonSerializable(explicitToJson: true)
-class Country {
+class Country extends Equatable {
   final String id;
+  // @JsonKey(name: 'iso_code')
   final String isoCode;
   final String name;
+  // @JsonKey(name: 'name_english')
   final String nameEnglish;
+  // @JsonKey(name: 'dial_code')
   final String dialCode;
+  // @JsonKey(name: 'flag_url')
   final String flagUrl;
 
   Country({
@@ -25,6 +30,7 @@ class Country {
 
   factory Country.empty() {
     return Country(
+      // id: '0',
       id: '',
       isoCode: '',
       name: '',
@@ -50,9 +56,10 @@ class Country {
   }
 
   @override
-  String toString() {
-    return 'Country(id: $id, isoCode: $isoCode, name: $name, nameEnglish: $nameEnglish, dialCode: $dialCode, flagUrl: $flagUrl)';
-  }
+  List<Object?> get props => [id];
+
+  @override
+  bool get stringify => true;
 
   static List<Country> countryList = [
     Country.empty(),

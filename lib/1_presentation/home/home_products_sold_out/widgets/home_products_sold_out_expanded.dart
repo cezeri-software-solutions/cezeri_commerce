@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:logger/logger.dart';
 
 import '../../../../2_application/firebase/home/home_product/home_product_bloc.dart';
 import '../../../../constants.dart';
@@ -10,8 +9,6 @@ import '../../../core/widgets/my_recommended_reorder_quantity.dart';
 import '../functions/get_reordered_quantity.dart';
 import 'grouped_list_of_supplier_by_manufacturer.dart';
 import 'home_product_name_widget.dart';
-
-final logger = Logger();
 
 class HomeProductsSoldOutExpanded extends StatelessWidget {
   final HomeProductBloc homeProductBloc;

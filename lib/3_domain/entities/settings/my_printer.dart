@@ -1,16 +1,19 @@
+import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:printing/printing.dart';
 
 part 'my_printer.g.dart';
 
 @JsonSerializable(explicitToJson: true)
-class MyPrinter {
+class MyPrinter extends Equatable {
   final String url;
   final String? name;
   final String? model;
   final String? location;
   final String? comment;
+  // @JsonKey(name: 'is_default')
   final bool? isDefault;
+  // @JsonKey(name: 'is_available')
   final bool? isAvailable;
 
   const MyPrinter({
@@ -63,7 +66,8 @@ class MyPrinter {
   }
 
   @override
-  String toString() {
-    return 'MyPrinter(url: $url, name: $name, model: $model, location: $location, comment: $comment, isDefault: $isDefault, isAvailable: $isAvailable)';
-  }
+  List<Object?> get props => [];
+
+  @override
+  bool get stringify => true;
 }

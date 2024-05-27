@@ -60,6 +60,8 @@ MainSettings _$MainSettingsFromJson(Map<String, dynamic> json) => MainSettings(
           BankDetails.fromJson(json['bankDetails'] as Map<String, dynamic>),
       openingTimes:
           OpeningTimes.fromJson(json['openingTimes'] as Map<String, dynamic>),
+      creationDate: DateTime.parse(json['creationDate'] as String),
+      lastEditingDate: DateTime.parse(json['lastEditingDate'] as String),
     );
 
 Map<String, dynamic> _$MainSettingsToJson(MainSettings instance) =>
@@ -102,4 +104,6 @@ Map<String, dynamic> _$MainSettingsToJson(MainSettings instance) =>
           instance.listOfPackagingBoxes.map((e) => e.toJson()).toList(),
       'bankDetails': instance.bankDetails.toJson(),
       'openingTimes': instance.openingTimes.toJson(),
+      'creationDate': instance.creationDate.toIso8601String(),
+      'lastEditingDate': instance.lastEditingDate.toIso8601String(),
     };

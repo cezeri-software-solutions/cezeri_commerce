@@ -83,7 +83,7 @@ class _AddEditTaxRulesState extends State<AddEditTaxRules> {
         isDefault: widget.isDefault,
       );
       context.read<MainSettingsBloc>().add(AddTaxRulesEvent(taxRules: taxRule));
-      context.router.pop();
+      context.router.maybePop();
     } else {
       final taxRule = widget.taxRule!.copyWith(
         taxName: _taxNameController.text,

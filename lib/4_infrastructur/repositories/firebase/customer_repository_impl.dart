@@ -1,139 +1,160 @@
+import 'package:cezeri_commerce/1_presentation/core/extensions/get_either.dart';
 import 'package:cezeri_commerce/3_domain/entities/customer/customer.dart';
-import 'package:cezeri_commerce/core/firebase_failures.dart';
+import 'package:cezeri_commerce/failures/firebase_failures.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:logger/logger.dart';
 
-import '../../../core/abstract_failure.dart';
 import '/1_presentation/core/functions/check_internet_connection.dart';
 import '/3_domain/repositories/firebase/customer_repository.dart';
-
-final logger = Logger();
+import '../../../3_domain/repositories/firebase/main_settings_respository.dart';
+import '../../../constants.dart';
+import '../../../failures/abstract_failure.dart';
+import '../functions/repository_functions.dart';
 
 class CustomerRepositoryImpl implements CustomerRepository {
   final FirebaseFirestore db;
   final FirebaseAuth firebaseAuth;
+  final MainSettingsRepository settingsRepository;
 
-  CustomerRepositoryImpl({required this.db, required this.firebaseAuth});
+  CustomerRepositoryImpl({required this.db, required this.firebaseAuth, required this.settingsRepository});
 
   @override
   Future<Either<AbstractFailure, Customer>> createCustomer(Customer customer) async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(NoConnectionFailure());
+    if (!await checkInternetConnection()) return Left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
-    final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRef = db.collection('Customers').doc(currentUserUid).collection('Customers').doc();
-    final docRefSettings = db.collection('Settings').doc(currentUserUid).collection('Settings').doc(currentUserUid);
+    final customerQuery = supabase.from('d_customers');
+    final settingsQuery = supabase.from('d_main_settings');
+
+    final customerJson = customer.toJson();
+    customerJson.addEntries([MapEntry('ownerId', ownerId)]);
 
     try {
-      Customer toCreateCustomer = customer.copyWith(id: docRef.id);
-      await docRef.set(toCreateCustomer.toJson());
+      final fosSettings = await settingsRepository.getSettings();
+      if (fosSettings.isLeft()) return Left(fosSettings.getLeft());
+      final settings = fosSettings.getRight();
+      final updatedSettings = settings.copyWith(nextCustomerNumber: settings.nextCustomerNumber + 1);
 
-      await docRefSettings.update({'nextCustomerNumber': FieldValue.increment(1)});
+      final customerResponse = await customerQuery.insert(customerJson).select('*').single();
+      final createdCustomer = Customer.fromJson(customerResponse);
 
-      return right(toCreateCustomer);
-    } on FirebaseException catch (e) {
-      logger.e(e.message);
-      return left(GeneralFailure(customMessage: 'Beim Erstellen des Kunden ist ein Fehler aufgetreten.', e: e));
+      await settingsQuery.update(updatedSettings.toJson()).eq('settingsId', settings.settingsId);
+
+      return Right(createdCustomer);
+    } catch (e) {
+      logger.e(e.runtimeType);
+      logger.e(e);
+      return Left(GeneralFailure(customMessage: 'Beim Erstellen des Kunden ist ein Fehler aufgetreten. Error: $e'));
     }
-
-    
   }
 
   @override
   Future<Either<AbstractFailure, Customer>> getCustomer(String id) async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(NoConnectionFailure());
+    if (!await checkInternetConnection()) return left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
-    final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRef = db.collection('Customers').doc(currentUserUid).collection('Customers').doc(id);
+    final query = supabase.from('d_customers').select().eq('ownerId', ownerId).eq('id', id).single();
 
     try {
-      final customer = await docRef.get();
-      return right(Customer.fromJson(customer.data()!));
-    } on FirebaseException catch (e) {
-      logger.e(e.message);
-      return left(GeneralFailure(customMessage: 'Beim Laden des Kunden ist ein Fehler aufgetreten.', e: e));
+      final response = await query;
+
+      return right(Customer.fromJson(response));
+    } catch (e) {
+      logger.e(e);
+      return left(GeneralFailure(customMessage: 'Beim Laden des Kunden ist ein Fehler aufgetreten. Error: $e'));
     }
   }
 
   @override
-  Future<Either<AbstractFailure, List<Customer>>> getListOfCustomers() async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(NoConnectionFailure());
+  Future<Either<AbstractFailure, List<Customer>>> getListOfAllCustomers() async {
+    if (!await checkInternetConnection()) return Left(NoConnectionFailure());
 
-    final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRef = db.collection('Customers').doc(currentUserUid).collection('Customers');
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
+
+    const limit = 1000; // Anzahl der Zeilen pro Abfrage
+    int offset = 0; // Startposition
+    final allCustomers = <Customer>[];
 
     try {
-      final listOfCustomers = await docRef.get().then((value) => value.docs.map((querySnapshot) => Customer.fromJson(querySnapshot.data())).toList());
+      while (true) {
+        final response = await supabase.from('d_customers').select().eq('ownerId', ownerId).range(offset, offset + limit - 1);
 
-      return right(listOfCustomers);
-    } on FirebaseException catch (e) {
-      logger.e(e.message);
-      return left(GeneralFailure(customMessage: 'Beim Laden der Kunden ist ein Fehler aufgetreten.', e: e));
+        if (response.isEmpty) break;
+
+        final listOfCustomers = response.map((e) => Customer.fromJson(e)).toList();
+        allCustomers.addAll(listOfCustomers);
+
+        offset += limit; // Offset für die nächste Abfrage erhöhen
+      }
+
+      return Right(allCustomers);
+    } catch (e) {
+      logger.e(e);
+      return Left(GeneralFailure(customMessage: 'Beim Laden der Kunden ist ein Fehler aufgetreten. Error: $e'));
     }
   }
 
   @override
   Future<Either<AbstractFailure, Customer>> updateCustomer(Customer customer) async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(NoConnectionFailure());
-
-    final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRef = db.collection('Customers').doc(currentUserUid).collection('Customers').doc(customer.id);
+    if (!await checkInternetConnection()) return Left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
     try {
-      await docRef.update(customer.toJson());
+      await supabase.from('d_customers').update(customer.toJson()).eq('ownerId', ownerId).eq('id', customer.id);
 
-      return right(customer);
-    } on FirebaseException catch (e) {
-      logger.e(e.message);
-      return left(GeneralFailure(customMessage: 'Beim Aktualisieren des Kunden ist ein Fehler aufgetreten.', e: e));
+      return Right(customer);
+    } catch (e) {
+      logger.e(e);
+      return Left(GeneralFailure(customMessage: 'Beim Aktualisieren des Kunden ist ein Fehler aufgetreten. Error: $e'));
     }
   }
 
   @override
   Future<Either<AbstractFailure, Unit>> deleteCustomer(String id) async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(NoConnectionFailure());
-
-    final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRef = db.collection('Customers').doc(currentUserUid).collection('Customers').doc(id);
+    if (!await checkInternetConnection()) return Left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
     try {
-      await docRef.delete();
+      await supabase.from('d_customers').delete().eq('ownerId', ownerId).eq('id', id);
 
-      return right(unit);
-    } on FirebaseException catch (e) {
-      logger.e(e.message);
-      return left(GeneralFailure(customMessage: 'Beim Löschen des Kunden ist ein Fehler aufgetreten.', e: e));
+      return const Right(unit);
+    } catch (e) {
+      logger.e(e);
+      return Left(GeneralFailure(customMessage: 'Beim Löschen des Kunden ist ein Fehler aufgetreten. Error: $e'));
     }
   }
 
   @override
   Future<Either<AbstractFailure, Customer>> getCustomerByCustomerIdInMarketplace(String marketplaceId, int customerIdMarketplace) async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(NoConnectionFailure());
+    if (!await checkInternetConnection()) return Left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
-    final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRef = db
-        .collection('Customers')
-        .doc(currentUserUid)
-        .collection('Customers')
-        .where('customerMarketplace.marketplaceId', isEqualTo: marketplaceId)
-        .where('customerMarketplace.customerIdMarketplace', isEqualTo: customerIdMarketplace);
+    final query = supabase
+        .from('d_customers')
+        .select()
+        .eq('ownerId', ownerId)
+        .filter('customerMarketplace->>marketplaceName', 'eq', marketplaceId)
+        .filter('customerMarketplace->customerIdMarketplace', 'eq', customerIdMarketplace);
 
     try {
-      final customer = await docRef.get().then((value) => value.docs.map((docSs) => Customer.fromJson(docSs.data())).toList().firstOrNull);
-      if (customer == null) {
-        return left(GeneralFailure(customMessage: 'In der Datenbank konnte kein Kunde gefunden werden.'));
-      }
-      return right(customer);
-    } on FirebaseException catch (e) {
-      logger.e(e.message);
-      return left(GeneralFailure(customMessage: 'Beim Laden des Kunden ist ein Fehler aufgetreten.', e: e));
+      final response = await query;
+
+      if (response.isEmpty) return Left(GeneralFailure(customMessage: 'In der Datenbank konnte kein Kunde gefunden werden.'));
+      final listOfCustomers = response.map((e) => Customer.fromJson(e)).toList();
+
+      final customer = listOfCustomers.first;
+
+      return Right(customer);
+    } catch (e) {
+      logger.e(e);
+      return Left(GeneralFailure(customMessage: 'Beim Laden des Kunden ist ein Fehler aufgetreten. Error: $e'));
     }
   }
 }

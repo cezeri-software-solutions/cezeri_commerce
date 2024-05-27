@@ -32,7 +32,6 @@ Customer _$CustomerFromJson(Map<String, dynamic> json) => Customer(
     );
 
 Map<String, dynamic> _$CustomerToJson(Customer instance) => <String, dynamic>{
-      'id': instance.id,
       'customerNumber': instance.customerNumber,
       'customerMarketplace': instance.customerMarketplace.toJson(),
       'company': instance.company,

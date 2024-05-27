@@ -1,3 +1,4 @@
+import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 import 'dimensions.dart';
@@ -5,16 +6,23 @@ import 'dimensions.dart';
 part 'packaging_box.g.dart';
 
 @JsonSerializable(explicitToJson: true)
-class PackagingBox {
+class PackagingBox extends Equatable {
+  // @JsonKey(toJson: null)
   final String id;
   final int pos;
   final String name;
+  // @JsonKey(name: '')
   final String shortName;
+  // @JsonKey(name: 'imageUrl')
   final String? imageUrl;
+  // @JsonKey(name: 'delivery_note_id')
   final int? deliveryNoteId;
+  // @JsonKey(name: 'dimensions_inside')
   final Dimensions dimensionsInside;
+  // @JsonKey(name: 'dimensions_outside')
   final Dimensions dimensionsOutside;
   final double weight;
+  // @JsonKey(name: 'wholesale_price')
   final double wholesalePrice;
   final int quantity;
 
@@ -81,9 +89,10 @@ class PackagingBox {
   }
 
   @override
-  String toString() {
-    return 'PackagingBox(id: $id, pos: $pos, name: $name, shortName: $shortName, imageUrl: $imageUrl, deliveryNoteId: $deliveryNoteId, dimensionsInside: $dimensionsInside, dimensionsOutside: $dimensionsOutside, weight: $weight, wholesalePrice: $wholesalePrice, quantity: $quantity)';
-  }
+  List<Object?> get props => [id];
+
+  @override
+  bool get stringify => true;
 }
 
 

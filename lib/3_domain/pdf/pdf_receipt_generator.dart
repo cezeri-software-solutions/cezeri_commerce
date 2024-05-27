@@ -2,14 +2,12 @@ import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.da
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
-import 'package:logger/logger.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
+import '../../constants.dart';
 import '../entities/receipt/receipt.dart';
 import 'widgets/pdf_text.dart';
-
-final logger = Logger();
 
 class PdfReceiptGenerator {
   static Future<Uint8List> generate({

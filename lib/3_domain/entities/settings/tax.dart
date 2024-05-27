@@ -1,3 +1,4 @@
+import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 import '../country.dart';
@@ -5,14 +6,19 @@ import '../country.dart';
 part 'tax.g.dart';
 
 @JsonSerializable(explicitToJson: true)
-class Tax {
+class Tax extends Equatable {
+  // final String id;
+  // @JsonKey(name: 'tax_name')
   final String taxId;
   final String taxName;
+  // @JsonKey(name: 'tax_rate')
   final int taxRate;
   final Country country;
+  // @JsonKey(name: 'is_default')
   final bool isDefault;
 
   const Tax({
+    // required this.id,
     required this.taxId,
     required this.taxName,
     required this.taxRate,
@@ -26,6 +32,7 @@ class Tax {
 
   factory Tax.empty() {
     return Tax(
+      // id: '0',
       taxId: '',
       taxName: '',
       taxRate: 0,
@@ -51,7 +58,8 @@ class Tax {
   }
 
   @override
-  String toString() {
-    return 'Tax(taxId: $taxId, taxName: $taxName, taxRate: $taxRate, country: $country, isDefault: $isDefault)';
-  }
+  List<Object?> get props => [taxId];
+
+  @override
+  bool get stringify => true;
 }

@@ -1,36 +1,38 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:json_annotation/json_annotation.dart';
 
 part 'bank_details.g.dart';
 
 @JsonSerializable()
 class BankDetails {
-  String bankName;
-  String bankIban;
-  String bankBic;
-  String paypalEmail;
+  // @JsonKey(name: 'bank_name')
+  final String bankName;
+  // @JsonKey(name: 'bank_iban')
+  final String bankIban;
+  // @JsonKey(name: 'bank_bic')
+  final String bankBic;
+  // @JsonKey(name: 'paypal_email')
+  final String paypalEmail;
 
-  BankDetails(
-    this.bankName,
-    this.bankIban,
-    this.bankBic,
-    this.paypalEmail,
-  );
+  const BankDetails({
+    required this.bankName,
+    required this.bankIban,
+    required this.bankBic,
+    required this.paypalEmail,
+  });
 
-  factory BankDetails.fromJson(Map<String, dynamic> json) =>
-      _$BankDetailsFromJson(json);
+  factory BankDetails.fromJson(Map<String, dynamic> json) => _$BankDetailsFromJson(json);
 
   Map<String, dynamic> toJson() => _$BankDetailsToJson(this);
 
   factory BankDetails.empty() {
-    return BankDetails(
-      '',
-      '',
-      '',
-      '',
+    return const BankDetails(
+      bankName: '',
+      bankIban: '',
+      bankBic: '',
+      paypalEmail: '',
     );
   }
-
-
 
   BankDetails copyWith({
     String? bankName,
@@ -39,10 +41,15 @@ class BankDetails {
     String? paypalEmail,
   }) {
     return BankDetails(
-      bankName ?? this.bankName,
-      bankIban ?? this.bankIban,
-      bankBic ?? this.bankBic,
-      paypalEmail ?? this.paypalEmail,
+      bankName: bankName ?? this.bankName,
+      bankIban: bankIban ?? this.bankIban,
+      bankBic: bankBic ?? this.bankBic,
+      paypalEmail: paypalEmail ?? this.paypalEmail,
     );
+  }
+
+  @override
+  String toString() {
+    return 'BankDetails(bankName: $bankName, bankIban: $bankIban, bankBic: $bankBic, paypalEmail: $paypalEmail)';
   }
 }

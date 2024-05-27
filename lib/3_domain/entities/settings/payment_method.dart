@@ -1,19 +1,27 @@
+import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'payment_method.g.dart';
 
 @JsonSerializable()
-class PaymentMethod {
+class PaymentMethod extends Equatable {
+  // @JsonKey(toJson: null)
   final String id;
   final String name;
+  // @JsonKey(name: 'name_in_marketplace')
   final String nameInMarketplace;
+  // @JsonKey(name: 'is_paid_automatically')
   final bool isPaidAutomatically;
+  // @JsonKey(name: 'logo_url')
   final String logoUrl;
+  // @JsonKey(name: 'logo_path')
   final String logoPath;
+  // @JsonKey(name: 'is_not_deletable')
   final bool isNotDeletable;
+  // @JsonKey(name: 'is_default')
   final bool isDefault;
 
-  PaymentMethod({
+  const PaymentMethod({
     required this.id,
     required this.name,
     required this.nameInMarketplace,
@@ -29,7 +37,7 @@ class PaymentMethod {
   Map<String, dynamic> toJson() => _$PaymentMethodToJson(this);
 
   factory PaymentMethod.empty() {
-    return PaymentMethod(
+    return const PaymentMethod(
       id: '',
       name: '',
       nameInMarketplace: '',
@@ -64,12 +72,13 @@ class PaymentMethod {
   }
 
   @override
-  String toString() {
-    return 'PaymentMethod(id: $id, name: $name, nameInMarketplace: $nameInMarketplace, isPaidAutomatically: $isPaidAutomatically, logoUrl: $logoUrl, logoPath: $logoPath, isNotDeletable: $isNotDeletable, isDefault: $isDefault)';
-  }
+  List<Object?> get props => [id];
+
+  @override
+  bool get stringify => true;
 
   static List<PaymentMethod> paymentMethodList = [
-    PaymentMethod(
+    const PaymentMethod(
       id: '',
       name: 'Vorkasse',
       nameInMarketplace: 'Banküberweisung',
@@ -79,7 +88,7 @@ class PaymentMethod {
       isNotDeletable: false,
       isDefault: false,
     ),
-    PaymentMethod(
+    const PaymentMethod(
       id: '',
       name: 'Kauf auf Rechnung',
       nameInMarketplace: 'Kauf auf Rechnung',
@@ -89,7 +98,7 @@ class PaymentMethod {
       isNotDeletable: false,
       isDefault: false,
     ),
-    PaymentMethod(
+    const PaymentMethod(
       id: '',
       name: 'Amazon Pay',
       nameInMarketplace: 'Amazon Pay - Login and Pay with Amazon',
@@ -99,7 +108,7 @@ class PaymentMethod {
       isNotDeletable: false,
       isDefault: false,
     ),
-    PaymentMethod(
+    const PaymentMethod(
       id: '',
       name: 'PayPal',
       nameInMarketplace: 'PayPal',
@@ -109,7 +118,7 @@ class PaymentMethod {
       isNotDeletable: false,
       isDefault: false,
     ),
-    PaymentMethod(
+    const PaymentMethod(
       id: '',
       name: 'eps',
       nameInMarketplace: 'eps',
@@ -119,7 +128,7 @@ class PaymentMethod {
       isNotDeletable: false,
       isDefault: false,
     ),
-    PaymentMethod(
+    const PaymentMethod(
       id: '',
       name: 'Giropay',
       nameInMarketplace: 'Giropay',
@@ -129,7 +138,7 @@ class PaymentMethod {
       isNotDeletable: false,
       isDefault: false,
     ),
-    PaymentMethod(
+    const PaymentMethod(
       id: '',
       name: 'Klarna',
       nameInMarketplace: 'SOFORT Banking',
@@ -139,7 +148,7 @@ class PaymentMethod {
       isNotDeletable: false,
       isDefault: false,
     ),
-    PaymentMethod(
+    const PaymentMethod(
       id: '',
       name: 'Kreditkarte',
       nameInMarketplace: 'Credit/Debit Card',

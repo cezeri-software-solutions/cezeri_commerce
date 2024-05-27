@@ -1,13 +1,9 @@
 import 'package:cezeri_commerce/1_presentation/core/extensions/string_to_int.dart';
 import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:http/http.dart';
 import 'package:logger/logger.dart';
 
-import '../../../3_domain/entities/settings/tax.dart';
-import '../prestashop_api/models/order_presta.dart';
-import '../prestashop_api/prestashop_api.dart';
 import '/1_presentation/core/functions/mixed_functions.dart';
 import '/3_domain/entities/address.dart';
 import '/3_domain/entities/customer/customer.dart';
@@ -22,17 +18,16 @@ import '/3_domain/enums/enums.dart';
 import '/3_domain/repositories/firebase/customer_repository.dart';
 import '/3_domain/repositories/firebase/product_repository.dart';
 import '/3_domain/repositories/marketplace/marketplace_edit_repository.dart';
-import '/core/abstract_failure.dart';
-import '/core/firebase_failures.dart';
+import '/failures/failures.dart';
+import '../../../3_domain/entities/settings/tax.dart';
+import '../prestashop_api/models/order_presta.dart';
+import '../prestashop_api/prestashop_api.dart';
 import 'product_import.dart';
 import 'product_repository_helper.dart';
 import 'receipt_respository_helper.dart';
 
-final logger = Logger();
-
 Future<Either<AbstractFailure, ({Receipt receipt, int customerNumber})>> createReceiptFromOrderPresta(
-  FirebaseFirestore db,
-  String currentUserUid,
+  String ownerId,
   ProductRepository productRepository,
   CustomerRepository customerRepository,
   MarketplaceEditRepository marketplaceEditRepository,
@@ -45,8 +40,7 @@ Future<Either<AbstractFailure, ({Receipt receipt, int customerNumber})>> createR
 
   List<ReceiptProduct> listOfReceiptproducts = [];
   AbstractFailure? abstractFailureFromGetListOfReceipts;
-  final fosListOfReceiptproduct =
-      await getListOfReceiptProductsFromPresta(db, currentUserUid, productRepository, mainSettings, marketplace, orderPresta);
+  final fosListOfReceiptproduct = await getListOfReceiptProductsFromPresta(ownerId, productRepository, mainSettings, marketplace, orderPresta);
   fosListOfReceiptproduct.fold(
     (failure) => abstractFailureFromGetListOfReceipts = failure,
     (receiptProducts) => listOfReceiptproducts = receiptProducts,
@@ -61,8 +55,8 @@ Future<Either<AbstractFailure, ({Receipt receipt, int customerNumber})>> createR
   );
   fosOrderStatus.fold(
     (failure) =>
-        logger.e('Bestellstatus für Bestellung mit der ID: ${loadedAppointmentFromMarketplace.orderMarketplaceId} konnte nicht gesetzt werden'),
-    (unit) => logger
+        Logger().e('Bestellstatus für Bestellung mit der ID: ${loadedAppointmentFromMarketplace.orderMarketplaceId} konnte nicht gesetzt werden'),
+    (unit) => Logger()
         .i('Bestellstatus für die Bestellung mit der ID: ${loadedAppointmentFromMarketplace.orderMarketplaceId} wurde erfolgreich aktualisiert'),
   );
 
@@ -117,7 +111,7 @@ Future<Either<AbstractFailure, ({Receipt receipt, int customerNumber})>> createR
   }
   //* Wenn der Kunde nicht geladen werden kann und auch nicht erstellt werden kann, soll diese Bestellung übersprungen werden.
   if (customerFirestore == null) {
-    logger.e('Kunde aus Bestellung von Marktplatz konnte weder in Firestore erstellt werden, noch in Firestore gespeichert werden');
+    Logger().e('Kunde aus Bestellung von Marktplatz konnte weder in Firestore erstellt werden, noch in Firestore gespeichert werden');
     return left(MixedFailure(
         errorMessage: 'Kunde aus Bestellung von Marktplatz konnte weder in Firestore erstellt werden, noch in Firestore gespeichert werden'));
   }
@@ -141,8 +135,7 @@ Future<Either<AbstractFailure, ({Receipt receipt, int customerNumber})>> createR
 }
 
 Future<Either<AbstractFailure, List<ReceiptProduct>>> getListOfReceiptProductsFromPresta(
-  FirebaseFirestore db,
-  String currentUserUid,
+  String ownerId,
   ProductRepository productRepository,
   MainSettings mainSettings,
   MarketplacePresta marketplace,
@@ -158,7 +151,7 @@ Future<Either<AbstractFailure, List<ReceiptProduct>>> getListOfReceiptProductsFr
 
     final optionalProductPresta = await api.getProduct(int.parse(orderProductPresta.productId), marketplace);
     if (optionalProductPresta.isNotPresent) {
-      logger.e('Artikel aus Bestellung konnte beim Bestellimport nicht aus Marktplatz geladen werden');
+      Logger().e('Artikel aus Bestellung konnte beim Bestellimport nicht aus Marktplatz geladen werden');
       return left(GeneralFailure(customMessage: 'Artikel aus Bestellung konnte beim Bestellimport nicht aus Marktplatz geladen werden'));
     }
     final productPresta = optionalProductPresta.value;
@@ -174,9 +167,10 @@ Future<Either<AbstractFailure, List<ReceiptProduct>>> getListOfReceiptProductsFr
       for (final partProductPrestaId in productPresta.associations.associationsProductBundle!) {
         final optionalProductPresta = await api.getProduct(int.parse(partProductPrestaId.id), marketplace);
         if (optionalProductPresta.isNotPresent) {
-          logger.e('Artikel aus Bestellung konnte beim Bestellimport nicht aus Marktplatz geladen werden');
+          Logger().e('Artikel aus Bestellung konnte beim Bestellimport nicht aus Marktplatz geladen werden');
           return left(GeneralFailure(customMessage: 'Artikel aus Bestellung konnte beim Bestellimport nicht aus Marktplatz geladen werden'));
         }
+
         final loadedProductPresta = optionalProductPresta.value;
         final fosLoadedOrCreatedProduct = await getOrCreateProductFromPrestaOnImportAppointment(
           OrderProductPresta.fromProductPresta(loadedProductPresta),
@@ -187,6 +181,7 @@ Future<Either<AbstractFailure, List<ReceiptProduct>>> getListOfReceiptProductsFr
           api,
           null,
         );
+        
         fosLoadedOrCreatedProduct.fold(
           (failure) => left(failure),
           (locProduct) {
@@ -209,13 +204,7 @@ Future<Either<AbstractFailure, List<ReceiptProduct>>> getListOfReceiptProductsFr
         (appProduct) => appointmentProduct = appProduct,
       );
 
-      await addSetProductIdToPartProducts(
-        db: db,
-        currentUserUid: currentUserUid,
-        transaction: null,
-        setProduct: appointmentProduct!,
-        listOfSetPartProducts: listOfSetPartProducts,
-      );
+      await addSetProductIdToPartProducts(ownerId: ownerId, setProduct: appointmentProduct!, listOfSetPartProducts: listOfSetPartProducts);
     } else {
       final fosAppointmentProduct = await getOrCreateProductFromPrestaOnImportAppointment(
         orderProductPresta,

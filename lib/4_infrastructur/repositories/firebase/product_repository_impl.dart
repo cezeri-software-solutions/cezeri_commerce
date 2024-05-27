@@ -1,17 +1,11 @@
 import 'dart:io';
 
+import 'package:cezeri_commerce/1_presentation/core/extensions/get_either.dart';
 import 'package:cezeri_commerce/3_domain/entities/product/product_marketplace.dart';
-import 'package:cezeri_commerce/core/firebase_failures.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cezeri_commerce/failures/firebase_failures.dart';
 import 'package:dartz/dartz.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:logger/logger.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-import '../../../1_presentation/core/functions/set_product_functions.dart';
-import '../../../3_domain/entities/marketplace/marketplace_presta.dart';
-import '../../../3_domain/entities/product/marketplace_product.dart';
-import '../functions/product_repository_helper.dart';
 import '/1_presentation/core/functions/check_internet_connection.dart';
 import '/3_domain/entities/product/product.dart';
 import '/3_domain/entities/product/product_image.dart';
@@ -19,287 +13,265 @@ import '/3_domain/entities/reorder/supplier.dart';
 import '/3_domain/repositories/firebase/marketplace_repository.dart';
 import '/3_domain/repositories/firebase/product_repository.dart';
 import '/3_domain/repositories/marketplace/marketplace_edit_repository.dart';
-import '/core/abstract_failure.dart';
-
-final logger = Logger();
+import '../../../1_presentation/core/functions/set_product_functions.dart';
+import '../../../3_domain/entities/marketplace/marketplace_presta.dart';
+import '../../../3_domain/entities/product/marketplace_product.dart';
+import '../../../constants.dart';
+import '../../../failures/abstract_failure.dart';
+import '../functions/get_storage_paths.dart';
+import '../functions/product_repository_helper.dart';
+import '../functions/utils_repository_impl.dart';
 
 class ProductRepositoryImpl implements ProductRepository {
-  final FirebaseFirestore db;
-  final FirebaseAuth firebaseAuth;
   final MarketplaceEditRepository marketplaceEditRepository;
   final MarketplaceRepository marketplaceRepository;
 
   const ProductRepositoryImpl({
-    required this.db,
-    required this.firebaseAuth,
     required this.marketplaceEditRepository,
     required this.marketplaceRepository,
   });
 
   @override
   Future<Either<FirebaseFailure, Product>> createProduct(Product product, MarketplaceProduct? marketplaceProduct) async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(NoConnectionFailure());
-
-    final currentUserUid = firebaseAuth.currentUser!.uid;
+    if (!await checkInternetConnection()) return Left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
     try {
-      final docRef = db.collection('Products').doc(currentUserUid).collection('Products').doc();
+      final productJson = product.toJson();
+      productJson.addEntries([MapEntry('ownerId', ownerId)]);
+      final productResponse = await supabase.from('d_products').insert(productJson).select('*').single();
+      final createdProduct = Product.fromJson(productResponse);
 
-      Product toCreateProduct;
-      //* Artikelbilder erstellen START
       if (marketplaceProduct != null) {
-        final listOfProductImages = await uploadImageFilesToStorageFromMarketplaceProduct(
-          currentUserUid: currentUserUid,
-          docRef: docRef,
-          marketplaceProduct: marketplaceProduct,
+        final listOfImageFiles = await getImageFilesFromMarketplace(marketplaceProduct: marketplaceProduct);
+        if (listOfImageFiles.isEmpty) return Right(createdProduct);
+
+        final List<ProductImage> listOfProductImages = await uploadImageFilesToStorageFromFlutter(
+          createdProduct.listOfProductImages,
+          listOfImageFiles,
+          getProductImagesStoragePath(ownerId, createdProduct.id),
         );
 
-        toCreateProduct = product.copyWith(id: docRef.id, listOfProductImages: listOfProductImages);
+        final toUpdatePrdouct = product.copyWith(listOfProductImages: listOfProductImages);
+        await supabase.from('d_products').update(toUpdatePrdouct.toJson()).eq('ownerId', ownerId).eq('id', toUpdatePrdouct.id);
 
-        //* Artikelbilder erstellen ENDE
-      } else {
-        toCreateProduct = product.copyWith(id: docRef.id);
+        return Right(toUpdatePrdouct);
       }
 
-      await docRef.set(toCreateProduct.toJson());
-
-      return right(toCreateProduct);
-    } on FirebaseException catch (e) {
-      logger.e(e.message);
-      return left(GeneralFailure(customMessage: 'Beim Erstellen des Artikels ist ein Fehler aufgetreten.', e: e));
+      return Right(createdProduct);
+    } catch (e) {
+      logger.e(e);
+      return Left(GeneralFailure(customMessage: 'Beim Erstellen des Artikels ist ein Fehler aufgetreten. Error: $e'));
     }
   }
 
   @override
-  Future<Either<FirebaseFailure, List<Product>>> getListOfProducts(bool onlyActive) async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(NoConnectionFailure());
+  Future<Either<AbstractFailure, List<Product>>> getListOfProducts(bool onlyActive) async {
+    if (!await checkInternetConnection()) return Left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
-    final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRef = switch (onlyActive) {
-      false => db.collection('Products').doc(currentUserUid).collection('Products'),
-      true => db.collection('Products').doc(currentUserUid).collection('Products').where('isActive', isEqualTo: true),
-    };
+    const limit = 1000; // Anzahl der Zeilen pro Abfrage
+    int offset = 0; // Startposition
+    final allProducts = <Product>[];
 
     try {
-      final listOfProducts = await docRef.get().then(
-            (value) => value.docs.map((querySnapshot) => Product.fromJson(querySnapshot.data())).toList(),
-          );
+      while (true) {
+        final response = await supabase.from('d_products').select().eq('ownerId', ownerId).range(offset, offset + limit - 1);
 
-      // for (final product in listOfProducts) {
-      //   final docRefPh = db.collection('Products').doc(currentUserUid).collection('Products').doc(product.id);
-      //   final updatedProduct = product.copyWith(isOutlet: false);
-      //   await docRefPh.update(updatedProduct.toJson());
-      // }
+        if (response.isEmpty) break;
 
-      return right(listOfProducts);
-    } on FirebaseException catch (e) {
-      logger.e(e.message);
-      return left(GeneralFailure(customMessage: 'Beim Laden der Artikel ist ein Fehler aufgetreten.', e: e));
+        final listOfProducts = response.map((e) => Product.fromJson(e)).toList();
+        allProducts.addAll(listOfProducts);
+
+        offset += limit; // Offset für die nächste Abfrage erhöhen
+      }
+      return Right(allProducts);
+    } catch (e) {
+      logger.e(e);
+      return Left(GeneralFailure(customMessage: 'Beim Laden der Artikel ist ein Fehler aufgetreten. Error: $e'));
     }
   }
 
   @override
   Future<Either<FirebaseFailure, List<Product>>> getListOfProductsByIds(List<String> productIds) async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(NoConnectionFailure());
-
-    final currentUserUid = firebaseAuth.currentUser!.uid;
+    if (!await checkInternetConnection()) return Left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
     List<Product> listOfProducts = [];
 
     try {
       for (final productId in productIds) {
         if (productId.isEmpty || productId.startsWith('00000')) continue;
-        final docRef = db.collection('Products').doc(currentUserUid).collection('Products').doc(productId);
-        final product = await docRef.get();
-        if (product.exists) listOfProducts.add(Product.fromJson(product.data()!));
+        final response = await supabase.from('d_products').select().eq('ownerId', ownerId).eq('id', productId).single();
+        if (response.isNotEmpty) listOfProducts.add(Product.fromJson(response));
       }
 
-      return right(listOfProducts);
-    } on FirebaseException catch (e) {
-      logger.e(e.message);
-      return left(GeneralFailure(customMessage: 'Beim Laden der Artikel ist ein Fehler aufgetreten.', e: e));
+      return Right(listOfProducts);
+    } catch (e) {
+      logger.e(e);
+      return Left(GeneralFailure(customMessage: 'Beim Laden der Artikel ist ein Fehler aufgetreten. Error: $e'));
     }
   }
 
   @override
   Future<Either<FirebaseFailure, List<Product>>> getListOfProductsBySupplierName({required bool onlyActive, required Supplier supplier}) async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(NoConnectionFailure());
+    if (!await checkInternetConnection()) return Left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
-    print(supplier.name);
-
-    final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRef = switch (onlyActive) {
-      false => db.collection('Products').doc(currentUserUid).collection('Products').where('supplier', isEqualTo: supplier.company),
-      true => db
-          .collection('Products')
-          .doc(currentUserUid)
-          .collection('Products')
-          .where('isActive', isEqualTo: true)
-          .where('supplier', isEqualTo: supplier.company),
-    };
+    final request =
+        supabase.from('d_products').select().eq('ownerId', ownerId).eq('isActive', true).eq('isSetArticle', false).eq('supplier', supplier.company);
 
     try {
-      final listOfProducts = await docRef.get().then(
-            (value) => value.docs.map((querySnapshot) => Product.fromJson(querySnapshot.data())).toList(),
-          );
+      final response = await request;
+      if (response.isEmpty) return const Right([]);
 
-      return right(listOfProducts);
-    } on FirebaseException catch (e) {
-      logger.e(e.message);
-      return left(GeneralFailure(customMessage: 'Beim Laden der Artikel ist ein Fehler aufgetreten.', e: e));
+      final listOfProducts = response.map((e) => Product.fromJson(e)).toList();
+
+      return Right(listOfProducts);
+    } catch (e) {
+      logger.e(e);
+      return Left(GeneralFailure(customMessage: 'Beim Laden der Artikel ist ein Fehler aufgetreten. Error: $e'));
     }
   }
 
   @override
   Future<Either<FirebaseFailure, List<Product>>> getListOfSoldOutOutletProducts() async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(NoConnectionFailure());
+    if (!await checkInternetConnection()) return Left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
-    final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRef = db
-        .collection('Products')
-        .doc(currentUserUid)
-        .collection('Products')
-        .where('isActive', isEqualTo: true)
-        .where('isOutlet', isEqualTo: true)
-        .where('warehouseStock', isEqualTo: 0);
+    final request = supabase.from('d_products').select().eq('ownerId', ownerId).eq('isActive', true).eq('isOutlet', true).eq('warehouseStock', 0);
 
     try {
-      final listOfProducts = await docRef.get().then(
-            (value) => value.docs.map((querySnapshot) => Product.fromJson(querySnapshot.data())).toList(),
-          );
+      final response = await request;
+      if (response.isEmpty) return const Right([]);
 
-      return right(listOfProducts);
-    } on FirebaseException catch (e) {
-      logger.e(e.message);
-      return left(GeneralFailure(customMessage: 'Beim Laden der ausverkauften Artikel ist ein Fehler aufgetreten.', e: e));
+      final listOfProducts = response.map((e) => Product.fromJson(e)).toList();
+
+      return Right(listOfProducts);
+    } catch (e) {
+      logger.e(e);
+      return Left(GeneralFailure(customMessage: 'Beim Laden der ausverkauften Artikel ist ein Fehler aufgetreten. Error: $e'));
     }
   }
 
   @override
   Future<Either<FirebaseFailure, List<Product>>> getListOfSoldOutProducts() async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(NoConnectionFailure());
+    if (!await checkInternetConnection()) return Left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
-    final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRef =
-        db.collection('Products').doc(currentUserUid).collection('Products').where('isActive', isEqualTo: true).where('availableStock', isEqualTo: 0);
+    final request = supabase.from('d_products').select().eq('ownerId', ownerId).eq('isActive', true).eq('availableStock', 0);
 
     try {
-      final listOfProducts = await docRef.get().then(
-            (value) => value.docs.map((querySnapshot) => Product.fromJson(querySnapshot.data())).toList(),
-          );
+      final response = await request;
+      if (response.isEmpty) return const Right([]);
 
-      return right(listOfProducts);
-    } on FirebaseException catch (e) {
-      logger.e(e.message);
-      return left(GeneralFailure(customMessage: 'Beim Laden der ausverkauften Artikel ist ein Fehler aufgetreten.', e: e));
+      final listOfProducts = response.map((e) => Product.fromJson(e)).toList();
+
+      return Right(listOfProducts);
+    } catch (e) {
+      logger.e(e);
+      return Left(GeneralFailure(customMessage: 'Beim Laden der Artikel ist ein Fehler aufgetreten. Error: $e'));
     }
   }
 
   @override
   Future<Either<FirebaseFailure, List<Product>>> getListOfUnderMinimumQuantityProducts() async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(NoConnectionFailure());
+    if (!await checkInternetConnection()) return Left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
-    final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRef = db
-        .collection('Products')
-        .doc(currentUserUid)
-        .collection('Products')
-        .where('isActive', isEqualTo: true)
-        .where('isUnderMinimumStock', isEqualTo: true);
+    final request = supabase.from('d_products').select().eq('ownerId', ownerId).eq('isActive', true).eq('isUnderMinimumStock', true);
 
     try {
-      final listOfProducts = await docRef.get().then(
-            (value) => value.docs.map((querySnapshot) => Product.fromJson(querySnapshot.data())).toList(),
-          );
+      final response = await request;
+      if (response.isEmpty) return const Right([]);
 
-      return right(listOfProducts);
-    } on FirebaseException catch (e) {
-      logger.e(e.message);
-      return left(GeneralFailure(customMessage: 'Beim Laden der Artikel, die unter dem Mindestbestand sind ist ein Fehler aufgetreten.', e: e));
+      final listOfProducts = response.map((e) => Product.fromJson(e)).toList();
+
+      return Right(listOfProducts);
+    } catch (e) {
+      logger.e(e);
+      return Left(GeneralFailure(customMessage: 'Beim Laden der Artikel, die unter dem Mindestbestand sind ist ein Fehler aufgetreten. Error: $e'));
     }
   }
 
   @override
-  Future<Either<FirebaseFailure, Product>> getProduct(String id) async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(NoConnectionFailure());
-
-    final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRef = db.collection('Products').doc(currentUserUid).collection('Products').doc(id);
+  Future<Either<AbstractFailure, Product>> getProduct(String productId, {String? ownerId}) async {
+    if (ownerId == null) {
+      if (!await checkInternetConnection()) return Left(NoConnectionFailure());
+      ownerId = await getOwnerId();
+      if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
+    }
 
     try {
-      final product = await docRef.get();
-      return right(Product.fromJson(product.data()!));
-    } on FirebaseException catch (e) {
-      logger.e(e.message);
-      return left(GeneralFailure(customMessage: 'Beim Laden des Artikels ist ein Fehler aufgetreten.', e: e));
+      final response = await supabase.from('d_products').select().eq('ownerId', ownerId).eq('id', productId).single();
+
+      return Right(Product.fromJson(response));
+    } catch (e) {
+      logger.e(e);
+      return Left(GeneralFailure(customMessage: 'Beim Laden des Artikels ist ein Fehler aufgetreten. Error: $e'));
     }
   }
 
   @override
   Future<Either<FirebaseFailure, Product>> getProductByArticleNumber(String articleNumber) async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(NoConnectionFailure());
-
-    final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRef = db.collection('Products').doc(currentUserUid).collection('Products').where('articleNumber', isEqualTo: articleNumber);
+    if (!await checkInternetConnection()) return Left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
     try {
-      final product = await docRef.get().then((value) => value.docs.map((docSs) => Product.fromJson(docSs.data())).toList().firstOrNull);
-      if (product == null) {
-        return left(GeneralFailure(customMessage: 'In der Datenbank konnte kein Artikel mit der Artikelnummer: "$articleNumber" gefunden werden.'));
-      }
-      return right(product);
-    } on FirebaseException catch (e) {
-      logger.e(e.message);
-      return left(GeneralFailure(customMessage: 'Beim Laden des Artikels ist ein Fehler aufgetreten.', e: e));
+      final response = await supabase.from('d_products').select().eq('ownerId', ownerId).eq('articleNumber', articleNumber).single();
+
+      if (response.isEmpty) return Left(GeneralFailure(customMessage: 'Beim Laden des Artikels ist ein Fehler aufgetreten.'));
+
+      return Right(Product.fromJson(response));
+    } catch (e) {
+      logger.e(e);
+      return Left(GeneralFailure(customMessage: 'Beim Laden des Artikels ist ein Fehler aufgetreten. Error: $e'));
     }
   }
 
   @override
   Future<Either<FirebaseFailure, Product>> getProductByEan(String ean) async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(NoConnectionFailure());
-
-    final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRef = db.collection('Products').doc(currentUserUid).collection('Products').where('ean', isEqualTo: ean);
+    if (!await checkInternetConnection()) return Left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
     try {
-      final product = await docRef.get().then((value) => value.docs.map((docSs) => Product.fromJson(docSs.data())).toList().firstOrNull);
-      if (product == null) {
-        return left(GeneralFailure(customMessage: 'In der Datenbank konnte kein Artikel mit der EAN: "$ean" gefunden werden.'));
-      }
-      return right(product);
-    } on FirebaseException catch (e) {
-      logger.e(e.message);
-      return left(GeneralFailure(customMessage: 'Beim Laden des Artikels ist ein Fehler aufgetreten.', e: e));
+      final response = await supabase.from('d_products').select().eq('ownerId', ownerId).eq('ean', ean).single();
+
+      if (response.isEmpty) return Left(GeneralFailure(customMessage: 'Beim Laden des Artikels ist ein Fehler aufgetreten.'));
+
+      return Right(Product.fromJson(response));
+    } catch (e) {
+      logger.e(e);
+      return Left(GeneralFailure(customMessage: 'Beim Laden des Artikels ist ein Fehler aufgetreten. Error: $e'));
     }
   }
 
   @override
   Future<Either<FirebaseFailure, Product>> getProductByName(String name) async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(NoConnectionFailure());
-
-    final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRef = db.collection('Products').doc(currentUserUid).collection('Products').where('name', isEqualTo: name);
+    if (!await checkInternetConnection()) return Left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
     try {
-      final product = await docRef.get().then((value) => value.docs.map((docSs) => Product.fromJson(docSs.data())).toList().firstOrNull);
-      if (product == null) {
-        return left(GeneralFailure(customMessage: 'In der Datenbank konnte kein Artikel mit dem Namen: "$name" gefunden werden.'));
+      final response = await supabase.from('d_products').select().eq('ownerId', ownerId).eq('name', name).single();
+
+      if (response.isEmpty) {
+        return Left(GeneralFailure(customMessage: 'In der Datenbank konnte kein Artikel mit dem Namen: "$name" gefunden werden.'));
       }
-      return right(product);
-    } on FirebaseException catch (e) {
-      logger.e(e.message);
-      return left(GeneralFailure(customMessage: 'Beim Laden des Artikels ist ein Fehler aufgetreten.', e: e));
+
+      return Right(Product.fromJson(response));
+    } catch (e) {
+      logger.e(e);
+      return Left(GeneralFailure(customMessage: 'Beim Laden des Artikels: "$name" ist ein Fehler aufgetreten. Error: $e'));
     }
   }
 
@@ -308,126 +280,110 @@ class ProductRepositoryImpl implements ProductRepository {
     Product product,
     ProductMarketplace productMarketplace,
   ) async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(NoConnectionFailure());
-
-    final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRef = db.collection('Products').doc(currentUserUid).collection('Products').where('manufacturer',
-        isEqualTo: product.manufacturer); //.where('productMarketplaces.idMarketplace', whereIn: [productMarketplace.idMarketplace]);
+    if (!await checkInternetConnection()) return Left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
     try {
-      final products = await docRef.get().then((value) => value.docs.map((docSs) => Product.fromJson(docSs.data())).toList());
-      if (products.isEmpty) return left(EmptyFailure());
+      final response = await supabase.from('d_products').select().eq('ownerId', ownerId).eq('manufacturer', product.manufacturer);
+      if (response.isEmpty) return Left(EmptyFailure());
+      final products = response.map((e) => Product.fromJson(e)).toList();
 
       final productSameMarketplace =
           products.where((e) => e.productMarketplaces.any((f) => f.idMarketplace == productMarketplace.idMarketplace)).firstOrNull;
-      if (productSameMarketplace == null) return left(GeneralFailure());
+      if (productSameMarketplace == null) return Left(GeneralFailure());
 
-      return right(productSameMarketplace);
-    } on FirebaseException catch (e) {
-      logger.e(e.message);
-      return left(GeneralFailure(customMessage: 'Beim Laden des Artikels ist ein Fehler aufgetreten.', e: e));
+      return Right(productSameMarketplace);
+    } catch (e) {
+      logger.e(e);
+      return Left(GeneralFailure(customMessage: 'Beim Laden des Artikels ist ein Fehler aufgetreten. Error: $e'));
     }
   }
 
   @override
   Future<Either<AbstractFailure, Product>> updateProduct(Product product) async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(NoConnectionFailure());
-
-    final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRef = db.collection('Products').doc(currentUserUid).collection('Products').doc(product.id);
+    if (!await checkInternetConnection()) return Left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
     try {
-      docRef.update(product.toJson());
+      await supabase.from('d_products').update(product.toJson()).eq('ownerId', ownerId).eq('id', product.id);
 
-      return right(product);
-    } on FirebaseException catch (e) {
-      logger.e(e.message);
-      return left(GeneralFailure(customMessage: 'Beim Aktualisieren des Bestandes vom Artikel: "${product.name}" ist ein Fehler aufgetreten.', e: e));
+      return Right(product);
+    } catch (e) {
+      logger.e(e);
+      return Left(
+        GeneralFailure(customMessage: 'Beim Aktualisieren des Bestandes vom Artikel: "${product.name}" ist ein Fehler aufgetreten. Error: $e'),
+      );
     }
   }
 
   @override
   Future<Either<AbstractFailure, Product>> updateProductAndSets(Product product) async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(NoConnectionFailure());
-
-    final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRef = db.collection('Products').doc(currentUserUid).collection('Products').doc(product.id);
+    if (!await checkInternetConnection()) return Left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
     final fosOriginalProduct = await getProduct(product.id);
     Product? originalProduct;
     fosOriginalProduct.fold(
-      (failure) => left(failure),
+      (failure) => Left(failure),
       (loadedProduct) => originalProduct = loadedProduct,
     );
     if (originalProduct == null) {
       final errorMessage = 'Der Artikel: "${product.name}" konnte nicht aus der Datenbank geladen werden.';
-      return left(GeneralFailure(customMessage: errorMessage));
+      return Left(GeneralFailure(customMessage: errorMessage));
     }
 
     try {
       if (product.isSetArticle ||
           originalProduct!.isSetArticle && (product.listOfProductIdWithQuantity != originalProduct!.listOfProductIdWithQuantity)) {
         Either<AbstractFailure, Product>? fosHandleNewSetProduct;
-        await db.runTransaction((transaction) async {
-          //* Wenn der Artikel entweder davor ein Set-Artikel war oder jetzt ein Set-Artikel ist
-          fosHandleNewSetProduct = await handleNewSetProduct(
-            product: product,
-            originalProduct: originalProduct!,
-            db: db,
-            currentUserUid: currentUserUid,
-            transaction: transaction,
-            docRef: docRef,
-          );
-        });
-        if (fosHandleNewSetProduct == null) return left(GeneralFailure(customMessage: 'Ein Fehler ist aufgetreten'));
+        //* Wenn der Artikel entweder davor ein Set-Artikel war oder jetzt ein Set-Artikel ist
+        fosHandleNewSetProduct = await handleNewSetProduct(product: product, originalProduct: originalProduct!, ownerId: ownerId);
+
         Product? updatedSetProduct;
         AbstractFailure? abstractFailure;
-        fosHandleNewSetProduct!.fold(
+        fosHandleNewSetProduct.fold(
           (failure) => abstractFailure = failure,
           (setProduct) => updatedSetProduct = setProduct,
         );
-        if (updatedSetProduct != null && fosHandleNewSetProduct!.isRight()) return right(updatedSetProduct!);
-        if (abstractFailure != null && fosHandleNewSetProduct!.isLeft()) return left(abstractFailure!);
-        return left(GeneralFailure(customMessage: 'Ein Fehler ist aufgetreten'));
+        if (updatedSetProduct != null && fosHandleNewSetProduct.isRight()) return Right(updatedSetProduct!);
+        if (abstractFailure != null && fosHandleNewSetProduct.isLeft()) return Left(abstractFailure!);
+        return Left(GeneralFailure(customMessage: 'Ein Fehler ist aufgetreten'));
       } else {
-        await docRef.update(product.toJson());
+        await supabase.from('d_products').update(product.toJson()).eq('ownerId', ownerId).eq('id', product.id);
 
-        return right(product);
+        return Right(product);
       }
-    } on FirebaseException catch (e) {
-      logger.e(e.message);
-      return left(GeneralFailure(customMessage: 'Beim Aktualisieren des Artikels: "${product.name}" ist ein Fehler aufgetreten.', e: e));
+    } catch (e) {
+      logger.e(e);
+      return Left(GeneralFailure(customMessage: 'Beim Aktualisieren des Artikels: "${product.name}" ist ein Fehler aufgetreten. Error: $e'));
     }
   }
 
   @override
   Future<Either<FirebaseFailure, Product>> updateProductAddImages(Product product, List<File> imageFiles) async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(NoConnectionFailure());
-
-    final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRef = db.collection('Products').doc(currentUserUid).collection('Products').doc(product.id);
+    if (!await checkInternetConnection()) return Left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
     try {
-      final firebaseStoragePath = '$currentUserUid/ProductImages/${docRef.id}';
       final List<ProductImage> listOfProductImages =
-          await uploadImageFilesToStorageFromFlutter(product.listOfProductImages, imageFiles, firebaseStoragePath);
+          await uploadImageFilesToStorageFromFlutter(product.listOfProductImages, imageFiles, getProductImagesStoragePath(ownerId, product.id));
 
       final List<ProductImage> newListOfProductImages = List.from(product.listOfProductImages);
       newListOfProductImages.addAll(listOfProductImages);
 
       final updatedProduct = product.copyWith(listOfProductImages: newListOfProductImages);
 
-      await docRef.update(updatedProduct.toJson());
+      await supabase.from('d_products').update(updatedProduct.toJson()).eq('ownerId', ownerId).eq('id', product.id);
 
-      return right(updatedProduct);
-    } on FirebaseException catch (e) {
-      logger.e(e.message);
-      return left(
-          GeneralFailure(customMessage: 'Beim Aktualisieren der Artikelbilder des Artikels: ${product.name} ist ein Fehler aufgetreten.', e: e));
+      return Right(updatedProduct);
+    } catch (e) {
+      logger.e(e);
+      return Left(
+          GeneralFailure(customMessage: 'Beim Aktualisieren der Artikelbilder des Artikels: ${product.name} ist ein Fehler aufgetreten. Error: $e'));
     }
   }
 
@@ -436,23 +392,21 @@ class ProductRepositoryImpl implements ProductRepository {
     Product product,
     List<ProductImage> listOfProductImages,
   ) async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(NoConnectionFailure());
-
-    final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRef = db.collection('Products').doc(currentUserUid).collection('Products').doc(product.id);
-
-    final FirebaseStorage storage = FirebaseStorage.instance;
+    if (!await checkInternetConnection()) return Left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
     final List<ProductImage> updatedListOfProductImages = List.from(product.listOfProductImages);
     for (final image in listOfProductImages) {
       try {
-        final firebaseStoragePathToDelete = storage.refFromURL(image.fileUrl);
-        await firebaseStoragePathToDelete.delete();
+        final filePath = extractPathFromUrl(image.fileUrl);
+        await supabase.storage.from('product-images').remove([filePath]);
         updatedListOfProductImages.removeWhere((e) => e.fileUrl == image.fileUrl);
-      } on FirebaseException catch (e) {
+      } on StorageException catch (e) {
         logger.e(e.message);
         updatedListOfProductImages.removeWhere((e) => e.fileUrl == image.fileUrl);
+      } catch (e) {
+        logger.e('Artikelbild: "${image.fileName}" konnte nicht aus dem Storage gelöscht werden.');
       }
     }
 
@@ -465,79 +419,80 @@ class ProductRepositoryImpl implements ProductRepository {
 
       final updatedProduct = product.copyWith(listOfProductImages: newListOfProductImages);
 
-      await docRef.update(updatedProduct.toJson());
+      await supabase.from('d_products').update(updatedProduct.toJson()).eq('ownerId', ownerId).eq('id', product.id);
 
-      return right(updatedProduct);
-    } on FirebaseException catch (e) {
-      logger.e(e.message);
-      return left(GeneralFailure(customMessage: 'Beim Löschen der Artikelbilder des Artikels: ${product.name} ist ein Fehler aufgetreten.', e: e));
+      return Right(updatedProduct);
+    } catch (e) {
+      logger.e(e);
+      return Left(
+        GeneralFailure(customMessage: 'Beim Löschen der Artikelbilder des Artikels: ${product.name} ist ein Fehler aufgetreten. Error: $e'),
+      );
     }
   }
 
   @override
-  Future<Either<FirebaseFailure, Unit>> deleteProduct(String id) async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(NoConnectionFailure());
+  Future<Either<AbstractFailure, Unit>> deleteProduct(String id, String? ownerId) async {
+    if (ownerId == null) {
+      if (!await checkInternetConnection()) return Left(NoConnectionFailure());
+      ownerId = await getOwnerId();
+      if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
+    }
 
-    final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRef = db.collection('Products').doc(currentUserUid).collection('Products').doc(id);
-    final FirebaseStorage storage = FirebaseStorage.instance;
+    final fosProduct = await getProduct(id);
+    if (fosProduct.isLeft()) {
+      return Left(fosProduct.getLeft());
+    }
+    final loadedProduct = fosProduct.getRight();
 
     try {
-      await db.runTransaction((transaction) async {
-        final dsProduct = await transaction.get(docRef);
-        if (!dsProduct.exists) return left(GeneralFailure());
-        final product = Product.fromJson(dsProduct.data()!);
-        final List<ProductImage> listOfProductImages = List.from(product.listOfProductImages);
-        for (final image in listOfProductImages) {
-          final firebaseStoragePathToDelete = storage.refFromURL(image.fileUrl);
-          await firebaseStoragePathToDelete.delete();
-        }
-        await docRef.delete();
-      });
-      return right(unit);
-    } on FirebaseException catch (e) {
-      logger.e(e.message);
-      return left(GeneralFailure(customMessage: 'Beim Löschen des Artikels ist ein Fehler aufgetreten.', e: e));
+      final List<ProductImage> listOfProductImages = List.from(loadedProduct.listOfProductImages);
+      for (final image in listOfProductImages) {
+        final filePath = extractPathFromUrl(image.fileUrl);
+        await supabase.storage.from('product-images').remove([filePath]);
+      }
+
+      await supabase.from('d_products').delete().eq('ownerId', ownerId).eq('id', id);
+
+      return const Right(unit);
+    } catch (e) {
+      logger.e(e);
+      return Left(
+        GeneralFailure(customMessage: 'Beim Löschen des Artikels: "${loadedProduct.name}" ist ein Fehler aufgetreten. Error: $e'),
+      );
     }
   }
 
   @override
   Future<Either<FirebaseFailure, Unit>> deleteListOfProducts(List<Product> products) async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(NoConnectionFailure());
+    if (!await checkInternetConnection()) return Left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
-    final currentUserUid = firebaseAuth.currentUser!.uid;
+    List<Product> errorOnDeleteProducts = [];
 
-    try {
-      for (final product in products) {
-        final docRef = db.collection('Products').doc(currentUserUid).collection('Products').doc(product.id);
-        await docRef.delete();
-
-        //* Delete product images from FirebaseStorage
-        for (final url in product.listOfProductImages.map((e) => e.fileUrl).toList()) {
-          final firebaseStoragePath = FirebaseStorage.instance.refFromURL(url);
-          await firebaseStoragePath.delete();
-        }
-      }
-
-      return right(unit);
-    } on FirebaseException catch (e) {
-      logger.e(e.message);
-      return left(GeneralFailure(customMessage: 'Beim Löschen des Artikel ist ein Fehler aufgetreten.', e: e));
+    for (final product in products) {
+      final fosDelete = await deleteProduct(product.id, ownerId);
+      if (fosDelete.isLeft()) errorOnDeleteProducts.add(product);
     }
+
+    if (errorOnDeleteProducts.isNotEmpty) {
+      final errorOnDeleteProductNames = errorOnDeleteProducts.map((e) => e.name).toList();
+      return Left(GeneralFailure(customMessage: 'Beim Löschen der folgenden Produkte ist ein Fehler aufgetrete: $errorOnDeleteProductNames'));
+    }
+
+    return const Right(unit);
   }
 
   @override
   Future<Either<FirebaseFailure, Unit>> activateMarketplaceInSelectedProducts(List<Product> selectedProducts, MarketplacePresta marketplace) async {
     // final isConnected = await checkInternetConnection();
-    // if (!isConnected) return left(NoConnectionFailure());
+    // if (!isConnected) return Left(NoConnectionFailure());
 
     // final currentUserUid = firebaseAuth.currentUser!.uid;
 
     // try {
     //   final prestaLanguages = await getMarketplaceLanguages(marketplace);
-    //   if (prestaLanguages == null) return left(GeneralFailure());
+    //   if (prestaLanguages == null) return Left(GeneralFailure());
 
     //   for (final product in selectedProducts) {
     //     final uri = '${marketplace.fullUrl}products/?filter[reference]=[${product.articleNumber}]&display=full';
@@ -567,9 +522,9 @@ class ProductRepositoryImpl implements ProductRepository {
     //       await docRef.update(updatedProdukt.toJson());
     //     }
     //   }
-    //   return right(unit);
+    //   return Right(unit);
     // } on FirebaseException {
-    //   return left(GeneralFailure());
+    //   return Left(GeneralFailure());
     // }
     throw UnimplementedError();
   }
@@ -580,57 +535,45 @@ class ProductRepositoryImpl implements ProductRepository {
     int newQuantity,
     bool updateOnlyAvailableQuantity,
   ) async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(NoConnectionFailure());
-
-    final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRef = db.collection('Products').doc(currentUserUid).collection('Products').doc(product.id);
+    if (!await checkInternetConnection()) return Left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
     try {
       Product? updatedProduct;
       List<Product> listOfUpdatedSetProducts = [];
-      await db.runTransaction((transaction) async {
-        final loadedProductDS = await transaction.get(docRef);
-        if (!loadedProductDS.exists) {
-          return left(GeneralFailure(customMessage: 'Der Artikel "${product.name}" konnte nicht aus der Datenbank geladen werden.'));
-        }
-        final loadedProduct = Product.fromJson(loadedProductDS.data()!);
+      final loadedProductsResponse = await supabase.from('d_products').select().eq('ownerId', ownerId).single();
 
-        updatedProduct = loadedProduct.copyWith(
-          availableStock: newQuantity,
-          warehouseStock: updateOnlyAvailableQuantity
-              ? loadedProduct.warehouseStock
-              : loadedProduct.warehouseStock - (loadedProduct.availableStock - newQuantity),
-          isUnderMinimumStock: newQuantity <= loadedProduct.minimumStock ? true : false,
-        );
+      if (loadedProductsResponse.isEmpty) {
+        return Left(GeneralFailure(customMessage: 'Der Artikel "${product.name}" konnte nicht aus der Datenbank geladen werden.'));
+      }
+      final loadedProduct = Product.fromJson(loadedProductsResponse);
 
-        if (updatedProduct == null) {
-          return left(GeneralFailure(customMessage: 'Ein Fehler beim absoluten aktualiseren des Artikels "${product.name}" ist aufgetreten.'));
-        }
+      updatedProduct = loadedProduct.copyWith(
+        availableStock: newQuantity,
+        warehouseStock:
+            updateOnlyAvailableQuantity ? loadedProduct.warehouseStock : loadedProduct.warehouseStock - (loadedProduct.availableStock - newQuantity),
+        isUnderMinimumStock: newQuantity <= loadedProduct.minimumStock ? true : false,
+      );
 
-        if (loadedProduct.listOfIsPartOfSetIds.isNotEmpty) {
-          final updatedSetProducts = await updateQuantityOfSetProducts(
-            db: db,
-            currentUserUid: currentUserUid,
-            transaction: transaction,
-            product: updatedProduct!,
-          );
+      if (loadedProduct.listOfIsPartOfSetIds.isNotEmpty) {
+        final updatedSetProducts = await updateQuantityOfSetProducts(product: updatedProduct, ownerId: ownerId);
 
-          listOfUpdatedSetProducts.addAll(updatedSetProducts!);
-        }
+        listOfUpdatedSetProducts.addAll(updatedSetProducts!);
+      }
 
-        transaction.update(docRef, updatedProduct!.toJson());
-      });
+      await supabase.from('d_products').update(updatedProduct.toJson()).eq('ownerId', ownerId).eq('id', product.id);
 
       for (final updatedSetProduct in listOfUpdatedSetProducts) {
         await marketplaceEditRepository.setQuantityMPInAllProductMarketplaces(updatedSetProduct, updatedSetProduct.availableStock, null);
       }
-      if (updatedProduct == null) return left(GeneralFailure());
-      await marketplaceEditRepository.setQuantityMPInAllProductMarketplaces(updatedProduct!, updatedProduct!.availableStock, null);
-      return right(updatedProduct!);
-    } on FirebaseException catch (e) {
-      logger.e(e.message);
-      return left(GeneralFailure(customMessage: 'Beim Aktualisieren des Bestandes vom Artikel: "${product.name}" ist ein Fehler aufgetreten.', e: e));
+      await marketplaceEditRepository.setQuantityMPInAllProductMarketplaces(updatedProduct, updatedProduct.availableStock, null);
+      return Right(updatedProduct);
+    } catch (e) {
+      logger.e(e);
+      return Left(
+        GeneralFailure(customMessage: 'Beim Aktualisieren des Bestandes vom Artikel: "${product.name}" ist ein Fehler aufgetreten. Error $e'),
+      );
     }
   }
 
@@ -640,98 +583,96 @@ class ProductRepositoryImpl implements ProductRepository {
     int newQuantityIncremental,
     MarketplacePresta? marketplaceToSkip,
   ) async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(NoConnectionFailure());
-
-    final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRefProduct = db.collection('Products').doc(currentUserUid).collection('Products').doc(product.id);
+    if (!await checkInternetConnection()) return Left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
     try {
       Product? updatedProduct;
       List<Product> listOfUpdatedSetProducts = [];
-      await db.runTransaction((transaction) async {
-        final newAvailableStock = product.availableStock + newQuantityIncremental;
-        updatedProduct = product.copyWith(
-          availableStock: newAvailableStock,
-          isUnderMinimumStock: newAvailableStock <= product.minimumStock ? true : false,
-        );
 
-        if (updatedProduct == null) return left(GeneralFailure());
+      final newAvailableStock = product.availableStock + newQuantityIncremental;
+      updatedProduct = product.copyWith(
+        availableStock: newAvailableStock,
+        isUnderMinimumStock: newAvailableStock <= product.minimumStock ? true : false,
+      );
 
-        if (product.listOfIsPartOfSetIds.isNotEmpty) {
-          final updatedSetProducts = await updateQuantityOfSetProducts(
-            db: db,
-            currentUserUid: currentUserUid,
-            transaction: transaction,
-            product: updatedProduct!,
-          );
+      if (product.listOfIsPartOfSetIds.isNotEmpty) {
+        final updatedSetProducts = await updateQuantityOfSetProducts(product: updatedProduct, ownerId: ownerId);
 
-          listOfUpdatedSetProducts.addAll(updatedSetProducts!);
-        }
+        listOfUpdatedSetProducts.addAll(updatedSetProducts!);
+      }
 
-        transaction.update(docRefProduct, updatedProduct!.toJson());
-      });
+      await supabase.from('d_products').update(updatedProduct.toJson()).eq('ownerId', ownerId).eq('id', product.id);
 
       for (final updatedSetProduct in listOfUpdatedSetProducts) {
         await marketplaceEditRepository.setQuantityMPInAllProductMarketplaces(updatedSetProduct, updatedSetProduct.availableStock, null);
       }
-
-      if (updatedProduct == null) return left(GeneralFailure());
-      await marketplaceEditRepository.setQuantityMPInAllProductMarketplaces(updatedProduct!, updatedProduct!.availableStock, marketplaceToSkip);
-      return right(updatedProduct!);
-    } on FirebaseException catch (e) {
-      logger.e(e.message);
-      return left(GeneralFailure(
-        customMessage: 'Beim inkrementellen Aktualisieren des Bestandes vom Artikel: "${product.name}" ist ein Fehler aufgetreten',
-        e: e,
+      await marketplaceEditRepository.setQuantityMPInAllProductMarketplaces(updatedProduct, updatedProduct.availableStock, marketplaceToSkip);
+      return Right(updatedProduct);
+    } catch (e) {
+      logger.e(e);
+      return Left(GeneralFailure(
+        customMessage: 'Beim inkrementellen Aktualisieren des Bestandes vom Artikel: "${product.name}" ist ein Fehler aufgetreten. Error: $e',
       ));
     }
   }
 
   @override
-  Future<Either<FirebaseFailure, Product>> updateWarehouseQuantityOfNewProductOnImportIncremental(Product product, int newQuantityIncremental) async {
+  Future<Either<FirebaseFailure, Product>> updateWarehouseQuantityOfNewProductOnImportIncremental(
+    Product product,
+    int newQuantityIncremental, {
+    bool updateSets = false,
+  }) async {
     //! Wenn diese Funktion bearbeitet wird muss auch die Funktion (receipt_repository_impl)(updateProductWarehouseQuantityIncremental) geupdatet werden
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(NoConnectionFailure());
+    if (!await checkInternetConnection()) return Left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
-    final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRefProduct = db.collection('Products').doc(currentUserUid).collection('Products').doc(product.id);
+    final database = supabase.from('d_products');
 
     try {
       final updatedProduct = product.copyWith(
         warehouseStock: product.warehouseStock + newQuantityIncremental,
         isUnderMinimumStock: product.availableStock <= product.minimumStock ? true : false,
       );
-      await docRefProduct.update(updatedProduct.toJson());
+      await database.update(updatedProduct.toJson()).eq('ownerId', ownerId).eq('id', product.id);
 
-      return right(updatedProduct);
-    } on FirebaseException catch (e) {
-      logger.e(e.message);
-      return left(GeneralFailure(
-        customMessage: 'Beim inkrementellen Aktualisieren des  Lagerbestandes vom Artikel: "${product.name}" ist ein Fehler aufgetreten',
-        e: e,
+      if (updateSets && product.isSetArticle && product.listOfProductIdWithQuantity.isNotEmpty) {
+        for (final productIdWithQuantity in product.listOfProductIdWithQuantity) {
+          final fosSetProduct = await getProduct(productIdWithQuantity.productId);
+          if (fosSetProduct.isLeft()) continue;
+          final setProduct = fosSetProduct.getRight();
+          final updatedSetProduct = setProduct.copyWith(
+            warehouseStock: setProduct.warehouseStock + (newQuantityIncremental * productIdWithQuantity.quantity),
+          );
+
+          await database.update(updatedSetProduct.toJson()).eq('ownerId', ownerId).eq('id', setProduct.id);
+        }
+      }
+
+      return Right(updatedProduct);
+    } catch (e) {
+      logger.e(e);
+      return Left(GeneralFailure(
+        customMessage: 'Beim inkrementellen Aktualisieren des  Lagerbestandes vom Artikel: "${product.name}" ist ein Fehler aufgetreten. Error: $e',
       ));
     }
   }
 }
 
 Future<List<Product>?> updateQuantityOfSetProducts({
-  required FirebaseFirestore db,
-  required String currentUserUid,
-  required Transaction transaction,
   required Product product,
+  required String ownerId,
 }) async {
   List<Product> listOfUpdatedSetProducts = [];
   //* Set-Artikel laden, wo dieser Artikel ein Bestandteil ist
-  final listOfSetProducts = await getSetProductsOfPartProduct(db, currentUserUid, transaction, product);
+  final listOfSetProducts = await getSetProductsOfPartProduct(ownerId, product);
 
   //* Bestand bei allen Set-Artikeln anpassen
   for (final setProduct in listOfSetProducts!) {
-    final docRefSetProduct = db.collection('Products').doc(currentUserUid).collection('Products').doc(setProduct.id);
     final listOfSetPartProducts = await getPartProductsOfSetProduct(
-      db: db,
-      currentUserUid: currentUserUid,
-      transaction: transaction,
+      ownerId: ownerId,
       setProduct: setProduct,
       alreadyLoadedPartProduct: product,
     );
@@ -742,23 +683,22 @@ Future<List<Product>?> updateQuantityOfSetProducts({
     final updatedSetProduct = setProduct.copyWith(availableStock: quantitySetArticle, warehouseStock: quantitySetArticle + difference);
 
     //TODO: Transactions require all reads to be executed before all writes. transaction.update(docRefSetProduct, updatedSetProduct.toJson());
-    await docRefSetProduct.update(updatedSetProduct.toJson());
+    await supabase.from('d_products').update(updatedSetProduct.toJson()).eq('ownerId', ownerId).eq('id', setProduct.id);
     listOfUpdatedSetProducts.add(updatedSetProduct);
   }
   return listOfUpdatedSetProducts;
 }
 
-Future<List<Product>?> getSetProductsOfPartProduct(FirebaseFirestore db, String currentUserUid, Transaction transaction, Product product) async {
+Future<List<Product>?> getSetProductsOfPartProduct(String ownerId, Product product) async {
   final List<Product> listOfSetProducts = [];
   for (final setProductId in product.listOfIsPartOfSetIds) {
-    final docRefSet = db.collection('Products').doc(currentUserUid).collection('Products').doc(setProductId);
-    final setProductDS = await transaction.get(docRefSet);
+    final setProductResponse = await supabase.from('d_products').select().eq('ownerId', ownerId).eq('id', setProductId).single();
     //* Wenn die Liste einen null Wert enthält, wird das Programm nicht unterbrochen, aber es kann ein Fehler geworfen werden, dass es mindestens bei einem Set-Artikel nicht geklappt hat.
-    if (!setProductDS.exists) {
+    if (setProductResponse.isEmpty) {
       // listOfSetProducts.add(null);
       return Future.value(null);
     } else {
-      final setProduct = Product.fromJson(setProductDS.data()!);
+      final setProduct = Product.fromJson(setProductResponse);
       listOfSetProducts.add(setProduct);
     }
   }

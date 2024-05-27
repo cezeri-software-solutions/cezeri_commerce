@@ -14,7 +14,7 @@ import '../../../2_application/firebase/product_detail/product_detail_bloc.dart'
 import '../../../3_domain/entities/product/product.dart';
 import '../../../3_domain/repositories/firebase/product_repository.dart';
 import '../../../constants.dart';
-import '../../../core/abstract_failure.dart';
+import '../../../failures/abstract_failure.dart';
 import '../../product/product_detail/widgets/charts/product_bart_chart_items_sold.dart';
 import '../../product/product_detail/widgets/charts/product_line_chart_sales_volume.dart';
 import '../widgets/my_avatar.dart';

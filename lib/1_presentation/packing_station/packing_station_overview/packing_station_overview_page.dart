@@ -141,7 +141,7 @@ class _PackingStationContainer extends StatelessWidget {
                           listOfPackagingBoxes: context.read<MainSettingsBloc>().state.mainSettings!.listOfPackagingBoxes,
                         ));
                         packingStationBloc.add(PackingsStationGetProductsFromFirestoreEvent(
-                          productIds: appointment.listOfReceiptProduct.map((e) => e.productId).toList(),
+                          productIds: appointment.listOfReceiptProduct.where((e) => e.productId != '').map((e) => e.productId).toList(),
                         ));
                         context.router.push(PackingStationDetailRoute(packingStationBloc: packingStationBloc, marketplace: marketplace));
                       },

@@ -3,7 +3,6 @@ import 'package:cezeri_commerce/3_domain/entities/marketplace/marketplace_presta
 import 'package:cezeri_commerce/3_domain/repositories/firebase/product_repository.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
-import 'package:logger/logger.dart';
 
 import '../../../3_domain/entities/address.dart';
 import '../../../3_domain/entities/carrier/carrier_product.dart';
@@ -18,7 +17,8 @@ import '../../../3_domain/entities/receipt/receipt_marketplace.dart';
 import '../../../3_domain/entities/receipt/receipt_product.dart';
 import '../../../3_domain/entities/settings/payment_method.dart';
 import '../../../3_domain/repositories/firebase/receipt_respository.dart';
-import '../../../core/abstract_failure.dart';
+import '../../../constants.dart';
+import '../../../failures/abstract_failure.dart';
 
 part 'appointment_event.dart';
 part 'appointment_state.dart';
@@ -70,7 +70,7 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
         (listOfAppointments) {
           listOfAppointments.sort((a, b) => switch (listOfAppointments.first.receiptTyp) {
                 ReceiptTyp.offer => b.offerId.compareTo(a.offerId),
-                ReceiptTyp.appointment => b.appointmentId.compareTo(a.appointmentId),
+                ReceiptTyp.appointment => b.creationDate.compareTo(a.creationDate),
                 ReceiptTyp.deliveryNote => b.deliveryNoteId.compareTo(a.deliveryNoteId),
                 ReceiptTyp.invoice || ReceiptTyp.credit => b.invoiceId.compareTo(a.invoiceId),
               });
@@ -96,7 +96,6 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
 //? #########################################################################
 
     on<GetNewAppointmentByIdFromPrestaEvent>((event, emit) async {
-      final logger = Logger();
       bool isSuccess = true;
       emit(state.copyWith(
         isLoadingAppointmentFromPrestaOnObserve: true,
@@ -143,6 +142,7 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
             ReceiptTyp.deliveryNote => b.deliveryNoteId.compareTo(a.deliveryNoteId),
             ReceiptTyp.invoice || ReceiptTyp.credit => b.invoiceId.compareTo(a.invoiceId),
           });
+          
       emit(state.copyWith(
         listOfAllReceipts: listWithNewAppointments,
         isExpanded: List<bool>.filled(listWithNewAppointments.length, false),
@@ -162,7 +162,6 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
 //? #########################################################################
 
     on<GetNewAppointmentsFromMarketplacesEvent>((event, emit) async {
-      final logger = Logger();
       List<AbstractFailure> failures = [];
       emit(state.copyWith(isLoadingAppointmentsFromPrestaOnObserve: true, loadedAppointments: 0, numberOfToLoadAppointments: 0, loadingText: ''));
 
@@ -248,6 +247,7 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
             ReceiptTyp.deliveryNote => b.deliveryNoteId.compareTo(a.deliveryNoteId),
             ReceiptTyp.invoice || ReceiptTyp.credit => b.invoiceId.compareTo(a.invoiceId),
           });
+
       emit(state.copyWith(
         listOfAllReceipts: listWithNewAppointments,
         isExpanded: List<bool>.filled(listWithNewAppointments.length, false),
@@ -620,12 +620,6 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
         print('OnEditAddressReceiptDetailEvent: AddressType.invoice');
         emit(state.copyWith(receipt: state.receipt!.copyWith(addressInvoice: event.address)));
       }
-    });
-
-//? #########################################################################
-
-    on<SendEmailToCustomerReceiptEvent>((event, emit) async {
-      await receiptRepository.sendEmails();
     });
 
 //? #########################################################################

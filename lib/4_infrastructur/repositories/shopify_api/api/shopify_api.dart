@@ -1,18 +1,17 @@
 import 'dart:convert';
 
 import 'package:cezeri_commerce/4_infrastructur/repositories/shopify_api/models/inventory/inventory_level_shopify.dart';
-import 'package:cezeri_commerce/core/abstract_failure.dart';
+import 'package:cezeri_commerce/failures/abstract_failure.dart';
 import 'package:dartz/dartz.dart';
 import 'package:http/http.dart' as http;
-import 'package:logger/logger.dart';
 
 import '../../../../1_presentation/core/functions/mixed_functions.dart';
 import '../../../../3_domain/entities/product/product.dart';
 import '../../../../3_domain/entities/product/product_image.dart';
-import '../../../../core/shopify_failure.dart';
+import '../../../../constants.dart';
+import '../../../../failures/shopify_failure.dart';
 import '../shopify.dart';
 
-final logger = Logger();
 const _apiVersion = '2024-01';
 
 class ShopifyApiConfig {

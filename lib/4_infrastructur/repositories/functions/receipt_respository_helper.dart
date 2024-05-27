@@ -4,14 +4,12 @@ import '/3_domain/entities/address.dart';
 import '/3_domain/entities/customer/customer.dart';
 import '/3_domain/repositories/firebase/customer_repository.dart';
 
-final logger = Logger();
-
 Future<Customer?> getCustomerByMarketplaceId(CustomerRepository customerRepository, String marketplaceId, int customerIdMarketplace) async {
   Customer? loadedCustomer;
   final fosCustomer = await customerRepository.getCustomerByCustomerIdInMarketplace(marketplaceId, customerIdMarketplace);
   fosCustomer.fold(
     (failure) =>
-        logger.i('Kunde mit der Marktplatz ID: $customerIdMarketplace konte nicht in der Firestore Datenbank gefunden werden. \n Error: $failure'),
+        Logger().i('Kunde mit der Marktplatz ID: $customerIdMarketplace konte nicht in der Firestore Datenbank gefunden werden. \n Error: $failure'),
     (customer) => loadedCustomer = customer,
   );
 
@@ -22,7 +20,7 @@ Future<Customer?> createCustomerFromMarketplace(CustomerRepository customerRepos
   Customer? createdCustomer;
   final fosCustomer = await customerRepository.createCustomer(customer);
   fosCustomer.fold(
-    (failure) => logger.e('Kunde: ${customer.name} konte nicht in der Firestore Datenbank angelegt werden. \n Error: $failure'),
+    (failure) => Logger().e('Kunde: ${customer.name} konte nicht in der Firestore Datenbank angelegt werden. \n Error: $failure'),
     (customer) => createdCustomer = customer,
   );
 
@@ -77,7 +75,7 @@ Future<Customer?> checkCustomerAddressIsUpToDateOrUpdateThem(
     final fosCustomer = await customerRepository.updateCustomer(customer);
     fosCustomer.fold(
       (failure) =>
-          logger.e('Adressen des Kunden: ${customer.name} konte nicht in der Firestore Datenbank aktualisiert werden werden. \n Error: $failure'),
+          Logger().e('Adressen des Kunden: ${customer.name} konte nicht in der Firestore Datenbank aktualisiert werden werden. \n Error: $failure'),
       (customer) => updatedCustomer = customer,
     );
   } else {
@@ -88,4 +86,3 @@ Future<Customer?> checkCustomerAddressIsUpToDateOrUpdateThem(
 
   return updatedCustomer;
 }
-

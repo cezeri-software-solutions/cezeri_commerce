@@ -4,7 +4,6 @@ import 'package:cezeri_commerce/3_domain/entities/marketplace/marketplace_shopif
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:logger/logger.dart';
 
 import '../../../2_application/firebase/main_settings/main_settings_bloc.dart';
 import '../../../2_application/marketplace/product_import/product_import_bloc.dart';
@@ -13,8 +12,6 @@ import '../../../3_domain/entities/product/product_presta.dart';
 import '../../../4_infrastructur/repositories/shopify_api/shopify.dart';
 import '../../../constants.dart';
 import '../../core/widgets/my_avatar.dart';
-
-final logger = Logger();
 
 class ProductImportPage extends StatelessWidget {
   final ProductImportBloc productImportBloc;

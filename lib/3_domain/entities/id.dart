@@ -6,7 +6,7 @@ class UniqueID {
 
   // Das Projekt kann sich selber eine UniqueID erstellen
   factory UniqueID() {
-    return UniqueID._(const Uuid().v1());
+    return UniqueID._(const Uuid().v4());
   }
 
   // Oder die UniqueID kommt von außen z.B. Firebase

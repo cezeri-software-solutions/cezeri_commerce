@@ -1,16 +1,14 @@
 import 'package:cezeri_commerce/3_domain/entities/settings/general_ledger_account.dart';
-import 'package:cezeri_commerce/core/abstract_failure.dart';
+import 'package:cezeri_commerce/failures/abstract_failure.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:logger/logger.dart';
 
 import '/1_presentation/core/functions/check_internet_connection.dart';
 import '/3_domain/entities/col_ref.dart';
 import '/3_domain/repositories/firebase/general_ledger_account_repository.dart';
-import '/core/firebase_failures.dart';
-
-final logger = Logger();
+import '../../../constants.dart';
+import '../../../failures/firebase_failures.dart';
 
 class GeneralLedgerAccountRepositoryImpl implements GeneralLedgerAccountRepository {
   final FirebaseFirestore db;

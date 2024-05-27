@@ -19,9 +19,9 @@ class SignInScreen extends StatelessWidget {
     return BlocProvider(
       create: (context) => signInFormBloc,
       child: BlocListener<SignInFormBloc, SignInFormState>(
-        listenWhen: (previous, current) => previous.authFailureOrSuccessOption != current.authFailureOrSuccessOption,
+        listenWhen: (previous, current) => previous.authFailureOrSuccessOptionOnSignIn != current.authFailureOrSuccessOptionOnSignIn,
         listener: (context, state) {
-          state.authFailureOrSuccessOption.fold(
+          state.authFailureOrSuccessOptionOnSignIn.fold(
             () => null,
             (a) => a.fold(
               (failure) => failureRenderer(context, [failure]),

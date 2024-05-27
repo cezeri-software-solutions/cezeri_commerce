@@ -6,17 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
-import 'package:logger/logger.dart';
 import 'package:printing/printing.dart';
 
-import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
-import '../../core/functions/mixed_functions.dart';
-import '../../core/widgets/my_animated_arrow_icon_button.dart';
-import '../../core/widgets/my_animated_expansion_container.dart';
-import '../../core/widgets/my_avatar.dart';
-import '../../core/widgets/my_country_flag.dart';
-import '../appointment_detail/appointment_detail_screen.dart';
-import '../widgets/receipts_overview_carrier_bar.dart';
 import '/2_application/firebase/appointment/appointment_bloc.dart';
 import '/2_application/firebase/marketplace/marketplace_bloc.dart';
 import '/3_domain/entities/receipt/receipt.dart';
@@ -27,6 +18,14 @@ import '/3_domain/pdf/pdf_api_web.dart';
 import '/3_domain/pdf/pdf_receipt_generator.dart';
 import '/constants.dart';
 import '/routes/router.gr.dart';
+import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
+import '../../core/functions/mixed_functions.dart';
+import '../../core/widgets/my_animated_arrow_icon_button.dart';
+import '../../core/widgets/my_animated_expansion_container.dart';
+import '../../core/widgets/my_avatar.dart';
+import '../../core/widgets/my_country_flag.dart';
+import '../appointment_detail/appointment_detail_screen.dart';
+import '../widgets/receipts_overview_carrier_bar.dart';
 
 class ReceiptsOverviewPage extends StatefulWidget {
   final AppointmentBloc appointmentBloc;
@@ -131,7 +130,6 @@ class __AppointmentContainerState extends State<_AppointmentContainer> {
 
   @override
   Widget build(BuildContext context) {
-    final logger = Logger();
     final screenWidth = MediaQuery.sizeOf(context).width;
     final responsiveness = screenWidth > 700 ? Responsiveness.isTablet : Responsiveness.isMobil;
     final marketplace = widget.listOfMarketplaces.where((e) => e.id == widget.receipt.marketplaceId).first;

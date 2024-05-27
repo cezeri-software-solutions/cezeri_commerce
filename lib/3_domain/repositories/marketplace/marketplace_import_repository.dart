@@ -1,8 +1,8 @@
 import 'package:dartz/dartz.dart';
 
-import '../../../../core/abstract_failure.dart';
 import '../../../4_infrastructur/repositories/prestashop_api/models/product_raw_presta.dart';
 import '../../../4_infrastructur/repositories/shopify_api/shopify.dart';
+import '../../../failures/abstract_failure.dart';
 import '../../entities/marketplace/abstract_marketplace.dart';
 import '../../entities/marketplace/marketplace_presta.dart';
 import '../../entities/marketplace/marketplace_shopify.dart';

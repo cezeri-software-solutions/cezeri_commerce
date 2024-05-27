@@ -4,7 +4,7 @@ import 'package:meta/meta.dart';
 
 import '../../../3_domain/entities/client.dart';
 import '../../../3_domain/repositories/firebase/client_repository.dart';
-import '../../../core/abstract_failure.dart';
+import '../../../failures/abstract_failure.dart';
 
 part 'client_event.dart';
 part 'client_state.dart';

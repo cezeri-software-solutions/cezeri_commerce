@@ -6,7 +6,7 @@ import '../../../3_domain/entities/address.dart';
 import '../../../3_domain/entities/reorder/supplier.dart';
 import '../../../3_domain/entities/settings/tax.dart';
 import '../../../3_domain/repositories/firebase/supplier_repository.dart';
-import '../../../core/abstract_failure.dart';
+import '../../../failures/abstract_failure.dart';
 
 part 'supplier_event.dart';
 part 'supplier_state.dart';
@@ -105,6 +105,27 @@ class SupplierBloc extends Bloc<SupplierEvent, SupplierState> {
         fosSupplierOnUpdateOption: optionOf(failureOrSuccess),
       ));
       emit(state.copyWith(fosSupplierOnObserveOption: none()));
+    });
+
+//? #########################################################################
+
+    on<DeleteSelectedSuppliersEvent>((event, emit) async {
+      emit(state.copyWith(isLoadingSupplierOnDelete: true));
+      List<AbstractFailure> failures = [];
+
+      for (final selectedSupplier in event.selectedSuppliers) {
+      final fos = await supplierRepository.deleteSupplier(selectedSupplier.id);
+      fos.fold(
+        (failure) => failures.add(failure),
+        (unit) => null,
+      );
+    }
+
+      emit(state.copyWith(
+        isLoadingSupplierOnDelete: false,
+        fosSupplierOnDeleteOption: failures.isEmpty ? optionOf(const Right(unit)) : optionOf(Left(failures)),
+      ));
+      emit(state.copyWith(fosSupplierOnDeleteOption: none()));
     });
 
 //? #########################################################################
@@ -209,7 +230,6 @@ class SupplierBloc extends Bloc<SupplierEvent, SupplierState> {
           company: state.companyNameController.text,
           firstName: state.firstNameController.text,
           lastName: state.lastNameController.text,
-          name: '${state.firstNameController.text} ${state.lastNameController.text}',
           email: state.emailController.text,
           homepage: state.homepageController.text,
           phone: state.phoneController.text,

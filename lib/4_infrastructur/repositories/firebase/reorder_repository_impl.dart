@@ -1,161 +1,162 @@
+import 'package:cezeri_commerce/1_presentation/core/extensions/get_either.dart';
 import 'package:cezeri_commerce/3_domain/entities/product/booking_product.dart';
 import 'package:cezeri_commerce/3_domain/entities/reorder/reorder.dart';
-import 'package:cezeri_commerce/core/firebase_failures.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cezeri_commerce/failures/firebase_failures.dart';
 import 'package:dartz/dartz.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:logger/logger.dart';
 
 import '../../../1_presentation/core/functions/check_internet_connection.dart';
 import '../../../3_domain/entities/product/product.dart';
 import '../../../3_domain/entities/reorder/reorder_product.dart';
 import '../../../3_domain/enums/enums.dart';
+import '../../../3_domain/repositories/firebase/main_settings_respository.dart';
 import '../../../3_domain/repositories/firebase/product_repository.dart';
 import '../../../3_domain/repositories/firebase/reorder_repository.dart';
 import '../../../3_domain/repositories/marketplace/marketplace_edit_repository.dart';
-import '../../../core/abstract_failure.dart';
-
-final logger = Logger();
+import '../../../constants.dart';
+import '../../../failures/abstract_failure.dart';
+import '../functions/repository_functions.dart';
 
 class ReorderRepositoryImpl implements ReorderRepository {
-  final FirebaseFirestore db;
-  final FirebaseAuth firebaseAuth;
   final MarketplaceEditRepository marketplaceEditRepository;
   final ProductRepository productRepository;
+  final MainSettingsRepository settingsRepository;
 
-  ReorderRepositoryImpl({required this.db, required this.firebaseAuth, required this.marketplaceEditRepository, required this.productRepository});
+  ReorderRepositoryImpl({
+    required this.marketplaceEditRepository,
+    required this.productRepository,
+    required this.settingsRepository,
+  });
 
   @override
   Future<Either<AbstractFailure, Reorder>> createReorder(Reorder reorder) async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(NoConnectionFailure());
+    if (!await checkInternetConnection()) return Left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
-    final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRef = db.collection('Reorders').doc(currentUserUid).collection('Reorders').doc();
-    final docRefSettings = db.collection('Settings').doc(currentUserUid).collection('Settings').doc(currentUserUid);
+    final databaseReorders = supabase.from('d_reorders');
+    final databaseSettings = supabase.from('d_main_settings');
 
     try {
-      Reorder toCreateReorder = reorder.copyWith(id: docRef.id);
-      await docRef.set(toCreateReorder.toJson());
+      final fosSettings = await settingsRepository.getSettings();
+      if (fosSettings.isLeft()) return Left(fosSettings.getLeft());
+      final settings = fosSettings.getRight();
 
-      await docRefSettings.update({'nextReorderNumber': FieldValue.increment(1)});
+      final reorderJson = reorder.toJson();
+      reorderJson.addEntries([MapEntry('ownerId', ownerId)]);
+      final reorderResponse = await databaseReorders.insert(reorderJson).select('*').single();
+      final createdReorder = Reorder.fromJson(reorderResponse);
 
-      return right(toCreateReorder);
-    } on FirebaseException catch (e) {
-      logger.e(e.message);
-      return left(GeneralFailure(customMessage: 'Beim Erstellen der Nachbestellung ist ein Fehler aufgetreten.', e: e));
+      final updatedSettings = settings.copyWith(nextReorderNumber: settings.nextReorderNumber + 1);
+      await databaseSettings.update(updatedSettings.toJson()).eq('settingsId', settings.settingsId);
+
+      return Right(createdReorder);
+    } catch (e) {
+      logger.e(e);
+      return Left(GeneralFailure(customMessage: 'Beim Erstellen der Nachbestellung ist ein Fehler aufgetreten. Error: $e'));
     }
   }
 
   @override
   Future<Either<AbstractFailure, Reorder>> getReorder(String id) async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(NoConnectionFailure());
+    if (!await checkInternetConnection()) return left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
-    final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRef = db.collection('Reorders').doc(currentUserUid).collection('Reorders').doc(id);
+    final query = supabase.from('d_reorders').select().eq('ownerId', ownerId).eq('id', id).single();
 
     try {
-      final reorder = await docRef.get();
-      return right(Reorder.fromJson(reorder.data()!));
-    } on FirebaseException catch (e) {
-      logger.e(e.message);
-      return left(GeneralFailure(customMessage: 'Beim Laden der Nachbestellung ist ein Fehler aufgetreten.', e: e));
+      final response = await query;
+      final reorder = Reorder.fromJson(response);
+
+      return Right(reorder);
+    } catch (e) {
+      logger.e(e);
+      return Left(GeneralFailure(customMessage: 'Beim Laden der Nachbestellung ist ein Fehler aufgetreten. Error: $e'));
     }
   }
 
   @override
   Future<Either<AbstractFailure, List<Reorder>>> getListOfReorders(GetReordersType getReordersType) async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(NoConnectionFailure());
+    if (!await checkInternetConnection()) return Left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
-    final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRef = switch (getReordersType) {
-      GetReordersType.open =>
-        db.collection('Reorders').doc(currentUserUid).collection('Reorders').where('reorderStatus', isEqualTo: ReorderStatus.open.name),
-      GetReordersType.partialOpen =>
-        db.collection('Reorders').doc(currentUserUid).collection('Reorders').where('reorderStatus', isEqualTo: ReorderStatus.partiallyCompleted.name),
-      GetReordersType.openOrPartialOpen => db.collection('Reorders').doc(currentUserUid).collection('Reorders').where('reorderStatus', whereIn: [
-          ReorderStatus.open.name,
-          ReorderStatus.partiallyCompleted.name,
-        ]),
-      GetReordersType.completed =>
-        db.collection('Reorders').doc(currentUserUid).collection('Reorders').where('reorderStatus', isEqualTo: ReorderStatus.completed.name),
-      GetReordersType.all => db.collection('Reorders').doc(currentUserUid).collection('Reorders'),
+    final preQuery = supabase.from('d_reorders').select().eq('ownerId', ownerId);
+    final query = switch (getReordersType) {
+      GetReordersType.open => preQuery.eq('reorderStatus', ReorderStatus.open.name),
+      GetReordersType.partialOpen => preQuery.eq('reorderStatus', ReorderStatus.partiallyCompleted.name),
+      GetReordersType.openOrPartialOpen =>
+        preQuery.or('reorderStatus.eq.${ReorderStatus.open.name},reorderStatus.eq.${ReorderStatus.partiallyCompleted.name}'),
+      GetReordersType.completed => preQuery.eq('reorderStatus', ReorderStatus.completed.name),
+      GetReordersType.all => preQuery,
     };
 
     try {
-      final listOfReorders = await docRef.get().then((value) => value.docs.map((querySnapshot) => Reorder.fromJson(querySnapshot.data())).toList());
+      final listOfReorders = await query.then((list) => list.map((e) => Reorder.fromJson(e)).toList());
+      if (listOfReorders.isEmpty) return const Right([]);
 
-      return right(listOfReorders);
-    } on FirebaseException catch (e) {
-      logger.e(e.message);
-      return left(GeneralFailure(customMessage: 'Beim Laden der Nachbestellungen ist ein Fehler aufgetreten.', e: e));
+      return Right(listOfReorders);
+    } catch (e) {
+      logger.e(e);
+      return Left(GeneralFailure(customMessage: 'Beim Laden der Nachbestellungen ist ein Fehler aufgetreten. Error: $e'));
     }
   }
 
   @override
   Future<Either<AbstractFailure, Reorder>> updateReorder(Reorder reorder) async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(NoConnectionFailure());
-
-    final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRef = db.collection('Reorders').doc(currentUserUid).collection('Reorders').doc(reorder.id);
+    if (!await checkInternetConnection()) return Left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
     try {
-      await docRef.update(reorder.toJson());
+      await supabase.from('d_reorders').update(reorder.toJson()).eq('ownerId', ownerId).eq('id', reorder.id);
 
-      return right(reorder);
-    } on FirebaseException catch (e) {
-      logger.e(e.message);
-      return left(GeneralFailure(customMessage: 'Beim Aktualisieren der Nachbestellung ist ein Fehler aufgetreten.', e: e));
+      return Right(reorder);
+    } catch (e) {
+      logger.e(e);
+      return Left(GeneralFailure(customMessage: 'Beim Aktualisieren der Nachbestellung ist ein Fehler aufgetreten. Error: $e'));
     }
   }
 
   @override
   Future<Either<AbstractFailure, Unit>> deleteReorder(String id) async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(NoConnectionFailure());
-
-    final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRef = db.collection('Reorders').doc(currentUserUid).collection('Reorders').doc(id);
+    if (!await checkInternetConnection()) return Left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
     try {
-      await docRef.delete();
+      await supabase.from('d_reorders').delete().eq('ownerId', ownerId).eq('id', id);
 
-      return right(unit);
-    } on FirebaseException catch (e) {
-      logger.e(e.message);
-      return left(GeneralFailure(customMessage: 'Beim Löschen der Nachbestellung ist ein Fehler aufgetreten.', e: e));
+      return const Right(unit);
+    } catch (e) {
+      logger.e(e);
+      return Left(GeneralFailure(customMessage: 'Beim Löschen der Nachbestellung ist ein Fehler aufgetreten. Error: $e'));
     }
   }
 
   @override
   Future<Either<AbstractFailure, Unit>> deleteReorders(List<String> ids) async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(NoConnectionFailure());
-
-    final currentUserUid = firebaseAuth.currentUser!.uid;
+    if (!await checkInternetConnection()) return Left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
     try {
       for (final id in ids) {
-        final docRef = db.collection('Reorders').doc(currentUserUid).collection('Reorders').doc(id);
-        await docRef.delete();
+        await deleteReorder(id);
       }
 
-      return right(unit);
-    } on FirebaseException catch (e) {
-      logger.e(e.message);
-      return left(GeneralFailure(customMessage: 'Beim Löschen der Nachbestellungen ist ein Fehler aufgetreten.', e: e));
+      return const Right(unit);
+    } catch (e) {
+      logger.e(e);
+      return Left(GeneralFailure(customMessage: 'Beim Löschen der Nachbestellungen ist ein Fehler aufgetreten. Error: $e'));
     }
   }
 
   @override
   Future<Either<AbstractFailure, Unit>> updateReordersFromProductsBooking(List<BookingProduct> listOfBookingProducts) async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(NoConnectionFailure());
-
-    final currentUserUid = firebaseAuth.currentUser!.uid;
+    if (!await checkInternetConnection()) return Left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
     Reorder? curReorder;
     Product? updatedProduct;
@@ -164,61 +165,60 @@ class ReorderRepositoryImpl implements ReorderRepository {
 
     try {
       for (final bookingProduct in listOfBookingProducts) {
-        final docRefReorder = db.collection('Reorders').doc(currentUserUid).collection('Reorders').doc(bookingProduct.reorderId);
-        final docRefProduct = db.collection('Products').doc(currentUserUid).collection('Products').doc(bookingProduct.productId);
-        await db.runTransaction((transaction) async {
-          if (curReorder == null || (curReorder != null && bookingProduct.reorderId != curReorder!.id)) {
-            final loadedReorderDs = await transaction.get(docRefReorder);
-            if (!loadedReorderDs.exists) return left(GeneralFailure());
-            curReorder = Reorder.fromJson(loadedReorderDs.data()!);
-          }
-          final loadedProductDs = await transaction.get(docRefProduct);
-          if (!loadedProductDs.exists) return left(GeneralFailure());
-          final loadedProduct = Product.fromJson(loadedProductDs.data()!);
+        if (curReorder == null || (bookingProduct.reorderId != curReorder.id)) {
+          final fosReorder = await getReorder(bookingProduct.reorderId);
+          if (fosReorder.isLeft()) return Left(fosReorder.getLeft());
+          curReorder = fosReorder.getRight();
+        }
 
-          //* Update Reorder
-          List<ReorderProduct> listOfReorderProducts = List.from(curReorder!.listOfReorderProducts);
-          final index = listOfReorderProducts.indexWhere((e) => e.productId == bookingProduct.productId);
-          if (index == -1) return left(GeneralFailure());
-          listOfReorderProducts[index] =
-              listOfReorderProducts[index].copyWith(bookedQuantity: listOfReorderProducts[index].bookedQuantity + bookingProduct.toBookQuantity);
-          final isReorderCompleted = listOfReorderProducts.every((e) => e.openQuantity <= 0);
-          final updatedReorder = curReorder!.copyWith(
-            listOfReorderProducts: listOfReorderProducts,
-            reorderStatus: isReorderCompleted ? ReorderStatus.completed : ReorderStatus.partiallyCompleted,
-          );
-          transaction.update(docRefReorder, updatedReorder.toJson());
-          curReorder = updatedReorder;
+        final fosLoadedProduct = await productRepository.getProduct(bookingProduct.productId);
+        if (fosLoadedProduct.isLeft()) return Left(fosLoadedProduct.getLeft());
+        final loadedProduct = fosLoadedProduct.getRight();
 
-          //* Update Product
-          updatedProduct = loadedProduct.copyWith(
-            availableStock: loadedProduct.availableStock + bookingProduct.toBookQuantity,
-            warehouseStock: loadedProduct.warehouseStock + bookingProduct.toBookQuantity,
-          );
-          // final fos = await productRepository.updateAllQuantityOfProductAbsolut(
-          //   loadedProduct,
-          //   loadedProduct.availableStock + bookingProduct.toBookQuantity,
-          //   false,
-          // );
-          // fos.fold(
-          //   (failure) {
-          //     final cm =
-          //         'Bestand des Artikels: "${loadedProduct.name}" mit der Arikelnummer: "${loadedProduct.articleNumber}" konnte nicht aktualisiert werden';
-          //     left(GeneralFailure(customMessage: cm));
-          //   },
-          //   (product) => updatedProduct = product,
-          // );
-          transaction.update(docRefProduct, updatedProduct!.toJson());
-        });
+        //* Update Reorder
+        List<ReorderProduct> listOfReorderProducts = List.from(curReorder.listOfReorderProducts);
+        final index = listOfReorderProducts.indexWhere((e) => e.productId == bookingProduct.productId);
+        if (index == -1) return Left(GeneralFailure());
+        listOfReorderProducts[index] =
+            listOfReorderProducts[index].copyWith(bookedQuantity: listOfReorderProducts[index].bookedQuantity + bookingProduct.toBookQuantity);
+        final isReorderCompleted = listOfReorderProducts.every((e) => e.openQuantity <= 0);
+        final updatedReorder = curReorder.copyWith(
+          listOfReorderProducts: listOfReorderProducts,
+          reorderStatus: isReorderCompleted ? ReorderStatus.completed : ReorderStatus.partiallyCompleted,
+        );
 
-        //* Update Product Quantity in Marketplaces
-        if (updatedProduct == null) return left(GeneralFailure());
-        await marketplaceEditRepository.setQuantityMPInAllProductMarketplaces(updatedProduct!, updatedProduct!.availableStock, null);
+        final fosUpdateReorder = await updateReorder(updatedReorder);
+        if (fosUpdateReorder.isLeft()) return Left(fosUpdateReorder.getLeft());
+
+        curReorder = updatedReorder;
+
+        //* Update Product
+        updatedProduct = loadedProduct.copyWith(
+          availableStock: loadedProduct.availableStock + bookingProduct.toBookQuantity,
+          warehouseStock: loadedProduct.warehouseStock + bookingProduct.toBookQuantity,
+        );
+        // final fos = await productRepository.updateAllQuantityOfProductAbsolut(
+        //   loadedProduct,
+        //   loadedProduct.availableStock + bookingProduct.toBookQuantity,
+        //   false,
+        // );
+        // fos.fold(
+        //   (failure) {
+        //     final cm =
+        //         'Bestand des Artikels: "${loadedProduct.name}" mit der Arikelnummer: "${loadedProduct.articleNumber}" konnte nicht aktualisiert werden';
+        //     left(GeneralFailure(customMessage: cm));
+        //   },
+        //   (product) => updatedProduct = product,
+        // );
+        final fosUpdateProduct = await productRepository.updateProduct(updatedProduct);
+        if (fosUpdateProduct.isLeft()) return Left(fosUpdateProduct.getLeft());
+
+        await marketplaceEditRepository.setQuantityMPInAllProductMarketplaces(updatedProduct, updatedProduct.availableStock, null);
       }
-      return right(unit);
-    } on FirebaseException catch (e) {
-      logger.e(e.message);
-      return left(GeneralFailure(customMessage: 'Beim Aktualisieren der Nachbestellung/en ist ein Fehler aufgetreten.', e: e));
+      return const Right(unit);
+    } catch (e) {
+      logger.e(e);
+      return Left(GeneralFailure(customMessage: 'Beim Aktualisieren der Nachbestellung/en ist ein Fehler aufgetreten. Error: $e'));
     }
   }
 }

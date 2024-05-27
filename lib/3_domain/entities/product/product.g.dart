@@ -82,7 +82,6 @@ Product _$ProductFromJson(Map<String, dynamic> json) => Product(
     );
 
 Map<String, dynamic> _$ProductToJson(Product instance) => <String, dynamic>{
-      'id': instance.id,
       'articleNumber': instance.articleNumber,
       'supplierArticleNumber': instance.supplierArticleNumber,
       'supplierNumber': instance.supplierNumber,

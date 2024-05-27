@@ -1,8 +1,9 @@
 import 'package:dartz/dartz.dart';
 
-import '../../../../core/presta_failure.dart';
 import '../../../4_infrastructur/repositories/prestashop_api/models/product_raw_presta.dart';
-import '../../../core/abstract_failure.dart';
+import '../../../failures/abstract_failure.dart';
+import '../../../failures/presta_failure.dart';
+import '../../entities/marketplace/abstract_marketplace.dart';
 import '../../entities/marketplace/marketplace_presta.dart';
 import '../../entities/product/product.dart';
 import '../../entities/product/product_image.dart';
@@ -11,9 +12,10 @@ import '../../enums/enums.dart';
 
 abstract class MarketplaceEditRepository {
   //* Product
-  Future<Either<List<AbstractFailure>, Unit>> setQuantityMPInAllProductMarketplaces(Product prodcut, int newQuantity, MarketplacePresta? marketplaceToSkip);
+  Future<Either<List<AbstractFailure>, Unit>> setQuantityMPInAllProductMarketplaces(
+      Product prodcut, int newQuantity, MarketplacePresta? marketplaceToSkip);
   Future<Either<List<AbstractFailure>, Unit>> editProdcutInMarketplace(Product product, List<MarketplacePresta>? toEditMarketplaces);
-  Future<Either<PrestaFailure, ProductRawPresta>> createProdcutInMarketplace(
+  Future<Either<AbstractFailure, ProductRawPresta>> createProdcutInMarketplace(
     Product product,
     ProductMarketplace productMarketplace,
     ProductMarketplace anotherProductMarketplaceWithSameManufacturer,
@@ -22,7 +24,7 @@ abstract class MarketplaceEditRepository {
 
   //* Order
   Future<Either<PrestaFailure, Unit>> setOrderStatusInMarketplace(
-    MarketplacePresta marketplace,
+    AbstractMarketplace marketplace,
     int orderId,
     OrderStatusUpdateType orderStatusUpdateType,
   );

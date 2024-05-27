@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
 
-import '../../../core/abstract_failure.dart';
+import '../../../failures/abstract_failure.dart';
 import '../../entities/product/booking_product.dart';
 import '../../entities/reorder/reorder.dart';
 import '../../enums/enums.dart';

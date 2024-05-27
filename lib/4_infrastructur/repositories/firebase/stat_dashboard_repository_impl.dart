@@ -1,16 +1,15 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:logger/logger.dart';
 
 import '../../../1_presentation/core/functions/check_internet_connection.dart';
 import '../../../3_domain/entities/receipt/receipt.dart';
 import '../../../3_domain/entities/statistic/stat_dashboard.dart';
 import '../../../3_domain/repositories/firebase/stat_dashboard_repository.dart';
-import '../../../core/abstract_failure.dart';
-import '../../../core/firebase_failures.dart';
-
-final logger = Logger();
+import '../../../constants.dart';
+import '../../../failures/abstract_failure.dart';
+import '../../../failures/firebase_failures.dart';
+import '../functions/repository_functions.dart';
 
 class StatDashboardRepositoryImpl implements StatDashboardRepository {
   final FirebaseFirestore db;
@@ -21,24 +20,23 @@ class StatDashboardRepositoryImpl implements StatDashboardRepository {
 
   @override
   Future<Either<AbstractFailure, StatDashboard>> getStatDashboard() async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(NoConnectionFailure());
+    if (!await checkInternetConnection()) return Left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
     final now = DateTime.now();
     final curYear = now.year;
     final curMonth = now.month;
 
-    final currentUserUid = firebaseAuth.currentUser!.uid;
-    var docRef = db.collection('StatDashboard').doc(currentUserUid).collection('StatDashboard').doc('$curYear$curMonth');
+    final query = supabase.from('d_stat_dashboards').select().eq('ownerId', ownerId).eq('statDashboardId', '$curYear$curMonth').single();
 
     try {
-      var statDashboard = await docRef.get();
-      if (!statDashboard.exists) return right(StatDashboard.empty());
+      final response = await query;
 
-      return right(StatDashboard.fromJson(statDashboard.data()!));
-    } on FirebaseException catch (e) {
-      logger.e(e.message);
-      return left(GeneralFailure(customMessage: 'Beim Laden der Vertriebsauswertungen für den aktuellen Monat ist ein Fehler aufgetreten', e: e));
+      return right(StatDashboard.fromJson(response));
+    } catch (e) {
+      logger.e(e);
+      return right(StatDashboard.empty());
     }
   }
 
@@ -46,19 +44,22 @@ class StatDashboardRepositoryImpl implements StatDashboardRepository {
 
   @override
   Future<Either<AbstractFailure, List<StatDashboard>>> getLast13StatDashboards() async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(NoConnectionFailure());
+    if (!await checkInternetConnection()) return Left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
-    final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRef = db.collection('StatDashboard').doc(currentUserUid).collection('StatDashboard').orderBy('dateTime', descending: true).limit(13);
+    final query = supabase.from('d_stat_dashboards').select().eq('ownerId', ownerId).order('dateTime', ascending: false).limit(13);
 
     try {
-      final listOfStatDashboards = await docRef.get().then((value) => value.docs.map((document) => StatDashboard.fromJson(document.data())).toList());
+      final response = await query;
+      if (response.isEmpty) return const Right([]);
 
-      return right(listOfStatDashboards);
-    } on FirebaseException catch (e) {
-      logger.e(e.message);
-      return left(GeneralFailure(customMessage: 'Beim Laden der Vertriebsauswertungen der letzten 13 Monate ist ein Fehler aufgetreten', e: e));
+      final listOfProducts = response.map((e) => StatDashboard.fromJson(e)).toList();
+
+      return Right(listOfProducts);
+    } catch (e) {
+      logger.e(e);
+      return left(GeneralFailure(customMessage: 'Beim Laden der Vertriebsauswertungen der letzten 13 Monate ist ein Fehler aufgetreten. Error: $e'));
     }
   }
 
@@ -66,8 +67,9 @@ class StatDashboardRepositoryImpl implements StatDashboardRepository {
 
   @override
   Future<Either<AbstractFailure, List<Receipt>>> getAppointmentsOfTodayAndTomorrow() async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(NoConnectionFailure());
+    if (!await checkInternetConnection()) return Left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
     final DateTime now = DateTime.now();
     final DateTime dayFirst = DateTime(
@@ -80,26 +82,21 @@ class StatDashboardRepositoryImpl implements StatDashboardRepository {
             _ => 1,
           },
     );
-    // final DateTime dayLast = DateTime(now.year, now.month, now.day + 2);
 
-    final currentUserUid = firebaseAuth.currentUser!.uid;
-    var docRef = db
-        .collection('Receipts')
-        .doc(currentUserUid)
-        .collection('Appointments')
-        .where('creationDateMarektplace', isGreaterThanOrEqualTo: dayFirst.toIso8601String())
-        //.where('creationDateMarektplace', isLessThan: tomorrow.toIso8601String())
-        .where('appointmentStatus', whereIn: [AppointmentStatus.open.name, AppointmentStatus.partiallyCompleted.name]);
+    final query = supabase
+        .from('d_appointments')
+        .select()
+        .eq('ownerId', ownerId)
+        .gte('creationDateMarektplace', dayFirst.toIso8601String())
+        .or('appointmentStatus.eq.${AppointmentStatus.open.name},appointmentStatus.eq.${AppointmentStatus.partiallyCompleted.name}');
 
     try {
-      var listOfAppointments = await docRef.get().then(
-            (value) => value.docs.map((document) => Receipt.fromJson(document.data())).toList(),
-          );
+      var listOfAppointments = await query.then((list) => list.map((e) => Receipt.fromJson(e)).toList());
 
-      return right(listOfAppointments);
-    } on FirebaseException catch (e) {
-      logger.e(e.message);
-      return left(GeneralFailure(customMessage: 'Beim Laden der Vertriebsauswertungen von heute und morgen ist ein Fehler aufgetreten', e: e));
+      return Right(listOfAppointments);
+    } catch (e) {
+      logger.e(e);
+      return Left(GeneralFailure(customMessage: 'Beim Laden der Vertriebsauswertungen von heute und morgen ist ein Fehler aufgetreten. Error: $e'));
     }
   }
 

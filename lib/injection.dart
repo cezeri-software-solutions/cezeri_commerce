@@ -107,43 +107,36 @@ Future<void> init() async {
   sl.registerFactory(() => GeneralLedgerAccountBloc(gLAccountRepository: sl()));
 
   //! repositories Firebase
-  sl.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl(firebaseAuth: sl()));
+  sl.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl());
   sl.registerLazySingleton<ClientRepository>(() => ClientRepositoryImpl(db: sl(), firebaseAuth: sl()));
-  sl.registerLazySingleton<ProductRepository>(() => ProductRepositoryImpl(
-        db: sl(),
-        firebaseAuth: sl(),
-        marketplaceEditRepository: sl(),
-        marketplaceRepository: sl(),
-      ));
+  sl.registerLazySingleton<ProductRepository>(() => ProductRepositoryImpl(marketplaceEditRepository: sl(), marketplaceRepository: sl()));
   sl.registerLazySingleton<MarketplaceRepository>(() => MarketplaceRepositoryImpl(db: sl(), firebaseAuth: sl()));
   sl.registerLazySingleton<MainSettingsRepository>(() => MainSettingsRepositoryImpl(db: sl(), firebaseAuth: sl()));
   sl.registerLazySingleton<ReceiptRepository>(
     () => ReceiptRespositoryImpl(
-      db: sl(),
-      firebaseAuth: sl(),
       productRepository: sl(),
       productImportRepository: sl(),
       customerRepository: sl(),
       mainSettingsRepository: sl(),
+      marketplaceRepository: sl(),
       marketplaceEditRepository: sl(),
     ),
   );
-  sl.registerLazySingleton<CustomerRepository>(() => CustomerRepositoryImpl(db: sl(), firebaseAuth: sl()));
-  sl.registerLazySingleton<SupplierRepository>(() => SupplierRepositoryImpl(db: sl(), firebaseAuth: sl()));
+  sl.registerLazySingleton<CustomerRepository>(() => CustomerRepositoryImpl(db: sl(), firebaseAuth: sl(), settingsRepository: sl()));
+  sl.registerLazySingleton<SupplierRepository>(() => SupplierRepositoryImpl(db: sl(), firebaseAuth: sl(), settingsRepository: sl()));
   sl.registerLazySingleton<ReorderRepository>(() => ReorderRepositoryImpl(
-        db: sl(),
-        firebaseAuth: sl(),
         marketplaceEditRepository: sl(),
         productRepository: sl(),
+        settingsRepository: sl(),
       ));
-  sl.registerLazySingleton<PackingStationRepository>(() => PackingStationRepositoryImpl(db: sl(), firebaseAuth: sl()));
+  sl.registerLazySingleton<PackingStationRepository>(() => PackingStationRepositoryImpl(productRepository: sl()));
   sl.registerLazySingleton<StatDashboardRepository>(() => StatDashboardRepositoryImpl(db: sl(), firebaseAuth: sl()));
   sl.registerLazySingleton<StatProductRepository>(() => StatProductRepositoryImpl(db: sl(), firebaseAuth: sl()));
   sl.registerLazySingleton<GeneralLedgerAccountRepository>(() => GeneralLedgerAccountRepositoryImpl(db: sl(), firebaseAuth: sl()));
 
   //! repositories Prestashop
   sl.registerLazySingleton<MarketplaceImportRepository>(() => MarketplaceImportRepositoryImpl(db: sl(), firebaseAuth: sl(), productRepository: sl()));
-  sl.registerLazySingleton<MarketplaceEditRepository>(() => MarketplaceEditRepositoryImpl(db: sl(), firebaseAuth: sl()));
+  sl.registerLazySingleton<MarketplaceEditRepository>(() => MarketplaceEditRepositoryImpl());
 
   //! extern
   final firebaseAuth = FirebaseAuth.instance;

@@ -12,7 +12,7 @@ import '../../../3_domain/repositories/marketplace/marketplace_import_repository
 import '../../../4_infrastructur/repositories/prestashop_api/models/category_presta.dart';
 import '../../../4_infrastructur/repositories/prestashop_api/models/product_raw_presta.dart';
 import '../../../4_infrastructur/repositories/shopify_api/shopify.dart';
-import '../../../core/abstract_failure.dart';
+import '../../../failures/abstract_failure.dart';
 
 part 'marketplace_product_event.dart';
 part 'marketplace_product_state.dart';

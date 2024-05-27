@@ -1,16 +1,15 @@
 import 'package:cezeri_commerce/3_domain/entities/statistic/stat_product.dart';
-import 'package:cezeri_commerce/core/firebase_failures.dart';
+import 'package:cezeri_commerce/failures/firebase_failures.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:logger/logger.dart';
 
 import '../../../1_presentation/core/functions/check_internet_connection.dart';
 import '../../../3_domain/repositories/firebase/stat_product_repository.dart';
-import '../../../core/abstract_failure.dart';
-
-final logger = Logger();
+import '../../../constants.dart';
+import '../../../failures/abstract_failure.dart';
+import '../functions/repository_functions.dart';
 
 class StatProductRepositoryImpl implements StatProductRepository {
   final FirebaseFirestore db;
@@ -19,85 +18,103 @@ class StatProductRepositoryImpl implements StatProductRepository {
 
   @override
   Future<Either<AbstractFailure, List<StatProduct>>> getAllStatProductsCurMonth() async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(NoConnectionFailure());
+    if (!await checkInternetConnection()) return Left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
     final now = DateTime.now();
     final curYear = now.year;
     final curMonth = now.month;
 
-    final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRef = db.collection('StatProducts').doc(currentUserUid).collection('$curYear$curMonth');
+    final query = supabase
+        .from('d_stat_products')
+        .select()
+        .eq('ownerId', ownerId)
+        .filter('EXTRACT(YEAR FROM creationDate)', 'eq', curYear)
+        .filter('EXTRACT(MONTH FROM creationDate)', 'eq', curMonth);
 
     try {
-      final statProducts = await docRef.get().then((value) => value.docs.map((querySnapshot) => StatProduct.fromJson(querySnapshot.data())).toList());
+      final statProducts = await query.then((val) => val.map((e) => StatProduct.fromJson(e)).toList());
 
-      return right(statProducts);
-    } on FirebaseException catch (e) {
-      logger.e(e.message);
-      return left(GeneralFailure(customMessage: 'Beim Laden der Artikelausertungen für den aktuellen Monat ist ein Fehler aufgetreten', e: e));
+      return Right(statProducts);
+    } catch (e) {
+      logger.e(e);
+      return const Right([]);
     }
   }
 
   @override
   Future<Either<AbstractFailure, List<StatProduct>>> getAllStatProductsFromTo(DateTimeRange dateRange) async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(NoConnectionFailure());
+    if (!await checkInternetConnection()) return Left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
     final startDate = dateRange.start;
     final endDate = dateRange.end;
     DateTime calcDate = endDate;
 
-    final currentUserUid = firebaseAuth.currentUser!.uid;
+    final query = supabase
+        .from('d_stat_products')
+        .select()
+        .eq('ownerId', ownerId)
+        .gte('creationDate', DateTime(calcDate.year, calcDate.month, 1).toIso8601String())
+        .lte('creationDate', DateTime(calcDate.year, calcDate.month + 1, 0, 23, 59, 59).toIso8601String());
 
     try {
       List<StatProduct> listOfStatProducts = [];
       do {
-        final docRef = db.collection('StatProducts').doc(currentUserUid).collection('${calcDate.year}${calcDate.month.toString()}');
-        final statProducts =
-            await docRef.get().then((value) => value.docs.map((querySnapshot) => StatProduct.fromJson(querySnapshot.data())).toList());
+        final response = await query;
+
+        final statProducts = response.map((json) => StatProduct.fromJson(json)).toList();
+
         listOfStatProducts.addAll(statProducts);
+
         calcDate = subtractMonth(calcDate);
       } while (calcDate.isAfter(startDate) || (calcDate.year == startDate.year && calcDate.month == startDate.month));
 
-      return right(listOfStatProducts);
-    } on FirebaseException catch (e) {
-      logger.e(e.message);
-      return left(GeneralFailure(customMessage: 'Beim Laden der Artikelausertungen ist ein Fehler aufgetreten', e: e));
+      return Right(listOfStatProducts);
+    } catch (e) {
+      logger.e(e);
+      return const Right([]);
     }
   }
 
   @override
   Future<Either<AbstractFailure, List<StatProduct>>> getStatProductsOfProductLast13(String id) async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(NoConnectionFailure());
+    if (!await checkInternetConnection()) return Left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
     final now = DateTime.now();
     final startDate = DateTime(now.year - 1, now.month);
     DateTime calcDate = now;
 
-    final currentUserUid = firebaseAuth.currentUser!.uid;
+    final query = supabase
+        .from('d_stat_products')
+        .select()
+        .eq('ownerId', ownerId)
+        .eq('statProductId', id)
+        .gte('creationDate', DateTime(calcDate.year, calcDate.month, 1).toIso8601String())
+        .lte('creationDate', DateTime(calcDate.year, calcDate.month + 1, 0, 23, 59, 59).toIso8601String())
+        .single();
 
     List<StatProduct> listOfStatProducts = [];
 
     try {
       while (calcDate.isAfter(startDate) || (calcDate.year == startDate.year && calcDate.month == startDate.month)) {
-        final collection = '${calcDate.year}${calcDate.month.toString()}';
-        final docRef = db.collection('StatProducts').doc(currentUserUid).collection(collection).doc(id);
-        final statProductDs = await docRef.get();
+        final response = await query;
 
-        if (statProductDs.exists) {
-          final statProduct = StatProduct.fromJson(statProductDs.data()!);
-          listOfStatProducts.add(statProduct);
-        }
+        final statProducts = StatProduct.fromJson(response); // response.map((json) => StatProduct.fromJson(json)).toList();
+
+        listOfStatProducts.add(statProducts);
 
         calcDate = subtractMonth(calcDate);
       }
 
-      return right(listOfStatProducts);
-    } on FirebaseException catch (e) {
-      logger.e(e.message);
-      return left(GeneralFailure(customMessage: 'Beim Laden der Artikelausertungen der letzten 13 Monate ist ein Fehler aufgetreten', e: e));
+      return Right(listOfStatProducts);
+    } catch (e) {
+      logger.e(e.toString());
+      return const Right([]);
     }
   }
 

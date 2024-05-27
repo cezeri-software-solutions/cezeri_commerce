@@ -1,7 +1,6 @@
-import 'package:logger/logger.dart';
-
 import '/3_domain/entities/product/product.dart';
 import '/3_domain/repositories/firebase/product_repository.dart';
+import '../../../constants.dart';
 
 Future<Product?> getProductFromFirestoreIfExists({
   required String articleNumber,
@@ -9,8 +8,6 @@ Future<Product?> getProductFromFirestoreIfExists({
   required String name,
   required ProductRepository productRepository,
 }) async {
-  final logger = Logger();
-
   Product? product;
 
   final fosProduct = await productRepository.getProductByArticleNumber(articleNumber);

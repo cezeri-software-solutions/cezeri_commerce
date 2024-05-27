@@ -19,9 +19,9 @@ class ResetPasswordScreen extends StatelessWidget {
     return BlocProvider(
       create: (context) => signInFormBloc,
       child: BlocListener<SignInFormBloc, SignInFormState>(
-        listenWhen: (previous, current) => previous.authFailureOrSuccessOption != current.authFailureOrSuccessOption,
+        listenWhen: (previous, current) => previous.authFailureOrSuccessOptionOnResetPassword != current.authFailureOrSuccessOptionOnResetPassword,
         listener: (context, state) {
-          state.authFailureOrSuccessOption.fold(
+          state.authFailureOrSuccessOptionOnResetPassword.fold(
             () => null,
             (a) => a.fold(
               (failure) => failureRenderer(context, [failure]),

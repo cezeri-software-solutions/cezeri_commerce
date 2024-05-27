@@ -8,7 +8,7 @@ import '../../../../3_domain/entities/product/product.dart';
 import '../../../../3_domain/entities/reorder/reorder.dart';
 import '../../../../3_domain/repositories/firebase/product_repository.dart';
 import '../../../../3_domain/repositories/firebase/reorder_repository.dart';
-import '../../../../core/abstract_failure.dart';
+import '../../../../failures/abstract_failure.dart';
 
 part 'home_product_event.dart';
 part 'home_product_state.dart';

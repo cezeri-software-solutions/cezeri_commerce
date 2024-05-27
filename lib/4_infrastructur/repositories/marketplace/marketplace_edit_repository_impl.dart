@@ -1,13 +1,5 @@
-import 'package:cezeri_commerce/3_domain/entities/product/product.dart';
-import 'package:cezeri_commerce/3_domain/entities/product/product_image.dart';
-import 'package:cezeri_commerce/3_domain/enums/enums.dart';
-import 'package:cezeri_commerce/core/firebase_failures.dart';
-import 'package:cezeri_commerce/core/presta_failure.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart';
-import 'package:logger/logger.dart';
 
 import '../../../../1_presentation/core/functions/check_internet_connection.dart';
 import '../../../../3_domain/entities/product/product_marketplace.dart';
@@ -15,20 +7,19 @@ import '../../../../3_domain/repositories/marketplace/marketplace_edit_repositor
 import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
 import '../../../3_domain/entities/marketplace/marketplace_presta.dart';
 import '../../../3_domain/entities/marketplace/marketplace_shopify.dart';
-import '../../../3_domain/entities/patch_marketplace_logger.dart';
+import '../../../3_domain/entities/product/product.dart';
+import '../../../3_domain/entities/product/product_image.dart';
 import '../../../3_domain/entities/product/product_presta.dart';
-import '../../../core/abstract_failure.dart';
+import '../../../3_domain/enums/enums.dart';
+import '../../../constants.dart';
+import '../../../failures/failures.dart';
+import '../functions/repository_functions.dart';
 import '../prestashop_api/models/product_raw_presta.dart';
 import '../prestashop_api/prestashop_api.dart';
 import '../shopify_api/shopify.dart';
 
-final logger = Logger();
-
 class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
-  final FirebaseFirestore db;
-  final FirebaseAuth firebaseAuth;
-
-  MarketplaceEditRepositoryImpl({required this.db, required this.firebaseAuth});
+  MarketplaceEditRepositoryImpl();
 
   @override
   Future<Either<List<AbstractFailure>, Unit>> setQuantityMPInAllProductMarketplaces(
@@ -36,19 +27,21 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
     int newQuantity,
     MarketplacePresta? marketplaceToSkip,
   ) async {
-    if (!await checkInternetConnection()) return left([NoConnectionFailure()]);
+    if (!await checkInternetConnection()) return Left([NoConnectionFailure()]);
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return Left([GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden')]);
 
-    final currentUserUid = firebaseAuth.currentUser!.uid;
     final List<AbstractFailure> failures = [];
 
     for (ProductMarketplace productMarketplace in product.productMarketplaces) {
-      // TODO: if (!productMarketplace.active!) continue;
       if (marketplaceToSkip != null && productMarketplace.idMarketplace == marketplaceToSkip.id) continue;
-      final docRef = db.collection('Marketetplaces').doc(currentUserUid).collection('Marketetplaces').doc(productMarketplace.idMarketplace);
 
-      final marketplaceSnapshot = await docRef.get();
-      final marketplace = AbstractMarketplace.fromJson(marketplaceSnapshot.data()!);
-      // if (!marketplace.isActive) continue;
+      final marketplaceResponse =
+          await supabase.from('d_marketplaces').select().eq('ownerId', ownerId).eq('id', productMarketplace.idMarketplace).single();
+      if (marketplaceResponse.isEmpty) return Left([GeneralFailure(customMessage: 'Marktplatz konnte nicht geladen werden.')]);
+      final marketplace = AbstractMarketplace.fromJson(marketplaceResponse);
+
+      if (!marketplace.isActive) continue;
 
       if (productMarketplace.marketplaceProduct == null) return left([ProductHasNoMarketplaceFailure()]);
       Either<AbstractFailure, Unit>? fosAbstract;
@@ -87,59 +80,56 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
           throw Exception('Ladengeschäft kann keine Artikel zum aktualisieren des Bestandes haben.');
       }
 
-      if (fosAbstract.isLeft()) {
-        final patchMarketplaceLogger = PatchMarketplaceLogger.empty().copyWith(
-          loggerType: LoggerType.product,
-          loggerActionType: LoggerActionType.setStocks,
-          marketplaceId: productMarketplace.idMarketplace,
-          marketplaceName: productMarketplace.nameMarketplace,
-          productId: product.id,
-          productArticleNumber: product.articleNumber,
-          productName: product.name,
-          errorMessage: 'Beim aktualisieren des Bestandes ist ein Fehler aufgetreten. Funktion: setProdcutPrestaQuantity',
-        );
-        await createLogFile(db: db, firebaseAuth: firebaseAuth, patchMarketplaceLogger: patchMarketplaceLogger);
-      }
+      // if (fosAbstract.isLeft()) {
+      //   final patchMarketplaceLogger = PatchMarketplaceLogger.empty().copyWith(
+      //     loggerType: LoggerType.product,
+      //     loggerActionType: LoggerActionType.setStocks,
+      //     marketplaceId: productMarketplace.idMarketplace,
+      //     marketplaceName: productMarketplace.nameMarketplace,
+      //     productId: product.id,
+      //     productArticleNumber: product.articleNumber,
+      //     productName: product.name,
+      //     errorMessage: 'Beim aktualisieren des Bestandes ist ein Fehler aufgetreten. Funktion: setProdcutPrestaQuantity',
+      //   );
+      //   await createLogFile(db: db, firebaseAuth: firebaseAuth, patchMarketplaceLogger: patchMarketplaceLogger);
+      // }
     }
 
-    if (failures.isEmpty) return right(unit);
-    return left(failures);
+    if (failures.isEmpty) return const Right(unit);
+    return Left(failures);
   }
 
   @override
   Future<Either<List<AbstractFailure>, Unit>> editProdcutInMarketplace(Product product, List<MarketplacePresta>? toEditMarketplaces) async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left([NoConnectionFailure()]);
-
-    final currentUserUid = firebaseAuth.currentUser!.uid;
+    if (!await checkInternetConnection()) return Left([NoConnectionFailure()]);
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return Left([GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden')]);
 
     final List<AbstractFailure> failures = [];
 
     for (final productMarketplace in product.productMarketplaces) {
-      // TODO: if (!productMarketplace.active!) continue;
       //* Wenn "toEditMarketplaces" mitgegeben wird, dann sollen nur diese Marktplätze aktualisiert werden.
       if (toEditMarketplaces != null && !toEditMarketplaces.any((e) => e.id == productMarketplace.idMarketplace)) continue;
 
-      final docRef = db.collection('Marketetplaces').doc(currentUserUid).collection('Marketetplaces').doc(productMarketplace.idMarketplace);
+      final marketplaceResponse =
+          await supabase.from('d_marketplaces').select().eq('ownerId', ownerId).eq('id', productMarketplace.idMarketplace).single();
+      if (marketplaceResponse.isEmpty) return Left([GeneralFailure(customMessage: 'Mindestens ein Marktplatz kontte nicht geladen werden.')]);
+      final marketplace = AbstractMarketplace.fromJson(marketplaceResponse);
 
-      final marketplaceSnapshot = await docRef.get();
-      if (!marketplaceSnapshot.exists) {
-        failures.add(GeneralFailure(customMessage: 'Mindestens ein Marktplatz kontte nicht geladen werden'));
-        continue;
-      }
-      final marketplace = AbstractMarketplace.fromJson(marketplaceSnapshot.data()!);
+      if (!marketplace.isActive) continue;
 
       if (product.isSetArticle) {
         //* Alle Einzelartikel des Set-Artikel laden und in eine Liste speichern
         final List<Product> listOfSetPartProducts = [];
         for (final partProductIdWithQuantity in product.listOfProductIdWithQuantity) {
-          final docRefPartProduct = db.collection('Products').doc(currentUserUid).collection('Products').doc(partProductIdWithQuantity.productId);
-          final partProductDs = await docRefPartProduct.get();
-          if (!partProductDs.exists) {
+          final partProductResponse =
+              await supabase.from('d_products').select().eq('ownerId', ownerId).eq('id', partProductIdWithQuantity.productId).single();
+          if (partProductResponse.isEmpty) {
             failures.add(GeneralFailure(customMessage: fFEMpartOfSetProductNotFoundById(partProductIdWithQuantity.productId, product.name)));
             continue;
           }
-          Product partProduct = Product.fromJson(partProductDs.data()!);
+
+          Product partProduct = Product.fromJson(partProductResponse);
           listOfSetPartProducts.add(partProduct);
         }
         if (listOfSetPartProducts.isEmpty) {
@@ -222,25 +212,24 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
       }
       await setQuantityMPInAllProductMarketplaces(product, product.availableStock, null);
     }
-    if (failures.isEmpty) return right(unit);
-    return left(failures);
+    if (failures.isEmpty) return const Right(unit);
+    return Left(failures);
   }
 
   @override
-  Future<Either<PrestaFailure, ProductRawPresta>> createProdcutInMarketplace(
+  Future<Either<AbstractFailure, ProductRawPresta>> createProdcutInMarketplace(
     Product product,
     ProductMarketplace productMarketplace,
     ProductMarketplace anotherProductMarketplaceWithSameManufacturer,
   ) async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(PrestaGeneralFailure());
+    if (!await checkInternetConnection()) return Left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
-    final currentUserUid = firebaseAuth.currentUser!.uid;
-
-    final docRef = db.collection('Marketetplaces').doc(currentUserUid).collection('Marketetplaces').doc(productMarketplace.idMarketplace);
-
-    final marketplaceSnapshot = await docRef.get();
-    final marketplace = MarketplacePresta.fromJson(marketplaceSnapshot.data()!);
+    final marketplaceResponse =
+        await supabase.from('d_marketplaces').select().eq('ownerId', ownerId).eq('id', productMarketplace.idMarketplace).single();
+    if (marketplaceResponse.isEmpty) return Left(GeneralFailure(customMessage: 'Der Marktplatz kontte nicht geladen werden.'));
+    final marketplace = MarketplacePresta.fromJson(marketplaceResponse);
 
     final api = PrestashopApi(Client(), PrestashopApiConfig(apiKey: marketplace.key, webserviceUrl: marketplace.fullUrl));
     //* Erstellt den neuen Artikel in Prestashop und gibt die ID des erstellten Artikels zurück
@@ -257,29 +246,28 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
     }
     final productPresta = optionalProductPresta.value;
 
-    return right(productPresta);
+    return Right(productPresta);
   }
 
   @override
   Future<Either<List<AbstractFailure>, Unit>> uploadProductImagesToMarketplace(Product product, List<ProductImage> productImages) async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left([NoConnectionFailure()]);
+    if (!await checkInternetConnection()) return Left([NoConnectionFailure()]);
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return Left([GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden')]);
 
     final List<AbstractFailure> failures = [];
 
-    final currentUserUid = firebaseAuth.currentUser!.uid;
-
     for (ProductMarketplace productMarketplace in product.productMarketplaces) {
-      // TODO: if (!productMarketplace.active!) continue;
-      final docRef = db.collection('Marketetplaces').doc(currentUserUid).collection('Marketetplaces').doc(productMarketplace.idMarketplace);
-
-      final marketplaceSnapshot = await docRef.get();
-      if (!marketplaceSnapshot.exists) {
-        failures.add(PrestaGeneralFailure(
-            errorMessage: 'Beim aktualisieren der Artikelbilder im Marktplatz konnte mindestens ein Marktplatz nicht geladen werden'));
-        continue;
+      final marketplaceResponse =
+          await supabase.from('d_marketplaces').select().eq('ownerId', ownerId).eq('id', productMarketplace.idMarketplace).single();
+      if (marketplaceResponse.isEmpty) {
+        return Left([
+          GeneralFailure(customMessage: 'Beim aktualisieren der Artikelbilder im Marktplatz konnte mindestens ein Marktplatz nicht geladen werden')
+        ]);
       }
-      final marketplace = AbstractMarketplace.fromJson(marketplaceSnapshot.data()!);
+      final marketplace = AbstractMarketplace.fromJson(marketplaceResponse);
+
+      if (!marketplace.isActive) continue;
 
       if (productMarketplace.marketplaceProduct == null) return left([ProductHasNoMarketplaceFailure()]);
 
@@ -367,6 +355,7 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
     int orderId,
     OrderStatusUpdateType orderStatusUpdateType,
   ) async {
+    if (!abstractMarketplace.isActive) return const Right(unit);
     if (orderId == 0) return right(unit);
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(PrestaGeneralFailure());
@@ -404,21 +393,21 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
         }
     }
 
-    if (isSuccess) return right(unit);
-    return left(PrestaGeneralFailure());
+    if (isSuccess) return const Right(unit);
+    return Left(PrestaGeneralFailure());
   }
 }
 
-Future<void> createLogFile({
-  required FirebaseFirestore db,
-  required FirebaseAuth firebaseAuth,
-  required PatchMarketplaceLogger patchMarketplaceLogger,
-}) async {
-  final currentUserUid = firebaseAuth.currentUser!.uid;
+// Future<void> createLogFile({
+//   required FirebaseFirestore db,
+//   required FirebaseAuth firebaseAuth,
+//   required PatchMarketplaceLogger patchMarketplaceLogger,
+// }) async {
+//   final currentUserUid = firebaseAuth.currentUser!.uid;
 
-  final docRef = db.collection('Logger').doc(currentUserUid).collection('Logger').doc();
+//   final docRef = db.collection('Logger').doc(currentUserUid).collection('Logger').doc();
 
-  final newPatchMarketplaceLogger = patchMarketplaceLogger.copyWith(id: docRef.id, creationDate: DateTime.now());
+//   final newPatchMarketplaceLogger = patchMarketplaceLogger.copyWith(id: docRef.id, creationDate: DateTime.now());
 
-  await docRef.set(newPatchMarketplaceLogger.toJson());
-}
+//   await docRef.set(newPatchMarketplaceLogger.toJson());
+// }

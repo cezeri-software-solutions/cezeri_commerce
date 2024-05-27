@@ -1,16 +1,15 @@
 import 'package:cezeri_commerce/3_domain/repositories/firebase/main_settings_respository.dart';
-import 'package:cezeri_commerce/core/firebase_failures.dart';
+import 'package:cezeri_commerce/failures/firebase_failures.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:logger/logger.dart';
 
-import '../../../core/abstract_failure.dart';
 import '/1_presentation/core/functions/check_internet_connection.dart';
 import '/3_domain/entities/settings/main_settings.dart';
 import '/3_domain/entities/settings/packaging_box.dart';
-
-final logger = Logger();
+import '../../../constants.dart';
+import '../../../failures/abstract_failure.dart';
+import '../functions/utils_repository_impl.dart';
 
 class MainSettingsRepositoryImpl implements MainSettingsRepository {
   final FirebaseFirestore db;
@@ -20,83 +19,53 @@ class MainSettingsRepositoryImpl implements MainSettingsRepository {
 
   @override
   Future<Either<AbstractFailure, MainSettings>> getSettings() async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(NoConnectionFailure());
-
-    final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRef = db.collection('Settings').doc(currentUserUid).collection('Settings').doc(currentUserUid);
+    if (!await checkInternetConnection()) return left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
     try {
-      final settings = await docRef.get();
-      //* Zum hinzufügen von neuen Feldern
-      // final phMainSetting = MainSettings.fromJson(settings.data()!);
-      // final mainSettings = phMainSetting.copyWith(listOfCarriers: []);
-      // await docRef.update(mainSettings.toJson());
-      //
-      return right(MainSettings.fromJson(settings.data()!));
-    } on FirebaseException catch (e) {
-      logger.e(e.message);
-      return left(GeneralFailure(customMessage: 'Beim Laden der Einstellungen ist ein Fehler aufgetreten.', e: e));
+      final response = await supabase.from('d_main_settings').select().eq('settingsId', ownerId).single();
+
+      return right(MainSettings.fromJson(response));
+    } catch (e) {
+      logger.e(e);
+      return left(GeneralFailure(customMessage: 'Beim Laden der Einstellungen ist ein Fehler aufgetreten. Error: $e'));
     }
   }
 
   @override
   Future<Either<AbstractFailure, Unit>> updateSettings(MainSettings settings) async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(NoConnectionFailure());
-
-    final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRef = db.collection('Settings').doc(currentUserUid).collection('Settings').doc(currentUserUid);
+    if (!await checkInternetConnection()) return left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
     try {
-      await docRef.update(settings.toJson());
+      await supabase.from('d_main_settings').update(settings.toJson()).eq('settingsId', ownerId);
+      // await supabase.rpc('update_main_settings', params: {'main_settings_json': settings.toJson()});
+
       return right(unit);
-    } on FirebaseException catch (e) {
-      logger.e(e.message);
-      return left(GeneralFailure(customMessage: 'Beim Aktualisieren der Einstellungen ist ein Fehler aufgetreten.', e: e));
-    }
-  }
-
-  @override
-  Future<Either<AbstractFailure, Unit>> createSettings(MainSettings settings) async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(NoConnectionFailure());
-
-    final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRef = db.collection('Settings').doc(currentUserUid).collection('Settings').doc(currentUserUid);
-
-    final toCreateSettings = MainSettings.empty().copyWith(settingsId: currentUserUid);
-
-    try {
-      await docRef.set(toCreateSettings.toJson());
-      return right(unit);
-    } on FirebaseException catch (e) {
-      logger.e(e.message);
-      return left(GeneralFailure(customMessage: 'Beim Erstellen der Einstellungen ist ein Fehler aufgetreten.', e: e));
+    } catch (e) {
+      logger.e(e);
+      return left(GeneralFailure(customMessage: 'Beim Aktualisieren der Einstellungen ist ein Fehler aufgetreten. Error: $e'));
     }
   }
 
   @override
   Future<Either<AbstractFailure, MainSettings>> updateSettingsPackagingBoxs(List<PackagingBox> packagingBoxes) async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(NoConnectionFailure());
-
-    final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRef = db.collection('Settings').doc(currentUserUid).collection('Settings').doc(currentUserUid);
+    if (!await checkInternetConnection()) return left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
     try {
-      MainSettings? updatedSettings;
-      await db.runTransaction((transaction) async {
-        final settingsDSS = await transaction.get(docRef);
-        final settings = MainSettings.fromJson(settingsDSS.data()!);
+      final settings = MainSettings.fromJson(await supabase.from('d_main_settings').select().eq('settingsId', ownerId).single());
 
-        updatedSettings = settings.copyWith(listOfPackagingBoxes: packagingBoxes);
-        transaction.update(docRef, updatedSettings!.toJson());
-      });
-      return right(updatedSettings!);
-    } on FirebaseException catch (e) {
-      logger.e(e.message);
-      return left(GeneralFailure(customMessage: 'Beim Aktualisieren der Verpackungsboxen ist ein Fehler aufgetreten.', e: e));
+      final updatedSettings = settings.copyWith(listOfPackagingBoxes: packagingBoxes);
+      await supabase.from('d_main_settings').update(updatedSettings.toJson()).match({'id': ownerId});
+
+      return right(updatedSettings);
+    } catch (e) {
+      logger.e(e);
+      return left(GeneralFailure(customMessage: 'Beim Aktualisieren der Einstellungen ist ein Fehler aufgetreten. Error: $e'));
     }
   }
 }

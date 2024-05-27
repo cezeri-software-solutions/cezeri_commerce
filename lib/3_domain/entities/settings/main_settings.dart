@@ -1,3 +1,4 @@
+import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 import '../carrier/carrier.dart';
@@ -11,46 +12,86 @@ import 'tax.dart';
 part 'main_settings.g.dart';
 
 @JsonSerializable(explicitToJson: true)
-class MainSettings {
+class MainSettings extends Equatable {
+//   final String id;
   final String settingsId;
+  // @JsonKey(name: 'logo_url')
   final String logoUrl;
+  // @JsonKey(name: 'offer_praefix')
   final String offerPraefix;
+  // @JsonKey(name: 'appointment_praefix')
   final String appointmentPraefix;
+  // @JsonKey(name: 'delivery_note_praefix')
   final String deliveryNotePraefix;
+  // @JsonKey(name: 'invoice_praefix')
   final String invoicePraefix;
+  // @JsonKey(name: 'credit_praefix')
   final String creditPraefix;
   final String currency;
+  // @JsonKey(name: 'sms_message')
   final String smsMessage;
+  // @JsonKey(name: 'offer_document_text')
   final String offerDocumentText;
+  // @JsonKey(name: 'appointment_document_text')
   final String appointmentDocumentText;
+  // @JsonKey(name: 'delivery_note_document_text')
   final String deliveryNoteDocumentText;
+  // @JsonKey(name: 'invoice_document_text')
   final String invoiceDocumentText;
+  // @JsonKey(name: 'credit_document_text')
   final String creditDocumentText;
   final List<Tax> taxes;
+  // @JsonKey(name: 'next_offer_number')
   final int nextOfferNumber;
+  // @JsonKey(name: 'next_appointment_number')
   final int nextAppointmentNumber;
+  // @JsonKey(name: 'next_delivery_note_number')
   final int nextDeliveryNoteNumber;
+  // @JsonKey(name: 'next_invoice_number')
   final int nextInvoiceNumber;
+  // @JsonKey(name: 'next_branch_number')
   final int nextBranchNumber;
+  // @JsonKey(name: 'next_customer_number')
   final int nextCustomerNumber;
+  // @JsonKey(name: 'next_supplier_number')
   final int nextSupplierNumber;
+  // @JsonKey(name: 'next_reorder_number')
   final int nextReorderNumber;
+  // @JsonKey(name: 'term_of_payment')
   final int termOfPayment;
+  // @JsonKey(name: 'count_employees')
   final int countEmployees;
+  // @JsonKey(name: 'count_branches')
   final int countBranches;
+  // @JsonKey(name: 'limitation_number_of_employees')
   final int limitationNumberOfEmployees;
+  // @JsonKey(name: 'limitation_number_of_branches')
   final int limitationNumberOfBranches;
+  // @JsonKey(name: 'is_small_business')
   final bool isSmallBusiness;
+  // @JsonKey(name: 'is_main_settings')
   final bool isMainSettings;
+  // @JsonKey(name: 'printer_main')
   final MyPrinter? printerMain;
+  // @JsonKey(name: 'printer_label')
   final MyPrinter? printerLabel;
+  // @JsonKey(name: 'list_of_carriers')
   final List<Carrier> listOfCarriers;
+  // @JsonKey(name: 'payment_methods')
   final List<PaymentMethod> paymentMethods;
+  // @JsonKey(name: 'list_of_packaging_boxes')
   final List<PackagingBox> listOfPackagingBoxes;
+  // @JsonKey(name: 'bank_details')
   final BankDetails bankDetails;
+  // @JsonKey(name: 'opening_times')
   final OpeningTimes openingTimes;
+  // @JsonKey(name: 'creation_date', includeToJson: false)
+  final DateTime creationDate;
+  // @JsonKey(name: 'last_editing_date', includeToJson: false)
+  final DateTime lastEditingDate;
 
-  MainSettings({
+  const MainSettings({
+    // required this.id,
     required this.settingsId,
     required this.logoUrl,
     required this.offerPraefix,
@@ -88,6 +129,8 @@ class MainSettings {
     required this.listOfPackagingBoxes,
     required this.bankDetails,
     required this.openingTimes,
+    required this.creationDate,
+    required this.lastEditingDate,
   });
 
   factory MainSettings.fromJson(Map<String, dynamic> json) => _$MainSettingsFromJson(json);
@@ -110,7 +153,7 @@ class MainSettings {
       deliveryNoteDocumentText: '',
       invoiceDocumentText: '',
       creditDocumentText: '',
-      taxes: [],
+      taxes: const [],
       nextOfferNumber: 1,
       nextAppointmentNumber: 1,
       nextDeliveryNoteNumber: 1,
@@ -128,11 +171,13 @@ class MainSettings {
       isMainSettings: true,
       printerMain: null,
       printerLabel: null,
-      listOfCarriers: [],
-      paymentMethods: [],
-      listOfPackagingBoxes: [],
+      listOfCarriers: const [],
+      paymentMethods: const [],
+      listOfPackagingBoxes: const [],
       bankDetails: BankDetails.empty(),
       openingTimes: OpeningTimes.empty(),
+      creationDate: DateTime.now(),
+      lastEditingDate: DateTime.now(),
     );
   }
 
@@ -174,6 +219,8 @@ class MainSettings {
     List<PackagingBox>? listOfPackagingBoxes,
     BankDetails? bankDetails,
     OpeningTimes? openingTimes,
+    DateTime? creationDate,
+    DateTime? lastEditingDate,
   }) {
     return MainSettings(
       settingsId: settingsId ?? this.settingsId,
@@ -213,11 +260,14 @@ class MainSettings {
       listOfPackagingBoxes: listOfPackagingBoxes ?? this.listOfPackagingBoxes,
       bankDetails: bankDetails ?? this.bankDetails,
       openingTimes: openingTimes ?? this.openingTimes,
+      creationDate: creationDate ?? this.creationDate,
+      lastEditingDate: lastEditingDate ?? this.lastEditingDate,
     );
   }
 
   @override
-  String toString() {
-    return 'MainSettings(settingsId: $settingsId, logoUrl: $logoUrl, offerPraefix: $offerPraefix, appointmentPraefix: $appointmentPraefix, deliveryNotePraefix: $deliveryNotePraefix, invoicePraefix: $invoicePraefix, creditPraefix: $creditPraefix, currency: $currency, smsMessage: $smsMessage, offerDocumentText: $offerDocumentText, appointmentDocumentText: $appointmentDocumentText, deliveryNoteDocumentText: $deliveryNoteDocumentText, invoiceDocumentText: $invoiceDocumentText, creditDocumentText: $creditDocumentText, taxes: $taxes, nextOfferNumber: $nextOfferNumber, nextAppointmentNumber: $nextAppointmentNumber, nextDeliveryNoteNumber: $nextDeliveryNoteNumber, nextInvoiceNumber: $nextInvoiceNumber, nextBranchNumber: $nextBranchNumber, nextCustomerNumber: $nextCustomerNumber, nextSupplierNumber: $nextSupplierNumber, nextReorderNumber: $nextReorderNumber, termOfPayment: $termOfPayment, countEmployees: $countEmployees, countBranches: $countBranches, limitationNumberOfEmployees: $limitationNumberOfEmployees, limitationNumberOfBranches: $limitationNumberOfBranches, isSmallBusiness: $isSmallBusiness, isMainSettings: $isMainSettings, printerMain: $printerMain, printerLabel: $printerLabel, listOfCarriers: $listOfCarriers, paymentMethods: $paymentMethods, listOfPackagingBoxes: $listOfPackagingBoxes, bankDetails: $bankDetails, openingTimes: $openingTimes)';
-  }
+  List<Object?> get props => [settingsId];
+
+  @override
+  bool get stringify => true;
 }

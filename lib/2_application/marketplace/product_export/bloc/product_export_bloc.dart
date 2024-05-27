@@ -1,7 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:cezeri_commerce/1_presentation/core/extensions/string_to_int.dart';
-import 'package:cezeri_commerce/core/firebase_failures.dart';
-import 'package:cezeri_commerce/core/shopify_failure.dart';
+import 'package:cezeri_commerce/failures/firebase_failures.dart';
+import 'package:cezeri_commerce/failures/shopify_failure.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 
@@ -16,7 +16,7 @@ import '../../../../3_domain/repositories/marketplace/marketplace_edit_repositor
 import '../../../../3_domain/repositories/marketplace/marketplace_import_repository.dart';
 import '../../../../4_infrastructur/repositories/prestashop_api/models/models.dart';
 import '../../../../4_infrastructur/repositories/shopify_api/shopify.dart';
-import '../../../../core/abstract_failure.dart';
+import '../../../../failures/abstract_failure.dart';
 
 part 'product_export_event.dart';
 part 'product_export_state.dart';

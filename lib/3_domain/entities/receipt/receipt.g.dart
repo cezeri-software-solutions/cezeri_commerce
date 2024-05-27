@@ -111,7 +111,7 @@ Receipt _$ReceiptFromJson(Map<String, dynamic> json) => Receipt(
           ? null
           : PackagingBox.fromJson(json['packagingBox'] as Map<String, dynamic>),
       creationDate: DateTime.parse(json['creationDate'] as String),
-      creationDateInt: (json['creationDateInt'] as num).toInt(),
+      creationDateInt: (json['creationDateInt'] as num?)?.toInt(),
       lastEditingDate: DateTime.parse(json['lastEditingDate'] as String),
     );
 
