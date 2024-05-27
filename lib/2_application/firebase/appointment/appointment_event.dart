@@ -144,6 +144,4 @@ class OnEditAddressReceiptDetailEvent extends AppointmentEvent {
   OnEditAddressReceiptDetailEvent({required this.address});
 }
 
-class SendEmailToCustomerReceiptEvent extends AppointmentEvent {}
-
 class CreateParcelLabelReceiptEvent extends AppointmentEvent {}

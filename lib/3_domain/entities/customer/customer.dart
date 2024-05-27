@@ -17,6 +17,7 @@ enum CustomerInvoiceType { standardInvoice, collectiveInvoice }
 
 @JsonSerializable(explicitToJson: true)
 class Customer {
+  @JsonKey(includeToJson: false)
   final String id;
   final int customerNumber;
   final CustomerMarketplace customerMarketplace;

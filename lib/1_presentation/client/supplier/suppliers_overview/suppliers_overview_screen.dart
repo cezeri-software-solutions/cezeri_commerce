@@ -47,7 +47,7 @@ class SuppliersOverviewScreen extends StatelessWidget {
               state.fosSupplierOnDeleteOption.fold(
                 () => null,
                 (a) => a.fold(
-                  (failure) => failureRenderer(context, [failure]),
+                  (failure) => failureRenderer(context, failure),
                   (supplier) => myScaffoldMessenger(context, null, null, 'Ausgewählte Lieferanten erfolgreich gelöscht', null),
                 ),
               );

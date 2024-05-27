@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
 
-import '../../../core/abstract_failure.dart';
+import '../../../failures/abstract_failure.dart';
 import '../../entities/user.dart';
 
 abstract class AuthRepository {
@@ -12,6 +12,8 @@ abstract class AuthRepository {
   Future<void> signOut();
 
   Option<CustomUser> getSignedInUser();
+
+  bool checkIfUserIsSignedIn();
 
   Future<Either<AbstractFailure, Unit>> sendPasswordResetEmail({required String email});
 }

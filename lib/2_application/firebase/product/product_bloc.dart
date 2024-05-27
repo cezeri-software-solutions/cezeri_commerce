@@ -1,8 +1,7 @@
 import 'package:bloc/bloc.dart';
-import 'package:cezeri_commerce/core/firebase_failures.dart';
+import 'package:cezeri_commerce/failures/firebase_failures.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
-import 'package:logger/logger.dart';
 
 import '../../../1_presentation/core/functions/set_product_functions.dart';
 import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
@@ -14,12 +13,10 @@ import '../../../3_domain/repositories/firebase/main_settings_respository.dart';
 import '../../../3_domain/repositories/firebase/product_repository.dart';
 import '../../../3_domain/repositories/firebase/supplier_repository.dart';
 import '../../../3_domain/repositories/marketplace/marketplace_edit_repository.dart';
-import '../../../core/abstract_failure.dart';
+import '../../../failures/abstract_failure.dart';
 
 part 'product_event.dart';
 part 'product_state.dart';
-
-final logger = Logger();
 
 class ProductBloc extends Bloc<ProductEvent, ProductState> {
   final ProductRepository productRepository;

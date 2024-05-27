@@ -1,26 +1,24 @@
 // ignore_for_file: unnecessary_cast
 
 import 'package:dartz/dartz.dart';
-import 'package:logger/logger.dart';
 
+import '/3_domain/entities/product/product.dart';
+import '/3_domain/entities/product/product_marketplace.dart';
+import '/3_domain/entities/settings/main_settings.dart';
+import '/3_domain/repositories/firebase/product_repository.dart';
 import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
 import '../../../3_domain/entities/marketplace/marketplace_presta.dart';
 import '../../../3_domain/entities/marketplace/marketplace_shopify.dart';
 import '../../../3_domain/entities/product/marketplace_product.dart';
 import '../../../3_domain/entities/product/product_id_with_quantity.dart';
 import '../../../3_domain/entities/product/product_presta.dart';
-import '../../../core/abstract_failure.dart';
-import '../../../core/firebase_failures.dart';
+import '../../../constants.dart';
+import '../../../failures/abstract_failure.dart';
+import '../../../failures/firebase_failures.dart';
 import '../prestashop_api/models/order_presta.dart';
 import '../prestashop_api/prestashop_api.dart';
 import '../shopify_api/shopify.dart';
-import '/3_domain/entities/product/product.dart';
-import '/3_domain/entities/product/product_marketplace.dart';
-import '/3_domain/entities/settings/main_settings.dart';
-import '/3_domain/repositories/firebase/product_repository.dart';
 import 'get_or_create_product_from_firestore.dart';
-
-final logger = Logger();
 
 Future<Either<AbstractFailure, Product>> getOrCreateProductFromMarketplaceOnImportProduct({
   required MarketplaceProduct marketplaceProduct,
@@ -34,12 +32,12 @@ Future<Either<AbstractFailure, Product>> getOrCreateProductFromMarketplaceOnImpo
   final productData = switch (marketplaceProduct.marketplaceType) {
     MarketplaceType.prestashop => (
         articleNumber: (marketplaceProduct as ProductPresta).reference,
-        ean: (marketplaceProduct as ProductPresta).ean13,
+        ean: (marketplaceProduct).ean13,
         name: (marketplaceProduct as ProductPresta).name ?? '',
       ),
     MarketplaceType.shopify => (
         articleNumber: (marketplaceProduct as ProductShopify).variants.first.sku,
-        ean: (marketplaceProduct as ProductShopify).variants.first.barcode ?? '',
+        ean: (marketplaceProduct).variants.first.barcode ?? '',
         name: (marketplaceProduct as ProductShopify).title,
       ),
     MarketplaceType.shop => (articleNumber: '', ean: '', name: ''),
@@ -154,7 +152,7 @@ Future<Either<AbstractFailure, Product>> getOrCreateProductFromPrestaOnImportApp
       newCreatedOrUpdatedProduct = productFirestore;
       await productRepository.updateAvailableQuantityOfProductInremental(productFirestore, quantity * -1, null);
     }
-    return right(newCreatedOrUpdatedProduct);
+    return Right(newCreatedOrUpdatedProduct);
   }
 }
 
@@ -210,6 +208,6 @@ Future<Either<AbstractFailure, Product>> getOrCreateProductFromShopifyOnImportAp
       newCreatedOrUpdatedProduct = productFirestore;
       await productRepository.updateAvailableQuantityOfProductInremental(productFirestore, quantity * -1, null);
     }
-    return right(newCreatedOrUpdatedProduct);
+    return Right(newCreatedOrUpdatedProduct);
   }
 }

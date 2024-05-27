@@ -1,58 +1,64 @@
 import 'package:flutter/material.dart';
-import 'package:logger/logger.dart';
 
-import '../../../core/abstract_failure.dart';
-import '../../../core/auth_failures.dart';
-import '../../../core/firebase_failures.dart';
-import '../../../core/presta_failure.dart';
-import '../../../core/shopify_failure.dart';
+import '../../../failures/abstract_failure.dart';
+import '../../../failures/auth_failures.dart';
+import '../../../failures/firebase_failures.dart';
+import '../../../failures/presta_failure.dart';
+import '../../../failures/shopify_failure.dart';
 import '../functions/dialogs.dart';
-
-final logger = Logger();
 
 Future<void> failureRenderer(BuildContext context, List<AbstractFailure> abstractFailures) async {
   if (abstractFailures.isEmpty) return;
   for (final failure in abstractFailures) {
     switch (failure.abstractFailureType) {
       case AbstractFailureType.auth:
-        await _authFailureRenderer(context, failure as AuthFailure);
+        _authFailureRenderer(context, failure as AuthFailure);
       case AbstractFailureType.firebase:
-        await _firebaseFailureRenderer(context, failure as FirebaseFailure);
+        _firebaseFailureRenderer(context, failure as FirebaseFailure);
       case AbstractFailureType.presta:
-        await _prestaFailureRenderer(context, failure as PrestaFailure);
+        _prestaFailureRenderer(context, failure as PrestaFailure);
       case AbstractFailureType.mixed:
-        await _mixedFailureRenderer(context, failure as MixedFailure);
+        _mixedFailureRenderer(context, failure as MixedFailure);
       case AbstractFailureType.shopify:
-        await _shopifyFailureRenderer(context, failure as ShopifyFailure);
+        _shopifyFailureRenderer(context, failure as ShopifyFailure);
     }
   }
 }
 
 Future<void> _authFailureRenderer(BuildContext context, AuthFailure failure) async {
-  await _showScaffoldMessager(context, _mapAuthFailureMessage(failure));
+  if (failure is EmailNotConfirmedFailure) {
+    showMyDialogAlert(
+      context: context,
+      title: 'Achtung!',
+      content: 'Verifiziere bitte deine E-Mail, indem du auf den Link in deiner E-Mail klickst, den du von uns erhalten hast.',
+    );
+  } else {
+    _showScaffoldMessager(context, _mapAuthFailureMessage(failure));
+  }
 }
 
 Future<void> _firebaseFailureRenderer(BuildContext context, FirebaseFailure failure) async {
   switch (failure.firebaseFailureType) {
     case FirebaseFailureType.general:
-      await _firebaseGeneralFailureRenderer(context, failure as GeneralFailure);
+      _firebaseGeneralFailureRenderer(context, failure as GeneralFailure);
     case FirebaseFailureType.empty:
     //TODO:
     case FirebaseFailureType.noConnection:
-      await _showScaffoldMessager(context, 'Es konnte keine Verbindung zum Internet hergestellt werden.\nBitte Internetverbindung überprüfen.');
+      _showScaffoldMessager(context, 'Es konnte keine Verbindung zum Internet hergestellt werden.\nBitte Internetverbindung überprüfen.');
   }
 }
 
 Future<void> _firebaseGeneralFailureRenderer(BuildContext context, GeneralFailure failure) async {
   final customMessage = failure.customMessage ?? '';
   final technicalMessage = failure.e ?? '';
-  await showMyDialogAlert(context: context, title: 'Ein Fehler ist aufgetreten', content: '$customMessage\n\n$technicalMessage');
+  showMyDialogAlert(context: context, title: 'Ein Fehler ist aufgetreten', content: '$customMessage\n\n$technicalMessage');
 }
 
 Future<void> _prestaFailureRenderer(BuildContext context, PrestaFailure failure) async {}
 Future<void> _mixedFailureRenderer(BuildContext context, MixedFailure failure) async {
-  await _showScaffoldMessager(context, failure.errorMessage ?? 'Ein Fehler ist aufgetreten.');
+  _showScaffoldMessager(context, failure.errorMessage ?? 'Ein Fehler ist aufgetreten.');
 }
+
 Future<void> _shopifyFailureRenderer(BuildContext context, ShopifyFailure failure) async {}
 
 Future<void> _showScaffoldMessager(BuildContext context, String message) async {
@@ -66,13 +72,9 @@ Future<void> _showScaffoldMessager(BuildContext context, String message) async {
 
 String _mapAuthFailureMessage(AuthFailure failure) {
   return switch (failure.runtimeType) {
-    AuthServerFailure => 'Etwas ist schifgelaufen',
-    WrongPasswordFailure => 'Du hast ein falsches Passwort eingegeben',
-    UserDisabledFailure => 'Dieser User wurde deaktiviert\nBitte melde dich beim Support',
-    InvalidEmailFailure => 'Bitte gib eine valide E-Mail Adresse ein',
-    EmailAlreadyInUseFailure => 'Diese E-Mail ist bereits registriert',
-    WeakPasswordFailure => 'Bitte gib ein sichereres Passwort ein',
-    EmailNotFoundFailure => 'Diese E-Mail konnte nicht gefunden werden',
-    (_) => 'Etwas ist schifgelaufen',
+    AuthServerFailure => 'Ein unerwarteter Fehler ist aufgetreten.\nKontaktiere den Kundendienst.',
+    WrongEmailOrPasswordFailure => 'Du hast entweder eine falsche E-Mail oder ein falsches Passwort eingegeben.',
+    EmailNotConfirmedFailure => 'Verifiziere bitte deine E-Mail, indem du auf den Link in deiner E-Mail klickst, den du von uns erhalten hast',
+    (_) => 'Ein unerwarteter Fehler ist aufgetreten.\nKontaktiere den Kundendienst.',
   };
 }

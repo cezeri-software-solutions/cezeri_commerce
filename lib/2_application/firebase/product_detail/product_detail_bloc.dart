@@ -9,14 +9,8 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:html_editor_enhanced/html_editor.dart';
-import 'package:logger/logger.dart';
 
-import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
-import '../../../3_domain/entities/product/product_presta.dart';
-import '../../../3_domain/entities/reorder/supplier.dart';
-import '../../../3_domain/entities/settings/main_settings.dart';
-import '../../../4_infrastructur/repositories/prestashop_api/models/product_raw_presta.dart';
-import '../../../core/abstract_failure.dart';
+import '/1_presentation/core/extensions/get_either.dart';
 import '/1_presentation/core/functions/dialogs.dart';
 import '/1_presentation/core/functions/mixed_functions.dart';
 import '/3_domain/entities/product/product.dart';
@@ -31,13 +25,18 @@ import '/3_domain/repositories/firebase/stat_product_repository.dart';
 import '/3_domain/repositories/firebase/supplier_repository.dart';
 import '/3_domain/repositories/marketplace/marketplace_edit_repository.dart';
 import '/3_domain/repositories/marketplace/marketplace_import_repository.dart';
-import '/core/firebase_failures.dart';
-import '/core/presta_failure.dart';
+import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
+import '../../../3_domain/entities/product/product_presta.dart';
+import '../../../3_domain/entities/reorder/supplier.dart';
+import '../../../3_domain/entities/settings/main_settings.dart';
+import '../../../4_infrastructur/repositories/prestashop_api/models/product_raw_presta.dart';
+import '../../../constants.dart';
+import '../../../failures/abstract_failure.dart';
+import '../../../failures/firebase_failures.dart';
+import '../../../failures/presta_failure.dart';
 
 part 'product_detail_event.dart';
 part 'product_detail_state.dart';
-
-final logger = Logger();
 
 class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
   final ProductRepository productRepository;
@@ -115,19 +114,30 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
       );
     }
 
-    final failureOrSuccess = await productRepository.getProduct(event.id);
-    failureOrSuccess.fold(
-      (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
-      (product) {
-        emit(state.copyWith(product: product, firebaseFailure: null, isAnyFailure: false));
-        add(SetProductControllerEvent(product: product));
-        add(OnProductGetStatProductsEvent());
-      },
-    );
+    //* Artikel Laden
+    final fosProduct = await productRepository.getProduct(event.id);
+    if (fosProduct.isLeft()) emit(state.copyWith(firebaseFailure: fosProduct.getLeft(), isAnyFailure: true));
+    final product = fosProduct.getRight();
+
+    //* Wenn Set-Artikel, die Einzelartikel davon laden
+    List<Product>? listOfSetPartProducts;
+    if (product.isSetArticle && product.listOfProductIdWithQuantity.isNotEmpty) {
+      final productIds = product.listOfProductIdWithQuantity.map((e) => e.productId).toList();
+      final fosSetParts = await productRepository.getListOfProductsByIds(productIds);
+      if (fosSetParts.isLeft()) emit(state.copyWith(firebaseFailure: fosSetParts.getLeft()));
+      listOfSetPartProducts = fosSetParts.getRight();
+    }
+
+    add(SetProductControllerEvent(product: product));
+    add(OnProductGetStatProductsEvent());
 
     emit(state.copyWith(
+      product: product,
+      listOfSetPartProducts: listOfSetPartProducts,
+      firebaseFailure: null,
+      isAnyFailure: false,
       isLoadingProductOnObserve: false,
-      fosProductOnObserveOption: optionOf(failureOrSuccess),
+      fosProductOnObserveOption: optionOf(fosProduct),
     ));
     emit(state.copyWith(fosProductOnObserveOption: none()));
   }
@@ -896,7 +906,6 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
 // part 'product_detail_event.dart';
 // part 'product_detail_state.dart';
 
-// final logger = Logger();
 
 // class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
 //   final ProductRepository productRepository;

@@ -8,14 +8,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../core/functions/dialogs.dart';
-import '../../core/functions/my_scaffold_messanger.dart';
-import '../../core/renderer/failure_renderer.dart';
-import '../../core/widgets/my_circular_progress_indicator.dart';
-import '../../core/widgets/my_form_field_small.dart';
-import '../../core/widgets/my_modal_scrollable.dart';
-import '../../core/widgets/my_outlined_button.dart';
-import '../appointment_detail/appointment_detail_screen.dart';
 import '/2_application/firebase/appointment/appointment_bloc.dart';
 import '/2_application/firebase/customer/customer_bloc.dart';
 import '/2_application/firebase/marketplace/marketplace_bloc.dart';
@@ -30,16 +22,31 @@ import '/3_domain/pdf/pdf_outgoing_invoices_generator.dart';
 import '/constants.dart';
 import '/injection.dart';
 import '/routes/router.gr.dart';
+import '../../core/functions/dialogs.dart';
+import '../../core/functions/my_scaffold_messanger.dart';
+import '../../core/renderer/failure_renderer.dart';
+import '../../core/widgets/my_circular_progress_indicator.dart';
+import '../../core/widgets/my_form_field_small.dart';
+import '../../core/widgets/my_modal_scrollable.dart';
+import '../../core/widgets/my_outlined_button.dart';
+import '../appointment_detail/appointment_detail_screen.dart';
 import 'receipts_overview_page.dart';
 
-class ReceiptsOverviewScreen extends StatelessWidget {
+class ReceiptsOverviewScreen extends StatefulWidget {
   final ReceiptTyp receiptTyp;
 
   const ReceiptsOverviewScreen({super.key, required this.receiptTyp});
 
   @override
+  State<ReceiptsOverviewScreen> createState() => _ReceiptsOverviewScreenState();
+}
+
+class _ReceiptsOverviewScreenState extends State<ReceiptsOverviewScreen> with AutomaticKeepAliveClientMixin {
+  @override
   Widget build(BuildContext context) {
-    final appointmentBloc = sl<AppointmentBloc>()..add(GetReceiptsEvent(tabValue: 0, receiptTyp: receiptTyp));
+    super.build(context);
+
+    final appointmentBloc = sl<AppointmentBloc>()..add(GetReceiptsEvent(tabValue: 0, receiptTyp: widget.receiptTyp));
     final marketplaceBloc = sl<MarketplaceBloc>()..add(GetAllMarketplacesEvent());
     final customerBloc = sl<CustomerBloc>();
 
@@ -47,14 +54,14 @@ class ReceiptsOverviewScreen extends StatelessWidget {
 
     return MultiBlocProvider(
       providers: [
-        BlocProvider<AppointmentBloc>(
-          create: (context) => appointmentBloc,
+        BlocProvider.value(
+          value: appointmentBloc,
         ),
-        BlocProvider<MarketplaceBloc>(
-          create: (context) => marketplaceBloc,
+        BlocProvider.value(
+          value: marketplaceBloc,
         ),
-        BlocProvider<CustomerBloc>(
-          create: (context) => customerBloc,
+        BlocProvider.value(
+          value: customerBloc,
         ),
       ],
       child: MultiBlocListener(
@@ -78,12 +85,12 @@ class ReceiptsOverviewScreen extends StatelessWidget {
                 () => null,
                 (a) => a.fold(
                   (failure) async {
-                    context.router.popTop();
+                    context.router.maybePopTop();
                     await failureRenderer(context, [failure]);
                     if (context.mounted) myScaffoldMessenger(context, null, null, null, 'Beim Laden der Bestellung ist etwas schief gegangen');
                   },
                   (unit) {
-                    context.router.popTop();
+                    context.router.maybePopTop();
                     myScaffoldMessenger(context, null, null, 'Auftrag erfolgreich aus den Marktplätzen geladen', null);
                   },
                 ),
@@ -97,14 +104,14 @@ class ReceiptsOverviewScreen extends StatelessWidget {
                 () => null,
                 (a) => a.fold(
                   (failures) async {
-                    context.router.popTop();
+                    context.router.maybePopTop();
                     await failureRenderer(context, failures);
                     if (context.mounted) {
                       myScaffoldMessenger(context, null, null, null, 'Beim Laden von mindestens einer Bestellung ist etwas schief gegangen');
                     }
                   },
                   (unit) {
-                    context.router.popTop();
+                    context.router.maybePopTop();
                     myScaffoldMessenger(context, null, null, 'Aufträge erfolgreich aus den Marktplätzen geladen', null);
                   },
                 ),
@@ -119,7 +126,7 @@ class ReceiptsOverviewScreen extends StatelessWidget {
                 (a) => a.fold(
                   (failure) {
                     (failure) => failureRenderer(context, [failure]);
-                    context.router.popUntilRouteWithName(switch (receiptTyp) {
+                    context.router.popUntilRouteWithName(switch (widget.receiptTyp) {
                       ReceiptTyp.offer => OffersOverviewRoute.name,
                       ReceiptTyp.appointment => OffersOverviewRoute.name,
                       ReceiptTyp.deliveryNote => OffersOverviewRoute.name,
@@ -127,7 +134,7 @@ class ReceiptsOverviewScreen extends StatelessWidget {
                     });
                   },
                   (unit) {
-                    myScaffoldMessenger(context, null, null, _textOnSuccessfulDelete(receiptTyp), null);
+                    myScaffoldMessenger(context, null, null, _textOnSuccessfulDelete(widget.receiptTyp), null);
                     context.router.popUntilRouteWithName(AppointmentsOverviewRoute.name);
                   },
                 ),
@@ -142,11 +149,11 @@ class ReceiptsOverviewScreen extends StatelessWidget {
                 (a) => a.fold(
                   (failure) {
                     (failure) => failureRenderer(context, [failure]);
-                    context.router.popTop();
+                    context.router.maybePopTop();
                   },
                   (unit) {
                     myScaffoldMessenger(context, null, null, 'Dokument wurde erfolgreich generiert', null);
-                    context.router.popTop();
+                    context.router.maybePopTop();
                   },
                 ),
               );
@@ -160,11 +167,11 @@ class ReceiptsOverviewScreen extends StatelessWidget {
                 (a) => a.fold(
                   (failure) {
                     (failure) => failureRenderer(context, [failure]);
-                    context.router.popTop();
+                    context.router.maybePopTop();
                   },
                   (unit) {
                     myScaffoldMessenger(context, null, null, 'Dokumente wurden erfolgreich generiert', null);
-                    context.router.popTop();
+                    context.router.maybePopTop();
                   },
                 ),
               );
@@ -177,7 +184,7 @@ class ReceiptsOverviewScreen extends StatelessWidget {
               drawer: const AppDrawer(),
               appBar: AppBar(
                 title: Text(
-                  switch (receiptTyp) {
+                  switch (widget.receiptTyp) {
                     ReceiptTyp.offer => state.listOfFilteredReceipts != null ? 'Angebote (${state.listOfFilteredReceipts!.length})' : 'Angebote',
                     ReceiptTyp.appointment =>
                       state.listOfFilteredReceipts != null ? 'Aufträge (${state.listOfFilteredReceipts!.length})' : 'Aufträge',
@@ -193,7 +200,7 @@ class ReceiptsOverviewScreen extends StatelessWidget {
                     onPressed: () async => _onGeneratePdfTable(context, state.listOfAllReceipts!, state.selectedReceipts),
                     icon: const Icon(Icons.table_chart_rounded, color: CustomColors.primaryColor),
                   ),
-                  IconButton(onPressed: () => appointmentBloc.add(SendEmailToCustomerReceiptEvent()), icon: const Icon(Icons.mail)),
+                  IconButton(onPressed: () {}, icon: const Icon(Icons.mail)),
                   Tooltip(
                     message: 'Senden',
                     child: IconButton(
@@ -201,7 +208,7 @@ class ReceiptsOverviewScreen extends StatelessWidget {
                         context: context,
                         builder: (_) => BlocProvider.value(
                           value: appointmentBloc,
-                          child: switch (receiptTyp) {
+                          child: switch (widget.receiptTyp) {
                             ReceiptTyp.offer => _GenerateFromOfferNewAppointmentDialog(
                                 listOfReceipts: state.selectedReceipts,
                                 appointmentBloc: appointmentBloc,
@@ -235,7 +242,7 @@ class ReceiptsOverviewScreen extends StatelessWidget {
                     ),
                   ),
                   IconButton(
-                      onPressed: () => context.read<AppointmentBloc>().add(GetReceiptsEvent(tabValue: state.tabValue, receiptTyp: receiptTyp)),
+                      onPressed: () => context.read<AppointmentBloc>().add(GetReceiptsEvent(tabValue: state.tabValue, receiptTyp: widget.receiptTyp)),
                       icon: const Icon(Icons.refresh)),
                   IconButton(
                     onPressed: () {
@@ -248,7 +255,7 @@ class ReceiptsOverviewScreen extends StatelessWidget {
                             appointmentBloc: appointmentBloc,
                             customerBloc: customerBloc,
                             marketplaceBloc: marketplaceBloc,
-                            receiptTyp: receiptTyp,
+                            receiptTyp: widget.receiptTyp,
                           ),
                         ),
                       );
@@ -260,7 +267,7 @@ class ReceiptsOverviewScreen extends StatelessWidget {
                         ? () => showMyDialogAlert(
                             context: context,
                             title: 'Achtung!',
-                            content: 'Bitte wähle mindestens ${switch (receiptTyp) {
+                            content: 'Bitte wähle mindestens ${switch (widget.receiptTyp) {
                               ReceiptTyp.offer => 'ein Angebot',
                               ReceiptTyp.appointment => 'einen Auftrag',
                               ReceiptTyp.deliveryNote => 'einen Lieferschein',
@@ -269,7 +276,7 @@ class ReceiptsOverviewScreen extends StatelessWidget {
                             }} aus.')
                         : () => showMyDialogDelete(
                               context: context,
-                              content: 'Bist du sicher, dass du alle ausgewählten ${switch (receiptTyp) {
+                              content: 'Bist du sicher, dass du alle ausgewählten ${switch (widget.receiptTyp) {
                                 ReceiptTyp.offer => 'Angebote',
                                 ReceiptTyp.appointment => 'Aufträge',
                                 ReceiptTyp.deliveryNote => 'Lieferscheine',
@@ -280,14 +287,14 @@ class ReceiptsOverviewScreen extends StatelessWidget {
                                 context.read<AppointmentBloc>().add(
                                       DeleteSelectedReceiptsEvent(selectedReceipts: state.selectedReceipts),
                                     );
-                                context.router.pop();
+                                context.router.maybePop();
                               },
                             ),
                     icon: state.isLoadingReceiptOnDelete
                         ? const MyCircularProgressIndicator(color: Colors.red)
                         : const Icon(Icons.delete, color: Colors.red),
                   ),
-                  if (receiptTyp == ReceiptTyp.appointment) ...[
+                  if (widget.receiptTyp == ReceiptTyp.appointment) ...[
                     if (marketplaceBloc.state.listOfMarketplace != null && marketplaceBloc.state.listOfMarketplace!.isNotEmpty)
                       IconButton(
                         onPressed: () {
@@ -332,14 +339,14 @@ class ReceiptsOverviewScreen extends StatelessWidget {
                       },
                     ),
                   ),
-                  switch (receiptTyp) {
+                  switch (widget.receiptTyp) {
                     ReceiptTyp.offer => DefaultTabController(
                         length: 2,
                         child: TabBar(
                           tabs: const [Tab(text: 'Offen'), Tab(text: 'Alle')],
                           labelStyle: const TextStyle(fontWeight: FontWeight.bold),
                           unselectedLabelStyle: const TextStyle(),
-                          onTap: (value) => appointmentBloc.add(GetReceiptsEvent(tabValue: value, receiptTyp: receiptTyp)),
+                          onTap: (value) => appointmentBloc.add(GetReceiptsEvent(tabValue: value, receiptTyp: widget.receiptTyp)),
                         ),
                       ),
                     ReceiptTyp.appointment => DefaultTabController(
@@ -348,7 +355,7 @@ class ReceiptsOverviewScreen extends StatelessWidget {
                           tabs: const [Tab(text: 'Offen'), Tab(text: 'Alle')],
                           labelStyle: const TextStyle(fontWeight: FontWeight.bold),
                           unselectedLabelStyle: const TextStyle(),
-                          onTap: (value) => appointmentBloc.add(GetReceiptsEvent(tabValue: value, receiptTyp: receiptTyp)),
+                          onTap: (value) => appointmentBloc.add(GetReceiptsEvent(tabValue: value, receiptTyp: widget.receiptTyp)),
                         ),
                       ),
                     ReceiptTyp.deliveryNote => DefaultTabController(
@@ -357,7 +364,7 @@ class ReceiptsOverviewScreen extends StatelessWidget {
                           tabs: const [Tab(text: 'Ohne Rechnung'), Tab(text: 'Alle')],
                           labelStyle: const TextStyle(fontWeight: FontWeight.bold),
                           unselectedLabelStyle: const TextStyle(),
-                          onTap: (value) => appointmentBloc.add(GetReceiptsEvent(tabValue: value, receiptTyp: receiptTyp)),
+                          onTap: (value) => appointmentBloc.add(GetReceiptsEvent(tabValue: value, receiptTyp: widget.receiptTyp)),
                         ),
                       ),
                     ReceiptTyp.invoice => DefaultTabController(
@@ -366,7 +373,7 @@ class ReceiptsOverviewScreen extends StatelessWidget {
                           tabs: const [Tab(text: 'Nicht vollst. bezahlt'), Tab(text: 'Alle')],
                           labelStyle: const TextStyle(fontWeight: FontWeight.bold),
                           unselectedLabelStyle: const TextStyle(),
-                          onTap: (value) => appointmentBloc.add(GetReceiptsEvent(tabValue: value, receiptTyp: receiptTyp)),
+                          onTap: (value) => appointmentBloc.add(GetReceiptsEvent(tabValue: value, receiptTyp: widget.receiptTyp)),
                         ),
                       ),
                     ReceiptTyp.credit => DefaultTabController(
@@ -375,11 +382,11 @@ class ReceiptsOverviewScreen extends StatelessWidget {
                           tabs: const [Tab(text: 'Nicht vollst. bezahlt'), Tab(text: 'Alle')],
                           labelStyle: const TextStyle(fontWeight: FontWeight.bold),
                           unselectedLabelStyle: const TextStyle(),
-                          onTap: (value) => appointmentBloc.add(GetReceiptsEvent(tabValue: value, receiptTyp: receiptTyp)),
+                          onTap: (value) => appointmentBloc.add(GetReceiptsEvent(tabValue: value, receiptTyp: widget.receiptTyp)),
                         ),
                       ),
                   },
-                  ReceiptsOverviewPage(appointmentBloc: appointmentBloc, marketplaceBloc: marketplaceBloc, receiptTyp: receiptTyp),
+                  ReceiptsOverviewPage(appointmentBloc: appointmentBloc, marketplaceBloc: marketplaceBloc, receiptTyp: widget.receiptTyp),
                 ],
               ),
             );
@@ -388,6 +395,9 @@ class ReceiptsOverviewScreen extends StatelessWidget {
       ),
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 
   Future<void> _onGeneratePdfTable(BuildContext context, List<Receipt> listOfReceipts, List<Receipt> listOfSelectedReceipts) async {
     final now = DateTime.now();
@@ -410,7 +420,7 @@ class ReceiptsOverviewScreen extends StatelessWidget {
     final generatedPdf = await PdfOutgoingInvoicesGenerator.generate(listOfReceipts: listOfReceiptsToShow, dateRange: dateRange);
 
     if (context.mounted) {
-      switch (receiptTyp) {
+      switch (widget.receiptTyp) {
         case ReceiptTyp.offer:
           context.router.popUntilRouteWithName(OffersOverviewRoute.name);
         case ReceiptTyp.appointment:
@@ -511,7 +521,7 @@ class _GenerateFromAppointmentDialog extends StatefulWidget {
   final AppointmentBloc appointmentBloc;
   final List<Receipt> listOfReceipts;
 
-  const _GenerateFromAppointmentDialog({super.key, required this.appointmentBloc, required this.listOfReceipts});
+  const _GenerateFromAppointmentDialog({required this.appointmentBloc, required this.listOfReceipts});
 
   @override
   State<_GenerateFromAppointmentDialog> createState() => __GenerateFromAppointmentDialogState();
@@ -723,7 +733,7 @@ class _ReceiptsAlertDialog extends StatelessWidget {
               Gaps.h32,
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [MyOutlinedButton(buttonText: 'OK', onPressed: () => context.router.pop())],
+                children: [MyOutlinedButton(buttonText: 'OK', onPressed: () => context.router.maybePop())],
               )
             ],
           ),
@@ -755,8 +765,6 @@ class _SelectCustomerDialogState extends State<_SelectCustomerDialog> {
     return BlocBuilder<CustomerBloc, CustomerState>(
       bloc: widget.customerBloc,
       builder: (context, state) {
-        if (state.listOfAllCustomers == null) widget.customerBloc.add(GetAllCustomersEvent());
-
         if (state.firebaseFailure != null && state.isAnyFailure) {
           return Dialog(child: SizedBox(width: 600, height: 1200, child: Center(child: Text(state.firebaseFailure.toString()))));
         }
@@ -808,7 +816,7 @@ class _SelectCustomerDialogState extends State<_SelectCustomerDialog> {
                             subtitle: customer.company != null ? Text(customer.company!) : null,
                             onTap: () {
                               _controller.clear();
-                              context.router.pop();
+                              context.router.maybePop();
                               final newAppointment = Receipt.empty().copyWith(
                                 customerId: customer.id,
                                 receiptCustomer: ReceiptCustomer.fromCustomer(customer),
@@ -882,7 +890,7 @@ class _SelectToLoadAppointmentFromMarketplaceSheet extends StatefulWidget {
   final AppointmentBloc appointmentBloc;
   final List<AbstractMarketplace> listOfMarketplaces;
 
-  const _SelectToLoadAppointmentFromMarketplaceSheet({super.key, required this.appointmentBloc, required this.listOfMarketplaces});
+  const _SelectToLoadAppointmentFromMarketplaceSheet({required this.appointmentBloc, required this.listOfMarketplaces});
 
   @override
   State<_SelectToLoadAppointmentFromMarketplaceSheet> createState() => _SelectToLoadAppointmentFromMarketplaceSheetState();
@@ -924,7 +932,7 @@ class _SelectToLoadAppointmentFromMarketplaceSheetState extends State<_SelectToL
         MyOutlinedButton(
           buttonText: 'Bestellung Laden',
           onPressed: () {
-            context.router.popTop();
+            context.router.maybePopTop();
             widget.appointmentBloc.add(GetNewAppointmentByIdFromPrestaEvent(id: _controller.text.toMyInt(), marketplace: selectedMarketplace));
             showDialog(
               context: context,

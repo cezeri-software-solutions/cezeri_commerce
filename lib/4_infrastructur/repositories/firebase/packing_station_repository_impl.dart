@@ -1,60 +1,52 @@
+import 'package:cezeri_commerce/1_presentation/core/extensions/get_either.dart';
+import 'package:cezeri_commerce/3_domain/entities/id.dart';
 import 'package:cezeri_commerce/3_domain/entities/picklist/picklist.dart';
 import 'package:cezeri_commerce/3_domain/entities/product/product.dart';
-import 'package:cezeri_commerce/core/firebase_failures.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cezeri_commerce/4_infrastructur/repositories/functions/get_database.dart';
+import 'package:cezeri_commerce/failures/firebase_failures.dart';
 import 'package:dartz/dartz.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:logger/logger.dart';
 
 import '../../../1_presentation/core/functions/check_internet_connection.dart';
 import '../../../3_domain/entities/picklist/picklist_product.dart';
 import '../../../3_domain/entities/receipt/receipt.dart';
 import '../../../3_domain/repositories/firebase/packing_station_repository.dart';
-import '../../../core/abstract_failure.dart';
-
-final logger = Logger();
+import '../../../3_domain/repositories/firebase/product_repository.dart';
+import '../../../constants.dart';
+import '../../../failures/abstract_failure.dart';
+import '../functions/repository_functions.dart';
 
 class PackingStationRepositoryImpl implements PackingStationRepository {
-  final FirebaseFirestore db;
-  final FirebaseAuth firebaseAuth;
+  final ProductRepository productRepository;
 
-  PackingStationRepositoryImpl({required this.db, required this.firebaseAuth});
+  PackingStationRepositoryImpl({required this.productRepository});
 
   @override
   Future<Either<AbstractFailure, List<Product>>> getListOfProducts(List<String> productIds) async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(NoConnectionFailure());
-
-    final currentUserUid = firebaseAuth.currentUser!.uid;
-    final colRef = db.collection('Products').doc(currentUserUid).collection('Products');
+    if (!await checkInternetConnection()) return Left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
     List<Product> listOfProducts = [];
 
-    try {
-      for (final productId in productIds) {
-        final docRef = colRef.doc(productId);
-        final productSnapshot = await docRef.get();
-        if (productSnapshot.data() != null) listOfProducts.add(Product.fromJson(productSnapshot.data()!));
-      }
-
-      return right(listOfProducts);
-    } on FirebaseException catch (e) {
-      logger.e(e.message);
-      return left(GeneralFailure(customMessage: 'Beim Laden der Artikel ist ein Fehler aufgetreten.', e: e));
-    } catch (e) {
-      return left(GeneralFailure(customMessage: 'Beim Laden der Artikel ist ein Fehler aufgetreten.'));
+    for (final productId in productIds) {
+      final fosProduct = await productRepository.getProduct(productId, ownerId: ownerId);
+      if (fosProduct.isLeft()) return Left(fosProduct.getLeft());
+      listOfProducts.add(fosProduct.getRight());
     }
+
+    return Right(listOfProducts);
   }
 
   @override
   Future<Either<AbstractFailure, Picklist>> createPicklist(List<Receipt> listOfAppointments) async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(NoConnectionFailure());
+    if (!await checkInternetConnection()) return Left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
-    final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRef = db.collection('Picklists').doc(currentUserUid).collection('Picklists').doc();
+    final databasePicklist = supabase.from('d_picklists');
+
     final picklist = Picklist.fromListOfAppointments(listOfAppointments);
-    final phToCreatePicklist = picklist.copyWith(id: docRef.id);
+    final phToCreatePicklist = picklist.copyWith(id: UniqueID().value);
 
     final productIds = phToCreatePicklist.listOfPicklistProducts.map((e) => e.productId).toList();
     final uniqueProductIds = productIds.toSet().where((id) => id.isNotEmpty).toList();
@@ -70,19 +62,14 @@ class PackingStationRepositoryImpl implements PackingStationRepository {
     }
 
     //* Teilen der Liste in Teillisten mit maximal 30 Einträgen
-    List<List<String>> splitProductIds = splitList(uniqueProductIds, 30);
+    List<List<String>> splittedProductIds = splitList(uniqueProductIds, 30);
 
     try {
       List<Product> products = [];
-      for (var idsChunk in splitProductIds) {
-        var chunkProducts = await db
-            .collection('Products')
-            .doc(currentUserUid)
-            .collection('Products')
-            .where('id', whereIn: idsChunk)
-            .get()
-            .then((value) => value.docs.map((docSs) => Product.fromJson(docSs.data())).toList());
-        products.addAll(chunkProducts);
+      for (final idsChunk in splittedProductIds) {
+        final loadedChunkProductsResponse = await supabase.from('d_products').select().eq('ownerId', ownerId).filter('id', 'in', idsChunk);
+        final loadedChunkProducts = loadedChunkProductsResponse.map((e) => Product.fromJson(e)).toList();
+        products.addAll(loadedChunkProducts);
       }
 
       List<PicklistProduct> listOfPicklistProducts = [];
@@ -95,59 +82,63 @@ class PackingStationRepositoryImpl implements PackingStationRepository {
           listOfPicklistProducts.add(updatedPicklistProduct);
         }
       }
+
       final toCreatePicklist = phToCreatePicklist.copyWith(listOfPicklistProducts: listOfPicklistProducts);
 
-      await db.runTransaction((transaction) async {
-        for (final appointment in listOfAppointments) {
-          final updatedAppointment = appointment.copyWith(isPicked: true);
-          final docRefAppointment = db.collection('Receipts').doc(currentUserUid).collection('Appointments').doc(appointment.id);
-          transaction.update(docRefAppointment, updatedAppointment.toJson());
-        }
-        transaction.set(docRef, toCreatePicklist.toJson());
-      });
+      for (final appointment in listOfAppointments) {
+        final appointmentResponse =
+            await getReceiptDatabase(ReceiptTyp.appointment).select().eq('ownerId', ownerId).eq('id', appointment.id).single();
+        final loadedAppointment = Receipt.fromJson(appointmentResponse);
+        final updatedAppointment = loadedAppointment.copyWith(isPicked: true);
+        await getReceiptDatabase(ReceiptTyp.appointment).update(updatedAppointment.toJson()).eq('ownerId', ownerId).eq('id', updatedAppointment.id);
+      }
 
-      return right(toCreatePicklist);
-    } on FirebaseException catch (e) {
-      logger.e(e.message);
-      return left(GeneralFailure(customMessage: 'Beim Erstellen der Pickliste ist ein Fehler aufgetreten.', e: e));
+      final picklistJson = toCreatePicklist.toJson();
+      picklistJson.addEntries([MapEntry('ownerId', ownerId)]);
+      await databasePicklist.insert(picklistJson);
+
+      return Right(toCreatePicklist);
+    } catch (e) {
+      logger.e(e);
+      return Left(GeneralFailure(customMessage: 'Beim Erstellen der Pickliste ist ein Fehler aufgetreten. Error: $e'));
     }
   }
 
   @override
   Future<Either<AbstractFailure, Unit>> updatePicklist(Picklist picklist) async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(NoConnectionFailure());
+    if (!await checkInternetConnection()) return Left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
-    final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRef = db.collection('Picklists').doc(currentUserUid).collection('Picklists').doc(picklist.id);
+    final database = supabase.from('d_picklists');
     final toUpdatePicklist = picklist.copyWith(lastEditingDate: DateTime.now());
 
     try {
-      await docRef.update(toUpdatePicklist.toJson());
-      return right(unit);
-    } on FirebaseException catch (e) {
-      logger.e(e.message);
-      return left(GeneralFailure(customMessage: 'Beim Aktualisieren der Pickliste ist ein Fehler aufgetreten.', e: e));
-    } catch (_) {
-      return left(GeneralFailure());
+      await database.update(toUpdatePicklist.toJson()).eq('ownerId', ownerId).eq('id', toUpdatePicklist.id);
+
+      return const Right(unit);
+    } catch (e) {
+      logger.e(e);
+      return left(GeneralFailure(customMessage: 'Beim Aktualisieren der Pickliste ist ein Fehler aufgetreten. Error: $e'));
     }
   }
 
   @override
   Future<Either<AbstractFailure, List<Picklist>>> getListOfPicklists() async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(NoConnectionFailure());
+    if (!await checkInternetConnection()) return Left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
-    final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRef = db.collection('Picklists').doc(currentUserUid).collection('Picklists'); //.orderBy('creationDate', descending: true).limit(20);
+    final database = supabase.from('d_picklists');
+    final query = database.select().eq('ownerId', ownerId).order('creationDate', ascending: false);
 
     try {
-      final listOfPicklists = await docRef.get().then((value) => value.docs.map((querySnapshot) => Picklist.fromJson(querySnapshot.data())).toList());
+      final listOfPicklists = await query.then((json) => json.map((e) => Picklist.fromJson(e)).toList());
 
-      return right(listOfPicklists);
-    } on FirebaseException catch (e) {
-      logger.e(e.message);
-      return left(GeneralFailure(customMessage: 'Beim Laden der Picklisten ist ein Fehler aufgetreten.', e: e));
+      return Right(listOfPicklists);
+    } catch (e) {
+      logger.e(e);
+      return Left(GeneralFailure(customMessage: 'Beim Laden der Picklisten ist ein Fehler aufgetreten. Error: $e'));
     }
   }
 }

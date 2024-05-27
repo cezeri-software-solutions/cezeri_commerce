@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 part of 'supplier_bloc.dart';
 
 @immutable
@@ -17,7 +18,7 @@ class SupplierState {
   final Option<Either<AbstractFailure, List<Supplier>>> fosSuppliersOnObserveOption;
   final Option<Either<AbstractFailure, Supplier>> fosSupplierOnCreateOption;
   final Option<Either<AbstractFailure, Supplier>> fosSupplierOnUpdateOption;
-  final Option<Either<AbstractFailure, Unit>> fosSupplierOnDeleteOption;
+  final Option<Either<List<AbstractFailure>, Unit>> fosSupplierOnDeleteOption;
 
   //* Helpers
   final bool isAllSuppliersSelected;
@@ -106,7 +107,7 @@ class SupplierState {
     Option<Either<AbstractFailure, List<Supplier>>>? fosSuppliersOnObserveOption,
     Option<Either<AbstractFailure, Supplier>>? fosSupplierOnCreateOption,
     Option<Either<AbstractFailure, Supplier>>? fosSupplierOnUpdateOption,
-    Option<Either<AbstractFailure, Unit>>? fosSupplierOnDeleteOption,
+    Option<Either<List<AbstractFailure>, Unit>>? fosSupplierOnDeleteOption,
     bool? isAllSuppliersSelected,
     String? supplierSearchText,
     TextEditingController? companyNameController,

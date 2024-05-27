@@ -5,21 +5,18 @@ import 'package:cezeri_commerce/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:logger/logger.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
-import '../../core/functions/dialogs.dart';
-import '../../core/functions/mixed_functions.dart';
-import '../../core/functions/show_my_product_quick_view.dart';
-import '../../core/widgets/my_avatar.dart';
 import '/2_application/firebase/product/product_bloc.dart';
 import '/3_domain/entities/marketplace/abstract_marketplace.dart';
 import '/3_domain/entities/product/product.dart';
 import '/3_domain/entities/product/product_presta.dart';
 import '/4_infrastructur/repositories/shopify_api/shopify.dart';
 import '/routes/router.gr.dart';
-
-final logger = Logger();
+import '../../core/functions/dialogs.dart';
+import '../../core/functions/mixed_functions.dart';
+import '../../core/functions/show_my_product_quick_view.dart';
+import '../../core/widgets/my_avatar.dart';
 
 class ProductOverviewPage extends StatelessWidget {
   final ProductBloc productBloc;

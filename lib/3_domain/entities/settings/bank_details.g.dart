@@ -7,10 +7,10 @@ part of 'bank_details.dart';
 // **************************************************************************
 
 BankDetails _$BankDetailsFromJson(Map<String, dynamic> json) => BankDetails(
-      json['bankName'] as String,
-      json['bankIban'] as String,
-      json['bankBic'] as String,
-      json['paypalEmail'] as String,
+      bankName: json['bankName'] as String,
+      bankIban: json['bankIban'] as String,
+      bankBic: json['bankBic'] as String,
+      paypalEmail: json['paypalEmail'] as String,
     );
 
 Map<String, dynamic> _$BankDetailsToJson(BankDetails instance) =>

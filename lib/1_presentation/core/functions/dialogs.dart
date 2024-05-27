@@ -56,7 +56,7 @@ Future<void> showMyDialogAlert({required BuildContext context, required String t
                   Gaps.h32,
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [MyOutlinedButton(buttonText: 'OK', onPressed: () => context.router.pop())],
+                    children: [MyOutlinedButton(buttonText: 'OK', onPressed: () => context.router.maybePop())],
                   )
                 ],
               ),

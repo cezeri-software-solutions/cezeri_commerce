@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:logger/logger.dart';
 
 import '../../../2_application/firebase/appointment/appointment_bloc.dart';
 import '../../../2_application/firebase/main_settings/main_settings_bloc.dart';
@@ -43,8 +42,6 @@ class AppointmentDetailPage extends StatefulWidget {
 class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
   @override
   Widget build(BuildContext context) {
-    final logger = Logger();
-    
     return BlocBuilder<AppointmentBloc, AppointmentState>(
       bloc: widget.appointmentBloc,
       builder: (context, state) {
@@ -123,7 +120,7 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
                       widget.appointmentBloc.add(CreateNewAppointmentManuallyEvent(receipt: toCreateReceipt));
                     }
                   },
-                  isLoading: state.isLoadingReceiptOnUpdate,
+                  isLoading: widget.receiptCreateOrEdit == ReceiptCreateOrEdit.edit ? state.isLoadingReceiptOnUpdate : state.isLoadingReceiptOnCreate,
                   buttonBackgroundColor: Colors.green,
                 );
               },

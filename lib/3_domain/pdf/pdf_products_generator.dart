@@ -1,13 +1,11 @@
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
-import 'package:logger/logger.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
+import '../../constants.dart';
 import '../entities/product/product.dart';
 import 'widgets/pdf_text.dart';
-
-final logger = Logger();
 
 class PdfProductsGenerator {
   static Future<Uint8List> generate({required List<Product> listOfProducts}) async {

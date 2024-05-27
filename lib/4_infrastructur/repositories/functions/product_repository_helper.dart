@@ -1,8 +1,6 @@
 import 'dart:io';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:get_it/get_it.dart';
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart';
@@ -15,29 +13,21 @@ import '/3_domain/entities/product/product.dart';
 import '/3_domain/entities/product/product_image.dart';
 import '/3_domain/entities/product/product_presta.dart';
 import '/3_domain/repositories/firebase/product_repository.dart';
-import '/core/abstract_failure.dart';
-import '/core/firebase_failures.dart';
-import '../prestashop_api/models/models.dart';
+import '../../../1_presentation/core/functions/mixed_functions.dart';
+import '../../../constants.dart';
+import '../../../failures/failures.dart';
 import '../shopify_api/shopify.dart';
 
 Future<Either<AbstractFailure, Product>> handleNewSetProduct({
   required Product product,
   required Product originalProduct,
-  required FirebaseFirestore db,
-  required String currentUserUid,
-  required Transaction transaction,
-  required DocumentReference<Map<String, dynamic>> docRef,
+  required String ownerId,
 }) async {
   //* Alle Einzelartikel des Set-Artikel laden und in eine Liste speichern
-  final listOfSetPartProducts = await getPartProductsOfSetProduct(
-    db: db,
-    currentUserUid: currentUserUid,
-    transaction: transaction,
-    setProduct: product,
-  );
+  final listOfSetPartProducts = await getPartProductsOfSetProduct(ownerId: ownerId, setProduct: product);
   if (listOfSetPartProducts == null) {
     final errorMessage = 'Beim Aktualisieren des Artikels: "${product.name}" konnte mindestens ein Einzelartikel nicht geladen werden.';
-    return left(GeneralFailure(customMessage: errorMessage));
+    return Left(GeneralFailure(customMessage: errorMessage));
   }
 
   //* Alle Einzelartikel, die nicht mehr Bestandteil des Set-Artikel sind identitfizieren
@@ -46,26 +36,14 @@ Future<Either<AbstractFailure, Product>> handleNewSetProduct({
     originalProduct: originalProduct,
   );
   //* Alle Einzelartikel, die nicht mehr Bestandteil des Set-Artikel sind aus dem Set-Artikel Entfernen
-  final fosRemovePartProducts = await removePartProductsFromSet(
-    noMorePartOfSetIds: noMorePartOfSetIds,
-    currentUserUid: currentUserUid,
-    product: product,
-    db: db,
-    transaction: transaction,
-  );
+  final fosRemovePartProducts = await removePartProductsFromSet(noMorePartOfSetIds: noMorePartOfSetIds, ownerId: ownerId, product: product);
   fosRemovePartProducts.fold(
-    (failure) => left(failure),
+    (failure) => Left(failure),
     (r) => null,
   );
 
   //* Alle Einzelartikel, wo der Set-Artikel noch nicht eingetragen ist in Firestore updaten
-  await addSetProductIdToPartProducts(
-    db: db,
-    currentUserUid: currentUserUid,
-    transaction: transaction,
-    setProduct: product,
-    listOfSetPartProducts: listOfSetPartProducts,
-  );
+  await addSetProductIdToPartProducts(ownerId: ownerId, setProduct: product, listOfSetPartProducts: listOfSetPartProducts);
 
   if (product.isSetArticle) {
     //* Berechne Menge des Set-Artikels
@@ -74,11 +52,11 @@ Future<Either<AbstractFailure, Product>> handleNewSetProduct({
     //* Update Set-Article
     final difference = product.warehouseStock - product.availableStock;
     final setArticle = product.copyWith(availableStock: quantitySetArticle, warehouseStock: quantitySetArticle + difference);
-    transaction.update(docRef, setArticle.toJson());
-    return right(setArticle);
+    await supabase.from('d_products').update(setArticle.toJson()).eq('ownerId', ownerId).eq('id', setArticle.id);
+    return Right(setArticle);
   } else {
-    transaction.update(docRef, product.toJson());
-    return right(product);
+    await supabase.from('d_products').update(product.toJson()).eq('ownerId', ownerId).eq('id', product.id);
+    return Right(product);
   }
 }
 
@@ -103,13 +81,10 @@ List<String> identifyNoMorePartOfSetProducts({
 
 Future<Either<AbstractFailure, Unit>> removePartProductsFromSet({
   required List<String> noMorePartOfSetIds,
-  required String currentUserUid,
+  required String ownerId,
   required Product product,
-  required FirebaseFirestore db,
-  required Transaction transaction,
 }) async {
   for (final noMorePartId in noMorePartOfSetIds) {
-    final docRefNoMorePartOfSet = db.collection('Products').doc(currentUserUid).collection('Products').doc(noMorePartId);
     Product? noMorePartProduct;
     final fosNoMorePartProduct = await GetIt.I.get<ProductRepository>().getProduct(noMorePartId);
     fosNoMorePartProduct.fold(
@@ -121,16 +96,14 @@ Future<Either<AbstractFailure, Unit>> removePartProductsFromSet({
     if (index == -1) continue;
 
     noMorePartProduct!.listOfIsPartOfSetIds.removeAt(index);
-    transaction.update(docRefNoMorePartOfSet, noMorePartProduct!.toJson());
+    supabase.from('d_products').update(noMorePartProduct!.toJson()).eq('ownerId', ownerId).eq('id', noMorePartId);
   }
 
   return right(unit);
 }
 
 Future<List<Product>?> getPartProductsOfSetProduct({
-  required FirebaseFirestore db,
-  required String currentUserUid,
-  required Transaction transaction,
+  required String ownerId,
   required Product setProduct,
   Product? alreadyLoadedPartProduct,
 }) async {
@@ -140,155 +113,73 @@ Future<List<Product>?> getPartProductsOfSetProduct({
       listOfSetPartProducts.add(alreadyLoadedPartProduct);
       continue;
     }
-    final docRefPartProduct = db.collection('Products').doc(currentUserUid).collection('Products').doc(partProductIdWithQuantity.productId);
-    final partProductDs = await transaction.get(docRefPartProduct);
-    if (!partProductDs.exists) return Future.value(null);
-    Product partProduct = Product.fromJson(partProductDs.data()!);
+    final partProductResponse =
+        await supabase.from('d_products').select().eq('ownerId', ownerId).eq('id', partProductIdWithQuantity.productId).single();
+    if (partProductResponse.isEmpty) return Future.value(null);
+    Product partProduct = Product.fromJson(partProductResponse);
     listOfSetPartProducts.add(partProduct);
   }
   return listOfSetPartProducts;
 }
 
 Future<void> addSetProductIdToPartProducts({
-  required FirebaseFirestore db,
-  required String currentUserUid,
-  required Transaction? transaction,
+  required String ownerId,
   required Product setProduct,
   required List<Product> listOfSetPartProducts,
 }) async {
   for (final partOfSetProduct in listOfSetPartProducts) {
-    final docRefUpdatedPartProduct = db.collection('Products').doc(currentUserUid).collection('Products').doc(partOfSetProduct.id);
     if (partOfSetProduct.listOfIsPartOfSetIds.any((e) => e == setProduct.id)) continue;
     final updatedProduct = partOfSetProduct.copyWith(listOfIsPartOfSetIds: partOfSetProduct.listOfIsPartOfSetIds..add(setProduct.id));
-    if (transaction != null) {
-      transaction.update(docRefUpdatedPartProduct, updatedProduct.toJson());
-    } else {
-      docRefUpdatedPartProduct.update(updatedProduct.toJson());
-    }
+
+    supabase.from('d_products').update(updatedProduct.toJson()).eq('ownerId', ownerId).eq('id', partOfSetProduct.id);
   }
 }
 
-Future<List<ProductImage>?> uploadImageFilesToStorageFromMarketplaceProduct({
-  required String currentUserUid,
-  required DocumentReference<Map<String, dynamic>> docRef,
-  required MarketplaceProduct marketplaceProduct,
-}) async {
-  final firebaseStoragePath = '$currentUserUid/ProductImages/${docRef.id}';
-
+Future<List<File>> getImageFilesFromMarketplace({required MarketplaceProduct marketplaceProduct}) async {
+  final List<File> listOfImageFiles = [];
   switch (marketplaceProduct.marketplaceType) {
     case MarketplaceType.prestashop:
       {
         final productPresta = marketplaceProduct as ProductPresta;
-        if (productPresta.imageFiles == null) return null;
-
-        final List<ProductImage> listOfProductImages =
-            await uploadImageFilesToStorageFromProductPrestaImage(productPresta.imageFiles, firebaseStoragePath);
-        return listOfProductImages;
+        if (productPresta.imageFiles != null) {
+          final imageFiles = productPresta.imageFiles!.map((e) => e.imageFile).toList();
+          listOfImageFiles.addAll(imageFiles);
+        }
       }
     case MarketplaceType.shopify:
       {
         final productShopify = marketplaceProduct as ProductShopify;
-        if (productShopify.images.isEmpty) return null;
+        if (productShopify.images.isNotEmpty) {
+          for (final shopifyImage in productShopify.images) {
+            // HTTP-Anfrage, um die Bilddaten als Bytes zu erhalten
+            final response = await http.get(Uri.parse(shopifyImage.src));
+            if (response.statusCode == 200) {
+              // Erhalten des temporären Verzeichnisses
+              final directory = await getTemporaryDirectory();
+              // Erstellen eines Dateipfads im temporären Verzeichnis
+              final filePath = '${directory.path}/product_${shopifyImage.id}_${shopifyImage.productId}.jpg';
+              // Datei mit den Bilddaten erstellen
+              final file = File(filePath);
 
-        final List<ProductImage> listOfProductImages = await uploadImageFilesToStorageFromProductShopify(productShopify.images, firebaseStoragePath);
-        return listOfProductImages;
+              // Schreiben der Byte-Daten in die Datei und Rückgabe der Datei
+              final imageFile = await file.writeAsBytes(response.bodyBytes);
+              listOfImageFiles.add(imageFile);
+            }
+          }
+        }
       }
     case MarketplaceType.shop:
       throw Exception('Aus einem Ladengeschäft können keine Artikelbilder importieret werden.');
   }
-}
 
-Future<List<ProductImage>> uploadImageFilesToStorageFromProductPrestaImage(List<ProductPrestaImage?>? imageFiles, String firebaseStoragePath) async {
-  final FirebaseStorage storage = FirebaseStorage.instance;
-
-  final List<ProductImage> listOfProductImages = [];
-
-  int sortId = 0;
-
-  for (final myFile in imageFiles!) {
-    if (myFile == null) continue;
-
-    sortId++;
-
-    final File file = myFile.imageFile;
-    // Erstelle einen eindeutigen Dateinamen, um Kollisionen zu vermeiden
-    final fileName = basename(file.path);
-    // Erstelle einen Verweis auf den Firebase Cloud Storage-Pfad, an dem das Bild gespeichert werden soll
-    final Reference firebaseStorageRef = storage.ref().child('$firebaseStoragePath/$fileName');
-    // Erstelle einen Byte-Datenstrom aus der Datei
-    final bytes = await file.readAsBytes();
-    // Lade die Byte-Daten in Firebase Cloud Storage hoch
-    await firebaseStorageRef.putData(bytes);
-    // Speichere die URL des hochgeladenen Bildes in Firestore
-    final String fileUrl = await firebaseStorageRef.getDownloadURL();
-    final imageFile = ProductImage.empty().copyWith(
-      fileName: fileName,
-      fileUrl: fileUrl,
-      sortId: sortId,
-      isDefault: sortId == 1 ? true : false,
-    );
-    listOfProductImages.add(imageFile);
-  }
-  return listOfProductImages;
-}
-
-Future<List<ProductImage>> uploadImageFilesToStorageFromProductShopify(
-    List<ProductImageShopify> productImagesShopify, String firebaseStoragePath) async {
-  final FirebaseStorage storage = FirebaseStorage.instance;
-
-  final List<ProductImage> listOfProductImages = [];
-  final List<File> imageFiles = [];
-
-  for (final shopifyImage in productImagesShopify) {
-    // HTTP-Anfrage, um die Bilddaten als Bytes zu erhalten
-    final response = await http.get(Uri.parse(shopifyImage.src));
-    if (response.statusCode == 200) {
-      // Erhalten des temporären Verzeichnisses
-      final directory = await getTemporaryDirectory();
-      // Erstellen eines Dateipfads im temporären Verzeichnis
-      final filePath = '${directory.path}/product_${shopifyImage.id}_${shopifyImage.productId}.jpg';
-      // Datei mit den Bilddaten erstellen
-      final file = File(filePath);
-
-      // Schreiben der Byte-Daten in die Datei und Rückgabe der Datei
-      final imageFile = await file.writeAsBytes(response.bodyBytes);
-      imageFiles.add(imageFile);
-    }
-  }
-
-  int sortId = 0;
-
-  for (final myFile in imageFiles) {
-    sortId++;
-
-    // Erstelle einen eindeutigen Dateinamen, um Kollisionen zu vermeiden
-    final fileName = basename(myFile.path);
-    // Erstelle einen Verweis auf den Firebase Cloud Storage-Pfad, an dem das Bild gespeichert werden soll
-    final Reference firebaseStorageRef = storage.ref().child('$firebaseStoragePath/$fileName');
-    // Erstelle einen Byte-Datenstrom aus der Datei
-    final bytes = await myFile.readAsBytes();
-    // Lade die Byte-Daten in Firebase Cloud Storage hoch
-    await firebaseStorageRef.putData(bytes);
-    // Speichere die URL des hochgeladenen Bildes in Firestore
-    final String fileUrl = await firebaseStorageRef.getDownloadURL();
-    final imageFile = ProductImage.empty().copyWith(
-      fileName: fileName,
-      fileUrl: fileUrl,
-      sortId: sortId,
-      isDefault: sortId == 1 ? true : false,
-    );
-    listOfProductImages.add(imageFile);
-  }
-  return listOfProductImages;
+  return listOfImageFiles;
 }
 
 Future<List<ProductImage>> uploadImageFilesToStorageFromFlutter(
   List<ProductImage> listOfProductImages,
   List<File> imageFiles,
-  String firebaseStoragePath,
+  String supabaseStoragePath,
 ) async {
-  final FirebaseStorage storage = FirebaseStorage.instance;
-
   final List<ProductImage> newListOfProductImages = [];
 
   int sortId = listOfProductImages.length;
@@ -299,14 +190,14 @@ Future<List<ProductImage>> uploadImageFilesToStorageFromFlutter(
     final File file = myFile;
     // Erstelle einen eindeutigen Dateinamen, um Kollisionen zu vermeiden
     final fileName = basename(file.path);
-    // Erstelle einen Verweis auf den Firebase Cloud Storage-Pfad, an dem das Bild gespeichert werden soll
-    final Reference firebaseStorageRef = storage.ref().child('$firebaseStoragePath/$fileName');
-    // Erstelle einen Byte-Datenstrom aus der Datei
-    final bytes = await file.readAsBytes();
-    // Lade die Byte-Daten in Firebase Cloud Storage hoch
-    await firebaseStorageRef.putData(bytes);
-    // Speichere die URL des hochgeladenen Bildes in Firestore
-    final String fileUrl = await firebaseStorageRef.getDownloadURL();
+    final filePath = '$supabaseStoragePath/${fileName}_${generateRandomString(4)}';
+    final storageResponse = await supabase.storage.from('product-images').upload(filePath, myFile);
+    if (storageResponse.isEmpty) {
+      logger.e('Artikelbild konnte nicht hochgeladen werden. Error: $storageResponse');
+      continue;
+    }
+    final fileUrl = supabase.storage.from('product-images').getPublicUrl(filePath);
+
     final imageFile = ProductImage.empty().copyWith(
       fileName: fileName,
       fileUrl: fileUrl,
@@ -316,4 +207,10 @@ Future<List<ProductImage>> uploadImageFilesToStorageFromFlutter(
     newListOfProductImages.add(imageFile);
   }
   return newListOfProductImages;
+}
+
+String extractPathFromUrl(String url) {
+  Uri uri = Uri.parse(url);
+  int bucketIndex = uri.pathSegments.indexOf('product-images') + 1; // Findet den Index des Bucket-Namens und addiert 1
+  return uri.pathSegments.sublist(bucketIndex).join('/'); // Extrahiert alles nach 'product-images'
 }

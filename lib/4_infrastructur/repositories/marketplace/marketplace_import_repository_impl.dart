@@ -6,25 +6,21 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart';
-import 'package:logger/logger.dart';
 
 import '../../../../1_presentation/core/functions/check_internet_connection.dart';
 import '../../../../3_domain/entities/settings/main_settings.dart';
 import '../../../../3_domain/repositories/firebase/product_repository.dart';
 import '../../../../3_domain/repositories/marketplace/marketplace_import_repository.dart';
-import '../../../../core/abstract_failure.dart';
-import '../../../../core/firebase_failures.dart';
-import '../../../../core/presta_failure.dart';
 import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
 import '../../../3_domain/entities/marketplace/marketplace_presta.dart';
 import '../../../3_domain/entities/product/marketplace_product.dart';
 import '../../../3_domain/entities/product/product_presta.dart';
-import '../../../core/shopify_failure.dart';
+import '../../../constants.dart';
+import '../../../failures/failures.dart';
+import '../functions/repository_functions.dart';
 import '../prestashop_api/models/product_raw_presta.dart';
 import '../prestashop_api/prestashop_api.dart';
 import 'marketplace_import_repository_helper.dart';
-
-final logger = Logger();
 
 class MarketplaceImportRepositoryImpl implements MarketplaceImportRepository {
   final FirebaseFirestore db;
@@ -95,9 +91,12 @@ class MarketplaceImportRepositoryImpl implements MarketplaceImportRepository {
 
   @override
   Future<Either<AbstractFailure, Product?>> uploadLoadedMarketplaceProductToFirestore(
-      MarketplaceProduct marketplaceProduct, String marketplaceId) async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(NoConnectionFailure());
+    MarketplaceProduct marketplaceProduct,
+    String marketplaceId,
+  ) async {
+    if (!await checkInternetConnection()) return left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
     final currentUserUid = firebaseAuth.currentUser!.uid;
 
@@ -114,6 +113,7 @@ class MarketplaceImportRepositoryImpl implements MarketplaceImportRepository {
             final fos = await createOrUpdateProductFromMarketplacePresta(
               marketplaceId: marketplaceId,
               currentUserUid: currentUserUid,
+              ownerId: ownerId,
               productPresta: marketplaceProduct as ProductPresta,
               mainSettings: mainSettings,
               productRepository: productRepository,

@@ -7,9 +7,13 @@ part 'carrier_product.g.dart';
 @JsonSerializable(explicitToJson: true)
 class CarrierProduct {
   final String id; // jedes Produkt hat eine ID direkt vom Versanddienstleister
+  // @JsonKey(name: 'product_name')
   final String productName;
+  // @JsonKey(name: 'is_default')
   final bool isDefault;
+  // @JsonKey(name: 'is_return')
   final bool isReturn;
+  // @JsonKey(name: 'is_active')
   final bool isActive;
   final Country country;
 

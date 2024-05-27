@@ -1,3 +1,4 @@
+import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 import 'carrier_key.dart';
@@ -8,26 +9,45 @@ part 'carrier.g.dart';
 enum CarrierTyp { empty, austrianPost, dpd }
 
 @JsonSerializable(explicitToJson: true)
-class Carrier {
+class Carrier extends Equatable {
+  // @JsonKey(toJson: null)
+  // final String id;
+  // @JsonKey(name: 'internal_name')
   final String internalName;
   final String name;
+  // @JsonKey(name: 'marketplace_mapping')
   final String marketplaceMapping;
+  // @JsonKey(name: 'image_path')
   final String imagePath;
+  // @JsonKey(name: 'tracking_url')
   final String trackingUrl;
+  // @JsonKey(name: 'tracking_url_2')
   final String? trackingUrl2;
+  // @JsonKey(name: 'carrier_key')
   final CarrierKey carrierKey;
+  // @JsonKey(name: 'carrier_typ')
   final CarrierTyp carrierTyp;
+  // @JsonKey(name: 'carrier_automations')
   final List<CarrierProduct> carrierAutomations;
+  // @JsonKey(name: 'list_of_paper_layout')
   final List<String> listOfPaperLayout;
+  // @JsonKey(name: 'paper_layout')
   final String paperLayout;
+  // @JsonKey(name: 'list_of_label_sizes')
   final List<String> listOfLabelSizes;
+  // @JsonKey(name: 'label_size')
   final String labelSize;
+  // @JsonKey(name: 'list_of_printer_languages')
   final List<String> listOfPrinterLanguages;
+  // @JsonKey(name: 'printer_language')
   final String printerLanguage;
+  // @JsonKey(name: 'is_default')
   final bool isDefault;
+  // @JsonKey(name: 'is_active')
   final bool isActive;
 
-  Carrier({
+  const Carrier({
+    // required this.id,
     required this.internalName,
     required this.name,
     required this.marketplaceMapping,
@@ -53,6 +73,7 @@ class Carrier {
 
   factory Carrier.empty() {
     return Carrier(
+      // id: '',
       internalName: '',
       name: '',
       marketplaceMapping: '',
@@ -61,12 +82,12 @@ class Carrier {
       trackingUrl2: null,
       carrierKey: CarrierKey.empty(),
       carrierTyp: CarrierTyp.empty,
-      carrierAutomations: [],
-      listOfPaperLayout: [],
+      carrierAutomations: const [],
+      listOfPaperLayout: const [],
       paperLayout: '',
-      listOfLabelSizes: [],
+      listOfLabelSizes: const [],
       labelSize: '',
-      listOfPrinterLanguages: [],
+      listOfPrinterLanguages: const [],
       printerLanguage: '',
       isDefault: false,
       isActive: false,
@@ -74,6 +95,7 @@ class Carrier {
   }
 
   Carrier copyWith({
+    // String? id,
     String? internalName,
     String? name,
     String? marketplaceMapping,
@@ -93,6 +115,7 @@ class Carrier {
     bool? isActive,
   }) {
     return Carrier(
+      // id: id ?? this.id,
       internalName: internalName ?? this.internalName,
       name: name ?? this.name,
       marketplaceMapping: marketplaceMapping ?? this.marketplaceMapping,
@@ -114,12 +137,14 @@ class Carrier {
   }
 
   @override
-  String toString() {
-    return 'Carrier(internalName: $internalName, name: $name, marketplaceMapping: $marketplaceMapping, imagePath: $imagePath, trackingUrl: $trackingUrl, carrierKey: $carrierKey, carrierTyp: $carrierTyp, carrierAutomations: $carrierAutomations, listOfPaperLayout: $listOfPaperLayout, paperLayout: $paperLayout, listOfLabelSizes: $listOfLabelSizes, labelSize: $labelSize, listOfPrinterLanguages: $listOfPrinterLanguages, printerLanguage: $printerLanguage, isDefault: $isDefault, isActive: $isActive)';
-  }
+  List<Object?> get props => [];
+
+  @override
+  bool get stringify => true;
 
   static List<Carrier> carrierList = [
     Carrier.empty().copyWith(
+      // id: '1',
       internalName: 'Austrian Post',
       name: 'Österreichische Post',
       imagePath: 'assets/carriers/AustrianPost.jpg',
@@ -133,6 +158,11 @@ class Carrier {
       listOfPrinterLanguages: ['PDF', 'ZPL2'],
       printerLanguage: 'PDF',
     ),
-    Carrier.empty().copyWith(internalName: 'DPD', name: 'DPD', imagePath: 'assets/carriers/DPD.jpg'),
+    Carrier.empty().copyWith(
+      // id: '2',
+      internalName: 'DPD',
+      name: 'DPD',
+      imagePath: 'assets/carriers/DPD.jpg',
+    ),
   ];
 }

@@ -4,8 +4,11 @@ part 'carrier_key.g.dart';
 
 @JsonSerializable()
 class CarrierKey {
+  // @JsonKey(name: 'client_id')
   final String clientId;
+  // @JsonKey(name: 'org_unit_id')
   final String orgUnitId;
+  // @JsonKey(name: 'org_unit_guide')
   final String orgUnitGuide;
 
   const CarrierKey({required this.clientId, required this.orgUnitId, required this.orgUnitGuide});

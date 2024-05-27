@@ -11,7 +11,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
-import 'package:logger/logger.dart';
 
 import '../../../../2_application/firebase/marketplace/marketplace_bloc.dart';
 import '../../../../3_domain/entities/address.dart';
@@ -22,8 +21,6 @@ import '../../../../3_domain/entities/marketplace/marketplace_settings.dart';
 import '../../../../3_domain/entities/settings/bank_details.dart';
 import '../../../../constants.dart';
 import '../../../core/functions/mixed_functions.dart';
-
-final logger = Logger();
 
 // TODO: PaymentMethod muss von hier aus gemappt werden können.
 
@@ -327,10 +324,10 @@ class _AddEditMarketplacePrestaState extends State<AddEditMarketplacePresta> {
                           phoneMobile: _phoneMobileController.text,
                         ),
                         bankDetails: BankDetails(
-                          _bankNameController.text,
-                          _bankIbanController.text,
-                          _bankBicController.text,
-                          _paypalEmailController.text,
+                          bankName: _bankNameController.text,
+                          bankIban: _bankIbanController.text,
+                          bankBic: _bankBicController.text,
+                          paypalEmail: _paypalEmailController.text,
                         ),
                         lastEditingDate: DateTime.now(),
                       );
@@ -366,10 +363,10 @@ class _AddEditMarketplacePrestaState extends State<AddEditMarketplacePresta> {
                           phoneMobile: _phoneMobileController.text,
                         ),
                         bankDetails: BankDetails(
-                          _bankNameController.text,
-                          _bankIbanController.text,
-                          _bankBicController.text,
-                          _paypalEmailController.text,
+                          bankName: _bankNameController.text,
+                          bankIban: _bankIbanController.text,
+                          bankBic: _bankBicController.text,
+                          paypalEmail: _paypalEmailController.text,
                         ),
                         lastEditingDate: DateTime.now(),
                         createnDate: DateTime.now(),

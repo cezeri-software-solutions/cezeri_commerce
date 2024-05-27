@@ -1,12 +1,9 @@
 import 'package:cezeri_commerce/1_presentation/core/extensions/string_to_int.dart';
 import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.dart';
-import 'package:cezeri_commerce/core/shopify_failure.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cezeri_commerce/failures/shopify_failure.dart';
 import 'package:dartz/dartz.dart';
 import 'package:logger/logger.dart';
 
-import '../../../3_domain/entities/marketplace/marketplace_shopify.dart';
-import '../shopify_api/shopify.dart';
 import '/1_presentation/core/functions/mixed_functions.dart';
 import '/3_domain/entities/customer/customer.dart';
 import '/3_domain/entities/product/product.dart';
@@ -15,15 +12,13 @@ import '/3_domain/entities/receipt/receipt_product.dart';
 import '/3_domain/entities/settings/main_settings.dart';
 import '/3_domain/repositories/firebase/customer_repository.dart';
 import '/3_domain/repositories/firebase/product_repository.dart';
-import '/core/abstract_failure.dart';
+import '../../../3_domain/entities/marketplace/marketplace_shopify.dart';
+import '../../../failures/abstract_failure.dart';
+import '../shopify_api/shopify.dart';
 import 'product_import.dart';
 import 'receipt_respository_helper.dart';
 
-final logger = Logger();
-
 Future<Either<AbstractFailure, ({Receipt receipt, int customerNumber})>> createReceiptFromOrderShopify(
-  FirebaseFirestore db,
-  String currentUserUid,
   ProductRepository productRepository,
   CustomerRepository customerRepository,
   MainSettings mainSettings,
@@ -37,8 +32,7 @@ Future<Either<AbstractFailure, ({Receipt receipt, int customerNumber})>> createR
 
   List<ReceiptProduct> listOfReceiptproducts = [];
   AbstractFailure? abstractFailureFromGetListOfReceipts;
-  final fosListOfReceiptproduct =
-      await getListOfReceiptProductsFromShopify(db, currentUserUid, productRepository, mainSettings, marketplace, orderShopify);
+  final fosListOfReceiptproduct = await getListOfReceiptProductsFromShopify(productRepository, mainSettings, marketplace, orderShopify);
   fosListOfReceiptproduct.fold(
     (failure) => abstractFailureFromGetListOfReceipts = failure,
     (receiptProducts) => listOfReceiptproducts = receiptProducts,
@@ -94,7 +88,7 @@ Future<Either<AbstractFailure, ({Receipt receipt, int customerNumber})>> createR
   }
   //* Wenn der Kunde nicht geladen werden kann und auch nicht erstellt werden kann, soll diese Bestellung übersprungen werden.
   if (customerFirestore == null) {
-    logger.e('Kunde aus Bestellung von Marktplatz konnte weder in Firestore erstellt werden, noch in Firestore gespeichert werden');
+    Logger().e('Kunde aus Bestellung von Marktplatz konnte weder in Firestore erstellt werden, noch in Firestore gespeichert werden');
     return left(MixedFailure(
         errorMessage: 'Kunde aus Bestellung von Marktplatz konnte weder in Firestore erstellt werden, noch in Firestore gespeichert werden'));
   }
@@ -111,8 +105,6 @@ Future<Either<AbstractFailure, ({Receipt receipt, int customerNumber})>> createR
 }
 
 Future<Either<AbstractFailure, List<ReceiptProduct>>> getListOfReceiptProductsFromShopify(
-  FirebaseFirestore db,
-  String currentUserUid,
   ProductRepository productRepository,
   MainSettings mainSettings,
   MarketplaceShopify marketplace,

@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:html/dom.dart';
@@ -191,4 +193,14 @@ class CommaTextInputFormatter extends TextInputFormatter {
       selection: newSelection,
     );
   }
+}
+
+String generateRandomString(int length) {
+  const characters = 'abcdefghijklmnopqrstuvwxyz0123456789';
+  Random random = Random();
+
+  return String.fromCharCodes(Iterable.generate(
+    length,
+    (_) => characters.codeUnitAt(random.nextInt(characters.length)),
+  ));
 }

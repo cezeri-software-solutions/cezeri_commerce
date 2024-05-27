@@ -15,7 +15,6 @@ class MainSettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     context.read<MainSettingsBloc>().add(GetMainSettingsEvent());
-    // context.read<MainSettingsBloc>().add(CreateMainSettingsEvent(mainSettings: MainSettings.empty()));
 
     return MultiBlocListener(
       listeners: [

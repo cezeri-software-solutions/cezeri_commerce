@@ -3,7 +3,6 @@ import 'package:cezeri_commerce/1_presentation/reorder/reorder_detail/functions/
 import 'package:cezeri_commerce/routes/router.gr.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:logger/logger.dart';
 
 import '../../../2_application/firebase/reorder_detail/reorder_detail_bloc.dart';
 import '../../../3_domain/entities/reorder/supplier.dart';
@@ -14,8 +13,6 @@ import 'functions/show_reorder_detail_products_dialog.dart';
 import 'reorder_detail_page.dart';
 
 enum ReorderCreateOrEdit { create, edit }
-
-final logger = Logger();
 
 @RoutePage()
 class ReorderDetailScreen extends StatelessWidget {

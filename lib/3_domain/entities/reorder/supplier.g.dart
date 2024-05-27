@@ -12,7 +12,6 @@ Supplier _$SupplierFromJson(Map<String, dynamic> json) => Supplier(
       company: json['company'] as String,
       firstName: json['firstName'] as String,
       lastName: json['lastName'] as String,
-      name: json['name'] as String,
       street: json['street'] as String,
       street2: json['street2'] as String,
       postcode: json['postcode'] as String,
@@ -30,12 +29,10 @@ Supplier _$SupplierFromJson(Map<String, dynamic> json) => Supplier(
     );
 
 Map<String, dynamic> _$SupplierToJson(Supplier instance) => <String, dynamic>{
-      'id': instance.id,
       'supplierNumber': instance.supplierNumber,
       'company': instance.company,
       'firstName': instance.firstName,
       'lastName': instance.lastName,
-      'name': instance.name,
       'street': instance.street,
       'street2': instance.street2,
       'postcode': instance.postcode,

@@ -7,6 +7,7 @@ part 'supplier.g.dart';
 
 @JsonSerializable(explicitToJson: true)
 class Supplier {
+  @JsonKey(includeToJson: false)
   final String id;
   final int supplierNumber;
   final String company;
@@ -34,7 +35,6 @@ class Supplier {
     required this.company,
     required this.firstName,
     required this.lastName,
-    required this.name,
     required this.street,
     required this.street2,
     required this.postcode,
@@ -49,7 +49,7 @@ class Supplier {
     required this.tax,
     required this.creationDate,
     required this.lastEditingDate,
-  });
+  }) : name = '$firstName $lastName';
 
   factory Supplier.fromJson(Map<String, dynamic> json) => _$SupplierFromJson(json);
   Map<String, dynamic> toJson() => _$SupplierToJson(this);
@@ -61,7 +61,6 @@ class Supplier {
       company: '',
       firstName: '',
       lastName: '',
-      name: '',
       street: '',
       street2: '',
       postcode: '',
@@ -85,7 +84,6 @@ class Supplier {
     String? company,
     String? firstName,
     String? lastName,
-    String? name,
     String? street,
     String? street2,
     String? postcode,
@@ -107,7 +105,6 @@ class Supplier {
       company: company ?? this.company,
       firstName: firstName ?? this.firstName,
       lastName: lastName ?? this.lastName,
-      name: name ?? this.name,
       street: street ?? this.street,
       street2: street2 ?? this.street2,
       postcode: postcode ?? this.postcode,
@@ -127,6 +124,6 @@ class Supplier {
 
   @override
   String toString() {
-    return 'Supplier(id: $id, supplierNumber: $supplierNumber, company: $company, firstName: $firstName, lastName: $lastName, name: $name, street: $street, street2: $street2, postcode: $postcode, city: $city, country: $country, email: $email, homepage: $homepage, phone: $phone, phoneMobile: $phoneMobile, uidNumber: $uidNumber, taxNumber: $taxNumber, tax: $tax, creationDate: $creationDate, lastEditingDate: $lastEditingDate)';
+    return 'Supplier(id: $id, supplierNumber: $supplierNumber, company: $company, firstName: $firstName, lastName: $lastName, street: $street, street2: $street2, postcode: $postcode, city: $city, country: $country, email: $email, homepage: $homepage, phone: $phone, phoneMobile: $phoneMobile, uidNumber: $uidNumber, taxNumber: $taxNumber, tax: $tax, creationDate: $creationDate, lastEditingDate: $lastEditingDate)';
   }
 }

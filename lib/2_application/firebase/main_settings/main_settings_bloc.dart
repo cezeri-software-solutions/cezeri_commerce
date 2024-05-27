@@ -11,7 +11,7 @@ import '../../../3_domain/entities/settings/packaging_box.dart';
 import '../../../3_domain/entities/settings/tax.dart';
 import '../../../3_domain/enums/enums.dart';
 import '../../../3_domain/repositories/firebase/main_settings_respository.dart';
-import '../../../core/abstract_failure.dart';
+import '../../../failures/abstract_failure.dart';
 
 part 'main_settings_event.dart';
 part 'main_settings_state.dart';
@@ -46,30 +46,12 @@ class MainSettingsBloc extends Bloc<MainSettingsEvent, MainSettingsState> {
 
 //? #########################################################################
 
-    on<CreateMainSettingsEvent>((event, emit) async {
-      emit(state.copyWith(isLoadingMainSettingsOnCreate: true));
-
-      final failureOrSuccess = await mainSettingsRepository.createSettings(event.mainSettings);
-      failureOrSuccess.fold(
-        (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
-        (mainSettings) => emit(state.copyWith(firebaseFailure: null, isAnyFailure: false)),
-      );
-
-      emit(state.copyWith(
-        isLoadingMainSettingsOnCreate: false,
-        fosMainSettingsOnCreateOption: optionOf(failureOrSuccess),
-      ));
-      emit(state.copyWith(fosMainSettingsOnCreateOption: none()));
-    });
-
-//? #########################################################################
-
     on<UpdateMainSettingsEvent>((event, emit) async {
       emit(state.copyWith(isLoadingMainSettingsOnUpdate: true));
 
       final failureOrSuccess = await mainSettingsRepository.updateSettings(event.mainSettings);
       failureOrSuccess.fold(
-        (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
+        (failure) => null,
         (mainSettings) => emit(state.copyWith(mainSettings: event.mainSettings, firebaseFailure: null, isAnyFailure: false)),
       );
 

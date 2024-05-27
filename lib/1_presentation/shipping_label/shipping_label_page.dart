@@ -4,7 +4,6 @@ import 'package:cezeri_commerce/1_presentation/core/widgets/my_outlined_button.d
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:logger/logger.dart';
 
 import '../../2_application/firebase/main_settings/main_settings_bloc.dart';
 import '../../3_domain/entities/address.dart';
@@ -47,7 +46,6 @@ class _ShippingLabelPageState extends State<ShippingLabelPage> {
 
   @override
   Widget build(BuildContext context) {
-    final logger = Logger();
     final ms = context.read<MainSettingsBloc>().state.mainSettings!;
     final defaultCarrier = ms.listOfCarriers.where((e) => e.isDefault).first;
     final cCredentials = defaultCarrier.carrierKey;

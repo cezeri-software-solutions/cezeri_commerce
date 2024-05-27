@@ -1,16 +1,13 @@
 import 'package:bloc/bloc.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
-import 'package:logger/logger.dart';
 
 import '../../../3_domain/entities/settings/general_ledger_account.dart';
 import '../../../3_domain/repositories/firebase/general_ledger_account_repository.dart';
-import '../../../core/abstract_failure.dart';
+import '../../../failures/abstract_failure.dart';
 
 part 'general_ledger_account_event.dart';
 part 'general_ledger_account_state.dart';
-
-final logger = Logger();
 
 class GeneralLedgerAccountBloc extends Bloc<GeneralLedgerAccountEvent, GeneralLedgerAccountState> {
   final GeneralLedgerAccountRepository _gLAccountRepository;

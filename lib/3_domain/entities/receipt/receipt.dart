@@ -1,4 +1,3 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:cezeri_commerce/1_presentation/core/extensions/string_to_int.dart';
 import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.dart';
 import 'package:cezeri_commerce/3_domain/entities/carrier/carrier_product.dart';
@@ -130,7 +129,7 @@ class Receipt {
   final DateTime creationDateMarektplace;
   final PackagingBox? packagingBox;
   final DateTime creationDate; // Wenn importiert: DateTime import // Wenn dirkt angelegt: Datum Erstellung
-  final int creationDateInt;
+  final int? creationDateInt;
   final DateTime lastEditingDate;
 
   const Receipt({

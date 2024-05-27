@@ -7,7 +7,8 @@ import '../2_application/firebase/auth/auth_bloc/auth_bloc.dart';
 import '../2_application/firebase/client/client_bloc.dart';
 import '../2_application/firebase/main_settings/main_settings_bloc.dart';
 import '../3_domain/entities/client.dart';
-import '../core/firebase_failures.dart';
+import '../constants.dart';
+import '../failures/firebase_failures.dart';
 import '../injection.dart';
 import 'core/renderer/failure_renderer.dart';
 
@@ -27,7 +28,7 @@ class _SplashPageState extends State<SplashPage> {
   @override
   Widget build(BuildContext context) {
     //! Zum manuellen ausloggen
-    //authBloc.add(SignOutPressedEvent());
+    // authBloc.add(SignOutPressedEvent());
     final clientBloc = sl<ClientBloc>();
 
     if (widget.comeFrom == ComeFromToSplashPage.appDrawer) context.read<AuthBloc>().add(SignOutPressedEvent());
@@ -43,6 +44,7 @@ class _SplashPageState extends State<SplashPage> {
         listeners: [
           BlocListener<AuthBloc, AuthState>(
             listener: (context, state) {
+              logger.i(state);
               if (state is AuthStateAuthenticated) {
                 context.read<ClientBloc>().add(GetCurrentClientEvent());
               } else if (state is AuthStateUnauthenticated) {

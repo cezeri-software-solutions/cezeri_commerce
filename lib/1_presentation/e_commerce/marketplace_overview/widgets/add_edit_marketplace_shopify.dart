@@ -10,7 +10,6 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
-import 'package:logger/logger.dart';
 
 import '../../../../2_application/firebase/marketplace/marketplace_bloc.dart';
 import '../../../../3_domain/entities/address.dart';
@@ -26,8 +25,6 @@ import '../../../core/widgets/my_avatar.dart';
 import '../../../core/widgets/my_dialog_countries.dart';
 import '../../../core/widgets/my_outlined_button.dart';
 import '../../../core/widgets/my_text_form_field.dart';
-
-final logger = Logger();
 
 class AddEditMarketplaceShopify extends StatefulWidget {
   final MarketplaceBloc marketplaceBloc;
@@ -303,10 +300,10 @@ class _AddEditMarketplaceShopifyState extends State<AddEditMarketplaceShopify> {
                           phoneMobile: _phoneMobileController.text,
                         ),
                         bankDetails: BankDetails(
-                          _bankNameController.text,
-                          _bankIbanController.text,
-                          _bankBicController.text,
-                          _paypalEmailController.text,
+                          bankName: _bankNameController.text,
+                          bankIban: _bankIbanController.text,
+                          bankBic: _bankBicController.text,
+                          paypalEmail: _paypalEmailController.text,
                         ),
                         lastEditingDate: DateTime.now(),
                       );
@@ -339,10 +336,10 @@ class _AddEditMarketplaceShopifyState extends State<AddEditMarketplaceShopify> {
                           phoneMobile: _phoneMobileController.text,
                         ),
                         bankDetails: BankDetails(
-                          _bankNameController.text,
-                          _bankIbanController.text,
-                          _bankBicController.text,
-                          _paypalEmailController.text,
+                          bankName: _bankNameController.text,
+                          bankIban: _bankIbanController.text,
+                          bankBic: _bankBicController.text,
+                          paypalEmail: _paypalEmailController.text,
                         ),
                         lastEditingDate: DateTime.now(),
                         createnDate: DateTime.now(),

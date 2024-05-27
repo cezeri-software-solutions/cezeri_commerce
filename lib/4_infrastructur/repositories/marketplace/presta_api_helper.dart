@@ -4,7 +4,7 @@ import 'package:dartz/dartz.dart';
 import 'package:http/http.dart' as http;
 import 'package:xml/xml.dart';
 
-import '../../../core/presta_failure.dart';
+import '../../../failures/presta_failure.dart';
 
 enum PrestaApiResource {
   addresses,

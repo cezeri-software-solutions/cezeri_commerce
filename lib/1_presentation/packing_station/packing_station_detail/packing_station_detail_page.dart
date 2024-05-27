@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import 'package:logger/logger.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '../../../2_application/firebase/main_settings/main_settings_bloc.dart';
@@ -46,7 +45,6 @@ class _PackingStationDetailPageState extends State<PackingStationDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    final logger = Logger();
     return BlocListener<PackingStationBloc, PackingStationState>(
       bloc: widget.packingStationBloc,
       listener: (context, state) {

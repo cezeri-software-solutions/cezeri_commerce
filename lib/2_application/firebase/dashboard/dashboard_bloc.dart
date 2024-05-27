@@ -6,7 +6,7 @@ import '../../../3_domain/entities/receipt/receipt.dart';
 import '../../../3_domain/entities/statistic/stat_dashboard.dart';
 import '../../../3_domain/repositories/firebase/receipt_respository.dart';
 import '../../../3_domain/repositories/firebase/stat_dashboard_repository.dart';
-import '../../../core/abstract_failure.dart';
+import '../../../failures/abstract_failure.dart';
 
 part 'dashboard_event.dart';
 part 'dashboard_state.dart';

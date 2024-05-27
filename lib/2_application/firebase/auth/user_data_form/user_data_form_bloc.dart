@@ -5,7 +5,7 @@ import 'package:meta/meta.dart';
 
 import '../../../../3_domain/entities/client.dart';
 import '../../../../3_domain/enums/enums.dart';
-import '../../../../core/abstract_failure.dart';
+import '../../../../failures/abstract_failure.dart';
 
 part 'user_data_form_event.dart';
 part 'user_data_form_state.dart';
@@ -32,7 +32,6 @@ class UserDataFormBloc extends Bloc<UserDataFormEvent, UserDataFormState> {
         companyName: event.companyName,
         firstName: event.firstName,
         lastName: event.lastName,
-        name: event.name,
         tel1: event.tel1,
         tel2: event.tel2,
         email: event.email,

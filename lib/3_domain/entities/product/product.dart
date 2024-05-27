@@ -4,15 +4,15 @@ import 'package:cezeri_commerce/3_domain/entities/product/field_language.dart';
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 
-import '../../../1_presentation/core/functions/mixed_functions.dart';
-import '../../../4_infrastructur/repositories/prestashop_api/models/product_raw_presta.dart';
-import '../../../4_infrastructur/repositories/shopify_api/shopify.dart';
 import '../language.dart';
 import '../marketplace/abstract_marketplace.dart';
 import '../marketplace/marketplace_presta.dart';
 import '../marketplace/marketplace_shopify.dart';
 import '../settings/main_settings.dart';
 import '../settings/tax.dart';
+import '/1_presentation/core/functions/mixed_functions.dart';
+import '/4_infrastructur/repositories/prestashop_api/models/product_raw_presta.dart';
+import '/4_infrastructur/repositories/shopify_api/shopify.dart';
 import 'marketplace_product.dart';
 import 'product_id_with_quantity.dart';
 import 'product_image.dart';
@@ -24,57 +24,99 @@ part 'product.g.dart';
 
 @JsonSerializable(explicitToJson: true)
 class Product extends Equatable {
+  @JsonKey(includeToJson: false)
   final String id;
+  // @JsonKey(name: 'article_number')
   final String articleNumber;
+  // @JsonKey(name: 'supplier_article_number')
   final String supplierArticleNumber; // Lieferanten Artikel-Nr.
+  // @JsonKey(name: 'supplier_number')
   final String supplierNumber; // id des Lieferanten in Firestore
   final String supplier;
   final String sku;
   final String ean;
   final String name;
+  // @JsonKey(name: 'list_of_name')
   final List<FieldLanguage> listOfName;
   final Tax tax; // Steuer Inland
+  // @JsonKey(name: 'image_urls')
   final List<String> imageUrls;
+  // @JsonKey(name: 'is_active')
   final bool isActive;
   final int ordered; // wieviele schon nachbestellt wurden
+  // @JsonKey(name: 'brand_name')
   final String brandName;
   final String unity; // z.B. pro 1 L
+  // @JsonKey(name: 'unit_price')
   final double unitPrice; // Preis pro Einheit
   final double width; // Breite
   final double height; // Höhe
   final double depth; // Länge
   final double weight;
+  // @JsonKey(name: 'net_price')
   final double netPrice;
+  // @JsonKey(name: 'gross_price')
   final double grossPrice;
+  // @JsonKey(name: 'wholesale_price')
   final double wholesalePrice; // EK-Preis
+  // @JsonKey(name: 'recommended_retail_price')
   final double recommendedRetailPrice;
+  // @JsonKey(name: 'have_variants')
   final bool haveVariants; // Gibt es eine Variante
+  // @JsonKey(name: 'is_set_article')
   final bool isSetArticle;
   // Wenn Set Artikle && true, dann wird der Bestand unabhängig von seinen Bestandteilen geführt, ansonsten wird der Bestand durch den niedrigsten Besteand der Besandteile ermittelt
+  // @JsonKey(name: 'is_outlet')
   final bool isOutlet;
+  // @JsonKey(name: 'list_of_is_part_of_set_ids')
   final List<String> listOfIsPartOfSetIds; // Im Einzelartikel, von welchem Set dies ein Bestandteil ist
+  // @JsonKey(name: 'list_of_product_id_with_quantity')
   final List<ProductIdWithQuantity> listOfProductIdWithQuantity; // Von welchem Einzelartikel wieviel im Set enthalten sind
+  // @JsonKey(name: 'is_set_self_quantity_managed')
   final bool isSetSelfQuantityManaged;
+  // @JsonKey(name: 'manufacturer_number')
   final String manufacturerNumber;
   final String manufacturer;
+  // @JsonKey(name: 'warehouse_stock')
   final int warehouseStock;
+  // @JsonKey(name: 'available_stock')
   final int availableStock;
+  // @JsonKey(name: 'minimum_stock')
   final int minimumStock; // Mindestbestand vor Warnung zur Nachbestellung
+  // @JsonKey(name: 'is_under_minimum_stock')
   final bool isUnderMinimumStock; // Flag der gesetzt wird, damit nur diese Artikel geladen werden können
+  // @JsonKey(name: 'minimum_reorder_quantity')
   final int minimumReorderQuantity; // Mindestnachbestellmenge
+  // @JsonKey(name: 'packaging_unit_on_reorder')
   final int packagingUnitOnReorder; // Verpackungseinheit bei Nachbestellung
   final String description;
+  // @JsonKey(name: 'list_of_description')
   final List<FieldLanguage> listOfDescription;
+  // @JsonKey(name: 'description_short')
   final String descriptionShort;
+  // @JsonKey(name: 'list_of_description_short')
   final List<FieldLanguage> listOfDescriptionShort;
+  // @JsonKey(name: 'meta_title')
   final String metaTitle;
+  // @JsonKey(name: 'list_of_meta_title')
   final List<FieldLanguage> listOfMetaTitle;
+  // @JsonKey(name: 'meta_description')
   final String metaDescription;
+  // @JsonKey(name: 'list_of_meta_description')
   final List<FieldLanguage> listOfMetaDescription;
   final double volume; // Volumen in cm3
+  // @JsonKey(name: 'list_of_product_images')
   final List<ProductImage> listOfProductImages;
+  // @JsonKey(name: 'list_of_set_products')
   final List<SetProduct> listOfSetProducts;
+  // @JsonKey(name: 'product_marketplaces')
   final List<ProductMarketplace> productMarketplaces;
+  // @JsonKey(name: 'creation_date', includeToJson: false)
+  // @JsonKey(includeToJson: false)
+  // final DateTime creationDate;
+  // @JsonKey(name: 'last_editing_date', includeToJson: false)
+  // @JsonKey(includeToJson: false)
+  // final DateTime lastEditingDate;
 
   const Product({
     required this.id,
@@ -127,6 +169,8 @@ class Product extends Equatable {
     required this.listOfProductImages,
     required this.listOfSetProducts,
     required this.productMarketplaces,
+    // required this.creationDate,
+    // required this.lastEditingDate,
   }) : volume = width * height * depth;
 
   factory Product.fromJson(Map<String, dynamic> json) => _$ProductFromJson(json);
@@ -183,6 +227,8 @@ class Product extends Equatable {
       listOfProductImages: const [],
       listOfSetProducts: const [],
       productMarketplaces: const [],
+      // creationDate: DateTime.now(),
+      // lastEditingDate: DateTime.now(),
     );
   }
 
@@ -462,6 +508,8 @@ class Product extends Equatable {
     List<ProductImage>? listOfProductImages,
     List<SetProduct>? listOfSetProducts,
     List<ProductMarketplace>? productMarketplaces,
+    // DateTime? creationDate,
+    // DateTime? lastEditingDate,
   }) {
     return Product(
       id: id ?? this.id,
@@ -513,6 +561,8 @@ class Product extends Equatable {
       listOfProductImages: listOfProductImages ?? this.listOfProductImages,
       listOfSetProducts: listOfSetProducts ?? this.listOfSetProducts,
       productMarketplaces: productMarketplaces ?? this.productMarketplaces,
+      // creationDate: creationDate ?? this.creationDate,
+      // lastEditingDate: lastEditingDate ?? this.lastEditingDate,
     );
   }
 

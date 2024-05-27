@@ -2,13 +2,10 @@ import 'package:auto_route/auto_route.dart';
 import 'package:cezeri_commerce/routes/router.gr.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:logger/logger.dart';
 
 import '../../../../2_application/firebase/home/home_product/home_product_bloc.dart';
 import '../../../core/widgets/my_animated_expansion_container.dart';
 import '../../../core/widgets/my_circular_progress_indicator.dart';
-
-final logger = Logger();
 
 class HomeProductsOutletExpanded extends StatelessWidget {
   final HomeProductBloc homeProductBloc;

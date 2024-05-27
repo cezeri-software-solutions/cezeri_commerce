@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
 
-import '../../../core/abstract_failure.dart';
+import '../../../failures/abstract_failure.dart';
 import '../../entities/carrier/parcel_tracking.dart';
 import '../../entities/receipt/load_appointments_helper/to_load_appointments_from_marketplace.dart';
 import '../../entities/receipt/receipt.dart';
@@ -31,11 +31,12 @@ abstract class ReceiptRepository {
   );
   Future<Either<AbstractFailure, Receipt>> generateFromListOfDeliveryNotesNewInvoice(List<Receipt> listOfDeliveryNotes);
   Future<Either<AbstractFailure, Receipt>> generateFromInvoiceNewCredit(Receipt invoice);
-  Future<Either<AbstractFailure, Unit>> sendEmails();
   Future<Either<AbstractFailure, ParcelTracking>> createNewParcelForReceipt(Receipt deliveryNote);
   //* ###### Load Appointments from Marketplaces #####
   Future<Either<AbstractFailure, List<ToLoadAppointmentsFromMarketplace>>> getToLoadAppointmentsFromMarketplaces();
-  Future<Either<AbstractFailure, LoadedOrderFromMarketplace>> loadAppointmentsFromMarketplacePresta(ToLoadAppointmentFromMarketplace toLoadAppointment);
-  Future<Either<AbstractFailure, List<LoadedOrderFromMarketplace>>> loadAppointmentsFromMarketplaceShopify(ToLoadAppointmentsFromMarketplace toLoadAppointment);
+  Future<Either<AbstractFailure, LoadedOrderFromMarketplace>> loadAppointmentsFromMarketplacePresta(
+      ToLoadAppointmentFromMarketplace toLoadAppointment);
+  Future<Either<AbstractFailure, List<LoadedOrderFromMarketplace>>> loadAppointmentsFromMarketplaceShopify(
+      ToLoadAppointmentsFromMarketplace toLoadAppointment);
   Future<Either<AbstractFailure, Receipt>> uploadLoadedAppointmentToFirestore(LoadedOrderFromMarketplace loadedAppointmentFromMarketplace);
 }

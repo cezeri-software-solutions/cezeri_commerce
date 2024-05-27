@@ -2,7 +2,6 @@ import 'package:cezeri_commerce/1_presentation/core/extensions/string_to_int.dar
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:http/http.dart';
-import 'package:logger/logger.dart';
 
 import '../../../3_domain/entities/marketplace/marketplace_presta.dart';
 import '../../../3_domain/entities/marketplace/marketplace_shopify.dart';
@@ -11,18 +10,18 @@ import '../../../3_domain/entities/product/product_id_with_quantity.dart';
 import '../../../3_domain/entities/product/product_presta.dart';
 import '../../../3_domain/entities/settings/main_settings.dart';
 import '../../../3_domain/repositories/firebase/product_repository.dart';
-import '../../../core/abstract_failure.dart';
-import '../../../core/firebase_failures.dart';
+import '../../../constants.dart';
+import '../../../failures/abstract_failure.dart';
+import '../../../failures/firebase_failures.dart';
 import '../functions/product_import.dart';
 import '../functions/product_repository_helper.dart';
 import '../prestashop_api/prestashop_api.dart';
 import '../shopify_api/shopify.dart';
 
-final logger = Logger();
-
 Future<Either<AbstractFailure, Product?>> createOrUpdateProductFromMarketplacePresta({
   required String marketplaceId,
   required String currentUserUid,
+  required String ownerId,
   required ProductPresta productPresta,
   required MainSettings mainSettings,
   required ProductRepository productRepository,
@@ -79,9 +78,7 @@ Future<Either<AbstractFailure, Product?>> createOrUpdateProductFromMarketplacePr
     );
 
     await addSetProductIdToPartProducts(
-      db: db,
-      currentUserUid: currentUserUid,
-      transaction: null,
+      ownerId: ownerId,
       setProduct: newCreatedOrUpdatedProduct!,
       listOfSetPartProducts: listOfSetPartProducts,
     );

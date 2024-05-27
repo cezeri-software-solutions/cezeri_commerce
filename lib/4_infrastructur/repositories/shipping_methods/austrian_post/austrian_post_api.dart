@@ -1,11 +1,8 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:http/http.dart' as http;
-import 'package:logger/logger.dart';
 import 'package:xml/xml.dart';
 
 import '../../../../3_domain/entities/address.dart';
-
-final logger = Logger();
+import '../../../../constants.dart';
 
 class AustrianPostApiConfig {
   final String clientId;
@@ -148,7 +145,7 @@ class AustrianPostApi {
     final code2 = document.findAllElements('Code').elementAtOrNull(1);
     print('############## Element 2 START ##################');
     print(code2);
-    if(code2 != null) code2.innerText;
+    if (code2 != null) code2.innerText;
     print('############## Element 2 END ##################');
     final trackingCode = document.findAllElements('Code').first;
     final trackingCode2 = code2?.innerText;

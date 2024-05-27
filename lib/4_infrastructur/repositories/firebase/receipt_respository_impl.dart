@@ -1,20 +1,20 @@
 import 'dart:convert';
 
+import 'package:cezeri_commerce/1_presentation/core/extensions/get_either.dart';
 import 'package:cezeri_commerce/3_domain/entities/receipt/load_appointments_helper/to_load_appointments_from_marketplace.dart';
 import 'package:cezeri_commerce/3_domain/entities/receipt/receipt.dart';
 import 'package:cezeri_commerce/3_domain/entities/receipt/receipt_product.dart';
 import 'package:cezeri_commerce/3_domain/repositories/firebase/customer_repository.dart';
 import 'package:cezeri_commerce/3_domain/repositories/firebase/receipt_respository.dart';
-import 'package:cezeri_commerce/core/abstract_failure.dart';
-import 'package:cezeri_commerce/core/firebase_failures.dart';
-import 'package:cezeri_commerce/core/presta_failure.dart';
+import 'package:cezeri_commerce/4_infrastructur/repositories/functions/get_storage_paths.dart';
+import 'package:cezeri_commerce/failures/abstract_failure.dart';
+import 'package:cezeri_commerce/failures/firebase_failures.dart';
+import 'package:cezeri_commerce/failures/presta_failure.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:http/http.dart';
-import 'package:logger/logger.dart';
 
 import '/1_presentation/core/functions/check_internet_connection.dart';
 import '/3_domain/entities/carrier/parcel_tracking.dart';
@@ -27,51 +27,55 @@ import '/3_domain/repositories/firebase/main_settings_respository.dart';
 import '/3_domain/repositories/firebase/product_repository.dart';
 import '/3_domain/repositories/marketplace/marketplace_edit_repository.dart';
 import '/3_domain/repositories/marketplace/marketplace_import_repository.dart';
+import '../../../3_domain/entities/id.dart';
 import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
 import '../../../3_domain/entities/marketplace/marketplace_presta.dart';
 import '../../../3_domain/entities/marketplace/marketplace_shopify.dart';
+import '../../../3_domain/repositories/firebase/marketplace_repository.dart';
+import '../../../constants.dart';
+import '../functions/get_database.dart';
 import '../functions/receipt_respository_presta_helper.dart';
 import '../functions/receipt_respository_shopify_helper.dart';
 import '../functions/receipt_respository_stat_helper.dart';
+import '../functions/utils_repository_impl.dart';
 import '../prestashop_api/prestashop_api.dart';
 import '../shipping_methods/austrian_post/austrian_post_api.dart';
 import '../shopify_api/api/shopify_api.dart';
 
-final logger = Logger();
-
 class ReceiptRespositoryImpl implements ReceiptRepository {
-  final FirebaseFirestore db;
-  final FirebaseAuth firebaseAuth;
   final ProductRepository productRepository;
   final MarketplaceImportRepository productImportRepository;
   final CustomerRepository customerRepository;
   final MainSettingsRepository mainSettingsRepository;
+  final MarketplaceRepository marketplaceRepository;
   final MarketplaceEditRepository marketplaceEditRepository;
 
   const ReceiptRespositoryImpl({
-    required this.db,
-    required this.firebaseAuth,
     required this.productRepository,
     required this.productImportRepository,
     required this.customerRepository,
     required this.mainSettingsRepository,
+    required this.marketplaceRepository,
     required this.marketplaceEditRepository,
   });
 
   @override
   Future<Either<AbstractFailure, Receipt>> getReceipt(Receipt receipt) async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(NoConnectionFailure());
+    if (!await checkInternetConnection()) return Left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
-    final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRef = getColRef(currentUserUid, receipt.receiptTyp).doc(receipt.id);
+    final database = getReceiptDatabase(receipt.receiptTyp);
 
     try {
-      final loadedAppointment = await docRef.get();
-      return right(Receipt.fromJson(loadedAppointment.data()!));
-    } on FirebaseException catch (e) {
-      logger.e(e.message);
-      return left(GeneralFailure(customMessage: 'Beim Laden des Dokuments ist ein Fehler aufgetreten', e: e));
+      final response = await database.select().eq('ownerId', ownerId).eq('id', receipt.id).single();
+
+      return right(Receipt.fromJson(response));
+    } catch (e) {
+      logger.e(e);
+      return left(GeneralFailure(
+        customMessage: 'Beim Laden des Dokuments ist ein Fehler aufgetreten. Error: $e',
+      ));
     }
   }
 
@@ -81,343 +85,325 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
     List<ReceiptProduct> oldListOfReceiptProducts,
     List<ReceiptProduct> newListOfReceiptProducts,
   ) async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(NoConnectionFailure());
+    if (!await checkInternetConnection()) return Left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
-    final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRef = getColRef(currentUserUid, receipt.receiptTyp).doc(receipt.id);
-    final docRefStatDashboard = db
-        .collection('StatDashboard')
-        .doc(currentUserUid)
-        .collection('StatDashboard')
-        .doc('${receipt.creationDateMarektplace.year}${receipt.creationDateMarektplace.month}');
+    final database = getReceiptDatabase(receipt.receiptTyp);
 
     try {
-      await db.runTransaction((transaction) async {
-        final dsAppointmentBeforeUpdate = await transaction.get(docRef);
-        final appointmentBeforeUpdate = Receipt.fromJson(dsAppointmentBeforeUpdate.data()!);
-        final dsStatDashboard = await transaction.get(docRefStatDashboard);
+      final receiptBeforeUpdateResponse = await database.select().eq('ownerId', ownerId).eq('id', receipt.id).single();
+      final receiptBeforeUpdate = Receipt.fromJson(receiptBeforeUpdateResponse);
 
-        for (final oldProduct in oldListOfReceiptProducts) {
-          if (!oldProduct.isFromDatabase) continue;
-          final newProduct = newListOfReceiptProducts.where((p) => p.productId == oldProduct.productId).firstOrNull;
+      for (final oldProduct in oldListOfReceiptProducts) {
+        if (!oldProduct.isFromDatabase) continue;
+        final newProduct = newListOfReceiptProducts.where((p) => p.productId == oldProduct.productId).firstOrNull;
 
-          if (newProduct == null) {
-            // oldProduct wurde entfernt
-            // Erhöhen Sie den Bestand von oldProduct in Firestore
-            Product? toUpdateProduct = await loadProductToUpdate(oldProduct);
-            if (toUpdateProduct == null) return left(GeneralFailure());
-            await productRepository.updateAvailableQuantityOfProductInremental(toUpdateProduct, oldProduct.quantity, null);
-          } else {
-            // Überprüfen Sie, ob sich die Menge geändert hat
-            final quantityDifference = oldProduct.quantity - newProduct.quantity;
-            if (quantityDifference != 0) {
-              // Anpassen des Bestands in Firestore basierend auf quantityDifference
-              Product? toUpdateProduct = await loadProductToUpdate(oldProduct);
-              if (toUpdateProduct == null) return left(GeneralFailure());
-              await productRepository.updateAvailableQuantityOfProductInremental(toUpdateProduct, quantityDifference, null);
-            }
+        if (newProduct == null) {
+          // oldProduct wurde entfernt
+          // Erhöhen Sie den Bestand von oldProduct in Firestore
+          final fosToUpdateProduct = await productRepository.getProduct(oldProduct.productId);
+          if (fosToUpdateProduct.isLeft()) return Left(fosToUpdateProduct.getLeft());
+          final toUpdateProduct = fosToUpdateProduct.getRight();
+
+          await productRepository.updateAvailableQuantityOfProductInremental(toUpdateProduct, oldProduct.quantity, null);
+        } else {
+          // Überprüfen Sie, ob sich die Menge geändert hat
+          final quantityDifference = oldProduct.quantity - newProduct.quantity;
+          if (quantityDifference != 0) {
+            // Anpassen des Bestands in Firestore basierend auf quantityDifference
+            final fosToUpdateProduct = await productRepository.getProduct(oldProduct.productId);
+            if (fosToUpdateProduct.isLeft()) return Left(fosToUpdateProduct.getLeft());
+            final toUpdateProduct = fosToUpdateProduct.getRight();
+
+            await productRepository.updateAvailableQuantityOfProductInremental(toUpdateProduct, quantityDifference, null);
           }
         }
+      }
 
-        for (final newProduct in newListOfReceiptProducts) {
-          if (!newProduct.isFromDatabase) continue;
-          if (!oldListOfReceiptProducts.any((p) => p.productId == newProduct.productId)) {
-            // newProduct wurde hinzugefügt
-            // Verringern Sie den Bestand von newProduct in Firestore
-            Product? toUpdateProduct = await loadProductToUpdate(newProduct);
-            if (toUpdateProduct == null) return left(GeneralFailure());
-            await productRepository.updateAvailableQuantityOfProductInremental(toUpdateProduct, newProduct.quantity * -1, null);
-          }
+      for (final newProduct in newListOfReceiptProducts) {
+        if (!newProduct.isFromDatabase) continue;
+        if (!oldListOfReceiptProducts.any((p) => p.productId == newProduct.productId)) {
+          // newProduct wurde hinzugefügt
+          // Verringern Sie den Bestand von newProduct in Firestore
+          final fosToUpdateProduct = await productRepository.getProduct(newProduct.productId);
+          if (fosToUpdateProduct.isLeft()) return Left(fosToUpdateProduct.getLeft());
+          final toUpdateProduct = fosToUpdateProduct.getRight();
+
+          await productRepository.updateAvailableQuantityOfProductInremental(toUpdateProduct, newProduct.quantity * -1, null);
         }
+      }
 
-        await incrementStatDashboardOnUpdateReceipt(receipt, appointmentBeforeUpdate, docRefStatDashboard, dsStatDashboard, transaction);
-        transaction.update(docRef, receipt.toJson());
-      });
-      return right(unit);
-    } on FirebaseException catch (e) {
-      logger.e(e.message);
-      return left(GeneralFailure(customMessage: 'Beim Aktualisieren des Dokuments ist ein Fehler aufgetreten', e: e));
+      await incrementStatDashboardOnUpdateReceipt(receipt, receiptBeforeUpdate, ownerId);
+
+      await database.update(receipt.toJson()).eq('ownerId', ownerId).eq('id', receipt.id);
+
+      return const Right(unit);
+    } catch (e) {
+      logger.e(e);
+      return left(GeneralFailure(customMessage: 'Beim Aktualisieren des Dokuments ist ein Fehler aufgetreten. Error: $e'));
     }
   }
 
   @override
   Future<Either<AbstractFailure, Receipt>> createReceiptManually(Receipt receipt) async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(NoConnectionFailure());
+    if (!await checkInternetConnection()) return Left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
-    final now = DateTime.now();
-    final curYear = now.year;
-    final curMonth = now.month;
+    final databaseReceipt = getReceiptDatabase(receipt.receiptTyp);
+    final databaseSettings = supabase.from('d_main_settings');
 
-    final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRefSettings = db.collection('Settings').doc(currentUserUid).collection('Settings').doc(currentUserUid);
-    final docRef = getColRef(currentUserUid, receipt.receiptTyp).doc();
-    final docRefStatDashboard = db.collection('StatDashboard').doc(currentUserUid).collection('StatDashboard').doc('$curYear$curMonth');
+    final genId = UniqueID().value;
 
     try {
       Receipt toCreateReceipt = Receipt.empty();
-      await db.runTransaction((transaction) async {
-        final dsStatDashboard = await transaction.get(docRefStatDashboard);
-        final settingsSnapshot = await transaction.get(docRefSettings);
-        final settings = MainSettings.fromJson(settingsSnapshot.data()!);
+      final fosSettings = await mainSettingsRepository.getSettings();
+      if (fosSettings.isLeft()) return Left(fosSettings.getLeft());
+      final settings = fosSettings.getRight();
 
-        toCreateReceipt = switch (receipt.receiptTyp) {
-          ReceiptTyp.offer => receipt.copyWith(
-              id: docRef.id,
-              receiptId: docRef.id,
-              offerId: settings.nextOfferNumber,
-              offerNumberAsString: settings.offerPraefix + settings.nextOfferNumber.toString(),
-            ),
-          ReceiptTyp.appointment => receipt.copyWith(
-              id: docRef.id,
-              receiptId: docRef.id,
-              appointmentId: settings.nextAppointmentNumber,
-              appointmentNumberAsString: settings.appointmentPraefix + settings.nextAppointmentNumber.toString(),
-            ),
-          ReceiptTyp.deliveryNote => receipt.copyWith(
-              id: docRef.id,
-              receiptId: docRef.id,
-              deliveryNoteId: settings.nextDeliveryNoteNumber,
-              deliveryNoteNumberAsString: settings.deliveryNotePraefix + settings.nextDeliveryNoteNumber.toString(),
-            ),
-          ReceiptTyp.invoice || ReceiptTyp.credit => receipt.copyWith(
-              id: docRef.id,
-              receiptId: docRef.id,
-              invoiceId: settings.nextInvoiceNumber,
-              invoiceNumberAsString: settings.invoicePraefix + settings.nextInvoiceNumber.toString(),
-            ),
-        };
+      toCreateReceipt = switch (receipt.receiptTyp) {
+        ReceiptTyp.offer => receipt.copyWith(
+            id: genId,
+            receiptId: genId,
+            offerId: settings.nextOfferNumber,
+            offerNumberAsString: settings.offerPraefix + settings.nextOfferNumber.toString(),
+          ),
+        ReceiptTyp.appointment => receipt.copyWith(
+            id: genId,
+            receiptId: genId,
+            appointmentId: settings.nextAppointmentNumber,
+            appointmentNumberAsString: settings.appointmentPraefix + settings.nextAppointmentNumber.toString(),
+          ),
+        ReceiptTyp.deliveryNote => receipt.copyWith(
+            id: genId,
+            receiptId: genId,
+            deliveryNoteId: settings.nextDeliveryNoteNumber,
+            deliveryNoteNumberAsString: settings.deliveryNotePraefix + settings.nextDeliveryNoteNumber.toString(),
+          ),
+        ReceiptTyp.invoice || ReceiptTyp.credit => receipt.copyWith(
+            id: genId,
+            receiptId: genId,
+            invoiceId: settings.nextInvoiceNumber,
+            invoiceNumberAsString: settings.invoicePraefix + settings.nextInvoiceNumber.toString(),
+          ),
+      };
 
-        final updatedMainSettings = switch (receipt.receiptTyp) {
-          ReceiptTyp.offer => settings.copyWith(nextOfferNumber: settings.nextOfferNumber + 1),
-          ReceiptTyp.appointment => settings.copyWith(nextAppointmentNumber: settings.nextAppointmentNumber + 1),
-          ReceiptTyp.deliveryNote => settings.copyWith(nextDeliveryNoteNumber: settings.nextDeliveryNoteNumber + 1),
-          ReceiptTyp.invoice || ReceiptTyp.credit => settings.copyWith(nextInvoiceNumber: settings.nextInvoiceNumber + 1),
-        };
+      final updatedMainSettings = switch (receipt.receiptTyp) {
+        ReceiptTyp.offer => settings.copyWith(nextOfferNumber: settings.nextOfferNumber + 1),
+        ReceiptTyp.appointment => settings.copyWith(nextAppointmentNumber: settings.nextAppointmentNumber + 1),
+        ReceiptTyp.deliveryNote => settings.copyWith(nextDeliveryNoteNumber: settings.nextDeliveryNoteNumber + 1),
+        ReceiptTyp.invoice || ReceiptTyp.credit => settings.copyWith(nextInvoiceNumber: settings.nextInvoiceNumber + 1),
+      };
 
-        for (final receiptProduct in toCreateReceipt.listOfReceiptProduct) {
-          if (!receiptProduct.isFromDatabase) continue;
-          Product? toUpdateProduct;
-          final fosProduct = await productRepository.getProduct(receiptProduct.productId);
-          fosProduct.fold(
-            (failure) => null,
-            (product) => toUpdateProduct = product,
-          );
-          await productRepository.updateAvailableQuantityOfProductInremental(toUpdateProduct!, receiptProduct.quantity * -1, null);
-        }
+      for (final receiptProduct in toCreateReceipt.listOfReceiptProduct) {
+        if (!receiptProduct.isFromDatabase) continue;
 
-        transaction.update(docRefSettings, updatedMainSettings.toJson());
+        final fosToUpdateProduct = await productRepository.getProduct(receiptProduct.productId);
+        if (fosToUpdateProduct.isLeft()) return Left(fosToUpdateProduct.getLeft());
+        final toUpdateProduct = fosToUpdateProduct.getRight();
 
-        transaction.set(docRef, toCreateReceipt.toJson());
+        await productRepository.updateAvailableQuantityOfProductInremental(toUpdateProduct, receiptProduct.quantity * -1, null);
+      }
 
-        await createOrIncrementStatDashboardOnCreateReceipt(toCreateReceipt, docRefStatDashboard, dsStatDashboard, transaction);
-        await createOrIncrementStatProductOnCreateReceipt(toCreateReceipt, currentUserUid, db);
-      });
-      return right(toCreateReceipt);
-    } on FirebaseException catch (e) {
-      logger.e(e.message);
-      return left(GeneralFailure(customMessage: 'Beim Erstellen des Dokuments ist ein Fehler aufgetreten', e: e));
+      final toCreateReceiptJson = toCreateReceipt.toJson();
+      toCreateReceiptJson.addEntries([MapEntry('ownerId', ownerId)]);
+      final createdReceiptResponse = await databaseReceipt.insert(toCreateReceiptJson).select('*').single();
+      final createdReceipt = Receipt.fromJson(createdReceiptResponse);
+
+      await databaseSettings.update(updatedMainSettings.toJson()).eq('settingsId', updatedMainSettings.settingsId);
+
+      await createOrIncrementStatDashboardOnCreateReceipt(toCreateReceipt, ownerId);
+      await createOrIncrementStatProductOnCreateReceipt(createdReceipt, ownerId);
+
+      return Right(toCreateReceipt);
     } catch (e) {
       logger.e(e);
-      return left(GeneralFailure());
+      return left(GeneralFailure(customMessage: 'Beim Erstellen des Dokuments ist ein Fehler aufgetreten. Error: $e'));
     }
   }
 
   @override
   Future<Either<AbstractFailure, List<Receipt>>> getListOfReceipts(int value, ReceiptTyp receiptTyp) async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(NoConnectionFailure());
+    if (!await checkInternetConnection()) return Left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
-    final currentUserUid = firebaseAuth.currentUser!.uid;
-    final colRef = value != 0
-        ? getColRef(currentUserUid, receiptTyp)
+    final offersQuery = getReceiptDatabase(receiptTyp).select().eq('ownerId', ownerId).eq('receiptTyp', receiptTyp.name);
+    final appointmentsQuery = getReceiptDatabase(receiptTyp).select().eq('ownerId', ownerId).eq('receiptTyp', receiptTyp.name);
+    final deliveryNotesQuery = getReceiptDatabase(receiptTyp).select().eq('ownerId', ownerId).eq('receiptTyp', receiptTyp.name);
+    final invoicesQuery = getReceiptDatabase(receiptTyp).select().eq('ownerId', ownerId);
+
+    final query = value != 0
+        ? switch (receiptTyp) {
+            ReceiptTyp.offer => offersQuery.order('offerId'),
+            ReceiptTyp.appointment => appointmentsQuery.order('appointmentId'),
+            ReceiptTyp.deliveryNote => deliveryNotesQuery.order('deliveryNoteId'),
+            ReceiptTyp.invoice || ReceiptTyp.credit => invoicesQuery.order('invoiceId'),
+          }
         : switch (receiptTyp) {
-            ReceiptTyp.offer => getColRef(currentUserUid, receiptTyp).where('offerStatus', isEqualTo: OfferStatus.open.name),
-            ReceiptTyp.appointment => getColRef(currentUserUid, receiptTyp)
-                .where('appointmentStatus', whereIn: [AppointmentStatus.open.name, AppointmentStatus.partiallyCompleted.name]),
-            ReceiptTyp.deliveryNote => getColRef(currentUserUid, receiptTyp).where('invoiceId', isEqualTo: 0),
+            ReceiptTyp.offer => offersQuery.eq('offerStatus', OfferStatus.open.name),
+            ReceiptTyp.appointment => appointmentsQuery
+                .or('appointmentStatus.eq.${AppointmentStatus.open.name},appointmentStatus.eq.${AppointmentStatus.partiallyCompleted.name}'),
+            ReceiptTyp.deliveryNote => deliveryNotesQuery.eq('invoiceId', 0),
             ReceiptTyp.invoice ||
             ReceiptTyp.credit =>
-              getColRef(currentUserUid, receiptTyp).where('paymentStatus', whereIn: [PaymentStatus.open.name, PaymentStatus.partiallyPaid.name]),
+              invoicesQuery.or('paymentStatus.eq.${PaymentStatus.open.name},paymentStatus.eq.${PaymentStatus.partiallyPaid.name}'),
           };
 
+    const limit = 990; // Anzahl der Zeilen pro Abfrage
+    int offset = 0; // Startposition
+    final allReceipts = <Receipt>[];
+
     try {
-      final listOfAppointments = await colRef.get().then(
-            (value) => value.docs.map((querySnapshot) => Receipt.fromJson(querySnapshot.data())).toList(),
-          );
+      while (true) {
+        final response = await query.range(offset, offset + limit - 1);
+        if (response.isEmpty) break;
 
-      //* Zum hinzufügen von neuen Attributen.
-      // for (final receipt in listOfAppointments) {
-      //   final docRefReceipt = getColRef(currentUserUid, receiptTyp).doc(receipt.id);
-      //   final updatedReceipt = receipt.copyWith(isPicked: false);
-      //   await docRefReceipt.update(updatedReceipt.toJson());
-      // }
-      //* ENDE hinzufügen von neuen Attributen
-      //* Zum hinzufügen StatProducts.
-      // for (final receipt in listOfAppointments) {
-      //   if (value == 1 && (receipt.receiptTyp == ReceiptTyp.invoice || receipt.receiptTyp == ReceiptTyp.appointment)) {
-      //     await createOrIncrementStatProductOnCreateReceipt(receipt, currentUserUid, db);
-      //   }
-      // }
-      //* ENDE Zum hinzufügen StatProducts.
+        final listOfReceipts = response.map((e) => Receipt.fromJson(e)).toList();
+        allReceipts.addAll(listOfReceipts);
 
-      return right(listOfAppointments);
-    } on FirebaseException catch (e) {
-      logger.e(e.message);
-      return left(GeneralFailure(customMessage: 'Beim Laden der Dokumente ist ein Fehler aufgetreten', e: e));
+        //* Zum hinzufügen von neuen Attributen.
+        // for (final receipt in listOfAppointments) {
+        //   final docRefReceipt = getColRef(currentUserUid, receiptTyp).doc(receipt.id);
+        //   final updatedReceipt = receipt.copyWith(isPicked: false);
+        //   await docRefReceipt.update(updatedReceipt.toJson());
+        // }
+        //* ENDE hinzufügen von neuen Attributen
+        //* Zum hinzufügen StatProducts.
+        // for (final receipt in listOfAppointments) {
+        //   if (value == 1 && (receipt.receiptTyp == ReceiptTyp.invoice || receipt.receiptTyp == ReceiptTyp.appointment)) {
+        //     await createOrIncrementStatProductOnCreateReceipt(receipt, currentUserUid, db);
+        //   }
+        // }
+        //* ENDE Zum hinzufügen StatProducts.
+
+        offset += limit; // Offset für die nächste Abfrage erhöhen
+      }
+
+      return Right(allReceipts);
+    } catch (e) {
+      logger.e(e);
+      return Left(GeneralFailure(customMessage: 'Beim Laden der Dokumente ist ein Fehler aufgetreten. Error: $e'));
     }
   }
 
   @override
   Future<Either<AbstractFailure, Unit>> deleteListOfReceipts(List<Receipt> listOfReceipts) async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(NoConnectionFailure());
+    if (!await checkInternetConnection()) return Left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
-    final currentUserUid = firebaseAuth.currentUser!.uid;
     final receiptTyp = listOfReceipts.first.receiptTyp;
+
+    final database = getReceiptDatabase(receiptTyp);
 
     try {
       for (final receipt in listOfReceipts) {
-        final listOfProducts = await getListOfProductsInReceipt(db: db, receipt: receipt, currentUserUid: currentUserUid);
-        if (listOfProducts == null) continue;
+        final productIds = receipt.listOfReceiptProduct.where((e) => e.isFromDatabase).map((e) => e.productId).toList();
+        final fosListOfProducts = await productRepository.getListOfProductsByIds(productIds);
+        if (fosListOfProducts.isLeft()) continue;
+        final listOfProducts = fosListOfProducts.getRight();
 
-        final docRefStatDashboard = db
-            .collection('StatDashboard')
-            .doc(currentUserUid)
-            .collection('StatDashboard')
-            .doc('${receipt.creationDateMarektplace.year}${receipt.creationDateMarektplace.month}');
+        for (final product in listOfProducts) {
+          await productRepository.updateAvailableQuantityOfProductInremental(
+            product,
+            receipt.listOfReceiptProduct.where((e) => e.productId == product.id).first.quantity,
+            null,
+          );
+        }
 
-        await db.runTransaction((transaction) async {
-          final dsStatDashboard = await transaction.get(docRefStatDashboard);
+        await incrementStatDashboardOnDeleteReceipt(receipt, ownerId);
 
-          for (final product in listOfProducts) {
-            await productRepository.updateAvailableQuantityOfProductInremental(
-              product,
-              receipt.listOfReceiptProduct.where((e) => e.productId == product.id).first.quantity,
-              null,
-            );
-          }
-          await incrementStatDashboardOnDeleteReceipt(receipt, docRefStatDashboard, dsStatDashboard, transaction);
-          final docRef = getColRef(currentUserUid, receiptTyp).doc(receipt.id);
-          transaction.delete(docRef);
-        });
+        await database.delete().eq('ownerId', ownerId).eq('id', receipt.id);
       }
 
-      return right(unit);
-    } on FirebaseException catch (e) {
-      logger.e(e.message);
-      return left(GeneralFailure(customMessage: 'Beim Löschen der Dokumente ist ein Fehler aufgetreten', e: e));
+      return const Right(unit);
+    } catch (e) {
+      logger.e(e);
+      return Left(GeneralFailure(customMessage: 'Beim Löschen der Dokumente ist ein Fehler aufgetreten. Error: $e'));
     }
   }
 
   @override
   Future<Either<AbstractFailure, List<Receipt>>> generateFromListOfOffersNewAppointments(List<Receipt> listOfOffers) async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(NoConnectionFailure());
-
-    final now = DateTime.now();
-    final curYear = now.year;
-    final curMonth = now.month;
-
-    final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRefSettings = db.collection('Settings').doc(currentUserUid).collection('Settings').doc(currentUserUid);
-    final docRefStatDashboardToCreate = db.collection('StatDashboard').doc(currentUserUid).collection('StatDashboard').doc('$curYear$curMonth');
+    if (!await checkInternetConnection()) return Left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
     List<Receipt> generatedAppointments = [];
 
     try {
-      final settingsSnapshot = await docRefSettings.get();
-      final settings = MainSettings.fromJson(settingsSnapshot.data()!);
+      final fosSettings = await mainSettingsRepository.getSettings();
+      if (fosSettings.isLeft()) return Left(fosSettings.getLeft());
+      final settings = fosSettings.getRight();
+
       int nextAppointmentNumber = settings.nextAppointmentNumber;
 
-      final dsStatDashboardToCreate = await docRefStatDashboardToCreate.get();
-
-      MarketplacePresta? marketplace;
+      AbstractMarketplace? marketplace;
 
       for (final offer in listOfOffers) {
-        final docRefStatDashboardToUpdate = db
-            .collection('StatDashboard')
-            .doc(currentUserUid)
-            .collection('StatDashboard')
-            .doc('${offer.creationDate.year}${offer.creationDate.month}');
-        await db.runTransaction((transaction) async {
-          final docRefMarketplace = db.collection('Marketetplaces').doc(currentUserUid).collection('Marketetplaces').doc(offer.marketplaceId);
-          if (marketplace == null) {
-            final dsMarketplace = await docRefMarketplace.get();
-            if (dsMarketplace.exists) marketplace = MarketplacePresta.fromJson(dsMarketplace.data()!);
-          } else {
-            if (offer.marketplaceId != marketplace!.id) {
-              final dsMarketplace = await docRefMarketplace.get();
-              if (dsMarketplace.exists) marketplace = MarketplacePresta.fromJson(dsMarketplace.data()!);
-            }
+        if (marketplace == null) {
+          final fosMarketplace = await marketplaceRepository.getMarketplace(offer.marketplaceId);
+          if (fosMarketplace.isRight()) marketplace = fosMarketplace.getRight();
+        } else {
+          if (offer.marketplaceId != marketplace.id) {
+            final fosMarketplace = await marketplaceRepository.getMarketplace(offer.marketplaceId);
+            if (fosMarketplace.isRight()) marketplace = fosMarketplace.getRight();
           }
+        }
 
-          DocumentSnapshot<Map<String, dynamic>>? dsStatDashboardToUpdate;
-          if (DateTime(offer.creationDate.year, offer.creationDate.month) != DateTime(now.year, now.month)) {
-            dsStatDashboardToUpdate = await transaction.get(docRefStatDashboardToUpdate);
-          }
+        Receipt? generatedAppointmentFromThisOffer;
 
-          Receipt? generatedAppointmentFromThisOffer;
+        Receipt updatedOffer = offer.copyWith(
+          offerStatus: OfferStatus.closed,
+          lastEditingDate: DateTime.now(),
+        );
+        final phAppointment = Receipt.fromOfferGenAppointment(
+          offer: updatedOffer,
+          settings: settings,
+          nextAppointmentNumber: nextAppointmentNumber,
+        );
 
-          Receipt updatedOffer = offer.copyWith(
-            offerStatus: OfferStatus.closed,
-            lastEditingDate: DateTime.now(),
-          );
-          final phAppointment = Receipt.fromOfferGenAppointment(
-            offer: updatedOffer,
-            settings: settings,
-            nextAppointmentNumber: nextAppointmentNumber,
-          );
-          final docRefApp = getColRef(currentUserUid, phAppointment.receiptTyp).doc();
-          final appointment = phAppointment.copyWith(id: docRefApp.id);
-          transaction.set(docRefApp, appointment.toJson());
-          nextAppointmentNumber += 1;
-          generatedAppointments.add(appointment);
-          generatedAppointmentFromThisOffer = appointment;
-          updatedOffer = updatedOffer.copyWith(
-            appointmentId: appointment.appointmentId,
-            appointmentNumberAsString: appointment.appointmentNumberAsString,
-          );
+        final genId = UniqueID().value;
+        final appointment = phAppointment.copyWith(id: genId);
+        final appointmentJson = appointment.toJson();
+        appointmentJson.addEntries([MapEntry('ownerId', ownerId)]);
+        await getReceiptDatabase(phAppointment.receiptTyp).insert(appointmentJson);
 
-          generatedAppointmentFromThisOffer = appointment;
+        nextAppointmentNumber += 1;
+        generatedAppointments.add(appointment);
+        generatedAppointmentFromThisOffer = appointment;
+        updatedOffer = updatedOffer.copyWith(
+          appointmentId: appointment.appointmentId,
+          appointmentNumberAsString: appointment.appointmentNumberAsString,
+        );
 
-          await createOrIncrementStatDashboardOnGenerateFromOfferNewAppointment(
-            offer,
-            docRefStatDashboardToUpdate,
-            docRefStatDashboardToCreate,
-            dsStatDashboardToUpdate,
-            dsStatDashboardToCreate,
-            transaction,
-          );
-          await createOrIncrementStatProductOnCreateReceipt(appointment, currentUserUid, db);
+        generatedAppointmentFromThisOffer = appointment;
 
-          transaction.update(getColRef(currentUserUid, updatedOffer.receiptTyp).doc(updatedOffer.id), updatedOffer.toJson());
+        await createOrIncrementStatDashboardOnGenerateFromOfferNewAppointment(offer, ownerId);
+        await createOrIncrementStatProductOnCreateReceipt(appointment, ownerId);
 
-          for (final receiptProduct in offer.listOfReceiptProduct) {
-            if (!receiptProduct.isFromDatabase) continue;
-            Product? product;
-            final fosProduct = await productRepository.getProduct(receiptProduct.productId);
-            fosProduct.fold(
-              (failure) {
-                logger.e('Artikel ${receiptProduct.name} kontte nicht aus Firestore geladen werden: $failure');
-                return left(GeneralFailure());
-              },
-              (productFromFirestore) => product = productFromFirestore,
-            );
-            await productRepository.updateAvailableQuantityOfProductInremental(product!, receiptProduct.quantity * -1, null);
-          }
-          if (marketplace != null) await sendCustomerEmailsOnCreateReceipts([generatedAppointmentFromThisOffer], marketplace!);
-        });
+        await getReceiptDatabase(updatedOffer.receiptTyp).update(updatedOffer.toJson()).eq('ownerId', ownerId).eq('id', updatedOffer.id);
+
+        for (final receiptProduct in offer.listOfReceiptProduct) {
+          if (!receiptProduct.isFromDatabase) continue;
+          final fosProduct = await productRepository.getProduct(receiptProduct.productId);
+          if (fosProduct.isLeft()) return Left(fosProduct.getLeft());
+          final product = fosProduct.getRight();
+
+          await productRepository.updateAvailableQuantityOfProductInremental(product, receiptProduct.quantity * -1, null);
+        }
+        if (marketplace != null) await sendCustomerEmailsOnCreateReceipts([generatedAppointmentFromThisOffer], marketplace);
       }
+
       final updatedMainSettings = settings.copyWith(nextAppointmentNumber: nextAppointmentNumber);
-      await docRefSettings.update(updatedMainSettings.toJson());
-      return right(generatedAppointments);
-    } on FirebaseException catch (e) {
-      logger.e(e.message);
-      return left(GeneralFailure(customMessage: 'Beim Generieren von Aufträgen aus Angeboten ist ein Fehler aufgetreten', e: e));
+      await mainSettingsRepository.updateSettings(updatedMainSettings);
+
+      return Right(generatedAppointments);
     } catch (e) {
-      return left(GeneralFailure());
+      logger.e(e);
+      return Left(GeneralFailure(customMessage: 'Beim Generieren von Aufträgen aus Angeboten ist ein Fehler aufgetreten. Error: $e'));
     }
   }
 
@@ -427,242 +413,64 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
     bool generateDeliveryNote,
     bool generateInvoice,
   ) async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(NoConnectionFailure());
-
-    final now = DateTime.now();
-    final curYear = now.year;
-    final curMonth = now.month;
-
-    final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRefSettings = db.collection('Settings').doc(currentUserUid).collection('Settings').doc(currentUserUid);
-    final docRefStatDashboard = db.collection('StatDashboard').doc(currentUserUid).collection('StatDashboard').doc('$curYear$curMonth');
+    if (!await checkInternetConnection()) return Left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
     List<Receipt> generatedReceipts = [];
 
     try {
-      final settingsSnapshot = await docRefSettings.get();
-      final settings = MainSettings.fromJson(settingsSnapshot.data()!);
+      final fosSettings = await mainSettingsRepository.getSettings();
+      if (fosSettings.isLeft()) return Left(fosSettings.getLeft());
+      final settings = fosSettings.getRight();
+
       int nextDeliveryNoteNumber = settings.nextDeliveryNoteNumber;
       int nextInvoiceNumber = settings.nextInvoiceNumber;
 
-      final dsStatDashboard = await docRefStatDashboard.get();
-
-      MarketplacePresta? marketplace;
+      AbstractMarketplace? marketplace;
 
       for (final receipt in listOfReceipts) {
-        await db.runTransaction((transaction) async {
-          final docRefMarketplace = db.collection('Marketetplaces').doc(currentUserUid).collection('Marketetplaces').doc(receipt.marketplaceId);
-          if (marketplace == null) {
-            final dsMarketplace = await docRefMarketplace.get();
-            if (dsMarketplace.exists) marketplace = MarketplacePresta.fromJson(dsMarketplace.data()!);
-          } else {
-            if (receipt.marketplaceId != marketplace!.id) {
-              final dsMarketplace = await docRefMarketplace.get();
-              if (dsMarketplace.exists) marketplace = MarketplacePresta.fromJson(dsMarketplace.data()!);
-            }
+        if (marketplace == null) {
+          final fosMarketplace = await marketplaceRepository.getMarketplace(receipt.marketplaceId);
+          if (fosMarketplace.isRight()) marketplace = fosMarketplace.getRight();
+        } else {
+          if (receipt.marketplaceId != marketplace.id) {
+            final fosMarketplace = await marketplaceRepository.getMarketplace(receipt.marketplaceId);
+            if (fosMarketplace.isRight()) marketplace = fosMarketplace.getRight();
           }
-          List<Receipt> generatedReceiptsFromThisReceipt = [];
-
-          List<ReceiptProduct> updatedReceiptProducts = receipt.listOfReceiptProduct.map((e) {
-            return e.copyWith(shippedQuantity: e.quantity);
-          }).toList();
-          Receipt appointment = receipt.copyWith(
-            appointmentStatus: AppointmentStatus.completed,
-            lastEditingDate: DateTime.now(),
-            listOfReceiptProduct: updatedReceiptProducts,
-          );
-          if (generateDeliveryNote) {
-            final phDeliveryNote = Receipt.fromAppointmentGenDeliveryNote(
-              appointment: appointment,
-              settings: settings,
-              nextDeliveryNoteNumber: nextDeliveryNoteNumber,
-              nextInvoiceNumber: nextInvoiceNumber,
-              generateInvoice: generateInvoice,
-            );
-            final docRefDn = getColRef(currentUserUid, phDeliveryNote.receiptTyp).doc();
-            final deliveryNote = phDeliveryNote.copyWith(id: docRefDn.id);
-            transaction.set(docRefDn, deliveryNote.toJson());
-            nextDeliveryNoteNumber += 1;
-            generatedReceipts.add(deliveryNote);
-            generatedReceiptsFromThisReceipt.add(deliveryNote);
-            appointment = appointment.copyWith(
-              deliveryNoteId: deliveryNote.deliveryNoteId,
-              deliveryNoteNumberAsString: deliveryNote.deliveryNoteNumberAsString,
-            );
-          }
-
-          if (generateInvoice) {
-            final phInvoice = Receipt.fromAppointmentGenInvoice(
-              appointment: appointment,
-              settings: settings,
-              nextDeliveryNoteNumber: nextDeliveryNoteNumber,
-              nextInvoiceNumber: nextInvoiceNumber,
-              generateDeliveryNote: generateDeliveryNote,
-            );
-            final docRefI = getColRef(currentUserUid, phInvoice.receiptTyp).doc();
-            final invoice = phInvoice.copyWith(id: docRefI.id);
-            transaction.set(docRefI, invoice.toJson());
-            nextInvoiceNumber += 1;
-            generatedReceipts.add(invoice);
-            generatedReceiptsFromThisReceipt.add(invoice);
-            appointment = appointment.copyWith(
-              invoiceId: invoice.invoiceId,
-              invoiceNumberAsString: invoice.invoiceNumberAsString,
-            );
-
-            await createOrIncrementStatDashboardOnCreateReceipt(invoice, docRefStatDashboard, dsStatDashboard, transaction);
-            await createOrIncrementStatProductOnCreateReceipt(invoice, currentUserUid, db);
-          }
-
-          transaction.update(getColRef(currentUserUid, appointment.receiptTyp).doc(appointment.id), appointment.toJson());
-
-          for (final receiptProduct in receipt.listOfReceiptProduct) {
-            if (!receiptProduct.isFromDatabase) continue;
-            Product? product;
-            final fosProduct = await productRepository.getProduct(receiptProduct.productId);
-            fosProduct.fold(
-              (failure) {
-                logger.e('Artikel ${receiptProduct.name} kontte nicht aus Firestore geladen werden: $failure');
-                return left(GeneralFailure());
-              },
-              (productFromFirestore) => product = productFromFirestore,
-            );
-            await updateProductWarehouseQuantityIncremental(
-              transaction: transaction,
-              db: db,
-              currentUserUid: currentUserUid,
-              product: product!,
-              newQuantityIncremental: receiptProduct.quantity * -1,
-            );
-          }
-          if (marketplace != null) await sendCustomerEmailsOnCreateReceipts(generatedReceiptsFromThisReceipt, marketplace!);
-        });
-
-        //* Neuen Bestellstatus im Marktplatz setzen
-        if (marketplace != null) {
-          final fosOrderStatus = await marketplaceEditRepository.setOrderStatusInMarketplace(
-            marketplace!,
-            receipt.receiptMarketplaceId,
-            OrderStatusUpdateType.onShipping,
-          );
-          fosOrderStatus.fold(
-            (failure) => logger.e('Bestellstatus für Bestellung mit der ID: ${receipt.receiptMarketplaceId} konnte nicht gesetzt werden'),
-            (unit) => logger.i('Bestellstatus für die Bestellung mit der ID: ${receipt.receiptMarketplaceId} wurde erfolgreich aktualisiert'),
-          );
         }
-      }
-      final updatedMainSettings = settings.copyWith(nextDeliveryNoteNumber: nextDeliveryNoteNumber, nextInvoiceNumber: nextInvoiceNumber);
-      await docRefSettings.update(updatedMainSettings.toJson());
-      return right(generatedReceipts);
-    } on FirebaseException catch (e) {
-      logger.e(e.message);
-      return left(GeneralFailure(
-        customMessage: 'Beim Generieren von Lieferscheinen und/oder Rechnungen aus Aufträgen ist ein Fehler aufgetreten',
-        e: e,
-      ));
-    } catch (e) {
-      return left(GeneralFailure());
-    }
-  }
 
-  @override
-  Future<Either<AbstractFailure, List<Receipt>>> generateFromAppointment(
-    Receipt incomingAppointment,
-    Receipt originalAppointment,
-    bool generateDeliveryNote,
-    bool generateInvoice,
-  ) async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(NoConnectionFailure());
+        List<Receipt> generatedReceiptsFromThisReceipt = [];
 
-    final now = DateTime.now();
-    final curYear = now.year;
-    final curMonth = now.month;
+        List<ReceiptProduct> updatedReceiptProducts = receipt.listOfReceiptProduct.map((e) {
+          return e.copyWith(shippedQuantity: e.quantity);
+        }).toList();
 
-    final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRefSettings = db.collection('Settings').doc(currentUserUid).collection('Settings').doc(currentUserUid);
-    final docRefStatDashboard = db.collection('StatDashboard').doc(currentUserUid).collection('StatDashboard').doc('$curYear$curMonth');
-    final docRefMarketplace = db.collection('Marketetplaces').doc(currentUserUid).collection('Marketetplaces').doc(originalAppointment.marketplaceId);
-
-    List<Receipt> generatedReceipts = [];
-
-    final isCompletelyPacked = incomingAppointment.listOfReceiptProduct.every((e) => e.shippedQuantity == e.quantity);
-    final isCompletelyPackedInOnePart = originalAppointment.appointmentStatus == AppointmentStatus.open && isCompletelyPacked;
-
-    try {
-      final settingsSnapshot = await docRefSettings.get();
-      final settings = MainSettings.fromJson(settingsSnapshot.data()!);
-      int nextDeliveryNoteNumber = settings.nextDeliveryNoteNumber;
-      int nextInvoiceNumber = settings.nextInvoiceNumber;
-
-      final dsMarketplace = await docRefMarketplace.get();
-      final marketplace = AbstractMarketplace.fromJson(dsMarketplace.data()!);
-
-      ParcelTracking? parcelTracking;
-      if (generateDeliveryNote) {
-        parcelTracking = await getParcelTracking(currentUserUid, incomingAppointment, settings, nextDeliveryNoteNumber);
-      }
-      final isSuccessfulSetParcelTracking =
-          parcelTracking != null && parcelTracking.deliveryNoteId != 0 && parcelTracking.trackingNumber != '' && parcelTracking.trackingUrl != '';
-
-      await db.runTransaction((transaction) async {
-        final dsStatDashboard = await transaction.get(docRefStatDashboard);
-
-        List<ReceiptProduct> updatedOriginalAppointmentProducts = isCompletelyPacked
-            ? originalAppointment.listOfReceiptProduct.map((e) {
-                return e.copyWith(shippedQuantity: e.quantity);
-              }).toList()
-            : originalAppointment.listOfReceiptProduct.map((e) {
-                final receiptProduct = incomingAppointment.listOfReceiptProduct
-                    .where((element) => element.name == e.name && element.articleNumber == e.articleNumber)
-                    .firstOrNull;
-                if (receiptProduct == null) {
-                  return e;
-                } else {
-                  return e.copyWith(shippedQuantity: receiptProduct.shippedQuantity);
-                }
-              }).toList();
-
-        Receipt partialAppointment = Receipt.genPartial(GenType.partialToCreate, incomingAppointment);
-
-        Receipt originalAppointmentToUpdate = isCompletelyPackedInOnePart
-            ? incomingAppointment.copyWith(
-                appointmentStatus: AppointmentStatus.completed,
-                listOfParcelTracking: isSuccessfulSetParcelTracking ? [parcelTracking!] : [],
-                lastEditingDate: DateTime.now(),
-              )
-            : originalAppointment.copyWith(
-                appointmentStatus: updatedOriginalAppointmentProducts.every((e) => e.shippedQuantity == e.quantity)
-                    ? AppointmentStatus.completed
-                    : AppointmentStatus.partiallyCompleted,
-                listOfParcelTracking: isSuccessfulSetParcelTracking
-                    ? [...originalAppointment.listOfParcelTracking, parcelTracking!]
-                    : originalAppointment.listOfParcelTracking,
-                lastEditingDate: DateTime.now(),
-                listOfReceiptProduct: updatedOriginalAppointmentProducts,
-              );
+        Receipt appointment = receipt.copyWith(
+          appointmentStatus: AppointmentStatus.completed,
+          lastEditingDate: DateTime.now(),
+          listOfReceiptProduct: updatedReceiptProducts,
+        );
 
         if (generateDeliveryNote) {
           final phDeliveryNote = Receipt.fromAppointmentGenDeliveryNote(
-            appointment: isCompletelyPackedInOnePart ? incomingAppointment : partialAppointment,
+            appointment: appointment,
             settings: settings,
             nextDeliveryNoteNumber: nextDeliveryNoteNumber,
             nextInvoiceNumber: nextInvoiceNumber,
             generateInvoice: generateInvoice,
           );
-          final docRefDn = getColRef(currentUserUid, phDeliveryNote.receiptTyp).doc();
-          final deliveryNote = phDeliveryNote.copyWith(
-            id: docRefDn.id,
-            listOfParcelTracking: isSuccessfulSetParcelTracking ? [parcelTracking!] : [],
-            packagingBox: phDeliveryNote.packagingBox != null && phDeliveryNote.packagingBox!.name != ''
-                ? phDeliveryNote.packagingBox!.copyWith(deliveryNoteId: nextDeliveryNoteNumber)
-                : phDeliveryNote.packagingBox,
-          );
-          transaction.set(docRefDn, deliveryNote.toJson());
+
+          final genDNId = UniqueID().value;
+          final deliveryNote = phDeliveryNote.copyWith(id: genDNId);
+          final deliveryNoteJson = deliveryNote.toJson();
+          deliveryNoteJson.addEntries([MapEntry('ownerId', ownerId)]);
+          await getReceiptDatabase(phDeliveryNote.receiptTyp).insert(deliveryNoteJson);
+
           nextDeliveryNoteNumber += 1;
           generatedReceipts.add(deliveryNote);
-          originalAppointmentToUpdate = originalAppointmentToUpdate.copyWith(
+          generatedReceiptsFromThisReceipt.add(deliveryNote);
+          appointment = appointment.copyWith(
             deliveryNoteId: deliveryNote.deliveryNoteId,
             deliveryNoteNumberAsString: deliveryNote.deliveryNoteNumberAsString,
           );
@@ -670,36 +478,34 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
 
         if (generateInvoice) {
           final phInvoice = Receipt.fromAppointmentGenInvoice(
-            appointment: isCompletelyPackedInOnePart ? incomingAppointment : partialAppointment,
+            appointment: appointment,
             settings: settings,
             nextDeliveryNoteNumber: nextDeliveryNoteNumber,
             nextInvoiceNumber: nextInvoiceNumber,
             generateDeliveryNote: generateDeliveryNote,
           );
-          final docRefI = getColRef(currentUserUid, phInvoice.receiptTyp).doc();
-          final invoice = phInvoice.copyWith(
-            id: docRefI.id,
-            listOfParcelTracking: isSuccessfulSetParcelTracking ? [parcelTracking!] : [],
-          );
-          transaction.set(docRefI, invoice.toJson());
+
+          final genIId = UniqueID().value;
+          final invoice = phInvoice.copyWith(id: genIId);
+          final invoiceJson = invoice.toJson();
+          invoiceJson.addEntries([MapEntry('ownerId', ownerId)]);
+          await getReceiptDatabase(phInvoice.receiptTyp).insert(invoiceJson);
+
           nextInvoiceNumber += 1;
           generatedReceipts.add(invoice);
-          originalAppointmentToUpdate = originalAppointmentToUpdate.copyWith(
+          generatedReceiptsFromThisReceipt.add(invoice);
+          appointment = appointment.copyWith(
             invoiceId: invoice.invoiceId,
             invoiceNumberAsString: invoice.invoiceNumberAsString,
           );
 
-          await createOrIncrementStatDashboardOnCreateReceipt(invoice, docRefStatDashboard, dsStatDashboard, transaction);
-          await createOrIncrementStatProductOnCreateReceipt(invoice, currentUserUid, db);
+          await createOrIncrementStatDashboardOnCreateReceipt(invoice, ownerId);
+          await createOrIncrementStatProductOnCreateReceipt(invoice, ownerId);
         }
 
-        transaction.update(
-          getColRef(currentUserUid, originalAppointmentToUpdate.receiptTyp).doc(originalAppointment.id),
-          originalAppointmentToUpdate.toJson(),
-        );
+        await getReceiptDatabase(appointment.receiptTyp).update(appointment.toJson()).eq('ownerId', ownerId).eq('id', appointment.id);
 
-        for (final receiptProduct
-            in isCompletelyPackedInOnePart ? originalAppointment.listOfReceiptProduct : incomingAppointment.listOfReceiptProduct) {
+        for (final receiptProduct in receipt.listOfReceiptProduct) {
           if (!receiptProduct.isFromDatabase) continue;
           Product? product;
           final fosProduct = await productRepository.getProduct(receiptProduct.productId);
@@ -710,18 +516,189 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
             },
             (productFromFirestore) => product = productFromFirestore,
           );
-          await updateProductWarehouseQuantityIncremental(
-            transaction: transaction,
-            db: db,
-            currentUserUid: currentUserUid,
-            product: product!,
-            newQuantityIncremental: isCompletelyPackedInOnePart ? receiptProduct.quantity * -1 : receiptProduct.shippedQuantity * -1,
+
+          await productRepository.updateWarehouseQuantityOfNewProductOnImportIncremental(product!, receiptProduct.quantity * -1, updateSets: true);
+        }
+
+        if (marketplace != null) await sendCustomerEmailsOnCreateReceipts(generatedReceiptsFromThisReceipt, marketplace);
+
+        //* Neuen Bestellstatus im Marktplatz setzen
+        if (marketplace != null) {
+          final fosOrderStatus = await marketplaceEditRepository.setOrderStatusInMarketplace(
+            marketplace,
+            receipt.receiptMarketplaceId,
+            OrderStatusUpdateType.onShipping,
+          );
+          fosOrderStatus.fold(
+            (failure) => logger.e('Bestellstatus für Bestellung mit der ID: ${receipt.receiptMarketplaceId} konnte nicht gesetzt werden'),
+            (unit) => logger.i('Bestellstatus für die Bestellung mit der ID: ${receipt.receiptMarketplaceId} wurde erfolgreich aktualisiert'),
           );
         }
-      });
+      }
 
       final updatedMainSettings = settings.copyWith(nextDeliveryNoteNumber: nextDeliveryNoteNumber, nextInvoiceNumber: nextInvoiceNumber);
-      await docRefSettings.update(updatedMainSettings.toJson());
+      await mainSettingsRepository.updateSettings(updatedMainSettings);
+
+      return Right(generatedReceipts);
+    } catch (e) {
+      logger.e(e);
+      return left(
+        GeneralFailure(customMessage: 'Beim Generieren von Lieferscheinen und/oder Rechnungen aus Aufträgen ist ein Fehler aufgetreten. Error: $e'),
+      );
+    }
+  }
+
+  @override
+  Future<Either<AbstractFailure, List<Receipt>>> generateFromAppointment(
+    Receipt incomingAppointment,
+    Receipt originalAppointment,
+    bool generateDeliveryNote,
+    bool generateInvoice,
+  ) async {
+    if (!await checkInternetConnection()) return Left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
+
+    List<Receipt> generatedReceipts = [];
+
+    final isCompletelyPacked = incomingAppointment.listOfReceiptProduct.every((e) => e.shippedQuantity == e.quantity);
+    final isCompletelyPackedInOnePart = originalAppointment.appointmentStatus == AppointmentStatus.open && isCompletelyPacked;
+
+    try {
+      final fosSettings = await mainSettingsRepository.getSettings();
+      if (fosSettings.isLeft()) return Left(fosSettings.getLeft());
+      final settings = fosSettings.getRight();
+
+      int nextDeliveryNoteNumber = settings.nextDeliveryNoteNumber;
+      int nextInvoiceNumber = settings.nextInvoiceNumber;
+
+      final fosMarketplace = await marketplaceRepository.getMarketplace(originalAppointment.marketplaceId);
+      if (fosMarketplace.isLeft()) return Left(fosMarketplace.getLeft());
+      final marketplace = fosMarketplace.getRight();
+
+      ParcelTracking? parcelTracking;
+      if (generateDeliveryNote) {
+        parcelTracking = await getParcelTracking(ownerId, incomingAppointment, settings, nextDeliveryNoteNumber);
+      }
+      final isSuccessfulSetParcelTracking =
+          parcelTracking != null && parcelTracking.deliveryNoteId != 0 && parcelTracking.trackingNumber != '' && parcelTracking.trackingUrl != '';
+
+      List<ReceiptProduct> updatedOriginalAppointmentProducts = isCompletelyPacked
+          ? originalAppointment.listOfReceiptProduct.map((e) {
+              return e.copyWith(shippedQuantity: e.quantity);
+            }).toList()
+          : originalAppointment.listOfReceiptProduct.map((e) {
+              final receiptProduct = incomingAppointment.listOfReceiptProduct
+                  .where((element) => element.name == e.name && element.articleNumber == e.articleNumber)
+                  .firstOrNull;
+              if (receiptProduct == null) {
+                return e;
+              } else {
+                return e.copyWith(shippedQuantity: receiptProduct.shippedQuantity);
+              }
+            }).toList();
+
+      Receipt partialAppointment = Receipt.genPartial(GenType.partialToCreate, incomingAppointment);
+
+      Receipt originalAppointmentToUpdate = isCompletelyPackedInOnePart
+          ? incomingAppointment.copyWith(
+              appointmentStatus: AppointmentStatus.completed,
+              listOfParcelTracking: isSuccessfulSetParcelTracking ? [parcelTracking] : [],
+              lastEditingDate: DateTime.now(),
+            )
+          : originalAppointment.copyWith(
+              appointmentStatus: updatedOriginalAppointmentProducts.every((e) => e.shippedQuantity == e.quantity)
+                  ? AppointmentStatus.completed
+                  : AppointmentStatus.partiallyCompleted,
+              listOfParcelTracking: isSuccessfulSetParcelTracking
+                  ? [...originalAppointment.listOfParcelTracking, parcelTracking]
+                  : originalAppointment.listOfParcelTracking,
+              lastEditingDate: DateTime.now(),
+              listOfReceiptProduct: updatedOriginalAppointmentProducts,
+            );
+
+      if (generateDeliveryNote) {
+        final phDeliveryNote = Receipt.fromAppointmentGenDeliveryNote(
+          appointment: isCompletelyPackedInOnePart ? incomingAppointment : partialAppointment,
+          settings: settings,
+          nextDeliveryNoteNumber: nextDeliveryNoteNumber,
+          nextInvoiceNumber: nextInvoiceNumber,
+          generateInvoice: generateInvoice,
+        );
+
+        final database = getReceiptDatabase(phDeliveryNote.receiptTyp);
+        final deliveryNote = phDeliveryNote.copyWith(
+          id: UniqueID().value,
+          listOfParcelTracking: isSuccessfulSetParcelTracking ? [parcelTracking] : [],
+          packagingBox: phDeliveryNote.packagingBox != null && phDeliveryNote.packagingBox!.name != ''
+              ? phDeliveryNote.packagingBox!.copyWith(deliveryNoteId: nextDeliveryNoteNumber)
+              : phDeliveryNote.packagingBox,
+        );
+
+        final deliveryNoteJson = deliveryNote.toJson();
+        deliveryNoteJson.addEntries([MapEntry('ownerId', ownerId)]);
+        await database.insert(deliveryNoteJson);
+
+        nextDeliveryNoteNumber += 1;
+        generatedReceipts.add(deliveryNote);
+        originalAppointmentToUpdate = originalAppointmentToUpdate.copyWith(
+          deliveryNoteId: deliveryNote.deliveryNoteId,
+          deliveryNoteNumberAsString: deliveryNote.deliveryNoteNumberAsString,
+        );
+      }
+
+      if (generateInvoice) {
+        final phInvoice = Receipt.fromAppointmentGenInvoice(
+          appointment: isCompletelyPackedInOnePart ? incomingAppointment : partialAppointment,
+          settings: settings,
+          nextDeliveryNoteNumber: nextDeliveryNoteNumber,
+          nextInvoiceNumber: nextInvoiceNumber,
+          generateDeliveryNote: generateDeliveryNote,
+        );
+
+        final genId = UniqueID().value;
+        final database = getReceiptDatabase(phInvoice.receiptTyp);
+        final invoice = phInvoice.copyWith(
+          id: genId,
+          listOfParcelTracking: isSuccessfulSetParcelTracking ? [parcelTracking] : [],
+        );
+
+        final invoiceJson = invoice.toJson();
+        invoiceJson.addEntries([MapEntry('ownerId', ownerId)]);
+        await database.insert(invoiceJson);
+
+        nextInvoiceNumber += 1;
+        generatedReceipts.add(invoice);
+        originalAppointmentToUpdate = originalAppointmentToUpdate.copyWith(
+          invoiceId: invoice.invoiceId,
+          invoiceNumberAsString: invoice.invoiceNumberAsString,
+        );
+
+        await createOrIncrementStatDashboardOnCreateReceipt(invoice, ownerId);
+        await createOrIncrementStatProductOnCreateReceipt(invoice, ownerId);
+      }
+
+      final databaseUpdateOriginal = getReceiptDatabase(originalAppointmentToUpdate.receiptTyp);
+      await databaseUpdateOriginal.update(originalAppointmentToUpdate.toJson()).eq('ownerId', ownerId).eq('id', originalAppointment.id);
+
+      for (final receiptProduct
+          in isCompletelyPackedInOnePart ? originalAppointment.listOfReceiptProduct : incomingAppointment.listOfReceiptProduct) {
+        if (!receiptProduct.isFromDatabase) continue;
+
+        final fosProduct = await productRepository.getProduct(receiptProduct.productId);
+        if (fosProduct.isLeft()) return Left(fosProduct.getLeft());
+        final product = fosProduct.getRight();
+
+        await productRepository.updateWarehouseQuantityOfNewProductOnImportIncremental(
+          product,
+          isCompletelyPackedInOnePart ? receiptProduct.quantity * -1 : receiptProduct.shippedQuantity * -1,
+          updateSets: true,
+        );
+      }
+
+      final updatedMainSettings = settings.copyWith(nextDeliveryNoteNumber: nextDeliveryNoteNumber, nextInvoiceNumber: nextInvoiceNumber);
+      await mainSettingsRepository.updateSettings(updatedMainSettings);
+
       final isSuccessfulSent = await sendCustomerEmailsOnCreateReceipts(generatedReceipts, marketplace);
       if (isSuccessfulSent) {
         logger.i('Alle E-Mails wurden erfolgreich verschickt.');
@@ -752,12 +729,11 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
         case MarketplaceType.shop:
       }
 
-      return right(generatedReceipts);
-    } on FirebaseException catch (e) {
-      logger.e(e.message);
-      return left(GeneralFailure(
-        customMessage: 'Beim Generieren von einem Lieferschein und/oder Rechnung aus einem Auftrag ist ein Fehler aufgetreten',
-        e: e,
+      return Right(generatedReceipts);
+    } catch (e) {
+      logger.e(e);
+      return Left(GeneralFailure(
+        customMessage: 'Beim Generieren von einem Lieferschein und/oder Rechnung aus einem Auftrag ist ein Fehler aufgetreten. Error: $e',
       ));
     }
     // catch (e) {
@@ -768,239 +744,158 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
 
   @override
   Future<Either<AbstractFailure, Receipt>> generateFromListOfDeliveryNotesNewInvoice(List<Receipt> listOfDeliveryNotes) async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(NoConnectionFailure());
-
-    final now = DateTime.now();
-    final curYear = now.year;
-    final curMonth = now.month;
-
-    final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRefSettings = db.collection('Settings').doc(currentUserUid).collection('Settings').doc(currentUserUid);
-    final docRefStatDashboard = db.collection('StatDashboard').doc(currentUserUid).collection('StatDashboard').doc('$curYear$curMonth');
-    final docRefMarketplace =
-        db.collection('Marketetplaces').doc(currentUserUid).collection('Marketetplaces').doc(listOfDeliveryNotes.first.marketplaceId);
-
-    Receipt? generatedReceipt;
+    if (!await checkInternetConnection()) return Left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
     try {
-      final settingsSnapshot = await docRefSettings.get();
-      final settings = MainSettings.fromJson(settingsSnapshot.data()!);
+      final fosSettings = await mainSettingsRepository.getSettings();
+      if (fosSettings.isLeft()) return Left(fosSettings.getLeft());
+      final settings = fosSettings.getRight();
 
-      final dsMarketplace = await docRefMarketplace.get();
-      final marketplace = MarketplacePresta.fromJson(dsMarketplace.data()!);
+      final fosMarketplace = await marketplaceRepository.getMarketplace(listOfDeliveryNotes.first.marketplaceId);
+      if (fosMarketplace.isLeft()) return Left(fosMarketplace.getLeft());
+      final marketplace = fosMarketplace.getRight();
 
-      await db.runTransaction((transaction) async {
-        final dsStatDashboard = await transaction.get(docRefStatDashboard);
+      final phInvoice = Receipt.fromDeliveryNotesGenInvoice(deliveryNotes: listOfDeliveryNotes, settings: settings);
+      final invoice = phInvoice.copyWith(id: UniqueID().value);
 
-        final phInvoice = Receipt.fromDeliveryNotesGenInvoice(deliveryNotes: listOfDeliveryNotes, settings: settings);
-        final docRefI = getColRef(currentUserUid, phInvoice.receiptTyp).doc();
-        final invoice = phInvoice.copyWith(id: docRefI.id);
-        transaction.set(docRefI, invoice.toJson());
-        generatedReceipt = invoice;
+      final database = getReceiptDatabase(phInvoice.receiptTyp);
+      final invoiceJson = invoice.toJson();
+      invoiceJson.addEntries([MapEntry('ownerId', ownerId)]);
+      await database.insert(invoiceJson);
 
-        await createOrIncrementStatDashboardOnCreateReceipt(invoice, docRefStatDashboard, dsStatDashboard, transaction);
-        await createOrIncrementStatProductOnCreateReceipt(invoice, currentUserUid, db);
+      final generatedReceipt = invoice;
 
-        for (final deliveryNote in listOfDeliveryNotes) {
-          final updatedDeliveryNote = deliveryNote.copyWith(
-            invoiceId: invoice.invoiceId,
-            invoiceNumberAsString: invoice.invoiceNumberAsString,
-            lastEditingDate: now,
-          );
-          transaction.update(
-            getColRef(currentUserUid, deliveryNote.receiptTyp).doc(deliveryNote.id),
-            updatedDeliveryNote.toJson(),
-          );
-        }
+      await createOrIncrementStatDashboardOnCreateReceipt(invoice, ownerId);
+      await createOrIncrementStatProductOnCreateReceipt(invoice, ownerId);
 
-        final updatedMainSettings = settings.copyWith(nextInvoiceNumber: settings.nextInvoiceNumber + 1);
-        transaction.update(docRefSettings, updatedMainSettings.toJson());
-      });
-      if (generatedReceipt == null) return left(GeneralFailure());
+      for (final deliveryNote in listOfDeliveryNotes) {
+        final updatedDeliveryNote = deliveryNote.copyWith(
+          invoiceId: invoice.invoiceId,
+          invoiceNumberAsString: invoice.invoiceNumberAsString,
+          lastEditingDate: DateTime.now(),
+        );
 
-      final isSuccessfulSent = await sendCustomerEmailsOnCreateReceipts([generatedReceipt!], marketplace);
+        final dbDeliveryNote = getReceiptDatabase(deliveryNote.receiptTyp);
+        await dbDeliveryNote.update(updatedDeliveryNote.toJson()).eq('ownerId', ownerId).eq('id', deliveryNote.id);
+      }
+
+      final updatedMainSettings = settings.copyWith(nextInvoiceNumber: settings.nextInvoiceNumber + 1);
+      await mainSettingsRepository.updateSettings(updatedMainSettings);
+
+      final isSuccessfulSent = await sendCustomerEmailsOnCreateReceipts([generatedReceipt], marketplace);
       if (isSuccessfulSent) {
         logger.i('Alle E-Mails wurden erfolgreich verschickt.');
       } else {
         logger.e('Eine oder meherer E-Mails konnten nicht verschickt werden!');
       }
 
-      return right(generatedReceipt!);
+      return Right(generatedReceipt);
     } on FirebaseException catch (e) {
       logger.e(e.message);
-      return left(GeneralFailure(customMessage: 'Beim Generieren von Rechnungen aus Lieferscheinen ist ein Fehler aufgetreten', e: e));
+      return Left(GeneralFailure(customMessage: 'Beim Generieren von Rechnungen aus Lieferscheinen ist ein Fehler aufgetreten', e: e));
     }
   }
 
   @override
   Future<Either<AbstractFailure, Receipt>> generateFromInvoiceNewCredit(Receipt invoice) async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(NoConnectionFailure());
-
-    final now = DateTime.now();
-    final curYear = now.year;
-    final curMonth = now.month;
-
-    final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRefSettings = db.collection('Settings').doc(currentUserUid).collection('Settings').doc(currentUserUid);
-    final docRefStatDashboardToCreate = db.collection('StatDashboard').doc(currentUserUid).collection('StatDashboard').doc('$curYear$curMonth');
-
-    Receipt? generatedCredit;
+    if (!await checkInternetConnection()) return Left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
     try {
-      final settingsSnapshot = await docRefSettings.get();
-      final settings = MainSettings.fromJson(settingsSnapshot.data()!);
+      final fosSettings = await mainSettingsRepository.getSettings();
+      if (fosSettings.isLeft()) return Left(fosSettings.getLeft());
+      final settings = fosSettings.getRight();
+
       int nextInvoiceNumber = settings.nextInvoiceNumber;
 
-      final dsStatDashboardToCreate = await docRefStatDashboardToCreate.get();
+      final fosMarketplace = await marketplaceRepository.getMarketplace(invoice.marketplaceId);
+      if (fosMarketplace.isLeft()) return Left(fosMarketplace.getLeft());
+      final marketplace = fosMarketplace.getRight();
 
-      MarketplacePresta? marketplace;
+      Receipt updatedInvoice = invoice.copyWith(lastEditingDate: DateTime.now());
 
-      final docRefStatDashboardToUpdate = db
-          .collection('StatDashboard')
-          .doc(currentUserUid)
-          .collection('StatDashboard')
-          .doc('${invoice.creationDate.year}${invoice.creationDate.month}');
-      await db.runTransaction((transaction) async {
-        final docRefMarketplace = db.collection('Marketetplaces').doc(currentUserUid).collection('Marketetplaces').doc(invoice.marketplaceId);
-        if (marketplace == null) {
-          final dsMarketplace = await docRefMarketplace.get();
-          if (dsMarketplace.exists) marketplace = MarketplacePresta.fromJson(dsMarketplace.data()!);
-        } else {
-          if (invoice.marketplaceId != marketplace!.id) {
-            final dsMarketplace = await docRefMarketplace.get();
-            if (dsMarketplace.exists) marketplace = MarketplacePresta.fromJson(dsMarketplace.data()!);
-          }
-        }
+      final phCredit = Receipt.fromInvoiceGenCredit(
+        invoice: updatedInvoice,
+        settings: settings,
+        nextInvoiceNumber: nextInvoiceNumber,
+      );
 
-        DocumentSnapshot<Map<String, dynamic>>? dsStatDashboardToUpdate;
-        if (DateTime(invoice.creationDate.year, invoice.creationDate.month) != DateTime(now.year, now.month)) {
-          dsStatDashboardToUpdate = await transaction.get(docRefStatDashboardToUpdate);
-        }
+      final credit = phCredit.copyWith(id: UniqueID().value);
 
-        Receipt? generatedAppointmentFromThisOffer;
+      final database = getReceiptDatabase(phCredit.receiptTyp);
+      final creditJson = credit.toJson();
+      creditJson.addEntries([MapEntry('ownerId', ownerId)]);
+      await database.insert(creditJson);
 
-        Receipt updatedInvoice = invoice.copyWith(lastEditingDate: DateTime.now());
-        final phCredit = Receipt.fromInvoiceGenCredit(
-          invoice: updatedInvoice,
-          settings: settings,
-          nextInvoiceNumber: nextInvoiceNumber,
-        );
-        final docRefCredit = getColRef(currentUserUid, phCredit.receiptTyp).doc();
-        final credit = phCredit.copyWith(id: docRefCredit.id);
-        transaction.set(docRefCredit, credit.toJson());
-        nextInvoiceNumber += 1;
-        generatedCredit = credit;
-        generatedAppointmentFromThisOffer = credit;
+      nextInvoiceNumber += 1;
+      final generatedCredit = credit;
+      final generatedAppointmentFromThisOffer = credit;
 
-        await createOrIncrementStatDashboardOnGenerateFromInvoiceNewCredit(
-          invoice,
-          docRefStatDashboardToUpdate,
-          docRefStatDashboardToCreate,
-          dsStatDashboardToUpdate,
-          dsStatDashboardToCreate,
-          transaction,
-        );
+      await createOrIncrementStatDashboardOnGenerateFromInvoiceNewCredit(invoice, ownerId);
 
-        transaction.update(getColRef(currentUserUid, updatedInvoice.receiptTyp).doc(updatedInvoice.id), updatedInvoice.toJson());
+      final databaseUpdatedInvoice = getReceiptDatabase(updatedInvoice.receiptTyp);
+      await databaseUpdatedInvoice.update(updatedInvoice.toJson()).eq('ownerId', ownerId).eq('id', updatedInvoice.id);
 
-        for (final receiptProduct in invoice.listOfReceiptProduct) {
-          if (!receiptProduct.isFromDatabase) continue;
-          Product? product;
-          final fosProduct = await productRepository.getProduct(receiptProduct.productId);
-          fosProduct.fold(
-            (failure) {
-              logger.e('Artikel ${receiptProduct.name} kontte nicht aus Firestore geladen werden: $failure');
-              return left(GeneralFailure());
-            },
-            (productFromFirestore) => product = productFromFirestore,
-          );
-          await productRepository.updateAvailableQuantityOfProductInremental(product!, receiptProduct.quantity * -1, null);
-        }
-        if (marketplace != null) await sendCustomerEmailsOnCreateReceipts([generatedAppointmentFromThisOffer], marketplace!);
-      });
+      for (final receiptProduct in invoice.listOfReceiptProduct) {
+        if (!receiptProduct.isFromDatabase) continue;
+
+        final fosProduct = await productRepository.getProduct(receiptProduct.productId);
+        if (fosProduct.isLeft()) return Left(fosProduct.getLeft());
+        final product = fosProduct.getRight();
+
+        await productRepository.updateAvailableQuantityOfProductInremental(product, receiptProduct.quantity * -1, null);
+      }
+      await sendCustomerEmailsOnCreateReceipts([generatedAppointmentFromThisOffer], marketplace);
 
       final updatedMainSettings = settings.copyWith(nextInvoiceNumber: nextInvoiceNumber);
-      await docRefSettings.update(updatedMainSettings.toJson());
-      return right(generatedCredit!);
-    } on FirebaseException catch (e) {
-      logger.e(e.message);
-      return left(GeneralFailure(customMessage: 'Beim Generieren von einer Gutschrift aus einer Rechnung ist ein Fehler aufgetreten', e: e));
+      await mainSettingsRepository.updateSettings(updatedMainSettings);
+
+      return Right(generatedCredit);
     } catch (e) {
-      return left(GeneralFailure());
+      logger.e(e);
+      return left(GeneralFailure(customMessage: 'Beim Generieren von einer Gutschrift aus einer Rechnung ist ein Fehler aufgetreten. Error: $e'));
     }
-  }
-
-  CollectionReference<Map<String, dynamic>> getColRef(String currentUserUid, ReceiptTyp receiptTyp) {
-    return switch (receiptTyp) {
-      ReceiptTyp.offer => db.collection('Receipts').doc(currentUserUid).collection('Offers'),
-      ReceiptTyp.appointment => db.collection('Receipts').doc(currentUserUid).collection('Appointments'),
-      ReceiptTyp.deliveryNote => db.collection('Receipts').doc(currentUserUid).collection('DeliveryNotes'),
-      ReceiptTyp.invoice || ReceiptTyp.credit => db.collection('Receipts').doc(currentUserUid).collection('Invoices'),
-    };
-  }
-
-  Future<Product?> loadProductToUpdate(ReceiptProduct receiptProduct) async {
-    Product? toUpdateProduct;
-    final fosToUpdateProduct = await productRepository.getProduct(receiptProduct.productId);
-    fosToUpdateProduct.fold(
-      (failure) {
-        logger.e('Artikel ${receiptProduct.name} zum updaten des Bestandes konnte nicht aus Firestore geladen werden');
-        return left(GeneralFailure());
-      },
-      (loadedProduct) => toUpdateProduct = loadedProduct,
-    );
-
-    return toUpdateProduct;
-  }
-
-  @override
-  Future<Either<AbstractFailure, Unit>> sendEmails() async {
-    // bool isFailure = false;
-    //await sendEmail(to: 'info@ccf-autopflege.at', from: 'ince.ali@msn.com', subject: 'Test-Mail', text: 'Hallo das ist eine Test-Mail');
-    // if (isFailure) return left(GeneralFailure());
-    return right(unit);
   }
 
   @override
   Future<Either<AbstractFailure, ParcelTracking>> createNewParcelForReceipt(Receipt deliveryNote) async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(NoConnectionFailure());
+    if (!await checkInternetConnection()) return Left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
-    final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRef = getColRef(currentUserUid, deliveryNote.receiptTyp).doc(deliveryNote.id);
-    final docRefMS = db.collection('Settings').doc(currentUserUid).collection('Settings').doc(currentUserUid);
-    final docRefMP = db.collection('Marketetplaces').doc(currentUserUid).collection('Marketetplaces').doc(deliveryNote.marketplaceId);
+    final database = getReceiptDatabase(deliveryNote.receiptTyp);
 
     try {
-      final loadedDeliveryNoteDs = await docRef.get();
-      if (!loadedDeliveryNoteDs.exists) return left(GeneralFailure(customMessage: 'Dokument konnte nicht aus der Datenbank geladen werden'));
-      final loadedDeliveryNote = Receipt.fromJson(loadedDeliveryNoteDs.data()!);
+      final fosDeliveryNote = await getReceipt(deliveryNote);
+      if (fosDeliveryNote.isLeft()) return Left(fosDeliveryNote.getLeft());
+      final loadedDeliveryNote = fosDeliveryNote.getRight();
 
-      final settingsDs = await docRefMS.get();
-      if (!settingsDs.exists) return left(GeneralFailure(customMessage: 'Einstellungen konnten nicht aus der Datenbank geladen werden'));
-      final settings = MainSettings.fromJson(settingsDs.data()!);
+      final fosSettings = await mainSettingsRepository.getSettings();
+      if (fosSettings.isLeft()) return Left(fosSettings.getLeft());
+      final settings = fosSettings.getRight();
 
-      final marketplaceDs = await docRefMP.get();
-      if (!marketplaceDs.exists) return left(GeneralFailure(customMessage: 'Marktplatz konnten nicht aus der Datenbank geladen werden'));
-      final marketplace = MarketplacePresta.fromJson(marketplaceDs.data()!);
+      final fosMarketplace = await marketplaceRepository.getMarketplace(deliveryNote.marketplaceId);
+      if (fosMarketplace.isLeft()) return Left(fosMarketplace.getLeft());
+      final marketplace = fosMarketplace.getRight();
 
-      final parcelTracking = await getParcelTracking(currentUserUid, loadedDeliveryNote, settings, loadedDeliveryNote.deliveryNoteId);
+      final parcelTracking = await getParcelTracking(ownerId, loadedDeliveryNote, settings, loadedDeliveryNote.deliveryNoteId);
       if (parcelTracking == null) return left(GeneralFailure(customMessage: 'Paketlabel konnte nicht erstellt werden'));
 
       final List<ParcelTracking> listOfUpdatedParcelTracking = loadedDeliveryNote.listOfParcelTracking;
       listOfUpdatedParcelTracking.add(parcelTracking);
       final updatedDeliveryNote = loadedDeliveryNote.copyWith(listOfParcelTracking: listOfUpdatedParcelTracking);
 
-      await docRef.update(updatedDeliveryNote.toJson());
+      await database.update(updatedDeliveryNote.toJson()).eq('ownerId', ownerId).eq('id', deliveryNote.id);
 
       await sendCustomerEmailsOnCreateReceipts([updatedDeliveryNote], marketplace);
 
-      return right(parcelTracking);
-    } on FirebaseException catch (e) {
-      logger.e(e.message);
-      return left(GeneralFailure(customMessage: 'Beim Erstellen eines Versandlabels ist ein Fehler aufgetreten', e: e));
+      return Right(parcelTracking);
+    } catch (e) {
+      logger.e(e);
+      return Left(GeneralFailure(customMessage: 'Beim Erstellen eines Versandlabels ist ein Fehler aufgetreten. Error: $e'));
     }
   }
 
@@ -1008,14 +903,12 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
   Future<Either<AbstractFailure, List<ToLoadAppointmentsFromMarketplace>>> getToLoadAppointmentsFromMarketplaces() async {
     if (!await checkInternetConnection()) return left(NoConnectionFailure());
 
-    final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRefMarketplaces = db.collection('Marketetplaces').doc(currentUserUid).collection('Marketetplaces').where('isActive', isEqualTo: true);
-
     try {
       List<ToLoadAppointmentsFromMarketplace> listOfToLoadAppointmentsFromMarketplace = [];
-      final listOfActiveMarketplaces = await docRefMarketplaces.get().then(
-            (value) => value.docs.map((querySnapshot) => AbstractMarketplace.fromJson(querySnapshot.data())).toList(),
-          );
+
+      final fosListOfActiveMarketplaces = await marketplaceRepository.getListOfMarketplaces(onlyActive: true);
+      if (fosListOfActiveMarketplaces.isLeft()) return Left(fosListOfActiveMarketplaces.getLeft());
+      final listOfActiveMarketplaces = fosListOfActiveMarketplaces.getRight();
 
       for (final marketplace in listOfActiveMarketplaces) {
         if (!marketplace.isActive) continue;
@@ -1053,10 +946,10 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
             }
         }
       }
-      return right(listOfToLoadAppointmentsFromMarketplace);
+      return Right(listOfToLoadAppointmentsFromMarketplace);
     } catch (e) {
       logger.e('Fehler beim laden der zu ladenden Aufträge von Marktplätzen: $e');
-      return left(GeneralFailure(customMessage: 'Fehler beim laden der zu ladenden Aufträge von Marktplätzen: $e'));
+      return Left(GeneralFailure(customMessage: 'Fehler beim laden der zu ladenden Aufträge von Marktplätzen: $e'));
     }
   }
 
@@ -1083,10 +976,10 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
         orderMarketplaceId: toLoadAppointment.orderId,
       );
 
-      return right(loadedOrderFromMarketplace);
+      return Right(loadedOrderFromMarketplace);
     } catch (e) {
       logger.e('Fehler beim laden der Aufträge von Marktplätzen: $e');
-      return left(PrestaGeneralFailure(errorMessage: 'Fehler beim laden der Aufträge von Marktplätzen: $e'));
+      return Left(PrestaGeneralFailure(errorMessage: 'Fehler beim laden der Aufträge von Marktplätzen: $e'));
     }
   }
 
@@ -1128,20 +1021,11 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
   @override
   Future<Either<AbstractFailure, Receipt>> uploadLoadedAppointmentToFirestore(LoadedOrderFromMarketplace loadedAppointmentFromMarketplace) async {
     if (!await checkInternetConnection()) return left(NoConnectionFailure());
-    // if (loadedAppointmentFromMarketplace.marketplace.marketplaceType != MarketplaceType.prestashop) {
-    //   return left(NoConnectionFailure()); // TODO: LÖSCHEN
-    // }
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
     final now = DateTime.now();
-    final curYear = now.year;
-    final curMonth = now.month;
-
-    final currentUserUid = firebaseAuth.currentUser!.uid;
-    final marketplace = loadedAppointmentFromMarketplace.marketplace; //TODO: Shopify
-
-    final docRefMainSettings = db.collection('Settings').doc(currentUserUid).collection('Settings').doc(currentUserUid);
-    final docRefStatDashboard = db.collection('StatDashboard').doc(currentUserUid).collection('StatDashboard').doc('$curYear$curMonth');
-    final docRefMarketplace = db.collection('Marketetplaces').doc(currentUserUid).collection('Marketetplaces').doc(marketplace.id);
+    final marketplace = loadedAppointmentFromMarketplace.marketplace;
 
     // final orderPresta = loadedAppointmentFromMarketplace.orderPresta!;
     final orderMarketplaceId = switch (loadedAppointmentFromMarketplace.marketplace.marketplaceType) {
@@ -1152,30 +1036,29 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
 
     Receipt? receiptToReturn;
     //* Überprüft, ob die aus dem Marktplatz geladene Bestellung bereits in Firebase Firestore hinterlegt ist
-    final docRefReceipt = getColRef(currentUserUid, ReceiptTyp.appointment).where('receiptMarketplaceId', isEqualTo: orderMarketplaceId);
-    final appointmentListFirestore =
-        await docRefReceipt.get().then((value) => value.docs.map((querySnapshot) => Receipt.fromJson(querySnapshot.data())).toList());
-    if (appointmentListFirestore.isNotEmpty) {
-      logger.e('Vom Marktplatz geladene Bestellung ist bereits in Firestore vorhanden');
-      return left(GeneralFailure(customMessage: 'Vom Marktplatz geladene Bestellung ist bereits in der Datenbank vorhanden'));
+    try {
+      final queryReceipt =
+          await getReceiptDatabase(ReceiptTyp.appointment).select().eq('ownerId', ownerId).eq('receiptMarketplaceId', orderMarketplaceId);
+      if (queryReceipt.isNotEmpty) {
+        logger.e('Vom Marktplatz geladene Bestellung ist bereits in Firestore vorhanden');
+        return Left(GeneralFailure(customMessage: 'Vom Marktplatz geladene Bestellung ist bereits in der Datenbank vorhanden'));
+      }
+    } catch (e) {
+      null;
     }
 
-    final dsMainSettings = await docRefMainSettings.get();
-    if (!dsMainSettings.exists) {
-      logger.e('MainSettings konnte nicht aus Firestore geladen werden');
-      return left(GeneralFailure(customMessage: 'MainSettings konnte nicht aus Firestore geladen werden'));
-    }
-    final mainSettings = MainSettings.fromJson(dsMainSettings.data()!);
-    int nextCustomerNumber = mainSettings.nextCustomerNumber;
+    final fosSettings = await mainSettingsRepository.getSettings();
+    if (fosSettings.isLeft()) return Left(fosSettings.getLeft());
+    final mainSettings = fosSettings.getRight();
 
     Receipt? phAppointment;
+    int nextCustomerNumber = mainSettings.nextCustomerNumber;
+
     switch (loadedAppointmentFromMarketplace.marketplace.marketplaceType) {
       case MarketplaceType.prestashop:
         {
-          AbstractFailure? abstractFailureFromCrateReceiptFromOrderPresta;
           final fosListOfReceiptproduct = await createReceiptFromOrderPresta(
-            db,
-            currentUserUid,
+            ownerId,
             productRepository,
             customerRepository,
             marketplaceEditRepository,
@@ -1184,94 +1067,75 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
             loadedAppointmentFromMarketplace.orderPresta!,
             loadedAppointmentFromMarketplace,
           );
-          fosListOfReceiptproduct.fold(
-            (failure) => abstractFailureFromCrateReceiptFromOrderPresta = failure,
-            (appointmentAndCustomerNumer) {
-              phAppointment = appointmentAndCustomerNumer.receipt;
-              nextCustomerNumber = appointmentAndCustomerNumer.customerNumber;
-            },
-          );
-          if (abstractFailureFromCrateReceiptFromOrderPresta != null || phAppointment == null) {
-            return Left(abstractFailureFromCrateReceiptFromOrderPresta!);
-          }
+
+          if (fosListOfReceiptproduct.isLeft()) return Left(fosListOfReceiptproduct.getLeft());
+          final appointmentAndCustomerNumer = fosListOfReceiptproduct.getRight();
+          phAppointment = appointmentAndCustomerNumer.receipt;
+          nextCustomerNumber = appointmentAndCustomerNumer.customerNumber;
         }
       case MarketplaceType.shopify:
         {
-          AbstractFailure? abstractFailureFromCrateReceiptFromOrderPresta;
           final fosListOfReceiptproduct = await createReceiptFromOrderShopify(
-            db,
-            currentUserUid,
             productRepository,
             customerRepository,
             mainSettings,
             marketplace as MarketplaceShopify,
             loadedAppointmentFromMarketplace.orderShopify!,
           );
-          fosListOfReceiptproduct.fold(
-            (failure) => abstractFailureFromCrateReceiptFromOrderPresta = failure,
-            (appointmentAndCustomerNumer) {
-              phAppointment = appointmentAndCustomerNumer.receipt;
-              nextCustomerNumber = appointmentAndCustomerNumer.customerNumber;
-            },
-          );
-          if (abstractFailureFromCrateReceiptFromOrderPresta != null || phAppointment == null) {
-            return Left(abstractFailureFromCrateReceiptFromOrderPresta!);
-          }
+
+          if (fosListOfReceiptproduct.isLeft()) return Left(fosListOfReceiptproduct.getLeft());
+          final appointmentAndCustomerNumer = fosListOfReceiptproduct.getRight();
+          phAppointment = appointmentAndCustomerNumer.receipt;
+          nextCustomerNumber = appointmentAndCustomerNumer.customerNumber;
         }
       case MarketplaceType.shop:
         throw Exception('Aus einem Ladengeschäft können keine Bestellungen geladen werden.');
     }
 
     try {
-      await db.runTransaction((transaction) async {
-        final dsStatDashboard = await transaction.get(docRefStatDashboard);
+      final genAppId = UniqueID().value;
+      final appointment = phAppointment.copyWith(id: genAppId, receiptId: genAppId);
+      final appointmentJson = appointment.toJson();
+      appointmentJson.addEntries([MapEntry('ownerId', ownerId)]);
+      final createdAppointmentResponse = await getReceiptDatabase(ReceiptTyp.appointment).insert(appointmentJson).select('*').single();
+      final createdAppointment = Receipt.fromJson(createdAppointmentResponse);
+      receiptToReturn = createdAppointment;
 
-        final docRefAppointment = getColRef(currentUserUid, ReceiptTyp.appointment).doc();
-        final appointment = phAppointment!.copyWith(id: docRefAppointment.id, receiptId: docRefAppointment.id);
-        transaction.set(docRefAppointment, appointment.toJson());
-        receiptToReturn = appointment;
+      await createOrIncrementStatDashboardOnCreateReceipt(createdAppointment, ownerId);
+      await createOrIncrementStatProductOnCreateReceipt(createdAppointment, ownerId);
 
-        await createOrIncrementStatDashboardOnCreateReceipt(appointment, docRefStatDashboard, dsStatDashboard, transaction);
-        await createOrIncrementStatProductOnCreateReceipt(appointment, currentUserUid, db);
+      final nextAppointmentNumber = mainSettings.nextAppointmentNumber + 1;
+      final updatedMainSettings = mainSettings.copyWith(
+        nextAppointmentNumber: nextAppointmentNumber,
+        nextCustomerNumber: nextCustomerNumber,
+      );
+      await mainSettingsRepository.updateSettings(updatedMainSettings);
 
-        final nextAppointmentNumber = mainSettings.nextAppointmentNumber + 1;
-        final updatedMainSettings = mainSettings.copyWith(
-          nextAppointmentNumber: nextAppointmentNumber,
-          nextCustomerNumber: nextCustomerNumber,
-        );
-        transaction.update(docRefMainSettings, updatedMainSettings.toJson());
-
-        switch (marketplace.marketplaceType) {
-          case MarketplaceType.prestashop:
-            {
-              final updatedMarketplace = (marketplace as MarketplacePresta).copyWith(
-                marketplaceSettings: marketplace.marketplaceSettings.copyWith(
-                  nextIdToImport: loadedAppointmentFromMarketplace.orderMarketplaceId + 1,
-                  lastImportDateTime: now,
-                ),
-              );
-              transaction.update(docRefMarketplace, updatedMarketplace.toJson());
-            }
-          case MarketplaceType.shopify:
-            {
-              final updatedMarketplace = (marketplace as MarketplaceShopify).copyWith(
-                marketplaceSettings: marketplace.marketplaceSettings.copyWith(lastImportDateTime: now),
-              );
-              transaction.update(docRefMarketplace, updatedMarketplace.toJson());
-            }
-          case MarketplaceType.shop:
-            throw Exception('Aus einem Ladengeschäft können keine Aufträge importiert und in die Datenbank hochgeladen werden.');
-        }
-      });
-    } on FirebaseException catch (e) {
-      return left(GeneralFailure(customMessage: e.message));
+      switch (marketplace.marketplaceType) {
+        case MarketplaceType.prestashop:
+          {
+            final updatedMarketplace = (marketplace as MarketplacePresta).copyWith(
+              marketplaceSettings: marketplace.marketplaceSettings.copyWith(
+                nextIdToImport: loadedAppointmentFromMarketplace.orderMarketplaceId + 1,
+                lastImportDateTime: now,
+              ),
+            );
+            await marketplaceRepository.updateMarketplace(updatedMarketplace, null);
+          }
+        case MarketplaceType.shopify:
+          {
+            final updatedMarketplace = (marketplace as MarketplaceShopify).copyWith(
+              marketplaceSettings: marketplace.marketplaceSettings.copyWith(lastImportDateTime: now),
+            );
+            await marketplaceRepository.updateMarketplace(updatedMarketplace, null);
+          }
+        case MarketplaceType.shop:
+          throw Exception('Aus einem Ladengeschäft können keine Aufträge importiert und in die Datenbank hochgeladen werden.');
+      }
+    } catch (e) {
+      return Left(GeneralFailure(customMessage: '$e'));
     }
-
-    if (receiptToReturn == null) {
-      logger.e('Bestellung wurde aus Marktplatz geladen, konnten aber nicht in Firestore gespeichert werden');
-      return left(GeneralFailure(customMessage: 'Bestellung wurde aus Marktplatz geladen, konnten aber nicht in Firestore gespeichert werden'));
-    }
-    return right(receiptToReturn!);
+    return Right(receiptToReturn);
   }
 }
 
@@ -1459,66 +1323,16 @@ Future<bool> sendEmail({
       'attachment': attachmentBase64,
       'filename': filename ?? 'attachment.pdf',
     });
-    print('E-Mail gesendet: ${response.data}');
+    logger.i('E-Mail gesendet: ${response.data}');
     isSuccess = true;
   } catch (e) {
-    print('Fehler beim Senden der E-Mail: $e');
+    logger.e('Fehler beim Senden der E-Mail: $e');
     isSuccess = false;
   }
   return isSuccess;
 }
 
-Future<List<Product>?> getListOfProductsInReceipt({
-  required FirebaseFirestore db,
-  required Receipt receipt,
-  required String currentUserUid,
-}) async {
-  try {
-    final listOfProductsInDatabase = receipt.listOfReceiptProduct.where((e) => e.isFromDatabase).toList();
-    logger.i(listOfProductsInDatabase.map((e) => e.productId));
-    final docRefProducts = db
-        .collection('Products')
-        .doc(currentUserUid)
-        .collection('Products')
-        .where('id', whereIn: listOfProductsInDatabase.map((e) => e.productId).toList());
-    final listOfProducts = await docRefProducts
-        .get()
-        .then((value) => value.docs.map((queryDocuemntSnapshot) => Product.fromJson(queryDocuemntSnapshot.data())).toList());
-    return listOfProducts;
-  } catch (error) {
-    logger.e("Error fetching list of products: $error");
-    return null;
-  }
-}
-
-Future<void> updateProductWarehouseQuantityIncremental({
-  required Transaction transaction,
-  required FirebaseFirestore db,
-  required String currentUserUid,
-  required Product product,
-  required int newQuantityIncremental,
-}) async {
-  //! Wenn diese Funktion bearbeitet wird muss auch die Funktion (product_repository_impl)(updateWarehouseQuantityOfNewProductOnImportIncremental) geupdatet werden
-  final docRefProduct = db.collection('Products').doc(currentUserUid).collection('Products').doc(product.id);
-
-  try {
-    final updatedProduct = product.copyWith(
-      warehouseStock: product.warehouseStock + newQuantityIncremental,
-      isUnderMinimumStock: product.availableStock <= product.minimumStock ? true : false,
-    );
-    transaction.update(docRefProduct, updatedProduct.toJson());
-    if (product.isSetArticle && product.listOfProductIdWithQuantity.isNotEmpty) {
-      for (final productIdWithQuantity in product.listOfProductIdWithQuantity) {
-        final docRef = db.collection('Products').doc(currentUserUid).collection('Products').doc(productIdWithQuantity.productId);
-        transaction.update(docRef, {'warehouseStock': FieldValue.increment(newQuantityIncremental * productIdWithQuantity.quantity)});
-      }
-    }
-  } catch (error) {
-    logger.e('Error on updating product quantity in firebase: $error');
-  }
-}
-
-Future<ParcelTracking?> getParcelTracking(String currentUserUid, Receipt receipt, MainSettings ms, int deliveryNoteNumber) async {
+Future<ParcelTracking?> getParcelTracking(String ownerId, Receipt receipt, MainSettings ms, int deliveryNoteNumber) async {
   final carrier = ms.listOfCarriers.where((e) => e.carrierTyp == receipt.receiptCarrier.carrierTyp).firstOrNull;
   if (carrier == null) return null;
   final cCredentials = carrier.carrierKey;
@@ -1564,7 +1378,7 @@ Future<ParcelTracking?> getParcelTracking(String currentUserUid, Receipt receipt
 
   final pdfString = service.getPdfLabel(responseString);
 
-  final downloadURL = await uploadLabelToStorage(currentUserUid, receipt.receiptId, pdfString, trackingNumber);
+  final downloadURL = await uploadShippingLabelToStorage(ownerId, receipt.receiptId, pdfString, trackingNumber);
 
   final parcelTracking = ParcelTracking(
     deliveryNoteId: deliveryNoteNumber,
@@ -1576,17 +1390,20 @@ Future<ParcelTracking?> getParcelTracking(String currentUserUid, Receipt receipt
   return parcelTracking;
 }
 
-Future<String?> uploadLabelToStorage(String currentUserUid, String receiptId, String pdfString, String trackingNumber) async {
+Future<String?> uploadShippingLabelToStorage(String ownerId, String receiptId, String pdfString, String trackingNumber) async {
   final pdfBytes = base64.decode(pdfString);
 
-  FirebaseStorage storage = FirebaseStorage.instance;
-  final storagePath = '$currentUserUid/ParcelLabel/$receiptId';
-  Reference ref = storage.ref().child('$storagePath/$trackingNumber.pdf');
+  final filePath = '${getShippingLabelStoragePath(ownerId, receiptId)}/$trackingNumber.pdf';
 
-  UploadTask uploadTask = ref.putData(pdfBytes);
-  TaskSnapshot taskSnapshot = await uploadTask;
+  try {
+    final storageResponse = await supabase.storage.from('shipping-labels').uploadBinary(filePath, pdfBytes);
+    print(storageResponse);
+  } catch (e) {
+    logger.e(e);
+    return null;
+  }
 
-  final downloadURL = await taskSnapshot.ref.getDownloadURL();
+  final downloadURL = supabase.storage.from('shipping-labels').getPublicUrl(filePath);
 
   return downloadURL;
 }

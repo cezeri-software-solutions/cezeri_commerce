@@ -19,13 +19,13 @@ class SignUpScreen extends StatelessWidget {
     return BlocProvider(
       create: (context) => signInFormBloc,
       child: BlocListener<SignInFormBloc, SignInFormState>(
-        listenWhen: (previous, current) => previous.authFailureOrSuccessOption != current.authFailureOrSuccessOption,
+        listenWhen: (previous, current) => previous.authFailureOrSuccessOptionOnRegister != current.authFailureOrSuccessOptionOnRegister,
         listener: (context, state) {
-          state.authFailureOrSuccessOption.fold(
+          state.authFailureOrSuccessOptionOnRegister.fold(
             () => null,
             (a) => a.fold(
               (failure) => failureRenderer(context, [failure]),
-              (right) => context.router.replaceAll([const RegisterUserDataRoute()]),
+              (right) => context.router.replaceAll([SplashRoute()]),
             ),
           );
         },

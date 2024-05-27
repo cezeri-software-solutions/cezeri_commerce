@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/auth_failures.dart';
-import '../../../core/firebase_failures.dart';
+import '../../../failures/auth_failures.dart';
+import '../../../failures/firebase_failures.dart';
 
 // void myScaffoldMessengerOld(
 //   BuildContext context,
@@ -78,14 +78,10 @@ void myScaffoldMessenger(
 
 String mapAuthFailureMessage(AuthFailure failure) {
   return switch (failure.runtimeType) {
-    AuthServerFailure => 'Etwas ist schifgelaufen',
-    WrongPasswordFailure => 'Sie haben ein falsches Passwort eingegeben',
-    UserDisabledFailure => 'Dieser User wurde deaktiviert\nBitte melden Sie sich beim Support',
-    InvalidEmailFailure => 'Bitte geben Sie eine valide E-Mail Adresse ein',
-    EmailAlreadyInUseFailure => 'Diese E-Mail ist bereits registriert',
-    WeakPasswordFailure => 'Bitte geben Sie ein sichereres Passwort ein',
-    EmailNotFoundFailure => 'Diese E-Mail konnte nicht gefunden werden',
-    (_) => 'Etwas ist schifgelaufen',
+   AuthServerFailure => 'Ein unerwarteter Fehler ist aufgetreten.\nKontaktiere den Kundendienst.',
+    WrongEmailOrPasswordFailure => 'Du hast entweder eine falsche E-Mail oder ein falsches Passwort eingegeben.',
+    EmailNotConfirmedFailure => 'Verifiziere bitte deine E-Mail, indem du auf den Link in deiner E-Mail klickst, den du von uns erhalten hast',
+    (_) => 'Ein unerwarteter Fehler ist aufgetreten.\nKontaktiere den Kundendienst.',
   };
 }
 

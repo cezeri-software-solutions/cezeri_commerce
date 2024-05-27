@@ -1,4 +1,3 @@
-import 'package:logger/logger.dart';
 import 'package:xml/xml.dart';
 
 import '../../../1_presentation/core/functions/mixed_functions.dart';
@@ -8,7 +7,6 @@ import '../../../3_domain/entities/product/product_marketplace.dart';
 import '../../../3_domain/entities/product/product_presta.dart';
 import 'models/product_raw_presta.dart';
 
-final logger = Logger();
 
 //* Order
 XmlBuilder patchOrderStatusBuilder(final int orderId, final int statusId) {

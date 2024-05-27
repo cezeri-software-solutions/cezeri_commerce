@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
 
-import '../../../core/abstract_failure.dart';
+import '../../../failures/abstract_failure.dart';
 import '../../entities/picklist/picklist.dart';
 import '../../entities/product/product.dart';
 import '../../entities/receipt/receipt.dart';

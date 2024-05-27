@@ -6,7 +6,6 @@ import 'package:cezeri_commerce/1_presentation/core/widgets/my_text_form_field_s
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:logger/logger.dart';
 
 import '../../../../2_application/firebase/reorder_detail/reorder_detail_bloc.dart';
 import '../../../../3_domain/entities/product/product.dart';
@@ -15,8 +14,6 @@ import '../../../../constants.dart';
 import '../../../core/functions/show_my_product_quick_view.dart';
 import '../../../core/widgets/my_avatar.dart';
 import '../../../core/widgets/my_recommended_reorder_quantity.dart';
-
-final logger = Logger();
 
 class SelectReorderDetailProductDialog extends StatelessWidget {
   final ReorderDetailBloc reorderDetailBloc;

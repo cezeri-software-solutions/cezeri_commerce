@@ -44,6 +44,7 @@ class ProductDetailState {
   final List<ProductIdWithQuantity> listOfSelectedProducts;
   final List<Product> listOfPartOfSetProducts;
   final List<Product>? listOfAllProducts;
+  final List<Product>? listOfSetPartProducts;
   final List<Product> listOfFilteredProducts;
   final SearchController partOfSetProductSearchController;
   //* Product Images
@@ -115,6 +116,7 @@ class ProductDetailState {
     required this.listOfSelectedProducts,
     required this.listOfPartOfSetProducts,
     required this.listOfAllProducts,
+    required this.listOfSetPartProducts,
     required this.listOfFilteredProducts,
     required this.partOfSetProductSearchController,
     required this.isProductImagesEdited,
@@ -184,6 +186,7 @@ class ProductDetailState {
       listOfSelectedProducts: [],
       listOfPartOfSetProducts: [],
       listOfAllProducts: null,
+      listOfSetPartProducts: null,
       listOfFilteredProducts: [],
       partOfSetProductSearchController: SearchController(),
       isProductImagesEdited: false,
@@ -253,6 +256,7 @@ class ProductDetailState {
     List<ProductIdWithQuantity>? listOfSelectedProducts,
     List<Product>? listOfPartOfSetProducts,
     List<Product>? listOfAllProducts,
+    List<Product>? listOfSetPartProducts,
     List<Product>? listOfFilteredProducts,
     SearchController? partOfSetProductSearchController,
     bool? isProductImagesEdited,
@@ -320,6 +324,7 @@ class ProductDetailState {
       listOfSelectedProducts: listOfSelectedProducts ?? this.listOfSelectedProducts,
       listOfPartOfSetProducts: listOfPartOfSetProducts ?? this.listOfPartOfSetProducts,
       listOfAllProducts: listOfAllProducts ?? this.listOfAllProducts,
+      listOfSetPartProducts: listOfSetPartProducts ?? this.listOfSetPartProducts,
       listOfFilteredProducts: listOfFilteredProducts ?? this.listOfFilteredProducts,
       partOfSetProductSearchController: partOfSetProductSearchController ?? this.partOfSetProductSearchController,
       isProductImagesEdited: isProductImagesEdited ?? this.isProductImagesEdited,

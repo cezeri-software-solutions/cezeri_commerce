@@ -1,104 +1,120 @@
+import 'package:cezeri_commerce/1_presentation/core/extensions/get_either.dart';
 import 'package:cezeri_commerce/3_domain/entities/reorder/supplier.dart';
-import 'package:cezeri_commerce/core/firebase_failures.dart';
+import 'package:cezeri_commerce/failures/firebase_failures.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../../1_presentation/core/functions/check_internet_connection.dart';
+import '../../../3_domain/repositories/firebase/main_settings_respository.dart';
 import '../../../3_domain/repositories/firebase/supplier_repository.dart';
-import '../../../core/abstract_failure.dart';
+import '../../../constants.dart';
+import '../../../failures/abstract_failure.dart';
+import '../functions/repository_functions.dart';
 
 class SupplierRepositoryImpl implements SupplierRepository {
   final FirebaseFirestore db;
   final FirebaseAuth firebaseAuth;
+  final MainSettingsRepository settingsRepository;
 
-  SupplierRepositoryImpl({required this.db, required this.firebaseAuth});
+  SupplierRepositoryImpl({required this.db, required this.firebaseAuth, required this.settingsRepository});
 
   @override
   Future<Either<AbstractFailure, Supplier>> createSupplier(Supplier supplier) async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(NoConnectionFailure());
+    if (!await checkInternetConnection()) return Left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
-    final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRef = db.collection('Suppliers').doc(currentUserUid).collection('Suppliers').doc();
-    final docRefSettings = db.collection('Settings').doc(currentUserUid).collection('Settings').doc(currentUserUid);
+    final databaseSuppliers = supabase.from('d_suppliers');
+    final databaseSettings = supabase.from('d_main_settings');
 
     try {
-      Supplier toCreateSupplier = supplier.copyWith(id: docRef.id);
-      await docRef.set(toCreateSupplier.toJson());
+      final fosSettings = await settingsRepository.getSettings();
+      if (fosSettings.isLeft()) return Left(fosSettings.getLeft());
+      final settings = fosSettings.getRight();
 
-      await docRefSettings.update({'nextSupplierNumber': FieldValue.increment(1)});
+      final supplierJson = supplier.toJson();
+      supplierJson.addEntries([MapEntry('ownerId', ownerId)]);
+      final supplierResponse = await databaseSuppliers.insert(supplierJson).select('*').single();
+      final createdSupplier = Supplier.fromJson(supplierResponse);
 
-      return right(toCreateSupplier);
-    } on FirebaseException {
-      return left(GeneralFailure());
+      final updatedSettings = settings.copyWith(nextSupplierNumber: settings.nextSupplierNumber + 1);
+      await databaseSettings.update(updatedSettings.toJson()).eq('settingsId', settings.settingsId);
+
+      return Right(createdSupplier);
+    } catch (e) {
+      return Left(GeneralFailure(customMessage: 'Beim Erstellen des Lieferanten ist ein Fehler aufgetreten. Error: $e'));
     }
   }
 
   @override
   Future<Either<AbstractFailure, Supplier>> getSupplier(String id) async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(NoConnectionFailure());
+    if (!await checkInternetConnection()) return left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
-    final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRef = db.collection('Suppliers').doc(currentUserUid).collection('Suppliers').doc(id);
+    final query = supabase.from('d_suppliers').select().eq('ownerId', ownerId).eq('id', id).single();
 
     try {
-      final supplier = await docRef.get();
-      return right(Supplier.fromJson(supplier.data()!));
-    } on FirebaseException {
-      return left(GeneralFailure());
+      final response = await query;
+
+      return right(Supplier.fromJson(response));
+    } catch (e) {
+      logger.e(e);
+      return left(GeneralFailure(customMessage: 'Beim Laden des Lieferanten ist ein Fehler aufgetreten. Error: $e'));
     }
   }
 
   @override
   Future<Either<AbstractFailure, List<Supplier>>> getListOfSuppliers() async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(NoConnectionFailure());
+    if (!await checkInternetConnection()) return Left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
-    final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRef = db.collection('Suppliers').doc(currentUserUid).collection('Suppliers');
+    final query = supabase.from('d_suppliers').select().eq('ownerId', ownerId);
 
     try {
-      final listOfSuppliers = await docRef.get().then((value) => value.docs.map((querySnapshot) => Supplier.fromJson(querySnapshot.data())).toList());
+      final response = await query;
+      if (response.isEmpty) return const Right([]);
 
-      return right(listOfSuppliers);
-    } on FirebaseException {
-      return left(GeneralFailure());
+      final listOfSuppliers = response.map((e) => Supplier.fromJson(e)).toList();
+
+      return Right(listOfSuppliers);
+    } catch (e) {
+      logger.e(e);
+      return left(GeneralFailure(customMessage: 'Beim Laden der Lieferanten ist ein Fehler aufgetreten. Error: $e'));
     }
   }
 
   @override
   Future<Either<AbstractFailure, Supplier>> updateSupplier(Supplier supplier) async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(NoConnectionFailure());
-
-    final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRef = db.collection('Suppliers').doc(currentUserUid).collection('Suppliers').doc(supplier.id);
+    if (!await checkInternetConnection()) return Left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
     try {
-      await docRef.update(supplier.toJson());
+      await supabase.from('d_suppliers').update(supplier.toJson()).eq('ownerId', ownerId).eq('id', supplier.id);
 
-      return right(supplier);
-    } on FirebaseException {
-      return left(GeneralFailure());
+      return Right(supplier);
+    } catch (e) {
+      logger.e(e);
+      return Left(GeneralFailure(customMessage: 'Beim Aktualisieren des Lieferanten ist ein Fehler aufgetreten. Error: $e'));
     }
   }
 
   @override
   Future<Either<AbstractFailure, Unit>> deleteSupplier(String id) async {
-    final isConnected = await checkInternetConnection();
-    if (!isConnected) return left(NoConnectionFailure());
-
-    final currentUserUid = firebaseAuth.currentUser!.uid;
-    final docRef = db.collection('Suppliers').doc(currentUserUid).collection('Suppliers').doc(id);
+    if (!await checkInternetConnection()) return Left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
     try {
-      await docRef.delete();
+      await supabase.from('d_suppliers').delete().eq('ownerId', ownerId).eq('id', id);
 
-      return right(unit);
-    } on FirebaseException {
-      return left(GeneralFailure());
+      return const Right(unit);
+    } catch (e) {
+      logger.e(e);
+      return Left(GeneralFailure(customMessage: 'Beim Löschen des Lieferanten ist ein Fehler aufgetreten. Error: $e'));
     }
   }
 }
