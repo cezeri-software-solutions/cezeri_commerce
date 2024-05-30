@@ -31,6 +31,7 @@ class ProductDetailState {
 
   //* Chart
   final List<StatProduct>? listOfStatProducts;
+  final List<ProductSalesData>? listOfProductSalesData;
   final bool isShowingSalesVolumeOnChart;
   final bool isLoadingStatProductsOnObserve;
   final AbstractFailure? firebaseFailureChart;
@@ -105,6 +106,7 @@ class ProductDetailState {
     required this.fosProductOnCreateInMarketplaceOption,
     required this.fosProductAbstractFailuresOption,
     required this.listOfStatProducts,
+    required this.listOfProductSalesData,
     required this.isShowingSalesVolumeOnChart,
     required this.isLoadingStatProductsOnObserve,
     required this.firebaseFailureChart,
@@ -175,6 +177,7 @@ class ProductDetailState {
       fosProductOnCreateInMarketplaceOption: none(),
       fosProductAbstractFailuresOption: none(),
       listOfStatProducts: null,
+      listOfProductSalesData: null,
       isShowingSalesVolumeOnChart: true,
       isLoadingStatProductsOnObserve: false,
       firebaseFailureChart: null,
@@ -245,6 +248,7 @@ class ProductDetailState {
     Option<Either<PrestaFailure, ProductRawPresta>>? fosProductOnCreateInMarketplaceOption,
     Option<Either<List<AbstractFailure>, Unit>>? fosProductAbstractFailuresOption,
     List<StatProduct>? listOfStatProducts,
+    List<ProductSalesData>? listOfProductSalesData,
     bool? isShowingSalesVolumeOnChart,
     bool? isLoadingStatProductsOnObserve,
     AbstractFailure? firebaseFailureChart,
@@ -313,6 +317,7 @@ class ProductDetailState {
       fosProductOnCreateInMarketplaceOption: fosProductOnCreateInMarketplaceOption ?? this.fosProductOnCreateInMarketplaceOption,
       fosProductAbstractFailuresOption: fosProductAbstractFailuresOption ?? this.fosProductAbstractFailuresOption,
       listOfStatProducts: listOfStatProducts ?? this.listOfStatProducts,
+      listOfProductSalesData: listOfProductSalesData ?? this.listOfProductSalesData,
       isShowingSalesVolumeOnChart: isShowingSalesVolumeOnChart ?? this.isShowingSalesVolumeOnChart,
       isLoadingStatProductsOnObserve: isLoadingStatProductsOnObserve ?? this.isLoadingStatProductsOnObserve,
       firebaseFailureChart: firebaseFailureChart ?? this.firebaseFailureChart,

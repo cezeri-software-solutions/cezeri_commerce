@@ -2,11 +2,11 @@ import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.da
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
-import '/3_domain/entities/statistic/stat_product.dart';
 import '/constants.dart';
+import '../../../../../3_domain/entities/statistic/product_sales_data.dart';
 
 class ProductLineChartSalesVolume extends StatelessWidget {
-  final List<StatProduct> statProducts;
+  final List<ProductSalesData> statProducts;
 
   ProductLineChartSalesVolume({super.key, required this.statProducts});
 
@@ -131,11 +131,11 @@ class ProductLineChartSalesVolume extends StatelessWidget {
     );
   }
 
-  double getMaxValue(List<StatProduct> listOfStatDashboards) {
+  double getMaxValue(List<ProductSalesData> listOfStatDashboards) {
     if (listOfStatDashboards.isEmpty) return 0;
     List<double> numbers = [];
     for (var statDashboard in listOfStatDashboards) {
-      numbers.add(statDashboard.salesVolume);
+      numbers.add(statDashboard.totalRevenue);
     }
 
     double max = double.negativeInfinity;
@@ -156,10 +156,10 @@ class ProductLineChartSalesVolume extends StatelessWidget {
     for (int i = 0; i < 13; i++) {
       DateTime monthYear = DateTime(now.year, now.month - 12 + i);
       var matchingElement = statProducts.firstWhere(
-        (element) => DateTime(element.creationDate.year, element.creationDate.month) == monthYear,
-        orElse: () => StatProduct.empty(),
+        (element) => DateTime(element.month.year, element.month.month) == monthYear,
+        orElse: () => ProductSalesData.empty(),
       );
-      spots.add(FlSpot(i.toDouble(), roundDouble(matchingElement.salesVolume)));
+      spots.add(FlSpot(i.toDouble(), roundDouble(matchingElement.totalRevenue)));
     }
     return spots;
   }

@@ -9,7 +9,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../2_application/firebase/reorder_detail/reorder_detail_bloc.dart';
 import '../../../../3_domain/entities/product/product.dart';
-import '../../../../3_domain/entities/statistic/stat_product_reorder.dart';
+import '../../../../3_domain/entities/statistic/product_sales_data.dart';
 import '../../../../constants.dart';
 import '../../../core/functions/show_my_product_quick_view.dart';
 import '../../../core/widgets/my_avatar.dart';
@@ -85,11 +85,11 @@ class SelectReorderDetailProductDialog extends StatelessWidget {
                               child: InkWell(
                                   onLongPress: () {
                                     for (final reProduct in productList) {
-                                      StatProductReorder? statProductReorderInvoice =
-                                          state.listOfStatProductsInvoice?.where((e) => e.productId == reProduct.id).firstOrNull;
-                                      statProductReorderInvoice ??= StatProductReorder(productId: '', quantity: 0);
+                                      ProductSalesData? salesData =
+                                          state.listOfProductSalesData?.where((e) => e.productId == reProduct.id).firstOrNull;
+                                      salesData ??= ProductSalesData.empty();
                                       final ebmPerRe = _getRecommendedOrderQuantity(
-                                        statProductReorderInvoice.quantity,
+                                        salesData.totalQuantity,
                                         reProduct.minimumStock,
                                         reProduct.minimumReorderQuantity,
                                         reProduct.warehouseStock,
@@ -105,11 +105,11 @@ class SelectReorderDetailProductDialog extends StatelessWidget {
                               child: InkWell(
                                   onLongPress: () {
                                     for (final reProduct in productList) {
-                                      StatProductReorder? statProductReorderAppointment =
-                                          state.listOfStatProductsAppointment?.where((e) => e.productId == reProduct.id).firstOrNull;
-                                      statProductReorderAppointment ??= StatProductReorder(productId: '', quantity: 0);
+                                      ProductSalesData? salesDataInklApp =
+                                          state.listOfProductSalesDataInklOpen?.where((e) => e.productId == reProduct.id).firstOrNull;
+                                      salesDataInklApp ??= ProductSalesData.empty();
                                       final ebmPerAe = _getRecommendedOrderQuantity(
-                                        statProductReorderAppointment.quantity,
+                                        salesDataInklApp.totalQuantity,
                                         reProduct.minimumStock,
                                         reProduct.minimumReorderQuantity,
                                         reProduct.availableStock,
@@ -125,11 +125,11 @@ class SelectReorderDetailProductDialog extends StatelessWidget {
                               child: InkWell(
                                   onLongPress: () {
                                     for (final reProduct in productList) {
-                                      StatProductReorder? statProductReorderInvoice =
-                                          state.listOfStatProductsInvoice?.where((e) => e.productId == reProduct.id).firstOrNull;
-                                      statProductReorderInvoice ??= StatProductReorder(productId: '', quantity: 0);
+                                      ProductSalesData? salesData =
+                                          state.listOfProductSalesData?.where((e) => e.productId == reProduct.id).firstOrNull;
+                                      salesData ??= ProductSalesData.empty();
                                       final ebmPerRe = _getRecommendedOrderQuantity(
-                                        statProductReorderInvoice.quantity,
+                                        salesData.totalQuantity,
                                         reProduct.minimumStock,
                                         reProduct.minimumReorderQuantity,
                                         reProduct.warehouseStock,
@@ -146,11 +146,11 @@ class SelectReorderDetailProductDialog extends StatelessWidget {
                               child: InkWell(
                                   onLongPress: () {
                                     for (final reProduct in productList) {
-                                      StatProductReorder? statProductReorderAppointment =
-                                          state.listOfStatProductsAppointment?.where((e) => e.productId == reProduct.id).firstOrNull;
-                                      statProductReorderAppointment ??= StatProductReorder(productId: '', quantity: 0);
+                                      ProductSalesData? salesDataInklApp =
+                                          state.listOfProductSalesDataInklOpen?.where((e) => e.productId == reProduct.id).firstOrNull;
+                                      salesDataInklApp ??= ProductSalesData.empty();
                                       final ebmPerAe = _getRecommendedOrderQuantity(
-                                        statProductReorderAppointment.quantity,
+                                        salesDataInklApp.totalQuantity,
                                         reProduct.minimumStock,
                                         reProduct.minimumReorderQuantity,
                                         reProduct.availableStock,
@@ -161,6 +161,8 @@ class SelectReorderDetailProductDialog extends StatelessWidget {
                                   },
                                   child: const RecommendedReorderQuantity(title: 'EBM/AE/VE:', quantity: 0, color: CustomColors.ultraLightRed)),
                             ),
+                            const Spacer(),
+                            Text(state.listOfProducts!.length.toString()),
                           ],
                         ),
                     ],
@@ -171,23 +173,21 @@ class SelectReorderDetailProductDialog extends StatelessWidget {
                     itemCount: productList.length,
                     itemBuilder: ((context, index) {
                       final product = productList[index];
-                      StatProductReorder? statProductReorderInvoice =
-                          state.listOfStatProductsInvoice?.where((e) => e.productId == product.id).firstOrNull;
-                      statProductReorderInvoice ??= StatProductReorder(productId: '', quantity: 0);
-                      StatProductReorder? statProductReorderAppointment =
-                          state.listOfStatProductsAppointment?.where((e) => e.productId == product.id).firstOrNull;
-                      statProductReorderAppointment ??= StatProductReorder(productId: '', quantity: 0);
+                      ProductSalesData? salesData = state.listOfProductSalesData?.where((e) => e.productId == product.id).firstOrNull;
+                      salesData ??= ProductSalesData.empty();
+                      ProductSalesData? salesDataInklApp = state.listOfProductSalesDataInklOpen?.where((e) => e.productId == product.id).firstOrNull;
+                      salesDataInklApp ??= ProductSalesData.empty();
                       final inListProduct = state.reorder!.listOfReorderProducts.where((e) => e.productId == product.id).firstOrNull;
 
                       final ve = product.packagingUnitOnReorder;
                       final ebmPerRe = _getRecommendedOrderQuantity(
-                        statProductReorderInvoice.quantity,
+                        salesData.totalQuantity,
                         product.minimumStock,
                         product.minimumReorderQuantity,
                         product.warehouseStock,
                       );
                       final ebmPerAe = _getRecommendedOrderQuantity(
-                        statProductReorderAppointment.quantity,
+                        salesDataInklApp.totalQuantity,
                         product.minimumStock,
                         product.minimumReorderQuantity,
                         product.availableStock,
@@ -217,7 +217,7 @@ class SelectReorderDetailProductDialog extends StatelessWidget {
                                       InkWell(
                                         onTap: () => showMyProductQuickView(context: context, product: product, showStatProduct: true),
                                         child: Text(
-                                          '${statProductReorderInvoice.quantity} / ${statProductReorderAppointment.quantity}',
+                                          '${salesData.totalQuantity} / ${salesDataInklApp.totalQuantity}',
                                           style: TextStyles.s13Bold,
                                         ),
                                       ),

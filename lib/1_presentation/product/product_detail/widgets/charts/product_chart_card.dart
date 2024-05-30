@@ -2,9 +2,9 @@ import 'package:cezeri_commerce/1_presentation/core/widgets/my_circular_progress
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '/constants.dart';
 import '../../../../../2_application/firebase/product_detail/product_detail_bloc.dart';
 import '../../../../core/functions/mixed_functions.dart';
-import '/constants.dart';
 import 'product_bart_chart_items_sold.dart';
 import 'product_line_chart_sales_volume.dart';
 
@@ -22,7 +22,7 @@ class ProductChartCard extends StatelessWidget {
       builder: (context, state) {
         if (state.isLoadingStatProductsOnObserve) return const _LoadingOrFailureCard(widget: MyCircularProgressIndicator());
         if (state.firebaseFailureChart != null) return const _LoadingOrFailureCard(widget: Text('Ein Fehler ist aufgetreten'));
-        if (state.listOfStatProducts == null) return const _LoadingOrFailureCard(widget: MyCircularProgressIndicator());
+        if (state.listOfProductSalesData == null) return const _LoadingOrFailureCard(widget: MyCircularProgressIndicator());
 
         return Card(
           child: Padding(
@@ -44,8 +44,8 @@ class ProductChartCard extends StatelessWidget {
                             child: Padding(
                               padding: const EdgeInsets.only(right: 16, left: 6),
                               child: state.isShowingSalesVolumeOnChart
-                                  ? ProductLineChartSalesVolume(statProducts: state.listOfStatProducts!)
-                                  : ProductBartChartItemsSold(statProducts: state.listOfStatProducts!),
+                                  ? ProductLineChartSalesVolume(statProducts: state.listOfProductSalesData!)
+                                  : ProductBartChartItemsSold(statProducts: state.listOfProductSalesData!),
                             ),
                           ),
                           Gaps.h10,

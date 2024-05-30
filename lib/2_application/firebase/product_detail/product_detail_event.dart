@@ -158,7 +158,7 @@ class OnPartOfSetProductControllerClearedEvent extends ProductDetailEvent {}
 // * #################################################################################################################################
 // * StatProducts Chart
 
-class OnProductGetStatProductsEvent extends ProductDetailEvent {}
+class OnProductGetProductsSalesDataEvent extends ProductDetailEvent {}
 
 class OnProductChangeChartModeEvent extends ProductDetailEvent {}
 

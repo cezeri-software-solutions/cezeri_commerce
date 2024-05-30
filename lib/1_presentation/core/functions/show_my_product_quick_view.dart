@@ -12,6 +12,7 @@ import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 
 import '../../../2_application/firebase/product_detail/product_detail_bloc.dart';
 import '../../../3_domain/entities/product/product.dart';
+import '../../../3_domain/entities/statistic/product_sales_data.dart';
 import '../../../3_domain/repositories/firebase/product_repository.dart';
 import '../../../constants.dart';
 import '../../../failures/abstract_failure.dart';
@@ -62,23 +63,23 @@ Future<void> showMyProductQuickViewById({required BuildContext context, required
     onPressed: () => context.router.pop(),
   );
 
-  if (context.mounted) {
-    WoltModalSheet.show(
-      context: context,
-      useSafeArea: false,
-      pageListBuilder: (woltContext) {
-        return [
-          WoltModalSheetPage(
-            hasTopBarLayer: true,
-            isTopBarLayerAlwaysVisible: true,
-            topBarTitle: Text(product != null ? product!.articleNumber : 'Fehler', style: TextStyles.h3Bold),
-            trailingNavBarWidget: trailing,
-            child: _ProductQuickView(product: product, showStatProduct: showStatProduct, failure: abstractFailure),
-          ),
-        ];
-      },
-    );
-  }
+  if (!context.mounted) return;
+
+  WoltModalSheet.show(
+    context: context,
+    useSafeArea: false,
+    pageListBuilder: (woltContext) {
+      return [
+        WoltModalSheetPage(
+          hasTopBarLayer: true,
+          isTopBarLayerAlwaysVisible: true,
+          topBarTitle: Text(product != null ? product!.articleNumber : 'Fehler', style: TextStyles.h3Bold),
+          trailingNavBarWidget: trailing,
+          child: _ProductQuickView(product: product, showStatProduct: showStatProduct, failure: abstractFailure),
+        ),
+      ];
+    },
+  );
 }
 
 class _ProductQuickView extends StatefulWidget {
@@ -107,7 +108,6 @@ class _ProductQuickViewState extends State<_ProductQuickView> {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.sizeOf(context).width;
     final screenHeight = MediaQuery.sizeOf(context).height;
 
     return BlocProvider.value(
@@ -121,258 +121,248 @@ class _ProductQuickViewState extends State<_ProductQuickView> {
             );
           }
 
-          {
-            return Padding(
-              padding: const EdgeInsets.all(16),
+          return Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    SizedBox(
+                      width: ResponsiveBreakpoints.of(context).largerOrEqualTo(TABLET) ? 70 : 60,
+                      child: MyAvatar(
+                        name: widget.product!.name,
+                        imageUrl: widget.product!.listOfProductImages.isNotEmpty
+                            ? widget.product!.listOfProductImages.where((e) => e.isDefault).first.fileUrl
+                            : null,
+                        radius: ResponsiveBreakpoints.of(context).largerOrEqualTo(TABLET) ? 35 : 30,
+                        fontSize: ResponsiveBreakpoints.of(context).largerOrEqualTo(TABLET) ? 25 : 20,
+                        shape: BoxShape.rectangle,
+                        onTap: widget.product!.listOfProductImages.isNotEmpty
+                            ? () => context.router.push(MyFullscreenImageRoute(
+                                imagePaths: widget.product!.listOfProductImages.map((e) => e.fileUrl).toList(),
+                                initialIndex: 0,
+                                isNetworkImage: true))
+                            : null,
+                      ),
+                    ),
+                    Gaps.w16,
+                    Expanded(child: Text(widget.product!.name, style: TextStyles.defaultBold)),
+                  ],
+                ),
+                Gaps.h16,
+                const Text('Kurzbeschreibung:', style: TextStyles.infoOnTextFieldSmall),
+                Html(data: widget.product!.descriptionShort),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('EAN:', style: TextStyles.infoOnTextFieldSmall),
+                          InkWell(
+                            onTap: () => Clipboard.setData(ClipboardData(text: widget.product!.ean)),
+                            child: Text(widget.product!.ean),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('Bestand (Verfügbar / Lager):', style: TextStyles.infoOnTextFieldSmall),
+                          Text('${widget.product!.availableStock} / ${widget.product!.warehouseStock}'),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const Divider(),
+                _ProductInformations(
+                  heading: 'Einkauf',
+                  title1: 'EK-Preis',
+                  title2: 'Mindestbestand',
+                  title3: 'Mindestnachbestellmenge',
+                  title4: 'Verpackungseinheit',
+                  content1: widget.product!.wholesalePrice.toMyCurrencyStringToShow(),
+                  content2: widget.product!.minimumStock.toString(),
+                  content3: widget.product!.minimumReorderQuantity.toString(),
+                  content4: widget.product!.packagingUnitOnReorder.toString(),
+                ),
+                _ProductInformations(
+                  heading: 'Verkauf',
+                  title1: 'VK-Preis Netto',
+                  title2: 'VK-Preis Brutto',
+                  title3: 'UVP Brutto',
+                  title4: 'Einheitspreis Netto',
+                  content1: widget.product!.netPrice.toMyCurrencyStringToShow(),
+                  content2: widget.product!.grossPrice.toMyCurrencyStringToShow(),
+                  content3: widget.product!.recommendedRetailPrice.toMyCurrencyStringToShow(),
+                  content4: '${widget.product!.unitPrice.toMyCurrencyStringToShow()} ${widget.product!.unity}',
+                ),
+                _ProductInformations(
+                  heading: 'Gewicht & Abmessungen',
+                  title1: 'Gewicht kg',
+                  title2: 'Höhe cm:',
+                  title3: 'Länge cm',
+                  title4: 'Breite cm',
+                  content1: widget.product!.weight.toMyCurrencyStringToShow(),
+                  content2: widget.product!.height.toMyCurrencyStringToShow(),
+                  content3: widget.product!.depth.toMyCurrencyStringToShow(),
+                  content4: widget.product!.width.toMyCurrencyStringToShow(),
+                ),
+                if (_showStatProduct)
+                  _StatProduct(
+                    productDetailBloc: productDetailBloc,
+                    listOfProductSalesData: state.listOfProductSalesData,
+                    isShowingSalesVolumeOnChart: state.isShowingSalesVolumeOnChart,
+                  ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _ProductInformations extends StatelessWidget {
+  final String heading;
+  final String title1;
+  final String title2;
+  final String title3;
+  final String title4;
+  final String content1;
+  final String content2;
+  final String content3;
+  final String content4;
+
+  const _ProductInformations({
+    required this.heading,
+    required this.title1,
+    required this.title2,
+    required this.title3,
+    required this.title4,
+    required this.content1,
+    required this.content2,
+    required this.content3,
+    required this.content4,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(heading, style: TextStyles.h3BoldPrimary),
+        Gaps.h10,
+        Row(
+          children: [
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    children: [
-                      SizedBox(
-                        width: ResponsiveBreakpoints.of(context).largerOrEqualTo(TABLET) ? 70 : 60,
-                        child: MyAvatar(
-                          name: widget.product!.name,
-                          imageUrl: widget.product!.listOfProductImages.isNotEmpty
-                              ? widget.product!.listOfProductImages.where((e) => e.isDefault).first.fileUrl
-                              : null,
-                          radius: ResponsiveBreakpoints.of(context).largerOrEqualTo(TABLET) ? 35 : 30,
-                          fontSize: ResponsiveBreakpoints.of(context).largerOrEqualTo(TABLET) ? 25 : 20,
-                          shape: BoxShape.rectangle,
-                          onTap: widget.product!.listOfProductImages.isNotEmpty
-                              ? () => context.router.push(MyFullscreenImageRoute(
-                                  imagePaths: widget.product!.listOfProductImages.map((e) => e.fileUrl).toList(),
-                                  initialIndex: 0,
-                                  isNetworkImage: true))
-                              : null,
-                        ),
-                      ),
-                      Gaps.w16,
-                      Expanded(child: Text(widget.product!.name, style: TextStyles.defaultBold)),
-                    ],
-                  ),
-                  Gaps.h16,
-                  const Text('Kurzbeschreibung:', style: TextStyles.infoOnTextFieldSmall),
-                  Html(data: widget.product!.descriptionShort),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text('EAN:', style: TextStyles.infoOnTextFieldSmall),
-                            InkWell(
-                              onTap: () => Clipboard.setData(ClipboardData(text: widget.product!.ean)),
-                              child: Text(widget.product!.ean),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text('Bestand (Verfügbar / Lager):', style: TextStyles.infoOnTextFieldSmall),
-                            Text('${widget.product!.availableStock} / ${widget.product!.warehouseStock}'),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  const Divider(),
-                  const Text('Einkauf', style: TextStyles.h3BoldPrimary),
-                  Gaps.h10,
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text('EK-Preis:', style: TextStyles.infoOnTextFieldSmall),
-                            Text(widget.product!.wholesalePrice.toMyCurrencyStringToShow()),
-                          ],
-                        ),
-                      ),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text('Mindestbestand:', style: TextStyles.infoOnTextFieldSmall),
-                            Text(widget.product!.minimumStock.toString()),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  Gaps.h10,
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text('Mindestnachbestellmenge:', style: TextStyles.infoOnTextFieldSmall),
-                            Text(widget.product!.minimumReorderQuantity.toString()),
-                          ],
-                        ),
-                      ),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text('Verpackungseinheit:', style: TextStyles.infoOnTextFieldSmall),
-                            Text(widget.product!.packagingUnitOnReorder.toString()),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  const Divider(),
-                  const Text('Verkauf', style: TextStyles.h3BoldPrimary),
-                  Gaps.h10,
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text('VK-Preis Netto:', style: TextStyles.infoOnTextFieldSmall),
-                            Text(widget.product!.netPrice.toMyCurrencyStringToShow()),
-                          ],
-                        ),
-                      ),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text('VK-Preis Brutto:', style: TextStyles.infoOnTextFieldSmall),
-                            Text(widget.product!.grossPrice.toMyCurrencyStringToShow()),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  Gaps.h10,
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text('UVP Brutto:', style: TextStyles.infoOnTextFieldSmall),
-                            Text(widget.product!.recommendedRetailPrice.toMyCurrencyStringToShow()),
-                          ],
-                        ),
-                      ),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text('Einheitspreis Netto:', style: TextStyles.infoOnTextFieldSmall),
-                            Text('${widget.product!.unitPrice.toMyCurrencyStringToShow()} ${widget.product!.unity}'),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  const Divider(),
-                  const Text('Gewicht & Abmessungen', style: TextStyles.h3BoldPrimary),
-                  Gaps.h10,
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text('Gewicht kg:', style: TextStyles.infoOnTextFieldSmall),
-                            Text(widget.product!.weight.toMyCurrencyStringToShow()),
-                          ],
-                        ),
-                      ),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text('Höhe cm:', style: TextStyles.infoOnTextFieldSmall),
-                            Text(widget.product!.height.toMyCurrencyStringToShow()),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  Gaps.h10,
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text('Länge cm:', style: TextStyles.infoOnTextFieldSmall),
-                            Text(widget.product!.depth.toMyCurrencyStringToShow()),
-                          ],
-                        ),
-                      ),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text('Breite cm:', style: TextStyles.infoOnTextFieldSmall),
-                            Text(widget.product!.width.toMyCurrencyStringToShow()),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  if (_showStatProduct) ...[
-                    const Divider(),
-                    const Text('Auswertung', style: TextStyles.h3BoldPrimary),
-                    Gaps.h10,
-                    if (state.listOfStatProducts != null) ...[
-                      AspectRatio(
-                        aspectRatio: ResponsiveBreakpoints.of(context).largerOrEqualTo(TABLET) ? 2.5 : getAspectRatio(screenWidth),
-                        child: Stack(
-                          children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                Gaps.h54,
-                                Expanded(
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(right: 16, left: 6),
-                                    child: !state.isShowingSalesVolumeOnChart
-                                        ? ProductLineChartSalesVolume(statProducts: state.listOfStatProducts!)
-                                        : ProductBartChartItemsSold(statProducts: state.listOfStatProducts!),
-                                  ),
-                                ),
-                                Gaps.h10,
-                              ],
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                IconButton(
-                                  icon: const Icon(Icons.sync, color: CustomColors.primaryColor),
-                                  onPressed: () => productDetailBloc.add(OnProductChangeChartModeEvent()),
-                                ),
-                                Text(!state.isShowingSalesVolumeOnChart ? 'Umsatz Netto' : 'Anzahl Verkäufe', style: TextStyles.defaultBold),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ] else ...[
-                      AspectRatio(
-                        aspectRatio: ResponsiveBreakpoints.of(context).largerOrEqualTo(TABLET) ? 2.5 : getAspectRatio(screenWidth),
-                        child: const Center(child: MyCircularProgressIndicator()),
-                      ),
-                    ],
-                  ],
+                  Text('$title1:', style: TextStyles.infoOnTextFieldSmall),
+                  Text(content1),
                 ],
               ),
-            );
-          }
-        },
-      ),
+            ),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('$title2:', style: TextStyles.infoOnTextFieldSmall),
+                  Text(content2),
+                ],
+              ),
+            ),
+          ],
+        ),
+        Gaps.h10,
+        Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('$title3:', style: TextStyles.infoOnTextFieldSmall),
+                  Text(content3),
+                ],
+              ),
+            ),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('$title3:', style: TextStyles.infoOnTextFieldSmall),
+                  Text(content4),
+                ],
+              ),
+            ),
+          ],
+        ),
+        const Divider(),
+      ],
+    );
+  }
+}
+
+class _StatProduct extends StatelessWidget {
+  final ProductDetailBloc productDetailBloc;
+  final List<ProductSalesData>? listOfProductSalesData;
+  final bool isShowingSalesVolumeOnChart;
+
+  const _StatProduct({required this.productDetailBloc, required this.listOfProductSalesData, required this.isShowingSalesVolumeOnChart});
+
+  @override
+  Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.sizeOf(context).width;
+
+    return Column(
+      children: [
+        const Text('Auswertung', style: TextStyles.h3BoldPrimary),
+        Gaps.h10,
+        if (listOfProductSalesData != null) ...[
+          AspectRatio(
+            aspectRatio: ResponsiveBreakpoints.of(context).largerOrEqualTo(TABLET) ? 2.5 : getAspectRatio(screenWidth),
+            child: Stack(
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Gaps.h54,
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.only(right: 16, left: 6),
+                        child: !isShowingSalesVolumeOnChart
+                            ? ProductLineChartSalesVolume(statProducts: listOfProductSalesData!)
+                            : ProductBartChartItemsSold(statProducts: listOfProductSalesData!),
+                      ),
+                    ),
+                    Gaps.h10,
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.sync, color: CustomColors.primaryColor),
+                      onPressed: () => productDetailBloc.add(OnProductChangeChartModeEvent()),
+                    ),
+                    Text(!isShowingSalesVolumeOnChart ? 'Umsatz Netto' : 'Anzahl Verkäufe', style: TextStyles.defaultBold),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ] else ...[
+          AspectRatio(
+            aspectRatio: ResponsiveBreakpoints.of(context).largerOrEqualTo(TABLET) ? 2.5 : getAspectRatio(screenWidth),
+            child: const Center(child: MyCircularProgressIndicator()),
+          ),
+        ],
+      ],
     );
   }
 }

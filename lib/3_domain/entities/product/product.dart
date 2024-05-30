@@ -4,15 +4,15 @@ import 'package:cezeri_commerce/3_domain/entities/product/field_language.dart';
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 
+import '/1_presentation/core/functions/mixed_functions.dart';
+import '/4_infrastructur/repositories/prestashop_api/models/product_raw_presta.dart';
+import '/4_infrastructur/repositories/shopify_api/shopify.dart';
 import '../language.dart';
 import '../marketplace/abstract_marketplace.dart';
 import '../marketplace/marketplace_presta.dart';
 import '../marketplace/marketplace_shopify.dart';
 import '../settings/main_settings.dart';
 import '../settings/tax.dart';
-import '/1_presentation/core/functions/mixed_functions.dart';
-import '/4_infrastructur/repositories/prestashop_api/models/product_raw_presta.dart';
-import '/4_infrastructur/repositories/shopify_api/shopify.dart';
 import 'marketplace_product.dart';
 import 'product_id_with_quantity.dart';
 import 'product_image.dart';
@@ -112,11 +112,10 @@ class Product extends Equatable {
   // @JsonKey(name: 'product_marketplaces')
   final List<ProductMarketplace> productMarketplaces;
   // @JsonKey(name: 'creation_date', includeToJson: false)
-  // @JsonKey(includeToJson: false)
-  // final DateTime creationDate;
-  // @JsonKey(name: 'last_editing_date', includeToJson: false)
-  // @JsonKey(includeToJson: false)
-  // final DateTime lastEditingDate;
+  @JsonKey(includeToJson: false)
+  final DateTime creationDate;
+  @JsonKey(includeToJson: false)
+  final DateTime lastEditingDate;
 
   const Product({
     required this.id,
@@ -169,8 +168,8 @@ class Product extends Equatable {
     required this.listOfProductImages,
     required this.listOfSetProducts,
     required this.productMarketplaces,
-    // required this.creationDate,
-    // required this.lastEditingDate,
+    required this.creationDate,
+    required this.lastEditingDate,
   }) : volume = width * height * depth;
 
   factory Product.fromJson(Map<String, dynamic> json) => _$ProductFromJson(json);
@@ -227,8 +226,8 @@ class Product extends Equatable {
       listOfProductImages: const [],
       listOfSetProducts: const [],
       productMarketplaces: const [],
-      // creationDate: DateTime.now(),
-      // lastEditingDate: DateTime.now(),
+      creationDate: DateTime.now(),
+      lastEditingDate: DateTime.now(),
     );
   }
 
@@ -508,8 +507,8 @@ class Product extends Equatable {
     List<ProductImage>? listOfProductImages,
     List<SetProduct>? listOfSetProducts,
     List<ProductMarketplace>? productMarketplaces,
-    // DateTime? creationDate,
-    // DateTime? lastEditingDate,
+    DateTime? creationDate,
+    DateTime? lastEditingDate,
   }) {
     return Product(
       id: id ?? this.id,
@@ -561,8 +560,8 @@ class Product extends Equatable {
       listOfProductImages: listOfProductImages ?? this.listOfProductImages,
       listOfSetProducts: listOfSetProducts ?? this.listOfSetProducts,
       productMarketplaces: productMarketplaces ?? this.productMarketplaces,
-      // creationDate: creationDate ?? this.creationDate,
-      // lastEditingDate: lastEditingDate ?? this.lastEditingDate,
+      creationDate: creationDate ?? this.creationDate,
+      lastEditingDate: lastEditingDate ?? this.lastEditingDate,
     );
   }
 

@@ -1,4 +1,3 @@
-import 'package:cezeri_commerce/3_domain/entities/statistic/stat_product.dart';
 import 'package:cezeri_commerce/failures/firebase_failures.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
@@ -6,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../../../1_presentation/core/functions/check_internet_connection.dart';
+import '../../../3_domain/entities/statistic/product_sales_data.dart';
 import '../../../3_domain/repositories/firebase/stat_product_repository.dart';
 import '../../../constants.dart';
 import '../../../failures/abstract_failure.dart';
@@ -17,26 +17,34 @@ class StatProductRepositoryImpl implements StatProductRepository {
   StatProductRepositoryImpl({required this.db, required this.firebaseAuth});
 
   @override
-  Future<Either<AbstractFailure, List<StatProduct>>> getAllStatProductsCurMonth() async {
+  Future<Either<AbstractFailure, List<ProductSalesData>>> getProductSalesDataBetweenDates(DateTimeRange dateRange, List<String> productIds) async {
     if (!await checkInternetConnection()) return Left(NoConnectionFailure());
     final ownerId = await getOwnerId();
     if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
-    final now = DateTime.now();
-    final curYear = now.year;
-    final curMonth = now.month;
-
-    final query = supabase
-        .from('d_stat_products')
-        .select()
-        .eq('ownerId', ownerId)
-        .filter('EXTRACT(YEAR FROM creationDate)', 'eq', curYear)
-        .filter('EXTRACT(MONTH FROM creationDate)', 'eq', curMonth);
+    final startDate = '${dateRange.start.year}-${dateRange.start.month}-${dateRange.start.day}';
+    final endDate = '${dateRange.end.year}-${dateRange.end.month}-${dateRange.end.day}';
 
     try {
-      final statProducts = await query.then((val) => val.map((e) => StatProduct.fromJson(e)).toList());
+      final response = productIds.isEmpty
+          ? await supabase.rpc('get_products_sales_data_between_dates', params: {
+              'p_owner_id': ownerId,
+              'p_start_date': startDate,
+              'p_end_date': endDate,
+            })
+          : await supabase.rpc('get_products_sales_data_by_product_ids_between_dates', params: {
+              'p_product_ids': productIds,
+              'p_owner_id': ownerId,
+              'p_start_date': startDate,
+              'p_end_date': endDate,
+            });
 
-      return Right(statProducts);
+      final listOfProductSalesData = (response as List<dynamic>).map((e) {
+        final item = e as Map<String, dynamic>;
+        return ProductSalesData.fromJson(item);
+      }).toList();
+
+      return Right(listOfProductSalesData);
     } catch (e) {
       logger.e(e);
       return const Right([]);
@@ -44,35 +52,35 @@ class StatProductRepositoryImpl implements StatProductRepository {
   }
 
   @override
-  Future<Either<AbstractFailure, List<StatProduct>>> getAllStatProductsFromTo(DateTimeRange dateRange) async {
+  Future<Either<AbstractFailure, List<ProductSalesData>>> getProductSalesDataOfOpenAppBetweenDates(
+      DateTimeRange dateRange, List<String> productIds) async {
     if (!await checkInternetConnection()) return Left(NoConnectionFailure());
     final ownerId = await getOwnerId();
     if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
-    final startDate = dateRange.start;
-    final endDate = dateRange.end;
-    DateTime calcDate = endDate;
-
-    final query = supabase
-        .from('d_stat_products')
-        .select()
-        .eq('ownerId', ownerId)
-        .gte('creationDate', DateTime(calcDate.year, calcDate.month, 1).toIso8601String())
-        .lte('creationDate', DateTime(calcDate.year, calcDate.month + 1, 0, 23, 59, 59).toIso8601String());
+    final startDate = '${dateRange.start.year}-${dateRange.start.month}-${dateRange.start.day}';
+    final endDate = '${dateRange.end.year}-${dateRange.end.month}-${dateRange.end.day}';
 
     try {
-      List<StatProduct> listOfStatProducts = [];
-      do {
-        final response = await query;
+      final response = productIds.isEmpty
+          ? await supabase.rpc('get_app_products_sales_data_between_dates', params: {
+              'p_owner_id': ownerId,
+              'p_start_date': startDate,
+              'p_end_date': endDate,
+            })
+          : await supabase.rpc('get_app_products_sales_data_by_product_ids_between_dates', params: {
+              'p_product_ids': productIds,
+              'p_owner_id': ownerId,
+              'p_start_date': startDate,
+              'p_end_date': endDate,
+            });
 
-        final statProducts = response.map((json) => StatProduct.fromJson(json)).toList();
+      final listOfProductSalesData = (response as List<dynamic>).map((e) {
+        final item = e as Map<String, dynamic>;
+        return ProductSalesData.fromJson(item);
+      }).toList();
 
-        listOfStatProducts.addAll(statProducts);
-
-        calcDate = subtractMonth(calcDate);
-      } while (calcDate.isAfter(startDate) || (calcDate.year == startDate.year && calcDate.month == startDate.month));
-
-      return Right(listOfStatProducts);
+      return Right(listOfProductSalesData);
     } catch (e) {
       logger.e(e);
       return const Right([]);
@@ -80,40 +88,25 @@ class StatProductRepositoryImpl implements StatProductRepository {
   }
 
   @override
-  Future<Either<AbstractFailure, List<StatProduct>>> getStatProductsOfProductLast13(String id) async {
+  Future<Either<AbstractFailure, List<ProductSalesData>>> getProductsSalesDataOfLast13Months(String id) async {
     if (!await checkInternetConnection()) return Left(NoConnectionFailure());
     final ownerId = await getOwnerId();
     if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
-    final now = DateTime.now();
-    final startDate = DateTime(now.year - 1, now.month);
-    DateTime calcDate = now;
-
-    final query = supabase
-        .from('d_stat_products')
-        .select()
-        .eq('ownerId', ownerId)
-        .eq('statProductId', id)
-        .gte('creationDate', DateTime(calcDate.year, calcDate.month, 1).toIso8601String())
-        .lte('creationDate', DateTime(calcDate.year, calcDate.month + 1, 0, 23, 59, 59).toIso8601String())
-        .single();
-
-    List<StatProduct> listOfStatProducts = [];
-
     try {
-      while (calcDate.isAfter(startDate) || (calcDate.year == startDate.year && calcDate.month == startDate.month)) {
-        final response = await query;
+      final response = await supabase.rpc('get_products_sales_data_of_last_13_months', params: {
+        'p_product_id': id,
+        'p_owner_id': ownerId,
+      });
 
-        final statProducts = StatProduct.fromJson(response); // response.map((json) => StatProduct.fromJson(json)).toList();
+      final listOfProductSalesData = (response as List<dynamic>).map((e) {
+        final item = e as Map<String, dynamic>;
+        return ProductSalesData.fromJson(item);
+      }).toList();
 
-        listOfStatProducts.add(statProducts);
-
-        calcDate = subtractMonth(calcDate);
-      }
-
-      return Right(listOfStatProducts);
+      return Right(listOfProductSalesData);
     } catch (e) {
-      logger.e(e.toString());
+      logger.e(e);
       return const Right([]);
     }
   }

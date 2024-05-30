@@ -79,6 +79,8 @@ Product _$ProductFromJson(Map<String, dynamic> json) => Product(
       productMarketplaces: (json['productMarketplaces'] as List<dynamic>)
           .map((e) => ProductMarketplace.fromJson(e as Map<String, dynamic>))
           .toList(),
+      creationDate: DateTime.parse(json['creationDate'] as String),
+      lastEditingDate: DateTime.parse(json['lastEditingDate'] as String),
     );
 
 Map<String, dynamic> _$ProductToJson(Product instance) => <String, dynamic>{

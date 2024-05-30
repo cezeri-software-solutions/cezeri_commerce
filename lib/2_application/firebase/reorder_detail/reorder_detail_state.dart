@@ -6,8 +6,8 @@ class ReorderDetailState {
   final List<Product>? listOfProducts;
   final List<Product>? listOfFilteredProducts;
   final List<AbstractMarketplace>? listOfMarketplaces;
-  final List<StatProductReorder>? listOfStatProductsInvoice;
-  final List<StatProductReorder>? listOfStatProductsAppointment;
+  final List<ProductSalesData>? listOfProductSalesData;
+  final List<ProductSalesData>? listOfProductSalesDataInklOpen;
   final AbstractFailure? firebaseFailure;
   final bool isAnyFailure;
   final bool isLoadingReorderDetailOnObserve;
@@ -50,8 +50,8 @@ class ReorderDetailState {
     required this.listOfProducts,
     required this.listOfFilteredProducts,
     required this.listOfMarketplaces,
-    required this.listOfStatProductsInvoice,
-    required this.listOfStatProductsAppointment,
+    required this.listOfProductSalesData,
+    required this.listOfProductSalesDataInklOpen,
     required this.firebaseFailure,
     required this.isAnyFailure,
     required this.isLoadingReorderDetailOnObserve,
@@ -88,8 +88,8 @@ class ReorderDetailState {
       listOfProducts: null,
       listOfFilteredProducts: null,
       listOfMarketplaces: null,
-      listOfStatProductsInvoice: null,
-      listOfStatProductsAppointment: null,
+      listOfProductSalesData: null,
+      listOfProductSalesDataInklOpen: null,
       firebaseFailure: null,
       isAnyFailure: false,
       isLoadingReorderDetailOnObserve: false,
@@ -126,8 +126,8 @@ class ReorderDetailState {
     List<Product>? listOfProducts,
     List<Product>? listOfFilteredProducts,
     List<AbstractMarketplace>? listOfMarketplaces,
-    List<StatProductReorder>? listOfStatProductsInvoice,
-    List<StatProductReorder>? listOfStatProductsAppointment,
+    List<ProductSalesData>? listOfProductSalesData,
+    List<ProductSalesData>? listOfProductSalesDataInklOpen,
     AbstractFailure? firebaseFailure,
     bool? isAnyFailure,
     bool? isLoadingReorderDetailOnObserve,
@@ -162,8 +162,8 @@ class ReorderDetailState {
       listOfProducts: listOfProducts ?? this.listOfProducts,
       listOfFilteredProducts: listOfFilteredProducts ?? this.listOfFilteredProducts,
       listOfMarketplaces: listOfMarketplaces ?? this.listOfMarketplaces,
-      listOfStatProductsInvoice: listOfStatProductsInvoice ?? this.listOfStatProductsInvoice,
-      listOfStatProductsAppointment: listOfStatProductsAppointment ?? this.listOfStatProductsAppointment,
+      listOfProductSalesData: listOfProductSalesData ?? this.listOfProductSalesData,
+      listOfProductSalesDataInklOpen: listOfProductSalesDataInklOpen ?? this.listOfProductSalesDataInklOpen,
       firebaseFailure: firebaseFailure ?? this.firebaseFailure,
       isAnyFailure: isAnyFailure ?? this.isAnyFailure,
       isLoadingReorderDetailOnObserve: isLoadingReorderDetailOnObserve ?? this.isLoadingReorderDetailOnObserve,

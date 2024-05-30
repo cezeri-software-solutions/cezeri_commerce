@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:cezeri_commerce/1_presentation/core/extensions/get_either.dart';
 import 'package:cezeri_commerce/4_infrastructur/repositories/shopify_api/models/inventory/inventory_level_shopify.dart';
 import 'package:cezeri_commerce/failures/abstract_failure.dart';
 import 'package:dartz/dartz.dart';
@@ -374,19 +375,13 @@ class ShopifyApi {
   Future<Either<ShopifyGeneralFailure, Unit>> postProductStock(int productShopifyId, int newQuantity) async {
     const key = 'inventory_levels';
 
-    int? inventoryItemId;
     final fosProductRaw = await getProductRawById(productShopifyId);
-    fosProductRaw.fold(
-      (failure) => Left(failure),
-      (productRaw) => inventoryItemId = productRaw.variants.first.inventoryItemId,
-    );
+    if (fosProductRaw.isLeft()) return Left(fosProductRaw.getLeft());
+    final inventoryItemId = fosProductRaw.getRight().variants.first.inventoryItemId;
 
-    int? locationId;
-    final fosInventoryLevel = await getInventoryLevelByInventoryItemId(inventoryItemId!);
-    fosInventoryLevel.fold(
-      (failure) => Left(failure),
-      (inventoryLevel) => locationId = inventoryLevel.locationId,
-    );
+    final fosInventoryLevel = await getInventoryLevelByInventoryItemId(inventoryItemId);
+    if (fosInventoryLevel.isLeft()) return Left(fosInventoryLevel.getLeft());
+    final locationId = fosInventoryLevel.getRight().locationId;
 
     final body = jsonEncode({
       "location_id": locationId,

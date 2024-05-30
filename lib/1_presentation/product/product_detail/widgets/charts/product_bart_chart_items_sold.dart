@@ -1,11 +1,11 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
-import '/3_domain/entities/statistic/stat_product.dart';
 import '/constants.dart';
+import '../../../../../3_domain/entities/statistic/product_sales_data.dart';
 
 class ProductBartChartItemsSold extends StatelessWidget {
-  final List<StatProduct> statProducts;
+  final List<ProductSalesData> statProducts;
 
   ProductBartChartItemsSold({super.key, required this.statProducts});
 
@@ -13,7 +13,7 @@ class ProductBartChartItemsSold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final soldList = statProducts.map((e) => e.numberOfItemsSold).toList();
+    final soldList = statProducts.map((e) => e.totalQuantity).toList();
     final highestNumber = soldList.reduce((a, b) => a > b ? a : b);
     final maxY = (highestNumber * 0.1) + highestNumber;
 
@@ -111,13 +111,13 @@ class ProductBartChartItemsSold extends StatelessWidget {
     for (int i = 0; i < 13; i++) {
       DateTime monthYear = DateTime(now.year, now.month - 12 + i);
       var matchingElement = statProducts.firstWhere(
-        (e) => DateTime(e.creationDate.year, e.creationDate.month) == monthYear,
-        orElse: () => StatProduct.empty(),
+        (e) => DateTime(e.month.year, e.month.month) == monthYear,
+        orElse: () => ProductSalesData.empty(),
       );
       bcgd.add(
         BarChartGroupData(
           x: i,
-          barRods: [BarChartRodData(toY: roundDouble(matchingElement.numberOfItemsSold), gradient: _barsGradient)],
+          barRods: [BarChartRodData(toY: roundDouble(matchingElement.totalQuantity), gradient: _barsGradient)],
           showingTooltipIndicators: [0],
         ),
       );

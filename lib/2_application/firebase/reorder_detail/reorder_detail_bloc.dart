@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:cezeri_commerce/1_presentation/core/extensions/get_either.dart';
 import 'package:cezeri_commerce/1_presentation/core/extensions/string_to_int.dart';
 import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.dart';
 import 'package:cezeri_commerce/1_presentation/core/functions/mixed_functions.dart';
@@ -6,24 +7,22 @@ import 'package:cezeri_commerce/3_domain/entities/reorder/reorder_supplier.dart'
 import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 
-import '../../../failures/abstract_failure.dart';
 import '/1_presentation/reorder/reorder_detail/reorder_detail_screen.dart';
 import '/3_domain/entities/marketplace/abstract_marketplace.dart';
 import '/3_domain/entities/product/product.dart';
-import '/3_domain/entities/receipt/receipt.dart';
 import '/3_domain/entities/reorder/reorder.dart';
 import '/3_domain/entities/reorder/reorder_product.dart';
 import '/3_domain/entities/reorder/supplier.dart';
 import '/3_domain/entities/settings/main_settings.dart';
 import '/3_domain/entities/settings/tax.dart';
-import '/3_domain/entities/statistic/stat_product.dart';
-import '/3_domain/entities/statistic/stat_product_reorder.dart';
 import '/3_domain/repositories/firebase/main_settings_respository.dart';
 import '/3_domain/repositories/firebase/marketplace_repository.dart';
 import '/3_domain/repositories/firebase/product_repository.dart';
 import '/3_domain/repositories/firebase/reorder_repository.dart';
 import '/3_domain/repositories/firebase/stat_product_repository.dart';
 import '/3_domain/repositories/firebase/supplier_repository.dart';
+import '../../../3_domain/entities/statistic/product_sales_data.dart';
+import '../../../failures/abstract_failure.dart';
 
 part 'reorder_detail_event.dart';
 part 'reorder_detail_state.dart';
@@ -169,21 +168,44 @@ class ReorderDetailBloc extends Bloc<ReorderDetailEvent, ReorderDetailState> {
         },
       );
 
-      if (state.statProductDateRange != null && state.listOfStatProductsInvoice == null && state.listOfStatProductsAppointment == null) {
-        final fosStatProducts = await statProductRepository.getAllStatProductsFromTo(state.statProductDateRange!);
-        fosStatProducts.fold(
-          (failure) => null,
-          (statProducts) {
-            List<StatProductReorder> statProductsReorderInvoice = _setStatProductReorderInvoice(statProducts, state.statProductDateRange!);
-            List<StatProductReorder> statProductsReorderAppointment = _setStatProductReorderAppointment(statProducts, state.statProductDateRange!);
+      if (state.statProductDateRange != null &&
+          (state.reloadProducts || state.listOfProductSalesData == null || state.listOfProductSalesDataInklOpen == null)) {
+        final productIds = state.listOfProducts!.map((e) => e.id).toList();
+        final fosSalesData = await statProductRepository.getProductSalesDataBetweenDates(
+          state.statProductDateRange!,
+          state.getAllProducts ? [] : productIds,
+        );
+
+        if (fosSalesData.isRight()) {
+          final fosSalesDataInklOpen = await statProductRepository.getProductSalesDataOfOpenAppBetweenDates(
+            state.statProductDateRange!,
+            state.getAllProducts ? [] : productIds,
+          );
+
+          final loadedListOfSalesData = fosSalesData.getRight();
+
+          if (fosSalesDataInklOpen.isRight()) {
+            final productSalesDataInklOpen = loadedListOfSalesData.map((e) {
+              final openData = fosSalesDataInklOpen.getRight();
+              final data = openData.where((element) => element.productId == e.productId).firstOrNull;
+              if (data == null) return e;
+              final sumData = e.copyWith(totalQuantity: e.totalQuantity + data.totalQuantity, totalRevenue: e.totalRevenue + data.totalRevenue);
+              return sumData;
+            }).toList();
 
             emit(state.copyWith(
               reloadProducts: false,
-              listOfStatProductsInvoice: statProductsReorderInvoice,
-              listOfStatProductsAppointment: statProductsReorderAppointment,
+              listOfProductSalesData: loadedListOfSalesData,
+              listOfProductSalesDataInklOpen: productSalesDataInklOpen,
             ));
-          },
-        );
+          } else {
+            emit(state.copyWith(
+              reloadProducts: false,
+              listOfProductSalesData: loadedListOfSalesData,
+              listOfProductSalesDataInklOpen: loadedListOfSalesData,
+            ));
+          }
+        }
       }
 
       emit(state.copyWith(
@@ -402,49 +424,4 @@ class ReorderDetailBloc extends Bloc<ReorderDetailEvent, ReorderDetailState> {
 //? #########################################################################
 //? #########################################################################
   }
-}
-
-List<StatProductReorder> _setStatProductReorderInvoice(List<StatProduct> statProducts, DateTimeRange statProductDateRange) {
-  List<StatProductReorder> statProductsReorderInvoice = [];
-  for (final statProduct in statProducts) {
-    for (final statProductDetail in statProduct.listOfStatProductDetail) {
-      if (!(statProductDetail.creationDate.isAfter(statProductDateRange.start) &&
-          statProductDetail.creationDate.isBefore(statProductDateRange.end))) {
-        continue;
-      }
-
-      if (statProductDetail.receiptTyp == ReceiptTyp.invoice) {
-        final index = statProductsReorderInvoice.indexWhere((e) => e.productId == statProductDetail.productId);
-        if (index == -1) {
-          statProductsReorderInvoice.add(StatProductReorder.fromStatProductDetail(statProductDetail));
-        } else {
-          statProductsReorderInvoice[index] =
-              statProductsReorderInvoice[index].copyWith(quantity: statProductsReorderInvoice[index].quantity + statProductDetail.quantity);
-        }
-      }
-    }
-  }
-  return statProductsReorderInvoice;
-}
-
-List<StatProductReorder> _setStatProductReorderAppointment(List<StatProduct> statProducts, DateTimeRange statProductDateRange) {
-  List<StatProductReorder> statProductsReorderAppointment = [];
-  for (final statProduct in statProducts) {
-    for (final statProductDetail in statProduct.listOfStatProductDetail) {
-      if (!(statProductDetail.creationDate.isAfter(statProductDateRange.start) &&
-          statProductDetail.creationDate.isBefore(statProductDateRange.end))) {
-        continue;
-      }
-      if (statProductDetail.receiptTyp == ReceiptTyp.appointment) {
-        final index = statProductsReorderAppointment.indexWhere((e) => e.productId == statProductDetail.productId);
-        if (index == -1) {
-          statProductsReorderAppointment.add(StatProductReorder.fromStatProductDetail(statProductDetail));
-        } else {
-          statProductsReorderAppointment[index] =
-              statProductsReorderAppointment[index].copyWith(quantity: statProductsReorderAppointment[index].quantity + statProductDetail.quantity);
-        }
-      }
-    }
-  }
-  return statProductsReorderAppointment;
 }
