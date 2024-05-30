@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
-import '../../2_application/firebase/general_ledger_account/general_ledger_account_bloc.dart';
+import '../../2_application/database/general_ledger_account/general_ledger_account_bloc.dart';
 import '../../3_domain/entities/settings/general_ledger_account.dart';
 import '../../constants.dart';
 import 'widgets/add_edit_general_ledger_account.dart';

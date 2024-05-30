@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../2_application/firebase/appointment/appointment_bloc.dart';
-import '../../../2_application/firebase/main_settings/main_settings_bloc.dart';
-import '../../../2_application/firebase/receipt_detail/receipt_detail_bloc.dart';
+import '../../../2_application/database/receipt/receipt_bloc.dart';
+import '../../../2_application/database/main_settings/main_settings_bloc.dart';
+import '../../../2_application/database/receipt_detail/receipt_detail_bloc.dart';
 import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
 import '../../../3_domain/entities/receipt/receipt.dart';
 import '../../../3_domain/enums/enums.dart';
@@ -17,18 +17,18 @@ import '../widgets/receipt_detail_general_card.dart';
 import '../widgets/receipt_detail_payment_method_card.dart';
 import '../widgets/receipt_detail_products_card.dart';
 import '../widgets/receipt_detail_products_total_card.dart';
-import 'appointment_detail_screen.dart';
+import 'receipt_detail_screen.dart';
 
-class AppointmentDetailPage extends StatefulWidget {
-  final AppointmentBloc appointmentBloc;
+class ReceiptDetailPage extends StatefulWidget {
+  final ReceiptBloc receiptBloc;
   final ReceiptDetailBloc receiptDetailBloc;
   final List<AbstractMarketplace> listOfMarketplaces;
   final ReceiptCreateOrEdit receiptCreateOrEdit;
   final ReceiptTyp receiptTyp;
 
-  const AppointmentDetailPage({
+  const ReceiptDetailPage({
     super.key,
-    required this.appointmentBloc,
+    required this.receiptBloc,
     required this.receiptDetailBloc,
     required this.listOfMarketplaces,
     required this.receiptCreateOrEdit,
@@ -36,14 +36,14 @@ class AppointmentDetailPage extends StatefulWidget {
   });
 
   @override
-  State<AppointmentDetailPage> createState() => _AppointmentDetailPageState();
+  State<ReceiptDetailPage> createState() => _ReceiptDetailPageState();
 }
 
-class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
+class _ReceiptDetailPageState extends State<ReceiptDetailPage> {
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<AppointmentBloc, AppointmentState>(
-      bloc: widget.appointmentBloc,
+    return BlocBuilder<ReceiptBloc, ReceiptState>(
+      bloc: widget.receiptBloc,
       builder: (context, state) {
         logger.i(state.receipt!.receiptCarrier.carrierProduct.id);
         final mainSettings = context.read<MainSettingsBloc>().state.mainSettings!;
@@ -62,13 +62,13 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
           actions: [
             if (widget.receiptCreateOrEdit == ReceiptCreateOrEdit.edit)
               IconButton(
-                onPressed: () => widget.appointmentBloc.add(GetAppointmentEvent(appointment: state.receipt!)),
+                onPressed: () => widget.receiptBloc.add(GetAppointmentEvent(appointment: state.receipt!)),
                 icon: const Icon(Icons.refresh, size: 30),
               ),
             responsiveness == Responsiveness.isTablet ? Gaps.w32 : Gaps.w8,
             if (widget.receiptTyp == ReceiptTyp.deliveryNote) ...[
               IconButton(
-                onPressed: () => widget.appointmentBloc.add(CreateParcelLabelReceiptEvent()),
+                onPressed: () => widget.receiptBloc.add(CreateParcelLabelReceiptEvent()),
                 icon: state.isLoadingParcelLabelOnCreate
                     ? const MyCircularProgressIndicator()
                     : const Icon(Icons.new_label, color: CustomColors.primaryColor),
@@ -85,7 +85,7 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
                     if (!isValid) return;
                     if (widget.receiptCreateOrEdit == ReceiptCreateOrEdit.edit) {
                       final updatedAppointment = stateReceiptDetail.receipt.copyWith(
-                        //* Hier kommen die Änderungen vom AppointmentBloc
+                        //* Hier kommen die Änderungen vom ReceiptBloc
                         //* Also Änderungen die oberhalb passieren bevor die Produkte anfangen
                         listOfReceiptProduct: stateReceiptDetail.listOfReceiptProducts,
                         marketplaceId: state.receipt!.marketplaceId,
@@ -97,7 +97,7 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
                         addressInvoice: state.receipt!.addressInvoice,
                         lastEditingDate: DateTime.now(),
                       );
-                      widget.appointmentBloc.add(UpdateAppointmentEvent(
+                      widget.receiptBloc.add(UpdateAppointmentEvent(
                         appointment: updatedAppointment,
                         oldListOfReceiptProducts: state.receipt!.listOfReceiptProduct,
                         newListOfReceiptProducts: stateReceiptDetail.listOfReceiptProducts,
@@ -117,7 +117,7 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
                         receiptTyp: widget.receiptTyp,
                         currency: mainSettings.currency,
                       );
-                      widget.appointmentBloc.add(CreateNewAppointmentManuallyEvent(receipt: toCreateReceipt));
+                      widget.receiptBloc.add(CreateNewAppointmentManuallyEvent(receipt: toCreateReceipt));
                     }
                   },
                   isLoading: widget.receiptCreateOrEdit == ReceiptCreateOrEdit.edit ? state.isLoadingReceiptOnUpdate : state.isLoadingReceiptOnCreate,
@@ -144,19 +144,19 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
                             mainAxisSize: MainAxisSize.min,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Expanded(child: ReceiptDetailAddressCard(receipt: state.receipt!, appointmentBloc: widget.appointmentBloc)),
+                              Expanded(child: ReceiptDetailAddressCard(receipt: state.receipt!, receiptBloc: widget.receiptBloc)),
                               Gaps.w16,
                               Expanded(
                                 child: ReceiptDetailGeneralCard(
                                   receipt: state.receipt!,
-                                  appointmentBloc: widget.appointmentBloc,
+                                  receiptBloc: widget.receiptBloc,
                                   listOfMarketplaces: widget.listOfMarketplaces,
                                 ),
                               ),
                             ],
                           ),
                           Gaps.h16,
-                          ReceiptDetailProductsCard(appointmentBloc: widget.appointmentBloc, receiptDetailBloc: widget.receiptDetailBloc),
+                          ReceiptDetailProductsCard(receiptBloc: widget.receiptBloc, receiptDetailBloc: widget.receiptDetailBloc),
                           Gaps.h16,
                           Row(
                             children: [
@@ -164,7 +164,7 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
                               Gaps.w16,
                               Expanded(
                                 child: ReceiptDetailProductsTotalCard(
-                                  appointmentBloc: widget.appointmentBloc,
+                                  receiptBloc: widget.receiptBloc,
                                   receiptDetailBloc: widget.receiptDetailBloc,
                                 ),
                               ),
@@ -173,9 +173,9 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
                           Gaps.h16,
                           Row(
                             children: [
-                              Expanded(child: ReceiptDetailPaymentMethodCard(appointmentBloc: widget.appointmentBloc)),
+                              Expanded(child: ReceiptDetailPaymentMethodCard(receiptBloc: widget.receiptBloc)),
                               Gaps.w16,
-                              Expanded(child: ReceiptDetailCarrierCard(appointmentBloc: widget.appointmentBloc)),
+                              Expanded(child: ReceiptDetailCarrierCard(receiptBloc: widget.receiptBloc)),
                             ],
                           ),
                           Gaps.h42,
@@ -187,21 +187,21 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
                     padding: const EdgeInsets.all(8),
                     child: ListView(
                       children: [
-                        ReceiptDetailAddressCard(receipt: state.receipt!, appointmentBloc: widget.appointmentBloc),
+                        ReceiptDetailAddressCard(receipt: state.receipt!, receiptBloc: widget.receiptBloc),
                         Gaps.h16,
                         ReceiptDetailGeneralCard(
                           receipt: state.receipt!,
-                          appointmentBloc: widget.appointmentBloc,
+                          receiptBloc: widget.receiptBloc,
                           listOfMarketplaces: widget.listOfMarketplaces,
                         ),
                         Gaps.h16,
-                        ReceiptDetailProductsCard(appointmentBloc: widget.appointmentBloc, receiptDetailBloc: widget.receiptDetailBloc),
+                        ReceiptDetailProductsCard(receiptBloc: widget.receiptBloc, receiptDetailBloc: widget.receiptDetailBloc),
                         Gaps.h16,
-                        ReceiptDetailProductsTotalCard(appointmentBloc: widget.appointmentBloc, receiptDetailBloc: widget.receiptDetailBloc),
+                        ReceiptDetailProductsTotalCard(receiptBloc: widget.receiptBloc, receiptDetailBloc: widget.receiptDetailBloc),
                         Gaps.h16,
-                        ReceiptDetailPaymentMethodCard(appointmentBloc: widget.appointmentBloc),
+                        ReceiptDetailPaymentMethodCard(receiptBloc: widget.receiptBloc),
                         Gaps.h16,
-                        ReceiptDetailCarrierCard(appointmentBloc: widget.appointmentBloc),
+                        ReceiptDetailCarrierCard(receiptBloc: widget.receiptBloc),
                         Gaps.h42,
                       ],
                     ),
@@ -212,7 +212,7 @@ class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
     );
   }
 
-  Future<bool> _validateReceiptOncreateOrUpdate(AppointmentState stateReceipt, ReceiptDetailState stateReceiptDetail) async {
+  Future<bool> _validateReceiptOncreateOrUpdate(ReceiptState stateReceipt, ReceiptDetailState stateReceiptDetail) async {
     if (stateReceipt.receipt!.marketplaceId == '') {
       await showMyDialogAlert(context: context, title: 'Achtung!', content: 'Ein Marktplatz muss ausgewählt werden');
       return false;

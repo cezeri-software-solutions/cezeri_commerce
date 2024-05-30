@@ -6,7 +6,7 @@ import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.da
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../2_application/firebase/main_settings/main_settings_bloc.dart';
+import '../../../../2_application/database/main_settings/main_settings_bloc.dart';
 import '../../../../3_domain/entities/id.dart';
 import '../../../../3_domain/entities/settings/dimensions.dart';
 import '../../../../3_domain/entities/settings/packaging_box.dart';
@@ -166,8 +166,8 @@ class _AddEditPackagingBoxState extends State<AddEditPackagingBox> {
                           pos: widget.packagingBox != null ? widget.packagingBox!.pos : 0,
                           name: _nameController.text,
                           shortName: _shortNameController.text,
-                          imageUrl: widget.packagingBox != null ? widget.packagingBox!.imageUrl : null,
-                          deliveryNoteId: widget.packagingBox != null ? widget.packagingBox!.deliveryNoteId : null,
+                          imageUrl: widget.packagingBox?.imageUrl,
+                          deliveryNoteId: widget.packagingBox?.deliveryNoteId,
                           dimensionsInside: Dimensions(
                             length: _insideLengthController.text.toMyDouble(),
                             width: _insideWidthController.text.toMyDouble(),

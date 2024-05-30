@@ -1,6 +1,6 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:cezeri_commerce/2_application/firebase/marketplace/marketplace_bloc.dart';
-import 'package:cezeri_commerce/2_application/firebase/product/product_bloc.dart';
+import 'package:cezeri_commerce/2_application/database/marketplace/marketplace_bloc.dart';
+import 'package:cezeri_commerce/2_application/database/product/product_bloc.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../2_application/firebase/products_booking/products_booking_bloc.dart';
+import '../../../2_application/database/products_booking/products_booking_bloc.dart';
 import '../../../constants.dart';
 import '../../core/widgets/my_circular_progress_indicator.dart';
 import '../../core/widgets/my_form_field_container.dart';

@@ -20,18 +20,18 @@ import '../../../3_domain/repositories/firebase/receipt_respository.dart';
 import '../../../constants.dart';
 import '../../../failures/abstract_failure.dart';
 
-part 'appointment_event.dart';
-part 'appointment_state.dart';
+part 'receipt_event.dart';
+part 'receipt_state.dart';
 
-class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
+class ReceiptBloc extends Bloc<ReceiptEvent, ReceiptState> {
   final ReceiptRepository receiptRepository;
   final ProductRepository productRepository;
 
-  AppointmentBloc({required this.receiptRepository, required this.productRepository}) : super(AppointmentState.initial()) {
+  ReceiptBloc({required this.receiptRepository, required this.productRepository}) : super(ReceiptState.initial()) {
 //? #########################################################################
 
     on<SetAppointmentStateToInitialEvent>((event, emit) {
-      emit(AppointmentState.initial());
+      emit(ReceiptState.initial());
     });
 
 //? #########################################################################

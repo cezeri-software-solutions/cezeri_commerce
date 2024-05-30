@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../2_application/firebase/supplier/supplier_bloc.dart';
+import '../../../../2_application/database/supplier/supplier_bloc.dart';
 import '../../../../3_domain/entities/reorder/supplier.dart';
 import '../../../../3_domain/enums/enums.dart';
 import '../../../../constants.dart';

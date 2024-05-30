@@ -8,9 +8,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '/2_application/firebase/appointment/appointment_bloc.dart';
-import '/2_application/firebase/customer/customer_bloc.dart';
-import '/2_application/firebase/marketplace/marketplace_bloc.dart';
+import '../../../2_application/database/customer/customer_bloc.dart';
+import '../../../2_application/database/marketplace/marketplace_bloc.dart';
 import '/3_domain/entities/address.dart';
 import '/3_domain/entities/customer/customer.dart';
 import '/3_domain/entities/marketplace/abstract_marketplace.dart';
@@ -22,6 +21,7 @@ import '/3_domain/pdf/pdf_outgoing_invoices_generator.dart';
 import '/constants.dart';
 import '/injection.dart';
 import '/routes/router.gr.dart';
+import '../../../2_application/database/receipt/receipt_bloc.dart';
 import '../../core/functions/dialogs.dart';
 import '../../core/functions/my_scaffold_messanger.dart';
 import '../../core/renderer/failure_renderer.dart';
@@ -29,7 +29,7 @@ import '../../core/widgets/my_circular_progress_indicator.dart';
 import '../../core/widgets/my_form_field_small.dart';
 import '../../core/widgets/my_modal_scrollable.dart';
 import '../../core/widgets/my_outlined_button.dart';
-import '../appointment_detail/appointment_detail_screen.dart';
+import '../appointment_detail/receipt_detail_screen.dart';
 import 'receipts_overview_page.dart';
 
 class ReceiptsOverviewScreen extends StatefulWidget {
@@ -46,7 +46,7 @@ class _ReceiptsOverviewScreenState extends State<ReceiptsOverviewScreen> with Au
   Widget build(BuildContext context) {
     super.build(context);
 
-    final appointmentBloc = sl<AppointmentBloc>()..add(GetReceiptsEvent(tabValue: 0, receiptTyp: widget.receiptTyp));
+    final receiptBloc = sl<ReceiptBloc>()..add(GetReceiptsEvent(tabValue: 0, receiptTyp: widget.receiptTyp));
     final marketplaceBloc = sl<MarketplaceBloc>()..add(GetAllMarketplacesEvent());
     final customerBloc = sl<CustomerBloc>();
 
@@ -55,7 +55,7 @@ class _ReceiptsOverviewScreenState extends State<ReceiptsOverviewScreen> with Au
     return MultiBlocProvider(
       providers: [
         BlocProvider.value(
-          value: appointmentBloc,
+          value: receiptBloc,
         ),
         BlocProvider.value(
           value: marketplaceBloc,
@@ -66,7 +66,7 @@ class _ReceiptsOverviewScreenState extends State<ReceiptsOverviewScreen> with Au
       ],
       child: MultiBlocListener(
         listeners: [
-          BlocListener<AppointmentBloc, AppointmentState>(
+          BlocListener<ReceiptBloc, ReceiptState>(
             listenWhen: (p, c) => p.fosReceiptsOnObserveOption != c.fosReceiptsOnObserveOption,
             listener: (context, state) {
               state.fosReceiptsOnObserveOption.fold(
@@ -78,7 +78,7 @@ class _ReceiptsOverviewScreenState extends State<ReceiptsOverviewScreen> with Au
               );
             },
           ),
-          BlocListener<AppointmentBloc, AppointmentState>(
+          BlocListener<ReceiptBloc, ReceiptState>(
             listenWhen: (p, c) => p.fosAppointmentOnObserveFromMarketplacesOption != c.fosAppointmentOnObserveFromMarketplacesOption,
             listener: (context, state) {
               state.fosAppointmentOnObserveFromMarketplacesOption.fold(
@@ -97,7 +97,7 @@ class _ReceiptsOverviewScreenState extends State<ReceiptsOverviewScreen> with Au
               );
             },
           ),
-          BlocListener<AppointmentBloc, AppointmentState>(
+          BlocListener<ReceiptBloc, ReceiptState>(
             listenWhen: (p, c) => p.fosAppointmentsOnObserveFromMarketplacesOption != c.fosAppointmentsOnObserveFromMarketplacesOption,
             listener: (context, state) {
               state.fosAppointmentsOnObserveFromMarketplacesOption.fold(
@@ -118,7 +118,7 @@ class _ReceiptsOverviewScreenState extends State<ReceiptsOverviewScreen> with Au
               );
             },
           ),
-          BlocListener<AppointmentBloc, AppointmentState>(
+          BlocListener<ReceiptBloc, ReceiptState>(
             listenWhen: (p, c) => p.fosReceiptOnDeleteOption != c.fosReceiptOnDeleteOption,
             listener: (context, state) {
               state.fosReceiptOnDeleteOption.fold(
@@ -141,7 +141,7 @@ class _ReceiptsOverviewScreenState extends State<ReceiptsOverviewScreen> with Au
               );
             },
           ),
-          BlocListener<AppointmentBloc, AppointmentState>(
+          BlocListener<ReceiptBloc, ReceiptState>(
             listenWhen: (p, c) => p.fosReceiptOnGenerateOption != c.fosReceiptOnGenerateOption,
             listener: (context, state) {
               state.fosReceiptOnGenerateOption.fold(
@@ -159,7 +159,7 @@ class _ReceiptsOverviewScreenState extends State<ReceiptsOverviewScreen> with Au
               );
             },
           ),
-          BlocListener<AppointmentBloc, AppointmentState>(
+          BlocListener<ReceiptBloc, ReceiptState>(
             listenWhen: (p, c) => p.fosReceiptsOnGenerateOption != c.fosReceiptsOnGenerateOption,
             listener: (context, state) {
               state.fosReceiptsOnGenerateOption.fold(
@@ -178,7 +178,7 @@ class _ReceiptsOverviewScreenState extends State<ReceiptsOverviewScreen> with Au
             },
           ),
         ],
-        child: BlocBuilder<AppointmentBloc, AppointmentState>(
+        child: BlocBuilder<ReceiptBloc, ReceiptState>(
           builder: (context, state) {
             return Scaffold(
               drawer: const AppDrawer(),
@@ -207,15 +207,15 @@ class _ReceiptsOverviewScreenState extends State<ReceiptsOverviewScreen> with Au
                       onPressed: () => showDialog(
                         context: context,
                         builder: (_) => BlocProvider.value(
-                          value: appointmentBloc,
+                          value: receiptBloc,
                           child: switch (widget.receiptTyp) {
                             ReceiptTyp.offer => _GenerateFromOfferNewAppointmentDialog(
                                 listOfReceipts: state.selectedReceipts,
-                                appointmentBloc: appointmentBloc,
+                                receiptBloc: receiptBloc,
                               ),
                             ReceiptTyp.appointment => _GenerateFromAppointmentDialog(
                                 listOfReceipts: state.selectedReceipts,
-                                appointmentBloc: appointmentBloc,
+                                receiptBloc: receiptBloc,
                               ),
                             ReceiptTyp.deliveryNote => state.selectedReceipts.isEmpty ||
                                     (state.selectedReceipts.length > 1 &&
@@ -225,7 +225,7 @@ class _ReceiptsOverviewScreenState extends State<ReceiptsOverviewScreen> with Au
                                     content: _getErrorMessageOnGenerateFromDeliveryNotesNewInvoice(state.selectedReceipts),
                                   )
                                 : _GenerateFromDeliveryNotesNewInvoiceDialog(
-                                    appointmentBloc: appointmentBloc,
+                                    receiptBloc: receiptBloc,
                                     listOfReceipts: state.selectedReceipts,
                                   ),
                             ReceiptTyp.invoice => state.selectedReceipts.length > 1
@@ -233,7 +233,7 @@ class _ReceiptsOverviewScreenState extends State<ReceiptsOverviewScreen> with Au
                                     title: 'Achtug',
                                     content: 'Du darfst maximal eine Rechnung auswählen, zum generieren einer Gutschrift',
                                   )
-                                : _GenerateFromInvoiceNewCreditDialog(listOfReceipts: state.selectedReceipts, appointmentBloc: appointmentBloc),
+                                : _GenerateFromInvoiceNewCreditDialog(listOfReceipts: state.selectedReceipts, receiptBloc: receiptBloc),
                             _ => const Dialog(),
                           },
                         ),
@@ -242,7 +242,7 @@ class _ReceiptsOverviewScreenState extends State<ReceiptsOverviewScreen> with Au
                     ),
                   ),
                   IconButton(
-                      onPressed: () => context.read<AppointmentBloc>().add(GetReceiptsEvent(tabValue: state.tabValue, receiptTyp: widget.receiptTyp)),
+                      onPressed: () => context.read<ReceiptBloc>().add(GetReceiptsEvent(tabValue: state.tabValue, receiptTyp: widget.receiptTyp)),
                       icon: const Icon(Icons.refresh)),
                   IconButton(
                     onPressed: () {
@@ -252,7 +252,7 @@ class _ReceiptsOverviewScreenState extends State<ReceiptsOverviewScreen> with Au
                         builder: (_) => BlocProvider.value(
                           value: customerBloc,
                           child: _SelectCustomerDialog(
-                            appointmentBloc: appointmentBloc,
+                            receiptBloc: receiptBloc,
                             customerBloc: customerBloc,
                             marketplaceBloc: marketplaceBloc,
                             receiptTyp: widget.receiptTyp,
@@ -284,7 +284,7 @@ class _ReceiptsOverviewScreenState extends State<ReceiptsOverviewScreen> with Au
                                 ReceiptTyp.credit => 'Rechnungen',
                               }} unwiederruflich löschen willst?',
                               onConfirm: () {
-                                context.read<AppointmentBloc>().add(
+                                context.read<ReceiptBloc>().add(
                                       DeleteSelectedReceiptsEvent(selectedReceipts: state.selectedReceipts),
                                     );
                                 context.router.maybePop();
@@ -301,7 +301,7 @@ class _ReceiptsOverviewScreenState extends State<ReceiptsOverviewScreen> with Au
                           showModalBottomSheet(
                             context: context,
                             builder: (_) => _SelectToLoadAppointmentFromMarketplaceSheet(
-                              appointmentBloc: appointmentBloc,
+                              receiptBloc: receiptBloc,
                               listOfMarketplaces: marketplaceBloc.state.listOfMarketplace!,
                             ),
                           );
@@ -310,12 +310,12 @@ class _ReceiptsOverviewScreenState extends State<ReceiptsOverviewScreen> with Au
                       ),
                     IconButton(
                       onPressed: () {
-                        context.read<AppointmentBloc>().add(GetNewAppointmentsFromMarketplacesEvent());
+                        context.read<ReceiptBloc>().add(GetNewAppointmentsFromMarketplacesEvent());
                         showDialog(
                           context: context,
                           builder: (context) => BlocProvider.value(
-                            value: appointmentBloc,
-                            child: _MyLoadingDialogOnLoadingAppointments(appointmentBloc: appointmentBloc),
+                            value: receiptBloc,
+                            child: _MyLoadingDialogOnLoadingAppointments(receiptBloc: receiptBloc),
                           ),
                         );
                       },
@@ -330,12 +330,12 @@ class _ReceiptsOverviewScreenState extends State<ReceiptsOverviewScreen> with Au
                     padding: const EdgeInsets.only(left: 20, right: 20, bottom: 10),
                     child: CupertinoSearchTextField(
                       controller: searchController,
-                      onChanged: (value) => context.read<AppointmentBloc>().add(SetSearchFieldTextAppointmentsEvent(searchText: value)),
-                      onSubmitted: (value) => context.read<AppointmentBloc>().add(OnSearchFieldSubmittedAppointmentsEvent()),
+                      onChanged: (value) => context.read<ReceiptBloc>().add(SetSearchFieldTextAppointmentsEvent(searchText: value)),
+                      onSubmitted: (value) => context.read<ReceiptBloc>().add(OnSearchFieldSubmittedAppointmentsEvent()),
                       onSuffixTap: () {
                         searchController.clear();
-                        context.read<AppointmentBloc>().add(SetSearchFieldTextAppointmentsEvent(searchText: ''));
-                        context.read<AppointmentBloc>().add(OnSearchFieldSubmittedAppointmentsEvent());
+                        context.read<ReceiptBloc>().add(SetSearchFieldTextAppointmentsEvent(searchText: ''));
+                        context.read<ReceiptBloc>().add(OnSearchFieldSubmittedAppointmentsEvent());
                       },
                     ),
                   ),
@@ -346,7 +346,7 @@ class _ReceiptsOverviewScreenState extends State<ReceiptsOverviewScreen> with Au
                           tabs: const [Tab(text: 'Offen'), Tab(text: 'Alle')],
                           labelStyle: const TextStyle(fontWeight: FontWeight.bold),
                           unselectedLabelStyle: const TextStyle(),
-                          onTap: (value) => appointmentBloc.add(GetReceiptsEvent(tabValue: value, receiptTyp: widget.receiptTyp)),
+                          onTap: (value) => receiptBloc.add(GetReceiptsEvent(tabValue: value, receiptTyp: widget.receiptTyp)),
                         ),
                       ),
                     ReceiptTyp.appointment => DefaultTabController(
@@ -355,7 +355,7 @@ class _ReceiptsOverviewScreenState extends State<ReceiptsOverviewScreen> with Au
                           tabs: const [Tab(text: 'Offen'), Tab(text: 'Alle')],
                           labelStyle: const TextStyle(fontWeight: FontWeight.bold),
                           unselectedLabelStyle: const TextStyle(),
-                          onTap: (value) => appointmentBloc.add(GetReceiptsEvent(tabValue: value, receiptTyp: widget.receiptTyp)),
+                          onTap: (value) => receiptBloc.add(GetReceiptsEvent(tabValue: value, receiptTyp: widget.receiptTyp)),
                         ),
                       ),
                     ReceiptTyp.deliveryNote => DefaultTabController(
@@ -364,7 +364,7 @@ class _ReceiptsOverviewScreenState extends State<ReceiptsOverviewScreen> with Au
                           tabs: const [Tab(text: 'Ohne Rechnung'), Tab(text: 'Alle')],
                           labelStyle: const TextStyle(fontWeight: FontWeight.bold),
                           unselectedLabelStyle: const TextStyle(),
-                          onTap: (value) => appointmentBloc.add(GetReceiptsEvent(tabValue: value, receiptTyp: widget.receiptTyp)),
+                          onTap: (value) => receiptBloc.add(GetReceiptsEvent(tabValue: value, receiptTyp: widget.receiptTyp)),
                         ),
                       ),
                     ReceiptTyp.invoice => DefaultTabController(
@@ -373,7 +373,7 @@ class _ReceiptsOverviewScreenState extends State<ReceiptsOverviewScreen> with Au
                           tabs: const [Tab(text: 'Nicht vollst. bezahlt'), Tab(text: 'Alle')],
                           labelStyle: const TextStyle(fontWeight: FontWeight.bold),
                           unselectedLabelStyle: const TextStyle(),
-                          onTap: (value) => appointmentBloc.add(GetReceiptsEvent(tabValue: value, receiptTyp: widget.receiptTyp)),
+                          onTap: (value) => receiptBloc.add(GetReceiptsEvent(tabValue: value, receiptTyp: widget.receiptTyp)),
                         ),
                       ),
                     ReceiptTyp.credit => DefaultTabController(
@@ -382,11 +382,11 @@ class _ReceiptsOverviewScreenState extends State<ReceiptsOverviewScreen> with Au
                           tabs: const [Tab(text: 'Nicht vollst. bezahlt'), Tab(text: 'Alle')],
                           labelStyle: const TextStyle(fontWeight: FontWeight.bold),
                           unselectedLabelStyle: const TextStyle(),
-                          onTap: (value) => appointmentBloc.add(GetReceiptsEvent(tabValue: value, receiptTyp: widget.receiptTyp)),
+                          onTap: (value) => receiptBloc.add(GetReceiptsEvent(tabValue: value, receiptTyp: widget.receiptTyp)),
                         ),
                       ),
                   },
-                  ReceiptsOverviewPage(appointmentBloc: appointmentBloc, marketplaceBloc: marketplaceBloc, receiptTyp: widget.receiptTyp),
+                  ReceiptsOverviewPage(receiptBloc: receiptBloc, marketplaceBloc: marketplaceBloc, receiptTyp: widget.receiptTyp),
                 ],
               ),
             );
@@ -468,10 +468,10 @@ class _ReceiptsOverviewScreenState extends State<ReceiptsOverviewScreen> with Au
 }
 
 class _GenerateFromOfferNewAppointmentDialog extends StatefulWidget {
-  final AppointmentBloc appointmentBloc;
+  final ReceiptBloc receiptBloc;
   final List<Receipt> listOfReceipts;
 
-  const _GenerateFromOfferNewAppointmentDialog({required this.appointmentBloc, required this.listOfReceipts});
+  const _GenerateFromOfferNewAppointmentDialog({required this.receiptBloc, required this.listOfReceipts});
 
   @override
   State<_GenerateFromOfferNewAppointmentDialog> createState() => _GenerateFromOfferNewAppointmentDialogState();
@@ -480,7 +480,7 @@ class _GenerateFromOfferNewAppointmentDialog extends StatefulWidget {
 class _GenerateFromOfferNewAppointmentDialogState extends State<_GenerateFromOfferNewAppointmentDialog> {
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<AppointmentBloc, AppointmentState>(
+    return BlocBuilder<ReceiptBloc, ReceiptState>(
       builder: (context, state) {
         return Dialog(
           child: SizedBox(
@@ -504,7 +504,7 @@ class _GenerateFromOfferNewAppointmentDialogState extends State<_GenerateFromOff
                       buttonText: 'Anlegen',
                       buttonBackgroundColor: Colors.green,
                       isLoading: state.isLoadingReceiptOnGenerate,
-                      onPressed: () => widget.appointmentBloc.add(OnGenerateFromOfferNewAppointmentEvent()),
+                      onPressed: () => widget.receiptBloc.add(OnGenerateFromOfferNewAppointmentEvent()),
                     ),
                   ),
                 ],
@@ -518,10 +518,10 @@ class _GenerateFromOfferNewAppointmentDialogState extends State<_GenerateFromOff
 }
 
 class _GenerateFromAppointmentDialog extends StatefulWidget {
-  final AppointmentBloc appointmentBloc;
+  final ReceiptBloc receiptBloc;
   final List<Receipt> listOfReceipts;
 
-  const _GenerateFromAppointmentDialog({required this.appointmentBloc, required this.listOfReceipts});
+  const _GenerateFromAppointmentDialog({required this.receiptBloc, required this.listOfReceipts});
 
   @override
   State<_GenerateFromAppointmentDialog> createState() => __GenerateFromAppointmentDialogState();
@@ -535,7 +535,7 @@ class __GenerateFromAppointmentDialogState extends State<_GenerateFromAppointmen
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<AppointmentBloc, AppointmentState>(
+    return BlocBuilder<ReceiptBloc, ReceiptState>(
       builder: (context, state) {
         return Dialog(
           child: SizedBox(
@@ -595,7 +595,7 @@ class __GenerateFromAppointmentDialogState extends State<_GenerateFromAppointmen
                       buttonText: 'Anlegen',
                       buttonBackgroundColor: Colors.green,
                       isLoading: state.isLoadingReceiptOnGenerate,
-                      onPressed: () => widget.appointmentBloc.add(OnGenerateFromAppointmentEvent(
+                      onPressed: () => widget.receiptBloc.add(OnGenerateFromAppointmentEvent(
                         generateDeliveryNote: _generateDeliveryNote,
                         generateInvoice: _generateInvoice,
                       )),
@@ -612,10 +612,10 @@ class __GenerateFromAppointmentDialogState extends State<_GenerateFromAppointmen
 }
 
 class _GenerateFromInvoiceNewCreditDialog extends StatefulWidget {
-  final AppointmentBloc appointmentBloc;
+  final ReceiptBloc receiptBloc;
   final List<Receipt> listOfReceipts;
 
-  const _GenerateFromInvoiceNewCreditDialog({required this.appointmentBloc, required this.listOfReceipts});
+  const _GenerateFromInvoiceNewCreditDialog({required this.receiptBloc, required this.listOfReceipts});
 
   @override
   State<_GenerateFromInvoiceNewCreditDialog> createState() => _GenerateFromInvoiceNewCreditDialogState();
@@ -624,7 +624,7 @@ class _GenerateFromInvoiceNewCreditDialog extends StatefulWidget {
 class _GenerateFromInvoiceNewCreditDialogState extends State<_GenerateFromInvoiceNewCreditDialog> {
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<AppointmentBloc, AppointmentState>(
+    return BlocBuilder<ReceiptBloc, ReceiptState>(
       builder: (context, state) {
         return Dialog(
           child: SizedBox(
@@ -648,7 +648,7 @@ class _GenerateFromInvoiceNewCreditDialogState extends State<_GenerateFromInvoic
                       buttonText: 'Anlegen',
                       buttonBackgroundColor: Colors.green,
                       isLoading: state.isLoadingReceiptOnGenerate,
-                      onPressed: () => widget.appointmentBloc.add(OnGenerateFromInvoiceNewCreditEvent()),
+                      onPressed: () => widget.receiptBloc.add(OnGenerateFromInvoiceNewCreditEvent()),
                     ),
                   ),
                 ],
@@ -662,10 +662,10 @@ class _GenerateFromInvoiceNewCreditDialogState extends State<_GenerateFromInvoic
 }
 
 class _GenerateFromDeliveryNotesNewInvoiceDialog extends StatefulWidget {
-  final AppointmentBloc appointmentBloc;
+  final ReceiptBloc receiptBloc;
   final List<Receipt> listOfReceipts;
 
-  const _GenerateFromDeliveryNotesNewInvoiceDialog({required this.appointmentBloc, required this.listOfReceipts});
+  const _GenerateFromDeliveryNotesNewInvoiceDialog({required this.receiptBloc, required this.listOfReceipts});
 
   @override
   State<_GenerateFromDeliveryNotesNewInvoiceDialog> createState() => _GenerateFromDeliveryNotesNewInvoiceDialogState();
@@ -674,7 +674,7 @@ class _GenerateFromDeliveryNotesNewInvoiceDialog extends StatefulWidget {
 class _GenerateFromDeliveryNotesNewInvoiceDialogState extends State<_GenerateFromDeliveryNotesNewInvoiceDialog> {
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<AppointmentBloc, AppointmentState>(
+    return BlocBuilder<ReceiptBloc, ReceiptState>(
       builder: (context, state) {
         return Dialog(
           child: SizedBox(
@@ -698,7 +698,7 @@ class _GenerateFromDeliveryNotesNewInvoiceDialogState extends State<_GenerateFro
                       buttonText: 'Anlegen',
                       buttonBackgroundColor: Colors.green,
                       isLoading: state.isLoadingReceiptOnGenerate,
-                      onPressed: () => widget.appointmentBloc.add(OnGenerateFromDeliveryNotesNewInvoiceEvent()),
+                      onPressed: () => widget.receiptBloc.add(OnGenerateFromDeliveryNotesNewInvoiceEvent()),
                     ),
                   ),
                 ],
@@ -744,12 +744,12 @@ class _ReceiptsAlertDialog extends StatelessWidget {
 }
 
 class _SelectCustomerDialog extends StatefulWidget {
-  final AppointmentBloc appointmentBloc;
+  final ReceiptBloc receiptBloc;
   final CustomerBloc customerBloc;
   final MarketplaceBloc marketplaceBloc;
   final ReceiptTyp receiptTyp;
 
-  const _SelectCustomerDialog({required this.appointmentBloc, required this.customerBloc, required this.marketplaceBloc, required this.receiptTyp});
+  const _SelectCustomerDialog({required this.receiptBloc, required this.customerBloc, required this.marketplaceBloc, required this.receiptTyp});
 
   @override
   State<_SelectCustomerDialog> createState() => _SelectCustomerDialogState();
@@ -826,10 +826,10 @@ class _SelectCustomerDialogState extends State<_SelectCustomerDialog> {
                                 listOfReceiptProduct: [ReceiptProduct.empty()],
                                 receiptTyp: widget.receiptTyp,
                               );
-                              widget.appointmentBloc.add(SetAppointmentEvent(appointment: newAppointment));
+                              widget.receiptBloc.add(SetAppointmentEvent(appointment: newAppointment));
                               context.router.push(
-                                AppointmentDetailRoute(
-                                  appointmentBloc: widget.appointmentBloc,
+                                ReceiptDetailRoute(
+                                  receiptBloc: widget.receiptBloc,
                                   listOfMarketplaces: widget.marketplaceBloc.state.listOfMarketplace!,
                                   receiptCreateOrEdit: ReceiptCreateOrEdit.create,
                                   receiptTyp: widget.receiptTyp,
@@ -853,14 +853,14 @@ class _SelectCustomerDialogState extends State<_SelectCustomerDialog> {
 }
 
 class _MyLoadingDialogOnLoadingAppointments extends StatelessWidget {
-  final AppointmentBloc appointmentBloc;
+  final ReceiptBloc receiptBloc;
 
-  const _MyLoadingDialogOnLoadingAppointments({required this.appointmentBloc});
+  const _MyLoadingDialogOnLoadingAppointments({required this.receiptBloc});
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<AppointmentBloc, AppointmentState>(
-      bloc: appointmentBloc,
+    return BlocBuilder<ReceiptBloc, ReceiptState>(
+      bloc: receiptBloc,
       builder: (context, state) {
         return Dialog(
           child: SizedBox(
@@ -887,10 +887,10 @@ class _MyLoadingDialogOnLoadingAppointments extends StatelessWidget {
 }
 
 class _SelectToLoadAppointmentFromMarketplaceSheet extends StatefulWidget {
-  final AppointmentBloc appointmentBloc;
+  final ReceiptBloc receiptBloc;
   final List<AbstractMarketplace> listOfMarketplaces;
 
-  const _SelectToLoadAppointmentFromMarketplaceSheet({required this.appointmentBloc, required this.listOfMarketplaces});
+  const _SelectToLoadAppointmentFromMarketplaceSheet({required this.receiptBloc, required this.listOfMarketplaces});
 
   @override
   State<_SelectToLoadAppointmentFromMarketplaceSheet> createState() => _SelectToLoadAppointmentFromMarketplaceSheetState();
@@ -933,12 +933,12 @@ class _SelectToLoadAppointmentFromMarketplaceSheetState extends State<_SelectToL
           buttonText: 'Bestellung Laden',
           onPressed: () {
             context.router.maybePopTop();
-            widget.appointmentBloc.add(GetNewAppointmentByIdFromPrestaEvent(id: _controller.text.toMyInt(), marketplace: selectedMarketplace));
+            widget.receiptBloc.add(GetNewAppointmentByIdFromPrestaEvent(id: _controller.text.toMyInt(), marketplace: selectedMarketplace));
             showDialog(
               context: context,
               builder: (context) => BlocProvider.value(
-                value: widget.appointmentBloc,
-                child: _MyLoadingDialogOnLoadingAppointments(appointmentBloc: widget.appointmentBloc),
+                value: widget.receiptBloc,
+                child: _MyLoadingDialogOnLoadingAppointments(receiptBloc: widget.receiptBloc),
               ),
             );
           },

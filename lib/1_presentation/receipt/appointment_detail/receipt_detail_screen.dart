@@ -6,28 +6,28 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:printing/printing.dart';
 
-import '../../../2_application/firebase/appointment/appointment_bloc.dart';
-import '../../../2_application/firebase/main_settings/main_settings_bloc.dart';
-import '../../../2_application/firebase/receipt_detail/receipt_detail_bloc.dart';
+import '../../../2_application/database/receipt/receipt_bloc.dart';
+import '../../../2_application/database/main_settings/main_settings_bloc.dart';
+import '../../../2_application/database/receipt_detail/receipt_detail_bloc.dart';
 import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
 import '../../../injection.dart';
 import '../../../routes/router.gr.dart';
 import '../../core/functions/my_scaffold_messanger.dart';
 import '../../core/renderer/failure_renderer.dart';
-import 'appointment_detail_page.dart';
+import 'receipt_detail_page.dart';
 
 enum ReceiptCreateOrEdit { create, edit }
 
 @RoutePage()
-class AppointmentDetailScreen extends StatelessWidget {
-  final AppointmentBloc appointmentBloc;
+class ReceiptDetailScreen extends StatelessWidget {
+  final ReceiptBloc receiptBloc;
   final List<AbstractMarketplace> listOfMarketplaces;
   final ReceiptCreateOrEdit receiptCreateOrEdit;
   final ReceiptTyp receiptTyp;
 
-  const AppointmentDetailScreen({
+  const ReceiptDetailScreen({
     super.key,
-    required this.appointmentBloc,
+    required this.receiptBloc,
     required this.listOfMarketplaces,
     required this.receiptCreateOrEdit,
     required this.receiptTyp,
@@ -37,9 +37,8 @@ class AppointmentDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final receiptDetailBloc = sl<ReceiptDetailBloc>();
     if (receiptCreateOrEdit == ReceiptCreateOrEdit.create) {
-      print(appointmentBloc.state.receipt!);
       receiptDetailBloc.add(SetListOfReceiptProductssReceiptDetailEvent(
-        receipt: appointmentBloc.state.receipt!,
+        receipt: receiptBloc.state.receipt!,
         listOfTaxRules: context.read<MainSettingsBloc>().state.mainSettings!.taxes,
       ));
     }
@@ -48,8 +47,8 @@ class AppointmentDetailScreen extends StatelessWidget {
       create: (context) => receiptDetailBloc,
       child: MultiBlocListener(
         listeners: [
-          BlocListener<AppointmentBloc, AppointmentState>(
-            bloc: appointmentBloc,
+          BlocListener<ReceiptBloc, ReceiptState>(
+            bloc: receiptBloc,
             listenWhen: (p, c) => p.fosReceiptOnObserveOption != c.fosReceiptOnObserveOption,
             listener: (context, state) {
               state.fosReceiptOnObserveOption.fold(
@@ -64,8 +63,8 @@ class AppointmentDetailScreen extends StatelessWidget {
               );
             },
           ),
-          BlocListener<AppointmentBloc, AppointmentState>(
-            bloc: appointmentBloc,
+          BlocListener<ReceiptBloc, ReceiptState>(
+            bloc: receiptBloc,
             listenWhen: (p, c) => p.fosReceiptOnUpdateOption != c.fosReceiptOnUpdateOption,
             listener: (context, state) {
               state.fosReceiptOnUpdateOption.fold(
@@ -77,8 +76,8 @@ class AppointmentDetailScreen extends StatelessWidget {
               );
             },
           ),
-          BlocListener<AppointmentBloc, AppointmentState>(
-            bloc: appointmentBloc,
+          BlocListener<ReceiptBloc, ReceiptState>(
+            bloc: receiptBloc,
             listenWhen: (p, c) => p.fosReceiptOnCreateOption != c.fosReceiptOnCreateOption,
             listener: (context, state) {
               state.fosReceiptOnCreateOption.fold(
@@ -88,10 +87,10 @@ class AppointmentDetailScreen extends StatelessWidget {
                   (receipt) {
                     myScaffoldMessenger(context, null, null, 'Dokument erfolgreich erstellt', null);
                     context.router.pop();
-                    appointmentBloc.add(GetAppointmentEvent(appointment: receipt));
+                    receiptBloc.add(GetAppointmentEvent(appointment: receipt));
                     context.router.push(
-                      AppointmentDetailRoute(
-                        appointmentBloc: appointmentBloc,
+                      ReceiptDetailRoute(
+                        receiptBloc: receiptBloc,
                         listOfMarketplaces: listOfMarketplaces,
                         receiptCreateOrEdit: ReceiptCreateOrEdit.edit,
                         receiptTyp: receiptTyp,
@@ -102,8 +101,8 @@ class AppointmentDetailScreen extends StatelessWidget {
               );
             },
           ),
-          BlocListener<AppointmentBloc, AppointmentState>(
-            bloc: appointmentBloc,
+          BlocListener<ReceiptBloc, ReceiptState>(
+            bloc: receiptBloc,
             listenWhen: (p, c) => p.fosReceiptOnDeleteOption != c.fosReceiptOnDeleteOption,
             listener: (context, state) {
               state.fosReceiptOnDeleteOption.fold(
@@ -118,8 +117,8 @@ class AppointmentDetailScreen extends StatelessWidget {
               );
             },
           ),
-          BlocListener<AppointmentBloc, AppointmentState>(
-            bloc: appointmentBloc,
+          BlocListener<ReceiptBloc, ReceiptState>(
+            bloc: receiptBloc,
             listenWhen: (p, c) => p.fosParcelLabelOnCreate != c.fosParcelLabelOnCreate,
             listener: (context, state) {
               state.fosParcelLabelOnCreate.fold(
@@ -140,8 +139,8 @@ class AppointmentDetailScreen extends StatelessWidget {
             },
           ),
         ],
-        child: BlocBuilder<AppointmentBloc, AppointmentState>(
-          bloc: appointmentBloc,
+        child: BlocBuilder<ReceiptBloc, ReceiptState>(
+          bloc: receiptBloc,
           builder: (context, state) {
             final appBar = AppBar(
               title: state.receipt == null
@@ -159,8 +158,8 @@ class AppointmentDetailScreen extends StatelessWidget {
             if ((state.firebaseFailure != null && state.isAnyFailure) || (receiptCreateOrEdit == ReceiptCreateOrEdit.edit && state.receipt == null)) {
               return Scaffold(appBar: appBar, body: const Center(child: Text('Ein Fehler ist aufgetreten')));
             }
-            return AppointmentDetailPage(
-              appointmentBloc: appointmentBloc,
+            return ReceiptDetailPage(
+              receiptBloc: receiptBloc,
               receiptDetailBloc: receiptDetailBloc,
               listOfMarketplaces: listOfMarketplaces,
               receiptCreateOrEdit: receiptCreateOrEdit,

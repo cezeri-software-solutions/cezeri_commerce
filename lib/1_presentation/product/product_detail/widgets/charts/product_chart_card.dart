@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '/constants.dart';
-import '../../../../../2_application/firebase/product_detail/product_detail_bloc.dart';
+import '../../../../../2_application/database/product_detail/product_detail_bloc.dart';
 import '../../../../core/functions/mixed_functions.dart';
 import 'product_bart_chart_items_sold.dart';
 import 'product_line_chart_sales_volume.dart';

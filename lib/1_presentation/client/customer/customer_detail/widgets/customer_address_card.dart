@@ -2,7 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 
-import '../../../../../2_application/firebase/customer/customer_bloc.dart';
+import '../../../../../2_application/database/customer/customer_bloc.dart';
 import '../../../../../3_domain/entities/address.dart';
 import '../../../../../3_domain/entities/customer/customer.dart';
 import '../../../../../constants.dart';

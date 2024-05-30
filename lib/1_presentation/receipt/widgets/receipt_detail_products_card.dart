@@ -6,8 +6,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../2_application/firebase/appointment/appointment_bloc.dart';
-import '../../../2_application/firebase/receipt_detail/receipt_detail_bloc.dart';
+import '../../../2_application/database/receipt/receipt_bloc.dart';
+import '../../../2_application/database/receipt_detail/receipt_detail_bloc.dart';
 import '../../../3_domain/entities/product/product.dart';
 import '../../../constants.dart';
 import '../../core/functions/dialogs.dart';
@@ -15,10 +15,10 @@ import '../../core/widgets/my_avatar.dart';
 import '../../core/widgets/my_text_form_field_small_double.dart';
 
 class ReceiptDetailProductsCard extends StatefulWidget {
-  final AppointmentBloc appointmentBloc;
+  final ReceiptBloc receiptBloc;
   final ReceiptDetailBloc receiptDetailBloc;
 
-  const ReceiptDetailProductsCard({super.key, required this.appointmentBloc, required this.receiptDetailBloc});
+  const ReceiptDetailProductsCard({super.key, required this.receiptBloc, required this.receiptDetailBloc});
 
   @override
   State<ReceiptDetailProductsCard> createState() => _ReceiptDetailProductsCardState();
@@ -33,8 +33,8 @@ class _ReceiptDetailProductsCardState extends State<ReceiptDetailProductsCard> {
   Widget build(BuildContext context) {
     return MultiBlocListener(
       listeners: [
-        BlocListener<AppointmentBloc, AppointmentState>(
-          bloc: widget.appointmentBloc,
+        BlocListener<ReceiptBloc, ReceiptState>(
+          bloc: widget.receiptBloc,
           listenWhen: (p, c) => p.fosProductOnObserveOption != c.fosProductOnObserveOption,
           listener: (context, state) {
             state.fosProductOnObserveOption.fold(
@@ -49,8 +49,8 @@ class _ReceiptDetailProductsCardState extends State<ReceiptDetailProductsCard> {
             );
           },
         ),
-        BlocListener<AppointmentBloc, AppointmentState>(
-          bloc: widget.appointmentBloc,
+        BlocListener<ReceiptBloc, ReceiptState>(
+          bloc: widget.receiptBloc,
           listenWhen: (p, c) => p.fosProductsOnObserveOption != c.fosProductsOnObserveOption,
           listener: (context, state) {
             state.fosProductsOnObserveOption.fold(
@@ -63,10 +63,10 @@ class _ReceiptDetailProductsCardState extends State<ReceiptDetailProductsCard> {
                     final screenHeight = MediaQuery.sizeOf(context).height;
                     final screenWidth = MediaQuery.sizeOf(context).width;
                     return BlocProvider.value(
-                      value: widget.appointmentBloc,
+                      value: widget.receiptBloc,
                       child: _SelectProductDialog(
                           receiptDetailBloc: widget.receiptDetailBloc,
-                          appointmentBloc: widget.appointmentBloc,
+                          receiptBloc: widget.receiptBloc,
                           screenHeight: screenHeight,
                           screenWidth: screenWidth),
                     );
@@ -80,8 +80,8 @@ class _ReceiptDetailProductsCardState extends State<ReceiptDetailProductsCard> {
       child: BlocBuilder<ReceiptDetailBloc, ReceiptDetailState>(
         bloc: widget.receiptDetailBloc,
         builder: (context, state) {
-          return BlocBuilder<AppointmentBloc, AppointmentState>(
-            bloc: widget.appointmentBloc,
+          return BlocBuilder<ReceiptBloc, ReceiptState>(
+            bloc: widget.receiptBloc,
             builder: (context, stateProduct) {
               if (state.isInScanMode) FocusScope.of(context).requestFocus(scannerFocusNode);
               // if (state.listOfReceiptProducts.isEmpty || state.isEditable.isEmpty) {
@@ -293,17 +293,17 @@ class _ReceiptDetailProductsCardState extends State<ReceiptDetailProductsCard> {
                               ? const MyCircularProgressIndicator()
                               : TextButton.icon(
                                   onPressed: () => stateProduct.listOfAllProducts == null
-                                      ? widget.appointmentBloc.add(GetAllProductsEvent())
+                                      ? widget.receiptBloc.add(GetAllProductsEvent())
                                       : showDialog(
                                           context: context,
                                           builder: (context) {
                                             final screenHeight = MediaQuery.sizeOf(context).height;
                                             final screenWidth = MediaQuery.sizeOf(context).width;
                                             return BlocProvider.value(
-                                              value: widget.appointmentBloc,
+                                              value: widget.receiptBloc,
                                               child: _SelectProductDialog(
                                                   receiptDetailBloc: widget.receiptDetailBloc,
-                                                  appointmentBloc: widget.appointmentBloc,
+                                                  receiptBloc: widget.receiptBloc,
                                                   screenHeight: screenHeight,
                                                   screenWidth: screenWidth),
                                             );
@@ -350,7 +350,7 @@ class _ReceiptDetailProductsCardState extends State<ReceiptDetailProductsCard> {
           widget.receiptDetailBloc.add(AddProductToReceiptProductsEvent(receiptProduct: listOfReceiptProducts[index]));
           return;
         }
-        widget.appointmentBloc.add(GetProductByEanEvent(ean: value));
+        widget.receiptBloc.add(GetProductByEanEvent(ean: value));
       }
     }
   }
@@ -358,11 +358,11 @@ class _ReceiptDetailProductsCardState extends State<ReceiptDetailProductsCard> {
 
 class _SelectProductDialog extends StatefulWidget {
   final ReceiptDetailBloc receiptDetailBloc;
-  final AppointmentBloc appointmentBloc;
+  final ReceiptBloc receiptBloc;
   final double screenHeight;
   final double screenWidth;
 
-  const _SelectProductDialog({required this.receiptDetailBloc, required this.appointmentBloc, required this.screenHeight, required this.screenWidth});
+  const _SelectProductDialog({required this.receiptDetailBloc, required this.receiptBloc, required this.screenHeight, required this.screenWidth});
 
   @override
   State<_SelectProductDialog> createState() => _SelectProductDialogState();
@@ -373,10 +373,10 @@ class _SelectProductDialogState extends State<_SelectProductDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<AppointmentBloc, AppointmentState>(
-      bloc: widget.appointmentBloc,
+    return BlocBuilder<ReceiptBloc, ReceiptState>(
+      bloc: widget.receiptBloc,
       builder: (context, state) {
-        if (state.listOfAllProducts == null) widget.appointmentBloc.add(GetAllProductsEvent());
+        if (state.listOfAllProducts == null) widget.receiptBloc.add(GetAllProductsEvent());
 
         if (state.firebaseFailure != null && state.isAnyFailure) {
           return Dialog(child: SizedBox(width: 600, height: 1200, child: Center(child: Text(state.firebaseFailure.toString()))));

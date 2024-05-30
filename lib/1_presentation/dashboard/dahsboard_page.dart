@@ -2,7 +2,7 @@ import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.da
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../2_application/firebase/dashboard/dashboard_bloc.dart';
+import '../../2_application/database/dashboard/dashboard_bloc.dart';
 import '../../3_domain/entities/receipt/receipt.dart';
 import '../../3_domain/enums/enums.dart';
 import '../../constants.dart';

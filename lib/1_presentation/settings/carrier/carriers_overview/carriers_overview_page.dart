@@ -3,7 +3,7 @@ import 'package:cezeri_commerce/routes/router.gr.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../2_application/firebase/main_settings/main_settings_bloc.dart';
+import '../../../../2_application/database/main_settings/main_settings_bloc.dart';
 import '../../../../3_domain/entities/carrier/carrier.dart';
 import '../../../../3_domain/entities/settings/main_settings.dart';
 import '../../../../constants.dart';

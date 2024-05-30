@@ -3,9 +3,9 @@ import 'package:cezeri_commerce/routes/router.gr.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../2_application/firebase/auth/auth_bloc/auth_bloc.dart';
-import '../2_application/firebase/client/client_bloc.dart';
-import '../2_application/firebase/main_settings/main_settings_bloc.dart';
+import '../2_application/database/auth/auth_bloc/auth_bloc.dart';
+import '../2_application/database/client/client_bloc.dart';
+import '../2_application/database/main_settings/main_settings_bloc.dart';
 import '../3_domain/entities/client.dart';
 import '../constants.dart';
 import '../failures/firebase_failures.dart';

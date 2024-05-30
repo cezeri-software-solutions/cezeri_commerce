@@ -1,7 +1,7 @@
-part of 'appointment_bloc.dart';
+part of 'receipt_bloc.dart';
 
 @immutable
-class AppointmentState {
+class ReceiptState {
   final Receipt? receipt;
   final Customer? customer;
   final Product? product;
@@ -47,7 +47,7 @@ class AppointmentState {
   final int loadedAppointments;
   final String loadingText;
 
-  const AppointmentState({
+  const ReceiptState({
     this.receipt,
     this.customer,
     this.product,
@@ -90,7 +90,7 @@ class AppointmentState {
     required this.loadingText,
   });
 
-  factory AppointmentState.initial() => AppointmentState(
+  factory ReceiptState.initial() => ReceiptState(
         receipt: null,
         customer: null,
         product: null,
@@ -133,7 +133,7 @@ class AppointmentState {
         loadingText: '',
       );
 
-  AppointmentState copyWith({
+  ReceiptState copyWith({
     Receipt? receipt,
     Customer? customer,
     Product? product,
@@ -175,7 +175,7 @@ class AppointmentState {
     int? loadedAppointments,
     String? loadingText,
   }) {
-    return AppointmentState(
+    return ReceiptState(
       receipt: receipt ?? this.receipt,
       customer: customer ?? this.customer,
       product: product ?? this.product,

@@ -7,7 +7,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../2_application/firebase/reorder_detail/reorder_detail_bloc.dart';
+import '../../../../2_application/database/reorder_detail/reorder_detail_bloc.dart';
 import '../../../../3_domain/entities/product/product.dart';
 import '../../../../3_domain/entities/statistic/product_sales_data.dart';
 import '../../../../constants.dart';

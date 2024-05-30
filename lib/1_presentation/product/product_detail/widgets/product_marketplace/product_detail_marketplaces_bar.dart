@@ -5,8 +5,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 
-import '../../../../../2_application/firebase/marketplace_product/marketplace_product_bloc.dart';
-import '../../../../../2_application/firebase/product_detail/product_detail_bloc.dart';
+import '../../../../../2_application/database/marketplace_product/marketplace_product_bloc.dart';
+import '../../../../../2_application/database/product_detail/product_detail_bloc.dart';
 import '../../../../../3_domain/entities/marketplace/abstract_marketplace.dart';
 import '../../../../../3_domain/entities/product/product_marketplace.dart';
 import '../../../../../3_domain/entities/product/product_presta.dart';

@@ -3,7 +3,7 @@ import 'package:cezeri_commerce/1_presentation/core/widgets/my_text_form_field_s
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../2_application/firebase/product_detail/product_detail_bloc.dart';
+import '../../../../2_application/database/product_detail/product_detail_bloc.dart';
 import '../../../../constants.dart';
 import '../../../core/widgets/my_button_small.dart';
 import '../../../core/widgets/my_dialog_suppliers.dart';

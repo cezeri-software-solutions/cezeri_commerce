@@ -2,7 +2,7 @@ import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.da
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../2_application/firebase/reorder_detail/reorder_detail_bloc.dart';
+import '../../../../2_application/database/reorder_detail/reorder_detail_bloc.dart';
 import '../../../../constants.dart';
 import '../../../core/widgets/my_text_form_field_small_double.dart';
 

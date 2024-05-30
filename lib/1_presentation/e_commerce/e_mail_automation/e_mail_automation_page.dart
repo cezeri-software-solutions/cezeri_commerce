@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:html_editor_enhanced/html_editor.dart';
 
-import '../../../2_application/firebase/marketplace/marketplace_bloc.dart';
+import '../../../2_application/database/marketplace/marketplace_bloc.dart';
 import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
 import '../../../3_domain/entities/placeholder.dart';
 import '../../../4_infrastructur/repositories/firebase/receipt_respository_impl.dart';

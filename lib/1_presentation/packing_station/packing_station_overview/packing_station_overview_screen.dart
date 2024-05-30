@@ -2,7 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../2_application/firebase/marketplace/marketplace_bloc.dart';
+import '../../../2_application/database/marketplace/marketplace_bloc.dart';
 import '../../../2_application/packing_station/packing_station_bloc.dart';
 import '../../../3_domain/enums/enums.dart';
 import '../../../constants.dart';

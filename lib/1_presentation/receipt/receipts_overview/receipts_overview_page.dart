@@ -8,31 +8,31 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:printing/printing.dart';
 
-import '/2_application/firebase/appointment/appointment_bloc.dart';
-import '/2_application/firebase/marketplace/marketplace_bloc.dart';
+import '../../../2_application/database/marketplace/marketplace_bloc.dart';
 import '/3_domain/entities/receipt/receipt.dart';
 import '/3_domain/entities/receipt/receipt_product.dart';
-import '/3_domain/enums/enums.dart';
 import '/3_domain/pdf/pdf_api_mobile.dart';
 import '/3_domain/pdf/pdf_api_web.dart';
 import '/3_domain/pdf/pdf_receipt_generator.dart';
 import '/constants.dart';
 import '/routes/router.gr.dart';
+import '../../../2_application/database/receipt/receipt_bloc.dart';
 import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
 import '../../core/functions/mixed_functions.dart';
+import '../../core/functions/show_my_product_quick_view.dart';
 import '../../core/widgets/my_animated_arrow_icon_button.dart';
 import '../../core/widgets/my_animated_expansion_container.dart';
 import '../../core/widgets/my_avatar.dart';
 import '../../core/widgets/my_country_flag.dart';
-import '../appointment_detail/appointment_detail_screen.dart';
+import '../appointment_detail/receipt_detail_screen.dart';
 import '../widgets/receipts_overview_carrier_bar.dart';
 
 class ReceiptsOverviewPage extends StatefulWidget {
-  final AppointmentBloc appointmentBloc;
+  final ReceiptBloc receiptBloc;
   final MarketplaceBloc marketplaceBloc;
   final ReceiptTyp receiptTyp;
 
-  const ReceiptsOverviewPage({super.key, required this.appointmentBloc, required this.marketplaceBloc, required this.receiptTyp});
+  const ReceiptsOverviewPage({super.key, required this.receiptBloc, required this.marketplaceBloc, required this.receiptTyp});
 
   @override
   State<ReceiptsOverviewPage> createState() => _ReceiptsOverviewPageState();
@@ -41,7 +41,7 @@ class ReceiptsOverviewPage extends StatefulWidget {
 class _ReceiptsOverviewPageState extends State<ReceiptsOverviewPage> {
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<AppointmentBloc, AppointmentState>(
+    return BlocBuilder<ReceiptBloc, ReceiptState>(
       builder: (context, state) {
         return BlocBuilder<MarketplaceBloc, MarketplaceState>(
           builder: (context, stateMarketplace) {
@@ -75,13 +75,13 @@ class _ReceiptsOverviewPageState extends State<ReceiptsOverviewPage> {
                       children: [
                         Checkbox.adaptive(
                           value: state.isAllReceiptsSeledcted,
-                          onChanged: (value) => widget.appointmentBloc.add(OnSelectAllAppointmentsEvent(isSelected: value!)),
+                          onChanged: (value) => widget.receiptBloc.add(OnSelectAllAppointmentsEvent(isSelected: value!)),
                         ),
                         const Divider(),
                         _AppointmentContainer(
                           receipt: curAppointment,
                           index: index,
-                          appointmentBloc: widget.appointmentBloc,
+                          receiptBloc: widget.receiptBloc,
                           listOfMarketplaces: stateMarketplace.listOfMarketplace!,
                           receiptTyp: widget.receiptTyp,
                         ),
@@ -91,7 +91,7 @@ class _ReceiptsOverviewPageState extends State<ReceiptsOverviewPage> {
                   return _AppointmentContainer(
                     receipt: curAppointment,
                     index: index,
-                    appointmentBloc: widget.appointmentBloc,
+                    receiptBloc: widget.receiptBloc,
                     listOfMarketplaces: stateMarketplace.listOfMarketplace!,
                     receiptTyp: widget.receiptTyp,
                   );
@@ -109,14 +109,14 @@ class _ReceiptsOverviewPageState extends State<ReceiptsOverviewPage> {
 class _AppointmentContainer extends StatefulWidget {
   final Receipt receipt;
   final int index;
-  final AppointmentBloc appointmentBloc;
+  final ReceiptBloc receiptBloc;
   final List<AbstractMarketplace> listOfMarketplaces;
   final ReceiptTyp receiptTyp;
 
   const _AppointmentContainer({
     required this.receipt,
     required this.index,
-    required this.appointmentBloc,
+    required this.receiptBloc,
     required this.listOfMarketplaces,
     required this.receiptTyp,
   });
@@ -130,20 +130,11 @@ class __AppointmentContainerState extends State<_AppointmentContainer> {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.sizeOf(context).width;
-    final responsiveness = screenWidth > 700 ? Responsiveness.isTablet : Responsiveness.isMobil;
     final marketplace = widget.listOfMarketplaces.where((e) => e.id == widget.receipt.marketplaceId).first;
-    //TODO: Löschen wenn alles passt
-    // Address? deliveryAddress =
-    //     widget.receipt.receiptCustomer.listOfAddress.where((e) => e.addressType == AddressType.delivery && e.isDefault).firstOrNull;
-    // deliveryAddress ??=
-    //     widget.receipt.receiptCustomer.listOfAddress.isNotEmpty ? widget.receipt.receiptCustomer.listOfAddress.first : Address.empty();
-    // Address? invoiceAddress =
-    //     widget.receipt.receiptCustomer.listOfAddress.where((e) => e.addressType == AddressType.invoice && e.isDefault).firstOrNull;
-    // invoiceAddress ??= widget.receipt.receiptCustomer.listOfAddress.isNotEmpty ? widget.receipt.receiptCustomer.listOfAddress.first : Address.empty();
+
     final deliveryAddress = widget.receipt.addressDelivery;
     final invoiceAddress = widget.receipt.addressInvoice;
-    return BlocBuilder<AppointmentBloc, AppointmentState>(
+    return BlocBuilder<ReceiptBloc, ReceiptState>(
       builder: (context, state) {
         return Container(
           color: Colors.white,
@@ -156,7 +147,7 @@ class __AppointmentContainerState extends State<_AppointmentContainer> {
                     children: [
                       Checkbox.adaptive(
                         value: state.selectedReceipts.any((e) => e.id == widget.receipt.id),
-                        onChanged: (_) => widget.appointmentBloc.add(OnAppointmentSelectedEvent(appointment: widget.receipt)),
+                        onChanged: (_) => widget.receiptBloc.add(OnAppointmentSelectedEvent(appointment: widget.receipt)),
                       ),
                       SizedBox(
                         width: 60,
@@ -175,7 +166,7 @@ class __AppointmentContainerState extends State<_AppointmentContainer> {
                                 : const SizedBox(),
                             MyAnimatedIconButtonArrow(
                               boolValue: state.isExpanded[widget.index],
-                              onPressed: () => widget.appointmentBloc.add(SetAppointmentIsExpandedEvent(index: widget.index)),
+                              onPressed: () => widget.receiptBloc.add(SetAppointmentIsExpandedEvent(index: widget.index)),
                             ),
                             ConstrainedBox(
                               constraints: const BoxConstraints(maxHeight: 30),
@@ -194,10 +185,10 @@ class __AppointmentContainerState extends State<_AppointmentContainer> {
                           children: [
                             TextButton(
                               onPressed: () {
-                                context.read<AppointmentBloc>().add(GetAppointmentEvent(appointment: widget.receipt));
+                                context.read<ReceiptBloc>().add(GetAppointmentEvent(appointment: widget.receipt));
                                 context.router.push(
-                                  AppointmentDetailRoute(
-                                    appointmentBloc: widget.appointmentBloc,
+                                  ReceiptDetailRoute(
+                                    receiptBloc: widget.receiptBloc,
                                     listOfMarketplaces: widget.listOfMarketplaces,
                                     receiptCreateOrEdit: ReceiptCreateOrEdit.edit,
                                     receiptTyp: widget.receiptTyp,
@@ -211,13 +202,6 @@ class __AppointmentContainerState extends State<_AppointmentContainer> {
                                 ReceiptTyp.invoice => widget.receipt.invoiceNumberAsString,
                                 ReceiptTyp.credit => widget.receipt.invoiceNumberAsString,
                               }),
-                              // Text(switch (widget.receipt.receiptTyp) {
-                              //   ReceiptTyp.offer => 'Angebot ${widget.receipt.offerNumberAsString}',
-                              //   ReceiptTyp.appointment => 'Auftrag ${widget.receipt.appointmentNumberAsString}',
-                              //   ReceiptTyp.deliveryNote => 'Lieferschein ${widget.receipt.deliveryNoteNumberAsString}',
-                              //   ReceiptTyp.invoice => 'Rechnung ${widget.receipt.invoiceNumberAsString}',
-                              //   ReceiptTyp.credit => 'Gutschrift ${widget.receipt.invoiceNumberAsString}',
-                              // }),
                             ),
                             Text(DateFormat('dd.MM.yyy', 'de').format(widget.receipt.creationDate)),
                             Row(
@@ -498,37 +482,34 @@ class _AppointmentProdcutsContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        Expanded(flex: RowWidthsROP.pos, child: Text((index + 1).toString(), style: TextStyles.defaultBold)),
-        const Spacer(),
-        Expanded(flex: RowWidthsROP.articleNumber, child: Text(appointmentProduct.articleNumber, overflow: TextOverflow.ellipsis)),
-        const Spacer(),
-        Expanded(flex: RowWidthsROP.ean, child: Text(appointmentProduct.ean, overflow: TextOverflow.ellipsis)),
-        const Spacer(),
-        Expanded(flex: RowWidthsROP.articleName, child: Text(appointmentProduct.name, overflow: TextOverflow.ellipsis)),
-        const Spacer(),
-        Expanded(
+    final bool isCompletelyShipped = appointmentProduct.quantity - appointmentProduct.shippedQuantity == 0;
+
+    return InkWell(
+      onLongPress: () => showMyProductQuickViewById(context: context, productId: appointmentProduct.productId, showStatProduct: true),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Expanded(flex: RowWidthsROP.pos, child: Text((index + 1).toString(), style: TextStyles.defaultBold)),
+          const Spacer(),
+          Expanded(flex: RowWidthsROP.articleNumber, child: Text(appointmentProduct.articleNumber, overflow: TextOverflow.ellipsis)),
+          const Spacer(),
+          Expanded(flex: RowWidthsROP.ean, child: Text(appointmentProduct.ean, overflow: TextOverflow.ellipsis)),
+          const Spacer(),
+          Expanded(flex: RowWidthsROP.articleName, child: Text(appointmentProduct.name, overflow: TextOverflow.ellipsis)),
+          const Spacer(),
+          Expanded(
             flex: RowWidthsROP.openQuantity,
             child: Center(
-                child: switch (appointmentProduct.quantity - appointmentProduct.shippedQuantity) {
-              0 => Text(
-                  (appointmentProduct.quantity - appointmentProduct.shippedQuantity).toString(),
-                  style: TextStyles.defaultBold.copyWith(
-                    color: Colors.green,
-                  ),
-                ),
-              (_) => Text(
-                  (appointmentProduct.quantity - appointmentProduct.shippedQuantity).toString(),
-                  style: const TextStyle(
-                    color: Colors.red,
-                  ),
-                ),
-            })),
-        const Spacer(),
-        Expanded(flex: RowWidthsROP.quantity, child: Center(child: Text(appointmentProduct.quantity.toString()))),
-      ],
+              child: Text(
+                (appointmentProduct.quantity - appointmentProduct.shippedQuantity).toString(),
+                style: isCompletelyShipped ? TextStyles.defaultBold.copyWith(color: Colors.green) : const TextStyle(color: Colors.red),
+              ),
+            ),
+          ),
+          const Spacer(),
+          Expanded(flex: RowWidthsROP.quantity, child: Center(child: Text(appointmentProduct.quantity.toString()))),
+        ],
+      ),
     );
   }
 }

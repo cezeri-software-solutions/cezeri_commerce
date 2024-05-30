@@ -11,7 +11,7 @@ import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
-import '../../../../2_application/firebase/marketplace/marketplace_bloc.dart';
+import '../../../../2_application/database/marketplace/marketplace_bloc.dart';
 import '../../../../3_domain/entities/address.dart';
 import '../../../../3_domain/entities/country.dart';
 import '../../../../3_domain/entities/marketplace/abstract_marketplace.dart';

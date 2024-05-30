@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../2_application/firebase/appointment/appointment_bloc.dart';
+import '../../../2_application/database/receipt/receipt_bloc.dart';
 import '../../../3_domain/entities/address.dart';
 import '../../../3_domain/entities/receipt/receipt.dart';
 import '../../../constants.dart';
@@ -9,10 +9,10 @@ import '../../core/widgets/my_address_update_sheet.dart';
 enum ReceiptDetailAddressTyp { shipping, invoice }
 
 class ReceiptDetailAddressCard extends StatefulWidget {
-  final AppointmentBloc appointmentBloc;
+  final ReceiptBloc receiptBloc;
   final Receipt receipt;
 
-  const ReceiptDetailAddressCard({super.key, required this.receipt, required this.appointmentBloc});
+  const ReceiptDetailAddressCard({super.key, required this.receipt, required this.receiptBloc});
 
   @override
   State<ReceiptDetailAddressCard> createState() => _ReceiptDetailAddressCardState();
@@ -55,7 +55,7 @@ class _ReceiptDetailAddressCardState extends State<ReceiptDetailAddressCard> {
               ),
             ),
             Gaps.h16,
-            _ReceiptDetailCustomerAddressContainer(address: shownAddress, appointmentBloc: widget.appointmentBloc)
+            _ReceiptDetailCustomerAddressContainer(address: shownAddress, receiptBloc: widget.receiptBloc)
           ],
         ),
       ),
@@ -64,10 +64,10 @@ class _ReceiptDetailAddressCardState extends State<ReceiptDetailAddressCard> {
 }
 
 class _ReceiptDetailCustomerAddressContainer extends StatelessWidget {
-  final AppointmentBloc appointmentBloc;
+  final ReceiptBloc receiptBloc;
   final Address address;
 
-  const _ReceiptDetailCustomerAddressContainer({required this.address, required this.appointmentBloc});
+  const _ReceiptDetailCustomerAddressContainer({required this.address, required this.receiptBloc});
 
   @override
   Widget build(BuildContext context) {
@@ -99,7 +99,7 @@ class _ReceiptDetailCustomerAddressContainer extends StatelessWidget {
               address: address,
               onSave: (newAddress) {
                 print('onSave ausgeführt');
-                appointmentBloc.add(OnEditAddressReceiptDetailEvent(address: newAddress));
+                receiptBloc.add(OnEditAddressReceiptDetailEvent(address: newAddress));
               },
             ),
           ),

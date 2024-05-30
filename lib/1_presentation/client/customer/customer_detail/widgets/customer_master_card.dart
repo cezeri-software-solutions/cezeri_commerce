@@ -2,7 +2,7 @@ import 'package:cezeri_commerce/1_presentation/core/widgets/my_dropdown_button_s
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../../2_application/firebase/customer/customer_bloc.dart';
+import '../../../../../2_application/database/customer/customer_bloc.dart';
 import '../../../../../3_domain/entities/customer/customer.dart';
 import '../../../../../constants.dart';
 import '../../../../core/widgets/my_button_small.dart';

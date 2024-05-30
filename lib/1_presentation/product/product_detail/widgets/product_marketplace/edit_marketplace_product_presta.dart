@@ -5,15 +5,15 @@ import 'package:cezeri_commerce/1_presentation/core/functions/dialogs.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../core/widgets/my_animated_expansion_container.dart';
-import '../../../../core/widgets/my_circular_progress_indicator.dart';
-import '../../../../core/widgets/my_outlined_button.dart';
-import '/2_application/firebase/marketplace_product/marketplace_product_bloc.dart';
-import '/2_application/firebase/product_detail/product_detail_bloc.dart';
 import '/3_domain/entities/product/product_marketplace.dart';
 import '/3_domain/entities/product/product_presta.dart';
 import '/4_infrastructur/repositories/prestashop_api/models/category_presta.dart';
 import '/constants.dart';
+import '../../../../../2_application/database/marketplace_product/marketplace_product_bloc.dart';
+import '../../../../../2_application/database/product_detail/product_detail_bloc.dart';
+import '../../../../core/widgets/my_animated_expansion_container.dart';
+import '../../../../core/widgets/my_circular_progress_indicator.dart';
+import '../../../../core/widgets/my_outlined_button.dart';
 
 class EditMarketplaceProductPresta extends StatelessWidget {
   final ProductDetailBloc productDetailBloc;
@@ -169,8 +169,7 @@ class CategoryWidget extends StatelessWidget {
   final List<CategoryPresta> allCategories;
   final MarketplaceProductBloc marketplaceProductBloc;
 
-  const CategoryWidget({Key? key, required this.category, required this.index, required this.allCategories, required this.marketplaceProductBloc})
-      : super(key: key);
+  const CategoryWidget({super.key, required this.category, required this.index, required this.allCategories, required this.marketplaceProductBloc});
 
   @override
   Widget build(BuildContext context) {
@@ -239,7 +238,7 @@ class CategoryWidget extends StatelessWidget {
                           marketplaceProductBloc: marketplaceProductBloc,
                         ),
                       ))
-                  .toList(),
+                  ,
             if (subCategories.isNotEmpty) const Divider(height: 0, color: CustomColors.backgroundLightGrey),
           ],
         );

@@ -4,7 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../2_application/firebase/general_ledger_account/general_ledger_account_bloc.dart';
+import '../../2_application/database/general_ledger_account/general_ledger_account_bloc.dart';
 import '../../3_domain/entities/settings/general_ledger_account.dart';
 import '../../injection.dart';
 import '../../routes/router.gr.dart';

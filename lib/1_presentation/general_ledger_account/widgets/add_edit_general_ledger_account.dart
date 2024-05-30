@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 
-import '../../../2_application/firebase/general_ledger_account/general_ledger_account_bloc.dart';
+import '../../../2_application/database/general_ledger_account/general_ledger_account_bloc.dart';
 import '../../../3_domain/entities/settings/general_ledger_account.dart';
 import '../../../constants.dart';
 import '../../core/widgets/my_form_field_small.dart';

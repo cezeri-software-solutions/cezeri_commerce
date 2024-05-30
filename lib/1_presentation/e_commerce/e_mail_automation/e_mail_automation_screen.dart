@@ -3,7 +3,7 @@ import 'package:cezeri_commerce/1_presentation/core/widgets/my_circular_progress
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../2_application/firebase/marketplace/marketplace_bloc.dart';
+import '../../../2_application/database/marketplace/marketplace_bloc.dart';
 import '../../../injection.dart';
 import '../../app_drawer.dart';
 import '../../core/functions/my_scaffold_messanger.dart';

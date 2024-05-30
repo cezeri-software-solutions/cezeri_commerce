@@ -3,7 +3,7 @@ import 'package:cezeri_commerce/1_presentation/core/widgets/my_outlined_button.d
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../../2_application/firebase/main_settings/main_settings_bloc.dart';
+import '../../../../../2_application/database/main_settings/main_settings_bloc.dart';
 import '../../../../../3_domain/entities/carrier/carrier.dart';
 import '../../../../../3_domain/entities/carrier/carrier_product.dart';
 import '../../../../../constants.dart';

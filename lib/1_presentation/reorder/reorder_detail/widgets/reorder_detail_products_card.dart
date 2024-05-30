@@ -2,7 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../2_application/firebase/reorder_detail/reorder_detail_bloc.dart';
+import '../../../../2_application/database/reorder_detail/reorder_detail_bloc.dart';
 import '../../../../3_domain/entities/product/product.dart';
 import '../../../../constants.dart';
 import '../../../core/functions/dialogs.dart';

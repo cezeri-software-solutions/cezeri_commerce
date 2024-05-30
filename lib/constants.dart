@@ -116,7 +116,7 @@ class Gaps {
   static const SizedBox w32 = SizedBox(width: 32);
 }
 
-//* AppointmentsOverviewPage
+//* ReceiptsOverviewPage
 class RowWidthsROP {
   RowWidthsROP._();
 

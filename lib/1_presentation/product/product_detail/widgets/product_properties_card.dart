@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../2_application/firebase/product_detail/product_detail_bloc.dart';
+import '../../../../2_application/database/product_detail/product_detail_bloc.dart';
 import '../../../../constants.dart';
 
 class ProductPropertiesCard extends StatelessWidget {

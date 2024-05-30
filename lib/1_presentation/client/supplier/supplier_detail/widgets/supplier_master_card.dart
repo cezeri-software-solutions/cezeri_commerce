@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../../2_application/firebase/supplier/supplier_bloc.dart';
+import '../../../../../2_application/database/supplier/supplier_bloc.dart';
 import '../../../../../constants.dart';
 import '../../../../core/widgets/my_button_small.dart';
 import '../../../../core/widgets/my_country_flag.dart';

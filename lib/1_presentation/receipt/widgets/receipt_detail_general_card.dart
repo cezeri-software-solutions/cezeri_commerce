@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
-import '../../../2_application/firebase/appointment/appointment_bloc.dart';
+import '../../../2_application/database/receipt/receipt_bloc.dart';
 import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
 import '../../../3_domain/entities/marketplace/marketplace_presta.dart';
 import '../../../3_domain/entities/receipt/receipt.dart';
@@ -11,10 +11,10 @@ import '../../../constants.dart';
 
 class ReceiptDetailGeneralCard extends StatefulWidget {
   final Receipt receipt;
-  final AppointmentBloc appointmentBloc;
+  final ReceiptBloc receiptBloc;
   final List<AbstractMarketplace> listOfMarketplaces;
 
-  const ReceiptDetailGeneralCard({super.key, required this.receipt, required this.appointmentBloc, required this.listOfMarketplaces});
+  const ReceiptDetailGeneralCard({super.key, required this.receipt, required this.receiptBloc, required this.listOfMarketplaces});
 
   @override
   State<ReceiptDetailGeneralCard> createState() => _ReceiptDetailGeneralCardState();
@@ -109,7 +109,7 @@ class _ReceiptDetailGeneralCardState extends State<ReceiptDetailGeneralCard> {
               value: selectedMarketplaceName,
               onChanged: (marketplaceName) {
                 //selectedMarketplaceName = marketplaceName!;
-                widget.appointmentBloc.add(
+                widget.receiptBloc.add(
                   OnAppointmentMarketplaceChangedEvent(marketplace: widget.listOfMarketplaces.where((e) => e.name == marketplaceName).first),
                 );
               },

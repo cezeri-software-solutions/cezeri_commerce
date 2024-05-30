@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../../2_application/firebase/products_booking/products_booking_bloc.dart';
+import '../../../../2_application/database/products_booking/products_booking_bloc.dart';
 import '../../../../3_domain/entities/product/booking_product.dart';
 import '../../../../constants.dart';
 import '../../../core/widgets/my_circular_progress_indicator.dart';

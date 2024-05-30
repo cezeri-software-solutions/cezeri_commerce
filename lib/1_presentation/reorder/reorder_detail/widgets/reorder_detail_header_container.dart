@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
-import '../../../../2_application/firebase/reorder_detail/reorder_detail_bloc.dart';
+import '../../../../2_application/database/reorder_detail/reorder_detail_bloc.dart';
 import '../../../../3_domain/entities/reorder/reorder.dart';
 import '../../../../constants.dart';
 import '../../../core/widgets/my_circular_progress_indicator.dart';

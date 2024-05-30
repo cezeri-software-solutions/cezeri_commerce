@@ -2,16 +2,16 @@ import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.da
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../2_application/firebase/appointment/appointment_bloc.dart';
-import '../../../2_application/firebase/receipt_detail/receipt_detail_bloc.dart';
+import '../../../2_application/database/receipt/receipt_bloc.dart';
+import '../../../2_application/database/receipt_detail/receipt_detail_bloc.dart';
 import '../../../constants.dart';
 import '../../core/widgets/my_text_form_field_small_double.dart';
 
 class ReceiptDetailProductsTotalCard extends StatelessWidget {
-  final AppointmentBloc appointmentBloc;
+  final ReceiptBloc receiptBloc;
   final ReceiptDetailBloc receiptDetailBloc;
 
-  const ReceiptDetailProductsTotalCard({super.key, required this.appointmentBloc, required this.receiptDetailBloc});
+  const ReceiptDetailProductsTotalCard({super.key, required this.receiptBloc, required this.receiptDetailBloc});
 
   @override
   Widget build(BuildContext context) {

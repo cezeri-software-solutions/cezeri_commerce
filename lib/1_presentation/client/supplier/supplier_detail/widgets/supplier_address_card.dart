@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../../../2_application/firebase/supplier/supplier_bloc.dart';
+import '../../../../../2_application/database/supplier/supplier_bloc.dart';
 import '../../../../../3_domain/entities/address.dart';
 import '../../../../../3_domain/entities/reorder/supplier.dart';
 import '../../../../../constants.dart';

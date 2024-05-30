@@ -8,8 +8,8 @@ import '../../../../../4_infrastructur/repositories/shopify_api/shopify.dart';
 import '../../../../core/widgets/my_chip_with_three_options.dart';
 import '../../../../core/widgets/my_circular_progress_indicator.dart';
 import '../../../../core/widgets/my_outlined_button.dart';
-import '/2_application/firebase/marketplace_product/marketplace_product_bloc.dart';
-import '/2_application/firebase/product_detail/product_detail_bloc.dart';
+import '../../../../../2_application/database/marketplace_product/marketplace_product_bloc.dart';
+import '../../../../../2_application/database/product_detail/product_detail_bloc.dart';
 import '/3_domain/entities/product/product_marketplace.dart';
 import '/constants.dart';
 

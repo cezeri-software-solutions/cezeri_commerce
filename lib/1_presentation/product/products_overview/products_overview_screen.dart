@@ -8,7 +8,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
-import '../../../2_application/firebase/product/product_bloc.dart';
+import '../../../2_application/database/product/product_bloc.dart';
 import '../../../3_domain/entities/product/product.dart';
 import '../../../3_domain/pdf/pdf_api_mobile.dart';
 import '../../../3_domain/pdf/pdf_api_web.dart';

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../2_application/firebase/home/home_product/home_product_bloc.dart';
+import '../../../../2_application/database/home/home_product/home_product_bloc.dart';
 import '../../../../3_domain/enums/enums.dart';
 import '../../../../constants.dart';
 import '../../../core/widgets/my_animated_arrow_icon_button.dart';

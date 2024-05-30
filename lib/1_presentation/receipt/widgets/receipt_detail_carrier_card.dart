@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../2_application/firebase/appointment/appointment_bloc.dart';
-import '../../../2_application/firebase/main_settings/main_settings_bloc.dart';
+import '../../../2_application/database/receipt/receipt_bloc.dart';
+import '../../../2_application/database/main_settings/main_settings_bloc.dart';
 import '../../../3_domain/entities/carrier/carrier.dart';
 import '../../../3_domain/entities/carrier/carrier_product.dart';
 import '../../../3_domain/entities/receipt/receipt_carrier.dart';
@@ -10,9 +10,9 @@ import '../../../constants.dart';
 import '../../core/widgets/my_dropdown_button_small.dart';
 
 class ReceiptDetailCarrierCard extends StatelessWidget {
-  final AppointmentBloc appointmentBloc;
+  final ReceiptBloc receiptBloc;
 
-  const ReceiptDetailCarrierCard({super.key, required this.appointmentBloc});
+  const ReceiptDetailCarrierCard({super.key, required this.receiptBloc});
 
   @override
   Widget build(BuildContext context) {
@@ -20,8 +20,8 @@ class ReceiptDetailCarrierCard extends StatelessWidget {
     final carrierItems = mainSettings.listOfCarriers.map((e) => ReceiptCarrier.fromCarrier(e)).toList();
     carrierItems.add(ReceiptCarrier.empty());
 
-    return BlocBuilder<AppointmentBloc, AppointmentState>(
-      bloc: appointmentBloc,
+    return BlocBuilder<ReceiptBloc, ReceiptState>(
+      bloc: receiptBloc,
       builder: (context, state) {
         if (!carrierItems.any((e) => e.receiptCarrierName == state.receipt!.receiptCarrier.receiptCarrierName)) {
           carrierItems.add(state.receipt!.receiptCarrier);
@@ -47,7 +47,7 @@ class ReceiptDetailCarrierCard extends StatelessWidget {
                 MyDropdownButtonSmall(
                   labelText: 'Versanddienstleister',
                   value: state.receipt!.receiptCarrier.receiptCarrierName,
-                  onChanged: (carrierName) => appointmentBloc.add(
+                  onChanged: (carrierName) => receiptBloc.add(
                     OnAppointmentCarrierChangedEvent(receiptCarrier: carrierItems.where((e) => e.receiptCarrierName == carrierName).first),
                   ),
                   items: carrierItems.map((e) => e.receiptCarrierName).toList(),
@@ -56,7 +56,7 @@ class ReceiptDetailCarrierCard extends StatelessWidget {
                 MyDropdownButtonSmall(
                   labelText: 'Produkt',
                   value: state.receipt!.receiptCarrier.carrierProduct.productName,
-                  onChanged: (carrierProductName) => appointmentBloc.add(
+                  onChanged: (carrierProductName) => receiptBloc.add(
                     OnAppointmentCarrierProductChangedEvent(
                       receiptCarrierProduct: carrierProductItems.where((e) => e.productName == carrierProductName!).first,
                     ),

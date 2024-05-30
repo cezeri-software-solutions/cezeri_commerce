@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
-import '../../../2_application/firebase/main_settings/main_settings_bloc.dart';
+import '../../../2_application/database/main_settings/main_settings_bloc.dart';
 import '../../../2_application/packing_station/packing_station_bloc.dart';
 import '../../../3_domain/entities/carrier/carrier.dart';
 import '../../../3_domain/entities/customer/customer.dart';

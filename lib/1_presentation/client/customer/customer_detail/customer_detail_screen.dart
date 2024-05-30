@@ -3,7 +3,7 @@ import 'package:cezeri_commerce/routes/router.gr.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../2_application/firebase/customer/customer_bloc.dart';
+import '../../../../2_application/database/customer/customer_bloc.dart';
 import '../../../core/functions/my_scaffold_messanger.dart';
 import '../../../core/renderer/failure_renderer.dart';
 import 'customer_detail_page.dart';

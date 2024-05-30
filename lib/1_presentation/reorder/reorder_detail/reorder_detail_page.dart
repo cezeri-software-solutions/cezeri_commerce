@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
-import '../../../2_application/firebase/reorder_detail/reorder_detail_bloc.dart';
+import '../../../2_application/database/reorder_detail/reorder_detail_bloc.dart';
 import '../../../3_domain/entities/reorder/reorder.dart';
 import '../../../3_domain/entities/reorder/supplier.dart';
 import '../../../constants.dart';

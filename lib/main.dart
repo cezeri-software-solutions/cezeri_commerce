@@ -6,8 +6,8 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import '2_application/firebase/auth/auth_bloc/auth_bloc.dart';
-import '2_application/firebase/main_settings/main_settings_bloc.dart';
+import '2_application/database/auth/auth_bloc/auth_bloc.dart';
+import '2_application/database/main_settings/main_settings_bloc.dart';
 import 'firebase_options.dart';
 import 'injection.dart';
 import 'routes/router.dart';
