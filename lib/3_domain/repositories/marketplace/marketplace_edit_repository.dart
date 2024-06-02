@@ -3,6 +3,7 @@ import 'package:dartz/dartz.dart';
 import '../../../4_infrastructur/repositories/prestashop_api/models/product_raw_presta.dart';
 import '../../../failures/abstract_failure.dart';
 import '../../../failures/presta_failure.dart';
+import '../../entities/carrier/parcel_tracking.dart';
 import '../../entities/marketplace/abstract_marketplace.dart';
 import '../../entities/marketplace/marketplace_presta.dart';
 import '../../entities/product/product.dart';
@@ -27,5 +28,6 @@ abstract class MarketplaceEditRepository {
     AbstractMarketplace marketplace,
     int orderId,
     OrderStatusUpdateType orderStatusUpdateType,
+    ParcelTracking? parcelTracking,
   );
 }

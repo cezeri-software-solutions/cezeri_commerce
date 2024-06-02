@@ -26,7 +26,6 @@ class CustomerRepositoryImpl implements CustomerRepository {
     if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
     final customerQuery = supabase.from('d_customers');
-    final settingsQuery = supabase.from('d_main_settings');
 
     final customerJson = customer.toJson();
     customerJson.addEntries([MapEntry('ownerId', ownerId)]);
@@ -34,13 +33,9 @@ class CustomerRepositoryImpl implements CustomerRepository {
     try {
       final fosSettings = await settingsRepository.getSettings();
       if (fosSettings.isLeft()) return Left(fosSettings.getLeft());
-      final settings = fosSettings.getRight();
-      final updatedSettings = settings.copyWith(nextCustomerNumber: settings.nextCustomerNumber + 1);
 
       final customerResponse = await customerQuery.insert(customerJson).select('*').single();
       final createdCustomer = Customer.fromJson(customerResponse);
-
-      await settingsQuery.update(updatedSettings.toJson()).eq('settingsId', settings.settingsId);
 
       return Right(createdCustomer);
     } catch (e) {

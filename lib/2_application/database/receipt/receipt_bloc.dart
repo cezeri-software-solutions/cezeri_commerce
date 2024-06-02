@@ -1,5 +1,4 @@
 import 'package:bloc/bloc.dart';
-import 'package:cezeri_commerce/3_domain/entities/marketplace/marketplace_presta.dart';
 import 'package:cezeri_commerce/3_domain/repositories/firebase/product_repository.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
@@ -142,7 +141,7 @@ class ReceiptBloc extends Bloc<ReceiptEvent, ReceiptState> {
             ReceiptTyp.deliveryNote => b.deliveryNoteId.compareTo(a.deliveryNoteId),
             ReceiptTyp.invoice || ReceiptTyp.credit => b.invoiceId.compareTo(a.invoiceId),
           });
-          
+
       emit(state.copyWith(
         listOfAllReceipts: listWithNewAppointments,
         isExpanded: List<bool>.filled(listWithNewAppointments.length, false),
@@ -556,11 +555,17 @@ class ReceiptBloc extends Bloc<ReceiptEvent, ReceiptState> {
 
 //? #########################################################################
 
+    on<OnReceiptCustomerEmailChangedEvent>((event, emit) async {
+      emit(state.copyWith(receipt: state.receipt!.copyWith(receiptCustomer: state.receipt!.receiptCustomer.copyWith(email: event.email))));
+    });
+
+//? #########################################################################
+
     on<OnAppointmentMarketplaceChangedEvent>((event, emit) async {
       emit(state.copyWith(
         receipt: state.receipt!.copyWith(
           marketplaceId: event.marketplace.id,
-          receiptMarketplace: ReceiptMarketplace.fromMarketplace(event.marketplace as MarketplacePresta), //TODO: Shopify
+          receiptMarketplace: ReceiptMarketplace.fromMarketplace(event.marketplace),
         ),
       ));
     });
@@ -637,6 +642,10 @@ class ReceiptBloc extends Bloc<ReceiptEvent, ReceiptState> {
     });
 
 //? #########################################################################
+
+    on<SetIsDeliveryBlockedEvent>((event, emit) async {
+      emit(state.copyWith(receipt: state.receipt!.copyWith(isDeliveryBlocked: event.value)));
+    });
 
 //? #########################################################################
   }

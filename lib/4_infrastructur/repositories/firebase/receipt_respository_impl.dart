@@ -36,7 +36,6 @@ import '../../../constants.dart';
 import '../functions/get_database.dart';
 import '../functions/receipt_respository_presta_helper.dart';
 import '../functions/receipt_respository_shopify_helper.dart';
-import '../functions/receipt_respository_stat_helper.dart';
 import '../functions/utils_repository_impl.dart';
 import '../prestashop_api/prestashop_api.dart';
 import '../shipping_methods/austrian_post/austrian_post_api.dart';
@@ -92,9 +91,6 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
     final database = getReceiptDatabase(receipt.receiptTyp);
 
     try {
-      final receiptBeforeUpdateResponse = await database.select().eq('ownerId', ownerId).eq('id', receipt.id).single();
-      final receiptBeforeUpdate = Receipt.fromJson(receiptBeforeUpdateResponse);
-
       for (final oldProduct in oldListOfReceiptProducts) {
         if (!oldProduct.isFromDatabase) continue;
         final newProduct = newListOfReceiptProducts.where((p) => p.productId == oldProduct.productId).firstOrNull;
@@ -134,8 +130,6 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
         }
       }
 
-      await incrementStatDashboardOnUpdateReceipt(receipt, receiptBeforeUpdate, ownerId);
-
       await database.update(receipt.toJson()).eq('ownerId', ownerId).eq('id', receipt.id);
 
       return const Right(unit);
@@ -152,7 +146,6 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
     if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
     final databaseReceipt = getReceiptDatabase(receipt.receiptTyp);
-    final databaseSettings = supabase.from('d_main_settings');
 
     final genId = UniqueID().value;
 
@@ -189,13 +182,6 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
           ),
       };
 
-      final updatedMainSettings = switch (receipt.receiptTyp) {
-        ReceiptTyp.offer => settings.copyWith(nextOfferNumber: settings.nextOfferNumber + 1),
-        ReceiptTyp.appointment => settings.copyWith(nextAppointmentNumber: settings.nextAppointmentNumber + 1),
-        ReceiptTyp.deliveryNote => settings.copyWith(nextDeliveryNoteNumber: settings.nextDeliveryNoteNumber + 1),
-        ReceiptTyp.invoice || ReceiptTyp.credit => settings.copyWith(nextInvoiceNumber: settings.nextInvoiceNumber + 1),
-      };
-
       for (final receiptProduct in toCreateReceipt.listOfReceiptProduct) {
         if (!receiptProduct.isFromDatabase) continue;
 
@@ -208,13 +194,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
 
       final toCreateReceiptJson = toCreateReceipt.toJson();
       toCreateReceiptJson.addEntries([MapEntry('ownerId', ownerId)]);
-      final createdReceiptResponse = await databaseReceipt.insert(toCreateReceiptJson).select('*').single();
-      final createdReceipt = Receipt.fromJson(createdReceiptResponse);
-
-      await databaseSettings.update(updatedMainSettings.toJson()).eq('settingsId', updatedMainSettings.settingsId);
-
-      await createOrIncrementStatDashboardOnCreateReceipt(toCreateReceipt, ownerId);
-      await createOrIncrementStatProductOnCreateReceipt(createdReceipt, ownerId);
+      await databaseReceipt.insert(toCreateReceiptJson).select('*').single();
 
       return Right(toCreateReceipt);
     } catch (e) {
@@ -224,13 +204,15 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
   }
 
   @override
-  Future<Either<AbstractFailure, List<Receipt>>> getListOfReceipts(int value, ReceiptTyp receiptTyp) async {
+  Future<Either<AbstractFailure, List<Receipt>>> getListOfReceipts(int value, ReceiptTyp receiptTyp, {bool sortOutDeliveryBlocked = false}) async {
     if (!await checkInternetConnection()) return Left(NoConnectionFailure());
     final ownerId = await getOwnerId();
     if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
     final offersQuery = getReceiptDatabase(receiptTyp).select().eq('ownerId', ownerId).eq('receiptTyp', receiptTyp.name);
-    final appointmentsQuery = getReceiptDatabase(receiptTyp).select().eq('ownerId', ownerId).eq('receiptTyp', receiptTyp.name);
+    final appointmentsQuery = sortOutDeliveryBlocked
+        ? getReceiptDatabase(receiptTyp).select().eq('ownerId', ownerId).eq('receiptTyp', receiptTyp.name).eq('isDeliveryBlocked', false)
+        : getReceiptDatabase(receiptTyp).select().eq('ownerId', ownerId).eq('receiptTyp', receiptTyp.name);
     final deliveryNotesQuery = getReceiptDatabase(receiptTyp).select().eq('ownerId', ownerId).eq('receiptTyp', receiptTyp.name);
     final invoicesQuery = getReceiptDatabase(receiptTyp).select().eq('ownerId', ownerId);
 
@@ -313,8 +295,6 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
           );
         }
 
-        await incrementStatDashboardOnDeleteReceipt(receipt, ownerId);
-
         await database.delete().eq('ownerId', ownerId).eq('id', receipt.id);
       }
 
@@ -381,9 +361,6 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
 
         generatedAppointmentFromThisOffer = appointment;
 
-        await createOrIncrementStatDashboardOnGenerateFromOfferNewAppointment(offer, ownerId);
-        await createOrIncrementStatProductOnCreateReceipt(appointment, ownerId);
-
         await getReceiptDatabase(updatedOffer.receiptTyp).update(updatedOffer.toJson()).eq('ownerId', ownerId).eq('id', updatedOffer.id);
 
         for (final receiptProduct in offer.listOfReceiptProduct) {
@@ -396,9 +373,6 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
         }
         if (marketplace != null) await sendCustomerEmailsOnCreateReceipts([generatedAppointmentFromThisOffer], marketplace);
       }
-
-      final updatedMainSettings = settings.copyWith(nextAppointmentNumber: nextAppointmentNumber);
-      await mainSettingsRepository.updateSettings(updatedMainSettings);
 
       return Right(generatedAppointments);
     } catch (e) {
@@ -467,7 +441,6 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
           deliveryNoteJson.addEntries([MapEntry('ownerId', ownerId)]);
           await getReceiptDatabase(phDeliveryNote.receiptTyp).insert(deliveryNoteJson);
 
-          nextDeliveryNoteNumber += 1;
           generatedReceipts.add(deliveryNote);
           generatedReceiptsFromThisReceipt.add(deliveryNote);
           appointment = appointment.copyWith(
@@ -491,17 +464,16 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
           invoiceJson.addEntries([MapEntry('ownerId', ownerId)]);
           await getReceiptDatabase(phInvoice.receiptTyp).insert(invoiceJson);
 
-          nextInvoiceNumber += 1;
           generatedReceipts.add(invoice);
           generatedReceiptsFromThisReceipt.add(invoice);
           appointment = appointment.copyWith(
             invoiceId: invoice.invoiceId,
             invoiceNumberAsString: invoice.invoiceNumberAsString,
           );
-
-          await createOrIncrementStatDashboardOnCreateReceipt(invoice, ownerId);
-          await createOrIncrementStatProductOnCreateReceipt(invoice, ownerId);
         }
+
+        nextDeliveryNoteNumber += 1;
+        nextInvoiceNumber += 1;
 
         await getReceiptDatabase(appointment.receiptTyp).update(appointment.toJson()).eq('ownerId', ownerId).eq('id', appointment.id);
 
@@ -528,6 +500,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
             marketplace,
             receipt.receiptMarketplaceId,
             OrderStatusUpdateType.onShipping,
+            null,
           );
           fosOrderStatus.fold(
             (failure) => logger.e('Bestellstatus für Bestellung mit der ID: ${receipt.receiptMarketplaceId} konnte nicht gesetzt werden'),
@@ -535,9 +508,6 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
           );
         }
       }
-
-      final updatedMainSettings = settings.copyWith(nextDeliveryNoteNumber: nextDeliveryNoteNumber, nextInvoiceNumber: nextInvoiceNumber);
-      await mainSettingsRepository.updateSettings(updatedMainSettings);
 
       return Right(generatedReceipts);
     } catch (e) {
@@ -639,7 +609,6 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
         deliveryNoteJson.addEntries([MapEntry('ownerId', ownerId)]);
         await database.insert(deliveryNoteJson);
 
-        nextDeliveryNoteNumber += 1;
         generatedReceipts.add(deliveryNote);
         originalAppointmentToUpdate = originalAppointmentToUpdate.copyWith(
           deliveryNoteId: deliveryNote.deliveryNoteId,
@@ -667,15 +636,11 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
         invoiceJson.addEntries([MapEntry('ownerId', ownerId)]);
         await database.insert(invoiceJson);
 
-        nextInvoiceNumber += 1;
         generatedReceipts.add(invoice);
         originalAppointmentToUpdate = originalAppointmentToUpdate.copyWith(
           invoiceId: invoice.invoiceId,
           invoiceNumberAsString: invoice.invoiceNumberAsString,
         );
-
-        await createOrIncrementStatDashboardOnCreateReceipt(invoice, ownerId);
-        await createOrIncrementStatProductOnCreateReceipt(invoice, ownerId);
       }
 
       final databaseUpdateOriginal = getReceiptDatabase(originalAppointmentToUpdate.receiptTyp);
@@ -696,9 +661,6 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
         );
       }
 
-      final updatedMainSettings = settings.copyWith(nextDeliveryNoteNumber: nextDeliveryNoteNumber, nextInvoiceNumber: nextInvoiceNumber);
-      await mainSettingsRepository.updateSettings(updatedMainSettings);
-
       final isSuccessfulSent = await sendCustomerEmailsOnCreateReceipts(generatedReceipts, marketplace);
       if (isSuccessfulSent) {
         logger.i('Alle E-Mails wurden erfolgreich verschickt.');
@@ -714,6 +676,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
               marketplace as MarketplacePresta,
               originalAppointment.receiptMarketplaceId,
               OrderStatusUpdateType.onShipping,
+              isSuccessfulSetParcelTracking ? parcelTracking : null,
             );
             fosOrderStatus.fold(
               (failure) =>
@@ -724,7 +687,18 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
           }
         case MarketplaceType.shopify:
           {
-            // TODO: Shopify
+            final fosOrderStatus = await marketplaceEditRepository.setOrderStatusInMarketplace(
+              marketplace as MarketplacePresta,
+              originalAppointment.receiptMarketplaceId,
+              OrderStatusUpdateType.onShipping,
+              isSuccessfulSetParcelTracking ? parcelTracking : null,
+            );
+            fosOrderStatus.fold(
+              (failure) =>
+                  logger.e('Bestellstatus für Bestellung mit der ID: ${originalAppointment.receiptMarketplaceId} konnte nicht gesetzt werden'),
+              (unit) =>
+                  logger.i('Bestellstatus für die Bestellung mit der ID: ${originalAppointment.receiptMarketplaceId} wurde erfolgreich aktualisiert'),
+            );
           }
         case MarketplaceType.shop:
       }
@@ -767,9 +741,6 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
 
       final generatedReceipt = invoice;
 
-      await createOrIncrementStatDashboardOnCreateReceipt(invoice, ownerId);
-      await createOrIncrementStatProductOnCreateReceipt(invoice, ownerId);
-
       for (final deliveryNote in listOfDeliveryNotes) {
         final updatedDeliveryNote = deliveryNote.copyWith(
           invoiceId: invoice.invoiceId,
@@ -780,9 +751,6 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
         final dbDeliveryNote = getReceiptDatabase(deliveryNote.receiptTyp);
         await dbDeliveryNote.update(updatedDeliveryNote.toJson()).eq('ownerId', ownerId).eq('id', deliveryNote.id);
       }
-
-      final updatedMainSettings = settings.copyWith(nextInvoiceNumber: settings.nextInvoiceNumber + 1);
-      await mainSettingsRepository.updateSettings(updatedMainSettings);
 
       final isSuccessfulSent = await sendCustomerEmailsOnCreateReceipts([generatedReceipt], marketplace);
       if (isSuccessfulSent) {
@@ -809,7 +777,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
       if (fosSettings.isLeft()) return Left(fosSettings.getLeft());
       final settings = fosSettings.getRight();
 
-      int nextInvoiceNumber = settings.nextInvoiceNumber;
+      final nextInvoiceNumber = settings.nextInvoiceNumber;
 
       final fosMarketplace = await marketplaceRepository.getMarketplace(invoice.marketplaceId);
       if (fosMarketplace.isLeft()) return Left(fosMarketplace.getLeft());
@@ -830,11 +798,8 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
       creditJson.addEntries([MapEntry('ownerId', ownerId)]);
       await database.insert(creditJson);
 
-      nextInvoiceNumber += 1;
       final generatedCredit = credit;
       final generatedAppointmentFromThisOffer = credit;
-
-      await createOrIncrementStatDashboardOnGenerateFromInvoiceNewCredit(invoice, ownerId);
 
       final databaseUpdatedInvoice = getReceiptDatabase(updatedInvoice.receiptTyp);
       await databaseUpdatedInvoice.update(updatedInvoice.toJson()).eq('ownerId', ownerId).eq('id', updatedInvoice.id);
@@ -849,9 +814,6 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
         await productRepository.updateAvailableQuantityOfProductInremental(product, receiptProduct.quantity * -1, null);
       }
       await sendCustomerEmailsOnCreateReceipts([generatedAppointmentFromThisOffer], marketplace);
-
-      final updatedMainSettings = settings.copyWith(nextInvoiceNumber: nextInvoiceNumber);
-      await mainSettingsRepository.updateSettings(updatedMainSettings);
 
       return Right(generatedCredit);
     } catch (e) {
@@ -1052,12 +1014,11 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
     final mainSettings = fosSettings.getRight();
 
     Receipt? phAppointment;
-    int nextCustomerNumber = mainSettings.nextCustomerNumber;
 
     switch (loadedAppointmentFromMarketplace.marketplace.marketplaceType) {
       case MarketplaceType.prestashop:
         {
-          final fosListOfReceiptproduct = await createReceiptFromOrderPresta(
+          final fosReceipt = await createReceiptFromOrderPresta(
             ownerId,
             productRepository,
             customerRepository,
@@ -1068,14 +1029,13 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
             loadedAppointmentFromMarketplace,
           );
 
-          if (fosListOfReceiptproduct.isLeft()) return Left(fosListOfReceiptproduct.getLeft());
-          final appointmentAndCustomerNumer = fosListOfReceiptproduct.getRight();
-          phAppointment = appointmentAndCustomerNumer.receipt;
-          nextCustomerNumber = appointmentAndCustomerNumer.customerNumber;
+          if (fosReceipt.isLeft()) return Left(fosReceipt.getLeft());
+          final receipt = fosReceipt.getRight();
+          phAppointment = receipt;
         }
       case MarketplaceType.shopify:
         {
-          final fosListOfReceiptproduct = await createReceiptFromOrderShopify(
+          final fosReceipt = await createReceiptFromOrderShopify(
             productRepository,
             customerRepository,
             mainSettings,
@@ -1083,10 +1043,9 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
             loadedAppointmentFromMarketplace.orderShopify!,
           );
 
-          if (fosListOfReceiptproduct.isLeft()) return Left(fosListOfReceiptproduct.getLeft());
-          final appointmentAndCustomerNumer = fosListOfReceiptproduct.getRight();
-          phAppointment = appointmentAndCustomerNumer.receipt;
-          nextCustomerNumber = appointmentAndCustomerNumer.customerNumber;
+          if (fosReceipt.isLeft()) return Left(fosReceipt.getLeft());
+          final receipt = fosReceipt.getRight();
+          phAppointment = receipt;
         }
       case MarketplaceType.shop:
         throw Exception('Aus einem Ladengeschäft können keine Bestellungen geladen werden.');
@@ -1100,16 +1059,6 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
       final createdAppointmentResponse = await getReceiptDatabase(ReceiptTyp.appointment).insert(appointmentJson).select('*').single();
       final createdAppointment = Receipt.fromJson(createdAppointmentResponse);
       receiptToReturn = createdAppointment;
-
-      await createOrIncrementStatDashboardOnCreateReceipt(createdAppointment, ownerId);
-      await createOrIncrementStatProductOnCreateReceipt(createdAppointment, ownerId);
-
-      final nextAppointmentNumber = mainSettings.nextAppointmentNumber + 1;
-      final updatedMainSettings = mainSettings.copyWith(
-        nextAppointmentNumber: nextAppointmentNumber,
-        nextCustomerNumber: nextCustomerNumber,
-      );
-      await mainSettingsRepository.updateSettings(updatedMainSettings);
 
       switch (marketplace.marketplaceType) {
         case MarketplaceType.prestashop:
@@ -1371,10 +1320,10 @@ Future<ParcelTracking?> getParcelTracking(String ownerId, Receipt receipt, MainS
   }
 
   final trackingNumberTupel = service.getTrackingNumber(responseString);
-  final trackingNumber = trackingNumberTupel.trackingNumber2 != null && carrier.trackingUrl2 != null
-      ? trackingNumberTupel.trackingNumber2!
-      : trackingNumberTupel.trackingNumber;
-  final trackingUrl = trackingNumberTupel.trackingNumber2 != null && carrier.trackingUrl2 != null ? carrier.trackingUrl2! : carrier.trackingUrl;
+  final trackingNumber = trackingNumberTupel.trackingNumber;
+  final trackingNumber2 = trackingNumberTupel.trackingNumber2;
+  final trackingUrl = carrier.trackingUrl;
+  final trackingUrl2 = carrier.trackingUrl2;
 
   final pdfString = service.getPdfLabel(responseString);
 
@@ -1383,7 +1332,9 @@ Future<ParcelTracking?> getParcelTracking(String ownerId, Receipt receipt, MainS
   final parcelTracking = ParcelTracking(
     deliveryNoteId: deliveryNoteNumber,
     trackingUrl: trackingUrl,
+    trackingUrl2: trackingUrl2,
     trackingNumber: trackingNumber,
+    trackingNumber2: trackingNumber2,
     pdfString: downloadURL ?? '',
   );
 

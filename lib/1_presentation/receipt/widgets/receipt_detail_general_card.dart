@@ -1,4 +1,5 @@
 import 'package:cezeri_commerce/1_presentation/core/widgets/my_dropdown_button_small.dart';
+import 'package:cezeri_commerce/1_presentation/core/widgets/my_form_field_small.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
@@ -21,10 +22,24 @@ class ReceiptDetailGeneralCard extends StatefulWidget {
 }
 
 class _ReceiptDetailGeneralCardState extends State<ReceiptDetailGeneralCard> {
+  late TextEditingController customerEmailController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+
+    customerEmailController = TextEditingController(text: widget.receipt.receiptCustomer.email);
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (customerEmailController.text != widget.receipt.receiptCustomer.email) {
+      customerEmailController = TextEditingController(text: widget.receipt.receiptCustomer.email);
+    }
+
     final marketplaceNames = widget.listOfMarketplaces.map((e) => e.name).toList();
     marketplaceNames.add(MarketplacePresta.empty().name);
+
     final receiptHeader = switch (widget.receipt.receiptTyp) {
       ReceiptTyp.offer => 'Angebot: ${widget.receipt.offerNumberAsString}',
       ReceiptTyp.appointment => 'Auftrag: ${widget.receipt.appointmentNumberAsString}',
@@ -79,9 +94,36 @@ class _ReceiptDetailGeneralCardState extends State<ReceiptDetailGeneralCard> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text('E-Mail', style: TextStyles.infoOnTextField),
-                      InkWell(
-                        onLongPress: () => Clipboard.setData(ClipboardData(text: widget.receipt.receiptCustomer.email)),
-                        child: Text(widget.receipt.receiptCustomer.email),
+                      // InkWell(
+                      //   onLongPress: () => Clipboard.setData(ClipboardData(text: widget.receipt.receiptCustomer.email)),
+                      //   child: Text(widget.receipt.receiptCustomer.email),
+                      // ),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: MyTextFormFieldSmall(
+                              controller: customerEmailController,
+                              // initialValue: widget.receipt.receiptCustomer.email,
+                              onChanged: (mail) => widget.receiptBloc.add(OnReceiptCustomerEmailChangedEvent(email: customerEmailController.text)),
+                            ),
+                          ),
+                          Gaps.w8,
+                          InkWell(
+                            onTap: () {
+                              Clipboard.setData(ClipboardData(text: widget.receipt.receiptCustomer.email));
+                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                                  content: Row(
+                                children: [
+                                  Icon(Icons.check_circle_rounded, color: Colors.green),
+                                  Gaps.w8,
+                                  Expanded(child: Text('E-Mail wurde kopiert')),
+                                ],
+                              )));
+                            },
+                            child: const Icon(Icons.copy, color: CustomColors.primaryColor),
+                          ),
+                          Gaps.w8,
+                        ],
                       ),
                     ],
                   ),
@@ -114,6 +156,17 @@ class _ReceiptDetailGeneralCardState extends State<ReceiptDetailGeneralCard> {
                 );
               },
               items: marketplaceNames,
+            ),
+            Gaps.h8,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text('Liefersperre:'),
+                Checkbox.adaptive(
+                  value: widget.receipt.isDeliveryBlocked,
+                  onChanged: (value) => widget.receiptBloc.add(SetIsDeliveryBlockedEvent(value: value!)),
+                ),
+              ],
             )
           ],
         ),

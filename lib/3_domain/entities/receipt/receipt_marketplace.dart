@@ -1,6 +1,8 @@
+import 'package:cezeri_commerce/3_domain/entities/marketplace/marketplace_shopify.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 import '../address.dart';
+import '../marketplace/abstract_marketplace.dart';
 import '../marketplace/marketplace_presta.dart';
 import '../settings/bank_details.dart';
 
@@ -30,12 +32,24 @@ class ReceiptMarketplace {
     );
   }
 
-  factory ReceiptMarketplace.fromMarketplace(MarketplacePresta marketplace) {
-    return ReceiptMarketplace(
-      address: marketplace.address,
-      bankDetails: marketplace.bankDetails,
-      url: marketplace.url,
-    );
+  factory ReceiptMarketplace.fromMarketplace(AbstractMarketplace marketplace) {
+    return switch (marketplace.marketplaceType) {
+      MarketplaceType.prestashop => ReceiptMarketplace(
+          address: (marketplace as MarketplacePresta).address,
+          bankDetails: marketplace.bankDetails,
+          url: marketplace.url,
+        ),
+      MarketplaceType.shopify => ReceiptMarketplace(
+          address: (marketplace as MarketplaceShopify).address,
+          bankDetails: marketplace.bankDetails,
+          url: marketplace.url,
+        ),
+      MarketplaceType.shop => ReceiptMarketplace(
+          address: marketplace.address,
+          bankDetails: marketplace.bankDetails,
+          url: '',
+        ),
+    };
   }
 
   ReceiptMarketplace copyWith({

@@ -4,6 +4,7 @@ import 'package:http/http.dart';
 import '../../../../1_presentation/core/functions/check_internet_connection.dart';
 import '../../../../3_domain/entities/product/product_marketplace.dart';
 import '../../../../3_domain/repositories/marketplace/marketplace_edit_repository.dart';
+import '../../../3_domain/entities/carrier/parcel_tracking.dart';
 import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
 import '../../../3_domain/entities/marketplace/marketplace_presta.dart';
 import '../../../3_domain/entities/marketplace/marketplace_shopify.dart';
@@ -354,6 +355,7 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
     AbstractMarketplace abstractMarketplace,
     int orderId,
     OrderStatusUpdateType orderStatusUpdateType,
+    ParcelTracking? parcelTracking,
   ) async {
     if (!abstractMarketplace.isActive) return const Right(unit);
     if (orderId == 0) return right(unit);
@@ -384,7 +386,7 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
           final mp = abstractMarketplace as MarketplaceShopify;
           final api = ShopifyApi(ShopifyApiConfig(storefrontToken: mp.storefrontAccessToken, adminToken: mp.adminAccessToken), mp.fullUrl);
 
-          final result = await api.postFulfillment();
+          final result = await api.postFulfillment(orderId, parcelTracking);
           if (result.isRight()) return const Right(unit);
         }
       case MarketplaceType.shop:

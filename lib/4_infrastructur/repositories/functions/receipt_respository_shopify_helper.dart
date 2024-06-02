@@ -18,7 +18,7 @@ import '../shopify_api/shopify.dart';
 import 'product_import.dart';
 import 'receipt_respository_helper.dart';
 
-Future<Either<AbstractFailure, ({Receipt receipt, int customerNumber})>> createReceiptFromOrderShopify(
+Future<Either<AbstractFailure, Receipt>> createReceiptFromOrderShopify(
   ProductRepository productRepository,
   CustomerRepository customerRepository,
   MainSettings mainSettings,
@@ -56,14 +56,13 @@ Future<Either<AbstractFailure, ({Receipt receipt, int customerNumber})>> createR
 
   final loadedCustomerFromFirestore = await getCustomerByMarketplaceId(customerRepository, marketplace.id, orderShopify.customer.id);
   Customer? customerFirestore;
-  int nextCustomerNumber = mainSettings.nextCustomerNumber;
   if (loadedCustomerFromFirestore == null) {
     final tax = mainSettings.taxes.where((e) => e.taxRate.round() == (orderShopify.taxLines.first.rate * 100).toStringAsFixed(0).toMyInt()).first;
     final createdCustomerInFirestore = await createCustomerFromMarketplace(
       customerRepository,
       Customer.fromShopify(
         orderShopify.customer,
-        nextCustomerNumber,
+        mainSettings.nextCustomerNumber,
         orderShopify.email ?? '',
         marketplace,
         orderShopify.billingAddress,
@@ -72,7 +71,6 @@ Future<Either<AbstractFailure, ({Receipt receipt, int customerNumber})>> createR
       ),
     );
     customerFirestore = createdCustomerInFirestore;
-    nextCustomerNumber += 1;
   } else {
     customerFirestore = loadedCustomerFromFirestore;
     // TODO: SHOPIFY Wenn Adrssen richtig von des SChnittstelle ausgegeben werden aktivieren und anpassen
@@ -101,7 +99,7 @@ Future<Either<AbstractFailure, ({Receipt receipt, int customerNumber})>> createR
     customer: customerFirestore,
   );
 
-  return Right((receipt: phAppointment, customerNumber: nextCustomerNumber));
+  return Right(phAppointment);
 }
 
 Future<Either<AbstractFailure, List<ReceiptProduct>>> getListOfReceiptProductsFromShopify(

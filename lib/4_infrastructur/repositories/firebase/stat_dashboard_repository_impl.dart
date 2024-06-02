@@ -1,3 +1,4 @@
+import 'package:cezeri_commerce/1_presentation/core/extensions/formatted_year_month.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -25,10 +26,8 @@ class StatDashboardRepositoryImpl implements StatDashboardRepository {
     if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
     final now = DateTime.now();
-    final curYear = now.year;
-    final curMonth = now.month;
 
-    final query = supabase.from('d_stat_dashboards').select().eq('ownerId', ownerId).eq('statDashboardId', '$curYear$curMonth').single();
+    final query = supabase.from('stat_dashboards').select().eq('owner_id', ownerId).eq('statDashboardId', now.toFormattedYearMonth()).single();
 
     try {
       final response = await query;
@@ -48,7 +47,7 @@ class StatDashboardRepositoryImpl implements StatDashboardRepository {
     final ownerId = await getOwnerId();
     if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
-    final query = supabase.from('d_stat_dashboards').select().eq('ownerId', ownerId).order('dateTime', ascending: false).limit(13);
+    final query = supabase.from('stat_dashboards').select().eq('owner_id', ownerId).order('creation_date', ascending: false).limit(13);
 
     try {
       final response = await query;

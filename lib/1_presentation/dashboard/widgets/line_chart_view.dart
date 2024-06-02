@@ -1,3 +1,4 @@
+import 'package:cezeri_commerce/1_presentation/core/extensions/formatted_year_month.dart';
 import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
@@ -31,7 +32,7 @@ class _LineChartViewState extends State<LineChartView> {
   Widget build(BuildContext context) {
     final themeData = Theme.of(context);
     final screenWidth = MediaQuery.sizeOf(context).width;
-    final responsiveness = screenWidth > 700 ? Responsiveness.isTablet : Responsiveness.isMobil;
+    // final responsiveness = screenWidth > 700 ? Responsiveness.isTablet : Responsiveness.isMobil;
     return Stack(
       children: [
         AspectRatio(
@@ -170,9 +171,9 @@ class _LineChartViewState extends State<LineChartView> {
     List<double> numbers = [];
     for (var statDashboard in listOfStatDashboards) {
       if (widget.chartTyp == ChartType.incomingOrder) {
-        numbers.add(statDashboard.incomingOrders);
+        numbers.add(statDashboard.appointmentVolume);
       } else {
-        numbers.add(statDashboard.salesVolume);
+        numbers.add(statDashboard.invoiceVolume);
       }
     }
 
@@ -194,10 +195,10 @@ class _LineChartViewState extends State<LineChartView> {
     for (int i = 0; i < 13; i++) {
       DateTime monthYear = DateTime(now.year, now.month - 12 + i);
       var matchingElement = widget.listOfStatDashboards.firstWhere(
-        (element) => DateTime(element.dateTime.year, element.dateTime.month) == monthYear,
+        (e) => e.month == monthYear.toFormattedYearMonth(),
         orElse: () => StatDashboard.empty(),
       );
-      spots.add(FlSpot(i.toDouble(), roundDouble(matchingElement.incomingOrders)));
+      spots.add(FlSpot(i.toDouble(), roundDouble(matchingElement.appointmentVolume)));
     }
     return spots;
   }
@@ -207,10 +208,10 @@ class _LineChartViewState extends State<LineChartView> {
     for (int i = 0; i < 13; i++) {
       DateTime monthYear = DateTime(now.year, now.month - 12 + i);
       var matchingElement = widget.listOfStatDashboards.firstWhere(
-        (element) => DateTime(element.dateTime.year, element.dateTime.month) == monthYear,
+        (e) => e.month == monthYear.toFormattedYearMonth(),
         orElse: () => StatDashboard.empty(),
       );
-      spots.add(FlSpot(i.toDouble(), roundDouble(matchingElement.salesVolume)));
+      spots.add(FlSpot(i.toDouble(), roundDouble(matchingElement.invoiceVolume)));
     }
     return spots;
   }

@@ -101,6 +101,7 @@ import '../../../constants.dart';
 class MyTextFormFieldSmall extends StatefulWidget {
   final String? labelText;
   final String? hintText;
+  final String? initialValue;
   final TextEditingController? controller;
   final String? Function(String?)? validator;
   final List<TextInputFormatter>? inputFormatters;
@@ -118,9 +119,10 @@ class MyTextFormFieldSmall extends StatefulWidget {
   final double maxWidth;
 
   const MyTextFormFieldSmall({
-    Key? key,
+    super.key,
     this.labelText,
     this.hintText,
+    this.initialValue,
     this.controller,
     this.validator,
     this.inputFormatters,
@@ -136,7 +138,7 @@ class MyTextFormFieldSmall extends StatefulWidget {
     this.onEditingComplete,
     this.onFieldSubmitted,
     this.maxWidth = double.infinity,
-  }) : super(key: key);
+  });
 
   @override
   _MyTextFormFieldSmallState createState() => _MyTextFormFieldSmallState();
@@ -159,6 +161,7 @@ class _MyTextFormFieldSmallState extends State<MyTextFormFieldSmall> {
           constraints: BoxConstraints(maxHeight: maxHeight, maxWidth: widget.maxWidth),
           child: TextFormField(
             controller: widget.controller,
+            initialValue: widget.initialValue,
             validator: (value) {
               final error = widget.validator != null ? widget.validator!(value) : null;
               // Zustandsaktualisierung, um die Höhe dynamisch anzupassen

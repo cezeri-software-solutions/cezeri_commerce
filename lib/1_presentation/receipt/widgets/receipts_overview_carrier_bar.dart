@@ -31,7 +31,9 @@ class ReceiptsOverviewCarrierBar extends StatelessWidget {
               child: IconButton(
                 onPressed: () async {
                   if (parcelCount == 0) return;
-                  if (parcelCount == 1 && isLinkExists) {
+                  if (parcelCount == 1 &&
+                      isLinkExists &&
+                      (receipt.listOfParcelTracking.first.trackingNumber2 == null || receipt.listOfParcelTracking.first.trackingUrl2 == null)) {
                     await _openTrackingLink(
                       context,
                       receipt.listOfParcelTracking.first.trackingUrl + receipt.listOfParcelTracking.first.trackingNumber,
@@ -131,7 +133,7 @@ class _TrackingListDialog extends StatelessWidget {
   final List<ParcelTracking> listOfParcelTracking;
   final bool isPrinting;
 
-  const _TrackingListDialog({super.key, required this.listOfParcelTracking, required this.isPrinting});
+  const _TrackingListDialog({required this.listOfParcelTracking, required this.isPrinting});
 
   @override
   Widget build(BuildContext context) {
@@ -146,24 +148,52 @@ class _TrackingListDialog extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              ListView.builder(
+              ListView.separated(
                 shrinkWrap: true,
                 itemCount: listOfParcelTracking.length,
+                separatorBuilder: (context, index) => const Divider(height: 0),
                 itemBuilder: (context, index) {
                   final parcel = listOfParcelTracking[index];
                   final isLinkExists = parcel.trackingUrl.isNotEmpty && parcel.trackingNumber.isNotEmpty;
+                  final isLink2Exists = parcel.trackingUrl2 != null &&
+                      parcel.trackingUrl2!.isNotEmpty &&
+                      parcel.trackingNumber2 != null &&
+                      parcel.trackingNumber2!.isNotEmpty;
                   final isPrintExisting = parcel.trackingUrl.isNotEmpty && parcel.pdfString.isNotEmpty;
-                  return ListTile(
-                    title: Text((index + 1).toString()),
-                    trailing: switch (isPrinting) {
-                      false => Icon(Icons.open_in_browser, color: isLinkExists ? Colors.green : null),
-                      _ => Icon(Icons.print, color: isPrintExisting ? CustomColors.primaryColor : null)
-                    },
-                    onTap: () async => switch (isPrinting) {
-                      false => isLinkExists ? _openTrackingLink(context, parcel.trackingUrl + parcel.trackingNumber) : null,
-                      _ => isPrintExisting ? _openPrintingDialog(parcel.pdfString) : null,
-                    },
-                  );
+
+                  if (!isPrinting) {
+                    if (!isLink2Exists) {
+                      return ListTile(
+                        title: Text((index + 1).toString()),
+                        trailing: Icon(Icons.open_in_browser, color: isLinkExists ? Colors.green : null),
+                        onTap: () => isLinkExists ? _openTrackingLink(context, parcel.trackingUrl + parcel.trackingNumber) : null,
+                      );
+                    } else {
+                      return Column(
+                        children: [
+                          ListTile(
+                            title: Text((index + 1).toString()),
+                            trailing: Icon(Icons.open_in_browser, color: isLinkExists ? Colors.green : null),
+                            onTap: () => isLinkExists ? _openTrackingLink(context, parcel.trackingUrl + parcel.trackingNumber) : null,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 20),
+                            child: ListTile(
+                              title: Text('${(index + 1)}.1'.toString()),
+                              trailing: Icon(Icons.open_in_browser, color: isLinkExists ? Colors.green : null),
+                              onTap: () => _openTrackingLink(context, parcel.trackingUrl2! + parcel.trackingNumber2!),
+                            ),
+                          )
+                        ],
+                      );
+                    }
+                  } else {
+                    return ListTile(
+                      title: Text((index + 1).toString()),
+                      trailing: Icon(Icons.print, color: isPrintExisting ? CustomColors.primaryColor : null),
+                      onTap: () => isPrintExisting ? _openPrintingDialog(parcel.pdfString) : null,
+                    );
+                  }
                 },
               ),
             ],
@@ -181,14 +211,14 @@ Future<void> _openTrackingLink(BuildContext context, String url) async {
       await launchUrl(uri);
     } catch (e) {
       logger.e('Sendeverfolgungslink konnte nicht geöffnet werden: $e');
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Sendeverfolgungslink konnte nicht geöffnet werden: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
+      // if (context.mounted) {
+      //   ScaffoldMessenger.of(context).showSnackBar(
+      //     SnackBar(
+      //       content: Text('Sendeverfolgungslink konnte nicht geöffnet werden: $e'),
+      //       backgroundColor: Colors.red,
+      //     ),
+      //   );
+      // }
     }
   }
 }

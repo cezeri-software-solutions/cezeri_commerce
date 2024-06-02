@@ -5,5 +5,4 @@ export 'product_repository_helper.dart';
 export 'receipt_respository_helper.dart';
 export 'receipt_respository_presta_helper.dart';
 export 'receipt_respository_shopify_helper.dart';
-export 'receipt_respository_stat_helper.dart';
 export 'utils_repository_impl.dart';

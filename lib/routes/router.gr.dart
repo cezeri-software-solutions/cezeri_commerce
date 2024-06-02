@@ -54,7 +54,7 @@ import 'package:cezeri_commerce/1_presentation/product/products_overview/product
     as _i26;
 import 'package:cezeri_commerce/1_presentation/products_booking/products_booking/products_booking_screen.dart'
     as _i25;
-import 'package:cezeri_commerce/1_presentation/receipt/appointment_detail/receipt_detail_screen.dart'
+import 'package:cezeri_commerce/1_presentation/receipt/receipt_detail/receipt_detail_screen.dart'
     as _i27;
 import 'package:cezeri_commerce/1_presentation/receipt/receipts_overview/appointments_overview_screen.dart'
     as _i1;

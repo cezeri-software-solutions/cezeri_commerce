@@ -26,7 +26,7 @@ import 'product_import.dart';
 import 'product_repository_helper.dart';
 import 'receipt_respository_helper.dart';
 
-Future<Either<AbstractFailure, ({Receipt receipt, int customerNumber})>> createReceiptFromOrderPresta(
+Future<Either<AbstractFailure, Receipt>> createReceiptFromOrderPresta(
   String ownerId,
   ProductRepository productRepository,
   CustomerRepository customerRepository,
@@ -52,6 +52,7 @@ Future<Either<AbstractFailure, ({Receipt receipt, int customerNumber})>> createR
     marketplace,
     loadedAppointmentFromMarketplace.orderMarketplaceId,
     OrderStatusUpdateType.onImport,
+    null,
   );
   fosOrderStatus.fold(
     (failure) =>
@@ -77,7 +78,7 @@ Future<Either<AbstractFailure, ({Receipt receipt, int customerNumber})>> createR
 
   final loadedCustomerFromFirestore = await getCustomerByMarketplaceId(customerRepository, marketplace.id, customer.id);
   Customer? customerFirestore;
-  int nextCustomerNumber = mainSettings.nextCustomerNumber;
+
   if (loadedCustomerFromFirestore == null) {
     double getTotalNet() =>
         (orderPresta.totalProducts).toMyDouble() +
@@ -94,10 +95,10 @@ Future<Either<AbstractFailure, ({Receipt receipt, int customerNumber})>> createR
 
     final createdCustomerInFirestore = await createCustomerFromMarketplace(
       customerRepository,
-      Customer.fromPresta(customer, nextCustomerNumber, marketplace, addressInvoice, addressDelivery, countryInvoice, countryDelivery, tax),
+      Customer.fromPresta(
+          customer, mainSettings.nextCustomerNumber, marketplace, addressInvoice, addressDelivery, countryInvoice, countryDelivery, tax),
     );
     customerFirestore = createdCustomerInFirestore;
-    nextCustomerNumber += 1;
   } else {
     final invoiceAddress = Address.fromPresta(addressInvoice, countryInvoice, AddressType.invoice);
     final deliveryAddress = Address.fromPresta(addressDelivery, countryDelivery, AddressType.delivery);
@@ -131,7 +132,7 @@ Future<Either<AbstractFailure, ({Receipt receipt, int customerNumber})>> createR
     customer: customerFirestore,
   );
 
-  return Right((receipt: phAppointment, customerNumber: nextCustomerNumber));
+  return Right(phAppointment);
 }
 
 Future<Either<AbstractFailure, List<ReceiptProduct>>> getListOfReceiptProductsFromPresta(
@@ -181,7 +182,7 @@ Future<Either<AbstractFailure, List<ReceiptProduct>>> getListOfReceiptProductsFr
           api,
           null,
         );
-        
+
         fosLoadedOrCreatedProduct.fold(
           (failure) => left(failure),
           (locProduct) {

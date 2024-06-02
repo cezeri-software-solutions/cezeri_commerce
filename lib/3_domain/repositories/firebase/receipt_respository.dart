@@ -8,7 +8,7 @@ import '../../entities/receipt/receipt_product.dart';
 
 abstract class ReceiptRepository {
   Future<Either<AbstractFailure, Receipt>> getReceipt(Receipt receipt);
-  Future<Either<AbstractFailure, List<Receipt>>> getListOfReceipts(int value, ReceiptTyp receiptTyp);
+  Future<Either<AbstractFailure, List<Receipt>>> getListOfReceipts(int value, ReceiptTyp receiptTyp, {bool sortOutDeliveryBlocked = false});
   Future<Either<AbstractFailure, Unit>> updateReceipt(
     Receipt receipt,
     List<ReceiptProduct> oldListOfReceiptProducts,

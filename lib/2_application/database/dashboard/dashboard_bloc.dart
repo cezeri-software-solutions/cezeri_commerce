@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:cezeri_commerce/1_presentation/core/extensions/formatted_year_month.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 
@@ -54,12 +55,12 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
         )),
         (listOfStatDashboards) {
           DateTime now = DateTime.now();
+          print('${now.year}-${now.month}');
           emit(state.copyWith(
             listOfStatDashboards: listOfStatDashboards,
-            curStatDashboard:
-                listOfStatDashboards.where((e) => DateTime(e.dateTime.year, e.dateTime.month) == DateTime(now.year, now.month)).isNotEmpty
-                    ? listOfStatDashboards.where((e) => DateTime(e.dateTime.year, e.dateTime.month) == DateTime(now.year, now.month)).first
-                    : StatDashboard.empty(),
+            curStatDashboard: listOfStatDashboards.where((e) => e.month == now.toFormattedYearMonth()).isNotEmpty
+                ? listOfStatDashboards.where((e) => e.month == now.toFormattedYearMonth()).first
+                : StatDashboard.empty(),
             firebaseFailure: null,
             isAnyFailure: false,
           ));

@@ -108,6 +108,12 @@ class OnAppointmentSelectedEvent extends ReceiptEvent {
   OnAppointmentSelectedEvent({required this.appointment});
 }
 
+class OnReceiptCustomerEmailChangedEvent extends ReceiptEvent {
+  final String email;
+
+  OnReceiptCustomerEmailChangedEvent({required this.email});
+}
+
 class OnAppointmentMarketplaceChangedEvent extends ReceiptEvent {
   final AbstractMarketplace marketplace;
 
@@ -145,3 +151,9 @@ class OnEditAddressReceiptDetailEvent extends ReceiptEvent {
 }
 
 class CreateParcelLabelReceiptEvent extends ReceiptEvent {}
+
+class SetIsDeliveryBlockedEvent extends ReceiptEvent {
+  final bool value;
+
+  SetIsDeliveryBlockedEvent({required this.value});
+}

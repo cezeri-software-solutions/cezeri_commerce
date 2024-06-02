@@ -7,6 +7,12 @@ class SetCustomerStateToInitialEvent extends CustomerEvent {}
 
 class GetAllCustomersEvent extends CustomerEvent {}
 
+class SetCustomerEvent extends CustomerEvent {
+  final Customer customer;
+
+  SetCustomerEvent({required this.customer});
+}
+
 class GetCustomerEvent extends CustomerEvent {
   final Customer customer;
 

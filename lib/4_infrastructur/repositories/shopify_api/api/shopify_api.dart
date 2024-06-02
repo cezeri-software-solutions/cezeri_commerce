@@ -7,6 +7,7 @@ import 'package:dartz/dartz.dart';
 import 'package:http/http.dart' as http;
 
 import '../../../../1_presentation/core/functions/mixed_functions.dart';
+import '../../../../3_domain/entities/carrier/parcel_tracking.dart';
 import '../../../../3_domain/entities/product/product.dart';
 import '../../../../3_domain/entities/product/product_image.dart';
 import '../../../../constants.dart';
@@ -455,9 +456,33 @@ class ShopifyApi {
     return const Right(unit);
   }
 
-  Future<Either<List<ShopifyGeneralFailure>, Unit>> postFulfillment() async {
-    // TODO: Shopify Fulfillment
-    // if (failures.isNotEmpty) return Left(failures);
+  Future<Either<List<ShopifyGeneralFailure>, Unit>> postFulfillment(int orderId, ParcelTracking? parcelTracking) async {
+    const key = 'fulfillments';
+
+    final body = switch (parcelTracking) {
+      null => jsonEncode({
+          "fulfillment": {
+            "line_items_by_fulfillment_order": [
+              {"fulfillment_order_id": orderId}
+            ]
+          }
+        }),
+      _ => jsonEncode({
+          "fulfillment": {
+            "line_items_by_fulfillment_order": [
+              {"fulfillment_order_id": orderId}
+            ],
+            "tracking_info": {
+              "number": parcelTracking.trackingNumber2 ?? parcelTracking.trackingNumber,
+              "url": parcelTracking.trackingUrl2 ?? parcelTracking.trackingUrl
+            }
+          }
+        })
+    };
+
+    final productResult = await _doPost(uri: '$_url/api/$_apiVersion/$key.json', body: body);
+    if (productResult.isLeft()) return Left([productResult.getLeft()]);
+
     return const Right(unit);
   }
 

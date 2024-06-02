@@ -1,6 +1,7 @@
 import 'package:cezeri_commerce/1_presentation/core/extensions/string_to_int.dart';
 import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.dart';
 import 'package:cezeri_commerce/3_domain/entities/carrier/carrier_product.dart';
+import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 import '../../../1_presentation/core/functions/mixed_functions.dart';
@@ -51,7 +52,7 @@ enum AppointmentStatus { open, partiallyCompleted, completed }
 enum PaymentStatus { open, partiallyPaid, paid }
 
 @JsonSerializable(explicitToJson: true)
-class Receipt {
+class Receipt extends Equatable {
   final String id;
   final String receiptId;
   final int offerId;
@@ -86,6 +87,7 @@ class Receipt {
   final Tax tax;
   final bool isSmallBusiness;
   final bool isPicked;
+  final bool isDeliveryBlocked;
   final int termOfPayment;
   final double weight;
   final double totalGross;
@@ -167,6 +169,7 @@ class Receipt {
     required this.tax,
     required this.isSmallBusiness,
     required this.isPicked,
+    required this.isDeliveryBlocked,
     required this.termOfPayment,
     required this.weight,
     required this.totalGross,
@@ -621,7 +624,7 @@ class Receipt {
       appointmentNumberAsString: mainSettings.appointmentPraefix + mainSettings.nextAppointmentNumber.toString(),
       deliveryNoteId: 0,
       deliveryNoteNumberAsString: '',
-      listOfDeliveryNoteIds: [],
+      listOfDeliveryNoteIds: const [],
       invoiceId: 0,
       invoiceNumberAsString: '',
       creditId: 0,
@@ -648,6 +651,7 @@ class Receipt {
           mainSettings.taxes.where((e) => e.isDefault).first,
       isSmallBusiness: mainSettings.isSmallBusiness,
       isPicked: false,
+      isDeliveryBlocked: false,
       termOfPayment: mainSettings.termOfPayment,
       weight: listOfReceiptproduct.map((e) => e.weight).toList().fold(0.0, (a, b) => a + b),
       totalGross: getTotalGross(),
@@ -688,7 +692,7 @@ class Receipt {
           ? [Payment((orderPresta.totalPaidReal).toMyDouble(), orderPresta.payment, DateTime.parse(orderPresta.dateAdd))]
           : [],
       listOfReceiptProduct: listOfReceiptproduct,
-      listOfParcelTracking: [],
+      listOfParcelTracking: const [],
       receiptCarrier: receiptCarrier,
       receiptMarketplace: receiptMarketplace,
       creationDateMarektplace: DateTime.parse(orderPresta.dateAdd),
@@ -809,7 +813,7 @@ class Receipt {
       appointmentNumberAsString: mainSettings.appointmentPraefix + mainSettings.nextAppointmentNumber.toString(),
       deliveryNoteId: 0,
       deliveryNoteNumberAsString: '',
-      listOfDeliveryNoteIds: [],
+      listOfDeliveryNoteIds: const [],
       invoiceId: 0,
       invoiceNumberAsString: '',
       creditId: 0,
@@ -835,6 +839,7 @@ class Receipt {
       tax: tax,
       isSmallBusiness: mainSettings.isSmallBusiness,
       isPicked: false,
+      isDeliveryBlocked: false,
       termOfPayment: mainSettings.termOfPayment,
       weight: listOfReceiptproduct.map((e) => e.weight).toList().fold(0.0, (a, b) => a + b),
       totalGross: totalGross,
@@ -873,7 +878,7 @@ class Receipt {
       bankDetails: mainSettings.bankDetails,
       listOfPayments: getPaymentStatus() != PaymentStatus.open ? [Payment(totalGross, '', DateTime.parse(orderShopify.createdAt))] : [],
       listOfReceiptProduct: listOfReceiptproduct,
-      listOfParcelTracking: [],
+      listOfParcelTracking: const [],
       receiptCarrier: receiptCarrier,
       receiptMarketplace: receiptMarketplace,
       creationDateMarektplace: DateTime.parse(orderShopify.createdAt),
@@ -893,7 +898,7 @@ class Receipt {
       appointmentNumberAsString: '',
       deliveryNoteId: 0,
       deliveryNoteNumberAsString: '',
-      listOfDeliveryNoteIds: [],
+      listOfDeliveryNoteIds: const [],
       invoiceId: 0,
       invoiceNumberAsString: '',
       creditId: 0,
@@ -919,6 +924,7 @@ class Receipt {
       tax: Tax.empty(),
       isSmallBusiness: false,
       isPicked: false,
+      isDeliveryBlocked: false,
       termOfPayment: 14,
       weight: 0.0,
       totalGross: 0,
@@ -954,9 +960,9 @@ class Receipt {
       profitExclWrapping: 0,
       profitExclShippingAndWrapping: 0,
       bankDetails: BankDetails.empty(),
-      listOfPayments: [],
-      listOfReceiptProduct: [],
-      listOfParcelTracking: [],
+      listOfPayments: const [],
+      listOfReceiptProduct: const [],
+      listOfParcelTracking: const [],
       receiptCarrier: ReceiptCarrier.empty(),
       receiptMarketplace: ReceiptMarketplace.empty(),
       creationDateMarektplace: DateTime.now(),
@@ -1002,6 +1008,7 @@ class Receipt {
     Tax? tax,
     bool? isSmallBusiness,
     bool? isPicked,
+    bool? isDeliveryBlocked,
     int? termOfPayment,
     double? weight,
     double? totalGross,
@@ -1083,6 +1090,7 @@ class Receipt {
       tax: tax ?? this.tax,
       isSmallBusiness: isSmallBusiness ?? this.isSmallBusiness,
       isPicked: isPicked ?? this.isPicked,
+      isDeliveryBlocked: isDeliveryBlocked ?? this.isDeliveryBlocked,
       termOfPayment: termOfPayment ?? this.termOfPayment,
       weight: weight ?? this.weight,
       totalGross: totalGross ?? this.totalGross,
@@ -1132,7 +1140,8 @@ class Receipt {
   }
 
   @override
-  String toString() {
-    return 'Receipt(id: $id, receiptId: $receiptId, offerId: $offerId, offerNumberAsString: $offerNumberAsString, appointmentId: $appointmentId, appointmentNumberAsString: $appointmentNumberAsString, deliveryNoteId: $deliveryNoteId, deliveryNoteNumberAsString: $deliveryNoteNumberAsString, invoiceId: $invoiceId, invoiceNumberAsString: $invoiceNumberAsString, creditId: $creditId, creditNumberAsString: $creditNumberAsString, marketplaceId: $marketplaceId, receiptMarketplaceId: $receiptMarketplaceId, receiptMarketplaceReference: $receiptMarketplaceReference, paymentMethod: $paymentMethod, commentInternal: $commentInternal, commentGlobal: $commentGlobal, currency: $currency, receiptDocumentText: $receiptDocumentText, uidNumber: $uidNumber, searchField: $searchField, customerId: $customerId, receiptCustomer: $receiptCustomer, addressInvoice: $addressInvoice, addressDelivery: $addressDelivery, receiptTyp: $receiptTyp, offerStatus: $offerStatus, appointmentStatus: $appointmentStatus, paymentStatus: $paymentStatus, tax: $tax, isSmallBusiness: $isSmallBusiness, isPicked: $isPicked, termOfPayment: $termOfPayment, totalGross: $totalGross, totalNet: $totalNet, totalTax: $totalTax, subTotalNet: $subTotalNet, subTotalTax: $subTotalTax, subTotalGross: $subTotalGross, totalPaidGross: $totalPaidGross, totalPaidNet: $totalPaidNet, totalPaidTax: $totalPaidTax, totalShippingGross: $totalShippingGross, totalShippingNet: $totalShippingNet, totalShippingTax: $totalShippingTax, totalWrappingGross: $totalWrappingGross, totalWrappingNet: $totalWrappingNet, totalWrappingTax: $totalWrappingTax, discountGross: $discountGross, discountNet: $discountNet, discountTax: $discountTax, discountPercent: $discountPercent, discountPercentAmountGross: $discountPercentAmountGross, discountPercentAmountNet: $discountPercentAmountNet, discountPercentAmountTax: $discountPercentAmountTax, posDiscountPercentAmountGross: $posDiscountPercentAmountGross, posDiscountPercentAmountNet: $posDiscountPercentAmountNet, posDiscountPercentAmountTax: $posDiscountPercentAmountTax, additionalAmountNet: $additionalAmountNet, additionalAmountTax: $additionalAmountTax, additionalAmountGross: $additionalAmountGross, profit: $profit, profitExclShipping: $profitExclShipping, profitExclWrapping: $profitExclWrapping, profitExclShippingAndWrapping: $profitExclShippingAndWrapping, bankDetails: $bankDetails, listOfPayments: $listOfPayments, listOfReceiptProduct: $listOfReceiptProduct, listOfParcelTracking: $listOfParcelTracking, receiptCarrier: $receiptCarrier, receiptMarketplace: $receiptMarketplace, creationDateMarektplace: $creationDateMarektplace, packagingBox: $packagingBox, creationDate: $creationDate, creationDateInt: $creationDateInt, lastEditingDate: $lastEditingDate)';
-  }
+  List<Object?> get props => [id];
+
+  @override
+  bool get stringify => true;
 }

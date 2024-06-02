@@ -5,6 +5,7 @@ import '../../../3_domain/entities/address.dart';
 import '../../../3_domain/entities/receipt/receipt.dart';
 import '../../../constants.dart';
 import '../../core/widgets/my_address_update_sheet.dart';
+import '../sheets/receipt_detail_update_customer.dart';
 
 enum ReceiptDetailAddressTyp { shipping, invoice }
 
@@ -40,7 +41,11 @@ class _ReceiptDetailAddressCardState extends State<ReceiptDetailAddressCard> {
               children: [
                 Text(widget.receipt.receiptCustomer.customerNumber.toString(), style: TextStyles.defaultBold),
                 Text(widget.receipt.receiptCustomer.name, style: TextStyles.h3BoldPrimary),
-                InkWell(onTap: () {}, child: const Icon(Icons.edit, color: CustomColors.primaryColor)),
+                InkWell(
+                  onTap: () =>
+                      updateCustomerFromReceiptDetail(context: context, receiptBloc: widget.receiptBloc, customerId: widget.receipt.customerId),
+                  child: const Icon(Icons.edit, color: CustomColors.primaryColor),
+                ),
               ],
             ),
             const Divider(height: 30),

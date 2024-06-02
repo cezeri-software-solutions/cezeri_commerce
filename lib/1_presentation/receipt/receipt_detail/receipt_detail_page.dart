@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../2_application/database/receipt/receipt_bloc.dart';
 import '../../../2_application/database/main_settings/main_settings_bloc.dart';
+import '../../../2_application/database/receipt/receipt_bloc.dart';
 import '../../../2_application/database/receipt_detail/receipt_detail_bloc.dart';
 import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
 import '../../../3_domain/entities/receipt/receipt.dart';
@@ -50,6 +50,10 @@ class _ReceiptDetailPageState extends State<ReceiptDetailPage> {
         final screenWidth = MediaQuery.sizeOf(context).width;
         final responsiveness = screenWidth > 700 ? Responsiveness.isTablet : Responsiveness.isMobil;
 
+        print('################################################################################################');
+        print(state.receipt!.receiptCustomer.email);
+        print('################################################################################################');
+
         final appBar = AppBar(
           title: switch (state.receipt!.receiptTyp) {
             ReceiptTyp.offer => Text('Angebot: ${state.receipt!.offerNumberAsString}'),
@@ -95,6 +99,8 @@ class _ReceiptDetailPageState extends State<ReceiptDetailPage> {
                         receiptCarrier: state.receipt!.receiptCarrier,
                         addressDelivery: state.receipt!.addressDelivery,
                         addressInvoice: state.receipt!.addressInvoice,
+                        receiptCustomer: state.receipt!.receiptCustomer,
+                        isDeliveryBlocked: state.receipt!.isDeliveryBlocked,
                         lastEditingDate: DateTime.now(),
                       );
                       widget.receiptBloc.add(UpdateAppointmentEvent(
@@ -112,6 +118,8 @@ class _ReceiptDetailPageState extends State<ReceiptDetailPage> {
                         receiptCarrier: state.receipt!.receiptCarrier,
                         addressDelivery: state.receipt!.addressDelivery,
                         addressInvoice: state.receipt!.addressInvoice,
+                        receiptCustomer: state.receipt!.receiptCustomer,
+                        isDeliveryBlocked: state.receipt!.isDeliveryBlocked,
                         lastEditingDate: DateTime.now(),
                         creationDate: DateTime.now(),
                         receiptTyp: widget.receiptTyp,

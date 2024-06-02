@@ -26,20 +26,15 @@ class SupplierRepositoryImpl implements SupplierRepository {
     if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
     final databaseSuppliers = supabase.from('d_suppliers');
-    final databaseSettings = supabase.from('d_main_settings');
 
     try {
       final fosSettings = await settingsRepository.getSettings();
       if (fosSettings.isLeft()) return Left(fosSettings.getLeft());
-      final settings = fosSettings.getRight();
 
       final supplierJson = supplier.toJson();
       supplierJson.addEntries([MapEntry('ownerId', ownerId)]);
       final supplierResponse = await databaseSuppliers.insert(supplierJson).select('*').single();
       final createdSupplier = Supplier.fromJson(supplierResponse);
-
-      final updatedSettings = settings.copyWith(nextSupplierNumber: settings.nextSupplierNumber + 1);
-      await databaseSettings.update(updatedSettings.toJson()).eq('settingsId', settings.settingsId);
 
       return Right(createdSupplier);
     } catch (e) {

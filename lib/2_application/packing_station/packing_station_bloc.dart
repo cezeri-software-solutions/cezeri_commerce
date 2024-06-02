@@ -78,7 +78,7 @@ class PackingStationBloc extends Bloc<PackingStationEvent, PackingStationState> 
     on<PackgingStationGetAppointmentsEvent>((event, emit) async {
       emit(state.copyWith(isLoadingAppointmentsOnObserve: true));
 
-      final failureOrSuccess = await receiptRepository.getListOfReceipts(0, ReceiptTyp.appointment);
+      final failureOrSuccess = await receiptRepository.getListOfReceipts(0, ReceiptTyp.appointment, sortOutDeliveryBlocked: true);
       failureOrSuccess.fold(
         (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
         (loadedAppointment) {

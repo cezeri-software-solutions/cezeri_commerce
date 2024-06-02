@@ -26,6 +26,7 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
         super(CustomerState.initial()) {
     on<SetCustomerStateToInitialEvent>(_onSetCustomerStateToInitial);
     on<GetAllCustomersEvent>(_onGetAllCustomers);
+    on<SetCustomerEvent>(_onSetCustomer);
     on<GetCustomerEvent>(_onGetCustomer);
     on<SetEmptyCustomerOnCreateNewCustomerEvent>(_onSetEmptyCustomerOnCreateNewCustomer);
     on<CreateCustomerEvent>(_onCreateCustomer);
@@ -63,6 +64,11 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
       fosCustomersOnObserveOption: optionOf(failureOrCustomers),
     ));
     emit(state.copyWith(fosCustomersOnObserveOption: none()));
+  }
+
+  Future<void> _onSetCustomer(SetCustomerEvent event, Emitter<CustomerState> emit) async {
+    emit(state.copyWith(customer: event.customer));
+    add(SetCustomerControllerEvent());
   }
 
   Future<void> _onGetCustomer(GetCustomerEvent event, Emitter<CustomerState> emit) async {
@@ -132,7 +138,7 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
       isLoadingCustomerOnUpdate: false,
       fosCustomerOnUpdateOption: optionOf(failureOrSuccess),
     ));
-    emit(state.copyWith(fosCustomerOnObserveOption: none()));
+    emit(state.copyWith(fosCustomerOnUpdateOption: none()));
   }
 
   Future<void> _onDeleteSelectedCustomers(DeleteSelectedCustomersEvent event, Emitter<CustomerState> emit) async {

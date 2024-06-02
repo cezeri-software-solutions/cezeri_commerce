@@ -58,12 +58,12 @@ class DashboardPage extends StatelessWidget {
                           ),
                           StatContainer(
                             title: 'Auftragseingang akt. Monat',
-                            body: '${state.curStatDashboard!.incomingOrders.toMyCurrencyStringToShow()} €',
+                            body: '${state.curStatDashboard!.appointmentVolume.toMyCurrencyStringToShow()} €',
                             width: defStatContainerWidth,
                           ),
                           StatContainer(
                             title: 'Umsatz akt. Monat',
-                            body: '${state.curStatDashboard!.salesVolume.toMyCurrencyStringToShow()} €',
+                            body: '${state.curStatDashboard!.invoiceVolume.toMyCurrencyStringToShow()} €',
                             width: defStatContainerWidth,
                           ),
                         ],
@@ -96,7 +96,7 @@ class DashboardPage extends StatelessWidget {
                           ),
                           StatContainer(
                             title: 'Auftragseingang akt. Monat',
-                            body: '${state.curStatDashboard!.incomingOrders.toMyCurrencyStringToShow()} €',
+                            body: '${state.curStatDashboard!.appointmentVolume.toMyCurrencyStringToShow()} €',
                             width: defStatContainerWidth,
                           ),
                         ],
@@ -107,7 +107,7 @@ class DashboardPage extends StatelessWidget {
                         children: [
                           StatContainer(
                             title: 'Umsatz akt. Monat',
-                            body: '${state.curStatDashboard!.salesVolume.toMyCurrencyStringToShow()} €',
+                            body: '${state.curStatDashboard!.invoiceVolume.toMyCurrencyStringToShow()} €',
                             width: defStatContainerWidth,
                           ),
                         ],
@@ -121,7 +121,6 @@ class DashboardPage extends StatelessWidget {
               LineChartView(listOfStatDashboards: state.listOfStatDashboards!, chartTyp: ChartType.incomingOrder),
               const Text('Umsatz pro Monat', style: TextStyles.h2Bold),
               LineChartView(listOfStatDashboards: state.listOfStatDashboards!, chartTyp: ChartType.salesVolume),
-              
             ],
           ),
         );

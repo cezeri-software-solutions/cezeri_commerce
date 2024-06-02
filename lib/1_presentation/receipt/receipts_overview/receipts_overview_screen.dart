@@ -8,8 +8,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../2_application/database/customer/customer_bloc.dart';
-import '../../../2_application/database/marketplace/marketplace_bloc.dart';
 import '/3_domain/entities/address.dart';
 import '/3_domain/entities/customer/customer.dart';
 import '/3_domain/entities/marketplace/abstract_marketplace.dart';
@@ -21,6 +19,8 @@ import '/3_domain/pdf/pdf_outgoing_invoices_generator.dart';
 import '/constants.dart';
 import '/injection.dart';
 import '/routes/router.gr.dart';
+import '../../../2_application/database/customer/customer_bloc.dart';
+import '../../../2_application/database/marketplace/marketplace_bloc.dart';
 import '../../../2_application/database/receipt/receipt_bloc.dart';
 import '../../core/functions/dialogs.dart';
 import '../../core/functions/my_scaffold_messanger.dart';
@@ -29,7 +29,7 @@ import '../../core/widgets/my_circular_progress_indicator.dart';
 import '../../core/widgets/my_form_field_small.dart';
 import '../../core/widgets/my_modal_scrollable.dart';
 import '../../core/widgets/my_outlined_button.dart';
-import '../appointment_detail/receipt_detail_screen.dart';
+import '../receipt_detail/receipt_detail_screen.dart';
 import 'receipts_overview_page.dart';
 
 class ReceiptsOverviewScreen extends StatefulWidget {
