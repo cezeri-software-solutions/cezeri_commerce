@@ -12,6 +12,7 @@ enum ReorderStatus { open, partiallyCompleted, completed }
 
 @JsonSerializable(explicitToJson: true)
 class Reorder {
+  @JsonKey(includeToJson: false)
   final String id;
   final int reorderNumber;
   final String reorderNumberInternal;

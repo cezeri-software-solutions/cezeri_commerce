@@ -30,6 +30,7 @@ import '../../core/widgets/my_form_field_small.dart';
 import '../../core/widgets/my_modal_scrollable.dart';
 import '../../core/widgets/my_outlined_button.dart';
 import '../receipt_detail/receipt_detail_screen.dart';
+import '../sheets/receipts_overview_filter.dart';
 import 'receipts_overview_page.dart';
 
 class ReceiptsOverviewScreen extends StatefulWidget {
@@ -322,6 +323,8 @@ class _ReceiptsOverviewScreenState extends State<ReceiptsOverviewScreen> with Au
                       icon: state.isLoadingAppointmentsFromPrestaOnObserve ? const MyCircularProgressIndicator() : const Icon(Icons.download),
                     ),
                   ],
+                  IconButton(onPressed: () => filterReceiptsOverview(context, receiptBloc), icon: const Icon(Icons.filter_list)),
+                  IconButton(onPressed: () {}, icon: const Icon(Icons.more_vert)),
                 ],
               ),
               body: Column(

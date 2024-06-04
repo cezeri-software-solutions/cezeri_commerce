@@ -382,12 +382,13 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
         }
       case MarketplaceType.shopify:
         {
-          // TODO: Shopify Fulfillment
           final mp = abstractMarketplace as MarketplaceShopify;
           final api = ShopifyApi(ShopifyApiConfig(storefrontToken: mp.storefrontAccessToken, adminToken: mp.adminAccessToken), mp.fullUrl);
 
           final result = await api.postFulfillment(orderId, parcelTracking);
           if (result.isRight()) return const Right(unit);
+          return const Right(unit);
+          // TODO: Error Handling or log
         }
       case MarketplaceType.shop:
         {

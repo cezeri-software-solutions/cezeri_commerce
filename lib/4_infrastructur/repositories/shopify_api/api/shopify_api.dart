@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:cezeri_commerce/1_presentation/core/extensions/get_either.dart';
+import 'package:cezeri_commerce/1_presentation/core/extensions/my_json_print.dart';
 import 'package:cezeri_commerce/4_infrastructur/repositories/shopify_api/models/inventory/inventory_level_shopify.dart';
 import 'package:cezeri_commerce/failures/abstract_failure.dart';
 import 'package:dartz/dartz.dart';
@@ -459,23 +460,49 @@ class ShopifyApi {
   Future<Either<List<ShopifyGeneralFailure>, Unit>> postFulfillment(int orderId, ParcelTracking? parcelTracking) async {
     const key = 'fulfillments';
 
+    final fulfillmentOrdersResponse =
+        await _doGet(uri: '$_url/api/$_apiVersion/orders/$orderId/fulfillment_orders.json', key: 'fulfillment_orders', isList: true);
+    if (fulfillmentOrdersResponse.isLeft()) return Left([ShopifyGeneralFailure()]);
+
+    for (final a in fulfillmentOrdersResponse.getRight()) {
+      (a as Map<String, dynamic>).myJsonPrint();
+    }
+
+    final fulfillmentOrderId = fulfillmentOrdersResponse.getRight()[0]['id'];
+
+    String? trackingNumber;
+    String? trackingUrl;
+
+    if (parcelTracking != null) {
+      if (parcelTracking.trackingNumber2 != null &&
+          parcelTracking.trackingNumber2!.isNotEmpty &&
+          parcelTracking.trackingUrl2 != null &&
+          parcelTracking.trackingUrl2!.isNotEmpty) {
+        trackingNumber = parcelTracking.trackingNumber2!;
+        trackingUrl = parcelTracking.trackingUrl2! + parcelTracking.trackingNumber2!;
+      }
+      if (parcelTracking.trackingNumber2 == null ||
+          parcelTracking.trackingUrl2 == null && parcelTracking.trackingNumber.isNotEmpty && parcelTracking.trackingUrl.isNotEmpty) {
+        trackingNumber = parcelTracking.trackingUrl;
+        trackingNumber = parcelTracking.trackingNumber;
+        trackingUrl = parcelTracking.trackingUrl + parcelTracking.trackingNumber;
+      }
+    }
+
     final body = switch (parcelTracking) {
       null => jsonEncode({
           "fulfillment": {
             "line_items_by_fulfillment_order": [
-              {"fulfillment_order_id": orderId}
+              {"fulfillment_order_id": fulfillmentOrderId}
             ]
           }
         }),
       _ => jsonEncode({
           "fulfillment": {
             "line_items_by_fulfillment_order": [
-              {"fulfillment_order_id": orderId}
+              {"fulfillment_order_id": fulfillmentOrderId}
             ],
-            "tracking_info": {
-              "number": parcelTracking.trackingNumber2 ?? parcelTracking.trackingNumber,
-              "url": parcelTracking.trackingUrl2 ?? parcelTracking.trackingUrl
-            }
+            "tracking_info": {"number": trackingNumber, "url": trackingUrl}
           }
         })
     };

@@ -31,7 +31,6 @@ Reorder _$ReorderFromJson(Map<String, dynamic> json) => Reorder(
     );
 
 Map<String, dynamic> _$ReorderToJson(Reorder instance) => <String, dynamic>{
-      'id': instance.id,
       'reorderNumber': instance.reorderNumber,
       'reorderNumberInternal': instance.reorderNumberInternal,
       'closedManually': instance.closedManually,
