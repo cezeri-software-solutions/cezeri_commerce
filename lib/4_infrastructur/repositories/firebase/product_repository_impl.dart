@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cezeri_commerce/1_presentation/core/extensions/formatted_year_month.dart';
 import 'package:cezeri_commerce/1_presentation/core/extensions/get_either.dart';
 import 'package:cezeri_commerce/3_domain/entities/product/product_marketplace.dart';
 import 'package:cezeri_commerce/failures/firebase_failures.dart';
@@ -16,6 +17,7 @@ import '/3_domain/repositories/marketplace/marketplace_edit_repository.dart';
 import '../../../1_presentation/core/functions/set_product_functions.dart';
 import '../../../3_domain/entities/marketplace/marketplace_presta.dart';
 import '../../../3_domain/entities/product/marketplace_product.dart';
+import '../../../3_domain/entities/product/product_stock_difference.dart';
 import '../../../constants.dart';
 import '../../../failures/abstract_failure.dart';
 import '../functions/get_storage_paths.dart';
@@ -198,6 +200,34 @@ class ProductRepositoryImpl implements ProductRepository {
     } catch (e) {
       logger.e(e);
       return Left(GeneralFailure(customMessage: 'Beim Laden der Artikel, die unter dem Mindestbestand sind ist ein Fehler aufgetreten. Error: $e'));
+    }
+  }
+
+  @override
+  Future<Either<AbstractFailure, List<ProductStockDifference>>> getListOfProductSalesAndStockDiff() async {
+    if (!await checkInternetConnection()) return Left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
+
+    final endDate = DateTime.now().add(const Duration(days: 1));
+    final endDateFormatted = endDate.toFormattedYearMonthDay();
+
+    try {
+      final response = await supabase.rpc('get_product_sales_and_stock_diff', params: {
+        'owner_id': ownerId,
+        'start_date': '2023-05-01',
+        'end_date': endDateFormatted,
+      });
+
+      final listOfProductStockDifferences = (response as List<dynamic>).map((e) {
+        final item = e as Map<String, dynamic>;
+        return ProductStockDifference.fromJson(item);
+      }).toList();
+
+      return Right(listOfProductStockDifferences);
+    } catch (e) {
+      logger.e(e);
+      return Left(GeneralFailure(customMessage: 'Bestandsaweichungen konnten nicht geladen werden.'));
     }
   }
 

@@ -1,11 +1,11 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 
+import '/constants.dart';
 import '../../../3_domain/entities/product/product.dart';
 import '../../../routes/router.gr.dart';
 import '../widgets/my_avatar.dart';
 import '../widgets/my_outlined_button.dart';
-import '/constants.dart';
 
 Future<void> showMyDialogLoading({required BuildContext context, String text = '', bool canPop = false}) async {
   await showDialog<void>(

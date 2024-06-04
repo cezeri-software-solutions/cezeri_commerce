@@ -15,8 +15,8 @@ class HomeProductsOutletView extends StatelessWidget {
   Widget build(BuildContext context) {
     final homeProductBloc = sl<HomeProductBloc>();
 
-    return BlocProvider(
-      create: (context) => homeProductBloc,
+    return BlocProvider.value(
+      value: homeProductBloc,
       child: MultiBlocListener(
         listeners: [
           BlocListener<HomeProductBloc, HomeProductState>(

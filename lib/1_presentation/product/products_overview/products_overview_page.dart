@@ -7,15 +7,17 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
-import '../../../2_application/database/product/product_bloc.dart';
 import '/3_domain/entities/marketplace/abstract_marketplace.dart';
 import '/3_domain/entities/product/product.dart';
 import '/3_domain/entities/product/product_presta.dart';
 import '/4_infrastructur/repositories/shopify_api/shopify.dart';
 import '/routes/router.gr.dart';
+import '../../../2_application/database/product/product_bloc.dart';
 import '../../core/functions/dialogs.dart';
 import '../../core/functions/mixed_functions.dart';
+import '../../core/functions/show_my_part_of_set_product_quick_view.dart';
 import '../../core/functions/show_my_product_quick_view.dart';
+import '../../core/functions/show_my_set_product_quick_view.dart';
 import '../../core/widgets/my_avatar.dart';
 
 class ProductOverviewPage extends StatelessWidget {
@@ -136,20 +138,13 @@ class _ProductContainer extends StatelessWidget {
                         Gaps.w8,
                         if (product.isSetArticle)
                           InkWell(
-                            onTap: () {
-                              final productList =
-                                  state.listOfAllProducts!.where((e) => product.listOfProductIdWithQuantity.any((f) => f.productId == e.id)).toList();
-                              showMyDialogProducts(context: context, productsList: productList);
-                            },
+                            onTap: () => showMySetProductQuickView(context: context, productId: product.id),
                             child: const Icon(Icons.layers, size: 18, color: CustomColors.primaryColor),
                           ),
                         Gaps.w8,
                         if (product.listOfIsPartOfSetIds.isNotEmpty)
                           InkWell(
-                            onTap: () {
-                              final productList = state.listOfAllProducts!.where((e) => product.listOfIsPartOfSetIds.contains(e.id)).toList();
-                              showMyDialogProducts(context: context, productsList: productList);
-                            },
+                            onTap: () => showMyPartOfSetProductQuickView(context: context, productId: product.id),
                             child: const Icon(Icons.group_work, size: 18, color: CustomColors.primaryColor),
                           ),
                       ],

@@ -8,6 +8,7 @@ import '../../entities/product/marketplace_product.dart';
 import '../../entities/product/product.dart';
 import '../../entities/product/product_image.dart';
 import '../../entities/product/product_marketplace.dart';
+import '../../entities/product/product_stock_difference.dart';
 import '../../entities/reorder/supplier.dart';
 
 abstract class ProductRepository {
@@ -33,6 +34,7 @@ abstract class ProductRepository {
   Future<Either<AbstractFailure, List<Product>>> getListOfSoldOutOutletProducts();
   Future<Either<AbstractFailure, List<Product>>> getListOfSoldOutProducts();
   Future<Either<AbstractFailure, List<Product>>> getListOfUnderMinimumQuantityProducts();
+  Future<Either<AbstractFailure, List<ProductStockDifference>>> getListOfProductSalesAndStockDiff();
 
   Future<Either<AbstractFailure, Product>> updateAllQuantityOfProductAbsolut(Product product, int newQuantity, bool updateOnlyAvailableQuantity);
   Future<Either<AbstractFailure, Product>> updateAvailableQuantityOfProductInremental(

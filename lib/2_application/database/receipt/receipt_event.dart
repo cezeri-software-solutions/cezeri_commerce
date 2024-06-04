@@ -150,6 +150,12 @@ class OnEditAddressReceiptDetailEvent extends ReceiptEvent {
   OnEditAddressReceiptDetailEvent({required this.address});
 }
 
+class OnReceiptCustomerUpdatedEvent extends ReceiptEvent {
+  final Customer customer;
+
+  OnReceiptCustomerUpdatedEvent({required this.customer});
+}
+
 class CreateParcelLabelReceiptEvent extends ReceiptEvent {}
 
 class SetIsDeliveryBlockedEvent extends ReceiptEvent {

@@ -26,7 +26,7 @@ void showMyProductQuickView({required BuildContext context, required Product pro
   final trailing = IconButton(
     padding: const EdgeInsets.only(right: 24),
     icon: const Icon(Icons.close),
-    onPressed: () => context.router.pop(),
+    onPressed: () => context.router.maybePop(),
   );
 
   WoltModalSheet.show(
@@ -60,7 +60,7 @@ Future<void> showMyProductQuickViewById({required BuildContext context, required
   final trailing = IconButton(
     padding: const EdgeInsets.only(right: 24),
     icon: const Icon(Icons.close),
-    onPressed: () => context.router.pop(),
+    onPressed: () => context.router.maybePop(),
   );
 
   if (!context.mounted) return;

@@ -688,7 +688,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
         case MarketplaceType.shopify:
           {
             final fosOrderStatus = await marketplaceEditRepository.setOrderStatusInMarketplace(
-              marketplace as MarketplacePresta,
+              marketplace as MarketplaceShopify,
               originalAppointment.receiptMarketplaceId,
               OrderStatusUpdateType.onShipping,
               isSuccessfulSetParcelTracking ? parcelTracking : null,

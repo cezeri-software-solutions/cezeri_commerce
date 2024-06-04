@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../3_domain/entities/product/home_product.dart';
 import '../../../../3_domain/entities/product/product.dart';
+import '../../../../3_domain/entities/product/product_stock_difference.dart';
 import '../../../../3_domain/entities/reorder/reorder.dart';
 import '../../../../3_domain/repositories/firebase/product_repository.dart';
 import '../../../../3_domain/repositories/firebase/reorder_repository.dart';
@@ -64,6 +65,26 @@ class HomeProductBloc extends Bloc<HomeProductEvent, HomeProductState> {
         fosHomeProductsOnObserveOption: optionOf(failureOrSuccess),
       ));
       emit(state.copyWith(fosHomeProductsOnObserveOption: none()));
+    });
+
+//? #########################################################################
+
+    on<GetHomeProductStockDifferencesEvent>((event, emit) async {
+      emit(state.copyWith(isLoadingHomeProductsOnObserve: true));
+
+      final failureOrSuccess = await productRepository.getListOfProductSalesAndStockDiff();
+      failureOrSuccess.fold(
+        (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
+        (listOfProductStockDiff) {
+          emit(state.copyWith(listOfProductStockDifferences: listOfProductStockDiff, firebaseFailure: null, isAnyFailure: false));
+        },
+      );
+
+      emit(state.copyWith(
+        isLoadingHomeProductsOnObserve: false,
+        fosHomeProductStockDiffOnObserveOption: optionOf(failureOrSuccess),
+      ));
+      emit(state.copyWith(fosHomeProductStockDiffOnObserveOption: none()));
     });
 
 //? #########################################################################
@@ -212,6 +233,16 @@ class HomeProductBloc extends Bloc<HomeProductEvent, HomeProductState> {
         add(GetHomeProductUnderMinimumQuantityProductsEvent());
       }
       emit(state.copyWith(isExpandedProductsSoldOut: !state.isExpandedProductsSoldOut));
+    });
+
+//? #########################################################################
+
+    on<OnHomeProductIsExpandedStockDifferencesChangedEvent>((event, emit) async {
+      if (state.listOfProductStockDifferences == null) {
+        add(GetHomeProductStockDifferencesEvent());
+      }
+
+      emit(state.copyWith(isExpandedProductsStockDiff: !state.isExpandedProductsStockDiff));
     });
 
 //? #########################################################################

@@ -8,6 +8,8 @@ class GetHomeProductsOutletProductsEvent extends HomeProductEvent {}
 
 class GetHomeProductSoldOutProductsEvent extends HomeProductEvent {}
 
+class GetHomeProductStockDifferencesEvent extends HomeProductEvent {}
+
 class GetHomeProductUnderMinimumQuantityProductsEvent extends HomeProductEvent {}
 
 class GetHomeReordersEvent extends HomeProductEvent {}
@@ -31,3 +33,5 @@ class GenerateProductHomeProductsEvent extends HomeProductEvent {}
 class OnHomeProductIsExpandedOutletChangedEvent extends HomeProductEvent {}
 
 class OnHomeProductIsExpandedSoldOutChangedEvent extends HomeProductEvent {}
+
+class OnHomeProductIsExpandedStockDifferencesChangedEvent extends HomeProductEvent {}

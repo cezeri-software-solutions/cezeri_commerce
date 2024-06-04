@@ -12,6 +12,7 @@ import '../../../3_domain/entities/product/product.dart';
 import '../../../3_domain/entities/receipt/load_appointments_helper/to_load_appointments_from_marketplace.dart';
 import '../../../3_domain/entities/receipt/receipt.dart';
 import '../../../3_domain/entities/receipt/receipt_carrier.dart';
+import '../../../3_domain/entities/receipt/receipt_customer.dart';
 import '../../../3_domain/entities/receipt/receipt_marketplace.dart';
 import '../../../3_domain/entities/receipt/receipt_product.dart';
 import '../../../3_domain/entities/settings/payment_method.dart';
@@ -616,15 +617,18 @@ class ReceiptBloc extends Bloc<ReceiptEvent, ReceiptState> {
 
     on<OnEditAddressReceiptDetailEvent>((event, emit) async {
       if (event.address.addressType == AddressType.delivery) {
-        print('OnEditAddressReceiptDetailEvent: AddressType.delivery');
-        print(event.address);
         emit(state.copyWith(receipt: state.receipt!.copyWith(addressDelivery: event.address)));
       }
 
       if (event.address.addressType == AddressType.invoice) {
-        print('OnEditAddressReceiptDetailEvent: AddressType.invoice');
         emit(state.copyWith(receipt: state.receipt!.copyWith(addressInvoice: event.address)));
       }
+    });
+
+//? #########################################################################
+
+    on<OnReceiptCustomerUpdatedEvent>((event, emit) async {
+      emit(state.copyWith(receipt: state.receipt!.copyWith(receiptCustomer: ReceiptCustomer.fromCustomer(event.customer))));
     });
 
 //? #########################################################################

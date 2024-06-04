@@ -19,7 +19,7 @@ class HomeProductsOutletExpanded extends StatelessWidget {
 
     return BlocBuilder<HomeProductBloc, HomeProductState>(
       builder: (context, state) {
-        if (state.isLoadingHomeProductsOnObserve || state.isLoadingHomeReordersOnObserve) {
+        if (state.isLoadingHomeProductsOnObserve) {
           return MyAnimatedExpansionContainer(
               isExpanded: state.isExpandedProductsOutlet,
               child: SizedBox(height: expandedHeight, child: const Center(child: MyCircularProgressIndicator())));

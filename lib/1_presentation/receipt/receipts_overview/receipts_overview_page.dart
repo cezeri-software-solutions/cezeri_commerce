@@ -4,7 +4,6 @@ import 'package:cezeri_commerce/1_presentation/core/widgets/my_circular_progress
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:printing/printing.dart';
 
@@ -20,9 +19,9 @@ import '../../../2_application/database/receipt/receipt_bloc.dart';
 import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
 import '../../core/functions/mixed_functions.dart';
 import '../../core/functions/show_my_product_quick_view.dart';
+import '../../core/widgets/marketplace_logo_and_type.dart';
 import '../../core/widgets/my_animated_arrow_icon_button.dart';
 import '../../core/widgets/my_animated_expansion_container.dart';
-import '../../core/widgets/my_avatar.dart';
 import '../../core/widgets/my_country_flag.dart';
 import '../receipt_detail/receipt_detail_screen.dart';
 import '../widgets/receipts_overview_carrier_bar.dart';
@@ -252,29 +251,7 @@ class __AppointmentContainerState extends State<_AppointmentContainer> {
                     width: 140,
                     child: Column(
                       children: [
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            SizedBox(
-                              height: 28,
-                              width: 48,
-                              child: MyAvatar(
-                                name: marketplace.shortName,
-                                radius: 12,
-                                fontSize: 12,
-                                imageUrl: marketplace.logoUrl,
-                                shape: BoxShape.rectangle,
-                                fit: BoxFit.scaleDown,
-                              ),
-                            ),
-                            Gaps.w8,
-                            SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: SvgPicture.asset(getMarketplaceLogoAsset(marketplace.marketplaceType)),
-                            ),
-                          ],
-                        ),
+                        MarketplaceLogoAndType(marketplace: marketplace),
                         Text(marketplace.name, textAlign: TextAlign.center),
                         Text(DateFormat('dd.MM.yyy', 'de').format(widget.receipt.creationDateMarektplace)),
                         Row(

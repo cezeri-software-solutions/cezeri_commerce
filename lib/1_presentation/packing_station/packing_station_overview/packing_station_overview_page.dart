@@ -12,7 +12,7 @@ import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
 import '../../../3_domain/entities/receipt/receipt.dart';
 import '../../../constants.dart';
 import '../../../routes/router.gr.dart';
-import '../../core/widgets/my_avatar.dart';
+import '../../core/widgets/marketplace_logo_and_type.dart';
 import '../../core/widgets/my_country_flag.dart';
 
 class PackingStationOverviewPage extends StatelessWidget {
@@ -176,16 +176,7 @@ class _PackingStationContainer extends StatelessWidget {
                       width: 120,
                       child: Column(
                         children: [
-                          marketplace.logoUrl != ''
-                              ? MyAvatar(
-                                  name: marketplace.shortName,
-                                  radius: 12,
-                                  fontSize: 12,
-                                  imageUrl: marketplace.logoUrl,
-                                  shape: BoxShape.rectangle,
-                                  fit: BoxFit.scaleDown,
-                                )
-                              : Text(marketplace.name),
+                          marketplace.logoUrl != '' ? MarketplaceLogoAndType(marketplace: marketplace) : Text(marketplace.name),
                           Text(DateFormat('dd.MM.yyy', 'de').format(appointment.creationDateMarektplace)),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,

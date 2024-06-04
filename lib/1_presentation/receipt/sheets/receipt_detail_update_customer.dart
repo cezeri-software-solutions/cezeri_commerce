@@ -39,7 +39,7 @@ void updateCustomerFromReceiptDetail({required BuildContext context, required Re
   final trailing = IconButton(
     padding: const EdgeInsets.only(right: 24),
     icon: const Icon(Icons.close),
-    onPressed: () => context.router.pop(),
+    onPressed: () => context.router.maybePop(),
   );
 
   if (!context.mounted) return;
@@ -202,6 +202,7 @@ class __CustomerDetailState extends State<_CustomerDetail> {
                 if (_useAddressInReceipt) {
                   widget.receiptBloc.add(OnEditAddressReceiptDetailEvent(address: updatedDeliveryAddress!));
                   widget.receiptBloc.add(OnEditAddressReceiptDetailEvent(address: updatedInvoiceAddress!));
+                  widget.receiptBloc.add(OnReceiptCustomerUpdatedEvent(customer: updatedCustomer));
                   widget.receiptBloc.add(OnReceiptCustomerEmailChangedEvent(email: updatedCustomer.email));
                 }
 
