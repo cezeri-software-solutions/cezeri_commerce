@@ -366,8 +366,6 @@ class PackingStationBloc extends Bloc<PackingStationEvent, PackingStationState> 
           }
       };
 
-      if (toCalculateProducts != null) print(toCalculateProducts.length);
-
       double remainingVolumePercent = 0;
       final smallesPackagingBox =
           findSmallestPackagingBox(toCalculateProducts, state.listOfPackagingBoxes, remainingVolumePercentCallback: (double percent) {

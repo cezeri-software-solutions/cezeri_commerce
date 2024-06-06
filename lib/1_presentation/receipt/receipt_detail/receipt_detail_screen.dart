@@ -6,8 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:printing/printing.dart';
 
-import '../../../2_application/database/receipt/receipt_bloc.dart';
 import '../../../2_application/database/main_settings/main_settings_bloc.dart';
+import '../../../2_application/database/receipt/receipt_bloc.dart';
 import '../../../2_application/database/receipt_detail/receipt_detail_bloc.dart';
 import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
 import '../../../injection.dart';
@@ -19,7 +19,7 @@ import 'receipt_detail_page.dart';
 enum ReceiptCreateOrEdit { create, edit }
 
 @RoutePage()
-class ReceiptDetailScreen extends StatelessWidget {
+class ReceiptDetailScreen extends StatefulWidget {
   final ReceiptBloc receiptBloc;
   final List<AbstractMarketplace> listOfMarketplaces;
   final ReceiptCreateOrEdit receiptCreateOrEdit;
@@ -34,21 +34,28 @@ class ReceiptDetailScreen extends StatelessWidget {
   });
 
   @override
+  State<ReceiptDetailScreen> createState() => _ReceiptDetailScreenState();
+}
+
+class _ReceiptDetailScreenState extends State<ReceiptDetailScreen> with AutomaticKeepAliveClientMixin {
+  @override
   Widget build(BuildContext context) {
+    super.build(context);
+
     final receiptDetailBloc = sl<ReceiptDetailBloc>();
-    if (receiptCreateOrEdit == ReceiptCreateOrEdit.create) {
+    if (widget.receiptCreateOrEdit == ReceiptCreateOrEdit.create) {
       receiptDetailBloc.add(SetListOfReceiptProductssReceiptDetailEvent(
-        receipt: receiptBloc.state.receipt!,
+        receipt: widget.receiptBloc.state.receipt!,
         listOfTaxRules: context.read<MainSettingsBloc>().state.mainSettings!.taxes,
       ));
     }
 
-    return BlocProvider(
-      create: (context) => receiptDetailBloc,
+    return BlocProvider.value(
+      value: receiptDetailBloc,
       child: MultiBlocListener(
         listeners: [
           BlocListener<ReceiptBloc, ReceiptState>(
-            bloc: receiptBloc,
+            bloc: widget.receiptBloc,
             listenWhen: (p, c) => p.fosReceiptOnObserveOption != c.fosReceiptOnObserveOption,
             listener: (context, state) {
               state.fosReceiptOnObserveOption.fold(
@@ -64,7 +71,7 @@ class ReceiptDetailScreen extends StatelessWidget {
             },
           ),
           BlocListener<ReceiptBloc, ReceiptState>(
-            bloc: receiptBloc,
+            bloc: widget.receiptBloc,
             listenWhen: (p, c) => p.fosReceiptOnUpdateOption != c.fosReceiptOnUpdateOption,
             listener: (context, state) {
               state.fosReceiptOnUpdateOption.fold(
@@ -77,7 +84,7 @@ class ReceiptDetailScreen extends StatelessWidget {
             },
           ),
           BlocListener<ReceiptBloc, ReceiptState>(
-            bloc: receiptBloc,
+            bloc: widget.receiptBloc,
             listenWhen: (p, c) => p.fosReceiptOnCreateOption != c.fosReceiptOnCreateOption,
             listener: (context, state) {
               state.fosReceiptOnCreateOption.fold(
@@ -86,14 +93,14 @@ class ReceiptDetailScreen extends StatelessWidget {
                   (failure) => failureRenderer(context, [failure]),
                   (receipt) {
                     myScaffoldMessenger(context, null, null, 'Dokument erfolgreich erstellt', null);
-                    context.router.pop();
-                    receiptBloc.add(GetAppointmentEvent(appointment: receipt));
+                    context.router.maybePop();
+                    widget.receiptBloc.add(GetReceiptEvent(appointment: receipt));
                     context.router.push(
                       ReceiptDetailRoute(
-                        receiptBloc: receiptBloc,
-                        listOfMarketplaces: listOfMarketplaces,
+                        receiptBloc: widget.receiptBloc,
+                        listOfMarketplaces: widget.listOfMarketplaces,
                         receiptCreateOrEdit: ReceiptCreateOrEdit.edit,
-                        receiptTyp: receiptTyp,
+                        receiptTyp: widget.receiptTyp,
                       ),
                     );
                   },
@@ -102,7 +109,7 @@ class ReceiptDetailScreen extends StatelessWidget {
             },
           ),
           BlocListener<ReceiptBloc, ReceiptState>(
-            bloc: receiptBloc,
+            bloc: widget.receiptBloc,
             listenWhen: (p, c) => p.fosReceiptOnDeleteOption != c.fosReceiptOnDeleteOption,
             listener: (context, state) {
               state.fosReceiptOnDeleteOption.fold(
@@ -118,7 +125,7 @@ class ReceiptDetailScreen extends StatelessWidget {
             },
           ),
           BlocListener<ReceiptBloc, ReceiptState>(
-            bloc: receiptBloc,
+            bloc: widget.receiptBloc,
             listenWhen: (p, c) => p.fosParcelLabelOnCreate != c.fosParcelLabelOnCreate,
             listener: (context, state) {
               state.fosParcelLabelOnCreate.fold(
@@ -140,7 +147,7 @@ class ReceiptDetailScreen extends StatelessWidget {
           ),
         ],
         child: BlocBuilder<ReceiptBloc, ReceiptState>(
-          bloc: receiptBloc,
+          bloc: widget.receiptBloc,
           builder: (context, state) {
             final appBar = AppBar(
               title: state.receipt == null
@@ -155,19 +162,23 @@ class ReceiptDetailScreen extends StatelessWidget {
             );
 
             if (state.isLoadingReceiptOnObserve) return Scaffold(appBar: appBar, body: const Center(child: CircularProgressIndicator()));
-            if ((state.firebaseFailure != null && state.isAnyFailure) || (receiptCreateOrEdit == ReceiptCreateOrEdit.edit && state.receipt == null)) {
+            if ((state.firebaseFailure != null && state.isAnyFailure) ||
+                (widget.receiptCreateOrEdit == ReceiptCreateOrEdit.edit && state.receipt == null)) {
               return Scaffold(appBar: appBar, body: const Center(child: Text('Ein Fehler ist aufgetreten')));
             }
             return ReceiptDetailPage(
-              receiptBloc: receiptBloc,
+              receiptBloc: widget.receiptBloc,
               receiptDetailBloc: receiptDetailBloc,
-              listOfMarketplaces: listOfMarketplaces,
-              receiptCreateOrEdit: receiptCreateOrEdit,
-              receiptTyp: receiptTyp,
+              listOfMarketplaces: widget.listOfMarketplaces,
+              receiptCreateOrEdit: widget.receiptCreateOrEdit,
+              receiptTyp: widget.receiptTyp,
             );
           },
         ),
       ),
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }

@@ -57,21 +57,24 @@ class _ReceiptDetailProductsCardState extends State<ReceiptDetailProductsCard> {
               () => null,
               (a) => a.fold(
                 (failure) {},
-                (products) => showDialog(
-                  context: context,
-                  builder: (context) {
-                    final screenHeight = MediaQuery.sizeOf(context).height;
-                    final screenWidth = MediaQuery.sizeOf(context).width;
-                    return BlocProvider.value(
-                      value: widget.receiptBloc,
-                      child: _SelectProductDialog(
-                          receiptDetailBloc: widget.receiptDetailBloc,
-                          receiptBloc: widget.receiptBloc,
-                          screenHeight: screenHeight,
-                          screenWidth: screenWidth),
-                    );
-                  },
-                ),
+                (products) {
+                  Navigator.of(context).pop();
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      final screenHeight = MediaQuery.sizeOf(context).height;
+                      final screenWidth = MediaQuery.sizeOf(context).width;
+                      return BlocProvider.value(
+                        value: widget.receiptBloc,
+                        child: _SelectProductDialog(
+                            receiptDetailBloc: widget.receiptDetailBloc,
+                            receiptBloc: widget.receiptBloc,
+                            screenHeight: screenHeight,
+                            screenWidth: screenWidth),
+                      );
+                    },
+                  );
+                },
               ),
             );
           },
@@ -84,10 +87,7 @@ class _ReceiptDetailProductsCardState extends State<ReceiptDetailProductsCard> {
             bloc: widget.receiptBloc,
             builder: (context, stateProduct) {
               if (state.isInScanMode) FocusScope.of(context).requestFocus(scannerFocusNode);
-              // if (state.listOfReceiptProducts.isEmpty || state.isEditable.isEmpty) {
-              //   widget.receiptDetailBloc.add(SetListOfReceiptProductssReceiptDetailEvent());
-              //   return const MyCircularProgressIndicator();
-              // }
+
               if (state.listOfReceiptProducts.isEmpty || state.isEditable.isEmpty) return const MyCircularProgressIndicator();
               return Card(
                 child: Padding(
@@ -292,23 +292,28 @@ class _ReceiptDetailProductsCardState extends State<ReceiptDetailProductsCard> {
                           stateProduct.isLoadingProductsOnObserve
                               ? const MyCircularProgressIndicator()
                               : TextButton.icon(
-                                  onPressed: () => stateProduct.listOfAllProducts == null
-                                      ? widget.receiptBloc.add(GetAllProductsEvent())
-                                      : showDialog(
-                                          context: context,
-                                          builder: (context) {
-                                            final screenHeight = MediaQuery.sizeOf(context).height;
-                                            final screenWidth = MediaQuery.sizeOf(context).width;
-                                            return BlocProvider.value(
-                                              value: widget.receiptBloc,
-                                              child: _SelectProductDialog(
-                                                  receiptDetailBloc: widget.receiptDetailBloc,
-                                                  receiptBloc: widget.receiptBloc,
-                                                  screenHeight: screenHeight,
-                                                  screenWidth: screenWidth),
-                                            );
-                                          },
-                                        ),
+                                  onPressed: () {
+                                    if (stateProduct.listOfAllProducts == null) {
+                                      showMyDialogLoading(context: context, text: 'Artikel werden geladen...');
+                                      widget.receiptBloc.add(GetAllProductsEvent());
+                                    } else {
+                                      showDialog(
+                                        context: context,
+                                        builder: (context) {
+                                          final screenHeight = MediaQuery.sizeOf(context).height;
+                                          final screenWidth = MediaQuery.sizeOf(context).width;
+                                          return BlocProvider.value(
+                                            value: widget.receiptBloc,
+                                            child: _SelectProductDialog(
+                                                receiptDetailBloc: widget.receiptDetailBloc,
+                                                receiptBloc: widget.receiptBloc,
+                                                screenHeight: screenHeight,
+                                                screenWidth: screenWidth),
+                                          );
+                                        },
+                                      );
+                                    }
+                                  },
                                   icon: const Icon(Icons.add, color: Colors.green),
                                   label: const Text('Aus Artikelliste'),
                                 ),
@@ -441,7 +446,7 @@ class _SelectProductDialogState extends State<_SelectProductDialog> {
                             ),
                             onTap: () {
                               _productSearchController.clear();
-                              context.router.pop();
+                              context.router.maybePop();
                               widget.receiptDetailBloc.add(AddProductToReceiptProductsEvent(receiptProduct: ReceiptProduct.fromProduct(product)));
                             },
                           ),

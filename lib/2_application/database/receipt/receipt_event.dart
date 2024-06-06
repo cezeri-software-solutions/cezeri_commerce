@@ -5,10 +5,10 @@ abstract class ReceiptEvent {}
 
 class SetAppointmentStateToInitialEvent extends ReceiptEvent {}
 
-class GetAppointmentEvent extends ReceiptEvent {
+class GetReceiptEvent extends ReceiptEvent {
   final Receipt appointment;
 
-  GetAppointmentEvent({required this.appointment});
+  GetReceiptEvent({required this.appointment});
 }
 
 class SetAppointmentEvent extends ReceiptEvent {

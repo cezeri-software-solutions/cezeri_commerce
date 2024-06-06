@@ -23,7 +23,6 @@ class ReceiptDetailProductsTotalCard extends StatelessWidget {
             padding: const EdgeInsets.all(8),
             child: Column(
               children: [
-                //DropdownButton(items: const [], onChanged: (_) {}),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [

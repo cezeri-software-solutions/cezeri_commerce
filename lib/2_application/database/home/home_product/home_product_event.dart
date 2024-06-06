@@ -30,8 +30,20 @@ class GenerateProductHomeProductsEvent extends HomeProductEvent {}
 
 //* Helpers isExpanded
 
-class OnHomeProductIsExpandedOutletChangedEvent extends HomeProductEvent {}
+class OnHomeProductIsExpandedOutletChangedEvent extends HomeProductEvent {
+  final bool value;
 
-class OnHomeProductIsExpandedSoldOutChangedEvent extends HomeProductEvent {}
+  OnHomeProductIsExpandedOutletChangedEvent({required this.value});
+}
 
-class OnHomeProductIsExpandedStockDifferencesChangedEvent extends HomeProductEvent {}
+class OnHomeProductIsExpandedSoldOutChangedEvent extends HomeProductEvent {
+  final bool value;
+
+  OnHomeProductIsExpandedSoldOutChangedEvent({required this.value});
+}
+
+class OnHomeProductIsExpandedStockDifferencesChangedEvent extends HomeProductEvent {
+  final bool value;
+
+  OnHomeProductIsExpandedStockDifferencesChangedEvent({required this.value});
+}

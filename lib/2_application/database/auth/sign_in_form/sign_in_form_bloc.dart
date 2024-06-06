@@ -21,8 +21,6 @@ class SignInFormBloc extends Bloc<SignInFormEvent, SignInFormState> {
     on<RegisterWithEmailAndPasswordPressed>((event, emit) async {
       emit(state.copyWith(isSubmitting: true));
 
-      print('geldii');
-
       final failureOrSuccess = await authRepository.registerWithEmailAndPassword(email: event.email!, password: event.password!);
 
       emit(state.copyWith(

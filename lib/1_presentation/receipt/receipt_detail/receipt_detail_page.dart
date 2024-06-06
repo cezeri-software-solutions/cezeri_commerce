@@ -45,14 +45,9 @@ class _ReceiptDetailPageState extends State<ReceiptDetailPage> {
     return BlocBuilder<ReceiptBloc, ReceiptState>(
       bloc: widget.receiptBloc,
       builder: (context, state) {
-        logger.i(state.receipt!.receiptCarrier.carrierProduct.id);
         final mainSettings = context.read<MainSettingsBloc>().state.mainSettings!;
         final screenWidth = MediaQuery.sizeOf(context).width;
         final responsiveness = screenWidth > 700 ? Responsiveness.isTablet : Responsiveness.isMobil;
-
-        print('################################################################################################');
-        print(state.receipt!.receiptCustomer.email);
-        print('################################################################################################');
 
         final appBar = AppBar(
           title: switch (state.receipt!.receiptTyp) {
@@ -66,7 +61,7 @@ class _ReceiptDetailPageState extends State<ReceiptDetailPage> {
           actions: [
             if (widget.receiptCreateOrEdit == ReceiptCreateOrEdit.edit)
               IconButton(
-                onPressed: () => widget.receiptBloc.add(GetAppointmentEvent(appointment: state.receipt!)),
+                onPressed: () => widget.receiptBloc.add(GetReceiptEvent(appointment: state.receipt!)),
                 icon: const Icon(Icons.refresh, size: 30),
               ),
             responsiveness == Responsiveness.isTablet ? Gaps.w32 : Gaps.w8,
@@ -136,8 +131,6 @@ class _ReceiptDetailPageState extends State<ReceiptDetailPage> {
             responsiveness == Responsiveness.isTablet ? Gaps.w32 : Gaps.w8,
           ],
         );
-
-        logger.i(state.receipt!.addressDelivery);
 
         return Scaffold(
           appBar: appBar,

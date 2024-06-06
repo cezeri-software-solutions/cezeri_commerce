@@ -37,20 +37,22 @@ class HomeProductsOutletExpanded extends StatelessWidget {
           isExpanded: state.isExpandedProductsOutlet,
           child: SizedBox(
             height: expandedHeight,
-            child: ListView.builder(
-              itemCount: state.listOfProductsOutlet!.length,
-              itemBuilder: (context, index) {
-                final product = state.listOfProductsOutlet![index];
+            child: state.listOfProductsOutlet!.isEmpty
+                ? const Center(child: Text('Keine ausverkauften Auslaufartikel vorhanden!'))
+                : ListView.builder(
+                    itemCount: state.listOfProductsOutlet!.length,
+                    itemBuilder: (context, index) {
+                      final product = state.listOfProductsOutlet![index];
 
-                return ListTile(
-                  title: Text(product.name),
-                  trailing: IconButton(
-                    onPressed: () => context.router.push(ProductDetailRoute(productId: product.id)),
-                    icon: const Icon(Icons.arrow_forward_ios),
+                      return ListTile(
+                        title: Text(product.name),
+                        trailing: IconButton(
+                          onPressed: () => context.router.push(ProductDetailRoute(productId: product.id)),
+                          icon: const Icon(Icons.arrow_forward_ios),
+                        ),
+                      );
+                    },
                   ),
-                );
-              },
-            ),
           ),
         );
       },

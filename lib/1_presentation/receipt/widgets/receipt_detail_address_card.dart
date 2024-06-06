@@ -4,6 +4,7 @@ import '../../../2_application/database/receipt/receipt_bloc.dart';
 import '../../../3_domain/entities/address.dart';
 import '../../../3_domain/entities/receipt/receipt.dart';
 import '../../../constants.dart';
+import '../../core/widgets/address_column.dart';
 import '../../core/widgets/my_address_update_sheet.dart';
 import '../sheets/receipt_detail_update_customer.dart';
 
@@ -35,7 +36,6 @@ class _ReceiptDetailAddressCardState extends State<ReceiptDetailAddressCard> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Align(alignment: Alignment.center, child: Text(widget.receipt.receiptCustomer.name, style: TextStyles.h3BoldPrimary)),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -79,22 +79,7 @@ class _ReceiptDetailCustomerAddressContainer extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (address.companyName.isNotEmpty) Text(address.companyName),
-            if (address.name.isNotEmpty) Text(address.name),
-            if (address.street.isNotEmpty) Text(address.street),
-            if (address.street2.isNotEmpty) Text(address.street2),
-            if (address.postcode.isNotEmpty && address.city.isNotEmpty)
-              Text.rich(TextSpan(children: [
-                TextSpan(text: address.postcode),
-                const TextSpan(text: ' '),
-                TextSpan(text: address.city),
-              ])),
-            if (address.country.name.isNotEmpty) Text(address.country.name),
-          ],
-        ),
+        AddressColumn(address: address, showStreet2: true),
         const Spacer(),
         IconButton(
           onPressed: () => showModalBottomSheet(
@@ -102,10 +87,7 @@ class _ReceiptDetailCustomerAddressContainer extends StatelessWidget {
             context: context,
             builder: (context) => MyAddressUpdateSheet(
               address: address,
-              onSave: (newAddress) {
-                print('onSave ausgeführt');
-                receiptBloc.add(OnEditAddressReceiptDetailEvent(address: newAddress));
-              },
+              onSave: (newAddress) => receiptBloc.add(OnEditAddressReceiptDetailEvent(address: newAddress)),
             ),
           ),
           icon: const Icon(Icons.edit, color: CustomColors.primaryColor),

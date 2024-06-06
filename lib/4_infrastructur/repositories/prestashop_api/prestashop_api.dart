@@ -597,10 +597,6 @@ class PrestashopApi with UiLoggy {
     final response = await _http.get(Uri.parse(uri), headers: headers);
     loggy.debug('Received response with code ${response.statusCode}');
 
-    print('------------------------------------------------------------------------------------------------');
-    print(response.bodyBytes);
-    print('------------------------------------------------------------------------------------------------');
-
     if (single && response.statusCode == 404) {
       return null;
     }
@@ -687,8 +683,7 @@ class PrestashopApi with UiLoggy {
     );
 
     if (response.statusCode >= 200 && response.statusCode < 300) {
-      print(response.body);
-      logger.i('_doPost erfolgreich durchgeführt');
+      logger.i('_doPost erfolgreich durchgeführt\nresponse.body: ${response.body}');
       final document = XmlDocument.parse(response.body);
       final idElement = document.findAllElements('id').firstOrNull;
       if (idElement == null) return 0;

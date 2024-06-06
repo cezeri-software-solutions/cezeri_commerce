@@ -36,7 +36,7 @@ class ReceiptBloc extends Bloc<ReceiptEvent, ReceiptState> {
 
 //? #########################################################################
 
-    on<GetAppointmentEvent>((event, emit) async {
+    on<GetReceiptEvent>((event, emit) async {
       emit(state.copyWith(isLoadingReceiptOnObserve: true));
 
       final failureOrSuccess = await receiptRepository.getReceipt(event.appointment);
@@ -51,6 +51,7 @@ class ReceiptBloc extends Bloc<ReceiptEvent, ReceiptState> {
         isLoadingReceiptOnObserve: false,
         fosReceiptOnObserveOption: optionOf(failureOrSuccess),
       ));
+      emit(state.copyWith(fosReceiptOnObserveOption: none()));
     });
 
 //? #########################################################################

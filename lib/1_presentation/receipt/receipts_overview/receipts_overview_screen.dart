@@ -22,6 +22,7 @@ import '/routes/router.gr.dart';
 import '../../../2_application/database/customer/customer_bloc.dart';
 import '../../../2_application/database/marketplace/marketplace_bloc.dart';
 import '../../../2_application/database/receipt/receipt_bloc.dart';
+import '../../core/functions/address_functions.dart';
 import '../../core/functions/dialogs.dart';
 import '../../core/functions/my_scaffold_messanger.dart';
 import '../../core/renderer/failure_renderer.dart';
@@ -823,8 +824,8 @@ class _SelectCustomerDialogState extends State<_SelectCustomerDialog> {
                               final newAppointment = Receipt.empty().copyWith(
                                 customerId: customer.id,
                                 receiptCustomer: ReceiptCustomer.fromCustomer(customer),
-                                addressInvoice: customer.listOfAddress.where((e) => e.addressType == AddressType.invoice && e.isDefault).first,
-                                addressDelivery: customer.listOfAddress.where((e) => e.addressType == AddressType.delivery && e.isDefault).first,
+                                addressInvoice: getDefaultAddress(customer.listOfAddress, AddressType.invoice),
+                                addressDelivery: getDefaultAddress(customer.listOfAddress, AddressType.invoice),
                                 tax: customer.tax,
                                 listOfReceiptProduct: [ReceiptProduct.empty()],
                                 receiptTyp: widget.receiptTyp,

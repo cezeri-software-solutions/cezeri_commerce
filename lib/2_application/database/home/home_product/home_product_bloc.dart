@@ -220,7 +220,7 @@ class HomeProductBloc extends Bloc<HomeProductEvent, HomeProductState> {
         add(GetHomeProductsOutletProductsEvent());
       }
 
-      emit(state.copyWith(isExpandedProductsOutlet: !state.isExpandedProductsOutlet));
+      emit(state.copyWith(isExpandedProductsOutlet: event.value, isExpandedProductsSoldOut: false, isExpandedProductsStockDiff: false));
     });
 
 //? #########################################################################
@@ -232,7 +232,7 @@ class HomeProductBloc extends Bloc<HomeProductEvent, HomeProductState> {
       if (state.showProductsBy == ShowProductsBy.underMinimumQuantity && state.listOfProductsUnderMinimumQuantity == null) {
         add(GetHomeProductUnderMinimumQuantityProductsEvent());
       }
-      emit(state.copyWith(isExpandedProductsSoldOut: !state.isExpandedProductsSoldOut));
+      emit(state.copyWith(isExpandedProductsSoldOut: event.value, isExpandedProductsOutlet: false, isExpandedProductsStockDiff: false));
     });
 
 //? #########################################################################
@@ -242,7 +242,7 @@ class HomeProductBloc extends Bloc<HomeProductEvent, HomeProductState> {
         add(GetHomeProductStockDifferencesEvent());
       }
 
-      emit(state.copyWith(isExpandedProductsStockDiff: !state.isExpandedProductsStockDiff));
+      emit(state.copyWith(isExpandedProductsStockDiff: event.value, isExpandedProductsOutlet: false, isExpandedProductsSoldOut: false));
     });
 
 //? #########################################################################

@@ -15,21 +15,28 @@ import '../../core/widgets/my_outlined_button.dart';
 import 'packing_station_overview_page.dart';
 
 @RoutePage()
-class PackingStationOverviewScreen extends StatelessWidget {
+class PackingStationOverviewScreen extends StatefulWidget {
   const PackingStationOverviewScreen({super.key});
 
   @override
+  State<PackingStationOverviewScreen> createState() => _PackingStationOverviewScreenState();
+}
+
+class _PackingStationOverviewScreenState extends State<PackingStationOverviewScreen> with AutomaticKeepAliveClientMixin {
+  @override
   Widget build(BuildContext context) {
+    super.build(context);
+
     final packingStationBloc = sl<PackingStationBloc>()..add(PackgingStationGetAppointmentsEvent());
     final marketplaceBloc = sl<MarketplaceBloc>()..add(GetAllMarketplacesEvent());
 
     return MultiBlocProvider(
       providers: [
-        BlocProvider(
-          create: (context) => packingStationBloc,
+        BlocProvider.value(
+          value: packingStationBloc,
         ),
-        BlocProvider(
-          create: (context) => marketplaceBloc,
+        BlocProvider.value(
+          value: marketplaceBloc,
         ),
       ],
       child: MultiBlocListener(
@@ -120,6 +127,9 @@ class PackingStationOverviewScreen extends StatelessWidget {
       ),
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }
 
 class _PackingStationFilterChipsContainer extends StatelessWidget {

@@ -15,7 +15,7 @@ import '../widgets/my_avatar.dart';
 import '../widgets/my_circular_progress_indicator.dart';
 
 void showMySetProductQuickView({required BuildContext context, required String productId}) async {
-  showMyDialogLoading(context: context,text: 'Artikel werden geladen...', canPop: true);
+  showMyDialogLoading(context: context, text: 'Artikel werden geladen...', canPop: true);
 
   Product? mainProduct;
   List<Product>? listOfPartProducts;
@@ -50,9 +50,7 @@ void showMySetProductQuickView({required BuildContext context, required String p
     onPressed: () => context.router.maybePop(),
   );
 
-  if (context.mounted) {
-    Navigator.of(context).pop();
-  }
+  if (context.mounted) Navigator.of(context).pop();
 
   if (!context.mounted) return;
   WoltModalSheet.show(

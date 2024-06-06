@@ -1348,7 +1348,7 @@ Future<String?> uploadShippingLabelToStorage(String ownerId, String receiptId, S
 
   try {
     final storageResponse = await supabase.storage.from('shipping-labels').uploadBinary(filePath, pdfBytes);
-    print(storageResponse);
+    logger.i(storageResponse);
   } catch (e) {
     logger.e(e);
     return null;

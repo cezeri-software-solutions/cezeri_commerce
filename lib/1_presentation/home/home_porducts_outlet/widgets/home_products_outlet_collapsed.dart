@@ -43,7 +43,7 @@ class HomeProductsOutletCollapsed extends StatelessWidget {
                         ),
                         MyAnimatedIconButtonArrow(
                           boolValue: state.isExpandedProductsOutlet,
-                          onPressed: () => homeProductBloc.add(OnHomeProductIsExpandedOutletChangedEvent()),
+                          onPressed: () => homeProductBloc.add(OnHomeProductIsExpandedOutletChangedEvent(value: !state.isExpandedProductsOutlet)),
                         ),
                       ],
                     ),

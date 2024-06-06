@@ -1,8 +1,10 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:cezeri_commerce/1_presentation/core/extensions/contains_digit.dart';
 import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 
 import '../../../2_application/database/main_settings/main_settings_bloc.dart';
 import '../../../2_application/database/marketplace/marketplace_bloc.dart';
@@ -12,8 +14,9 @@ import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
 import '../../../3_domain/entities/receipt/receipt.dart';
 import '../../../constants.dart';
 import '../../../routes/router.gr.dart';
+import '../../core/widgets/address_column.dart';
 import '../../core/widgets/marketplace_logo_and_type.dart';
-import '../../core/widgets/my_country_flag.dart';
+import '../../core/widgets/my_outlined_button.dart';
 
 class PackingStationOverviewPage extends StatelessWidget {
   final PackingStationBloc packingStationBloc;
@@ -135,7 +138,26 @@ class _PackingStationContainer extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     InkWell(
-                      onTap: () {
+                      onTap: () async {
+                        if (!appointment.addressDelivery.street.containsDigit()) {
+                          final shouldPack = await WoltModalSheet.show<bool>(
+                            context: context,
+                            useSafeArea: false,
+                            barrierDismissible: false,
+                            pageListBuilder: (woltContext) {
+                              return [
+                                WoltModalSheetPage(
+                                  hasTopBarLayer: false,
+                                  isTopBarLayerAlwaysVisible: false,
+                                  child: const _NoHouseNumber(),
+                                ),
+                              ];
+                            },
+                          );
+
+                          if (shouldPack == null || !shouldPack) return;
+                        }
+
                         packingStationBloc.add(PackgingStationGetAppointmentEvent(
                           appointment: appointment,
                           listOfPackagingBoxes: context.read<MainSettingsBloc>().state.mainSettings!.listOfPackagingBoxes,
@@ -143,6 +165,8 @@ class _PackingStationContainer extends StatelessWidget {
                         packingStationBloc.add(PackingsStationGetProductsFromFirestoreEvent(
                           productIds: appointment.listOfReceiptProduct.where((e) => e.productId != '').map((e) => e.productId).toList(),
                         ));
+
+                        if (!context.mounted) return;
                         context.router.push(PackingStationDetailRoute(packingStationBloc: packingStationBloc, marketplace: marketplace));
                       },
                       child: SizedBox(
@@ -192,65 +216,41 @@ class _PackingStationContainer extends StatelessWidget {
                     ),
                     SizedBox(
                       width: 120,
-                      child: Column(children: [
-                        Image.asset(carrier.imagePath, height: 25, width: 65, fit: BoxFit.scaleDown),
-                        Text(
-                          '${appointment.listOfReceiptProduct.fold<double>(0.0, (sum, current) => sum + (current.weight * (current.quantity - current.shippedQuantity))).toMyCurrencyStringToShow()} kg',
-                        ),
-                        Gaps.h8,
-                        Tooltip(
-                          message: 'Bezahlter Betrag: ${appointment.totalPaidGross} €',
-                          child: Container(
-                            height: 30,
-                            decoration: BoxDecoration(
-                              color: switch (appointment.paymentStatus) {
-                                PaymentStatus.open => CustomColors.backgroundLightGrey,
-                                PaymentStatus.partiallyPaid => CustomColors.backgroundLightOrange,
-                                PaymentStatus.paid => CustomColors.backgroundLightGreen,
-                              },
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                              child: Center(
-                                child: switch (appointment.paymentStatus) {
-                                  PaymentStatus.open => const Text('Offen', style: TextStyles.s12),
-                                  PaymentStatus.partiallyPaid => const Text('Teilweise bezahlt', style: TextStyles.s12),
-                                  PaymentStatus.paid => const Text('Komplett bezahlt', style: TextStyles.s12),
+                      child: Column(
+                        children: [
+                          Image.asset(carrier.imagePath, height: 25, width: 65, fit: BoxFit.scaleDown),
+                          Text(
+                            '${appointment.listOfReceiptProduct.fold<double>(0.0, (sum, current) => sum + (current.weight * (current.quantity - current.shippedQuantity))).toMyCurrencyStringToShow()} kg',
+                          ),
+                          Gaps.h8,
+                          Tooltip(
+                            message: 'Bezahlter Betrag: ${appointment.totalPaidGross} €',
+                            child: Container(
+                              height: 30,
+                              decoration: BoxDecoration(
+                                color: switch (appointment.paymentStatus) {
+                                  PaymentStatus.open => CustomColors.backgroundLightGrey,
+                                  PaymentStatus.partiallyPaid => CustomColors.backgroundLightOrange,
+                                  PaymentStatus.paid => CustomColors.backgroundLightGreen,
                                 },
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                child: Center(
+                                  child: switch (appointment.paymentStatus) {
+                                    PaymentStatus.open => const Text('Offen', style: TextStyles.s12),
+                                    PaymentStatus.partiallyPaid => const Text('Teilweise bezahlt', style: TextStyles.s12),
+                                    PaymentStatus.paid => const Text('Komplett bezahlt', style: TextStyles.s12),
+                                  },
+                                ),
                               ),
                             ),
-                          ),
-                        ),
-                      ]),
-                    ),
-                    SizedBox(
-                      width: 220,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          if (appointment.addressDelivery.companyName != '') Text(appointment.addressDelivery.companyName),
-                          Text(appointment.addressDelivery.name),
-                          Text(appointment.addressDelivery.street),
-                          Text.rich(
-                            TextSpan(
-                              children: [
-                                TextSpan(text: appointment.addressDelivery.postcode),
-                                const TextSpan(text: ' '),
-                                TextSpan(text: appointment.addressDelivery.city),
-                              ],
-                            ),
-                          ),
-                          Row(
-                            children: [
-                              Text(appointment.addressDelivery.country.name),
-                              Gaps.w8,
-                              MyCountryFlag(country: appointment.addressDelivery.country, size: 12),
-                            ],
                           ),
                         ],
                       ),
                     ),
+                    AddressColumn(width: 220, address: appointment.addressDelivery),
                   ],
                 ),
               ),
@@ -258,6 +258,37 @@ class _PackingStationContainer extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+class _NoHouseNumber extends StatelessWidget {
+  const _NoHouseNumber();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 32, bottom: 16, left: 16, right: 16),
+      child: Column(
+        children: [
+          const Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.warning, color: CustomColors.backgroundLightOrange),
+              Gaps.w8,
+              Text('Achtung!', style: TextStyles.h2Bold),
+              Gaps.w8,
+              Icon(Icons.warning, color: CustomColors.backgroundLightOrange),
+            ],
+          ),
+          Gaps.h24,
+          const Text('Die Lieferadresse von diesem Auftrag scheint keine Hausnummer zu haben.'),
+          const Text('Willst du diesen Auftrag trotzdem verpacken?'),
+          Gaps.h24,
+          MyOutlinedButton(buttonText: 'JA', onPressed: () => context.router.maybePop(true)),
+          TextButton(child: const Text('Abbrechen'), onPressed: () => context.router.maybePop(false)),
+        ],
+      ),
     );
   }
 }

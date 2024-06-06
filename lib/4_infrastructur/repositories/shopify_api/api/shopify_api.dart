@@ -179,18 +179,15 @@ class ShopifyApi {
   Future<Either<ShopifyGeneralFailure, List<OrderShopify>>> getOrdersByCreatedAtMin(DateTime minDateTime) async {
     const key = 'orders';
     final createdAtMin = minDateTime.toIso8601String();
-    print(createdAtMin);
-    print(_url);
+    logger.i(createdAtMin);
+    logger.i(_url);
     final collectsResult = await _doGet(uri: '$_url/api/$_apiVersion/$key.json?created_at_min=$createdAtMin', key: key, isList: true);
 
     return collectsResult.fold(
       (failure) => Left(failure),
       (data) {
-        print(const JsonEncoder.withIndent('  ').convert(data));
         final orders = List<OrderShopify>.from(data.map((model) => OrderShopify.fromJson(model)));
-        print('--- ORDERS ---');
-        print(orders.toString());
-        print('--------------------------------');
+
         return Right(orders);
       },
     );
@@ -324,7 +321,6 @@ class ShopifyApi {
         customMessage: failure.errorMessage,
       )),
       (data) {
-        print(const JsonEncoder.withIndent('  ').convert(data['product']));
         newCreatedProduct = ProductRawShopify.fromJson(data['product']);
       },
     );

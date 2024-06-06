@@ -331,8 +331,7 @@ class ProductRawPresta {
       }
       availableLaterMultilanguage = (json['available_later'] as List).map((e) => Multilanguage.fromJson(e as Map<String, dynamic>)).toList();
     }
-    print('#################### $name ########################## asdfjklö');
-    print('+++++++++++++ ${Associations.fromJson(json['associations'] as Map<String, dynamic>)} ++++++++++++++ asdfjklööö');
+    
     return ProductRawPresta(
       id: json['id'] as int,
       idManufacturer: json['id_manufacturer'] as String,

@@ -85,7 +85,7 @@ class HomeProductsSoldOutCollapsed extends StatelessWidget {
                         ),
                         MyAnimatedIconButtonArrow(
                           boolValue: state.isExpandedProductsSoldOut,
-                          onPressed: () => homeProductBloc.add(OnHomeProductIsExpandedSoldOutChangedEvent()),
+                          onPressed: () => homeProductBloc.add(OnHomeProductIsExpandedSoldOutChangedEvent(value: !state.isExpandedProductsSoldOut)),
                         ),
                       ],
                     ),

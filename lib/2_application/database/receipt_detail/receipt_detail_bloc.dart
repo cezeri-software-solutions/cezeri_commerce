@@ -227,7 +227,7 @@ class ReceiptDetailBloc extends Bloc<ReceiptDetailEvent, ReceiptDetailState> {
       List<TextEditingController> posDiscountPercentControllers = [];
       List<TextEditingController> unitPriceGrossControllers = [];
 
-      for (final product in event.listOfReceiptProducts == null ? state.listOfReceiptProducts : event.listOfReceiptProducts!) {
+      for (final product in event.listOfReceiptProducts ?? state.listOfReceiptProducts) {
         if (product.isFromDatabase) {
           isEditable.add(false);
         } else {

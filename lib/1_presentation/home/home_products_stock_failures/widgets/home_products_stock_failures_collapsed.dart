@@ -43,7 +43,9 @@ class HomeProductsStockFailuresCollapsed extends StatelessWidget {
                         ),
                         MyAnimatedIconButtonArrow(
                           boolValue: state.isExpandedProductsStockDiff,
-                          onPressed: () => homeProductBloc.add(OnHomeProductIsExpandedStockDifferencesChangedEvent()),
+                          onPressed: () => homeProductBloc.add(
+                            OnHomeProductIsExpandedStockDifferencesChangedEvent(value: !state.isExpandedProductsStockDiff),
+                          ),
                         ),
                       ],
                     ),

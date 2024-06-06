@@ -4,6 +4,7 @@ import 'package:dartz/dartz.dart';
 import 'package:http/http.dart' as http;
 import 'package:xml/xml.dart';
 
+import '../../../constants.dart';
 import '../../../failures/presta_failure.dart';
 
 enum PrestaApiResource {
@@ -202,7 +203,7 @@ Future<Either<PrestaGeneralFailure, XmlDocument>> getResourcesFromPrestaById({
       Uri.parse(uri),
       headers: {'Authorization': 'Basic ${base64Encode(utf8.encode('$key:'))}'},
     );
-    print(response.body);
+    logger.i(response.body);
 
     if (response.statusCode == 200) {
       return right(XmlDocument.parse(response.body));
@@ -210,8 +211,7 @@ Future<Either<PrestaGeneralFailure, XmlDocument>> getResourcesFromPrestaById({
       return left(PrestaGeneralFailure());
     }
   } catch (e) {
-    print(e);
-    print('----------------------------------');
+    logger.e(e);
     return left(PrestaGeneralFailure());
   }
 }
@@ -227,7 +227,7 @@ Future<Either<PrestaGeneralFailure, XmlDocument>> getResourcesFromPrestaByHref({
       Uri.parse(uri),
       headers: {'Authorization': 'Basic ${base64Encode(utf8.encode('$key:'))}'},
     );
-    print(response.body);
+    logger.i(response.body);
 
     if (response.statusCode == 200) {
       return right(XmlDocument.parse(response.body));

@@ -1,6 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.dart';
-import 'package:cezeri_commerce/1_presentation/core/widgets/my_circular_progress_indicator.dart';
+import 'package:cezeri_commerce/1_presentation/core/functions/dialogs.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -19,10 +19,10 @@ import '../../../2_application/database/receipt/receipt_bloc.dart';
 import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
 import '../../core/functions/mixed_functions.dart';
 import '../../core/functions/show_my_product_quick_view.dart';
-import '../../core/widgets/marketplace_logo_and_type.dart';
+import '../../core/widgets/address_column.dart';
+import '../../core/widgets/marketplace_column.dart';
 import '../../core/widgets/my_animated_arrow_icon_button.dart';
 import '../../core/widgets/my_animated_expansion_container.dart';
-import '../../core/widgets/my_country_flag.dart';
 import '../receipt_detail/receipt_detail_screen.dart';
 import '../widgets/receipts_overview_carrier_bar.dart';
 
@@ -41,8 +41,10 @@ class _ReceiptsOverviewPageState extends State<ReceiptsOverviewPage> {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<ReceiptBloc, ReceiptState>(
+      bloc: widget.receiptBloc,
       builder: (context, state) {
         return BlocBuilder<MarketplaceBloc, MarketplaceState>(
+          bloc: widget.marketplaceBloc,
           builder: (context, stateMarketplace) {
             if (state.isLoadingReceiptsOnObserve || stateMarketplace.isLoadingMarketplacesOnObserve) {
               return const Expanded(child: Center(child: CircularProgressIndicator()));
@@ -105,7 +107,7 @@ class _ReceiptsOverviewPageState extends State<ReceiptsOverviewPage> {
   }
 }
 
-class _AppointmentContainer extends StatefulWidget {
+class _AppointmentContainer extends StatelessWidget {
   final Receipt receipt;
   final int index;
   final ReceiptBloc receiptBloc;
@@ -121,18 +123,11 @@ class _AppointmentContainer extends StatefulWidget {
   });
 
   @override
-  State<_AppointmentContainer> createState() => __AppointmentContainerState();
-}
-
-class __AppointmentContainerState extends State<_AppointmentContainer> {
-  bool _isLoadingPdf = false;
-
-  @override
   Widget build(BuildContext context) {
-    final marketplace = widget.listOfMarketplaces.where((e) => e.id == widget.receipt.marketplaceId).first;
+    final marketplace = listOfMarketplaces.where((e) => e.id == receipt.marketplaceId).first;
 
-    final deliveryAddress = widget.receipt.addressDelivery;
-    final invoiceAddress = widget.receipt.addressInvoice;
+    final deliveryAddress = receipt.addressDelivery;
+    final invoiceAddress = receipt.addressInvoice;
     return BlocBuilder<ReceiptBloc, ReceiptState>(
       builder: (context, state) {
         return Container(
@@ -145,190 +140,39 @@ class __AppointmentContainerState extends State<_AppointmentContainer> {
                   Row(
                     children: [
                       Checkbox.adaptive(
-                        value: state.selectedReceipts.any((e) => e.id == widget.receipt.id),
-                        onChanged: (_) => widget.receiptBloc.add(OnAppointmentSelectedEvent(appointment: widget.receipt)),
+                        value: state.selectedReceipts.any((e) => e.id == receipt.id),
+                        onChanged: (_) => receiptBloc.add(OnAppointmentSelectedEvent(appointment: receipt)),
                       ),
-                      SizedBox(
-                        width: 60,
-                        child: Column(
-                          children: [
-                            widget.receipt.listOfReceiptProduct.length > 1
-                                ? Container(
-                                    height: 20,
-                                    width: 20,
-                                    decoration: const BoxDecoration(
-                                      color: CustomColors.backgroundLightGreen,
-                                      borderRadius: BorderRadius.all(Radius.circular(20)),
-                                    ),
-                                    child: Center(child: Text(widget.receipt.listOfReceiptProduct.length.toString())),
-                                  )
-                                : const SizedBox(),
-                            MyAnimatedIconButtonArrow(
-                              boolValue: state.isExpanded[widget.index],
-                              onPressed: () => widget.receiptBloc.add(SetAppointmentIsExpandedEvent(index: widget.index)),
-                            ),
-                            ConstrainedBox(
-                              constraints: const BoxConstraints(maxHeight: 30),
-                              child: IconButton(
-                                padding: EdgeInsets.zero,
-                                onPressed: () async => await _onPdfPressed(marketplace: marketplace),
-                                icon: _isLoadingPdf ? const MyCircularProgressIndicator() : const Icon(Icons.picture_as_pdf, color: Colors.red),
-                              ),
-                            ),
-                          ],
-                        ),
+                      _IconColumn(
+                        receiptBloc: receiptBloc,
+                        receipt: receipt,
+                        marketplace: marketplace,
+                        isExpanded: state.isExpanded,
+                        index: index,
                       ),
-                      SizedBox(
-                        width: 150,
-                        child: Column(
-                          children: [
-                            TextButton(
-                              onPressed: () {
-                                context.read<ReceiptBloc>().add(GetAppointmentEvent(appointment: widget.receipt));
-                                context.router.push(
-                                  ReceiptDetailRoute(
-                                    receiptBloc: widget.receiptBloc,
-                                    listOfMarketplaces: widget.listOfMarketplaces,
-                                    receiptCreateOrEdit: ReceiptCreateOrEdit.edit,
-                                    receiptTyp: widget.receiptTyp,
-                                  ),
-                                );
-                              },
-                              child: Text(
-                                switch (widget.receipt.receiptTyp) {
-                                  ReceiptTyp.offer => widget.receipt.offerNumberAsString,
-                                  ReceiptTyp.appointment => widget.receipt.appointmentNumberAsString,
-                                  ReceiptTyp.deliveryNote => widget.receipt.deliveryNoteNumberAsString,
-                                  ReceiptTyp.invoice => widget.receipt.invoiceNumberAsString,
-                                  ReceiptTyp.credit => widget.receipt.invoiceNumberAsString,
-                                },
-                                style: widget.receipt.isDeliveryBlocked ? const TextStyle().copyWith(color: Colors.red) : null,
-                              ),
-                            ),
-                            Text(DateFormat('dd.MM.yyy', 'de').format(widget.receipt.creationDate)),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(Icons.watch_later_outlined, size: 16),
-                                const Text(' '),
-                                Text(DateFormat('Hm', 'de').format(widget.receipt.creationDate)),
-                              ],
-                            ),
-                            Text('${widget.receipt.totalGross.toMyCurrencyStringToShow()} €', style: TextStyles.defaultBold)
-                          ],
-                        ),
+                      _ReceiptInfoColumn(
+                        receiptBloc: receiptBloc,
+                        receipt: receipt,
+                        receiptTyp: receiptTyp,
+                        listOfMarketplaces: listOfMarketplaces,
                       ),
                     ],
                   ),
-                  SizedBox(
+                  AddressColumn(address: deliveryAddress, width: 200),
+                  MarketplaceColumn(marketplace: marketplace, receipt: receipt, width: 140),
+                  AddressColumn(
+                    address: invoiceAddress,
+                    companyName: receipt.receiptCustomer.company,
+                    name: receipt.receiptCustomer.name,
                     width: 200,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        if (deliveryAddress.companyName != '') Text(deliveryAddress.companyName),
-                        Text(deliveryAddress.name),
-                        Text(deliveryAddress.street),
-                        Text.rich(
-                          TextSpan(
-                            children: [
-                              TextSpan(text: deliveryAddress.postcode),
-                              const TextSpan(text: ' '),
-                              TextSpan(text: deliveryAddress.city),
-                            ],
-                          ),
-                        ),
-                        Row(
-                          children: [
-                            Text(deliveryAddress.country.name),
-                            Gaps.w8,
-                            MyCountryFlag(country: deliveryAddress.country, size: 12),
-                          ],
-                        ),
-                      ],
-                    ),
                   ),
-                  SizedBox(
-                    width: 140,
-                    child: Column(
-                      children: [
-                        MarketplaceLogoAndType(marketplace: marketplace),
-                        Text(marketplace.name, textAlign: TextAlign.center),
-                        Text(DateFormat('dd.MM.yyy', 'de').format(widget.receipt.creationDateMarektplace)),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(Icons.watch_later_outlined, size: 16),
-                            const Text(' '),
-                            Text(DateFormat('Hm', 'de').format(widget.receipt.creationDateMarektplace)),
-                          ],
-                        ),
-                        Text(widget.receipt.receiptMarketplaceReference),
-                      ],
-                    ),
-                  ),
-                  SizedBox(
-                    width: 200,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        if (widget.receipt.receiptCustomer.company != null) Text(widget.receipt.receiptCustomer.company!),
-                        Text(widget.receipt.receiptCustomer.name),
-                        Text(invoiceAddress.street),
-                        Text.rich(
-                          TextSpan(
-                            children: [
-                              TextSpan(text: invoiceAddress.postcode),
-                              const TextSpan(text: ' '),
-                              TextSpan(text: invoiceAddress.city),
-                            ],
-                          ),
-                        ),
-                        Text(invoiceAddress.country.name),
-                      ],
-                    ),
-                  ),
-                  ReceiptsOverviewCarrierBar(receipt: widget.receipt),
-                  SizedBox(
-                    width: 140,
-                    child: Column(
-                      children: [
-                        Tooltip(
-                          message: 'Bezahlter Betrag: ${widget.receipt.totalPaidGross} €',
-                          child: Container(
-                            height: 30,
-                            decoration: BoxDecoration(
-                              color: switch (widget.receipt.paymentStatus) {
-                                PaymentStatus.open => CustomColors.backgroundLightGrey,
-                                PaymentStatus.partiallyPaid => CustomColors.backgroundLightOrange,
-                                PaymentStatus.paid => CustomColors.backgroundLightGreen,
-                              },
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                              child: Center(
-                                child: switch (widget.receipt.paymentStatus) {
-                                  PaymentStatus.open => const Text('Offen'),
-                                  PaymentStatus.partiallyPaid => const Text('Teilweise bezahlt'),
-                                  PaymentStatus.paid => const Text('Komplett bezahlt'),
-                                },
-                              ),
-                            ),
-                          ),
-                        ),
-                        Gaps.h2,
-                        _loadImage(widget.receipt.paymentMethod.logoPath),
-                        Gaps.h2,
-                        Text('${widget.receipt.profit.toMyCurrencyStringToShow()} ${widget.receipt.currency}'),
-                        Text('${calcDiscountPercentage(widget.receipt.totalNet, widget.receipt.profit).toMyCurrencyStringToShow()} %'),
-                      ],
-                    ),
-                  ),
+                  ReceiptsOverviewCarrierBar(receipt: receipt),
+                  _PaymentColumn(receipt: receipt),
                   const SizedBox(),
                 ],
               ),
               MyAnimatedExpansionContainer(
-                isExpanded: state.isExpanded[widget.index],
+                isExpanded: state.isExpanded[index],
                 child: Container(
                   padding: const EdgeInsets.all(12),
                   child: Card(
@@ -355,9 +199,9 @@ class __AppointmentContainerState extends State<_AppointmentContainer> {
                           ListView.separated(
                             physics: const NeverScrollableScrollPhysics(),
                             shrinkWrap: true,
-                            itemCount: widget.receipt.listOfReceiptProduct.length,
+                            itemCount: receipt.listOfReceiptProduct.length,
                             itemBuilder: (context, index) {
-                              return _AppointmentProdcutsContainer(appointmentProduct: widget.receipt.listOfReceiptProduct[index], index: index);
+                              return _AppointmentProdcutsContainer(appointmentProduct: receipt.listOfReceiptProduct[index], index: index);
                             },
                             separatorBuilder: (context, index) => const Divider(),
                           ),
@@ -373,85 +217,70 @@ class __AppointmentContainerState extends State<_AppointmentContainer> {
       },
     );
   }
+}
 
-  Future<void> _onPdfPressed({required AbstractMarketplace marketplace}) async {
-    setState(() => _isLoadingPdf = true);
-    final receiptName = switch (widget.receipt.receiptTyp) {
-      ReceiptTyp.offer => widget.receipt.offerNumberAsString,
-      ReceiptTyp.appointment => widget.receipt.appointmentNumberAsString,
-      ReceiptTyp.deliveryNote => widget.receipt.deliveryNoteNumberAsString,
-      ReceiptTyp.invoice || ReceiptTyp.credit => widget.receipt.invoiceNumberAsString,
-    };
-    final generatedPdf = await PdfReceiptGenerator.generate(
-      receipt: widget.receipt,
-      logoUrl: marketplace.logoUrl,
-    );
+Future<void> _onPdfPressed({required BuildContext context, required Receipt receipt, required AbstractMarketplace marketplace}) async {
+  showMyDialogLoading(context: context, text: 'PDF wird erstellt...', canPop: true);
 
-    if (mounted) {
-      showDialog(
-        context: context,
-        builder: (context) => Dialog(
-          child: SizedBox(
-            width: 400,
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  ListTile(
-                    leading: const Icon(Icons.open_in_browser),
-                    title: const Text(kIsWeb ? 'Im Browser öffnen' : 'Öffnen'),
-                    onTap: () async {
-                      if (kIsWeb) {
-                        await PdfApiWeb.saveDocument(name: '$receiptName.pdf', byteList: generatedPdf, showInBrowser: true);
-                      } else {
-                        await PdfApiMobile.saveDocument(name: '$receiptName.pdf', byteList: generatedPdf);
-                      }
-                      if (mounted) context.router.pop();
-                    },
-                  ),
-                  if (kIsWeb)
-                    ListTile(
-                      leading: const Icon(Icons.download),
-                      title: const Text('Herunterladen'),
-                      onTap: () async {
-                        await PdfApiWeb.saveDocument(name: '$receiptName.pdf', byteList: generatedPdf, showInBrowser: false);
-                        if (mounted) context.router.pop();
-                      },
-                    ),
-                  ListTile(
-                    leading: const Icon(Icons.print),
-                    title: const Text('Drucken'),
-                    onTap: () async {
-                      await Printing.layoutPdf(onLayout: (_) => generatedPdf);
-                      if (mounted) context.router.pop();
-                    },
-                  ),
-                ],
+  final receiptName = switch (receipt.receiptTyp) {
+    ReceiptTyp.offer => receipt.offerNumberAsString,
+    ReceiptTyp.appointment => receipt.appointmentNumberAsString,
+    ReceiptTyp.deliveryNote => receipt.deliveryNoteNumberAsString,
+    ReceiptTyp.invoice || ReceiptTyp.credit => receipt.invoiceNumberAsString,
+  };
+  final generatedPdf = await PdfReceiptGenerator.generate(
+    receipt: receipt,
+    logoUrl: marketplace.logoUrl,
+  );
+
+  if (context.mounted) Navigator.of(context).pop();
+
+  if (!context.mounted) return;
+  showDialog(
+    context: context,
+    builder: (context) => Dialog(
+      child: SizedBox(
+        width: 400,
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.open_in_browser),
+                title: const Text(kIsWeb ? 'Im Browser öffnen' : 'Öffnen'),
+                onTap: () async {
+                  if (context.mounted) context.router.maybePop();
+                  if (kIsWeb) {
+                    await PdfApiWeb.saveDocument(name: '$receiptName.pdf', byteList: generatedPdf, showInBrowser: true);
+                  } else {
+                    await PdfApiMobile.saveDocument(name: '$receiptName.pdf', byteList: generatedPdf);
+                  }
+                },
               ),
-            ),
+              if (kIsWeb)
+                ListTile(
+                  leading: const Icon(Icons.download),
+                  title: const Text('Herunterladen'),
+                  onTap: () async {
+                    if (context.mounted) context.router.maybePop();
+                    await PdfApiWeb.saveDocument(name: '$receiptName.pdf', byteList: generatedPdf, showInBrowser: false);
+                  },
+                ),
+              ListTile(
+                leading: const Icon(Icons.print),
+                title: const Text('Drucken'),
+                onTap: () async {
+                  if (context.mounted) context.router.maybePop();
+                  await Printing.layoutPdf(onLayout: (_) => generatedPdf);
+                },
+              ),
+            ],
           ),
         ),
-      );
-    }
-    setState(() => _isLoadingPdf = false);
-  }
-
-  Widget _loadImage(String path) {
-    return Image.asset(
-      path,
-      height: 25,
-      width: 65,
-      fit: BoxFit.scaleDown,
-      errorBuilder: (context, exception, stackTrace) {
-        return const SizedBox(
-          height: 25,
-          width: 65,
-          child: Center(child: Icon(Icons.question_mark)),
-        );
-      },
-    );
-  }
+      ),
+    ),
+  );
 }
 
 class _AppointmentProdcutsContainer extends StatelessWidget {
@@ -488,6 +317,165 @@ class _AppointmentProdcutsContainer extends StatelessWidget {
           ),
           const Spacer(),
           Expanded(flex: RowWidthsROP.quantity, child: Center(child: Text(appointmentProduct.quantity.toString()))),
+        ],
+      ),
+    );
+  }
+}
+
+class _IconColumn extends StatelessWidget {
+  final ReceiptBloc receiptBloc;
+  final Receipt receipt;
+  final AbstractMarketplace marketplace;
+  final List<bool> isExpanded;
+  final int index;
+
+  const _IconColumn({required this.receiptBloc, required this.receipt, required this.marketplace, required this.isExpanded, required this.index});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 60,
+      child: Column(
+        children: [
+          receipt.listOfReceiptProduct.length > 1
+              ? Container(
+                  height: 20,
+                  width: 20,
+                  decoration: const BoxDecoration(
+                    color: CustomColors.backgroundLightGreen,
+                    borderRadius: BorderRadius.all(Radius.circular(20)),
+                  ),
+                  child: Center(child: Text(receipt.listOfReceiptProduct.length.toString())),
+                )
+              : const SizedBox(),
+          MyAnimatedIconButtonArrow(
+            boolValue: isExpanded[index],
+            onPressed: () => receiptBloc.add(SetAppointmentIsExpandedEvent(index: index)),
+          ),
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxHeight: 30),
+            child: IconButton(
+              padding: EdgeInsets.zero,
+              onPressed: () async => await _onPdfPressed(context: context, receipt: receipt, marketplace: marketplace),
+              icon: const Icon(Icons.picture_as_pdf, color: Colors.red),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PaymentColumn extends StatelessWidget {
+  final Receipt receipt;
+
+  const _PaymentColumn({required this.receipt});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 140,
+      child: Column(
+        children: [
+          Tooltip(
+            message: 'Bezahlter Betrag: ${receipt.totalPaidGross} €',
+            child: Container(
+              height: 30,
+              decoration: BoxDecoration(
+                color: switch (receipt.paymentStatus) {
+                  PaymentStatus.open => CustomColors.backgroundLightGrey,
+                  PaymentStatus.partiallyPaid => CustomColors.backgroundLightOrange,
+                  PaymentStatus.paid => CustomColors.backgroundLightGreen,
+                },
+                borderRadius: BorderRadius.circular(30),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: Center(
+                  child: switch (receipt.paymentStatus) {
+                    PaymentStatus.open => const Text('Offen'),
+                    PaymentStatus.partiallyPaid => const Text('Teilweise bezahlt'),
+                    PaymentStatus.paid => const Text('Komplett bezahlt'),
+                  },
+                ),
+              ),
+            ),
+          ),
+          Gaps.h2,
+          _loadImage(receipt.paymentMethod.logoPath),
+          Gaps.h2,
+          Text('${receipt.profit.toMyCurrencyStringToShow()} ${receipt.currency}'),
+          Text('${calcDiscountPercentage(receipt.totalNet, receipt.profit).toMyCurrencyStringToShow()} %'),
+        ],
+      ),
+    );
+  }
+}
+
+Widget _loadImage(String path) {
+  return Image.asset(
+    path,
+    height: 25,
+    width: 65,
+    fit: BoxFit.scaleDown,
+    errorBuilder: (context, exception, stackTrace) {
+      return const SizedBox(
+        height: 25,
+        width: 65,
+        child: Center(child: Icon(Icons.question_mark)),
+      );
+    },
+  );
+}
+
+class _ReceiptInfoColumn extends StatelessWidget {
+  final ReceiptBloc receiptBloc;
+  final Receipt receipt;
+  final ReceiptTyp receiptTyp;
+  final List<AbstractMarketplace> listOfMarketplaces;
+
+  const _ReceiptInfoColumn({required this.receiptBloc, required this.receipt, required this.receiptTyp, required this.listOfMarketplaces});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 150,
+      child: Column(
+        children: [
+          TextButton(
+            onPressed: () {
+              receiptBloc.add(GetReceiptEvent(appointment: receipt));
+              context.router.push(
+                ReceiptDetailRoute(
+                  receiptBloc: receiptBloc,
+                  listOfMarketplaces: listOfMarketplaces,
+                  receiptCreateOrEdit: ReceiptCreateOrEdit.edit,
+                  receiptTyp: receiptTyp,
+                ),
+              );
+            },
+            child: Text(
+              switch (receipt.receiptTyp) {
+                ReceiptTyp.offer => receipt.offerNumberAsString,
+                ReceiptTyp.appointment => receipt.appointmentNumberAsString,
+                ReceiptTyp.deliveryNote => receipt.deliveryNoteNumberAsString,
+                ReceiptTyp.invoice => receipt.invoiceNumberAsString,
+                ReceiptTyp.credit => receipt.invoiceNumberAsString,
+              },
+              style: receipt.isDeliveryBlocked ? const TextStyle().copyWith(color: Colors.red) : null,
+            ),
+          ),
+          Text(DateFormat('dd.MM.yyy', 'de').format(receipt.creationDate)),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.watch_later_outlined, size: 16),
+              const Text(' '),
+              Text(DateFormat('Hm', 'de').format(receipt.creationDate)),
+            ],
+          ),
+          Text('${receipt.totalGross.toMyCurrencyStringToShow()} €', style: TextStyles.defaultBold)
         ],
       ),
     );
