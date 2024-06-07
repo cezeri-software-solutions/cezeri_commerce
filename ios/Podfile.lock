@@ -954,11 +954,11 @@ PODS:
   - BoringSSL-GRPC/Implementation (0.0.32):
     - BoringSSL-GRPC/Interface (= 0.0.32)
   - BoringSSL-GRPC/Interface (0.0.32)
-  - cloud_firestore (4.17.3):
+  - cloud_firestore (4.17.5):
     - Firebase/Firestore (= 10.25.0)
     - firebase_core
     - Flutter
-  - cloud_functions (4.7.4):
+  - cloud_functions (4.7.6):
     - Firebase/Functions (= 10.25.0)
     - firebase_core
     - Flutter
@@ -1013,14 +1013,14 @@ PODS:
   - Firebase/Storage (10.25.0):
     - Firebase/CoreOnly
     - FirebaseStorage (~> 10.25.0)
-  - firebase_auth (4.19.5):
+  - firebase_auth (4.20.0):
     - Firebase/Auth (= 10.25.0)
     - firebase_core
     - Flutter
-  - firebase_core (2.31.0):
+  - firebase_core (2.32.0):
     - Firebase/CoreOnly (= 10.25.0)
     - Flutter
-  - firebase_storage (11.7.5):
+  - firebase_storage (11.7.7):
     - Firebase/Storage (= 10.25.0)
     - firebase_core
     - Flutter
@@ -1325,16 +1325,16 @@ SPEC CHECKSUMS:
   abseil: d121da9ef7e2ff4cab7666e76c5a3e0915ae08c3
   app_links: e70ca16b4b0f88253b3b3660200d4a10b4ea9795
   BoringSSL-GRPC: 1e2348957acdbcad360b80a264a90799984b2ba6
-  cloud_firestore: 792f773e5e8c080ffcbadd49f9fb397927f29af6
-  cloud_functions: 84f27bc4ef64af3dc5f94e0d7d632693fa839ea0
+  cloud_firestore: 003d53b6b8b392600b7769acf9421cc4f23e5911
+  cloud_functions: 1a28a0b6ec4caf864692e54e1f5c1934431510c8
   connectivity_plus: bf0076dd84a130856aa636df1c71ccaff908fa1d
   DKImagePickerController: 946cec48c7873164274ecc4624d19e3da4c1ef3c
   DKPhotoGallery: b3834fecb755ee09a593d7c9e389d8b5d6deed60
   file_picker: 09aa5ec1ab24135ccd7a1621c46c84134bfd6655
   Firebase: 0312a2352584f782ea56f66d91606891d4607f06
-  firebase_auth: 76ea642e91a9e914b3af751a416046ce1a965cf4
-  firebase_core: 0b39f4f424e02eecabb2356ddf331fa07b772af8
-  firebase_storage: e8b44d3f47e35f60dde2a119da11dc6e8962bef3
+  firebase_auth: 5719ddc9f654b813405899480e84971bd8e61235
+  firebase_core: a626d00494efa398e7c54f25f1454a64c8abf197
+  firebase_storage: 5c0f552d6b27d621429d7fd16ebab4be94a3c954
   FirebaseAppCheckInterop: 5da5ce93e8797a215e3f677fb0654b74e736c8b8
   FirebaseAuth: c0f93dcc570c9da2bffb576969d793e95c344fbb
   FirebaseAuthInterop: 2753ef68cb3cd5aefebe0f58082671cede78350f
@@ -1360,7 +1360,7 @@ SPEC CHECKSUMS:
   open_filex: 6e26e659846ec990262224a12ef1c528bb4edbe4
   OrderedSet: aaeb196f7fef5a9edf55d89760da9176ad40b93c
   path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
-  pointer_interceptor_ios: 9280618c0b2eeb80081a343924aa8ad756c21375
+  pointer_interceptor_ios: 508241697ff0947f853c061945a8b822463947c1
   printing: 233e1b73bd1f4a05615548e9b5a324c98588640b
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
   ReachabilitySwift: 2128f3a8c9107e1ad33574c6e58e8285d460b149

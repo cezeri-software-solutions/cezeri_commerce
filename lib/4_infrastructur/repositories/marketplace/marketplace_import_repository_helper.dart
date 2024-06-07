@@ -1,18 +1,17 @@
+import 'package:cezeri_commerce/1_presentation/core/extensions/get_either.dart';
 import 'package:cezeri_commerce/1_presentation/core/extensions/string_to_int.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:http/http.dart';
 
 import '../../../3_domain/entities/marketplace/marketplace_presta.dart';
-import '../../../3_domain/entities/marketplace/marketplace_shopify.dart';
 import '../../../3_domain/entities/product/product.dart';
 import '../../../3_domain/entities/product/product_id_with_quantity.dart';
 import '../../../3_domain/entities/product/product_presta.dart';
 import '../../../3_domain/entities/settings/main_settings.dart';
+import '../../../3_domain/repositories/firebase/marketplace_repository.dart';
 import '../../../3_domain/repositories/firebase/product_repository.dart';
 import '../../../constants.dart';
 import '../../../failures/abstract_failure.dart';
-import '../../../failures/firebase_failures.dart';
 import '../functions/product_import.dart';
 import '../functions/product_repository_helper.dart';
 import '../prestashop_api/prestashop_api.dart';
@@ -20,18 +19,15 @@ import '../shopify_api/shopify.dart';
 
 Future<Either<AbstractFailure, Product?>> createOrUpdateProductFromMarketplacePresta({
   required String marketplaceId,
-  required String currentUserUid,
   required String ownerId,
   required ProductPresta productPresta,
   required MainSettings mainSettings,
   required ProductRepository productRepository,
-  required FirebaseFirestore db,
+  required MarketplaceRepository marketplaceRepository,
 }) async {
-  final docRefMarketplace = db.collection('Marketetplaces').doc(currentUserUid).collection('Marketetplaces').doc(marketplaceId);
-
-  final marketplaceDs = await docRefMarketplace.get();
-  if (!marketplaceDs.exists) return left(GeneralFailure());
-  final marketplace = MarketplacePresta.fromJson(marketplaceDs.data()!);
+  final fosMarketplace = await marketplaceRepository.getMarketplace(marketplaceId);
+  if (fosMarketplace.isLeft()) return Left(fosMarketplace.getLeft());
+  final marketplace = fosMarketplace.getRight() as MarketplacePresta;
 
   Product? newCreatedOrUpdatedProduct;
 
@@ -90,9 +86,9 @@ Future<Either<AbstractFailure, Product?>> createOrUpdateProductFromMarketplacePr
       productRepository: productRepository,
       listOfProductIdWithQuantity: null,
     );
-    fosToImportProduct.fold(
-      (failure) => left(failure),
-      (appProduct) => newCreatedOrUpdatedProduct = appProduct,
+    return fosToImportProduct.fold(
+      (failure) => Left(failure),
+      (appProduct) => Right(appProduct),
     );
   }
 
@@ -101,17 +97,14 @@ Future<Either<AbstractFailure, Product?>> createOrUpdateProductFromMarketplacePr
 
 Future<Either<AbstractFailure, Product?>> createOrUpdateProductFromMarketplaceShopify({
   required String marketplaceId,
-  required String currentUserUid,
   required ProductShopify productShopify,
   required MainSettings mainSettings,
   required ProductRepository productRepository,
-  required FirebaseFirestore db,
+  required MarketplaceRepository marketplaceRepository,
 }) async {
-  final docRefMarketplace = db.collection('Marketetplaces').doc(currentUserUid).collection('Marketetplaces').doc(marketplaceId);
-
-  final marketplaceDs = await docRefMarketplace.get();
-  if (!marketplaceDs.exists) return left(GeneralFailure());
-  final marketplace = MarketplaceShopify.fromJson(marketplaceDs.data()!);
+  final fosMarketplace = await marketplaceRepository.getMarketplace(marketplaceId);
+  if (fosMarketplace.isLeft()) return Left(fosMarketplace.getLeft());
+  final marketplace = fosMarketplace.getRight() as MarketplacePresta;
 
   Product? newCreatedOrUpdatedProduct;
 

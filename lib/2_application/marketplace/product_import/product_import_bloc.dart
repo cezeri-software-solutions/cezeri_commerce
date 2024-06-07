@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:cezeri_commerce/1_presentation/core/extensions/get_either.dart';
 import 'package:cezeri_commerce/1_presentation/core/extensions/string_to_int.dart';
 import 'package:dartz/dartz.dart';
 import 'package:meta/meta.dart';
@@ -89,20 +90,14 @@ class ProductImportBloc extends Bloc<ProductImportEvent, ProductImportState> {
     on<OnUploadProductToFirestoreEvent>((event, emit) async {
       emit(state.copyWith(isLoadingProductOnCreate: true));
 
-      bool isSuccess = true;
-
-      final failureOrSuccess = await productImportRepository.uploadLoadedMarketplaceProductToFirestore(
+      final fos = await productImportRepository.uploadLoadedMarketplaceProductToFirestore(
         event.marketplaceProduct,
         state.selectedMarketplace!.id,
-      );
-      failureOrSuccess.fold(
-        (failure) => isSuccess = false,
-        (product) => null,
       );
 
       emit(state.copyWith(
         isLoadingProductOnCreate: false,
-        fosProductOnCreateOption: isSuccess ? const Some(Right(unit)) : const None(),
+        fosProductOnCreateOption: fos.isRight() ? const Some(Right(unit)) : Some(Left(fos.getLeft())),
       ));
       emit(state.copyWith(fosProductOnCreateOption: none()));
     });

@@ -1,5 +1,7 @@
+import 'package:cezeri_commerce/1_presentation/core/extensions/get_either.dart';
 import 'package:cezeri_commerce/3_domain/entities/marketplace/marketplace_shopify.dart';
 import 'package:cezeri_commerce/3_domain/entities/product/product.dart';
+import 'package:cezeri_commerce/3_domain/repositories/firebase/marketplace_repository.dart';
 import 'package:cezeri_commerce/4_infrastructur/repositories/shopify_api/api/shopify_api.dart';
 import 'package:cezeri_commerce/4_infrastructur/repositories/shopify_api/models/products/product_shopify.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -8,13 +10,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart';
 
 import '../../../../1_presentation/core/functions/check_internet_connection.dart';
-import '../../../../3_domain/entities/settings/main_settings.dart';
 import '../../../../3_domain/repositories/firebase/product_repository.dart';
 import '../../../../3_domain/repositories/marketplace/marketplace_import_repository.dart';
 import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
 import '../../../3_domain/entities/marketplace/marketplace_presta.dart';
 import '../../../3_domain/entities/product/marketplace_product.dart';
 import '../../../3_domain/entities/product/product_presta.dart';
+import '../../../3_domain/repositories/firebase/main_settings_respository.dart';
 import '../../../constants.dart';
 import '../../../failures/failures.dart';
 import '../functions/repository_functions.dart';
@@ -26,8 +28,16 @@ class MarketplaceImportRepositoryImpl implements MarketplaceImportRepository {
   final FirebaseFirestore db;
   final FirebaseAuth firebaseAuth;
   final ProductRepository productRepository;
+  final MainSettingsRepository mainSettingsRepository;
+  final MarketplaceRepository marketplaceRepository;
 
-  MarketplaceImportRepositoryImpl({required this.db, required this.firebaseAuth, required this.productRepository});
+  MarketplaceImportRepositoryImpl({
+    required this.db,
+    required this.firebaseAuth,
+    required this.productRepository,
+    required this.mainSettingsRepository,
+    required this.marketplaceRepository,
+  });
 
   @override
   Future<Either<AbstractFailure, List<int>>> getToLoadProductsFromMarketplace(MarketplacePresta marketplace, bool onlyActive) async {
@@ -98,26 +108,21 @@ class MarketplaceImportRepositoryImpl implements MarketplaceImportRepository {
     final ownerId = await getOwnerId();
     if (ownerId == null) return left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
-    final currentUserUid = firebaseAuth.currentUser!.uid;
-
-    final docRefSettings = db.collection('Settings').doc(currentUserUid).collection('Settings').doc(currentUserUid);
-
     try {
-      final settingsDs = await docRefSettings.get();
-      if (!settingsDs.exists) return left(GeneralFailure());
-      final mainSettings = MainSettings.fromJson(settingsDs.data()!);
+      final fosSettings = await mainSettingsRepository.getSettings();
+      if (fosSettings.isLeft()) return Left(fosSettings.getLeft());
+      final mainSettings = fosSettings.getRight();
 
       switch (marketplaceProduct.marketplaceType) {
         case MarketplaceType.prestashop:
           {
             final fos = await createOrUpdateProductFromMarketplacePresta(
               marketplaceId: marketplaceId,
-              currentUserUid: currentUserUid,
               ownerId: ownerId,
               productPresta: marketplaceProduct as ProductPresta,
               mainSettings: mainSettings,
               productRepository: productRepository,
-              db: db,
+              marketplaceRepository: marketplaceRepository,
             );
             return fos.fold(
               (failure) => Left(failure),
@@ -128,11 +133,10 @@ class MarketplaceImportRepositoryImpl implements MarketplaceImportRepository {
           {
             final fos = await createOrUpdateProductFromMarketplaceShopify(
               marketplaceId: marketplaceId,
-              currentUserUid: currentUserUid,
               productShopify: marketplaceProduct as ProductShopify,
               mainSettings: mainSettings,
               productRepository: productRepository,
-              db: db,
+              marketplaceRepository: marketplaceRepository,
             );
             return fos.fold(
               (failure) => Left(failure),

@@ -2,9 +2,11 @@ import 'package:cezeri_commerce/1_presentation/core/extensions/formatted_year_mo
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 
 import '../../../1_presentation/core/functions/check_internet_connection.dart';
 import '../../../3_domain/entities/receipt/receipt.dart';
+import '../../../3_domain/entities/statistic/stat_brand.dart';
 import '../../../3_domain/entities/statistic/stat_dashboard.dart';
 import '../../../3_domain/repositories/firebase/stat_dashboard_repository.dart';
 import '../../../constants.dart';
@@ -100,4 +102,36 @@ class StatDashboardRepositoryImpl implements StatDashboardRepository {
   }
 
   //? #######################################################################################################################################
+
+  @override
+  Future<Either<AbstractFailure, List<StatBrand>>> getStatProductsByBrand(DateTimeRange dateRange) async {
+    if (!await checkInternetConnection()) return Left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
+
+    final startDate = dateRange.start.toFormattedYearMonthDay();
+    print(startDate);
+    final endDate = dateRange.end.toFormattedYearMonthDay();
+    print(endDate);
+
+    try {
+      final response = await supabase.rpc('get_stat_products_by_brand', params: {
+        'owner_id': ownerId,
+        'start_date': startDate,
+        'end_date': endDate,
+      });
+
+      print(response);
+
+      final listOfProductSalesByBrand = (response as List<dynamic>).map((e) {
+        final item = e as Map<String, dynamic>;
+        return StatBrand.fromJson(item);
+      }).toList();
+
+      return Right(listOfProductSalesByBrand);
+    } catch (e) {
+      logger.e(e);
+      return Left(GeneralFailure(customMessage: 'Daten konnten nicht geladen werden.'));
+    }
+  }
 }

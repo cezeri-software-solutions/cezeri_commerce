@@ -15,7 +15,10 @@ class DashboardScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dashboardBloc = sl<DashboardBloc>()..add(GetListOfStatDashboardsEvent());
+    final now = DateTime.now();
+    final dashboardBloc = sl<DashboardBloc>()
+      ..add(GetListOfStatDashboardsEvent())
+      ..add(GetListOfProductSalesByBrandEvent(dateRange: DateTimeRange(start: now.subtract(const Duration(days: 29)), end: now)));
 
     return BlocProvider(
       create: (context) => dashboardBloc,

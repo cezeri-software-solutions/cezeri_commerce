@@ -15,6 +15,11 @@ class DashboardState {
   final Option<Either<AbstractFailure, StatDashboard>> fosDashboardOption;
   final Option<Either<AbstractFailure, List<StatDashboard>>> fosListOfStatDashboardsOption;
 
+  //* StatBrand Verkaufzahlen nach Hersteller
+  final List<StatBrand>? listOfProductSalesByBrand;
+  final bool isLoadingProductSalesByBrand;
+  final bool isFailureOnProductSalesByBrand;
+
   const DashboardState({
     required this.curStatDashboard,
     required this.listOfStatDashboards,
@@ -28,6 +33,9 @@ class DashboardState {
     required this.firebaseFailureReceipts,
     required this.fosDashboardOption,
     required this.fosListOfStatDashboardsOption,
+    required this.listOfProductSalesByBrand,
+    required this.isLoadingProductSalesByBrand,
+    required this.isFailureOnProductSalesByBrand,
   });
 
   factory DashboardState.initial() => DashboardState(
@@ -43,6 +51,9 @@ class DashboardState {
         firebaseFailureReceipts: null,
         fosDashboardOption: none(),
         fosListOfStatDashboardsOption: none(),
+        listOfProductSalesByBrand: const [],
+        isLoadingProductSalesByBrand: false,
+        isFailureOnProductSalesByBrand: false,
       );
 
   DashboardState copyWith({
@@ -58,6 +69,9 @@ class DashboardState {
     AbstractFailure? firebaseFailureReceipts,
     Option<Either<AbstractFailure, StatDashboard>>? fosDashboardOption,
     Option<Either<AbstractFailure, List<StatDashboard>>>? fosListOfStatDashboardsOption,
+    List<StatBrand>? listOfProductSalesByBrand,
+    bool? isLoadingProductSalesByBrand,
+    bool? isFailureOnProductSalesByBrand,
   }) {
     return DashboardState(
       curStatDashboard: curStatDashboard ?? this.curStatDashboard,
@@ -72,6 +86,9 @@ class DashboardState {
       firebaseFailureReceipts: firebaseFailureReceipts ?? this.firebaseFailureReceipts,
       fosDashboardOption: fosDashboardOption ?? this.fosDashboardOption,
       fosListOfStatDashboardsOption: fosListOfStatDashboardsOption ?? this.fosListOfStatDashboardsOption,
+      listOfProductSalesByBrand: listOfProductSalesByBrand ?? this.listOfProductSalesByBrand,
+      isLoadingProductSalesByBrand: isLoadingProductSalesByBrand ?? this.isLoadingProductSalesByBrand,
+      isFailureOnProductSalesByBrand: isFailureOnProductSalesByBrand ?? this.isFailureOnProductSalesByBrand,
     );
   }
 }

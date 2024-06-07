@@ -87,12 +87,8 @@ class _ProductImportScreenState extends State<ProductImportScreen> {
               state.fosProductOnCreateOption.fold(
                 () => null,
                 (a) => a.fold(
-                  (failure) {
-                    myScaffoldMessenger(context, null, null, null, failure.toString());
-                  },
-                  (unit) {
-                    myScaffoldMessenger(context, null, null, 'Artikel erfolgreich importiert', null);
-                  },
+                  (failure) => failureRenderer(context, [failure]),
+                  (unit) => myScaffoldMessenger(context, null, null, 'Artikel erfolgreich importiert', null),
                 ),
               );
             },

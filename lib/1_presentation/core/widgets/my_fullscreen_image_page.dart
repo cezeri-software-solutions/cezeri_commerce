@@ -116,9 +116,7 @@ class _MyFullscreenImagePageState extends State<MyFullscreenImagePage> with Sing
           ).animate(CurveTween(curve: Curves.easeOut).animate(animationController));
 
           animationController.forward(from: 0);
-          print('#####');
-          print(transformationController.value.isIdentity());
-          print('#####');
+          
           setState(() {
             isDoubleTappedOnImage = true;
           });

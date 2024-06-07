@@ -55,7 +55,7 @@ class ProductRepositoryImpl implements ProductRepository {
           getProductImagesStoragePath(ownerId, createdProduct.id),
         );
 
-        final toUpdatePrdouct = product.copyWith(listOfProductImages: listOfProductImages);
+        final toUpdatePrdouct = createdProduct.copyWith(listOfProductImages: listOfProductImages);
         await supabase.from('d_products').update(toUpdatePrdouct.toJson()).eq('ownerId', ownerId).eq('id', toUpdatePrdouct.id);
 
         return Right(toUpdatePrdouct);
@@ -256,11 +256,11 @@ class ProductRepositoryImpl implements ProductRepository {
     if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
     try {
-      final response = await supabase.from('d_products').select().eq('ownerId', ownerId).eq('articleNumber', articleNumber).single();
+      final response = await supabase.from('d_products').select().eq('ownerId', ownerId).eq('articleNumber', articleNumber);
 
       if (response.isEmpty) return Left(GeneralFailure(customMessage: 'Beim Laden des Artikels ist ein Fehler aufgetreten.'));
 
-      return Right(Product.fromJson(response));
+      return Right(Product.fromJson(response.first));
     } catch (e) {
       logger.e(e);
       return Left(GeneralFailure(customMessage: 'Beim Laden des Artikels ist ein Fehler aufgetreten. Error: $e'));
@@ -274,11 +274,11 @@ class ProductRepositoryImpl implements ProductRepository {
     if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
     try {
-      final response = await supabase.from('d_products').select().eq('ownerId', ownerId).eq('ean', ean).single();
+      final response = await supabase.from('d_products').select().eq('ownerId', ownerId).eq('ean', ean);
 
       if (response.isEmpty) return Left(GeneralFailure(customMessage: 'Beim Laden des Artikels ist ein Fehler aufgetreten.'));
 
-      return Right(Product.fromJson(response));
+      return Right(Product.fromJson(response.first));
     } catch (e) {
       logger.e(e);
       return Left(GeneralFailure(customMessage: 'Beim Laden des Artikels ist ein Fehler aufgetreten. Error: $e'));
@@ -292,13 +292,13 @@ class ProductRepositoryImpl implements ProductRepository {
     if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
     try {
-      final response = await supabase.from('d_products').select().eq('ownerId', ownerId).eq('name', name).single();
+      final response = await supabase.from('d_products').select().eq('ownerId', ownerId).eq('name', name);
 
       if (response.isEmpty) {
         return Left(GeneralFailure(customMessage: 'In der Datenbank konnte kein Artikel mit dem Namen: "$name" gefunden werden.'));
       }
 
-      return Right(Product.fromJson(response));
+      return Right(Product.fromJson(response.first));
     } catch (e) {
       logger.e(e);
       return Left(GeneralFailure(customMessage: 'Beim Laden des Artikels: "$name" ist ein Fehler aufgetreten. Error: $e'));
@@ -413,7 +413,8 @@ class ProductRepositoryImpl implements ProductRepository {
     } catch (e) {
       logger.e(e);
       return Left(
-          GeneralFailure(customMessage: 'Beim Aktualisieren der Artikelbilder des Artikels: ${product.name} ist ein Fehler aufgetreten. Error: $e'));
+        GeneralFailure(customMessage: 'Beim Aktualisieren der Artikelbilder des Artikels: ${product.name} ist ein Fehler aufgetreten. Error: $e'),
+      );
     }
   }
 

@@ -189,8 +189,9 @@ Future<List<ProductImage>> uploadImageFilesToStorageFromFlutter(
 
     final File file = myFile;
     // Erstelle einen eindeutigen Dateinamen, um Kollisionen zu vermeiden
-    final fileName = basename(file.path);
-    final filePath = '$supabaseStoragePath/${fileName}_${generateRandomString(4)}';
+    final fileName = sanitizeFileName(basename(file.path));
+    final phFilePath = '$supabaseStoragePath/${generateRandomString(4)}_$fileName';
+    final filePath = Uri.encodeFull(phFilePath);
     final storageResponse = await supabase.storage.from('product-images').upload(filePath, myFile);
     if (storageResponse.isEmpty) {
       logger.e('Artikelbild konnte nicht hochgeladen werden. Error: $storageResponse');
@@ -213,4 +214,11 @@ String extractPathFromUrl(String url) {
   Uri uri = Uri.parse(url);
   int bucketIndex = uri.pathSegments.indexOf('product-images') + 1; // Findet den Index des Bucket-Namens und addiert 1
   return uri.pathSegments.sublist(bucketIndex).join('/'); // Extrahiert alles nach 'product-images'
+}
+
+String sanitizeFileName(String input) {
+  // Ersetzt ungültige Zeichen durch Unterstriche
+  String sanitized = input.replaceAll(RegExp(r'[^\w\s.-]'), '_');
+  // Entfernt Leerzeichen
+  return sanitized.replaceAll(' ', '_');
 }

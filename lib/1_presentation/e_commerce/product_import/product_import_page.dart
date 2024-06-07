@@ -35,13 +35,16 @@ class ProductImportPage extends StatelessWidget {
         print(state.isAnyFailure);
 
         void onImportProductPressed() {
-          productImportBloc.add(LoadProductFromMarketplaceEvent(
+          productImportBloc.add(
+            LoadProductFromMarketplaceEvent(
               value: idController.text,
               marketplace: switch (state.selectedMarketplace!.marketplaceType) {
                 MarketplaceType.prestashop => state.selectedMarketplace! as MarketplacePresta,
                 MarketplaceType.shopify => state.selectedMarketplace! as MarketplaceShopify,
                 MarketplaceType.shop => throw Exception('Should not be selectable!'),
-              }));
+              },
+            ),
+          );
         }
 
         if (state.marketplaceFailure != null && state.isAnyFailure) const Text('Ein Fehler ist aufgetreten');

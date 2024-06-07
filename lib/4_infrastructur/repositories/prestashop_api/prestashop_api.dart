@@ -429,6 +429,7 @@ class PrestashopApi with UiLoggy {
         productMarketplace: productMarketplace,
         productPresta: productPresta,
       );
+
       if (builder == null) return left(errorC2);
       final fosPayload = await _doPatch(
         '${_conf.webserviceUrl}products/$marketplaceProductPrestaId',
@@ -750,6 +751,7 @@ class PrestashopApi with UiLoggy {
           Uri.parse(uri),
           headers: {'Authorization': 'Basic ${base64Encode(utf8.encode('${marketplace.key}:'))}'},
         );
+
         if (responseImage.statusCode == 200) {
           final Directory directory = await getTemporaryDirectory();
           final File file = File('${directory.path}/product_${phProductPresta.id}_${id.id}.jpg');

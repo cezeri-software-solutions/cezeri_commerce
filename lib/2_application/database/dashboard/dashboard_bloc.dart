@@ -4,6 +4,7 @@ import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 
 import '../../../3_domain/entities/receipt/receipt.dart';
+import '../../../3_domain/entities/statistic/stat_brand.dart';
 import '../../../3_domain/entities/statistic/stat_dashboard.dart';
 import '../../../3_domain/repositories/firebase/receipt_respository.dart';
 import '../../../3_domain/repositories/firebase/stat_dashboard_repository.dart';
@@ -105,6 +106,19 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
         isLoadingOnObserve: false,
         fosListOfStatDashboardsOption: optionOf(failureOrSuccessStatDashboard),
       ));
+    });
+
+//? ######################################################################################################
+
+    on<GetListOfProductSalesByBrandEvent>((event, emit) async {
+      emit(state.copyWith(isLoadingProductSalesByBrand: true));
+
+      final fos = await dashboardRepository.getStatProductsByBrand(event.dateRange);
+
+      fos.fold(
+        (failure) => emit(state.copyWith(isFailureOnProductSalesByBrand: true, isLoadingProductSalesByBrand: false)),
+        (list) => emit(state.copyWith(listOfProductSalesByBrand: list, isLoadingProductSalesByBrand: false)),
+      );
     });
 
 //? ######################################################################################################

@@ -1,3 +1,4 @@
+import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.dart';
 import 'package:xml/xml.dart';
 
 import '../../../1_presentation/core/functions/mixed_functions.dart';
@@ -86,7 +87,7 @@ XmlBuilder? patchProductBuilder({
       builder.element('depth', nest: product.depth);
       builder.element('weight', nest: product.weight);
       builder.element('ean13', nest: product.ean);
-      builder.element('price', nest: product.netPrice);
+      builder.element('price', nest: product.netPrice.toMyRoundedDouble());
       builder.element('wholesale_price', nest: product.wholesalePrice);
       builder.element('unity', nest: product.unity);
       builder.element('unit_price_ratio', nest: product.netPrice / product.unitPrice);
@@ -119,13 +120,15 @@ XmlBuilder? patchProductBuilder({
       });
     });
   });
-  print('###############################################################################################################');
-  print('###############################################################################################################');
-  print('###############################################################################################################');
-  print(builder);
-  print('###############################################################################################################');
-  print('###############################################################################################################');
-  print('###############################################################################################################');
+  // print('#############################################################################################################');
+  // print('##############################################################################################################');
+  // print('###############################################################################################################');
+  // final xmlDocument = builder.buildDocument();
+  // final xmlString = xmlDocument.toXmlString(pretty: true);
+  // print(xmlString);
+  // print('###############################################################################################################');
+  // print('##############################################################################################################');
+  // print('#############################################################################################################');
   if (isAnyFailure) return null;
 
   return builder;

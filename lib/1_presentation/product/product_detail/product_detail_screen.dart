@@ -59,7 +59,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with Automati
               return Scaffold(appBar: appBar, body: const Center(child: Text('Ein Fehler ist aufgetreten')));
             }
             if (state.product == null) return Scaffold(appBar: appBar, body: const Center(child: CircularProgressIndicator()));
-
             if (state.showHtmlTexts) return DescriptionPage(productDetailBloc: productDetailBloc);
 
             return Scaffold(

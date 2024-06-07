@@ -38,7 +38,8 @@ class DescriptionPage extends StatelessWidget {
                     child: MyHtmlEditor(
                       controller: state.descriptionController,
                       initialText: state.product!.description,
-                      onChangeContent: (content) => productDetailBloc.add(OnProductDescriptionChangedEvent(content: content)),
+                      onChangeContent:
+                          state.isDescriptionChanged ? null : (content) => productDetailBloc.add(OnProductDescriptionChangedEvent(content: content)),
                     ),
                   ),
                   Gaps.h10,

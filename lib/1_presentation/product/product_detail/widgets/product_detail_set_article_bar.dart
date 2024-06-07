@@ -53,66 +53,68 @@ class ProductDetailSetArticleBar extends StatelessWidget {
                 ),
               ],
             ),
-            hasSetArticlesMismatch(state.product!.listOfProductIdWithQuantity, state.listOfAllProducts ?? state.listOfSetPartProducts)
-                ? const MyCircularProgressIndicator()
-                : ListView.builder(
-                    physics: const NeverScrollableScrollPhysics(),
-                    shrinkWrap: true,
-                    itemCount: state.product!.listOfProductIdWithQuantity.length,
-                    itemBuilder: (context, index) {
-                      final product =
-                          (state.listOfAllProducts ?? state.listOfSetPartProducts)!.where((e) => e.id == state.product!.listOfProductIdWithQuantity[index].productId).first;
-                      final productIdWithQuantity = state.product!.listOfProductIdWithQuantity[index];
-                      return Column(
-                        children: [
-                          if (index == 0) const Divider(color: CustomColors.backgroundLightGrey, height: 0),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Expanded(
-                                child: Row(
-                                  children: [
-                                    Container(
-                                      width: 60,
-                                      decoration: const BoxDecoration(
-                                        border: Border(
-                                          left: BorderSide(color: CustomColors.backgroundLightGrey),
-                                          right: BorderSide(color: CustomColors.backgroundLightGrey),
+            if (state.product!.isSetArticle || state.product!.listOfProductIdWithQuantity.isNotEmpty)
+              hasSetArticlesMismatch(state.product!.listOfProductIdWithQuantity, state.listOfAllProducts ?? state.listOfSetPartProducts)
+                  ? const MyCircularProgressIndicator()
+                  : ListView.builder(
+                      physics: const NeverScrollableScrollPhysics(),
+                      shrinkWrap: true,
+                      itemCount: state.product!.listOfProductIdWithQuantity.length,
+                      itemBuilder: (context, index) {
+                        final product = (state.listOfAllProducts ?? state.listOfSetPartProducts)!
+                            .where((e) => e.id == state.product!.listOfProductIdWithQuantity[index].productId)
+                            .first;
+                        final productIdWithQuantity = state.product!.listOfProductIdWithQuantity[index];
+                        return Column(
+                          children: [
+                            if (index == 0) const Divider(color: CustomColors.backgroundLightGrey, height: 0),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  child: Row(
+                                    children: [
+                                      Container(
+                                        width: 60,
+                                        decoration: const BoxDecoration(
+                                          border: Border(
+                                            left: BorderSide(color: CustomColors.backgroundLightGrey),
+                                            right: BorderSide(color: CustomColors.backgroundLightGrey),
+                                          ),
+                                        ),
+                                        child: MyAvatar(
+                                          name: product.name,
+                                          radius: 30,
+                                          imageUrl: product.listOfProductImages.isNotEmpty
+                                              ? product.listOfProductImages.where((e) => e.isDefault).first.fileUrl
+                                              : null,
+                                          shape: BoxShape.rectangle,
+                                          fit: BoxFit.scaleDown,
+                                          onTap: product.listOfProductImages.isNotEmpty
+                                              ? () => context.router.push(MyFullscreenImageRoute(
+                                                  imagePaths: product.listOfProductImages.map((e) => e.fileUrl).toList(),
+                                                  initialIndex: 0,
+                                                  isNetworkImage: true))
+                                              : null,
                                         ),
                                       ),
-                                      child: MyAvatar(
-                                        name: product.name,
-                                        radius: 30,
-                                        imageUrl: product.listOfProductImages.isNotEmpty
-                                            ? product.listOfProductImages.where((e) => e.isDefault).first.fileUrl
-                                            : null,
-                                        shape: BoxShape.rectangle,
-                                        fit: BoxFit.scaleDown,
-                                        onTap: product.listOfProductImages.isNotEmpty
-                                            ? () => context.router.push(MyFullscreenImageRoute(
-                                                imagePaths: product.listOfProductImages.map((e) => e.fileUrl).toList(),
-                                                initialIndex: 0,
-                                                isNetworkImage: true))
-                                            : null,
-                                      ),
-                                    ),
-                                    Gaps.w8,
-                                    Expanded(child: Text(product.name, overflow: TextOverflow.ellipsis)),
-                                  ],
+                                      Gaps.w8,
+                                      Expanded(child: Text(product.name, overflow: TextOverflow.ellipsis)),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                              Gaps.w16,
-                              Text(
-                                '${productIdWithQuantity.quantity} x',
-                                style: TextStyles.defaultBold.copyWith(color: CustomColors.primaryColor),
-                              )
-                            ],
-                          ),
-                          const Divider(color: CustomColors.backgroundLightGrey, height: 0),
-                        ],
-                      );
-                    },
-                  ),
+                                Gaps.w16,
+                                Text(
+                                  '${productIdWithQuantity.quantity} x',
+                                  style: TextStyles.defaultBold.copyWith(color: CustomColors.primaryColor),
+                                )
+                              ],
+                            ),
+                            const Divider(color: CustomColors.backgroundLightGrey, height: 0),
+                          ],
+                        );
+                      },
+                    ),
           ],
         );
       },
@@ -127,6 +129,4 @@ class ProductDetailSetArticleBar extends StatelessWidget {
 
     productDetailBloc.add(OnProductSetIsSetArticleEvent());
   }
-
-  
 }

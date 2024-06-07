@@ -63,9 +63,9 @@ Future<Either<AbstractFailure, Product>> getOrCreateProductFromMarketplaceOnImpo
     return fosProduct.fold(
       (failure) {
         logger.e('Artikel: ${productData.name} konte nicht in der Firestore Datenbank angelegt werden. \n Error: $failure');
-        return left(GeneralFailure(customMessage: 'Artikel: ${productData.name} konnte nicht in der Datenbank angelegt werden'));
+        return Left(GeneralFailure(customMessage: 'Artikel: ${productData.name} konnte nicht in der Datenbank angelegt werden'));
       },
-      (productFirestore) => right(productFirestore),
+      (productFirestore) => Right(productFirestore),
     );
   } else {
     if (!productFirestore.productMarketplaces.any((e) => e.idMarketplace == marketplace.id)) {

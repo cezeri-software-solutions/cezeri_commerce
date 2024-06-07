@@ -135,7 +135,13 @@ Future<void> init() async {
   sl.registerLazySingleton<GeneralLedgerAccountRepository>(() => GeneralLedgerAccountRepositoryImpl(db: sl(), firebaseAuth: sl()));
 
   //! repositories Prestashop
-  sl.registerLazySingleton<MarketplaceImportRepository>(() => MarketplaceImportRepositoryImpl(db: sl(), firebaseAuth: sl(), productRepository: sl()));
+  sl.registerLazySingleton<MarketplaceImportRepository>(() => MarketplaceImportRepositoryImpl(
+        db: sl(),
+        firebaseAuth: sl(),
+        productRepository: sl(),
+        mainSettingsRepository: sl(),
+        marketplaceRepository: sl(),
+      ));
   sl.registerLazySingleton<MarketplaceEditRepository>(() => MarketplaceEditRepositoryImpl());
 
   //! extern
