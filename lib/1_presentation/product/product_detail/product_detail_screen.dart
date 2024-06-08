@@ -13,7 +13,6 @@ import '../../core/functions/my_scaffold_messanger.dart';
 import '../../core/renderer/failure_renderer.dart';
 import '../../core/widgets/my_dialog_suppliers.dart';
 import '../../core/widgets/my_outlined_button.dart';
-import 'widgets/description_page.dart';
 import 'widgets/set_articles/show_select_product_sheet.dart';
 
 enum ProductCreateOrEdit { create, edit }
@@ -59,7 +58,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with Automati
               return Scaffold(appBar: appBar, body: const Center(child: Text('Ein Fehler ist aufgetreten')));
             }
             if (state.product == null) return Scaffold(appBar: appBar, body: const Center(child: CircularProgressIndicator()));
-            if (state.showHtmlTexts) return DescriptionPage(productDetailBloc: productDetailBloc);
+            // if (state.showHtmlTexts) return ProductDescriptionPage(productDetailBloc: productDetailBloc);
 
             return Scaffold(
               appBar: AppBar(

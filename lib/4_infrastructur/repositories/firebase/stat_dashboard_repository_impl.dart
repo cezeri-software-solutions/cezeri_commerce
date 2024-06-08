@@ -116,7 +116,7 @@ class StatDashboardRepositoryImpl implements StatDashboardRepository {
 
     try {
       final response = await supabase.rpc('get_stat_products_by_brand', params: {
-        'owner_id': ownerId,
+        'p_owner_id': ownerId,
         'start_date': startDate,
         'end_date': endDate,
       });

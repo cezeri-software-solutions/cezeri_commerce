@@ -19,6 +19,7 @@ class DashboardState {
   final List<StatBrand>? listOfProductSalesByBrand;
   final bool isLoadingProductSalesByBrand;
   final bool isFailureOnProductSalesByBrand;
+  final DateTimeRange dateRangeBrands;
 
   const DashboardState({
     required this.curStatDashboard,
@@ -36,25 +37,30 @@ class DashboardState {
     required this.listOfProductSalesByBrand,
     required this.isLoadingProductSalesByBrand,
     required this.isFailureOnProductSalesByBrand,
+    required this.dateRangeBrands,
   });
 
-  factory DashboardState.initial() => DashboardState(
-        curStatDashboard: StatDashboard.empty(),
-        listOfStatDashboards: const [],
-        listOfAppointments: const [],
-        listOfAppointmentsToday: const [],
-        listOfAppointmentsTomorrow: const [],
-        isLoadingOnObserve: true,
-        isAnyFailure: false,
-        isAnyFailureReceipts: false,
-        firebaseFailure: null,
-        firebaseFailureReceipts: null,
-        fosDashboardOption: none(),
-        fosListOfStatDashboardsOption: none(),
-        listOfProductSalesByBrand: const [],
-        isLoadingProductSalesByBrand: false,
-        isFailureOnProductSalesByBrand: false,
-      );
+  factory DashboardState.initial() {
+    final now = DateTime.now();
+    return DashboardState(
+      curStatDashboard: StatDashboard.empty(),
+      listOfStatDashboards: const [],
+      listOfAppointments: const [],
+      listOfAppointmentsToday: const [],
+      listOfAppointmentsTomorrow: const [],
+      isLoadingOnObserve: true,
+      isAnyFailure: false,
+      isAnyFailureReceipts: false,
+      firebaseFailure: null,
+      firebaseFailureReceipts: null,
+      fosDashboardOption: none(),
+      fosListOfStatDashboardsOption: none(),
+      listOfProductSalesByBrand: const [],
+      isLoadingProductSalesByBrand: false,
+      isFailureOnProductSalesByBrand: false,
+      dateRangeBrands: DateTimeRange(start: now.subtract(const Duration(days: 29)), end: DateTime(now.year, now.month, now.day + 1)),
+    );
+  }
 
   DashboardState copyWith({
     StatDashboard? curStatDashboard,
@@ -72,6 +78,7 @@ class DashboardState {
     List<StatBrand>? listOfProductSalesByBrand,
     bool? isLoadingProductSalesByBrand,
     bool? isFailureOnProductSalesByBrand,
+    DateTimeRange? dateRangeBrands,
   }) {
     return DashboardState(
       curStatDashboard: curStatDashboard ?? this.curStatDashboard,
@@ -89,6 +96,7 @@ class DashboardState {
       listOfProductSalesByBrand: listOfProductSalesByBrand ?? this.listOfProductSalesByBrand,
       isLoadingProductSalesByBrand: isLoadingProductSalesByBrand ?? this.isLoadingProductSalesByBrand,
       isFailureOnProductSalesByBrand: isFailureOnProductSalesByBrand ?? this.isFailureOnProductSalesByBrand,
+      dateRangeBrands: dateRangeBrands ?? this.dateRangeBrands,
     );
   }
 }

@@ -8,45 +8,61 @@ class StatBrand extends Equatable {
   @JsonKey(name: 'brand_name')
   final String brandName;
   @JsonKey(name: 'total_net_sales')
-  final double totalNetSales;
+  final double netSales;
   @JsonKey(name: 'total_profit')
-  final double totalProfit;
+  final double profit;
   @JsonKey(name: 'total_quantity')
-  final int totalQuantity;
+  final int quantity;
   @JsonKey(name: 'total_profit_percent')
+  final double profitPercent;
+  final double totalSalesPercent;
   final double totalProfitPercent;
 
   const StatBrand({
     required this.brandName,
-    required this.totalNetSales,
-    required this.totalProfit,
-    required this.totalQuantity,
-    required this.totalProfitPercent,
+    required this.netSales,
+    required this.profit,
+    required this.quantity,
+    required this.profitPercent,
+    this.totalSalesPercent = 0.0,
+    this.totalProfitPercent = 0.0,
   });
 
   factory StatBrand.fromJson(Map<String, dynamic> json) => _$StatBrandFromJson(json);
   Map<String, dynamic> toJson() => _$StatBrandToJson(this);
 
-  factory StatBrand.empty() => const StatBrand(brandName: '', totalNetSales: 0.0, totalProfit: 0.0, totalQuantity: 0, totalProfitPercent: 0.0);
+  factory StatBrand.empty() => const StatBrand(
+        brandName: '',
+        netSales: 0.0,
+        profit: 0.0,
+        quantity: 0,
+        profitPercent: 0.0,
+        totalSalesPercent: 0.0,
+        totalProfitPercent: 0.0,
+      );
 
   StatBrand copyWith({
     String? brandName,
-    double? totalNetSales,
-    double? totalProfit,
-    int? totalQuantity,
+    double? netSales,
+    double? profit,
+    int? quantity,
+    double? profitPercent,
+    double? totalSalesPercent,
     double? totalProfitPercent,
   }) {
     return StatBrand(
       brandName: brandName ?? this.brandName,
-      totalNetSales: totalNetSales ?? this.totalNetSales,
-      totalProfit: totalProfit ?? this.totalProfit,
-      totalQuantity: totalQuantity ?? this.totalQuantity,
+      netSales: netSales ?? this.netSales,
+      profit: profit ?? this.profit,
+      quantity: quantity ?? this.quantity,
+      profitPercent: profitPercent ?? this.profitPercent,
+      totalSalesPercent: totalSalesPercent ?? this.totalSalesPercent,
       totalProfitPercent: totalProfitPercent ?? this.totalProfitPercent,
     );
   }
 
   @override
-  List<Object?> get props => [brandName, totalNetSales, totalProfit, totalQuantity, totalProfitPercent];
+  List<Object?> get props => [brandName, netSales, profit, quantity, profitPercent, totalSalesPercent, totalProfitPercent];
 
   @override
   bool get stringify => true;

@@ -55,8 +55,7 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
           isAnyFailure: true,
         )),
         (listOfStatDashboards) {
-          DateTime now = DateTime.now();
-          print('${now.year}-${now.month}');
+          final now = DateTime.now();
           emit(state.copyWith(
             listOfStatDashboards: listOfStatDashboards,
             curStatDashboard: listOfStatDashboards.where((e) => e.month == now.toFormattedYearMonth()).isNotEmpty
@@ -78,8 +77,8 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
           isAnyFailureReceipts: true,
         )),
         (listOfAppointments) {
-          print(listOfAppointments.length);
           DateTime now = DateTime.now();
+
           emit(state.copyWith(
             listOfAppointments: listOfAppointments,
             listOfAppointmentsToday: listOfAppointments.isNotEmpty
@@ -113,12 +112,45 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
     on<GetListOfProductSalesByBrandEvent>((event, emit) async {
       emit(state.copyWith(isLoadingProductSalesByBrand: true));
 
-      final fos = await dashboardRepository.getStatProductsByBrand(event.dateRange);
+      final fos = await dashboardRepository.getStatProductsByBrand(state.dateRangeBrands);
 
       fos.fold(
         (failure) => emit(state.copyWith(isFailureOnProductSalesByBrand: true, isLoadingProductSalesByBrand: false)),
-        (list) => emit(state.copyWith(listOfProductSalesByBrand: list, isLoadingProductSalesByBrand: false)),
+        (list) {
+          // Initiale Summenberechnung
+          double totalSales = 0.0;
+          double totalProfit = 0.0;
+
+          for (final brand in list) {
+            totalSales += brand.netSales;
+            totalProfit += brand.profit;
+          }
+
+          // Liste aktualisieren mit berechneten Prozentwerten
+          List<StatBrand> updatedList = list.map((brand) {
+            double totalSalesPercent = (brand.netSales * 100) / totalSales;
+            double totalProfitPercent = (brand.profit * 100) / totalProfit;
+            return brand.copyWith(
+              totalSalesPercent: totalSalesPercent,
+              totalProfitPercent: totalProfitPercent,
+            );
+          }).toList();
+
+          emit(state.copyWith(listOfProductSalesByBrand: updatedList, isLoadingProductSalesByBrand: false));
+        },
       );
+    });
+
+//? ######################################################################################################
+
+    on<SetProductSalesDateTimeRangeEvent>((event, emit) async {
+      emit(state.copyWith(
+        dateRangeBrands: DateTimeRange(
+          start: event.dateRange.start,
+          end: DateTime(event.dateRange.end.year, event.dateRange.end.month, event.dateRange.end.day + 1),
+        ),
+      ));
+      add(GetListOfProductSalesByBrandEvent());
     });
 
 //? ######################################################################################################

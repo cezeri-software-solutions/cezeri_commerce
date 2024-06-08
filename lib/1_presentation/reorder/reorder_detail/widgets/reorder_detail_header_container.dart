@@ -101,7 +101,8 @@ class ReorderDetailHeaderContainer extends StatelessWidget {
                             IconButton(
                               padding: EdgeInsets.zero,
                               onPressed: state.listOfMarketplaces != null && state.listOfMarketplaces!.isNotEmpty
-                                  ? () async => await onPdfPressed(context: context, reorder: state.reorder!, marketplaces: state.listOfMarketplaces!) //TODO: Shopify
+                                  ? () async => await onPdfPressed(
+                                      context: context, reorder: state.reorder!, marketplaces: state.listOfMarketplaces!) //TODO: Shopify
                                   : () => reorderDetailBloc.add(OnReorderDetailGetPdfDataEvent()),
                               icon:
                                   state.isLoadingPdfData ? const MyCircularProgressIndicator() : const Icon(Icons.picture_as_pdf, color: Colors.red),

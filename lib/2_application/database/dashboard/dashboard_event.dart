@@ -9,8 +9,10 @@ class GetCurStatDashboardEvent extends DashboardEvent {}
 
 class GetListOfStatDashboardsEvent extends DashboardEvent {}
 
-class GetListOfProductSalesByBrandEvent extends DashboardEvent {
+class GetListOfProductSalesByBrandEvent extends DashboardEvent {}
+
+class SetProductSalesDateTimeRangeEvent extends DashboardEvent {
   final DateTimeRange dateRange;
 
-  GetListOfProductSalesByBrandEvent({required this.dateRange});
+  SetProductSalesDateTimeRangeEvent({required this.dateRange});
 }
