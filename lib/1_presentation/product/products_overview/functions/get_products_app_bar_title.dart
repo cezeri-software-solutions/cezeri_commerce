@@ -6,41 +6,35 @@ import '../../../../constants.dart';
 import '../../../core/functions/dialogs.dart';
 
 Widget getProductsAppBarTitle(BuildContext context, List<Product>? listOfFilteredProducts, List<Product> selectedProducts) {
-    if (listOfFilteredProducts == null) return const Text('Artikel');
-    final isTablet = ResponsiveBreakpoints.of(context).largerOrEqualTo(TABLET);
+  if (listOfFilteredProducts == null) return const Text('Artikel');
+  final isTablet = ResponsiveBreakpoints.of(context).largerOrEqualTo(TABLET);
 
-    final row = Row(
-      children: switch (isTablet) {
-        true => [
-            Text('Artikel (${listOfFilteredProducts.length})'),
-            Gaps.w8,
-            InkWell(
-              onTap: () => showMyDialogProducts(context: context, productsList: selectedProducts),
-              child: Text('Ausgewählte Artikel (${selectedProducts.length})'),
-            ),
-          ],
-        _ => [
-            Text('Artikel (${listOfFilteredProducts.length})'),
-            Gaps.w8,
-            Tooltip(
-              message: 'Ausgewählte Artikel',
-              child: InkWell(
-                onTap: () => showMyDialogProducts(context: context, productsList: selectedProducts),
-                child: Text('(${selectedProducts.length})'),
-              ),
-            ),
-          ],
-      },
-    );
+  final mainTitle = Text.rich(TextSpan(children: [
+    const TextSpan(text: 'Artikel'),
+    const TextSpan(text: ' '),
+    TextSpan(text: '(${listOfFilteredProducts.length})', style: TextStyles.h3),
+  ]));
 
-    return switch (isTablet) {
-      true => switch (selectedProducts.length) {
-          0 => Text('Artikel (${listOfFilteredProducts.length})'),
-          _ => row,
-        },
-      _ => switch (selectedProducts.length) {
-          0 => Text('Artikel (${listOfFilteredProducts.length})'),
-          _ => row,
-        },
-    };
-  }
+  final row = Row(
+    children: [
+      mainTitle,
+      Gaps.w8,
+      InkWell(
+        onTap: () => showMyDialogProducts(context: context, productsList: selectedProducts),
+        child: Align(
+          alignment: Alignment.bottomCenter,
+          child: Text.rich(TextSpan(children: [
+            if (isTablet) const TextSpan(text: 'Ausgewählte Artikel'),
+            const TextSpan(text: ' '),
+            TextSpan(text: '(${selectedProducts.length})', style: TextStyles.h3),
+          ])),
+        ),
+      ),
+    ],
+  );
+
+  return switch (selectedProducts.length) {
+    0 => mainTitle,
+    _ => row,
+  };
+}

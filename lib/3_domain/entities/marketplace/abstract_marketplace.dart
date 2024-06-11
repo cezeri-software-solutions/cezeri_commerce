@@ -1,7 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 
-import '../../../constants.dart';
 import '../address.dart';
 import '../settings/bank_details.dart';
 import 'marketplace_presta.dart';
@@ -40,15 +39,11 @@ abstract class AbstractMarketplace extends Equatable {
   factory AbstractMarketplace.fromJson(Map<String, dynamic> json) {
     try {
       return MarketplacePresta.fromJson(json);
-    } catch (e) {
-      logger.i(e);
-    }
+    } catch (_) {}
 
     try {
       return MarketplaceShopify.fromJson(json);
-    } catch (e) {
-      logger.i(e);
-    }
+    } catch (_) {}
 
     return throw Exception('Unbekannter Marktplatztyp');
   }

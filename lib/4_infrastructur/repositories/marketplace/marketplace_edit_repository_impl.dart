@@ -1,19 +1,19 @@
 import 'package:dartz/dartz.dart';
 import 'package:http/http.dart';
 
-import '../../../../1_presentation/core/functions/check_internet_connection.dart';
-import '../../../../3_domain/entities/product/product_marketplace.dart';
-import '../../../../3_domain/repositories/marketplace/marketplace_edit_repository.dart';
-import '../../../3_domain/entities/carrier/parcel_tracking.dart';
-import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
-import '../../../3_domain/entities/marketplace/marketplace_presta.dart';
-import '../../../3_domain/entities/marketplace/marketplace_shopify.dart';
-import '../../../3_domain/entities/product/product.dart';
-import '../../../3_domain/entities/product/product_image.dart';
-import '../../../3_domain/entities/product/product_presta.dart';
-import '../../../3_domain/enums/enums.dart';
-import '../../../constants.dart';
-import '../../../failures/failures.dart';
+import '/1_presentation/core/functions/check_internet_connection.dart';
+import '/3_domain/entities/carrier/parcel_tracking.dart';
+import '/3_domain/entities/marketplace/abstract_marketplace.dart';
+import '/3_domain/entities/marketplace/marketplace_presta.dart';
+import '/3_domain/entities/marketplace/marketplace_shopify.dart';
+import '/3_domain/entities/product/product.dart';
+import '/3_domain/entities/product/product_image.dart';
+import '/3_domain/entities/product/product_marketplace.dart';
+import '/3_domain/entities/product/product_presta.dart';
+import '/3_domain/enums/enums.dart';
+import '/3_domain/repositories/marketplace/marketplace_edit_repository.dart';
+import '/constants.dart';
+import '/failures/failures.dart';
 import '../functions/repository_functions.dart';
 import '../prestashop_api/models/product_raw_presta.dart';
 import '../prestashop_api/prestashop_api.dart';
@@ -101,7 +101,7 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
   }
 
   @override
-  Future<Either<List<AbstractFailure>, Unit>> editProdcutInMarketplace(Product product, List<MarketplacePresta>? toEditMarketplaces) async {
+  Future<Either<List<AbstractFailure>, Unit>> editProdcutInMarketplace(Product product, List<AbstractMarketplace>? toEditMarketplaces) async {
     if (!await checkInternetConnection()) return Left([NoConnectionFailure()]);
     final ownerId = await getOwnerId();
     if (ownerId == null) return Left([GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden')]);

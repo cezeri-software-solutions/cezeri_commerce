@@ -21,6 +21,7 @@ class TextStyles {
   static const TextStyle h3BoldPrimary = TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: CustomColors.primaryColor);
   static const TextStyle defaultt = TextStyle(fontSize: 14);
   static const TextStyle defaultBold = TextStyle(fontSize: 14, fontWeight: FontWeight.bold);
+  static const TextStyle defaultBoldPrimary = TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: CustomColors.primaryColor);
   static const TextStyle buttonText = TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white);
   static const TextStyle textButtonText = TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF006399));
   static const TextStyle listTile = TextStyle(fontSize: 14, fontWeight: FontWeight.bold);
@@ -116,9 +117,25 @@ class Gaps {
   static const SizedBox w32 = SizedBox(width: 32);
 }
 
+//* ProductsOverviewPage
+class RWPP {
+  RWPP._();
+
+  static const double picture = 70;
+  static const double prices = 150;
+}
+
+//* ProductsOverviewPage Mobile
+class RWMBPP {
+  RWMBPP._();
+
+  static const double picture = 50;
+  static const double prices = 120;
+}
+
 //* ReceiptsOverviewPage
-class RowWidthsROP {
-  RowWidthsROP._();
+class RWROP {
+  RWROP._();
 
   static const int pos = 30;
   static const int articleNumber = 160;
@@ -129,8 +146,8 @@ class RowWidthsROP {
 }
 
 //* ReorderDetailProductsCard
-class RowWidthsReOP {
-  RowWidthsReOP._();
+class RWReOP {
+  RWReOP._();
 
   static const int pos = 30;
   static const int articleNumber = 160;
@@ -142,8 +159,8 @@ class RowWidthsReOP {
 }
 
 //* ReceiptDetailProductsCard
-class RowWidthsRDP {
-  RowWidthsRDP._();
+class RWRDP {
+  RWRDP._();
 
   static const int articleNumber = 100;
   static const int articleName = 400;

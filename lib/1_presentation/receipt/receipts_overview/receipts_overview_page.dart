@@ -182,17 +182,17 @@ class _AppointmentContainer extends StatelessWidget {
                         children: [
                           const Row(
                             children: [
-                              Expanded(flex: RowWidthsROP.pos, child: Text('Pos', style: TextStyles.defaultBold)),
+                              Expanded(flex: RWROP.pos, child: Text('Pos', style: TextStyles.defaultBold)),
                               Spacer(),
-                              Expanded(flex: RowWidthsROP.articleNumber, child: Text('Artikelnummer', style: TextStyles.defaultBold)),
+                              Expanded(flex: RWROP.articleNumber, child: Text('Artikelnummer', style: TextStyles.defaultBold)),
                               Spacer(),
-                              Expanded(flex: RowWidthsROP.ean, child: Text('EAN', style: TextStyles.defaultBold)),
+                              Expanded(flex: RWROP.ean, child: Text('EAN', style: TextStyles.defaultBold)),
                               Spacer(),
-                              Expanded(flex: RowWidthsROP.articleName, child: Text('Name', style: TextStyles.defaultBold)),
+                              Expanded(flex: RWROP.articleName, child: Text('Name', style: TextStyles.defaultBold)),
                               Spacer(),
-                              Expanded(flex: RowWidthsROP.openQuantity, child: Text('Offen', style: TextStyles.defaultBold)),
+                              Expanded(flex: RWROP.openQuantity, child: Text('Offen', style: TextStyles.defaultBold)),
                               Spacer(),
-                              Expanded(flex: RowWidthsROP.quantity, child: Text('Anzahl', style: TextStyles.defaultBold)),
+                              Expanded(flex: RWROP.quantity, child: Text('Anzahl', style: TextStyles.defaultBold)),
                             ],
                           ),
                           const Divider(),
@@ -298,16 +298,16 @@ class _AppointmentProdcutsContainer extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          Expanded(flex: RowWidthsROP.pos, child: Text((index + 1).toString(), style: TextStyles.defaultBold)),
+          Expanded(flex: RWROP.pos, child: Text((index + 1).toString(), style: TextStyles.defaultBold)),
           const Spacer(),
-          Expanded(flex: RowWidthsROP.articleNumber, child: Text(appointmentProduct.articleNumber, overflow: TextOverflow.ellipsis)),
+          Expanded(flex: RWROP.articleNumber, child: Text(appointmentProduct.articleNumber, overflow: TextOverflow.ellipsis)),
           const Spacer(),
-          Expanded(flex: RowWidthsROP.ean, child: Text(appointmentProduct.ean, overflow: TextOverflow.ellipsis)),
+          Expanded(flex: RWROP.ean, child: Text(appointmentProduct.ean, overflow: TextOverflow.ellipsis)),
           const Spacer(),
-          Expanded(flex: RowWidthsROP.articleName, child: Text(appointmentProduct.name, overflow: TextOverflow.ellipsis)),
+          Expanded(flex: RWROP.articleName, child: Text(appointmentProduct.name, overflow: TextOverflow.ellipsis)),
           const Spacer(),
           Expanded(
-            flex: RowWidthsROP.openQuantity,
+            flex: RWROP.openQuantity,
             child: Center(
               child: Text(
                 (appointmentProduct.quantity - appointmentProduct.shippedQuantity).toString(),
@@ -316,7 +316,7 @@ class _AppointmentProdcutsContainer extends StatelessWidget {
             ),
           ),
           const Spacer(),
-          Expanded(flex: RowWidthsROP.quantity, child: Center(child: Text(appointmentProduct.quantity.toString()))),
+          Expanded(flex: RWROP.quantity, child: Center(child: Text(appointmentProduct.quantity.toString()))),
         ],
       ),
     );

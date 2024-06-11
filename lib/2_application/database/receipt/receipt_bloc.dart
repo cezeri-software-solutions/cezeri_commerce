@@ -480,27 +480,6 @@ class ReceiptBloc extends Bloc<ReceiptEvent, ReceiptState> {
 
 //? #########################################################################
 
-    on<GetAllProductsEvent>((event, emit) async {
-      emit(state.copyWith(isLoadingProductsOnObserve: true));
-
-      final failureOrSuccess = await productRepository.getListOfProducts(true);
-      failureOrSuccess.fold(
-        (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
-        (listOfProducts) {
-          listOfProducts.sort((a, b) => a.name.compareTo(b.name));
-          emit(state.copyWith(listOfAllProducts: listOfProducts, firebaseFailure: null, isAnyFailure: false));
-        },
-      );
-
-      emit(state.copyWith(
-        isLoadingProductsOnObserve: false,
-        fosProductsOnObserveOption: optionOf(failureOrSuccess),
-      ));
-      emit(state.copyWith(fosProductsOnObserveOption: none()));
-    });
-
-//? #########################################################################
-
     on<GetProductByEanEvent>((event, emit) async {
       emit(state.copyWith(isLoadingProductOnObserve: true));
 

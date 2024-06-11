@@ -81,8 +81,6 @@ class OnGenerateFromDeliveryNotesNewInvoiceEvent extends ReceiptEvent {}
 class OnGenerateFromInvoiceNewCreditEvent extends ReceiptEvent {}
 
 //* --- products --- *//
-class GetAllProductsEvent extends ReceiptEvent {}
-
 class GetProductByEanEvent extends ReceiptEvent {
   final String ean;
 

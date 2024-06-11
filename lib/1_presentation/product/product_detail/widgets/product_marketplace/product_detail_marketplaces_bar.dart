@@ -39,7 +39,7 @@ class ProductDetailMarketplacesBar extends StatelessWidget {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Divider(),
+              const Divider(thickness: 5),
               Gaps.h10,
               const Text('Marktplätze', style: TextStyles.h2Bold),
               Gaps.h16,

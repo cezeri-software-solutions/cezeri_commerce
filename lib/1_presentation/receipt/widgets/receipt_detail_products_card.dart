@@ -5,14 +5,18 @@ import 'package:cezeri_commerce/3_domain/entities/receipt/receipt_product.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 
+import '../../../2_application/database/product/product_bloc.dart';
 import '../../../2_application/database/receipt/receipt_bloc.dart';
 import '../../../2_application/database/receipt_detail/receipt_detail_bloc.dart';
 import '../../../3_domain/entities/product/product.dart';
 import '../../../constants.dart';
+import '../../../injection.dart';
 import '../../core/functions/dialogs.dart';
 import '../../core/widgets/my_avatar.dart';
 import '../../core/widgets/my_text_form_field_small_double.dart';
+import '../../core/widgets/pages_pagination_bar.dart';
 
 class ReceiptDetailProductsCard extends StatefulWidget {
   final ReceiptBloc receiptBloc;
@@ -44,36 +48,6 @@ class _ReceiptDetailProductsCardState extends State<ReceiptDetailProductsCard> {
                 (product) {
                   widget.receiptDetailBloc.add(AddProductToReceiptProductsEvent(receiptProduct: ReceiptProduct.fromProduct(product)));
                   setState(() => _errorMessageEanNotFound = '');
-                },
-              ),
-            );
-          },
-        ),
-        BlocListener<ReceiptBloc, ReceiptState>(
-          bloc: widget.receiptBloc,
-          listenWhen: (p, c) => p.fosProductsOnObserveOption != c.fosProductsOnObserveOption,
-          listener: (context, state) {
-            state.fosProductsOnObserveOption.fold(
-              () => null,
-              (a) => a.fold(
-                (failure) {},
-                (products) {
-                  Navigator.of(context).pop();
-                  showDialog(
-                    context: context,
-                    builder: (context) {
-                      final screenHeight = MediaQuery.sizeOf(context).height;
-                      final screenWidth = MediaQuery.sizeOf(context).width;
-                      return BlocProvider.value(
-                        value: widget.receiptBloc,
-                        child: _SelectProductDialog(
-                            receiptDetailBloc: widget.receiptDetailBloc,
-                            receiptBloc: widget.receiptBloc,
-                            screenHeight: screenHeight,
-                            screenWidth: screenWidth),
-                      );
-                    },
-                  );
                 },
               ),
             );
@@ -121,42 +95,42 @@ class _ReceiptDetailProductsCardState extends State<ReceiptDetailProductsCard> {
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           const Expanded(
-                            flex: RowWidthsRDP.articleNumber,
+                            flex: RWRDP.articleNumber,
                             child: Text('Artikelnr.', style: TextStyles.s12Bold),
                           ),
                           Gaps.w8,
                           const Expanded(
-                            flex: RowWidthsRDP.articleName,
+                            flex: RWRDP.articleName,
                             child: Text('Name', style: TextStyles.s12Bold),
                           ),
                           Gaps.w8,
                           const Expanded(
-                            flex: RowWidthsRDP.tax,
+                            flex: RWRDP.tax,
                             child: Text('Steuer', style: TextStyles.s12Bold),
                           ),
                           Gaps.w8,
                           const Expanded(
-                            flex: RowWidthsRDP.quantity,
+                            flex: RWRDP.quantity,
                             child: Text('Menge', style: TextStyles.s12Bold),
                           ),
                           Gaps.w8,
                           const Expanded(
-                            flex: RowWidthsRDP.unitPriceNet,
+                            flex: RWRDP.unitPriceNet,
                             child: Text('Netto Stk.', style: TextStyles.s12Bold),
                           ),
                           Gaps.w8,
                           const Expanded(
-                            flex: RowWidthsRDP.discountGrossUnit,
+                            flex: RWRDP.discountGrossUnit,
                             child: Text('Rabatt %', style: TextStyles.s12Bold),
                           ),
                           Gaps.w8,
                           const Expanded(
-                            flex: RowWidthsRDP.unitPriceGross,
+                            flex: RWRDP.unitPriceGross,
                             child: Text('Brutto Stk.', style: TextStyles.s12Bold),
                           ),
                           Gaps.w8,
                           const Expanded(
-                            flex: RowWidthsRDP.totalPriceGross,
+                            flex: RWRDP.totalPriceGross,
                             child: Text('Gesamt Brutto', style: TextStyles.s12Bold),
                           ),
                           ConstrainedBox(
@@ -184,7 +158,7 @@ class _ReceiptDetailProductsCardState extends State<ReceiptDetailProductsCard> {
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 children: [
                                   Expanded(
-                                    flex: RowWidthsRDP.articleNumber,
+                                    flex: RWRDP.articleNumber,
                                     child: MyTextFormFieldSmallDouble(
                                       readOnly: !state.isEditable[index],
                                       inputFormatters: const [],
@@ -195,7 +169,7 @@ class _ReceiptDetailProductsCardState extends State<ReceiptDetailProductsCard> {
                                   ),
                                   Gaps.w8,
                                   Expanded(
-                                    flex: RowWidthsRDP.articleName,
+                                    flex: RWRDP.articleName,
                                     child: MyTextFormFieldSmallDouble(
                                       readOnly: !state.isEditable[index],
                                       inputFormatters: const [],
@@ -206,7 +180,7 @@ class _ReceiptDetailProductsCardState extends State<ReceiptDetailProductsCard> {
                                   ),
                                   Gaps.w8,
                                   Expanded(
-                                    flex: RowWidthsRDP.tax,
+                                    flex: RWRDP.tax,
                                     child: MyTextFormFieldSmallDouble(
                                       readOnly: true,
                                       hintText: state.listOfReceiptProducts[index].tax.taxName,
@@ -214,7 +188,7 @@ class _ReceiptDetailProductsCardState extends State<ReceiptDetailProductsCard> {
                                   ),
                                   Gaps.w8,
                                   Expanded(
-                                    flex: RowWidthsRDP.quantity,
+                                    flex: RWRDP.quantity,
                                     child: MyTextFormFieldSmallDouble(
                                       controller: state.quantityControllers[index],
                                       onChanged: (value) => widget.receiptDetailBloc.add(SetQuantityControllerEvent(index: index)),
@@ -226,7 +200,7 @@ class _ReceiptDetailProductsCardState extends State<ReceiptDetailProductsCard> {
                                   ),
                                   Gaps.w8,
                                   Expanded(
-                                    flex: RowWidthsRDP.unitPriceNet,
+                                    flex: RWRDP.unitPriceNet,
                                     child: MyTextFormFieldSmallDouble(
                                       controller: state.unitPriceNetControllers[index],
                                       onChanged: (_) => widget.receiptDetailBloc.add(SetUnitPriceNetControllerEvent(index: index)),
@@ -235,7 +209,7 @@ class _ReceiptDetailProductsCardState extends State<ReceiptDetailProductsCard> {
                                   ),
                                   Gaps.w8,
                                   Expanded(
-                                    flex: RowWidthsRDP.discountGrossUnit,
+                                    flex: RWRDP.discountGrossUnit,
                                     child: MyTextFormFieldSmallDouble(
                                       controller: state.posDiscountPercentControllers[index],
                                       onChanged: (_) => widget.receiptDetailBloc.add(SetPosDiscountPercentControllerEvent(index: index)),
@@ -245,7 +219,7 @@ class _ReceiptDetailProductsCardState extends State<ReceiptDetailProductsCard> {
                                   ),
                                   Gaps.w8,
                                   Expanded(
-                                    flex: RowWidthsRDP.unitPriceGross,
+                                    flex: RWRDP.unitPriceGross,
                                     child: MyTextFormFieldSmallDouble(
                                       controller: state.unitPriceGrossControllers[index],
                                       onChanged: (_) => widget.receiptDetailBloc.add(SetUnitPriceGrossControllerEvent(index: index)),
@@ -254,7 +228,7 @@ class _ReceiptDetailProductsCardState extends State<ReceiptDetailProductsCard> {
                                   ),
                                   Gaps.w8,
                                   Expanded(
-                                    flex: RowWidthsRDP.totalPriceGross,
+                                    flex: RWRDP.totalPriceGross,
                                     child: MyTextFormFieldSmallDouble(
                                       readOnly: true,
                                       hintText: (receiptProduct.unitPriceGross * receiptProduct.quantity).toMyCurrencyStringToShow(),
@@ -289,34 +263,26 @@ class _ReceiptDetailProductsCardState extends State<ReceiptDetailProductsCard> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          stateProduct.isLoadingProductsOnObserve
-                              ? const MyCircularProgressIndicator()
-                              : TextButton.icon(
-                                  onPressed: () {
-                                    if (stateProduct.listOfAllProducts == null) {
-                                      showMyDialogLoading(context: context, text: 'Artikel werden geladen...');
-                                      widget.receiptBloc.add(GetAllProductsEvent());
-                                    } else {
-                                      showDialog(
-                                        context: context,
-                                        builder: (context) {
-                                          final screenHeight = MediaQuery.sizeOf(context).height;
-                                          final screenWidth = MediaQuery.sizeOf(context).width;
-                                          return BlocProvider.value(
-                                            value: widget.receiptBloc,
-                                            child: _SelectProductDialog(
-                                                receiptDetailBloc: widget.receiptDetailBloc,
-                                                receiptBloc: widget.receiptBloc,
-                                                screenHeight: screenHeight,
-                                                screenWidth: screenWidth),
-                                          );
-                                        },
-                                      );
-                                    }
-                                  },
-                                  icon: const Icon(Icons.add, color: Colors.green),
-                                  label: const Text('Aus Artikelliste'),
-                                ),
+                          TextButton.icon(
+                            icon: const Icon(Icons.add, color: Colors.green),
+                            label: const Text('Aus Artikelliste'),
+                            onPressed: () {
+                              WoltModalSheet.show(
+                                context: context,
+                                useSafeArea: false,
+                                pageListBuilder: (context) {
+                                  return [
+                                    WoltModalSheetPage(
+                                      hasTopBarLayer: false,
+                                      forceMaxHeight: true,
+                                      isTopBarLayerAlwaysVisible: false,
+                                      child: _SelectReceiptProducts(receiptDetailBloc: widget.receiptDetailBloc),
+                                    ),
+                                  ];
+                                },
+                              );
+                            },
+                          ),
                           TextButton.icon(
                             onPressed: () => widget.receiptDetailBloc.add(AddProductToReceiptProductsEvent(receiptProduct: ReceiptProduct.empty())),
                             icon: const Icon(Icons.add, color: Colors.green),
@@ -337,128 +303,126 @@ class _ReceiptDetailProductsCardState extends State<ReceiptDetailProductsCard> {
 
   void _onEanScanned(String value, List<Product>? listOfAllProducts, Product? product, List<ReceiptProduct> listOfReceiptProducts) {
     if (value.length == 13) {
-      if (listOfAllProducts != null) {
-        final productByEan = listOfAllProducts.where((e) => e.ean == value).firstOrNull;
-        if (productByEan != null) {
-          setState(() => _errorMessageEanNotFound = '');
-          widget.receiptDetailBloc.add(AddProductToReceiptProductsEvent(receiptProduct: ReceiptProduct.fromProduct(productByEan)));
-        } else {
-          setState(() => _errorMessageEanNotFound = 'Artikel konnte nicht in der Datenbank gefunden werden');
-        }
-      } else {
-        if (product != null && product.ean == value) {
-          widget.receiptDetailBloc.add(AddProductToReceiptProductsEvent(receiptProduct: ReceiptProduct.fromProduct(product)));
-          return;
-        }
-        if (listOfReceiptProducts.any((e) => e.ean == value)) {
-          final index = listOfReceiptProducts.indexWhere((e) => e.ean == value);
-          widget.receiptDetailBloc.add(AddProductToReceiptProductsEvent(receiptProduct: listOfReceiptProducts[index]));
-          return;
-        }
-        widget.receiptBloc.add(GetProductByEanEvent(ean: value));
+      if (product != null && product.ean == value) {
+        widget.receiptDetailBloc.add(AddProductToReceiptProductsEvent(receiptProduct: ReceiptProduct.fromProduct(product)));
+        return;
       }
+      if (listOfReceiptProducts.any((e) => e.ean == value)) {
+        final index = listOfReceiptProducts.indexWhere((e) => e.ean == value);
+        widget.receiptDetailBloc.add(AddProductToReceiptProductsEvent(receiptProduct: listOfReceiptProducts[index]));
+        return;
+      }
+      widget.receiptBloc.add(GetProductByEanEvent(ean: value));
     }
   }
 }
 
-class _SelectProductDialog extends StatefulWidget {
+class _SelectReceiptProducts extends StatelessWidget {
   final ReceiptDetailBloc receiptDetailBloc;
-  final ReceiptBloc receiptBloc;
-  final double screenHeight;
-  final double screenWidth;
 
-  const _SelectProductDialog({required this.receiptDetailBloc, required this.receiptBloc, required this.screenHeight, required this.screenWidth});
-
-  @override
-  State<_SelectProductDialog> createState() => _SelectProductDialogState();
-}
-
-class _SelectProductDialogState extends State<_SelectProductDialog> {
-  final _productSearchController = TextEditingController();
+  const _SelectReceiptProducts({super.key, required this.receiptDetailBloc});
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<ReceiptBloc, ReceiptState>(
-      bloc: widget.receiptBloc,
-      builder: (context, state) {
-        if (state.listOfAllProducts == null) widget.receiptBloc.add(GetAllProductsEvent());
+    final productBloc = sl<ProductBloc>()..add(GetProductsPerPageEvent(isFirstLoad: true, calcCount: true, currentPage: 1));
 
-        if (state.firebaseFailure != null && state.isAnyFailure) {
-          return Dialog(child: SizedBox(width: 600, height: 1200, child: Center(child: Text(state.firebaseFailure.toString()))));
-        }
-        if (state.isLoadingProductsOnObserve || state.listOfAllProducts == null) {
-          return const Dialog(child: SizedBox(width: 600, height: 1200, child: Center(child: CircularProgressIndicator())));
-        }
-
-        List<Product> productList = switch (_productSearchController.text) {
-          '' => state.listOfAllProducts!,
-          _ => state.listOfAllProducts!.where((e) => e.name.toLowerCase().contains(_productSearchController.text.toLowerCase())).toList(),
-        };
-
-        return Dialog(
-          child: SizedBox(
-            height: widget.screenHeight > 1200 ? 1200 : widget.screenHeight,
-            width: widget.screenWidth > 600 ? 600 : widget.screenWidth,
-            child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      CupertinoSearchTextField(
-                        controller: _productSearchController,
-                        onChanged: (_) => setState(() {}),
-                        onSuffixTap: () => setState(() => _productSearchController.clear()),
-                      ),
-                    ],
-                  ),
+    return BlocProvider.value(
+      value: productBloc,
+      child: BlocBuilder<ProductBloc, ProductState>(
+        builder: (context, state) {
+          return Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: CupertinoSearchTextField(
+                  controller: state.productSearchController,
+                  onSubmitted: (value) => _onSearchFieldSubmitted(context, productBloc, value),
+                  onSuffixTap: () => productBloc.add(OnSearchFieldClearedEvent()),
                 ),
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: productList.length,
-                    itemBuilder: ((context, index) {
-                      final product = productList[index];
-                      return Column(
-                        children: [
-                          if (index == 0) Gaps.h10,
-                          ListTile(
-                            leading: SizedBox(
-                              width: 40,
-                              child: MyAvatar(
-                                name: product.name,
-                                imageUrl: product.listOfProductImages.isNotEmpty
-                                    ? product.listOfProductImages.where((e) => e.isDefault).first.fileUrl
-                                    : null,
-                                radius: 20,
-                                fontSize: 16,
-                                //fit: BoxFit.scaleDown,
-                              ),
-                            ),
-                            title: Text(product.name, style: TextStyles.defaultt),
-                            trailing: IconButton(
-                              onPressed: () =>
-                                  widget.receiptDetailBloc.add(AddProductToReceiptProductsEvent(receiptProduct: ReceiptProduct.fromProduct(product))),
-                              icon: const Icon(
-                                Icons.arrow_forward_ios,
-                                color: Colors.green,
-                              ),
-                            ),
-                            onTap: () {
-                              _productSearchController.clear();
-                              context.router.maybePop();
-                              widget.receiptDetailBloc.add(AddProductToReceiptProductsEvent(receiptProduct: ReceiptProduct.fromProduct(product)));
-                            },
-                          ),
-                          const Divider(height: 0),
-                        ],
-                      );
-                    }),
-                  ),
+              ),
+              _ProductItems(productBloc: productBloc, receiptDetailBloc: receiptDetailBloc),
+              if (state.totalQuantity > 0) ...[
+                const Divider(height: 0),
+                PagesPaginationBar(
+                  currentPage: state.currentPage,
+                  totalPages: (state.totalQuantity / state.perPageQuantity).ceil(),
+                  itemsPerPage: state.perPageQuantity,
+                  totalItems: state.totalQuantity,
+                  onPageChanged: (newPage) => state.productSearchController.text.isEmpty
+                      ? productBloc.add(GetProductsPerPageEvent(isFirstLoad: false, calcCount: false, currentPage: newPage))
+                      : productBloc.add(
+                          GetFilteredProductsBySearchTextEvent(currentPage: newPage),
+                        ),
+                  onItemsPerPageChanged: (newValue) => productBloc.add(ItemsPerPageChangedEvent(value: newValue)),
                 ),
               ],
-            ),
-          ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  void _onSearchFieldSubmitted(BuildContext context, ProductBloc productBloc, String value) {
+    if (value.isEmpty) {
+      productBloc.add(GetProductsPerPageEvent(isFirstLoad: false, calcCount: true, currentPage: 1));
+      return;
+    }
+
+    if (value.length < 3) {
+      showMyDialogAlert(context: context, title: 'Achtung', content: 'Die Suche muss mindestens 3 Zeichen enthalten!');
+      return;
+    }
+
+    productBloc.add(GetFilteredProductsBySearchTextEvent(currentPage: 1));
+  }
+}
+
+class _ProductItems extends StatelessWidget {
+  final ProductBloc productBloc;
+  final ReceiptDetailBloc receiptDetailBloc;
+
+  const _ProductItems({super.key, required this.productBloc, required this.receiptDetailBloc});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<ProductBloc, ProductState>(
+      bloc: productBloc,
+      builder: (context, state) {
+        const onLoadingWidget = SizedBox(height: 1000, child: Center(child: MyCircularProgressIndicator()));
+        const onErrorWidget = SizedBox(height: 1000, child: Center(child: Text('Ein Fehler ist aufgetreten!')));
+        const onEmptyWidget = SizedBox(height: 1000, child: Center(child: Text('Es konnten keine Artikel gefunden werden.')));
+
+        if (state.isLoadingProductsOnObserve) return onLoadingWidget;
+        if (state.firebaseFailure != null && state.isAnyFailure) return onErrorWidget;
+        if (state.listOfAllProducts == null) return onLoadingWidget;
+        if (state.listOfAllProducts!.isEmpty) return onEmptyWidget;
+
+        return ListView.separated(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: state.listOfFilteredProducts!.length,
+          separatorBuilder: (context, index) => const Divider(),
+          itemBuilder: (context, index) {
+            final product = state.listOfFilteredProducts![index];
+            final imageUrl = product.listOfProductImages.isNotEmpty ? product.listOfProductImages.where((e) => e.isDefault).first.fileUrl : null;
+
+            return ListTile(
+              leading: SizedBox(
+                width: 40,
+                child: MyAvatar(name: product.name, imageUrl: imageUrl, radius: 20, fontSize: 16),
+              ),
+              title: Text(product.name, style: TextStyles.defaultt),
+              trailing: IconButton(
+                onPressed: () => receiptDetailBloc.add(AddProductToReceiptProductsEvent(receiptProduct: ReceiptProduct.fromProduct(product))),
+                icon: const Icon(Icons.arrow_forward_ios, color: Colors.green),
+              ),
+              onTap: () {
+                context.router.maybePop();
+                receiptDetailBloc.add(AddProductToReceiptProductsEvent(receiptProduct: ReceiptProduct.fromProduct(product)));
+              },
+            );
+          },
         );
       },
     );

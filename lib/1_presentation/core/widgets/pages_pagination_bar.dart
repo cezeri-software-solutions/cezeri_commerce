@@ -40,14 +40,11 @@ class PagesPaginationBar extends StatelessWidget {
     for (int i = startPage; i <= endPage; i++) {
       pageButtons.add(
         SizedBox(
-          width: 35,
+          width: 50,
           child: TextButton(
             isSemanticButton: false,
             onPressed: () => onPageChanged(i),
-            style: TextButton.styleFrom(
-              foregroundColor: i == currentPage ? Colors.blue : Colors.grey,
-              padding: EdgeInsets.zero,
-            ),
+            style: TextButton.styleFrom(foregroundColor: i == currentPage ? CustomColors.primaryColor : Colors.grey),
             child: Text(i.toString()),
           ),
         ),
@@ -67,11 +64,11 @@ class PagesPaginationBar extends StatelessWidget {
             Gaps.w16,
           ],
           SizedBox(
-            width: 80,
+            width: 75,
             child: MyDropdownButtonSmall(
               value: itemsPerPage.toString(),
               onChanged: (value) => onItemsPerPageChanged(value.toMyInt()),
-              items: const ['20', '30', '50', '100', '500', '1000'],
+              items: const ['20', '30', '50', '100', '500', '10000'],
             ),
           ),
           if (isTablet) ...[

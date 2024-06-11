@@ -32,37 +32,37 @@ class ReorderDetailProductsCard extends StatelessWidget {
                   children: [
                     const Icon(Icons.article_outlined, color: Colors.transparent),
                     const Expanded(
-                      flex: RowWidthsReOP.pos,
+                      flex: RWReOP.pos,
                       child: Text('Pos.', style: TextStyles.s12Bold),
                     ),
                     Gaps.w8,
                     const Expanded(
-                      flex: RowWidthsReOP.articleNumber,
+                      flex: RWReOP.articleNumber,
                       child: Text('Artikelnr.', style: TextStyles.s12Bold),
                     ),
                     Gaps.w8,
                     const Expanded(
-                      flex: RowWidthsReOP.articleName,
+                      flex: RWReOP.articleName,
                       child: Text('Name', style: TextStyles.s12Bold),
                     ),
                     Gaps.w8,
                     const Expanded(
-                      flex: RowWidthsReOP.quantity,
+                      flex: RWReOP.quantity,
                       child: Text('Menge', style: TextStyles.s12Bold),
                     ),
                     Gaps.w8,
                     const Expanded(
-                      flex: RowWidthsReOP.openQuantity,
+                      flex: RWReOP.openQuantity,
                       child: Text('Offene Menge', style: TextStyles.s12Bold),
                     ),
                     Gaps.w8,
                     const Expanded(
-                      flex: RowWidthsReOP.price,
+                      flex: RWReOP.price,
                       child: Text('Netto Stk.', style: TextStyles.s12Bold),
                     ),
                     Gaps.w8,
                     const Expanded(
-                      flex: RowWidthsReOP.totalPrice,
+                      flex: RWReOP.totalPrice,
                       child: Text('Netto Ges.', style: TextStyles.s12Bold),
                     ),
                     ConstrainedBox(
@@ -95,7 +95,7 @@ class ReorderDetailProductsCard extends StatelessWidget {
                             ),
                             Gaps.w8,
                             Expanded(
-                              flex: RowWidthsReOP.pos,
+                              flex: RWReOP.pos,
                               child: MyTextFormFieldSmallDouble(
                                 readOnly: true,
                                 hintText: reorderProduct.pos.toString(),
@@ -106,7 +106,7 @@ class ReorderDetailProductsCard extends StatelessWidget {
                             ),
                             Gaps.w8,
                             Expanded(
-                              flex: RowWidthsReOP.articleNumber,
+                              flex: RWReOP.articleNumber,
                               child: MyTextFormFieldSmall(
                                 readOnly: !state.isEditable[index],
                                 controller: state.articleNumberControllers[index],
@@ -116,7 +116,7 @@ class ReorderDetailProductsCard extends StatelessWidget {
                             ),
                             Gaps.w8,
                             Expanded(
-                              flex: RowWidthsReOP.articleName,
+                              flex: RWReOP.articleName,
                               child: MyTextFormFieldSmall(
                                 readOnly: !state.isEditable[index],
                                 controller: state.articleNameControllers[index],
@@ -126,7 +126,7 @@ class ReorderDetailProductsCard extends StatelessWidget {
                             ),
                             Gaps.w8,
                             Expanded(
-                              flex: RowWidthsReOP.quantity,
+                              flex: RWReOP.quantity,
                               child: MyTextFormFieldSmall(
                                 controller: state.quantityControllers[index],
                                 onChanged: (_) => reorderDetailBloc.add(OnReorderDetailPosControllerChangedEvent()),
@@ -135,7 +135,7 @@ class ReorderDetailProductsCard extends StatelessWidget {
                             ),
                             Gaps.w8,
                             Expanded(
-                              flex: RowWidthsReOP.openQuantity,
+                              flex: RWReOP.openQuantity,
                               child: MyTextFormFieldSmall(
                                 readOnly: true,
                                 hintText: (state.reorder!.listOfReorderProducts[index].quantity -
@@ -147,7 +147,7 @@ class ReorderDetailProductsCard extends StatelessWidget {
                             ),
                             Gaps.w8,
                             Expanded(
-                              flex: RowWidthsReOP.price,
+                              flex: RWReOP.price,
                               child: MyTextFormFieldSmall(
                                 controller: state.wholesalePriceNetControllers[index],
                                 onChanged: (_) => reorderDetailBloc.add(OnReorderDetailPosControllerChangedEvent()),
@@ -156,7 +156,7 @@ class ReorderDetailProductsCard extends StatelessWidget {
                             ),
                             Gaps.w8,
                             Expanded(
-                              flex: RowWidthsReOP.totalPrice,
+                              flex: RWReOP.totalPrice,
                               child: MyTextFormFieldSmall(
                                 readOnly: true,
                                 hintText: state.reorder!.listOfReorderProducts[index].totalPriceNet.toDouble().toString(),

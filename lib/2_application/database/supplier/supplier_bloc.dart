@@ -114,12 +114,12 @@ class SupplierBloc extends Bloc<SupplierEvent, SupplierState> {
       List<AbstractFailure> failures = [];
 
       for (final selectedSupplier in event.selectedSuppliers) {
-      final fos = await supplierRepository.deleteSupplier(selectedSupplier.id);
-      fos.fold(
-        (failure) => failures.add(failure),
-        (unit) => null,
-      );
-    }
+        final fos = await supplierRepository.deleteSupplier(selectedSupplier.id);
+        fos.fold(
+          (failure) => failures.add(failure),
+          (unit) => null,
+        );
+      }
 
       emit(state.copyWith(
         isLoadingSupplierOnDelete: false,
@@ -140,12 +140,10 @@ class SupplierBloc extends Bloc<SupplierEvent, SupplierState> {
       final listOfSuppliers = switch (state.supplierSearchText) {
         '' => state.listOfAllSuppliers,
         (_) => state.listOfAllSuppliers!
-            .where((e) => e.company != null
-                ? e.name.toLowerCase().contains(state.supplierSearchText.toLowerCase()) ||
-                    e.company.toLowerCase().contains(state.supplierSearchText.toLowerCase()) ||
-                    e.email.toLowerCase().contains(state.supplierSearchText.toLowerCase())
-                : e.name.toLowerCase().contains(state.supplierSearchText.toLowerCase()) ||
-                    e.email.toLowerCase().contains(state.supplierSearchText.toLowerCase()))
+            .where((e) =>
+                e.name.toLowerCase().contains(state.supplierSearchText.toLowerCase()) ||
+                e.company.toLowerCase().contains(state.supplierSearchText.toLowerCase()) ||
+                e.email.toLowerCase().contains(state.supplierSearchText.toLowerCase()))
             .toList()
       };
       if (listOfSuppliers != null && listOfSuppliers.isNotEmpty) listOfSuppliers.sort((a, b) => b.supplierNumber.compareTo(a.supplierNumber));

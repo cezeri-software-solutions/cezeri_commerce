@@ -33,7 +33,7 @@ class ProductState {
   final int perPageQuantity;
   final int totalQuantity;
   final int currentPage;
-  final TextEditingController productSearchController;
+  final SearchController productSearchController;
   final bool triggerPop;
   final bool isSelectedAllProducts;
   final bool isLoadingPdf;
@@ -103,7 +103,7 @@ class ProductState {
       perPageQuantity: 20,
       totalQuantity: 0,
       currentPage: 1,
-      productSearchController: TextEditingController(),
+      productSearchController: SearchController(),
       triggerPop: false,
       isSelectedAllProducts: false,
       isLoadingPdf: false,
@@ -139,7 +139,7 @@ class ProductState {
     int? perPageQuantity,
     int? totalQuantity,
     int? currentPage,
-    TextEditingController? productSearchController,
+    SearchController? productSearchController,
     bool? triggerPop,
     bool? isSelectedAllProducts,
     bool? isLoadingPdf,

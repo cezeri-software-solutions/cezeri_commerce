@@ -220,33 +220,21 @@ class ShopifyApi {
       }
     });
     final productResult = await _doPut(uri: '$_url/api/$_apiVersion/$key/${productShopify.id}.json', body: body);
-    productResult.fold(
-      (failure) => putProductFailures = [failure],
-      (_) => null,
-    );
-    if (putProductFailures.isNotEmpty) return Left(putProductFailures);
+    if (productResult.isLeft()) return Left([productResult.getLeft()]);
 
-    List<CollectShopify>? listOfCollects;
     final collectsResult = await getCollectsOfProduct(productShopify.id);
-    collectsResult.fold(
-      (failure) => putProductFailures = [failure],
-      (collects) => listOfCollects = collects,
-    );
-    if (putProductFailures.isNotEmpty) return Left(putProductFailures);
+    if (collectsResult.isLeft()) return Left([collectsResult.getLeft()]);
+    final listOfCollects = collectsResult.getRight();
 
-    List<CustomCollectionShopify>? listOfCustomCollections;
     final customCollectionsResult = await getCustomCollectionsByProductId(productShopify.id);
-    customCollectionsResult.fold(
-      (failure) => putProductFailures = [failure],
-      (collections) => listOfCustomCollections = collections,
-    );
-    if (putProductFailures.isNotEmpty) return Left(putProductFailures);
+    if (customCollectionsResult.isLeft()) return Left([customCollectionsResult.getLeft()]);
+    final listOfCustomCollections = customCollectionsResult.getRight();
 
     // Neue und entfernte Custom Collections identifizieren
     List<CustomCollectionShopify> newAddedCustomCollections = [];
     List<CustomCollectionShopify> removedCustomCollections = [];
 
-    Set<int> existingCollectionIds = Set.from(listOfCustomCollections?.map((e) => e.id) ?? []);
+    Set<int> existingCollectionIds = Set.from(listOfCustomCollections.map((e) => e.id));
     Set<int> productCollectionIds = Set.from(productShopify.customCollections.map((e) => e.id));
 
     // Neue hinzugefügte Custom Collections
@@ -255,31 +243,25 @@ class ShopifyApi {
     }
 
     // Entfernte Custom Collections
-    for (final customCollection in listOfCustomCollections ?? []) {
+    for (final customCollection in listOfCustomCollections) {
       if (!productCollectionIds.contains(customCollection.id)) removedCustomCollections.add(customCollection);
     }
 
     if (newAddedCustomCollections.isNotEmpty) {
       for (final newCustomCollection in newAddedCustomCollections) {
-        if (!listOfCollects!.any((e) => e.collectionId == newCustomCollection.id)) {
+        if (!listOfCollects.any((e) => e.collectionId == newCustomCollection.id)) {
           final newCollectResult = await postCollect(productShopify.id, newCustomCollection.id);
-          newCollectResult.fold(
-            (failure) => putProductFailures.add(failure),
-            (_) => null,
-          );
+          if (newCollectResult.isLeft()) putProductFailures.add(newCollectResult.getLeft());
         }
       }
     }
 
     if (removedCustomCollections.isNotEmpty) {
       for (final removedCustomCollection in removedCustomCollections) {
-        final index = listOfCollects!.indexWhere((e) => e.collectionId == removedCustomCollection.id);
+        final index = listOfCollects.indexWhere((e) => e.collectionId == removedCustomCollection.id);
         if (index == -1) continue;
-        final deletedCollectResult = await deleteCollect(listOfCollects![index].id);
-        deletedCollectResult.fold(
-          (failure) => putProductFailures.add(failure),
-          (_) => null,
-        );
+        final deletedCollectResult = await deleteCollect(listOfCollects[index].id);
+        if (deletedCollectResult.isLeft()) putProductFailures.add(deletedCollectResult.getLeft());
       }
     }
 

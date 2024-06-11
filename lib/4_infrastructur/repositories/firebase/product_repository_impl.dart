@@ -133,24 +133,47 @@ class ProductRepositoryImpl implements ProductRepository {
 
     final start = (currentPage - 1) * itemsPerPage;
     final end = start + itemsPerPage - 1;
+    const maxItemsPerRequest = 1000; // Supabase limit
+    int currentStart = start;
+    int currentEnd = (start + maxItemsPerRequest - 1).clamp(start, end); // Ensure it does not exceed the requested end
+    List<Product> allProducts = [];
 
     try {
-      final response = switch (onlyActive!) {
-        true => await supabase
-            .from('d_products')
-            .select()
-            .eq('ownerId', ownerId)
-            .eq('isActive', onlyActive)
-            .order('name', ascending: true)
-            .range(start, end),
-        false => await supabase.from('d_products').select().eq('ownerId', ownerId).order('name', ascending: true).range(start, end),
-      };
+      while (currentStart <= end && allProducts.length < itemsPerPage) {
+        final response = onlyActive!
+            ? await supabase
+                .from('d_products')
+                .select()
+                .eq('ownerId', ownerId)
+                .eq('isActive', onlyActive)
+                .order('name', ascending: true)
+                .range(currentStart, currentEnd)
+            : await supabase.from('d_products').select().eq('ownerId', ownerId).order('name', ascending: true).range(currentStart, currentEnd);
 
-      if (response.isEmpty) return const Right([]);
+        if (response.isEmpty) break;
 
-      final listOfProducts = response.map((e) => Product.fromJson(e)).toList();
+        final listOfProducts = response.map((e) => Product.fromJson(e)).toList();
+        allProducts.addAll(listOfProducts);
 
-      return Right(listOfProducts);
+        // Update the start and end for the next batch
+        currentStart = currentEnd + 1;
+        currentEnd = (currentStart + maxItemsPerRequest - 1);
+
+        // Ensure currentEnd does not exceed the requested end
+        if (currentEnd > end) {
+          currentEnd = end;
+        }
+
+        // Ensure we do not load more than the required itemsPerPage
+        if (allProducts.length + maxItemsPerRequest > itemsPerPage) {
+          currentEnd = currentStart + (itemsPerPage - allProducts.length) - 1;
+        }
+      }
+
+      // Ensure we return exactly the requested number of items
+      allProducts = allProducts.take(itemsPerPage).toList();
+
+      return Right(allProducts);
     } catch (e) {
       logger.e(e);
       return Left(GeneralFailure(customMessage: 'Beim Laden der Artikel ist ein Fehler aufgetreten. Error: $e'));
@@ -464,32 +487,18 @@ class ProductRepositoryImpl implements ProductRepository {
     if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
     final fosOriginalProduct = await getProduct(product.id);
-    Product? originalProduct;
-    fosOriginalProduct.fold(
-      (failure) => Left(failure),
-      (loadedProduct) => originalProduct = loadedProduct,
-    );
-    if (originalProduct == null) {
-      final errorMessage = 'Der Artikel: "${product.name}" konnte nicht aus der Datenbank geladen werden.';
-      return Left(GeneralFailure(customMessage: errorMessage));
-    }
+    if (fosOriginalProduct.isLeft()) return Left(fosOriginalProduct.getLeft());
+    final originalProduct = fosOriginalProduct.getRight();
 
     try {
       if (product.isSetArticle ||
-          originalProduct!.isSetArticle && (product.listOfProductIdWithQuantity != originalProduct!.listOfProductIdWithQuantity)) {
+          originalProduct.isSetArticle && (product.listOfProductIdWithQuantity != originalProduct.listOfProductIdWithQuantity)) {
         Either<AbstractFailure, Product>? fosHandleNewSetProduct;
         //* Wenn der Artikel entweder davor ein Set-Artikel war oder jetzt ein Set-Artikel ist
-        fosHandleNewSetProduct = await handleNewSetProduct(product: product, originalProduct: originalProduct!, ownerId: ownerId);
+        fosHandleNewSetProduct = await handleNewSetProduct(product: product, originalProduct: originalProduct, ownerId: ownerId);
 
-        Product? updatedSetProduct;
-        AbstractFailure? abstractFailure;
-        fosHandleNewSetProduct.fold(
-          (failure) => abstractFailure = failure,
-          (setProduct) => updatedSetProduct = setProduct,
-        );
-        if (updatedSetProduct != null && fosHandleNewSetProduct.isRight()) return Right(updatedSetProduct!);
-        if (abstractFailure != null && fosHandleNewSetProduct.isLeft()) return Left(abstractFailure!);
-        return Left(GeneralFailure(customMessage: 'Ein Fehler ist aufgetreten'));
+        if (fosHandleNewSetProduct.isLeft()) return Left(fosHandleNewSetProduct.getLeft());
+        return Right(fosHandleNewSetProduct.getRight());
       } else {
         await supabase.from('d_products').update(product.toJson()).eq('ownerId', ownerId).eq('id', product.id);
 

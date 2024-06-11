@@ -15,7 +15,7 @@ abstract class MarketplaceEditRepository {
   //* Product
   Future<Either<List<AbstractFailure>, Unit>> setQuantityMPInAllProductMarketplaces(
       Product prodcut, int newQuantity, MarketplacePresta? marketplaceToSkip);
-  Future<Either<List<AbstractFailure>, Unit>> editProdcutInMarketplace(Product product, List<MarketplacePresta>? toEditMarketplaces);
+  Future<Either<List<AbstractFailure>, Unit>> editProdcutInMarketplace(Product product, List<AbstractMarketplace>? toEditMarketplaces);
   Future<Either<AbstractFailure, ProductRawPresta>> createProdcutInMarketplace(
     Product product,
     ProductMarketplace productMarketplace,

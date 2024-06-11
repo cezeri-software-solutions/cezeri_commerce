@@ -20,7 +20,6 @@ class ReceiptState {
   final bool isLoadingReceiptOnDelete;
   final bool isLoadingReceiptOnGenerate;
   final bool isLoadingProductOnObserve;
-  final bool isLoadingProductsOnObserve;
   final bool isLoadingParcelLabelOnCreate;
   final Option<Either<AbstractFailure, Receipt>> fosReceiptOnObserveOption;
   final Option<Either<AbstractFailure, List<Receipt>>> fosReceiptsOnObserveOption;
@@ -32,7 +31,6 @@ class ReceiptState {
   final Option<Either<AbstractFailure, Receipt>> fosReceiptOnGenerateOption;
   final Option<Either<AbstractFailure, List<Receipt>>> fosReceiptsOnGenerateOption;
   final Option<Either<AbstractFailure, Product>> fosProductOnObserveOption;
-  final Option<Either<AbstractFailure, List<Product>>> fosProductsOnObserveOption;
   final Option<Either<AbstractFailure, ParcelTracking>> fosParcelLabelOnCreate;
 
   //* --- helper --- *//
@@ -66,7 +64,6 @@ class ReceiptState {
     required this.isLoadingReceiptOnDelete,
     required this.isLoadingReceiptOnGenerate,
     required this.isLoadingProductOnObserve,
-    required this.isLoadingProductsOnObserve,
     required this.isLoadingParcelLabelOnCreate,
     required this.fosReceiptOnObserveOption,
     required this.fosReceiptsOnObserveOption,
@@ -78,7 +75,6 @@ class ReceiptState {
     required this.fosReceiptOnGenerateOption,
     required this.fosReceiptsOnGenerateOption,
     required this.fosProductOnObserveOption,
-    required this.fosProductsOnObserveOption,
     required this.fosParcelLabelOnCreate,
     required this.isAllReceiptsSeledcted,
     required this.isExpanded,
@@ -109,7 +105,6 @@ class ReceiptState {
         isLoadingReceiptOnDelete: false,
         isLoadingReceiptOnGenerate: false,
         isLoadingProductOnObserve: false,
-        isLoadingProductsOnObserve: false,
         isLoadingParcelLabelOnCreate: false,
         fosReceiptOnObserveOption: none(),
         fosReceiptsOnObserveOption: none(),
@@ -121,7 +116,6 @@ class ReceiptState {
         fosReceiptOnGenerateOption: none(),
         fosReceiptsOnGenerateOption: none(),
         fosProductOnObserveOption: none(),
-        fosProductsOnObserveOption: none(),
         fosParcelLabelOnCreate: none(),
         isAllReceiptsSeledcted: false,
         isExpanded: const [],
@@ -152,7 +146,6 @@ class ReceiptState {
     bool? isLoadingReceiptOnDelete,
     bool? isLoadingReceiptOnGenerate,
     bool? isLoadingProductOnObserve,
-    bool? isLoadingProductsOnObserve,
     bool? isLoadingParcelLabelOnCreate,
     Option<Either<AbstractFailure, Receipt>>? fosReceiptOnObserveOption,
     Option<Either<AbstractFailure, List<Receipt>>>? fosReceiptsOnObserveOption,
@@ -164,7 +157,6 @@ class ReceiptState {
     Option<Either<AbstractFailure, Receipt>>? fosReceiptOnGenerateOption,
     Option<Either<AbstractFailure, List<Receipt>>>? fosReceiptsOnGenerateOption,
     Option<Either<AbstractFailure, Product>>? fosProductOnObserveOption,
-    Option<Either<AbstractFailure, List<Product>>>? fosProductsOnObserveOption,
     Option<Either<AbstractFailure, ParcelTracking>>? fosParcelLabelOnCreate,
     bool? isAllReceiptsSeledcted,
     List<bool>? isExpanded,
@@ -194,7 +186,6 @@ class ReceiptState {
       isLoadingReceiptOnDelete: isLoadingReceiptOnDelete ?? this.isLoadingReceiptOnDelete,
       isLoadingReceiptOnGenerate: isLoadingReceiptOnGenerate ?? this.isLoadingReceiptOnGenerate,
       isLoadingProductOnObserve: isLoadingProductOnObserve ?? this.isLoadingProductOnObserve,
-      isLoadingProductsOnObserve: isLoadingProductsOnObserve ?? this.isLoadingProductsOnObserve,
       isLoadingParcelLabelOnCreate: isLoadingParcelLabelOnCreate ?? this.isLoadingParcelLabelOnCreate,
       fosReceiptOnObserveOption: fosReceiptOnObserveOption ?? this.fosReceiptOnObserveOption,
       fosReceiptsOnObserveOption: fosReceiptsOnObserveOption ?? this.fosReceiptsOnObserveOption,
@@ -208,7 +199,6 @@ class ReceiptState {
       fosReceiptOnGenerateOption: fosReceiptOnGenerateOption ?? this.fosReceiptOnGenerateOption,
       fosReceiptsOnGenerateOption: fosReceiptsOnGenerateOption ?? this.fosReceiptsOnGenerateOption,
       fosProductOnObserveOption: fosProductOnObserveOption ?? this.fosProductOnObserveOption,
-      fosProductsOnObserveOption: fosProductsOnObserveOption ?? this.fosProductsOnObserveOption,
       fosParcelLabelOnCreate: fosParcelLabelOnCreate ?? this.fosParcelLabelOnCreate,
       isAllReceiptsSeledcted: isAllReceiptsSeledcted ?? this.isAllReceiptsSeledcted,
       isExpanded: isExpanded ?? this.isExpanded,

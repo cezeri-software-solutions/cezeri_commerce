@@ -37,6 +37,8 @@ class OnProductSearchControllerClearedEvent extends ProductEvent {}
 
 class OnSearchFieldSubmittedEvent extends ProductEvent {}
 
+class OnSearchFieldClearedEvent extends ProductEvent {}
+
 class OnProductIsSelectedAllChangedEvent extends ProductEvent {
   final bool isSelected;
 

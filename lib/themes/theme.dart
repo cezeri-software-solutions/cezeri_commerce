@@ -5,23 +5,28 @@ import '../constants.dart';
 class AppTheme {
   AppTheme._();
 
-  static final ThemeData lightTheme = ThemeData(
+  static final ThemeData tempTheme = ThemeData(
     colorScheme: ColorScheme.fromSeed(
       seedColor: CustomColors.primaryColor,
     ).copyWith(
       brightness: Brightness.light,
-      // BackgroundColor of Container
       primaryContainer: CustomColors.containerBackgroundLight,
-      // BorderColor of Container
       outline: CustomColors.borderColorLight,
       surface: Colors.white,
     ),
+  );
+
+  static final ThemeData lightTheme = ThemeData(
+    colorScheme: tempTheme.colorScheme,
     floatingActionButtonTheme: const FloatingActionButtonThemeData().copyWith(
       backgroundColor: CustomColors.primaryColor,
     ),
     textTheme: const TextTheme().copyWith(bodyMedium: const TextStyle(fontSize: 13)),
     iconTheme: const IconThemeData().copyWith(color: CustomColors.iconColor),
-    appBarTheme: const AppBarTheme().copyWith(surfaceTintColor: Colors.transparent, color: Colors.transparent),
+    appBarTheme: AppBarTheme(
+      surfaceTintColor: Colors.transparent,
+      color: tempTheme.colorScheme.surfaceBright, // Verwende die Hintergrundfarbe aus tempTheme
+    ),
     useMaterial3: true,
   );
 

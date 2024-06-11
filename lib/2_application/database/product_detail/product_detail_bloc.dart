@@ -358,51 +358,37 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
 
     List<AbstractFailure> listOfAbstractFailures = [];
 
-    emit(state.copyWith(isLoadingProductOnUpdate: true));
-
-    bool isUpdateInFirestoreSucceeded = false;
-    Product? updatedProduct;
     final fos = await productRepository.updateProductAndSets(state.product!);
-    fos.fold(
-      (failure) => listOfAbstractFailures.add(failure),
-      (loadedProduct) {
-        emit(state.copyWith(product: loadedProduct, firebaseFailure: null, isAnyFailure: false));
-        isUpdateInFirestoreSucceeded = true;
-        updatedProduct = loadedProduct;
-      },
-    );
-
-    if (isUpdateInFirestoreSucceeded && updatedProduct != null) {
-      final fosUpdateProductInMarketplace = await marketplaceEditRepository.editProdcutInMarketplace(updatedProduct!, null);
-      fosUpdateProductInMarketplace.fold(
-        (failures) => listOfAbstractFailures.addAll(failures),
-        (unit) => null,
-      );
-      if (state.isProductImagesEdited) {
-        final fosUpdateProductImagesInMarketplace = await marketplaceEditRepository.uploadProductImagesToMarketplace(
-          state.product!,
-          state.listOfProductImages,
-        );
-        fosUpdateProductImagesInMarketplace.fold(
-          (failures) => listOfAbstractFailures.addAll(failures),
-          (unit) => null,
-        );
-      }
-
+    if (fos.isLeft()) {
       emit(state.copyWith(
         isLoadingProductOnUpdate: false,
         fosProductOnUpdateOption: optionOf(fos),
         fosProductAbstractFailuresOption: optionOf(Left(listOfAbstractFailures)),
       ));
       emit(state.copyWith(fosProductOnUpdateOption: none(), fosProductAbstractFailuresOption: none()));
-    } else {
-      emit(state.copyWith(
-        isLoadingProductOnUpdate: false,
-        fosProductOnUpdateOption: optionOf(fos),
-        fosProductAbstractFailuresOption: optionOf(Left(listOfAbstractFailures)),
-      ));
-      emit(state.copyWith(fosProductOnUpdateOption: none(), fosProductAbstractFailuresOption: none()));
+      return;
     }
+
+    final updatedProduct = fos.getRight();
+
+    final fosUpdateProductInMarketplace = await marketplaceEditRepository.editProdcutInMarketplace(updatedProduct, null);
+    if (fosUpdateProductInMarketplace.isLeft()) listOfAbstractFailures.addAll(fosUpdateProductInMarketplace.getLeft());
+
+    print('state.isProductImagesEdited: ${state.isProductImagesEdited}');
+    if (state.isProductImagesEdited) {
+      final fosUpdateProductImagesInMarketplace = await marketplaceEditRepository.uploadProductImagesToMarketplace(
+        state.product!,
+        state.listOfProductImages,
+      );
+      if (fosUpdateProductImagesInMarketplace.isLeft()) listOfAbstractFailures.addAll(fosUpdateProductImagesInMarketplace.getLeft());
+    }
+
+    emit(state.copyWith(
+      isLoadingProductOnUpdate: false,
+      fosProductOnUpdateOption: optionOf(fos),
+      fosProductAbstractFailuresOption: optionOf(Left(listOfAbstractFailures)),
+    ));
+    emit(state.copyWith(fosProductOnUpdateOption: none(), fosProductAbstractFailuresOption: none()));
   }
 
 //? ###########################################################################################################################

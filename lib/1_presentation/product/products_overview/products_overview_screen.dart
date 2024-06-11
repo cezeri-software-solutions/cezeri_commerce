@@ -2,28 +2,21 @@ import 'package:auto_route/auto_route.dart';
 import 'package:cezeri_commerce/1_presentation/app_drawer.dart';
 import 'package:cezeri_commerce/1_presentation/core/renderer/failure_renderer.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 
 import '../../../2_application/database/product/product_bloc.dart';
 import '../../../3_domain/entities/product/product.dart';
-import '../../../3_domain/pdf/pdf_api_mobile.dart';
-import '../../../3_domain/pdf/pdf_api_web.dart';
-import '../../../3_domain/pdf/pdf_products_generator.dart';
-import '../../../constants.dart';
 import '../../../injection.dart';
 import '../../../routes/router.gr.dart';
 import '../../core/functions/dialogs.dart';
 import '../../core/functions/my_scaffold_messanger.dart';
-import '../../core/widgets/my_circular_progress_indicator.dart';
 import '../../core/widgets/pages_pagination_bar.dart';
 import 'functions/get_products_app_bar_title.dart';
-import 'functions/products_overview_create_export.dart';
 import 'products_overview_page.dart';
 import 'widgets/mass_editing_dialogs/products_mass_editing_failure_dialog.dart';
-import 'widgets/mass_editing_dialogs/products_mass_editing_select_marketplaces_dialog.dart';
+import 'widgets/widgets.dart';
 
 @RoutePage()
 class ProductsOverviewScreen extends StatefulWidget {
@@ -141,43 +134,14 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> with Au
                 title: getProductsAppBarTitle(context, state.listOfFilteredProducts, state.selectedProducts),
                 actions: [
                   IconButton(
-                    key: iconButtonKey,
-                    onPressed: () async => await generateTableExportFromProductsOverview(context, iconButtonKey, state.selectedProducts),
-                    icon: const Icon(Icons.table_chart_outlined, color: CustomColors.primaryColor),
-                  ),
-                  IconButton(
-                    onPressed: () async => _onGeneratePdfPressed(state.selectedProducts),
-                    icon: state.isLoadingPdf
-                        ? const MyCircularProgressIndicator(color: Colors.red)
-                        : const Icon(Icons.picture_as_pdf, color: Colors.red),
-                  ),
-                  IconButton(
                     onPressed: () => state.productSearchController.text.isEmpty
                         ? productBloc.add(GetProductsPerPageEvent(isFirstLoad: false, calcCount: false, currentPage: state.currentPage))
                         : productBloc.add(GetFilteredProductsBySearchTextEvent(currentPage: state.currentPage)),
                     icon: const Icon(Icons.refresh),
                   ),
-                  TextButton.icon(
-                    onPressed: state.selectedProducts.isEmpty
-                        ? () => showMyDialogAlert(context: context, title: 'Achtung!', content: 'Bitte wähle mindestens einen Artikel aus.')
-                        : () => showDialog(
-                              context: context,
-                              builder: (_) => BlocProvider.value(
-                                value: productBloc,
-                                child: ProductsMassEditingSelectMarketplacesDialog(productBloc: productBloc),
-                              ),
-                            ),
-                    icon: state.isLoadingOnMassEditActivateProductMarketplace
-                        ? const CircularProgressIndicator()
-                        : const Icon(FontAwesomeIcons.diagramProject),
-                    label: const Text('Massenbearbeitung'),
-                  ),
-                  IconButton(onPressed: () {}, icon: const Icon(Icons.add, color: Colors.green)),
                   IconButton(
-                    onPressed: () => _onRemovePressed(context, state.selectedProducts),
-                    icon: state.isLoadingProductOnDelete
-                        ? const CircularProgressIndicator(color: Colors.red)
-                        : const Icon(Icons.delete, color: Colors.red),
+                    onPressed: () => _showMoreOptions(state.selectedProducts),
+                    icon: const Icon(Icons.more_vert),
                   ),
                 ],
               ),
@@ -185,11 +149,21 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> with Au
                 child: Column(
                   children: [
                     Padding(
-                      padding: const EdgeInsets.only(left: 20, right: 20, bottom: 10),
-                      child: CupertinoSearchTextField(
-                        controller: state.productSearchController,
-                        onSubmitted: (value) => _onSearchFieldSubmitted(value),
-                        onSuffixTap: () => productBloc.add(GetProductsPerPageEvent(isFirstLoad: false, calcCount: true, currentPage: 1)),
+                      padding: const EdgeInsets.only(right: 20, bottom: 10),
+                      child: Row(
+                        children: [
+                          Checkbox.adaptive(
+                            value: state.isSelectedAllProducts,
+                            onChanged: (value) => productBloc.add(OnProductIsSelectedAllChangedEvent(isSelected: value!)),
+                          ),
+                          Expanded(
+                            child: CupertinoSearchTextField(
+                              controller: state.productSearchController,
+                              onSubmitted: (value) => _onSearchFieldSubmitted(value),
+                              onSuffixTap: () => productBloc.add(OnSearchFieldClearedEvent()),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                     const Divider(height: 0),
@@ -198,7 +172,7 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> with Au
                       const Divider(height: 0),
                       PagesPaginationBar(
                         currentPage: state.currentPage,
-                        totalPages: _getNumberOfPages(state.perPageQuantity, state.totalQuantity),
+                        totalPages: (state.totalQuantity / state.perPageQuantity).ceil(),
                         itemsPerPage: state.perPageQuantity,
                         totalItems: state.totalQuantity,
                         onPageChanged: (newPage) => state.productSearchController.text.isEmpty
@@ -219,22 +193,6 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> with Au
     );
   }
 
-  Future<void> _onGeneratePdfPressed(List<Product> selectedProducts) async {
-    showMyDialogLoading(context: context, text: 'PDF wird erstellt...');
-    productBloc.add(SetProductIsLoadingPdfEvent(value: true));
-    final generatedPdf = await PdfProductsGenerator.generate(listOfProducts: selectedProducts);
-
-    if (mounted) context.router.popUntilRouteWithName(ProductsOverviewRoute.name);
-
-    if (kIsWeb) {
-      await PdfApiWeb.saveDocument(name: 'Ausgewählte Artikel.pdf', byteList: generatedPdf, showInBrowser: true);
-    } else {
-      await PdfApiMobile.saveDocument(name: 'Ausgewählte Artikel.pdf', byteList: generatedPdf);
-    }
-
-    productBloc.add(SetProductIsLoadingPdfEvent(value: false));
-  }
-
   void _onSearchFieldSubmitted(String value) {
     if (value.isEmpty) {
       productBloc.add(GetProductsPerPageEvent(isFirstLoad: false, calcCount: true, currentPage: 1));
@@ -249,31 +207,18 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> with Au
     productBloc.add(GetFilteredProductsBySearchTextEvent(currentPage: 1));
   }
 
-  int _getNumberOfPages(int perPageQuantity, int totalQuantity) {
-    return (totalQuantity / perPageQuantity).ceil();
-  }
-
-  void _onRemovePressed(BuildContext context, List<Product> selectedProducts) {
-    if (selectedProducts.isEmpty) {
-      showMyDialogAlert(context: context, title: 'Achtung!', content: 'Bitte wähle mindestens einen Artikel aus.');
-      return;
-    }
-
-    if (selectedProducts.any((e) => e.listOfIsPartOfSetIds.isNotEmpty)) {
-      showMyDialogAlert(
-          context: context,
-          title: 'Achtung!',
-          content:
-              'Ihre Auswahl beinhaltet Artikel, die Bestandteil von Set-Artikel sind.\nDiese müssen zuerst aus den Set-Artikeln entfernt werden.');
-      return;
-    }
-
-    showMyDialogDelete(
+  void _showMoreOptions(List<Product> listOfProducts) {
+    WoltModalSheet.show(
       context: context,
-      content: 'Bist du sicher, dass du alle ausgewählten Artikel unwiederruflich löschen willst?',
-      onConfirm: () {
-        context.read<ProductBloc>().add(DeleteSelectedProductsEvent(selectedProducts: selectedProducts));
-        context.router.pop();
+      useSafeArea: false,
+      pageListBuilder: (woltContext) {
+        return [
+          WoltModalSheetPage(
+            hasTopBarLayer: false,
+            isTopBarLayerAlwaysVisible: false,
+            child: ProductOptionsSheet(productBloc: productBloc, products: listOfProducts, iconButtonKey: iconButtonKey),
+          ),
+        ];
       },
     );
   }

@@ -38,6 +38,7 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
     on<DeleteSelectedProductsEvent>(_onDeleteSelectedProducts);
     on<OnProductSearchControllerClearedEvent>(_onOnProductSearchControllerCleared);
     on<OnSearchFieldSubmittedEvent>(_onOnSearchFieldSubmitted);
+    on<OnSearchFieldClearedEvent>(_onOnSearchFieldCleared);
     on<OnProductIsSelectedAllChangedEvent>(_onOnProductIsSelectedAllChanged);
     on<OnProductSelectedEvent>(_onOnProductSelected);
     on<OnProductGetSuppliersEvent>(_onOnProductGetSuppliers);
@@ -203,7 +204,7 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
   }
 
   void _onOnProductSearchControllerCleared(OnProductSearchControllerClearedEvent event, Emitter<ProductState> emit) {
-    emit(state.copyWith(productSearchController: TextEditingController()));
+    emit(state.copyWith(productSearchController: SearchController()));
 
     add(OnSearchFieldSubmittedEvent());
   }
@@ -234,6 +235,11 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
     // if (listOfProducts != null && listOfProducts.isNotEmpty) listOfProducts.sort((a, b) => a.name.compareTo(b.name));
 
     // emit(state.copyWith(listOfFilteredProducts: listOfProducts));
+  }
+
+  void _onOnSearchFieldCleared(OnSearchFieldClearedEvent event, Emitter<ProductState> emit) {
+    emit(state.copyWith(productSearchController: SearchController()));
+    add(GetProductsPerPageEvent(isFirstLoad: false, calcCount: true, currentPage: 1));
   }
 
   void _onOnProductIsSelectedAllChanged(OnProductIsSelectedAllChangedEvent event, Emitter<ProductState> emit) {

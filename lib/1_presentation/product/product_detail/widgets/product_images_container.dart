@@ -23,7 +23,7 @@ class ProductImagesContainer extends StatelessWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Divider(),
+            const Divider(thickness: 5),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [

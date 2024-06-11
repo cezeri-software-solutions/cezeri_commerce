@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:responsive_framework/responsive_framework.dart';
+import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 
 import '/3_domain/entities/marketplace/abstract_marketplace.dart';
 import '/3_domain/entities/product/product.dart';
@@ -50,22 +51,17 @@ class ProductOverviewPage extends StatelessWidget {
               itemCount: state.listOfFilteredProducts!.length,
               separatorBuilder: (context, index) => const Divider(indent: 45, endIndent: 20),
               itemBuilder: (context, index) {
-                final curProduct = state.listOfFilteredProducts![index];
-                if (index == 0) {
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Checkbox.adaptive(
-                        value: state.isSelectedAllProducts,
-                        onChanged: (value) => productBloc.add(OnProductIsSelectedAllChangedEvent(isSelected: value!)),
-                      ),
-                      const Divider(),
-                      _ProductContainer(product: curProduct, index: index, productBloc: productBloc),
-                    ],
-                  );
+                if (ResponsiveBreakpoints.of(context).largerOrEqualTo(TABLET)) {
+                  return _ProductContainer(product: state.listOfFilteredProducts![index], index: index, productBloc: productBloc);
                 }
 
-                return _ProductContainer(product: curProduct, index: index, productBloc: productBloc);
+                return SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: SizedBox(
+                    width: 640,
+                    child: _ProductContainer(product: state.listOfFilteredProducts![index], index: index, productBloc: productBloc),
+                  ),
+                );
               },
             ),
           ),
@@ -84,6 +80,8 @@ class _ProductContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isTabletOrLarger = ResponsiveBreakpoints.of(context).largerOrEqualTo(TABLET);
+
     return BlocBuilder<ProductBloc, ProductState>(
       builder: (context, state) {
         return Row(
@@ -94,12 +92,13 @@ class _ProductContainer extends StatelessWidget {
               onChanged: (_) => productBloc.add(OnProductSelectedEvent(product: product)),
             ),
             SizedBox(
-              width: ResponsiveBreakpoints.of(context).isTablet ? 70 : 60,
+              width: isTabletOrLarger ? RWPP.picture : RWMBPP.picture,
               child: MyAvatar(
                 name: product.name,
                 imageUrl: product.listOfProductImages.isNotEmpty ? product.listOfProductImages.where((e) => e.isDefault).first.fileUrl : null,
-                radius: ResponsiveBreakpoints.of(context).isTablet ? 35 : 30,
-                fontSize: ResponsiveBreakpoints.of(context).isTablet ? 25 : 20,
+                radius: isTabletOrLarger ? 35 : 30,
+                fontSize: isTabletOrLarger ? 25 : 20,
+                fit: BoxFit.scaleDown,
                 shape: BoxShape.rectangle,
                 onTap: product.listOfProductImages.isNotEmpty
                     ? () => context.router.push(MyFullscreenImageRoute(
@@ -107,140 +106,203 @@ class _ProductContainer extends StatelessWidget {
                     : null,
               ),
             ),
-            ResponsiveBreakpoints.of(context).isTablet ? Gaps.w16 : Gaps.w8,
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Text.rich(TextSpan(children: [
-                        TextSpan(text: product.articleNumber),
-                        if (product.isActive == false) ...[
-                          const TextSpan(text: '  '),
-                          TextSpan(text: 'Inaktiv', style: TextStyles.defaultBold.copyWith(color: Colors.red)),
-                        ],
-                      ])),
-                      Gaps.w8,
-                      if (product.isSetArticle)
-                        InkWell(
-                          onTap: () => showMySetProductQuickView(context: context, productId: product.id),
-                          child: const Icon(Icons.layers, size: 18, color: CustomColors.primaryColor),
-                        ),
-                      Gaps.w8,
-                      if (product.listOfIsPartOfSetIds.isNotEmpty)
-                        InkWell(
-                          onTap: () => showMyPartOfSetProductQuickView(context: context, productId: product.id),
-                          child: const Icon(Icons.group_work, size: 18, color: CustomColors.primaryColor),
-                        ),
-                    ],
-                  ),
-                  TextButton(
-                    onPressed: () async {
-                      await context.router.push(ProductDetailRoute(productId: product.id, listOfProducts: state.listOfAllProducts!));
-                      productBloc.add(GetProductEvent(id: product.id));
-                    },
-                    onLongPress: () => showMyProductQuickView(context: context, product: product, showStatProduct: true),
-                    style: TextButton.styleFrom(
-                      padding: EdgeInsets.zero,
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      foregroundColor: _getTextButtonColor(product),
-                    ),
-                    child: Text(product.name, maxLines: 2, overflow: TextOverflow.ellipsis),
-                  ),
-                  Text('EAN: ${product.ean}'),
-                ],
-              ),
-            ),
-            if (ResponsiveBreakpoints.of(context).isTablet) ...[
-              Gaps.w16,
-              SizedBox(
-                width: 150,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('EK: ${product.wholesalePrice.toMyCurrencyStringToShow()}'),
-                    Text('VK-Netto: ${product.netPrice.toMyCurrencyStringToShow()}'),
-                    Text('VK-Brutto: ${product.grossPrice.toMyCurrencyStringToShow()}'),
-                    Text.rich(TextSpan(children: [
-                      TextSpan(
-                        text: (product.netPrice - product.wholesalePrice).toMyCurrencyStringToShow(),
-                        style: TextStyles.defaultBold.copyWith(color: Colors.green),
-                      ),
-                      if (product.wholesalePrice != 0 && product.netPrice != 0) ...[
-                        const TextSpan(text: ' | ', style: TextStyles.defaultBold),
-                        TextSpan(
-                          text: ((1 - (product.wholesalePrice / product.netPrice)) * 100).toMyCurrencyStringToShow(),
-                          style: TextStyles.defaultBold.copyWith(color: CustomColors.primaryColor),
-                        ),
-                        TextSpan(text: '%', style: TextStyles.defaultBold.copyWith(color: CustomColors.primaryColor))
-                      ],
-                    ]))
-                  ],
-                ),
-              ),
-            ],
-            ResponsiveBreakpoints.of(context).isTablet ? Gaps.w16 : Gaps.w8,
-            Column(
-              children: [
-                Text(product.warehouseStock.toString()),
-                TextButton(
-                    onPressed: () => product.isSetArticle
-                        ? showMyDialogAlert(
-                            context: context,
-                            title: 'Achtung',
-                            content:
-                                'Der Bestand von Set-Artikel wird automatisch über dessen Einzelteile bestimmt und kann nicht manuell abgeändert werden')
-                        : showDialog(
-                            context: context,
-                            builder: (_) => BlocProvider.value(value: productBloc, child: UpdateProductQuantityDialog(product: product)),
-                          ),
-                    child: Text(product.availableStock.toString())),
-              ],
-            ),
-            if (ResponsiveBreakpoints.of(context).isTablet) ...[
-              Gaps.w16,
-              SizedBox(
-                height: 80,
-                width: 100,
-                child: ListView.builder(
-                  itemCount: product.productMarketplaces.length,
-                  itemBuilder: (context, index) {
-                    final productMarketplace = product.productMarketplaces[index];
-                    final style = switch (productMarketplace.marketplaceProduct!.marketplaceType) {
-                      MarketplaceType.prestashop => (productMarketplace.marketplaceProduct as ProductPresta).active == '0'
-                          ? TextStyles.defaultBold.copyWith(color: Colors.red)
-                          : TextStyles.defaultBold.copyWith(color: Colors.green),
-                      MarketplaceType.shopify => (productMarketplace.marketplaceProduct as ProductShopify).status != ProductShopifyStatus.active
-                          ? TextStyles.defaultBold.copyWith(color: Colors.red)
-                          : TextStyles.defaultBold.copyWith(color: Colors.green),
-                      MarketplaceType.shop => throw Exception('SHOP not implemented'),
-                    };
-                    return Row(
-                      children: [
-                        SizedBox(
-                          height: 15,
-                          width: 15,
-                          child: SvgPicture.asset(getMarketplaceLogoAsset(productMarketplace.marketplaceProduct!.marketplaceType)),
-                        ),
-                        Gaps.w4,
-                        Text(productMarketplace.shortNameMarketplace, style: style),
-                      ],
-                    );
-                  },
-                ),
-              ),
-            ],
+            isTabletOrLarger ? Gaps.w16 : Gaps.w8,
+            _ProductInfoBar(productBloc: productBloc, product: product),
+            Gaps.w16,
+            if (isTabletOrLarger) _PricesBar(product: product) else _StockBar(productBloc: productBloc, product: product),
+            isTabletOrLarger ? Gaps.w16 : Gaps.w8,
+            if (isTabletOrLarger) _StockBar(productBloc: productBloc, product: product) else _PricesBar(product: product),
+            Gaps.w16,
+            _MarketplacesBar(product: product),
           ],
         );
       },
     );
   }
+}
 
-  Color? _getTextButtonColor(Product product) {
-    if (!product.isActive) return null;
-    if (product.isOutlet && product.warehouseStock <= 0) return Colors.red;
-    if (product.isOutlet) return Colors.orange;
-    return null;
+Color? getTextButtonColor(Product product) {
+  if (!product.isActive) return null;
+  if (product.isOutlet && product.warehouseStock <= 0) return Colors.red;
+  if (product.isOutlet) return Colors.orange;
+  return null;
+}
+
+class _ProductInfoBar extends StatelessWidget {
+  final ProductBloc productBloc;
+  final Product product;
+
+  const _ProductInfoBar({required this.productBloc, required this.product});
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text.rich(
+                    TextSpan(children: [
+                      TextSpan(text: product.articleNumber),
+                      if (product.isActive == false) ...[
+                        const TextSpan(text: '  '),
+                        TextSpan(text: 'Inaktiv', style: TextStyles.defaultBold.copyWith(color: Colors.red)),
+                      ],
+                    ]),
+                    overflow: TextOverflow.ellipsis),
+              ),
+              Gaps.w8,
+              if (product.isSetArticle)
+                InkWell(
+                  onTap: () => showMySetProductQuickView(context: context, productId: product.id),
+                  child: const Icon(Icons.layers, size: 18, color: CustomColors.primaryColor),
+                ),
+              Gaps.w8,
+              if (product.listOfIsPartOfSetIds.isNotEmpty)
+                InkWell(
+                  onTap: () => showMyPartOfSetProductQuickView(context: context, productId: product.id),
+                  child: const Icon(Icons.group_work, size: 18, color: CustomColors.primaryColor),
+                ),
+            ],
+          ),
+          TextButton(
+            onPressed: () async {
+              await context.router.push(ProductDetailRoute(productId: product.id));
+              productBloc.add(GetProductEvent(id: product.id));
+            },
+            onLongPress: () => showMyProductQuickView(context: context, product: product, showStatProduct: true),
+            style: TextButton.styleFrom(
+              padding: EdgeInsets.zero,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              foregroundColor: getTextButtonColor(product),
+            ),
+            child: Text(product.name, maxLines: 2, overflow: TextOverflow.ellipsis),
+          ),
+          Text('EAN: ${product.ean}'),
+        ],
+      ),
+    );
+  }
+}
+
+class _PricesBar extends StatelessWidget {
+  final Product product;
+
+  const _PricesBar({required this.product});
+
+  @override
+  Widget build(BuildContext context) {
+    final isTabletOrLarger = ResponsiveBreakpoints.of(context).largerOrEqualTo(TABLET);
+
+    return SizedBox(
+      width: isTabletOrLarger ? RWPP.prices : RWMBPP.prices,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('EK: ${product.wholesalePrice.toMyCurrencyStringToShow()}'),
+          Text('VK-Netto: ${product.netPrice.toMyCurrencyStringToShow()}'),
+          Text('VK-Brutto: ${product.grossPrice.toMyCurrencyStringToShow()}'),
+          Text.rich(TextSpan(children: [
+            TextSpan(
+              text: (product.netPrice - product.wholesalePrice).toMyCurrencyStringToShow(),
+              style: TextStyles.defaultBold.copyWith(color: Colors.green),
+            ),
+            if (product.wholesalePrice != 0 && product.netPrice != 0) ...[
+              const TextSpan(text: ' | ', style: TextStyles.defaultBold),
+              TextSpan(
+                text: ((1 - (product.wholesalePrice / product.netPrice)) * 100).toMyCurrencyStringToShow(),
+                style: TextStyles.defaultBold.copyWith(color: CustomColors.primaryColor),
+              ),
+              TextSpan(text: '%', style: TextStyles.defaultBold.copyWith(color: CustomColors.primaryColor))
+            ],
+          ]))
+        ],
+      ),
+    );
+  }
+}
+
+class _StockBar extends StatelessWidget {
+  final ProductBloc productBloc;
+  final Product product;
+
+  const _StockBar({required this.productBloc, required this.product});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Text(product.warehouseStock.toString()),
+        TextButton(
+          onPressed: () {
+            if (product.isSetArticle) {
+              showMyDialogAlert(
+                context: context,
+                title: 'Achtung',
+                content: 'Der Bestand von Set-Artikel wird automatisch über dessen Einzelteile bestimmt und kann nicht manuell abgeändert werden',
+              );
+              return;
+            }
+
+            WoltModalSheet.show(
+              context: context,
+              useSafeArea: false,
+              pageListBuilder: (woltContext) {
+                return [
+                  WoltModalSheetPage(
+                    hasTopBarLayer: false,
+                    isTopBarLayerAlwaysVisible: false,
+                    child: UpdateProductQuantityDialog(productBloc: productBloc, product: product),
+                  ),
+                ];
+              },
+            );
+          },
+          child: Text(product.availableStock.toString()),
+        ),
+      ],
+    );
+  }
+}
+
+class _MarketplacesBar extends StatelessWidget {
+  final Product product;
+
+  const _MarketplacesBar({required this.product});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 80,
+      width: 100,
+      child: ListView.builder(
+        itemCount: product.productMarketplaces.length,
+        itemBuilder: (context, index) {
+          final productMarketplace = product.productMarketplaces[index];
+          final style = switch (productMarketplace.marketplaceProduct!.marketplaceType) {
+            MarketplaceType.prestashop => (productMarketplace.marketplaceProduct as ProductPresta).active == '0'
+                ? TextStyles.defaultBold.copyWith(color: Colors.red)
+                : TextStyles.defaultBold.copyWith(color: Colors.green),
+            MarketplaceType.shopify => (productMarketplace.marketplaceProduct as ProductShopify).status != ProductShopifyStatus.active
+                ? TextStyles.defaultBold.copyWith(color: Colors.red)
+                : TextStyles.defaultBold.copyWith(color: Colors.green),
+            MarketplaceType.shop => throw Exception('SHOP not implemented'),
+          };
+          return Row(
+            children: [
+              SizedBox(
+                height: 15,
+                width: 15,
+                child: SvgPicture.asset(getMarketplaceLogoAsset(productMarketplace.marketplaceProduct!.marketplaceType)),
+              ),
+              Gaps.w4,
+              Text(productMarketplace.shortNameMarketplace, style: style),
+            ],
+          );
+        },
+      ),
+    );
   }
 }
