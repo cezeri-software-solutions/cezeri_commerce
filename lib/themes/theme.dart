@@ -21,7 +21,7 @@ class AppTheme {
     ),
     textTheme: const TextTheme().copyWith(bodyMedium: const TextStyle(fontSize: 13)),
     iconTheme: const IconThemeData().copyWith(color: CustomColors.iconColor),
-    appBarTheme: const AppBarTheme().copyWith(surfaceTintColor: Colors.transparent),
+    appBarTheme: const AppBarTheme().copyWith(surfaceTintColor: Colors.transparent, color: Colors.transparent),
     useMaterial3: true,
   );
 

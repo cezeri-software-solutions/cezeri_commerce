@@ -3,13 +3,13 @@ import 'package:cezeri_commerce/routes/router.gr.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../2_application/database/marketplace/marketplace_bloc.dart';
-import '../../../../2_application/database/product/product_bloc.dart';
-import '../../../../3_domain/entities/marketplace/abstract_marketplace.dart';
-import '../../../../constants.dart';
-import '../../../../injection.dart';
-import '../../../core/widgets/my_circular_progress_indicator.dart';
-import '../../../core/widgets/my_outlined_button.dart';
+import '../../../../../2_application/database/marketplace/marketplace_bloc.dart';
+import '../../../../../2_application/database/product/product_bloc.dart';
+import '../../../../../3_domain/entities/marketplace/abstract_marketplace.dart';
+import '../../../../../constants.dart';
+import '../../../../../injection.dart';
+import '../../../../core/widgets/my_circular_progress_indicator.dart';
+import '../../../../core/widgets/my_outlined_button.dart';
 import 'products_mass_editing_select_option_dialog.dart';
 
 class ProductsMassEditingSelectMarketplacesDialog extends StatefulWidget {

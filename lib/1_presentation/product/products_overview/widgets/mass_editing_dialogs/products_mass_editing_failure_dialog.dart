@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../../../3_domain/entities/product/product.dart';
-import '../../../../constants.dart';
+import '../../../../../3_domain/entities/product/product.dart';
+import '../../../../../constants.dart';
 
 class ProductsMassEditingFailureDialog extends StatelessWidget {
   final List<Product> productsList;

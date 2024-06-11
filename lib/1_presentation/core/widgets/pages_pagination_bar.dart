@@ -1,0 +1,94 @@
+import 'package:cezeri_commerce/1_presentation/core/extensions/string_to_int.dart';
+import 'package:flutter/material.dart';
+import 'package:responsive_framework/responsive_framework.dart';
+
+import '../../../constants.dart';
+import 'my_dropdown_button_small.dart';
+
+class PagesPaginationBar extends StatelessWidget {
+  final int currentPage;
+  final int totalPages;
+  final int itemsPerPage;
+  final int totalItems;
+  final Function(int) onPageChanged;
+  final Function(int) onItemsPerPageChanged;
+
+  const PagesPaginationBar({
+    super.key,
+    required this.currentPage,
+    required this.totalPages,
+    required this.itemsPerPage,
+    required this.totalItems,
+    required this.onPageChanged,
+    required this.onItemsPerPageChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isTablet = ResponsiveBreakpoints.of(context).largerOrEqualTo(TABLET);
+
+    int maxPagesToShow = 3;
+    int half = maxPagesToShow ~/ 2;
+    int maxStartPage = (totalPages - maxPagesToShow + 1).clamp(1, totalPages);
+
+    int startPage = (currentPage - half).clamp(1, maxStartPage);
+    int endPage = (startPage + maxPagesToShow - 1).clamp(1, totalPages);
+
+    if (endPage - startPage < maxPagesToShow - 1) startPage = (endPage - maxPagesToShow + 1).clamp(1, maxStartPage);
+
+    List<Widget> pageButtons = [];
+    for (int i = startPage; i <= endPage; i++) {
+      pageButtons.add(
+        SizedBox(
+          width: 35,
+          child: TextButton(
+            isSemanticButton: false,
+            onPressed: () => onPageChanged(i),
+            style: TextButton.styleFrom(
+              foregroundColor: i == currentPage ? Colors.blue : Colors.grey,
+              padding: EdgeInsets.zero,
+            ),
+            child: Text(i.toString()),
+          ),
+        ),
+      );
+    }
+
+    int startItem = ((currentPage - 1) * itemsPerPage) + 1;
+    int endItem = (currentPage * itemsPerPage).clamp(1, totalItems);
+
+    return Padding(
+      padding: const EdgeInsets.only(right: 8, bottom: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          if (isTablet) ...[
+            const Text('Pro Seite'),
+            Gaps.w16,
+          ],
+          SizedBox(
+            width: 80,
+            child: MyDropdownButtonSmall(
+              value: itemsPerPage.toString(),
+              onChanged: (value) => onItemsPerPageChanged(value.toMyInt()),
+              items: const ['20', '30', '50', '100', '500', '1000'],
+            ),
+          ),
+          if (isTablet) ...[
+            Gaps.w16,
+            Text('$startItem - $endItem von $totalItems'),
+          ],
+          IconButton(
+            icon: const Icon(Icons.keyboard_double_arrow_left),
+            onPressed: currentPage > 1 ? () => onPageChanged(1) : null,
+          ),
+          ...pageButtons,
+          IconButton(
+            icon: const Icon(Icons.keyboard_double_arrow_right),
+            onPressed: currentPage < totalPages ? () => onPageChanged(totalPages) : null,
+          ),
+        ],
+      ),
+    );
+  }
+}

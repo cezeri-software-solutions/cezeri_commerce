@@ -2,11 +2,11 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../2_application/database/product/product_bloc.dart';
-import '../../../../3_domain/entities/marketplace/abstract_marketplace.dart';
-import '../../../../constants.dart';
-import '../../../../routes/router.gr.dart';
-import '../../../core/widgets/my_outlined_button.dart';
+import '../../../../../2_application/database/product/product_bloc.dart';
+import '../../../../../3_domain/entities/marketplace/abstract_marketplace.dart';
+import '../../../../../constants.dart';
+import '../../../../../routes/router.gr.dart';
+import '../../../../core/widgets/my_outlined_button.dart';
 import 'products_mass_editing_purchace_dialog.dart';
 import 'products_mass_editing_weight_and_dimensions_dialog.dart';
 
