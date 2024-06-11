@@ -1,4 +1,3 @@
-import 'package:cezeri_commerce/1_presentation/core/widgets/my_circular_progress_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -78,17 +77,15 @@ class DashboardPage extends StatelessWidget {
                   ],
                 ),
               ),
-              if (state.isLoadingProductSalesByBrand)
-                SizedBox(height: isTablet ? 300 : screenHeight / 2, child: const Center(child: MyCircularProgressIndicator()))
-              else if (state.isFailureOnProductSalesByBrand)
-                SizedBox(
-                    height: isTablet ? 300 : screenHeight / 2, child: const Center(child: Text('Beim Laden der Daten ist ein Fehler aufgetreten!')))
-              else
-                SizedBox(
-                  width: screenWidth,
-                  height: isTablet ? 300 : screenHeight / 2,
-                  child: SalesByBrandChart(listOfSalesByBrand: state.listOfProductSalesByBrand!),
+              SizedBox(
+                width: screenWidth,
+                height: isTablet ? 300 : screenHeight / 2,
+                child: SalesByBrandChart(
+                  listOfSalesByBrand: state.listOfProductSalesByBrand!,
+                  isLoadingProductSalesByBrand: state.isLoadingProductSalesByBrand,
+                  isFailureOnProductSalesByBrand: state.isFailureOnProductSalesByBrand,
                 ),
+              ),
               Gaps.h42,
             ],
           ),

@@ -6,7 +6,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:responsive_framework/responsive_framework.dart';
 
 import '../../../2_application/database/product/product_bloc.dart';
 import '../../../3_domain/entities/product/product.dart';
@@ -19,11 +18,12 @@ import '../../../routes/router.gr.dart';
 import '../../core/functions/dialogs.dart';
 import '../../core/functions/my_scaffold_messanger.dart';
 import '../../core/widgets/my_circular_progress_indicator.dart';
+import '../../core/widgets/pages_pagination_bar.dart';
 import 'functions/get_products_app_bar_title.dart';
 import 'functions/products_overview_create_export.dart';
 import 'products_overview_page.dart';
-import 'widgets/products_mass_editing_failure_dialog.dart';
-import 'widgets/products_mass_editing_select_marketplaces_dialog.dart';
+import 'widgets/mass_editing_dialogs/products_mass_editing_failure_dialog.dart';
+import 'widgets/mass_editing_dialogs/products_mass_editing_select_marketplaces_dialog.dart';
 
 @RoutePage()
 class ProductsOverviewScreen extends StatefulWidget {
@@ -34,7 +34,7 @@ class ProductsOverviewScreen extends StatefulWidget {
 }
 
 class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> with AutomaticKeepAliveClientMixin {
-  final productBloc = sl<ProductBloc>()..add(GetAllProductsEvent());
+  final productBloc = sl<ProductBloc>()..add(GetProductsPerPageEvent(isFirstLoad: true, calcCount: true, currentPage: 1));
   final iconButtonKey = GlobalKey();
 
   @override
@@ -142,32 +142,21 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> with Au
                 actions: [
                   IconButton(
                     key: iconButtonKey,
-                    onPressed: () async {
-                      await generateTableExportFromProductsOverview(context, iconButtonKey, state.selectedProducts);
-                    },
+                    onPressed: () async => await generateTableExportFromProductsOverview(context, iconButtonKey, state.selectedProducts),
                     icon: const Icon(Icons.table_chart_outlined, color: CustomColors.primaryColor),
                   ),
                   IconButton(
-                    onPressed: () async {
-                      showMyDialogLoading(context: context, text: 'PDF wird erstellt...');
-                      productBloc.add(SetProductIsLoadingPdfEvent(value: true));
-                      final generatedPdf = await PdfProductsGenerator.generate(listOfProducts: state.selectedProducts);
-
-                      if (context.mounted) context.router.popUntilRouteWithName(ProductsOverviewRoute.name);
-
-                      if (kIsWeb) {
-                        await PdfApiWeb.saveDocument(name: 'Ausgewählte Artikel.pdf', byteList: generatedPdf, showInBrowser: true);
-                      } else {
-                        await PdfApiMobile.saveDocument(name: 'Ausgewählte Artikel.pdf', byteList: generatedPdf);
-                      }
-
-                      productBloc.add(SetProductIsLoadingPdfEvent(value: false));
-                    },
+                    onPressed: () async => _onGeneratePdfPressed(state.selectedProducts),
                     icon: state.isLoadingPdf
                         ? const MyCircularProgressIndicator(color: Colors.red)
                         : const Icon(Icons.picture_as_pdf, color: Colors.red),
                   ),
-                  IconButton(onPressed: () => productBloc.add(GetAllProductsEvent()), icon: const Icon(Icons.refresh)),
+                  IconButton(
+                    onPressed: () => state.productSearchController.text.isEmpty
+                        ? productBloc.add(GetProductsPerPageEvent(isFirstLoad: false, calcCount: false, currentPage: state.currentPage))
+                        : productBloc.add(GetFilteredProductsBySearchTextEvent(currentPage: state.currentPage)),
+                    icon: const Icon(Icons.refresh),
+                  ),
                   TextButton.icon(
                     onPressed: state.selectedProducts.isEmpty
                         ? () => showMyDialogAlert(context: context, title: 'Achtung!', content: 'Bitte wähle mindestens einen Artikel aus.')
@@ -192,49 +181,76 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> with Au
                   ),
                 ],
               ),
-              body: Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(left: 20, right: 20, bottom: 10),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: CupertinoSearchTextField(
-                            controller: state.productSearchController,
-                            onChanged: (value) => context.read<ProductBloc>().add(OnSearchFieldSubmittedEvent()),
-                            onSubmitted: (value) => context.read<ProductBloc>().add(OnSearchFieldSubmittedEvent()),
-                            onSuffixTap: () => context.read<ProductBloc>().add(OnProductSearchControllerClearedEvent()),
-                          ),
-                        ),
-                        if (ResponsiveBreakpoints.of(context).largerOrEqualTo(TABLET)) ...[
-                          Gaps.w16,
-                          const Text('Erweiterte Suche:'),
-                          Gaps.w8,
-                          Switch.adaptive(
-                            value: state.isWidthSearchActive,
-                            onChanged: (value) => productBloc.add(SetProductsWidthSearchEvent(value: value)),
-                          ),
-                        ] else ...[
-                          Gaps.w8,
-                          Tooltip(
-                            message: 'Erweiterte Suche',
-                            child: Switch.adaptive(
-                              value: state.isWidthSearchActive,
-                              onChanged: (value) => productBloc.add(SetProductsWidthSearchEvent(value: value)),
-                            ),
-                          ),
-                        ],
-                      ],
+              body: SafeArea(
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(left: 20, right: 20, bottom: 10),
+                      child: CupertinoSearchTextField(
+                        controller: state.productSearchController,
+                        onSubmitted: (value) => _onSearchFieldSubmitted(value),
+                        onSuffixTap: () => productBloc.add(GetProductsPerPageEvent(isFirstLoad: false, calcCount: true, currentPage: 1)),
+                      ),
                     ),
-                  ),
-                  ProductOverviewPage(productBloc: productBloc),
-                ],
+                    const Divider(height: 0),
+                    ProductOverviewPage(productBloc: productBloc),
+                    if (state.totalQuantity > 0) ...[
+                      const Divider(height: 0),
+                      PagesPaginationBar(
+                        currentPage: state.currentPage,
+                        totalPages: _getNumberOfPages(state.perPageQuantity, state.totalQuantity),
+                        itemsPerPage: state.perPageQuantity,
+                        totalItems: state.totalQuantity,
+                        onPageChanged: (newPage) => state.productSearchController.text.isEmpty
+                            ? productBloc.add(GetProductsPerPageEvent(isFirstLoad: false, calcCount: false, currentPage: newPage))
+                            : productBloc.add(
+                                GetFilteredProductsBySearchTextEvent(currentPage: newPage),
+                              ),
+                        onItemsPerPageChanged: (newValue) => productBloc.add(ItemsPerPageChangedEvent(value: newValue)),
+                      ),
+                    ],
+                  ],
+                ),
               ),
             );
           },
         ),
       ),
     );
+  }
+
+  Future<void> _onGeneratePdfPressed(List<Product> selectedProducts) async {
+    showMyDialogLoading(context: context, text: 'PDF wird erstellt...');
+    productBloc.add(SetProductIsLoadingPdfEvent(value: true));
+    final generatedPdf = await PdfProductsGenerator.generate(listOfProducts: selectedProducts);
+
+    if (mounted) context.router.popUntilRouteWithName(ProductsOverviewRoute.name);
+
+    if (kIsWeb) {
+      await PdfApiWeb.saveDocument(name: 'Ausgewählte Artikel.pdf', byteList: generatedPdf, showInBrowser: true);
+    } else {
+      await PdfApiMobile.saveDocument(name: 'Ausgewählte Artikel.pdf', byteList: generatedPdf);
+    }
+
+    productBloc.add(SetProductIsLoadingPdfEvent(value: false));
+  }
+
+  void _onSearchFieldSubmitted(String value) {
+    if (value.isEmpty) {
+      productBloc.add(GetProductsPerPageEvent(isFirstLoad: false, calcCount: true, currentPage: 1));
+      return;
+    }
+
+    if (value.length < 3) {
+      showMyDialogAlert(context: context, title: 'Achtung', content: 'Die Suche muss mindestens 3 Zeichen enthalten!');
+      return;
+    }
+
+    productBloc.add(GetFilteredProductsBySearchTextEvent(currentPage: 1));
+  }
+
+  int _getNumberOfPages(int perPageQuantity, int totalQuantity) {
+    return (totalQuantity / perPageQuantity).ceil();
   }
 
   void _onRemovePressed(BuildContext context, List<Product> selectedProducts) {

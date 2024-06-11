@@ -7,11 +7,19 @@ import 'package:responsive_framework/responsive_framework.dart';
 
 import '../../../3_domain/entities/statistic/stat_brand.dart';
 import '../../../constants.dart';
+import '../../core/widgets/my_circular_progress_indicator.dart';
 
 class SalesByBrandChart extends StatefulWidget {
-  final List<StatBrand> listOfSalesByBrand;
+  final List<StatBrand>? listOfSalesByBrand;
+  final bool isLoadingProductSalesByBrand;
+  final bool isFailureOnProductSalesByBrand;
 
-  const SalesByBrandChart({super.key, required this.listOfSalesByBrand});
+  const SalesByBrandChart({
+    super.key,
+    required this.listOfSalesByBrand,
+    required this.isLoadingProductSalesByBrand,
+    required this.isFailureOnProductSalesByBrand,
+  });
 
   @override
   State<StatefulWidget> createState() => SalesByBrandChartState();
@@ -26,14 +34,20 @@ class SalesByBrandChartState extends State<SalesByBrandChart> {
     final screenHeight = MediaQuery.sizeOf(context).height;
     final isTablet = ResponsiveBreakpoints.of(context).largerOrEqualTo(TABLET);
 
-    if (isTablet) {
+    if (widget.isLoadingProductSalesByBrand) {
+      return const Center(child: MyCircularProgressIndicator());
+    } else if (widget.isFailureOnProductSalesByBrand) {
+      return const Center(child: Text('Beim Laden der Daten ist ein Fehler aufgetreten!'));
+    } else if (widget.listOfSalesByBrand!.isEmpty) {
+      return const Center(child: Text('Für den ausgewählten Zeitraum sind keine Daten in der Datenbank enthalten.'));
+    } else if (isTablet) {
       return Row(
         children: [
           Expanded(
             child: SizedBox(
               height: screenHeight / 3,
               child: SingleChildScrollView(
-                child: _buildSalesByBrandTable(widget.listOfSalesByBrand, screenWidth, touchedIndex),
+                child: _buildSalesByBrandTable(widget.listOfSalesByBrand!, screenWidth, touchedIndex),
               ),
             ),
           ),
@@ -70,7 +84,7 @@ class SalesByBrandChartState extends State<SalesByBrandChart> {
               scrollDirection: Axis.vertical,
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
-                child: _buildSalesByBrandTable(widget.listOfSalesByBrand, screenWidth, touchedIndex),
+                child: _buildSalesByBrandTable(widget.listOfSalesByBrand!, screenWidth, touchedIndex),
               ),
             ),
           ),
@@ -106,7 +120,7 @@ class SalesByBrandChartState extends State<SalesByBrandChart> {
   }
 
   List<PieChartSectionData> showingSections() {
-    return widget.listOfSalesByBrand.asMap().entries.map((entry) {
+    return widget.listOfSalesByBrand!.asMap().entries.map((entry) {
       int index = entry.key;
       StatBrand brand = entry.value;
       final isTouched = index == touchedIndex;

@@ -7,6 +7,20 @@ class SetProductStateToInitialEvent extends ProductEvent {}
 
 class GetAllProductsEvent extends ProductEvent {}
 
+class GetProductsPerPageEvent extends ProductEvent {
+  final bool isFirstLoad;
+  final bool calcCount;
+  final int currentPage;
+
+  GetProductsPerPageEvent({required this.isFirstLoad, required this.calcCount, required this.currentPage});
+}
+
+class GetFilteredProductsBySearchTextEvent extends ProductEvent {
+  final int currentPage;
+
+  GetFilteredProductsBySearchTextEvent({required this.currentPage});
+}
+
 class GetProductEvent extends ProductEvent {
   final String id;
 
@@ -37,12 +51,6 @@ class OnProductSelectedEvent extends ProductEvent {
 
 class OnProductGetSuppliersEvent extends ProductEvent {}
 
-class SetProductsWidthSearchEvent extends ProductEvent {
-  final bool value;
-
-  SetProductsWidthSearchEvent({required this.value});
-}
-
 class SetProductIsLoadingPdfEvent extends ProductEvent {
   final bool value;
 
@@ -56,6 +64,15 @@ class UpdateQuantityOfProductEvent extends ProductEvent {
   final bool updateOnlyAvailableQuantity;
 
   UpdateQuantityOfProductEvent({required this.product, required this.newQuantity, required this.updateOnlyAvailableQuantity});
+}
+
+// * #################################################################################################################################
+// * Helper Pages
+
+class ItemsPerPageChangedEvent extends ProductEvent {
+  final int value;
+
+  ItemsPerPageChangedEvent({required this.value});
 }
 
 // * #################################################################################################################################

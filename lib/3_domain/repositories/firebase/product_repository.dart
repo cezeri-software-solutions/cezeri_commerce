@@ -29,6 +29,18 @@ abstract class ProductRepository {
     ProductMarketplace productMarketplace,
   );
   Future<Either<AbstractFailure, List<Product>>> getListOfProducts(bool onlyActive);
+  Future<Either<AbstractFailure, int>> getNumerOfAllProducts({bool? onlyActive = false});
+  Future<Either<AbstractFailure, List<Product>>> getListOfProductsPerPage({
+    required int currentPage,
+    required int itemsPerPage,
+    bool? onlyActive = false,
+  });
+  Future<Either<AbstractFailure, int>> getNumberOfFilteredProductsBySearchText({required String searchText});
+  Future<Either<AbstractFailure, List<Product>>> getListOfFilteredProductsBySearchText({
+    required String searchText,
+    required int currentPage,
+    required int itemsPerPage,
+  });
   Future<Either<AbstractFailure, List<Product>>> getListOfProductsByIds(List<String> productIds);
   Future<Either<AbstractFailure, List<Product>>> getListOfProductsBySupplierName({required bool onlyActive, required Supplier supplier});
   Future<Either<AbstractFailure, List<Product>>> getListOfSoldOutOutletProducts();

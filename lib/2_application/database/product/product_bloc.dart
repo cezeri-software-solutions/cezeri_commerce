@@ -32,6 +32,8 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
   }) : super(ProductState.initial()) {
     on<SetProductStateToInitialEvent>(_onSetProductStateToInitial);
     on<GetAllProductsEvent>(_onGetAllProducts);
+    on<GetProductsPerPageEvent>(_onGetProductsPerPage);
+    on<GetFilteredProductsBySearchTextEvent>(_onGetFilteredProductsBySearchText);
     on<GetProductEvent>(_onGetProduct);
     on<DeleteSelectedProductsEvent>(_onDeleteSelectedProducts);
     on<OnProductSearchControllerClearedEvent>(_onOnProductSearchControllerCleared);
@@ -39,9 +41,9 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
     on<OnProductIsSelectedAllChangedEvent>(_onOnProductIsSelectedAllChanged);
     on<OnProductSelectedEvent>(_onOnProductSelected);
     on<OnProductGetSuppliersEvent>(_onOnProductGetSuppliers);
-    on<SetProductsWidthSearchEvent>(_onSetProductsWidthSearch);
     on<SetProductIsLoadingPdfEvent>(_onSetProductIsLoadingPdf);
     on<UpdateQuantityOfProductEvent>(_onUpdateQuantityOfProduct);
+    on<ItemsPerPageChangedEvent>(_onItemsPerPageChanged);
     on<MassEditActivateProductMarketplaceEvent>(_onMassEditActivateProductMarketplace);
     on<ProductsMassEditingPurchaceUpdatedEvent>(_onProductsMassEditingPurchaceUpdated);
     on<ProductsMassEditingWeightAndDimensionsUpdatedEvent>(_onProductsMassEditingWeightAndDimensionsUpdated);
@@ -74,6 +76,89 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
     emit(state.copyWith(
       isLoadingProductsOnObserve: false,
       fosProductsOnObserveOption: optionOf(failureOrSuccess),
+    ));
+    emit(state.copyWith(fosProductsOnObserveOption: none()));
+  }
+
+  Future<void> _onGetProductsPerPage(GetProductsPerPageEvent event, Emitter<ProductState> emit) async {
+    emit(state.copyWith(isLoadingProductsOnObserve: true));
+
+    if (event.isFirstLoad) {
+      final fosSettings = await mainSettingsRepository.getSettings();
+      fosSettings.fold(
+        (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
+        (settings) => emit(state.copyWith(mainSettings: settings, firebaseFailure: null, isAnyFailure: false)),
+      );
+    }
+
+    if (event.calcCount) {
+      final fosCount = await productRepository.getNumerOfAllProducts(onlyActive: false);
+      fosCount.fold(
+        (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
+        (countNumber) => emit(state.copyWith(totalQuantity: countNumber, firebaseFailure: null, isAnyFailure: false)),
+      );
+    }
+
+    final failureOrSuccess = await productRepository.getListOfProductsPerPage(
+      currentPage: event.currentPage,
+      itemsPerPage: state.perPageQuantity,
+      onlyActive: false,
+    );
+    failureOrSuccess.fold(
+      (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
+      (listOfProduct) {
+        emit(state.copyWith(
+          listOfAllProducts: listOfProduct,
+          listOfFilteredProducts: listOfProduct,
+          selectedProducts: [],
+          currentPage: event.currentPage,
+          firebaseFailure: null,
+          isAnyFailure: false,
+        ));
+        add(OnSearchFieldSubmittedEvent());
+      },
+    );
+
+    emit(state.copyWith(
+      isLoadingProductsOnObserve: false,
+      fosProductsOnObserveOption: optionOf(failureOrSuccess),
+    ));
+    emit(state.copyWith(fosProductsOnObserveOption: none()));
+  }
+
+  Future<void> _onGetFilteredProductsBySearchText(GetFilteredProductsBySearchTextEvent event, Emitter<ProductState> emit) async {
+    emit(state.copyWith(isLoadingProductsOnObserve: true));
+
+    final fosCount = await productRepository.getNumberOfFilteredProductsBySearchText(searchText: state.productSearchController.text);
+    fosCount.fold(
+      (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
+      (countNumber) => emit(state.copyWith(totalQuantity: countNumber, firebaseFailure: null, isAnyFailure: false)),
+    );
+
+    final fosProducts = await productRepository.getListOfFilteredProductsBySearchText(
+      searchText: state.productSearchController.text,
+      currentPage: event.currentPage,
+      itemsPerPage: state.perPageQuantity,
+    );
+
+    fosProducts.fold(
+      (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
+      (listOfProduct) {
+        emit(state.copyWith(
+          listOfAllProducts: listOfProduct,
+          listOfFilteredProducts: listOfProduct,
+          selectedProducts: [],
+          currentPage: event.currentPage,
+          firebaseFailure: null,
+          isAnyFailure: false,
+        ));
+        add(OnSearchFieldSubmittedEvent());
+      },
+    );
+
+    emit(state.copyWith(
+      isLoadingProductsOnObserve: false,
+      fosProductsOnObserveOption: optionOf(fosProducts),
     ));
     emit(state.copyWith(fosProductsOnObserveOption: none()));
   }
@@ -124,32 +209,31 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
   }
 
   void _onOnSearchFieldSubmitted(OnSearchFieldSubmittedEvent event, Emitter<ProductState> emit) {
-    final widthSearchText = state.productSearchController.text.toLowerCase().split(' ');
+    // final widthSearchText = state.productSearchController.text.toLowerCase().split(' ');
 
-    List<Product>? listOfProducts = switch (state.productSearchController.text) {
-      '' => state.listOfAllProducts,
-      (_) => switch (state.isWidthSearchActive) {
-          true => state.listOfAllProducts!
-              .where((e) => widthSearchText.every((entry) =>
-                  e.name.toLowerCase().contains(entry) ||
-                  e.ean.toLowerCase().contains(entry) ||
-                  e.supplier.toLowerCase().contains(entry) ||
-                  e.articleNumber.toLowerCase().contains(entry)))
-              .toList(),
-          _ => state.listOfAllProducts!
-              .where((element) =>
-                  element.name.toLowerCase().contains(state.productSearchController.text.toLowerCase()) ||
-                  element.ean.toLowerCase().contains(state.productSearchController.text.toLowerCase()) ||
-                  element.supplier.toLowerCase().contains(state.productSearchController.text.toLowerCase()) ||
-                  element.articleNumber.toLowerCase().contains(state.productSearchController.text.toLowerCase()))
-              .toList()
-        },
-    };
+    // List<Product>? listOfProducts = switch (state.productSearchController.text) {
+    //   '' => state.listOfAllProducts,
+    //   (_) => switch (state.isWidthSearchActive) {
+    //       true => state.listOfAllProducts!
+    //           .where((e) => widthSearchText.every((entry) =>
+    //               e.name.toLowerCase().contains(entry) ||
+    //               e.ean.toLowerCase().contains(entry) ||
+    //               e.supplier.toLowerCase().contains(entry) ||
+    //               e.articleNumber.toLowerCase().contains(entry)))
+    //           .toList(),
+    //       _ => state.listOfAllProducts!
+    //           .where((element) =>
+    //               element.name.toLowerCase().contains(state.productSearchController.text.toLowerCase()) ||
+    //               element.ean.toLowerCase().contains(state.productSearchController.text.toLowerCase()) ||
+    //               element.supplier.toLowerCase().contains(state.productSearchController.text.toLowerCase()) ||
+    //               element.articleNumber.toLowerCase().contains(state.productSearchController.text.toLowerCase()))
+    //           .toList()
+    //     },
+    // };
 
-    if (listOfProducts != null && listOfProducts.isNotEmpty) listOfProducts.sort((a, b) => a.name.compareTo(b.name));
-    // if (listOfProducts != null && listOfProducts.length > 20) listOfProducts = listOfProducts.sublist(0, 20);
+    // if (listOfProducts != null && listOfProducts.isNotEmpty) listOfProducts.sort((a, b) => a.name.compareTo(b.name));
 
-    emit(state.copyWith(listOfFilteredProducts: listOfProducts));
+    // emit(state.copyWith(listOfFilteredProducts: listOfProducts));
   }
 
   void _onOnProductIsSelectedAllChanged(OnProductIsSelectedAllChangedEvent event, Emitter<ProductState> emit) {
@@ -189,11 +273,6 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
       fosProductSuppliersOnObserveOption: optionOf(failureOrSuccess),
     ));
     emit(state.copyWith(fosProductSuppliersOnObserveOption: none()));
-  }
-
-  void _onSetProductsWidthSearch(SetProductsWidthSearchEvent event, Emitter<ProductState> emit) {
-    emit(state.copyWith(isWidthSearchActive: event.value));
-    add(OnSearchFieldSubmittedEvent());
   }
 
   void _onSetProductIsLoadingPdf(SetProductIsLoadingPdfEvent event, Emitter<ProductState> emit) {
@@ -272,6 +351,15 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
     emit(state.copyWith(fosProductOnUpdateQuantityOption: none(), fosProductAbstractFailuresOption: none()));
 
     add(OnSearchFieldSubmittedEvent());
+  }
+
+  void _onItemsPerPageChanged(ItemsPerPageChangedEvent event, Emitter<ProductState> emit) {
+    emit(state.copyWith(perPageQuantity: event.value));
+    if (state.productSearchController.text.isEmpty) {
+      add(GetProductsPerPageEvent(isFirstLoad: false, calcCount: false, currentPage: 1));
+    } else {
+      add(GetFilteredProductsBySearchTextEvent(currentPage: 1));
+    }
   }
 
   Future<void> _onMassEditActivateProductMarketplace(MassEditActivateProductMarketplaceEvent event, Emitter<ProductState> emit) async {

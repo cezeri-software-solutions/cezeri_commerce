@@ -80,7 +80,16 @@ class ProductRepositoryImpl implements ProductRepository {
 
     try {
       while (true) {
-        final response = await supabase.from('d_products').select().eq('ownerId', ownerId).order('name').range(offset, offset + limit - 1);
+        final response = switch (onlyActive) {
+          true => await supabase
+              .from('d_products')
+              .select()
+              .eq('ownerId', ownerId)
+              .eq('isActive', onlyActive)
+              .order('name')
+              .range(offset, offset + limit - 1),
+          false => await supabase.from('d_products').select().eq('ownerId', ownerId).order('name').range(offset, offset + limit - 1),
+        };
 
         if (response.isEmpty) break;
 
@@ -90,6 +99,106 @@ class ProductRepositoryImpl implements ProductRepository {
         offset += limit; // Offset für die nächste Abfrage erhöhen
       }
       return Right(allProducts);
+    } catch (e) {
+      logger.e(e);
+      return Left(GeneralFailure(customMessage: 'Beim Laden der Artikel ist ein Fehler aufgetreten. Error: $e'));
+    }
+  }
+
+  @override
+  Future<Either<AbstractFailure, int>> getNumerOfAllProducts({bool? onlyActive = false}) async {
+    if (!await checkInternetConnection()) return Left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
+
+    try {
+      final response = await supabase.rpc('get_d_products_count', params: {'owner_id': ownerId, 'only_active': onlyActive});
+
+      return Right(response);
+    } catch (e) {
+      logger.e(e);
+      return Left(GeneralFailure(customMessage: 'Beim Laden der Artikel ist ein Fehler aufgetreten. Error: $e'));
+    }
+  }
+
+  @override
+  Future<Either<AbstractFailure, List<Product>>> getListOfProductsPerPage({
+    required int currentPage,
+    required int itemsPerPage,
+    bool? onlyActive = false,
+  }) async {
+    if (!await checkInternetConnection()) return Left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
+
+    final start = (currentPage - 1) * itemsPerPage;
+    final end = start + itemsPerPage - 1;
+
+    try {
+      final response = switch (onlyActive!) {
+        true => await supabase
+            .from('d_products')
+            .select()
+            .eq('ownerId', ownerId)
+            .eq('isActive', onlyActive)
+            .order('name', ascending: true)
+            .range(start, end),
+        false => await supabase.from('d_products').select().eq('ownerId', ownerId).order('name', ascending: true).range(start, end),
+      };
+
+      if (response.isEmpty) return const Right([]);
+
+      final listOfProducts = response.map((e) => Product.fromJson(e)).toList();
+
+      return Right(listOfProducts);
+    } catch (e) {
+      logger.e(e);
+      return Left(GeneralFailure(customMessage: 'Beim Laden der Artikel ist ein Fehler aufgetreten. Error: $e'));
+    }
+  }
+
+  @override
+  Future<Either<AbstractFailure, int>> getNumberOfFilteredProductsBySearchText({required String searchText}) async {
+    if (!await checkInternetConnection()) return Left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
+
+    try {
+      final response = await supabase.rpc('get_d_products_count_by_search_text', params: {'owner_id': ownerId, 'search_text': searchText});
+
+      return Right(response);
+    } catch (e) {
+      logger.e(e);
+      return Left(GeneralFailure(customMessage: 'Beim Laden der Artikel ist ein Fehler aufgetreten. Error: $e'));
+    }
+  }
+
+  @override
+  Future<Either<AbstractFailure, List<Product>>> getListOfFilteredProductsBySearchText({
+    required String searchText,
+    required int currentPage,
+    required int itemsPerPage,
+  }) async {
+    if (!await checkInternetConnection()) return Left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
+
+    try {
+      final response = await supabase.rpc('get_products_by_search_text', params: {
+        'owner_id': ownerId,
+        'search_text': searchText,
+        'current_page': currentPage,
+        'items_per_page': itemsPerPage,
+      });
+
+      if (response.isEmpty) return const Right([]);
+
+      final listOfProducts = (response as List<dynamic>).map((e) {
+        final item = e as Map<String, dynamic>;
+        return Product.fromJson(item);
+      }).toList();
+
+      return Right(listOfProducts);
     } catch (e) {
       logger.e(e);
       return Left(GeneralFailure(customMessage: 'Beim Laden der Artikel ist ein Fehler aufgetreten. Error: $e'));

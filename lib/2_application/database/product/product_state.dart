@@ -30,9 +30,11 @@ class ProductState {
   //* Prestashop States
   final Option<Either<List<AbstractFailure>, Unit>> fosProductOnEditQuantityPrestaOption;
   //* Helpers
+  final int perPageQuantity;
+  final int totalQuantity;
+  final int currentPage;
   final TextEditingController productSearchController;
   final bool triggerPop;
-  final bool isWidthSearchActive;
   final bool isSelectedAllProducts;
   final bool isLoadingPdf;
   final String loadingText;
@@ -62,9 +64,11 @@ class ProductState {
     required this.fosMassEditActivateProductMarketplaceOption,
     required this.fosMassEditProductsOption,
     required this.fosProductOnEditQuantityPrestaOption,
+    required this.perPageQuantity,
+    required this.totalQuantity,
+    required this.currentPage,
     required this.productSearchController,
     required this.triggerPop,
-    required this.isWidthSearchActive,
     required this.isSelectedAllProducts,
     required this.isLoadingPdf,
     required this.loadingText,
@@ -96,9 +100,11 @@ class ProductState {
       fosMassEditActivateProductMarketplaceOption: none(),
       fosMassEditProductsOption: none(),
       fosProductOnEditQuantityPrestaOption: none(),
+      perPageQuantity: 20,
+      totalQuantity: 0,
+      currentPage: 1,
       productSearchController: TextEditingController(),
       triggerPop: false,
-      isWidthSearchActive: false,
       isSelectedAllProducts: false,
       isLoadingPdf: false,
       loadingText: '',
@@ -130,9 +136,11 @@ class ProductState {
     Option<Either<AbstractFailure, Unit>>? fosMassEditActivateProductMarketplaceOption,
     Option<Either<AbstractFailure, Unit>>? fosMassEditProductsOption,
     Option<Either<List<AbstractFailure>, Unit>>? fosProductOnEditQuantityPrestaOption,
+    int? perPageQuantity,
+    int? totalQuantity,
+    int? currentPage,
     TextEditingController? productSearchController,
     bool? triggerPop,
-    bool? isWidthSearchActive,
     bool? isSelectedAllProducts,
     bool? isLoadingPdf,
     String? loadingText,
@@ -163,9 +171,11 @@ class ProductState {
       fosMassEditActivateProductMarketplaceOption: fosMassEditActivateProductMarketplaceOption ?? this.fosMassEditActivateProductMarketplaceOption,
       fosMassEditProductsOption: fosMassEditProductsOption ?? this.fosMassEditProductsOption,
       fosProductOnEditQuantityPrestaOption: fosProductOnEditQuantityPrestaOption ?? this.fosProductOnEditQuantityPrestaOption,
+      perPageQuantity: perPageQuantity ?? this.perPageQuantity,
+      totalQuantity: totalQuantity ?? this.totalQuantity,
+      currentPage: currentPage ?? this.currentPage,
       productSearchController: productSearchController ?? this.productSearchController,
       triggerPop: triggerPop ?? this.triggerPop,
-      isWidthSearchActive: isWidthSearchActive ?? this.isWidthSearchActive,
       isSelectedAllProducts: isSelectedAllProducts ?? this.isSelectedAllProducts,
       isLoadingPdf: isLoadingPdf ?? this.isLoadingPdf,
       loadingText: loadingText ?? this.loadingText,
