@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:cezeri_commerce/3_domain/entities/reorder/reorder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -84,6 +85,8 @@ class ReorderDetailProductsCard extends StatelessWidget {
                   itemCount: state.reorder!.listOfReorderProducts.length,
                   itemBuilder: (context, index) {
                     final reorderProduct = state.reorder!.listOfReorderProducts[index];
+                    final openQuantity = reorderProduct.quantity - reorderProduct.bookedQuantity;
+
                     return Column(
                       children: [
                         Row(
@@ -138,9 +141,10 @@ class ReorderDetailProductsCard extends StatelessWidget {
                               flex: RWReOP.openQuantity,
                               child: MyTextFormFieldSmall(
                                 readOnly: true,
-                                hintText: (state.reorder!.listOfReorderProducts[index].quantity -
-                                        state.reorder!.listOfReorderProducts[index].bookedQuantity)
-                                    .toString(),
+                                fillColor: state.reorder!.reorderStatus == ReorderStatus.partiallyCompleted && openQuantity > 0
+                                    ? CustomColors.backgroundLightOrange
+                                    : null,
+                                hintText: openQuantity.toString(),
                                 onChanged: (_) => reorderDetailBloc.add(OnReorderDetailPosControllerChangedEvent()),
                                 onTapOutside: (_) => FocusScope.of(context).unfocus(),
                               ),
@@ -159,7 +163,7 @@ class ReorderDetailProductsCard extends StatelessWidget {
                               flex: RWReOP.totalPrice,
                               child: MyTextFormFieldSmall(
                                 readOnly: true,
-                                hintText: state.reorder!.listOfReorderProducts[index].totalPriceNet.toDouble().toString(),
+                                hintText: reorderProduct.totalPriceNet.toDouble().toString(),
                                 onChanged: (_) => reorderDetailBloc.add(OnReorderDetailPosControllerChangedEvent()),
                                 onTapOutside: (_) => FocusScope.of(context).unfocus(),
                               ),
@@ -169,11 +173,10 @@ class ReorderDetailProductsCard extends StatelessWidget {
                               child: IconButton(
                                 onPressed: () => showMyDialogDelete(
                                   context: context,
-                                  content:
-                                      'Bist du sicher, dass du den Artikel "//${state.reorder!.listOfReorderProducts[index].name}" löschen willst?',
+                                  content: 'Bist du sicher, dass du den Artikel "//${reorderProduct.name}" löschen willst?',
                                   onConfirm: () {
                                     reorderDetailBloc.add(OnReorderDeatilRemoveProductEvent(index: index));
-                                    context.router.pop();
+                                    context.router.maybePop();
                                   },
                                 ),
                                 padding: EdgeInsets.zero,

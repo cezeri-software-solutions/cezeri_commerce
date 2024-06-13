@@ -616,7 +616,7 @@ class ReceiptBloc extends Bloc<ReceiptEvent, ReceiptState> {
     on<CreateParcelLabelReceiptEvent>((event, emit) async {
       emit(state.copyWith(isLoadingParcelLabelOnCreate: true));
 
-      final fos = await receiptRepository.createNewParcelForReceipt(state.receipt!);
+      final fos = await receiptRepository.createNewParcelForReceipt(state.receipt!, event.weight);
 
       emit(state.copyWith(
         isLoadingParcelLabelOnCreate: false,

@@ -31,7 +31,7 @@ abstract class ReceiptRepository {
   );
   Future<Either<AbstractFailure, Receipt>> generateFromListOfDeliveryNotesNewInvoice(List<Receipt> listOfDeliveryNotes);
   Future<Either<AbstractFailure, Receipt>> generateFromInvoiceNewCredit(Receipt invoice);
-  Future<Either<AbstractFailure, ParcelTracking>> createNewParcelForReceipt(Receipt deliveryNote);
+  Future<Either<AbstractFailure, ParcelTracking>> createNewParcelForReceipt(Receipt deliveryNote, double weight);
   //* ###### Load Appointments from Marketplaces #####
   Future<Either<AbstractFailure, List<ToLoadAppointmentsFromMarketplace>>> getToLoadAppointmentsFromMarketplaces();
   Future<Either<AbstractFailure, LoadedOrderFromMarketplace>> loadAppointmentsFromMarketplacePresta(

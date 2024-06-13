@@ -823,7 +823,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
   }
 
   @override
-  Future<Either<AbstractFailure, ParcelTracking>> createNewParcelForReceipt(Receipt deliveryNote) async {
+  Future<Either<AbstractFailure, ParcelTracking>> createNewParcelForReceipt(Receipt deliveryNote, double weight) async {
     if (!await checkInternetConnection()) return Left(NoConnectionFailure());
     final ownerId = await getOwnerId();
     if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
@@ -843,7 +843,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
       if (fosMarketplace.isLeft()) return Left(fosMarketplace.getLeft());
       final marketplace = fosMarketplace.getRight();
 
-      final parcelTracking = await getParcelTracking(ownerId, loadedDeliveryNote, settings, loadedDeliveryNote.deliveryNoteId);
+      final parcelTracking = await getParcelTracking(ownerId, loadedDeliveryNote, settings, loadedDeliveryNote.deliveryNoteId, weight: weight);
       if (parcelTracking == null) return left(GeneralFailure(customMessage: 'Paketlabel konnte nicht erstellt werden'));
 
       final List<ParcelTracking> listOfUpdatedParcelTracking = loadedDeliveryNote.listOfParcelTracking;
@@ -1281,7 +1281,7 @@ Future<bool> sendEmail({
   return isSuccess;
 }
 
-Future<ParcelTracking?> getParcelTracking(String ownerId, Receipt receipt, MainSettings ms, int deliveryNoteNumber) async {
+Future<ParcelTracking?> getParcelTracking(String ownerId, Receipt receipt, MainSettings ms, int deliveryNoteNumber, {double? weight}) async {
   final carrier = ms.listOfCarriers.where((e) => e.carrierTyp == receipt.receiptCarrier.carrierTyp).firstOrNull;
   if (carrier == null) return null;
   final cCredentials = carrier.carrierKey;
@@ -1299,7 +1299,7 @@ Future<ParcelTracking?> getParcelTracking(String ownerId, Receipt receipt, MainS
       printerLanguage: carrier.printerLanguage,
     ),
     receipt.receiptCarrier.carrierProduct.id,
-    receipt.weight,
+    weight ?? receipt.weight,
     recipientAddress,
     receipt.receiptCustomer.email,
     receipt.receiptMarketplace.address,

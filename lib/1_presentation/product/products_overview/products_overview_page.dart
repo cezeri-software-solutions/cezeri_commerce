@@ -28,6 +28,9 @@ class ProductOverviewPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    print(screenWidth);
+
     return BlocBuilder<ProductBloc, ProductState>(
       builder: (context, state) {
         if (state.isLoadingProductsOnObserve) return const Expanded(child: Center(child: CircularProgressIndicator()));
@@ -58,7 +61,7 @@ class ProductOverviewPage extends StatelessWidget {
                 return SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: SizedBox(
-                    width: 640,
+                    width: (screenWidth + 640) - 390,
                     child: _ProductContainer(product: state.listOfFilteredProducts![index], index: index, productBloc: productBloc),
                   ),
                 );

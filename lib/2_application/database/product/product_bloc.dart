@@ -175,7 +175,13 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
         final indexSelected = state.selectedProducts.indexWhere((e) => e.id == product.id);
         List<Product> updatedSelected = List.from(state.selectedProducts);
         if (indexSelected != -1) updatedSelected[indexSelected] = product;
-        emit(state.copyWith(listOfAllProducts: updatedListOfAll, selectedProducts: updatedSelected, firebaseFailure: null, isAnyFailure: false));
+        emit(state.copyWith(
+          listOfAllProducts: updatedListOfAll,
+          listOfFilteredProducts: updatedListOfAll,
+          selectedProducts: updatedSelected,
+          firebaseFailure: null,
+          isAnyFailure: false,
+        ));
         add(OnSearchFieldSubmittedEvent());
       },
     );

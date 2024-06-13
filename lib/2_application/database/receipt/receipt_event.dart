@@ -154,7 +154,11 @@ class OnReceiptCustomerUpdatedEvent extends ReceiptEvent {
   OnReceiptCustomerUpdatedEvent({required this.customer});
 }
 
-class CreateParcelLabelReceiptEvent extends ReceiptEvent {}
+class CreateParcelLabelReceiptEvent extends ReceiptEvent {
+  final double weight;
+
+  CreateParcelLabelReceiptEvent({required this.weight});
+}
 
 class SetIsDeliveryBlockedEvent extends ReceiptEvent {
   final bool value;

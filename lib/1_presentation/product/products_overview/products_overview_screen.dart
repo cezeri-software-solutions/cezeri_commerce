@@ -63,6 +63,9 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> with Au
                   (unit) {
                     myScaffoldMessenger(context, null, null, 'Bestand erfolgreich aktualisiert', null);
                     context.router.popUntilRouteWithName(ProductsOverviewRoute.name);
+                    state.productSearchController.text.isEmpty
+                        ? productBloc.add(GetProductsPerPageEvent(isFirstLoad: false, calcCount: false, currentPage: state.currentPage))
+                        : productBloc.add(GetFilteredProductsBySearchTextEvent(currentPage: state.currentPage));
                   },
                 ),
               );

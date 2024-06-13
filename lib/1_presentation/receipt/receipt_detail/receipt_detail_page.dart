@@ -1,15 +1,20 @@
+import 'dart:math';
+
+import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 
-import '../../../2_application/database/main_settings/main_settings_bloc.dart';
-import '../../../2_application/database/receipt/receipt_bloc.dart';
-import '../../../2_application/database/receipt_detail/receipt_detail_bloc.dart';
-import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
-import '../../../3_domain/entities/receipt/receipt.dart';
-import '../../../3_domain/enums/enums.dart';
-import '../../../constants.dart';
+import '/2_application/database/main_settings/main_settings_bloc.dart';
+import '/2_application/database/receipt/receipt_bloc.dart';
+import '/2_application/database/receipt_detail/receipt_detail_bloc.dart';
+import '/3_domain/entities/marketplace/abstract_marketplace.dart';
+import '/3_domain/entities/receipt/receipt.dart';
+import '/3_domain/enums/enums.dart';
+import '/constants.dart';
 import '../../core/functions/dialogs.dart';
 import '../../core/widgets/my_circular_progress_indicator.dart';
+import '../../core/widgets/my_form_field_small.dart';
 import '../../core/widgets/my_outlined_button.dart';
 import '../widgets/receipt_detail_address_card.dart';
 import '../widgets/receipt_detail_carrier_card.dart';
@@ -67,7 +72,7 @@ class _ReceiptDetailPageState extends State<ReceiptDetailPage> {
             responsiveness == Responsiveness.isTablet ? Gaps.w32 : Gaps.w8,
             if (widget.receiptTyp == ReceiptTyp.deliveryNote) ...[
               IconButton(
-                onPressed: () => widget.receiptBloc.add(CreateParcelLabelReceiptEvent()),
+                onPressed: () => _createParcelLabel(state.receipt!.weight),
                 icon: state.isLoadingParcelLabelOnCreate
                     ? const MyCircularProgressIndicator()
                     : const Icon(Icons.new_label, color: CustomColors.primaryColor),
@@ -186,30 +191,55 @@ class _ReceiptDetailPageState extends State<ReceiptDetailPage> {
                   )
                 : Padding(
                     padding: const EdgeInsets.all(8),
-                    child: ListView(
-                      children: [
-                        ReceiptDetailAddressCard(receipt: state.receipt!, receiptBloc: widget.receiptBloc),
-                        Gaps.h16,
-                        ReceiptDetailGeneralCard(
-                          receipt: state.receipt!,
-                          receiptBloc: widget.receiptBloc,
-                          listOfMarketplaces: widget.listOfMarketplaces,
-                        ),
-                        Gaps.h16,
-                        ReceiptDetailProductsCard(receiptBloc: widget.receiptBloc, receiptDetailBloc: widget.receiptDetailBloc),
-                        Gaps.h16,
-                        ReceiptDetailProductsTotalCard(receiptBloc: widget.receiptBloc, receiptDetailBloc: widget.receiptDetailBloc),
-                        Gaps.h16,
-                        ReceiptDetailPaymentMethodCard(receiptBloc: widget.receiptBloc),
-                        Gaps.h16,
-                        ReceiptDetailCarrierCard(receiptBloc: widget.receiptBloc),
-                        Gaps.h42,
-                      ],
+                    child: Expanded(
+                      child: ListView(
+                        children: [
+                          ReceiptDetailAddressCard(receipt: state.receipt!, receiptBloc: widget.receiptBloc),
+                          Gaps.h16,
+                          ReceiptDetailGeneralCard(
+                            receipt: state.receipt!,
+                            receiptBloc: widget.receiptBloc,
+                            listOfMarketplaces: widget.listOfMarketplaces,
+                          ),
+                          Gaps.h16,
+                          Scrollbar(
+                            trackVisibility: true,
+                            child: SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              child: SizedBox(
+                                width: (screenWidth + 1200) - 390,
+                                child: ReceiptDetailProductsCard(receiptBloc: widget.receiptBloc, receiptDetailBloc: widget.receiptDetailBloc),
+                              ),
+                            ),
+                          ),
+                          Gaps.h16,
+                          ReceiptDetailProductsTotalCard(receiptBloc: widget.receiptBloc, receiptDetailBloc: widget.receiptDetailBloc),
+                          Gaps.h16,
+                          ReceiptDetailPaymentMethodCard(receiptBloc: widget.receiptBloc),
+                          Gaps.h16,
+                          ReceiptDetailCarrierCard(receiptBloc: widget.receiptBloc),
+                          Gaps.h42,
+                        ],
+                      ),
                     ),
                   ),
           ),
         );
       },
+    );
+  }
+
+  void _createParcelLabel(double weight) {
+    WoltModalSheet.show(
+      context: context,
+      useSafeArea: false,
+      pageListBuilder: (context) => [
+        WoltModalSheetPage(
+          isTopBarLayerAlwaysVisible: true,
+          topBarTitle: const Text('Gewicht eingeben', style: TextStyles.h3Bold),
+          child: _ParcelLabelWeight(receiptBloc: widget.receiptBloc, weight: weight),
+        ),
+      ],
     );
   }
 
@@ -227,5 +257,34 @@ class _ReceiptDetailPageState extends State<ReceiptDetailPage> {
       return false;
     }
     return true;
+  }
+}
+
+class _ParcelLabelWeight extends StatelessWidget {
+  final ReceiptBloc receiptBloc;
+  final double weight;
+
+  const _ParcelLabelWeight({required this.receiptBloc, required this.weight});
+
+  @override
+  Widget build(BuildContext context) {
+    final controller = TextEditingController(text: weight.toString());
+
+    return Padding(
+      padding: EdgeInsets.only(left: 24, right: 24, top: 24, bottom: max(MediaQuery.paddingOf(context).bottom, 16)),
+      child: Column(
+        children: [
+          SizedBox(width: 100, child: MyTextFormFieldSmall(controller: controller, suffix: const Text('kg'))),
+          Gaps.h24,
+          MyOutlinedButton(
+            buttonText: 'Label erstellen',
+            onPressed: () {
+              receiptBloc.add(CreateParcelLabelReceiptEvent(weight: controller.text.toMyDouble()));
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+      ),
+    );
   }
 }

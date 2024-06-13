@@ -51,6 +51,7 @@ class MyDropdownButtonSmall extends StatelessWidget {
             items: items.map<DropdownMenuItem<String>>((String value) {
               return DropdownMenuItem<String>(
                 value: value,
+                alignment: AlignmentDirectional.centerEnd,
                 child: Text(value),
               );
             }).toList(),

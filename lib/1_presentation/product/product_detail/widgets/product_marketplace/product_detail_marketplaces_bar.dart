@@ -43,7 +43,13 @@ class ProductDetailMarketplacesBar extends StatelessWidget {
               Gaps.h10,
               const Text('Marktplätze', style: TextStyles.h2Bold),
               Gaps.h16,
-              const Text('Synchronisierte Marktplätze:', style: TextStyles.h3),
+              Row(
+                children: [
+                  const Text('Synchronisierte Marktplätze:', style: TextStyles.h3),
+                  Gaps.w8,
+                  Badge(label: Text(state.product!.productMarketplaces.length.toString()), backgroundColor: CustomColors.primaryColor),
+                ],
+              ),
               Gaps.h16,
               SizedBox(
                 height: 110,

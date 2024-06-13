@@ -12,6 +12,7 @@ import '../../../routes/router.gr.dart';
 import '../../core/functions/my_scaffold_messanger.dart';
 import '../../core/renderer/failure_renderer.dart';
 import '../../core/widgets/my_dialog_suppliers.dart';
+import '../../core/widgets/my_icon_button.dart';
 import '../../core/widgets/my_outlined_button.dart';
 import 'widgets/set_articles/show_select_product_sheet.dart';
 
@@ -195,34 +196,34 @@ List<BlocListener<ProductDetailBloc, ProductDetailState>> _getProductDetailBlocL
 }
 
 List<Widget>? _getProductDetailActions(BuildContext context, ProductDetailBloc productDetailBloc, ProductDetailState state, String? productId) {
+  void onSafePressed() {
+    if (productId != null) {
+      productDetailBloc.add(UpdateProductEvent());
+    } else {
+      // TODO: Handle create new product
+    }
+  }
+
   return [
     if (state.product != null)
-      Switch.adaptive(
-        value: state.product!.isActive,
-        onChanged: (_) => productDetailBloc.add(OnProductIsActiveChangedEvent()),
-      ),
-    ResponsiveBreakpoints.of(context).largerOrEqualTo(TABLET) ? Gaps.w16 : Gaps.w8,
-    if (productId != null) ...[
+      Switch.adaptive(value: state.product!.isActive, onChanged: (_) => productDetailBloc.add(OnProductIsActiveChangedEvent())),
+    if (productId != null)
       IconButton(
-        onPressed: () => productDetailBloc.add(GetProductEvent(
-          id: state.product!.id,
-        )),
+        onPressed: () => productDetailBloc.add(GetProductEvent(id: state.product!.id)),
         icon: const Icon(Icons.refresh, size: 30),
       ),
-      ResponsiveBreakpoints.of(context).largerOrEqualTo(TABLET) ? Gaps.w16 : Gaps.w8,
-    ],
-    MyOutlinedButton(
-      buttonText: 'Speichern',
-      onPressed: () {
-        if (productId != null) {
-          productDetailBloc.add(UpdateProductEvent());
-        } else {
-          // TODO: Handle create new product
-        }
-      },
-      isLoading: state.isLoadingProductOnUpdate,
-      buttonBackgroundColor: Colors.green,
-    ),
-    ResponsiveBreakpoints.of(context).largerOrEqualTo(TABLET) ? Gaps.w32 : Gaps.w8,
+    ResponsiveBreakpoints.of(context).largerOrEqualTo(TABLET)
+        ? MyOutlinedButton(
+            buttonText: 'Speichern',
+            onPressed: () => onSafePressed(),
+            isLoading: state.isLoadingProductOnUpdate,
+            buttonBackgroundColor: Colors.green,
+          )
+        : MyIconButton(
+            onPressed: () => onSafePressed(),
+            icon: const Icon(Icons.save, color: Colors.green),
+            isLoading: state.isLoadingProductOnUpdate,
+          ),
+    if (ResponsiveBreakpoints.of(context).largerOrEqualTo(TABLET)) Gaps.w24,
   ];
 }

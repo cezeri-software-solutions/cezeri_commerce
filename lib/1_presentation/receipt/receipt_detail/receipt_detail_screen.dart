@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:auto_route/auto_route.dart';
 import 'package:cezeri_commerce/3_domain/entities/receipt/receipt.dart';
 import 'package:flutter/material.dart';
@@ -12,6 +10,7 @@ import '../../../2_application/database/receipt_detail/receipt_detail_bloc.dart'
 import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
 import '../../../injection.dart';
 import '../../../routes/router.gr.dart';
+import '../../core/functions/load_file_from_storage.dart';
 import '../../core/functions/my_scaffold_messanger.dart';
 import '../../core/renderer/failure_renderer.dart';
 import 'receipt_detail_page.dart';
@@ -137,7 +136,8 @@ class _ReceiptDetailScreenState extends State<ReceiptDetailScreen> with Automati
                   (parcelTracking) async {
                     myScaffoldMessenger(context, null, null, 'Paketlabel erfolgreich erstellt', null);
                     if (parcelTracking.pdfString.isNotEmpty) {
-                      final pdfBytes = base64.decode(parcelTracking.pdfString);
+                      final pdfBytes = await loadFileFromStorage(parcelTracking.pdfString);
+                      if (pdfBytes == null) return;
                       await Printing.layoutPdf(onLayout: (_) => pdfBytes);
                     }
                   },

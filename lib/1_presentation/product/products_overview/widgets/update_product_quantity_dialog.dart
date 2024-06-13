@@ -22,19 +22,20 @@ class UpdateProductQuantityDialog extends StatefulWidget {
 
 class _UpdateProductQuantityDialogState extends State<UpdateProductQuantityDialog> {
   QuantityUpdateWay _quantityUpdateWay = QuantityUpdateWay.edit;
-  int quantity = 0;
-  int editedQuantity = 0;
-  bool updateOnlyAvailableQuantity = false;
+  int _quantity = 0;
+  int _editedQuantity = 0;
+  bool _updateOnlyAvailableQuantity = false;
+  // double _sliderValue = 0;
 
   @override
   void initState() {
     super.initState();
-    setState(() => quantity = widget.product.availableStock);
+    setState(() => _quantity = widget.product.availableStock);
   }
 
   @override
   Widget build(BuildContext context) {
-    int newQuantity = quantity + editedQuantity;
+    int newQuantity = _quantity + _editedQuantity;
     return BlocBuilder<ProductBloc, ProductState>(
       bloc: widget.productBloc,
       builder: (context, state) {
@@ -43,15 +44,17 @@ class _UpdateProductQuantityDialogState extends State<UpdateProductQuantityDialo
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              Gaps.h16,
               Text(widget.product.articleNumber, style: TextStyles.defaultBold),
+              Gaps.h8,
               Text(widget.product.name, maxLines: 2, overflow: TextOverflow.ellipsis, textAlign: TextAlign.center),
               Gaps.h16,
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Checkbox.adaptive(
-                    value: updateOnlyAvailableQuantity,
-                    onChanged: (value) => setState(() => updateOnlyAvailableQuantity = value!),
+                    value: _updateOnlyAvailableQuantity,
+                    onChanged: (value) => setState(() => _updateOnlyAvailableQuantity = value!),
                   ),
                   const Text('Nur verfügbaren Bestand aktualisieren?'),
                 ],
@@ -82,9 +85,9 @@ class _UpdateProductQuantityDialogState extends State<UpdateProductQuantityDialo
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  IconButton(onPressed: () => setState(() => editedQuantity--), icon: const Icon(Icons.remove, color: Colors.red, size: 40)),
-                  Text(editedQuantity.toString(), style: TextStyles.h1),
-                  IconButton(onPressed: () => setState(() => editedQuantity++), icon: const Icon(Icons.add, color: Colors.green, size: 40)),
+                  IconButton(onPressed: () => setState(() => _editedQuantity--), icon: const Icon(Icons.remove, color: Colors.red, size: 40)),
+                  Text(_editedQuantity.toString(), style: TextStyles.h1),
+                  IconButton(onPressed: () => setState(() => _editedQuantity++), icon: const Icon(Icons.add, color: Colors.green, size: 40)),
                 ],
               ),
               Gaps.h32,
@@ -92,14 +95,23 @@ class _UpdateProductQuantityDialogState extends State<UpdateProductQuantityDialo
               Gaps.h16,
               Text(newQuantity.toString(), style: TextStyles.h1),
               Gaps.h32,
+              Slider(
+                value: _editedQuantity.roundToDouble() > 100 ? 100 : _editedQuantity.roundToDouble(),
+                min: 0,
+                max: 100,
+                divisions: 100,
+                label: _editedQuantity.round().toString(),
+                onChanged: (double value) => setState(() => _editedQuantity = value.toInt()),
+              ),
+              Gaps.h32,
               MyOutlinedButton(
                 buttonText: 'Speichern',
                 onPressed: state.isLoadingProductOnUpdateQuantity
                     ? () {}
-                    : () => context.read<ProductBloc>().add(UpdateQuantityOfProductEvent(
+                    : () => widget.productBloc.add(UpdateQuantityOfProductEvent(
                           product: widget.product,
                           newQuantity: newQuantity,
-                          updateOnlyAvailableQuantity: updateOnlyAvailableQuantity,
+                          updateOnlyAvailableQuantity: _updateOnlyAvailableQuantity,
                         )),
                 buttonBackgroundColor: Colors.green,
                 isLoading: state.isLoadingProductOnUpdateQuantity,
