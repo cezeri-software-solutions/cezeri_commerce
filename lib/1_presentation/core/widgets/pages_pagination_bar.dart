@@ -56,39 +56,36 @@ class PagesPaginationBar extends StatelessWidget {
     int startItem = ((currentPage - 1) * itemsPerPage) + 1;
     int endItem = (currentPage * itemsPerPage).clamp(1, totalItems);
 
-    return Padding(
-      padding: const EdgeInsets.only(right: 8, bottom: 8),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          if (isTablet) ...[
-            const Text('Pro Seite'),
-            Gaps.w16,
-          ],
-          SizedBox(
-            width: 75,
-            child: MyDropdownButtonSmall(
-              value: itemsPerPage.toString(),
-              onChanged: (value) => onItemsPerPageChanged(value.toMyInt()),
-              items: const ['20', '30', '50', '100', '500', '10000'],
-              itemsAlignment: itemsAlignment ?? AlignmentDirectional.centerStart,
-            ),
-          ),
-          if (isTablet) ...[
-            Gaps.w16,
-            Text('$startItem - $endItem von $totalItems'),
-          ],
-          IconButton(
-            icon: const Icon(Icons.keyboard_double_arrow_left),
-            onPressed: currentPage > 1 ? () => onPageChanged(1) : null,
-          ),
-          ...pageButtons,
-          IconButton(
-            icon: const Icon(Icons.keyboard_double_arrow_right),
-            onPressed: currentPage < totalPages ? () => onPageChanged(totalPages) : null,
-          ),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        if (isTablet) ...[
+          const Text('Pro Seite'),
+          Gaps.w16,
         ],
-      ),
+        SizedBox(
+          width: 75,
+          child: MyDropdownButtonSmall(
+            value: itemsPerPage.toString(),
+            onChanged: (value) => onItemsPerPageChanged(value.toMyInt()),
+            items: const ['20', '30', '50', '100', '500', '10000'],
+            itemsAlignment: itemsAlignment ?? AlignmentDirectional.centerStart,
+          ),
+        ),
+        if (isTablet) ...[
+          Gaps.w16,
+          Text('$startItem - $endItem von $totalItems'),
+        ],
+        IconButton(
+          icon: const Icon(Icons.keyboard_double_arrow_left),
+          onPressed: currentPage > 1 ? () => onPageChanged(1) : null,
+        ),
+        ...pageButtons,
+        IconButton(
+          icon: const Icon(Icons.keyboard_double_arrow_right),
+          onPressed: currentPage < totalPages ? () => onPageChanged(totalPages) : null,
+        ),
+      ],
     );
   }
 }

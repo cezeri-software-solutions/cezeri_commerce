@@ -11,9 +11,7 @@ import '/routes/router.gr.dart';
 import '../../../2_application/database/receipt/receipt_bloc.dart';
 import '../../core/functions/my_scaffold_messanger.dart';
 import '../../core/renderer/failure_renderer.dart';
-import '../../core/widgets/my_circular_progress_indicator.dart';
 import '../../core/widgets/pages_pagination_bar.dart';
-import '../sheets/loading_on_import_appointments_dialog.dart';
 import '../sheets/receipts_overview_filter.dart';
 import '../widgets/receipts_overview_options_sheet.dart';
 import 'receipts_overview_page.dart';
@@ -97,6 +95,9 @@ class _ReceiptsOverviewScreenState extends State<ReceiptsOverviewScreen> with Au
                   },
                   (unit) {
                     context.router.maybePopTop();
+                    receiptBloc.add(
+                      GetReceiptsPerPageEvent(isFirstLoad: false, calcCount: true, currentPage: 1, tabValue: 0, receiptType: widget.receiptType),
+                    );
                     myScaffoldMessenger(context, null, null, 'Aufträge erfolgreich aus den Marktplätzen geladen', null);
                   },
                 ),
@@ -191,78 +192,66 @@ class _ReceiptsOverviewScreenState extends State<ReceiptsOverviewScreen> with Au
                             receiptType: widget.receiptType,
                           )),
                       icon: const Icon(Icons.refresh)),
-                  if (widget.receiptType == ReceiptType.appointment) ...[
-                    IconButton(
-                      onPressed: () {
-                        context.read<ReceiptBloc>().add(GetNewAppointmentsFromMarketplacesEvent());
-                        showDialog(
-                          context: context,
-                          builder: (context) => BlocProvider.value(
-                            value: receiptBloc,
-                            child: LoadingOnImportAppointmentsDialog(receiptBloc: receiptBloc),
-                          ),
-                        );
-                      },
-                      icon: state.isLoadingAppointmentsFromPrestaOnObserve ? const MyCircularProgressIndicator() : const Icon(Icons.download),
-                    ),
-                  ],
                   IconButton(onPressed: () => filterReceiptsOverview(context, receiptBloc), icon: const Icon(Icons.filter_list)),
                   IconButton(
-                      onPressed: () => _showMoreOptions(state.selectedReceipts, state.listOfAllReceipts!, state.listOfMarketpaces!),
-                      icon: const Icon(Icons.more_vert)),
+                    onPressed: () => _showMoreOptions(state.selectedReceipts, state.listOfAllReceipts!, state.listOfMarketpaces!),
+                    icon: const Icon(Icons.more_vert),
+                  ),
                 ],
               ),
-              body: Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(right: 20, bottom: 10),
-                    child: Row(
-                      children: [
-                        Checkbox.adaptive(
-                          value: state.isAllReceiptsSeledcted,
-                          onChanged: (value) => receiptBloc.add(OnSelectAllAppointmentsEvent(isSelected: value!)),
-                        ),
-                        Expanded(
-                          child: CupertinoSearchTextField(
-                            controller: state.receiptSearchController,
-                            onSubmitted: (value) => receiptBloc.add(GetReceiptsPerPageEvent(
-                              isFirstLoad: false,
-                              calcCount: true,
-                              currentPage: 1,
-                              tabValue: state.tabValue,
-                              receiptType: widget.receiptType,
-                            )),
-                            onSuffixTap: () => receiptBloc.add(OnSearchFieldClearedEvent()),
+              body: SafeArea(
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(right: 20, bottom: 10),
+                      child: Row(
+                        children: [
+                          Checkbox.adaptive(
+                            value: state.isAllReceiptsSeledcted,
+                            onChanged: (value) => receiptBloc.add(OnSelectAllAppointmentsEvent(isSelected: value!)),
                           ),
-                        ),
-                      ],
+                          Expanded(
+                            child: CupertinoSearchTextField(
+                              controller: state.receiptSearchController,
+                              onSubmitted: (value) => receiptBloc.add(GetReceiptsPerPageEvent(
+                                isFirstLoad: false,
+                                calcCount: true,
+                                currentPage: 1,
+                                tabValue: state.tabValue,
+                                receiptType: widget.receiptType,
+                              )),
+                              onSuffixTap: () => receiptBloc.add(OnSearchFieldClearedEvent()),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  _TabBarGenerator(
-                    receiptBloc: receiptBloc,
-                    receiptType: widget.receiptType,
-                    currentPage: state.currentPage,
-                    tabValue: state.tabValue,
-                  ),
-                  ReceiptsOverviewPage(receiptBloc: receiptBloc, receiptTyp: widget.receiptType),
-                  if (state.totalQuantity > 0) ...[
-                    const Divider(height: 0),
-                    PagesPaginationBar(
+                    _TabBarGenerator(
+                      receiptBloc: receiptBloc,
+                      receiptType: widget.receiptType,
                       currentPage: state.currentPage,
-                      totalPages: (state.totalQuantity / state.perPageQuantity).ceil(),
-                      itemsPerPage: state.perPageQuantity,
-                      totalItems: state.totalQuantity,
-                      onPageChanged: (newPage) => receiptBloc.add(GetReceiptsPerPageEvent(
-                        isFirstLoad: false,
-                        calcCount: false,
-                        currentPage: newPage,
-                        tabValue: state.tabValue,
-                        receiptType: widget.receiptType,
-                      )),
-                      onItemsPerPageChanged: (newValue) => receiptBloc.add(ItemsPerPageChangedEvent(value: newValue)),
+                      tabValue: state.tabValue,
                     ),
+                    ReceiptsOverviewPage(receiptBloc: receiptBloc, receiptTyp: widget.receiptType),
+                    if (state.totalQuantity > 0) ...[
+                      const Divider(height: 0),
+                      PagesPaginationBar(
+                        currentPage: state.currentPage,
+                        totalPages: (state.totalQuantity / state.perPageQuantity).ceil(),
+                        itemsPerPage: state.perPageQuantity,
+                        totalItems: state.totalQuantity,
+                        onPageChanged: (newPage) => receiptBloc.add(GetReceiptsPerPageEvent(
+                          isFirstLoad: false,
+                          calcCount: false,
+                          currentPage: newPage,
+                          tabValue: state.tabValue,
+                          receiptType: widget.receiptType,
+                        )),
+                        onItemsPerPageChanged: (newValue) => receiptBloc.add(ItemsPerPageChangedEvent(value: newValue)),
+                      ),
+                    ],
                   ],
-                ],
+                ),
               ),
             );
           },

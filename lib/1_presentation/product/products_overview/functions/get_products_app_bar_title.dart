@@ -7,7 +7,7 @@ import '../../../core/functions/dialogs.dart';
 
 Widget getProductsAppBarTitle(BuildContext context, List<Product>? listOfFilteredProducts, List<Product> selectedProducts) {
   if (listOfFilteredProducts == null) return const Text('Artikel');
-  final isTablet = ResponsiveBreakpoints.of(context).largerOrEqualTo(TABLET);
+  final isTabletOrLarger = ResponsiveBreakpoints.of(context).largerOrEqualTo(TABLET);
 
   final mainTitle = Text.rich(TextSpan(children: [
     const TextSpan(text: 'Artikel'),
@@ -24,7 +24,7 @@ Widget getProductsAppBarTitle(BuildContext context, List<Product>? listOfFiltere
         child: Align(
           alignment: Alignment.bottomCenter,
           child: Text.rich(TextSpan(children: [
-            if (isTablet) const TextSpan(text: 'Ausgewählte Artikel'),
+            if (isTabletOrLarger) const TextSpan(text: 'Ausgewählte Artikel'),
             const TextSpan(text: ' '),
             TextSpan(text: '(${selectedProducts.length})', style: TextStyles.h3),
           ])),

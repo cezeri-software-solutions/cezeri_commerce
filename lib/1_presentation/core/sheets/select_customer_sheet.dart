@@ -120,6 +120,7 @@ class _CustomerItems extends StatelessWidget {
 
             return ListTile(
               title: Text(customer.name, style: TextStyles.defaultt),
+              subtitle: customer.company != null && customer.company!.isNotEmpty ? Text(customer.company!) : null,
               onTap: () {
                 context.router.maybePop();
                 final newAppointment = Receipt.empty().copyWith(

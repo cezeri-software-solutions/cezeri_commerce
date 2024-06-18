@@ -110,40 +110,42 @@ class _CustomersOverviewScreenState extends State<CustomersOverviewScreen> with 
                   ),
                 ],
               ),
-              body: Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(right: 20, bottom: 10),
-                    child: Row(
-                      children: [
-                        Checkbox.adaptive(
-                          value: state.isAllCustomersSelected,
-                          onChanged: (value) => customerBloc.add(OnSelectAllCustomersEvent(isSelected: value!)),
-                        ),
-                        Expanded(
-                          child: CupertinoSearchTextField(
-                            controller: state.customerSearchController,
-                            onSubmitted: (value) => customerBloc.add(GetCustomersPerPageEvent(calcCount: true, currentPage: 1)),
-                            onSuffixTap: () => customerBloc.add(CustomerSearchFieldClearedEvent()),
+              body: SafeArea(
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(right: 20, bottom: 10),
+                      child: Row(
+                        children: [
+                          Checkbox.adaptive(
+                            value: state.isAllCustomersSelected,
+                            onChanged: (value) => customerBloc.add(OnSelectAllCustomersEvent(isSelected: value!)),
                           ),
-                        ),
-                      ],
+                          Expanded(
+                            child: CupertinoSearchTextField(
+                              controller: state.customerSearchController,
+                              onSubmitted: (value) => customerBloc.add(GetCustomersPerPageEvent(calcCount: true, currentPage: 1)),
+                              onSuffixTap: () => customerBloc.add(CustomerSearchFieldClearedEvent()),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  const Divider(height: 0),
-                  CustomersOverviewPage(customerBloc: customerBloc),
-                  if (state.totalQuantity > 0) ...[
                     const Divider(height: 0),
-                    PagesPaginationBar(
-                      currentPage: state.currentPage,
-                      totalPages: (state.totalQuantity / state.perPageQuantity).ceil(),
-                      itemsPerPage: state.perPageQuantity,
-                      totalItems: state.totalQuantity,
-                      onPageChanged: (newPage) => customerBloc.add(GetCustomersPerPageEvent(calcCount: false, currentPage: newPage)),
-                      onItemsPerPageChanged: (newValue) => customerBloc.add(CustomerItemsPerPageChangedEvent(value: newValue)),
-                    ),
+                    CustomersOverviewPage(customerBloc: customerBloc),
+                    if (state.totalQuantity > 0) ...[
+                      const Divider(height: 0),
+                      PagesPaginationBar(
+                        currentPage: state.currentPage,
+                        totalPages: (state.totalQuantity / state.perPageQuantity).ceil(),
+                        itemsPerPage: state.perPageQuantity,
+                        totalItems: state.totalQuantity,
+                        onPageChanged: (newPage) => customerBloc.add(GetCustomersPerPageEvent(calcCount: false, currentPage: newPage)),
+                        onItemsPerPageChanged: (newValue) => customerBloc.add(CustomerItemsPerPageChangedEvent(value: newValue)),
+                      ),
+                    ],
                   ],
-                ],
+                ),
               ),
             );
           },

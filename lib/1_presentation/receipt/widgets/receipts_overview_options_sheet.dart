@@ -36,6 +36,7 @@ void showReceiptsOverviewOptions({
   WoltModalSheet.show(
     context: context,
     useSafeArea: false,
+    showDragHandle: false,
     pageListBuilder: (woltContext) {
       return [
         WoltModalSheetPage(
@@ -92,12 +93,18 @@ class ReceiptsOverviewOptionsSheet extends StatelessWidget {
             title: Text(_getSendTitle(), style: TextStyle(color: isActive ? null : Colors.grey)),
             onTap: isActive ? () => onSendPressed(context, receiptBloc, receiptType, receipts) : null,
           ),
-          if (receiptType == ReceiptType.appointment)
+          if (receiptType == ReceiptType.appointment) ...[
+            ListTile(
+              leading: const Icon(Icons.download, color: CustomColors.primaryColor),
+              title: const Text('Aufträge importieren'),
+              onTap: () => onGetAppointments(context, receiptBloc),
+            ),
             ListTile(
               leading: const Icon(Icons.downloading, color: CustomColors.primaryColor),
               title: const Text('Einzelnen Auftrag importieren'),
-              onTap: marketplaces.isNotEmpty ? () => onGetAppointmentByIdPressed(context, receiptBloc, receipts, marketplaces) : null,
+              onTap: marketplaces.isNotEmpty ? () => onGetAppointmentByIdPressed(context, receiptBloc, marketplaces) : null,
             ),
+          ],
           ListTile(
             leading: const Icon(Icons.table_chart_rounded, color: CustomColors.primaryColor),
             title: const Text('PDF-Tabelle erstellen'),
@@ -219,8 +226,19 @@ void onRemovePressed(BuildContext context, ReceiptBloc receiptBloc, List<Receipt
   );
 }
 
-void onGetAppointmentByIdPressed(
-    BuildContext context, ReceiptBloc receiptBloc, List<Receipt> selectedReceipts, List<AbstractMarketplace> listOfMarketplaces) {
+void onGetAppointments(BuildContext context, ReceiptBloc receiptBloc) {
+  Navigator.of(context).pop();
+  receiptBloc.add(GetNewAppointmentsFromMarketplacesEvent());
+  showDialog(
+    context: context,
+    builder: (context) => BlocProvider.value(
+      value: receiptBloc,
+      child: LoadingOnImportAppointmentsDialog(receiptBloc: receiptBloc),
+    ),
+  );
+}
+
+void onGetAppointmentByIdPressed(BuildContext context, ReceiptBloc receiptBloc, List<AbstractMarketplace> listOfMarketplaces) {
   WoltModalSheet.show(
     context: context,
     useSafeArea: false,
