@@ -1,71 +1,54 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:cezeri_commerce/1_presentation/app_drawer.dart';
-import 'package:cezeri_commerce/1_presentation/core/extensions/string_to_int.dart';
-import 'package:cezeri_commerce/1_presentation/core/widgets/my_dropdown_button_form_field.dart';
-import 'package:cezeri_commerce/3_domain/entities/receipt/receipt_product.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '/3_domain/entities/address.dart';
-import '/3_domain/entities/customer/customer.dart';
 import '/3_domain/entities/marketplace/abstract_marketplace.dart';
 import '/3_domain/entities/receipt/receipt.dart';
-import '/3_domain/entities/receipt/receipt_customer.dart';
-import '/3_domain/pdf/pdf_api_mobile.dart';
-import '/3_domain/pdf/pdf_api_web.dart';
-import '/3_domain/pdf/pdf_outgoing_invoices_generator.dart';
-import '/constants.dart';
 import '/injection.dart';
 import '/routes/router.gr.dart';
-import '../../../2_application/database/customer/customer_bloc.dart';
-import '../../../2_application/database/marketplace/marketplace_bloc.dart';
 import '../../../2_application/database/receipt/receipt_bloc.dart';
-import '../../core/functions/address_functions.dart';
-import '../../core/functions/dialogs.dart';
 import '../../core/functions/my_scaffold_messanger.dart';
 import '../../core/renderer/failure_renderer.dart';
 import '../../core/widgets/my_circular_progress_indicator.dart';
-import '../../core/widgets/my_form_field_small.dart';
-import '../../core/widgets/my_modal_scrollable.dart';
-import '../../core/widgets/my_outlined_button.dart';
-import '../receipt_detail/receipt_detail_screen.dart';
+import '../../core/widgets/pages_pagination_bar.dart';
+import '../sheets/loading_on_import_appointments_dialog.dart';
 import '../sheets/receipts_overview_filter.dart';
+import '../widgets/receipts_overview_options_sheet.dart';
 import 'receipts_overview_page.dart';
 
 class ReceiptsOverviewScreen extends StatefulWidget {
-  final ReceiptTyp receiptTyp;
+  final ReceiptType receiptType;
 
-  const ReceiptsOverviewScreen({super.key, required this.receiptTyp});
+  const ReceiptsOverviewScreen({super.key, required this.receiptType});
 
   @override
   State<ReceiptsOverviewScreen> createState() => _ReceiptsOverviewScreenState();
 }
 
 class _ReceiptsOverviewScreenState extends State<ReceiptsOverviewScreen> with AutomaticKeepAliveClientMixin {
+  final receiptBloc = sl<ReceiptBloc>();
+
+  @override
+  void initState() {
+    super.initState();
+
+    receiptBloc.add(GetReceiptsPerPageEvent(
+      isFirstLoad: true,
+      calcCount: true,
+      currentPage: 1,
+      tabValue: 0,
+      receiptType: widget.receiptType,
+    ));
+  }
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
 
-    final receiptBloc = sl<ReceiptBloc>()..add(GetReceiptsEvent(tabValue: 0, receiptTyp: widget.receiptTyp));
-    final marketplaceBloc = sl<MarketplaceBloc>()..add(GetAllMarketplacesEvent());
-    final customerBloc = sl<CustomerBloc>();
-
-    final searchController = TextEditingController();
-
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider.value(
-          value: receiptBloc,
-        ),
-        BlocProvider.value(
-          value: marketplaceBloc,
-        ),
-        BlocProvider.value(
-          value: customerBloc,
-        ),
-      ],
+    return BlocProvider.value(
+      value: receiptBloc,
       child: MultiBlocListener(
         listeners: [
           BlocListener<ReceiptBloc, ReceiptState>(
@@ -128,15 +111,15 @@ class _ReceiptsOverviewScreenState extends State<ReceiptsOverviewScreen> with Au
                 (a) => a.fold(
                   (failure) {
                     (failure) => failureRenderer(context, [failure]);
-                    context.router.popUntilRouteWithName(switch (widget.receiptTyp) {
-                      ReceiptTyp.offer => OffersOverviewRoute.name,
-                      ReceiptTyp.appointment => OffersOverviewRoute.name,
-                      ReceiptTyp.deliveryNote => OffersOverviewRoute.name,
-                      ReceiptTyp.invoice || ReceiptTyp.credit => OffersOverviewRoute.name,
+                    context.router.popUntilRouteWithName(switch (widget.receiptType) {
+                      ReceiptType.offer => OffersOverviewRoute.name,
+                      ReceiptType.appointment => OffersOverviewRoute.name,
+                      ReceiptType.deliveryNote => OffersOverviewRoute.name,
+                      ReceiptType.invoice || ReceiptType.credit => OffersOverviewRoute.name,
                     });
                   },
                   (unit) {
-                    myScaffoldMessenger(context, null, null, _textOnSuccessfulDelete(widget.receiptTyp), null);
+                    myScaffoldMessenger(context, null, null, _textOnSuccessfulDelete(widget.receiptType), null);
                     context.router.popUntilRouteWithName(AppointmentsOverviewRoute.name);
                   },
                 ),
@@ -182,134 +165,33 @@ class _ReceiptsOverviewScreenState extends State<ReceiptsOverviewScreen> with Au
         ],
         child: BlocBuilder<ReceiptBloc, ReceiptState>(
           builder: (context, state) {
+            print(state.currentPage);
             return Scaffold(
               drawer: const AppDrawer(),
               appBar: AppBar(
                 title: Text(
-                  switch (widget.receiptTyp) {
-                    ReceiptTyp.offer => state.listOfFilteredReceipts != null ? 'Angebote (${state.listOfFilteredReceipts!.length})' : 'Angebote',
-                    ReceiptTyp.appointment =>
+                  switch (widget.receiptType) {
+                    ReceiptType.offer => state.listOfFilteredReceipts != null ? 'Angebote (${state.listOfFilteredReceipts!.length})' : 'Angebote',
+                    ReceiptType.appointment =>
                       state.listOfFilteredReceipts != null ? 'Aufträge (${state.listOfFilteredReceipts!.length})' : 'Aufträge',
-                    ReceiptTyp.deliveryNote =>
+                    ReceiptType.deliveryNote =>
                       state.listOfFilteredReceipts != null ? 'Lieferscheine (${state.listOfFilteredReceipts!.length})' : 'Lieferscheine',
-                    ReceiptTyp.invoice ||
-                    ReceiptTyp.credit =>
+                    ReceiptType.invoice ||
+                    ReceiptType.credit =>
                       state.listOfFilteredReceipts != null ? 'Rechnungen (${state.listOfFilteredReceipts!.length})' : 'Rechnungen',
                   },
                 ),
                 actions: [
                   IconButton(
-                    onPressed: () async => _onGeneratePdfTable(context, state.listOfAllReceipts!, state.selectedReceipts),
-                    icon: const Icon(Icons.table_chart_rounded, color: CustomColors.primaryColor),
-                  ),
-                  IconButton(onPressed: () {}, icon: const Icon(Icons.mail)),
-                  Tooltip(
-                    message: 'Senden',
-                    child: IconButton(
-                      onPressed: () => showDialog(
-                        context: context,
-                        builder: (_) => BlocProvider.value(
-                          value: receiptBloc,
-                          child: switch (widget.receiptTyp) {
-                            ReceiptTyp.offer => _GenerateFromOfferNewAppointmentDialog(
-                                listOfReceipts: state.selectedReceipts,
-                                receiptBloc: receiptBloc,
-                              ),
-                            ReceiptTyp.appointment => _GenerateFromAppointmentDialog(
-                                listOfReceipts: state.selectedReceipts,
-                                receiptBloc: receiptBloc,
-                              ),
-                            ReceiptTyp.deliveryNote => state.selectedReceipts.isEmpty ||
-                                    (state.selectedReceipts.length > 1 &&
-                                        state.selectedReceipts.any((e) => e.receiptCustomer.id != state.selectedReceipts.first.receiptCustomer.id))
-                                ? _ReceiptsAlertDialog(
-                                    title: 'Achtug',
-                                    content: _getErrorMessageOnGenerateFromDeliveryNotesNewInvoice(state.selectedReceipts),
-                                  )
-                                : _GenerateFromDeliveryNotesNewInvoiceDialog(
-                                    receiptBloc: receiptBloc,
-                                    listOfReceipts: state.selectedReceipts,
-                                  ),
-                            ReceiptTyp.invoice => state.selectedReceipts.length > 1
-                                ? const _ReceiptsAlertDialog(
-                                    title: 'Achtug',
-                                    content: 'Du darfst maximal eine Rechnung auswählen, zum generieren einer Gutschrift',
-                                  )
-                                : _GenerateFromInvoiceNewCreditDialog(listOfReceipts: state.selectedReceipts, receiptBloc: receiptBloc),
-                            _ => const Dialog(),
-                          },
-                        ),
-                      ),
-                      icon: const Icon(Icons.send, color: CustomColors.primaryColor),
-                    ),
-                  ),
-                  IconButton(
-                      onPressed: () => context.read<ReceiptBloc>().add(GetReceiptsEvent(tabValue: state.tabValue, receiptTyp: widget.receiptTyp)),
+                      onPressed: () => receiptBloc.add(GetReceiptsPerPageEvent(
+                            isFirstLoad: false,
+                            calcCount: true,
+                            currentPage: state.currentPage,
+                            tabValue: state.tabValue,
+                            receiptType: widget.receiptType,
+                          )),
                       icon: const Icon(Icons.refresh)),
-                  IconButton(
-                    onPressed: () {
-                      customerBloc.add(GetAllCustomersEvent());
-                      showDialog(
-                        context: context,
-                        builder: (_) => BlocProvider.value(
-                          value: customerBloc,
-                          child: _SelectCustomerDialog(
-                            receiptBloc: receiptBloc,
-                            customerBloc: customerBloc,
-                            marketplaceBloc: marketplaceBloc,
-                            receiptTyp: widget.receiptTyp,
-                          ),
-                        ),
-                      );
-                    },
-                    icon: const Icon(Icons.add, color: Colors.green),
-                  ),
-                  IconButton(
-                    onPressed: state.selectedReceipts.isEmpty
-                        ? () => showMyDialogAlert(
-                            context: context,
-                            title: 'Achtung!',
-                            content: 'Bitte wähle mindestens ${switch (widget.receiptTyp) {
-                              ReceiptTyp.offer => 'ein Angebot',
-                              ReceiptTyp.appointment => 'einen Auftrag',
-                              ReceiptTyp.deliveryNote => 'einen Lieferschein',
-                              ReceiptTyp.invoice => 'eine Rechnungen',
-                              ReceiptTyp.credit => 'eine Rechnungen',
-                            }} aus.')
-                        : () => showMyDialogDelete(
-                              context: context,
-                              content: 'Bist du sicher, dass du alle ausgewählten ${switch (widget.receiptTyp) {
-                                ReceiptTyp.offer => 'Angebote',
-                                ReceiptTyp.appointment => 'Aufträge',
-                                ReceiptTyp.deliveryNote => 'Lieferscheine',
-                                ReceiptTyp.invoice => 'Rechnungen',
-                                ReceiptTyp.credit => 'Rechnungen',
-                              }} unwiederruflich löschen willst?',
-                              onConfirm: () {
-                                context.read<ReceiptBloc>().add(
-                                      DeleteSelectedReceiptsEvent(selectedReceipts: state.selectedReceipts),
-                                    );
-                                context.router.maybePop();
-                              },
-                            ),
-                    icon: state.isLoadingReceiptOnDelete
-                        ? const MyCircularProgressIndicator(color: Colors.red)
-                        : const Icon(Icons.delete, color: Colors.red),
-                  ),
-                  if (widget.receiptTyp == ReceiptTyp.appointment) ...[
-                    if (marketplaceBloc.state.listOfMarketplace != null && marketplaceBloc.state.listOfMarketplace!.isNotEmpty)
-                      IconButton(
-                        onPressed: () {
-                          showModalBottomSheet(
-                            context: context,
-                            builder: (_) => _SelectToLoadAppointmentFromMarketplaceSheet(
-                              receiptBloc: receiptBloc,
-                              listOfMarketplaces: marketplaceBloc.state.listOfMarketplace!,
-                            ),
-                          );
-                        },
-                        icon: state.isLoadingAppointmentsFromPrestaOnObserve ? const MyCircularProgressIndicator() : const Icon(Icons.downloading),
-                      ),
+                  if (widget.receiptType == ReceiptType.appointment) ...[
                     IconButton(
                       onPressed: () {
                         context.read<ReceiptBloc>().add(GetNewAppointmentsFromMarketplacesEvent());
@@ -317,7 +199,7 @@ class _ReceiptsOverviewScreenState extends State<ReceiptsOverviewScreen> with Au
                           context: context,
                           builder: (context) => BlocProvider.value(
                             value: receiptBloc,
-                            child: _MyLoadingDialogOnLoadingAppointments(receiptBloc: receiptBloc),
+                            child: LoadingOnImportAppointmentsDialog(receiptBloc: receiptBloc),
                           ),
                         );
                       },
@@ -325,72 +207,61 @@ class _ReceiptsOverviewScreenState extends State<ReceiptsOverviewScreen> with Au
                     ),
                   ],
                   IconButton(onPressed: () => filterReceiptsOverview(context, receiptBloc), icon: const Icon(Icons.filter_list)),
-                  IconButton(onPressed: () {}, icon: const Icon(Icons.more_vert)),
+                  IconButton(
+                      onPressed: () => _showMoreOptions(state.selectedReceipts, state.listOfAllReceipts!, state.listOfMarketpaces!),
+                      icon: const Icon(Icons.more_vert)),
                 ],
               ),
               body: Column(
                 children: [
                   Padding(
-                    padding: const EdgeInsets.only(left: 20, right: 20, bottom: 10),
-                    child: CupertinoSearchTextField(
-                      controller: searchController,
-                      onChanged: (value) => context.read<ReceiptBloc>().add(SetSearchFieldTextAppointmentsEvent(searchText: value)),
-                      onSubmitted: (value) => context.read<ReceiptBloc>().add(OnSearchFieldSubmittedAppointmentsEvent()),
-                      onSuffixTap: () {
-                        searchController.clear();
-                        context.read<ReceiptBloc>().add(SetSearchFieldTextAppointmentsEvent(searchText: ''));
-                        context.read<ReceiptBloc>().add(OnSearchFieldSubmittedAppointmentsEvent());
-                      },
+                    padding: const EdgeInsets.only(right: 20, bottom: 10),
+                    child: Row(
+                      children: [
+                        Checkbox.adaptive(
+                          value: state.isAllReceiptsSeledcted,
+                          onChanged: (value) => receiptBloc.add(OnSelectAllAppointmentsEvent(isSelected: value!)),
+                        ),
+                        Expanded(
+                          child: CupertinoSearchTextField(
+                            controller: state.receiptSearchController,
+                            onSubmitted: (value) => receiptBloc.add(GetReceiptsPerPageEvent(
+                              isFirstLoad: false,
+                              calcCount: true,
+                              currentPage: 1,
+                              tabValue: state.tabValue,
+                              receiptType: widget.receiptType,
+                            )),
+                            onSuffixTap: () => receiptBloc.add(OnSearchFieldClearedEvent()),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  switch (widget.receiptTyp) {
-                    ReceiptTyp.offer => DefaultTabController(
-                        length: 2,
-                        child: TabBar(
-                          tabs: const [Tab(text: 'Offen'), Tab(text: 'Alle')],
-                          labelStyle: const TextStyle(fontWeight: FontWeight.bold),
-                          unselectedLabelStyle: const TextStyle(),
-                          onTap: (value) => receiptBloc.add(GetReceiptsEvent(tabValue: value, receiptTyp: widget.receiptTyp)),
-                        ),
-                      ),
-                    ReceiptTyp.appointment => DefaultTabController(
-                        length: 2,
-                        child: TabBar(
-                          tabs: const [Tab(text: 'Offen'), Tab(text: 'Alle')],
-                          labelStyle: const TextStyle(fontWeight: FontWeight.bold),
-                          unselectedLabelStyle: const TextStyle(),
-                          onTap: (value) => receiptBloc.add(GetReceiptsEvent(tabValue: value, receiptTyp: widget.receiptTyp)),
-                        ),
-                      ),
-                    ReceiptTyp.deliveryNote => DefaultTabController(
-                        length: 2,
-                        child: TabBar(
-                          tabs: const [Tab(text: 'Ohne Rechnung'), Tab(text: 'Alle')],
-                          labelStyle: const TextStyle(fontWeight: FontWeight.bold),
-                          unselectedLabelStyle: const TextStyle(),
-                          onTap: (value) => receiptBloc.add(GetReceiptsEvent(tabValue: value, receiptTyp: widget.receiptTyp)),
-                        ),
-                      ),
-                    ReceiptTyp.invoice => DefaultTabController(
-                        length: 2,
-                        child: TabBar(
-                          tabs: const [Tab(text: 'Nicht vollst. bezahlt'), Tab(text: 'Alle')],
-                          labelStyle: const TextStyle(fontWeight: FontWeight.bold),
-                          unselectedLabelStyle: const TextStyle(),
-                          onTap: (value) => receiptBloc.add(GetReceiptsEvent(tabValue: value, receiptTyp: widget.receiptTyp)),
-                        ),
-                      ),
-                    ReceiptTyp.credit => DefaultTabController(
-                        length: 2,
-                        child: TabBar(
-                          tabs: const [Tab(text: 'Nicht vollst. bezahlt'), Tab(text: 'Alle')],
-                          labelStyle: const TextStyle(fontWeight: FontWeight.bold),
-                          unselectedLabelStyle: const TextStyle(),
-                          onTap: (value) => receiptBloc.add(GetReceiptsEvent(tabValue: value, receiptTyp: widget.receiptTyp)),
-                        ),
-                      ),
-                  },
-                  ReceiptsOverviewPage(receiptBloc: receiptBloc, marketplaceBloc: marketplaceBloc, receiptTyp: widget.receiptTyp),
+                  _TabBarGenerator(
+                    receiptBloc: receiptBloc,
+                    receiptType: widget.receiptType,
+                    currentPage: state.currentPage,
+                    tabValue: state.tabValue,
+                  ),
+                  ReceiptsOverviewPage(receiptBloc: receiptBloc, receiptTyp: widget.receiptType),
+                  if (state.totalQuantity > 0) ...[
+                    const Divider(height: 0),
+                    PagesPaginationBar(
+                      currentPage: state.currentPage,
+                      totalPages: (state.totalQuantity / state.perPageQuantity).ceil(),
+                      itemsPerPage: state.perPageQuantity,
+                      totalItems: state.totalQuantity,
+                      onPageChanged: (newPage) => receiptBloc.add(GetReceiptsPerPageEvent(
+                        isFirstLoad: false,
+                        calcCount: false,
+                        currentPage: newPage,
+                        tabValue: state.tabValue,
+                        receiptType: widget.receiptType,
+                      )),
+                      onItemsPerPageChanged: (newValue) => receiptBloc.add(ItemsPerPageChangedEvent(value: newValue)),
+                    ),
+                  ],
                 ],
               ),
             );
@@ -403,552 +274,106 @@ class _ReceiptsOverviewScreenState extends State<ReceiptsOverviewScreen> with Au
   @override
   bool get wantKeepAlive => true;
 
-  Future<void> _onGeneratePdfTable(BuildContext context, List<Receipt> listOfReceipts, List<Receipt> listOfSelectedReceipts) async {
-    final now = DateTime.now();
-    List<Receipt> listOfReceiptsToShow = [];
-    DateTimeRange? dateRange;
-
-    if (listOfSelectedReceipts.isEmpty) {
-      dateRange = await showDateRangePicker(context: context, firstDate: DateTime(now.year - 2), lastDate: now);
-      if (dateRange == null) return;
-
-      if (context.mounted) showMyDialogLoading(context: context, text: 'PDF wird erstellt...');
-
-      listOfReceiptsToShow = listOfReceipts
-          .where((e) => e.creationDate.isAfter(dateRange!.start) && e.creationDate.isBefore(dateRange.end.add(const Duration(days: 1))))
-          .toList();
-    } else {
-      listOfReceiptsToShow = listOfSelectedReceipts;
-    }
-
-    final generatedPdf = await PdfOutgoingInvoicesGenerator.generate(listOfReceipts: listOfReceiptsToShow, dateRange: dateRange);
-
-    if (context.mounted) {
-      switch (widget.receiptTyp) {
-        case ReceiptTyp.offer:
-          context.router.popUntilRouteWithName(OffersOverviewRoute.name);
-        case ReceiptTyp.appointment:
-          context.router.popUntilRouteWithName(AppointmentsOverviewRoute.name);
-        case ReceiptTyp.deliveryNote:
-          context.router.popUntilRouteWithName(DeliveryNotesOverviewRoute.name);
-        case ReceiptTyp.invoice || ReceiptTyp.credit:
-          context.router.popUntilRouteWithName(InvoicesOverviewRoute.name);
-      }
-    }
-
-    final documentType = switch (listOfReceiptsToShow.first.receiptTyp) {
-      ReceiptTyp.offer => 'Angebote',
-      ReceiptTyp.appointment => 'Aufträge',
-      ReceiptTyp.deliveryNote => 'Lieferscheine',
-      ReceiptTyp.invoice || ReceiptTyp.credit => 'Rechnungen',
-    };
-    final title = dateRange != null
-        ? '$documentType ${dateRange.start.year}-${dateRange.start.month}-${dateRange.start.day} - ${dateRange.end.year}-${dateRange.end.month}-${dateRange.end.day}.pdf'
-        : '$documentType.pdf';
-
-    if (kIsWeb) {
-      await PdfApiWeb.saveDocument(name: title, byteList: generatedPdf, showInBrowser: true);
-    } else {
-      await PdfApiMobile.saveDocument(name: title, byteList: generatedPdf);
-    }
-  }
-
-  String _textOnSuccessfulDelete(ReceiptTyp receiptTyp) {
+  String _textOnSuccessfulDelete(ReceiptType receiptTyp) {
     return switch (receiptTyp) {
-      ReceiptTyp.offer => 'Angebot / Angebote erfolgreich gelöscht',
-      ReceiptTyp.appointment => 'Autrag / Aufträge erfolgreich gelöscht',
-      ReceiptTyp.deliveryNote => 'Lieferschein / Lieferscheine erfolgreich gelöscht',
-      ReceiptTyp.invoice || ReceiptTyp.credit => 'Rechnung / Rechnungen erfolgreich gelöscht',
+      ReceiptType.offer => 'Angebot / Angebote erfolgreich gelöscht',
+      ReceiptType.appointment => 'Autrag / Aufträge erfolgreich gelöscht',
+      ReceiptType.deliveryNote => 'Lieferschein / Lieferscheine erfolgreich gelöscht',
+      ReceiptType.invoice || ReceiptType.credit => 'Rechnung / Rechnungen erfolgreich gelöscht',
     };
   }
 
-  String _getErrorMessageOnGenerateFromDeliveryNotesNewInvoice(List<Receipt> selectedReceipts) {
-    if (selectedReceipts.isEmpty) return 'Du musst mindestens ein Lieferschein auswählen, zum generieren einer Sammelrechnung';
-    if (selectedReceipts.any((e) => e.receiptCustomer.id != selectedReceipts.first.receiptCustomer.id)) {
-      return 'Alle Lieferscheine die zu einer Sammelrechnung generiert werden sollen, müssen vom selben Kunden sein.';
-    }
-    return 'Ein Fehler ist aufgetreten';
-  }
-}
-
-class _GenerateFromOfferNewAppointmentDialog extends StatefulWidget {
-  final ReceiptBloc receiptBloc;
-  final List<Receipt> listOfReceipts;
-
-  const _GenerateFromOfferNewAppointmentDialog({required this.receiptBloc, required this.listOfReceipts});
-
-  @override
-  State<_GenerateFromOfferNewAppointmentDialog> createState() => _GenerateFromOfferNewAppointmentDialogState();
-}
-
-class _GenerateFromOfferNewAppointmentDialogState extends State<_GenerateFromOfferNewAppointmentDialog> {
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<ReceiptBloc, ReceiptState>(
-      builder: (context, state) {
-        return Dialog(
-          child: SizedBox(
-            width: 600,
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Text('Versenden', style: TextStyles.h1),
-                  const Divider(),
-                  Gaps.h24,
-                  Text('Ausgewählte Belege: ${widget.listOfReceipts.length}', style: TextStyles.h3BoldPrimary),
-                  Gaps.h42,
-                  const Text('Generiert Aufträge aus den ausgewählten Angeboten.', style: TextStyles.h3Bold),
-                  Gaps.h54,
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: MyOutlinedButton(
-                      buttonText: 'Anlegen',
-                      buttonBackgroundColor: Colors.green,
-                      isLoading: state.isLoadingReceiptOnGenerate,
-                      onPressed: () => widget.receiptBloc.add(OnGenerateFromOfferNewAppointmentEvent()),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
+  void _showMoreOptions(List<Receipt> listOfReceipts, List<Receipt> listOfAllReceipts, List<AbstractMarketplace> listOfMarketplaces) {
+    showReceiptsOverviewOptions(
+      context: context,
+      receiptBloc: receiptBloc,
+      receiptType: widget.receiptType,
+      listOfAllReceipts: listOfAllReceipts,
+      listOfselectedReceipts: listOfReceipts,
+      listOfMarketplaces: listOfMarketplaces,
     );
   }
 }
 
-class _GenerateFromAppointmentDialog extends StatefulWidget {
+class _TabBarGenerator extends StatelessWidget {
   final ReceiptBloc receiptBloc;
-  final List<Receipt> listOfReceipts;
+  final ReceiptType receiptType;
+  final int currentPage;
+  final int tabValue;
 
-  const _GenerateFromAppointmentDialog({required this.receiptBloc, required this.listOfReceipts});
-
-  @override
-  State<_GenerateFromAppointmentDialog> createState() => __GenerateFromAppointmentDialogState();
-}
-
-class __GenerateFromAppointmentDialogState extends State<_GenerateFromAppointmentDialog> {
-  bool _generateDeliveryNote = true;
-  bool _printDeliveryNote = false;
-  bool _generateInvoice = true;
-  bool _printInvoice = false;
+  const _TabBarGenerator({required this.receiptBloc, required this.receiptType, required this.currentPage, required this.tabValue});
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<ReceiptBloc, ReceiptState>(
-      builder: (context, state) {
-        return Dialog(
-          child: SizedBox(
-            width: 600,
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Text('Versenden', style: TextStyles.h1),
-                  const Divider(),
-                  Gaps.h24,
-                  Text('Ausgewählte Belege: ${widget.listOfReceipts.length}', style: TextStyles.h3BoldPrimary),
-                  Gaps.h42,
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const SizedBox(width: 150, child: Text('Lieferschein:', style: TextStyles.h3Bold)),
-                      Column(
-                        children: [
-                          const Text('Erstellen'),
-                          Switch.adaptive(value: _generateDeliveryNote, onChanged: (value) => setState(() => _generateDeliveryNote = value)),
-                        ],
-                      ),
-                      Column(
-                        children: [
-                          const Text('Drucken'),
-                          Switch.adaptive(value: _printDeliveryNote, onChanged: (value) => setState(() => _printDeliveryNote = value)),
-                        ],
-                      ),
-                    ],
-                  ),
-                  Gaps.h42,
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const SizedBox(width: 150, child: Text('Rechnung:', style: TextStyles.h3Bold)),
-                      Column(
-                        children: [
-                          const Text('Erstellen'),
-                          Switch.adaptive(value: _generateInvoice, onChanged: (value) => setState(() => _generateInvoice = value)),
-                        ],
-                      ),
-                      Column(
-                        children: [
-                          const Text('Drucken'),
-                          Switch.adaptive(value: _printInvoice, onChanged: (value) => setState(() => _printInvoice = value)),
-                        ],
-                      ),
-                    ],
-                  ),
-                  Gaps.h54,
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: MyOutlinedButton(
-                      buttonText: 'Anlegen',
-                      buttonBackgroundColor: Colors.green,
-                      isLoading: state.isLoadingReceiptOnGenerate,
-                      onPressed: () => widget.receiptBloc.add(OnGenerateFromAppointmentEvent(
-                        generateDeliveryNote: _generateDeliveryNote,
-                        generateInvoice: _generateInvoice,
-                      )),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }
-}
-
-class _GenerateFromInvoiceNewCreditDialog extends StatefulWidget {
-  final ReceiptBloc receiptBloc;
-  final List<Receipt> listOfReceipts;
-
-  const _GenerateFromInvoiceNewCreditDialog({required this.receiptBloc, required this.listOfReceipts});
-
-  @override
-  State<_GenerateFromInvoiceNewCreditDialog> createState() => _GenerateFromInvoiceNewCreditDialogState();
-}
-
-class _GenerateFromInvoiceNewCreditDialogState extends State<_GenerateFromInvoiceNewCreditDialog> {
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<ReceiptBloc, ReceiptState>(
-      builder: (context, state) {
-        return Dialog(
-          child: SizedBox(
-            width: 600,
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Text('Versenden', style: TextStyles.h1),
-                  const Divider(),
-                  Gaps.h24,
-                  Text('Ausgewählte Belege: ${widget.listOfReceipts.length}', style: TextStyles.h3BoldPrimary),
-                  Gaps.h42,
-                  const Text('Generiert eine Gutschrift aus der ausgewählten Rechnung.', style: TextStyles.h3Bold),
-                  Gaps.h54,
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: MyOutlinedButton(
-                      buttonText: 'Anlegen',
-                      buttonBackgroundColor: Colors.green,
-                      isLoading: state.isLoadingReceiptOnGenerate,
-                      onPressed: () => widget.receiptBloc.add(OnGenerateFromInvoiceNewCreditEvent()),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }
-}
-
-class _GenerateFromDeliveryNotesNewInvoiceDialog extends StatefulWidget {
-  final ReceiptBloc receiptBloc;
-  final List<Receipt> listOfReceipts;
-
-  const _GenerateFromDeliveryNotesNewInvoiceDialog({required this.receiptBloc, required this.listOfReceipts});
-
-  @override
-  State<_GenerateFromDeliveryNotesNewInvoiceDialog> createState() => _GenerateFromDeliveryNotesNewInvoiceDialogState();
-}
-
-class _GenerateFromDeliveryNotesNewInvoiceDialogState extends State<_GenerateFromDeliveryNotesNewInvoiceDialog> {
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<ReceiptBloc, ReceiptState>(
-      builder: (context, state) {
-        return Dialog(
-          child: SizedBox(
-            width: 600,
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Text('Versenden', style: TextStyles.h1),
-                  const Divider(),
-                  Gaps.h24,
-                  Text('Ausgewählte Belege: ${widget.listOfReceipts.length}', style: TextStyles.h3BoldPrimary),
-                  Gaps.h42,
-                  const Text('Generiert eine Sammelrechnung aus den ausgewählten Lieferscheinen.', style: TextStyles.h3Bold),
-                  Gaps.h54,
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: MyOutlinedButton(
-                      buttonText: 'Anlegen',
-                      buttonBackgroundColor: Colors.green,
-                      isLoading: state.isLoadingReceiptOnGenerate,
-                      onPressed: () => widget.receiptBloc.add(OnGenerateFromDeliveryNotesNewInvoiceEvent()),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }
-}
-
-class _ReceiptsAlertDialog extends StatelessWidget {
-  final String title;
-  final String content;
-
-  const _ReceiptsAlertDialog({required this.title, required this.content});
-
-  @override
-  Widget build(BuildContext context) {
-    return Dialog(
-      child: SizedBox(
-        width: 400,
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(title, style: TextStyles.h1),
-              Gaps.h16,
-              Text(content, style: TextStyles.h3, textAlign: TextAlign.center),
-              Gaps.h32,
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [MyOutlinedButton(buttonText: 'OK', onPressed: () => context.router.maybePop())],
-              )
-            ],
+    return switch (receiptType) {
+      ReceiptType.offer => DefaultTabController(
+          length: 2,
+          child: TabBar(
+            tabs: const [Tab(text: 'Offen'), Tab(text: 'Alle')],
+            labelStyle: const TextStyle(fontWeight: FontWeight.bold),
+            unselectedLabelStyle: const TextStyle(),
+            onTap: (value) => value == tabValue
+                ? null
+                : receiptBloc.add(GetReceiptsPerPageEvent(
+                    isFirstLoad: false,
+                    calcCount: true,
+                    currentPage: currentPage,
+                    tabValue: value,
+                    receiptType: receiptType,
+                  )),
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _SelectCustomerDialog extends StatefulWidget {
-  final ReceiptBloc receiptBloc;
-  final CustomerBloc customerBloc;
-  final MarketplaceBloc marketplaceBloc;
-  final ReceiptTyp receiptTyp;
-
-  const _SelectCustomerDialog({required this.receiptBloc, required this.customerBloc, required this.marketplaceBloc, required this.receiptTyp});
-
-  @override
-  State<_SelectCustomerDialog> createState() => _SelectCustomerDialogState();
-}
-
-class _SelectCustomerDialogState extends State<_SelectCustomerDialog> {
-  final _controller = TextEditingController();
-
-  @override
-  Widget build(BuildContext context) {
-    final screenHeight = MediaQuery.sizeOf(context).height;
-    final screenWidth = MediaQuery.sizeOf(context).width;
-    return BlocBuilder<CustomerBloc, CustomerState>(
-      bloc: widget.customerBloc,
-      builder: (context, state) {
-        if (state.firebaseFailure != null && state.isAnyFailure) {
-          return Dialog(child: SizedBox(width: 600, height: 1200, child: Center(child: Text(state.firebaseFailure.toString()))));
-        }
-        if (state.isLoadingCustomersOnObserve || state.listOfAllCustomers == null) {
-          return const Dialog(child: SizedBox(width: 600, height: 1200, child: Center(child: CircularProgressIndicator())));
-        }
-
-        List<Customer> customerList = state.listOfAllCustomers!;
-
-        if (_controller.text.isNotEmpty) {
-          String searchText = _controller.text.toLowerCase();
-          customerList = customerList
-              .where((e) =>
-                  e.name.toLowerCase().contains(searchText) ||
-                  e.email.toLowerCase().contains(searchText) ||
-                  e.listOfAddress.any((address) => address.companyName.toLowerCase().contains(searchText)))
-              .toList();
-        }
-
-        return Dialog(
-          child: SizedBox(
-            height: screenHeight > 1200 ? 1200 : screenHeight,
-            width: screenWidth > 600 ? 600 : screenWidth,
-            child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      CupertinoSearchTextField(
-                        controller: _controller,
-                        onChanged: (value) => setState(() {}),
-                        onSuffixTap: () => setState(() => _controller.clear()),
-                      ),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: customerList.length,
-                    itemBuilder: ((context, index) {
-                      final customer = customerList[index];
-                      return Column(
-                        children: [
-                          if (index == 0) Gaps.h10,
-                          ListTile(
-                            title: Text(customer.name, style: TextStyles.defaultt),
-                            subtitle: customer.company != null ? Text(customer.company!) : null,
-                            onTap: () {
-                              _controller.clear();
-                              context.router.maybePop();
-                              final newAppointment = Receipt.empty().copyWith(
-                                customerId: customer.id,
-                                receiptCustomer: ReceiptCustomer.fromCustomer(customer),
-                                addressInvoice: getDefaultAddress(customer.listOfAddress, AddressType.invoice),
-                                addressDelivery: getDefaultAddress(customer.listOfAddress, AddressType.invoice),
-                                tax: customer.tax,
-                                listOfReceiptProduct: [ReceiptProduct.empty()],
-                                receiptTyp: widget.receiptTyp,
-                              );
-                              widget.receiptBloc.add(SetAppointmentEvent(appointment: newAppointment));
-                              context.router.push(
-                                ReceiptDetailRoute(
-                                  receiptBloc: widget.receiptBloc,
-                                  listOfMarketplaces: widget.marketplaceBloc.state.listOfMarketplace!,
-                                  receiptCreateOrEdit: ReceiptCreateOrEdit.create,
-                                  receiptTyp: widget.receiptTyp,
-                                ),
-                              );
-                            },
-                          ),
-                          const Divider(height: 0),
-                        ],
-                      );
-                    }),
-                  ),
-                ),
-              ],
-            ),
+      ReceiptType.appointment => DefaultTabController(
+          length: 2,
+          child: TabBar(
+            tabs: const [Tab(text: 'Offen'), Tab(text: 'Alle')],
+            labelStyle: const TextStyle(fontWeight: FontWeight.bold),
+            unselectedLabelStyle: const TextStyle(),
+            onTap: (value) => value == tabValue
+                ? null
+                : receiptBloc.add(GetReceiptsPerPageEvent(
+                    isFirstLoad: false,
+                    calcCount: true,
+                    currentPage: currentPage,
+                    tabValue: value,
+                    receiptType: receiptType,
+                  )),
           ),
-        );
-      },
-    );
-  }
-}
-
-class _MyLoadingDialogOnLoadingAppointments extends StatelessWidget {
-  final ReceiptBloc receiptBloc;
-
-  const _MyLoadingDialogOnLoadingAppointments({required this.receiptBloc});
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<ReceiptBloc, ReceiptState>(
-      bloc: receiptBloc,
-      builder: (context, state) {
-        return Dialog(
-          child: SizedBox(
-            width: 250,
-            height: 250,
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const CircularProgressIndicator(),
-                  Gaps.h24,
-                  Text('${state.loadedAppointments} / ${state.numberOfToLoadAppointments}', style: TextStyles.h2Bold),
-                  Gaps.h24,
-                  Text(state.loadingText, textAlign: TextAlign.center, style: TextStyles.h3),
-                ],
-              ),
-            ),
+        ),
+      ReceiptType.deliveryNote => DefaultTabController(
+          length: 2,
+          child: TabBar(
+            tabs: const [Tab(text: 'Ohne Rechnung'), Tab(text: 'Alle')],
+            labelStyle: const TextStyle(fontWeight: FontWeight.bold),
+            unselectedLabelStyle: const TextStyle(),
+            onTap: (value) => value == tabValue
+                ? null
+                : receiptBloc.add(GetReceiptsPerPageEvent(
+                    isFirstLoad: false,
+                    calcCount: true,
+                    currentPage: currentPage,
+                    tabValue: value,
+                    receiptType: receiptType,
+                  )),
           ),
-        );
-      },
-    );
-  }
-}
-
-class _SelectToLoadAppointmentFromMarketplaceSheet extends StatefulWidget {
-  final ReceiptBloc receiptBloc;
-  final List<AbstractMarketplace> listOfMarketplaces;
-
-  const _SelectToLoadAppointmentFromMarketplaceSheet({required this.receiptBloc, required this.listOfMarketplaces});
-
-  @override
-  State<_SelectToLoadAppointmentFromMarketplaceSheet> createState() => _SelectToLoadAppointmentFromMarketplaceSheetState();
-}
-
-class _SelectToLoadAppointmentFromMarketplaceSheetState extends State<_SelectToLoadAppointmentFromMarketplaceSheet> {
-  List<AbstractMarketplace> listOfMarketplaces = [];
-  AbstractMarketplace selectedMarketplace = AbstractMarketplace.empty();
-  final _controller = TextEditingController();
-
-  @override
-  void initState() {
-    super.initState();
-    listOfMarketplaces = widget.listOfMarketplaces..insert(0, AbstractMarketplace.empty());
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final items = listOfMarketplaces.map((e) => e.name).toList();
-
-    return MyModalScrollable(
-      title: 'Bestellung Laden',
-      keyboardDismiss: KeyboardDissmiss.onTab,
-      children: [
-        Gaps.h24,
-        MyDropdownButtonFormField(
-          labelText: 'Marktplatz wählen',
-          value: selectedMarketplace.name,
-          onChanged: (marketplaceName) => setState(() => selectedMarketplace = listOfMarketplaces.where((e) => e.name == marketplaceName!).first),
-          items: items,
         ),
-        Gaps.h24,
-        MyTextFormFieldSmall(
-          labelText: 'ID aus Marktplatz',
-          controller: _controller,
-          keyboardType: TextInputType.number,
+      ReceiptType.invoice || ReceiptType.credit => DefaultTabController(
+          length: 2,
+          child: TabBar(
+            tabs: const [Tab(text: 'Nicht vollst. bezahlt'), Tab(text: 'Alle')],
+            labelStyle: const TextStyle(fontWeight: FontWeight.bold),
+            unselectedLabelStyle: const TextStyle(),
+            onTap: (value) => value == tabValue
+                ? null
+                : receiptBloc.add(GetReceiptsPerPageEvent(
+                    isFirstLoad: false,
+                    calcCount: true,
+                    currentPage: currentPage,
+                    tabValue: value,
+                    receiptType: receiptType,
+                  )),
+          ),
         ),
-        Gaps.h24,
-        MyOutlinedButton(
-          buttonText: 'Bestellung Laden',
-          onPressed: () {
-            context.router.maybePopTop();
-            widget.receiptBloc.add(GetNewAppointmentByIdFromPrestaEvent(id: _controller.text.toMyInt(), marketplace: selectedMarketplace));
-            showDialog(
-              context: context,
-              builder: (context) => BlocProvider.value(
-                value: widget.receiptBloc,
-                child: _MyLoadingDialogOnLoadingAppointments(receiptBloc: widget.receiptBloc),
-              ),
-            );
-          },
-        ),
-        Gaps.h42,
-      ],
-    );
+    };
   }
 }

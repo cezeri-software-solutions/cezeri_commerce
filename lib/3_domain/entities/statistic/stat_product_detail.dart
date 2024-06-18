@@ -10,7 +10,7 @@ part 'stat_product_detail.g.dart';
 class StatProductDetail {
   final String id;
   final String productId;
-  final ReceiptTyp receiptTyp;
+  final ReceiptType receiptTyp;
   final String receiptId;
   final String uniqueReceiptId;
   final int receiptNumber;
@@ -45,10 +45,10 @@ class StatProductDetail {
       receiptId: receipt.receiptId,
       uniqueReceiptId: receipt.id,
       receiptNumber: switch (receipt.receiptTyp) {
-        ReceiptTyp.offer => receipt.offerId,
-        ReceiptTyp.appointment => receipt.appointmentId,
-        ReceiptTyp.deliveryNote => receipt.deliveryNoteId,
-        ReceiptTyp.invoice || ReceiptTyp.credit => receipt.invoiceId,
+        ReceiptType.offer => receipt.offerId,
+        ReceiptType.appointment => receipt.appointmentId,
+        ReceiptType.deliveryNote => receipt.deliveryNoteId,
+        ReceiptType.invoice || ReceiptType.credit => receipt.invoiceId,
       },
       profit: receiptProduct.profit,
       profitUnit: receiptProduct.profitUnit,
@@ -62,7 +62,7 @@ class StatProductDetail {
     return StatProductDetail(
       id: UniqueID().value,
       productId: '',
-      receiptTyp: ReceiptTyp.appointment,
+      receiptTyp: ReceiptType.appointment,
       receiptId: '',
       uniqueReceiptId: '',
       receiptNumber: 0,
@@ -77,7 +77,7 @@ class StatProductDetail {
   StatProductDetail copyWith({
     String? id,
     String? productId,
-    ReceiptTyp? receiptTyp,
+    ReceiptType? receiptTyp,
     String? receiptId,
     String? uniqueReceiptId,
     int? receiptNumber,

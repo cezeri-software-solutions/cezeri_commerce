@@ -7,6 +7,13 @@ class SetCustomerStateToInitialEvent extends CustomerEvent {}
 
 class GetAllCustomersEvent extends CustomerEvent {}
 
+class GetCustomersPerPageEvent extends CustomerEvent {
+  final bool calcCount;
+  final int currentPage;
+
+  GetCustomersPerPageEvent({required this.calcCount, required this.currentPage});
+}
+
 class SetCustomerEvent extends CustomerEvent {
   final Customer customer;
 
@@ -31,13 +38,7 @@ class DeleteSelectedCustomersEvent extends CustomerEvent {
   DeleteSelectedCustomersEvent({required this.selectedCustomers});
 }
 
-class SetSearchFieldTextEvent extends CustomerEvent {
-  final String searchText;
-
-  SetSearchFieldTextEvent({required this.searchText});
-}
-
-class OnSearchFieldSubmittedEvent extends CustomerEvent {}
+class CustomerSearchFieldClearedEvent extends CustomerEvent {}
 
 class OnCustomerSelectedEvent extends CustomerEvent {
   final Customer customer;
@@ -52,6 +53,12 @@ class SetCustomerTaxEvent extends CustomerEvent {
 }
 
 //* --- helper --- *//
+
+class CustomerItemsPerPageChangedEvent extends CustomerEvent {
+  final int value;
+
+  CustomerItemsPerPageChangedEvent({required this.value});
+}
 
 class OnSelectAllCustomersEvent extends CustomerEvent {
   final bool isSelected;

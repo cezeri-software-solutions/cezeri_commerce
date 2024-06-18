@@ -29,7 +29,6 @@ class ProductOverviewPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    print(screenWidth);
 
     return BlocBuilder<ProductBloc, ProductState>(
       builder: (context, state) {

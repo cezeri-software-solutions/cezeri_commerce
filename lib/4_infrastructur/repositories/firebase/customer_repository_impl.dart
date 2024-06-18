@@ -94,6 +94,54 @@ class CustomerRepositoryImpl implements CustomerRepository {
   }
 
   @override
+  Future<Either<AbstractFailure, int>> getTotalNumberOfCustomersBySearchText(String searchText) async {
+    if (!await checkInternetConnection()) return Left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
+
+    try {
+      final response = await supabase.rpc('get_customers_count_by_search_text', params: {'owner_id': ownerId, 'search_text': searchText});
+
+      return Right(response);
+    } catch (e) {
+      logger.e(e);
+      return Left(GeneralFailure(customMessage: 'Beim Laden der Artikel ist ein Fehler aufgetreten. Error: $e'));
+    }
+  }
+
+  @override
+  Future<Either<AbstractFailure, List<Customer>>> getListOfCustomersPerPageBySearchText({
+    required String searchText,
+    required int currentPage,
+    required int itemsPerPage,
+  }) async {
+    if (!await checkInternetConnection()) return Left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
+
+    try {
+      final response = await supabase.rpc('get_customers_by_search_text', params: {
+        'owner_id': ownerId,
+        'search_text': searchText,
+        'current_page': currentPage,
+        'items_per_page': itemsPerPage,
+      });
+
+      if (response.isEmpty) return const Right([]);
+
+      final listOfCustomers = (response as List<dynamic>).map((e) {
+        final item = e as Map<String, dynamic>;
+        return Customer.fromJson(item);
+      }).toList();
+
+      return Right(listOfCustomers);
+    } catch (e) {
+      logger.e(e);
+      return Left(GeneralFailure(customMessage: 'Beim Laden der Artikel ist ein Fehler aufgetreten. Error: $e'));
+    }
+  }
+
+  @override
   Future<Either<AbstractFailure, Customer>> updateCustomer(Customer customer) async {
     if (!await checkInternetConnection()) return Left(NoConnectionFailure());
     final ownerId = await getOwnerId();

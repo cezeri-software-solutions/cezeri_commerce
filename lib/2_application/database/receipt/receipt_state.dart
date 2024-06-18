@@ -4,10 +4,10 @@ part of 'receipt_bloc.dart';
 class ReceiptState {
   final Receipt? receipt;
   final Customer? customer;
-  final Product? product;
   final List<Receipt>? listOfAllReceipts;
   final List<Receipt>? listOfFilteredReceipts; // Der State, der im presentation layer ausgegeben wird, egal ob Suchfeld leer oder nicht
   final List<Receipt> selectedReceipts; // Ausgewählte Aufträge zum löschen oder für Massenbearbeitung
+  final List<AbstractMarketplace>? listOfMarketpaces;
   final List<Product>? listOfAllProducts;
   final AbstractFailure? firebaseFailure;
   final bool isAnyFailure;
@@ -34,11 +34,14 @@ class ReceiptState {
   final Option<Either<AbstractFailure, ParcelTracking>> fosParcelLabelOnCreate;
 
   //* --- helper --- *//
+  final int perPageQuantity;
+  final int totalQuantity;
+  final int currentPage;
   final bool isAllReceiptsSeledcted;
   final List<bool> isExpanded;
-  final String receiptSearchText;
   final int tabValue;
-  final ReceiptTyp receiptTyp;
+  final ReceiptType receiptType;
+  final SearchController receiptSearchController;
 
   //* --- load Appointments from Marketplace helper --- *//
   final int numberOfToLoadAppointments;
@@ -48,10 +51,10 @@ class ReceiptState {
   const ReceiptState({
     this.receipt,
     this.customer,
-    this.product,
     required this.listOfAllReceipts,
     required this.listOfFilteredReceipts,
     required this.selectedReceipts,
+    required this.listOfMarketpaces,
     required this.listOfAllProducts,
     required this.firebaseFailure,
     required this.isAnyFailure,
@@ -76,11 +79,14 @@ class ReceiptState {
     required this.fosReceiptsOnGenerateOption,
     required this.fosProductOnObserveOption,
     required this.fosParcelLabelOnCreate,
+    required this.perPageQuantity,
+    required this.totalQuantity,
+    required this.currentPage,
     required this.isAllReceiptsSeledcted,
     required this.isExpanded,
-    required this.receiptSearchText,
     required this.tabValue,
-    required this.receiptTyp,
+    required this.receiptType,
+    required this.receiptSearchController,
     required this.numberOfToLoadAppointments,
     required this.loadedAppointments,
     required this.loadingText,
@@ -89,10 +95,10 @@ class ReceiptState {
   factory ReceiptState.initial() => ReceiptState(
         receipt: null,
         customer: null,
-        product: null,
         listOfAllReceipts: null,
         listOfFilteredReceipts: null,
         selectedReceipts: const [],
+        listOfMarketpaces: null,
         listOfAllProducts: null,
         firebaseFailure: null,
         isAnyFailure: false,
@@ -117,11 +123,14 @@ class ReceiptState {
         fosReceiptsOnGenerateOption: none(),
         fosProductOnObserveOption: none(),
         fosParcelLabelOnCreate: none(),
+        perPageQuantity: 20,
+        totalQuantity: 0,
+        currentPage: 1,
         isAllReceiptsSeledcted: false,
         isExpanded: const [],
-        receiptSearchText: '',
         tabValue: 0,
-        receiptTyp: ReceiptTyp.appointment,
+        receiptType: ReceiptType.appointment,
+        receiptSearchController: SearchController(),
         numberOfToLoadAppointments: 0,
         loadedAppointments: 0,
         loadingText: '',
@@ -130,10 +139,10 @@ class ReceiptState {
   ReceiptState copyWith({
     Receipt? receipt,
     Customer? customer,
-    Product? product,
     List<Receipt>? listOfAllReceipts,
     List<Receipt>? listOfFilteredReceipts,
     List<Receipt>? selectedReceipts,
+    List<AbstractMarketplace>? listOfMarketpaces,
     List<Product>? listOfAllProducts,
     AbstractFailure? firebaseFailure,
     bool? isAnyFailure,
@@ -158,11 +167,14 @@ class ReceiptState {
     Option<Either<AbstractFailure, List<Receipt>>>? fosReceiptsOnGenerateOption,
     Option<Either<AbstractFailure, Product>>? fosProductOnObserveOption,
     Option<Either<AbstractFailure, ParcelTracking>>? fosParcelLabelOnCreate,
+    int? perPageQuantity,
+    int? totalQuantity,
+    int? currentPage,
     bool? isAllReceiptsSeledcted,
     List<bool>? isExpanded,
-    String? receiptSearchText,
     int? tabValue,
-    ReceiptTyp? receiptTyp,
+    ReceiptType? receiptTyp,
+    SearchController? receiptSearchController,
     int? numberOfToLoadAppointments,
     int? loadedAppointments,
     String? loadingText,
@@ -170,10 +182,10 @@ class ReceiptState {
     return ReceiptState(
       receipt: receipt ?? this.receipt,
       customer: customer ?? this.customer,
-      product: product ?? this.product,
       listOfAllReceipts: listOfAllReceipts ?? this.listOfAllReceipts,
       listOfFilteredReceipts: listOfFilteredReceipts ?? this.listOfFilteredReceipts,
       selectedReceipts: selectedReceipts ?? this.selectedReceipts,
+      listOfMarketpaces: listOfMarketpaces ?? this.listOfMarketpaces,
       listOfAllProducts: listOfAllProducts ?? this.listOfAllProducts,
       firebaseFailure: firebaseFailure ?? this.firebaseFailure,
       isAnyFailure: isAnyFailure ?? this.isAnyFailure,
@@ -200,11 +212,14 @@ class ReceiptState {
       fosReceiptsOnGenerateOption: fosReceiptsOnGenerateOption ?? this.fosReceiptsOnGenerateOption,
       fosProductOnObserveOption: fosProductOnObserveOption ?? this.fosProductOnObserveOption,
       fosParcelLabelOnCreate: fosParcelLabelOnCreate ?? this.fosParcelLabelOnCreate,
+      perPageQuantity: perPageQuantity ?? this.perPageQuantity,
+      totalQuantity: totalQuantity ?? this.totalQuantity,
+      currentPage: currentPage ?? this.currentPage,
       isAllReceiptsSeledcted: isAllReceiptsSeledcted ?? this.isAllReceiptsSeledcted,
       isExpanded: isExpanded ?? this.isExpanded,
-      receiptSearchText: receiptSearchText ?? this.receiptSearchText,
       tabValue: tabValue ?? this.tabValue,
-      receiptTyp: receiptTyp ?? this.receiptTyp,
+      receiptType: receiptTyp ?? receiptType,
+      receiptSearchController: receiptSearchController ?? this.receiptSearchController,
       numberOfToLoadAppointments: numberOfToLoadAppointments ?? this.numberOfToLoadAppointments,
       loadedAppointments: loadedAppointments ?? this.loadedAppointments,
       loadingText: loadingText ?? this.loadingText,

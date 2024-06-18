@@ -8,7 +8,7 @@ import 'package:get_it/get_it.dart';
 import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 
 import '../../../2_application/database/customer/customer_bloc.dart';
-import '../../../2_application/database/receipt/receipt_bloc.dart';
+import '../../../2_application/database/receipt_detail/receipt_detail_bloc.dart';
 import '../../../3_domain/entities/address.dart';
 import '../../../3_domain/entities/country.dart';
 import '../../../3_domain/entities/customer/customer.dart';
@@ -27,7 +27,8 @@ import '../../core/widgets/my_dialog_taxes.dart';
 import '../../core/widgets/my_dropdown_button_small.dart';
 import '../../core/widgets/my_form_field_small.dart';
 
-void updateCustomerFromReceiptDetail({required BuildContext context, required ReceiptBloc receiptBloc, required String customerId}) async {
+void updateCustomerFromReceiptDetail(
+    {required BuildContext context, required ReceiptDetailBloc receiptDetailBloc, required String customerId}) async {
   AbstractFailure? abstractFailure;
   Customer? customer;
 
@@ -56,7 +57,7 @@ void updateCustomerFromReceiptDetail({required BuildContext context, required Re
   Widget getContent() {
     if (customer == null && abstractFailure == null) return const SizedBox(height: 100, child: Center(child: MyCircularProgressIndicator()));
     if (abstractFailure != null) const SizedBox(height: 100, child: Center(child: Text('Beim laden des Kunden ist ein Fehler aufgetreten')));
-    return _CustomerDetail(receiptBloc: receiptBloc, customer: customer!);
+    return _CustomerDetail(receiptDetailBloc: receiptDetailBloc, customer: customer!);
   }
 
   WoltModalSheet.show(
@@ -77,10 +78,10 @@ void updateCustomerFromReceiptDetail({required BuildContext context, required Re
 }
 
 class _CustomerDetail extends StatefulWidget {
-  final ReceiptBloc receiptBloc;
+  final ReceiptDetailBloc receiptDetailBloc;
   final Customer customer;
 
-  const _CustomerDetail({required this.receiptBloc, required this.customer});
+  const _CustomerDetail({required this.receiptDetailBloc, required this.customer});
 
   @override
   State<_CustomerDetail> createState() => __CustomerDetailState();
@@ -200,10 +201,10 @@ class __CustomerDetailState extends State<_CustomerDetail> {
               (failure) => failureRenderer(context, [failure]),
               (updatedCustomer) {
                 if (_useAddressInReceipt) {
-                  widget.receiptBloc.add(OnEditAddressReceiptDetailEvent(address: updatedDeliveryAddress!));
-                  widget.receiptBloc.add(OnEditAddressReceiptDetailEvent(address: updatedInvoiceAddress!));
-                  widget.receiptBloc.add(OnReceiptCustomerUpdatedEvent(customer: updatedCustomer));
-                  widget.receiptBloc.add(OnReceiptCustomerEmailChangedEvent(email: updatedCustomer.email));
+                  widget.receiptDetailBloc.add(ReceiptDetailEditAddressEvent(address: updatedDeliveryAddress!));
+                  widget.receiptDetailBloc.add(ReceiptDetailEditAddressEvent(address: updatedInvoiceAddress!));
+                  widget.receiptDetailBloc.add(ReceiptDetailUpdateCustomerEvent(customer: updatedCustomer));
+                  widget.receiptDetailBloc.add(ReceiptDetailCustomerEmailChangedEvent(email: updatedCustomer.email));
                 }
 
                 context.router.maybePop();

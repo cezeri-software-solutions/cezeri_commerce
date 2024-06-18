@@ -2,21 +2,21 @@ import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.da
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../2_application/database/receipt/receipt_bloc.dart';
 import '../../../2_application/database/receipt_detail/receipt_detail_bloc.dart';
+import '../../../2_application/database/receipt_detail_products/receipt_detail_products_bloc.dart';
 import '../../../constants.dart';
 import '../../core/widgets/my_text_form_field_small_double.dart';
 
 class ReceiptDetailProductsTotalCard extends StatelessWidget {
-  final ReceiptBloc receiptBloc;
   final ReceiptDetailBloc receiptDetailBloc;
+  final ReceiptDetailProductsBloc receiptDetailProductsBloc;
 
-  const ReceiptDetailProductsTotalCard({super.key, required this.receiptBloc, required this.receiptDetailBloc});
+  const ReceiptDetailProductsTotalCard({super.key, required this.receiptDetailBloc, required this.receiptDetailProductsBloc});
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<ReceiptDetailBloc, ReceiptDetailState>(
-      bloc: receiptDetailBloc,
+    return BlocBuilder<ReceiptDetailProductsBloc, ReceiptDetailProductsState>(
+      bloc: receiptDetailProductsBloc,
       builder: (context, state) {
         return Card(
           child: Padding(
@@ -34,8 +34,8 @@ class ReceiptDetailProductsTotalCard extends StatelessWidget {
                           maxWidth: 100,
                           controller: state.discountPercentageController,
                           suffix: const Text('%'),
-                          onChanged: (value) => receiptDetailBloc.add(SetTotalDiscountPercentControllerEvent(value: value.toMyDouble())),
-                          onTapOutside: (_) => receiptDetailBloc.add(SetControllerOnTapOutsideReceiptDetailEvent()),
+                          onChanged: (value) => receiptDetailProductsBloc.add(SetTotalDiscountPercentControllerEvent(value: value.toMyDouble())),
+                          onTapOutside: (_) => receiptDetailProductsBloc.add(SetControllerOnTapOutsideReceiptDetailEvent()),
                         ),
                       ],
                     ),
@@ -53,8 +53,8 @@ class ReceiptDetailProductsTotalCard extends StatelessWidget {
                           maxWidth: 100,
                           controller: state.discountAmountGrossController,
                           suffix: Text(state.receipt.currency),
-                          onChanged: (value) => receiptDetailBloc.add(SetTotalDiscountAmountGrossControllerEvent(value: value.toMyDouble())),
-                          onTapOutside: (_) => receiptDetailBloc.add(SetControllerOnTapOutsideReceiptDetailEvent()),
+                          onChanged: (value) => receiptDetailProductsBloc.add(SetTotalDiscountAmountGrossControllerEvent(value: value.toMyDouble())),
+                          onTapOutside: (_) => receiptDetailProductsBloc.add(SetControllerOnTapOutsideReceiptDetailEvent()),
                         ),
                       ],
                     ),
@@ -72,8 +72,8 @@ class ReceiptDetailProductsTotalCard extends StatelessWidget {
                           maxWidth: 100,
                           controller: state.additionalAmountGrossController,
                           suffix: Text(state.receipt.currency),
-                          onChanged: (value) => receiptDetailBloc.add(SetAdditionalAmountGrossControllerEvent(value: value.toMyDouble())),
-                          onTapOutside: (_) => receiptDetailBloc.add(SetControllerOnTapOutsideReceiptDetailEvent()),
+                          onChanged: (value) => receiptDetailProductsBloc.add(SetAdditionalAmountGrossControllerEvent(value: value.toMyDouble())),
+                          onTapOutside: (_) => receiptDetailProductsBloc.add(SetControllerOnTapOutsideReceiptDetailEvent()),
                         ),
                       ],
                     ),
@@ -91,8 +91,8 @@ class ReceiptDetailProductsTotalCard extends StatelessWidget {
                           maxWidth: 100,
                           controller: state.shippingAmountGrossController,
                           suffix: Text(state.receipt.currency),
-                          onChanged: (value) => receiptDetailBloc.add(SetShippingAmountGrossControllerEvent(value: value.toMyDouble())),
-                          onTapOutside: (_) => receiptDetailBloc.add(SetControllerOnTapOutsideReceiptDetailEvent()),
+                          onChanged: (value) => receiptDetailProductsBloc.add(SetShippingAmountGrossControllerEvent(value: value.toMyDouble())),
+                          onTapOutside: (_) => receiptDetailProductsBloc.add(SetControllerOnTapOutsideReceiptDetailEvent()),
                         ),
                       ],
                     ),

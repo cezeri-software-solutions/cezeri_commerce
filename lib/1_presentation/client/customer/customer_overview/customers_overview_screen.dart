@@ -11,6 +11,7 @@ import '../../../../routes/router.gr.dart';
 import '../../../core/functions/dialogs.dart';
 import '../../../core/functions/my_scaffold_messanger.dart';
 import '../../../core/renderer/failure_renderer.dart';
+import '../../../core/widgets/pages_pagination_bar.dart';
 import '../customer_detail/customer_detail_screen.dart';
 import 'customers_overview_page.dart';
 
@@ -23,9 +24,14 @@ class CustomersOverviewScreen extends StatefulWidget {
 }
 
 class _CustomersOverviewScreenState extends State<CustomersOverviewScreen> with AutomaticKeepAliveClientMixin {
-  final customerBloc = sl<CustomerBloc>()..add(GetAllCustomersEvent());
+  final customerBloc = sl<CustomerBloc>();
 
-  final searchController = TextEditingController();
+  @override
+  void initState() {
+    super.initState();
+
+    customerBloc.add(GetCustomersPerPageEvent(calcCount: true, currentPage: 1));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +48,7 @@ class _CustomersOverviewScreenState extends State<CustomersOverviewScreen> with 
                 () => null,
                 (a) => a.fold(
                   (failure) => failureRenderer(context, [failure]),
-                  (listOfProducts) => myScaffoldMessenger(context, null, null, 'Kunden wurden erfolgreich geladen', null),
+                  (listOfProducts) => null,
                 ),
               );
             },
@@ -107,19 +113,36 @@ class _CustomersOverviewScreenState extends State<CustomersOverviewScreen> with 
               body: Column(
                 children: [
                   Padding(
-                    padding: const EdgeInsets.only(left: 20, right: 20, bottom: 10),
-                    child: CupertinoSearchTextField(
-                      controller: searchController,
-                      onChanged: (value) => context.read<CustomerBloc>().add(SetSearchFieldTextEvent(searchText: value)),
-                      onSubmitted: (value) => context.read<CustomerBloc>().add(OnSearchFieldSubmittedEvent()),
-                      onSuffixTap: () {
-                        searchController.clear();
-                        context.read<CustomerBloc>().add(SetSearchFieldTextEvent(searchText: ''));
-                        context.read<CustomerBloc>().add(OnSearchFieldSubmittedEvent());
-                      },
+                    padding: const EdgeInsets.only(right: 20, bottom: 10),
+                    child: Row(
+                      children: [
+                        Checkbox.adaptive(
+                          value: state.isAllCustomersSelected,
+                          onChanged: (value) => customerBloc.add(OnSelectAllCustomersEvent(isSelected: value!)),
+                        ),
+                        Expanded(
+                          child: CupertinoSearchTextField(
+                            controller: state.customerSearchController,
+                            onSubmitted: (value) => customerBloc.add(GetCustomersPerPageEvent(calcCount: true, currentPage: 1)),
+                            onSuffixTap: () => customerBloc.add(CustomerSearchFieldClearedEvent()),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
+                  const Divider(height: 0),
                   CustomersOverviewPage(customerBloc: customerBloc),
+                  if (state.totalQuantity > 0) ...[
+                    const Divider(height: 0),
+                    PagesPaginationBar(
+                      currentPage: state.currentPage,
+                      totalPages: (state.totalQuantity / state.perPageQuantity).ceil(),
+                      itemsPerPage: state.perPageQuantity,
+                      totalItems: state.totalQuantity,
+                      onPageChanged: (newPage) => customerBloc.add(GetCustomersPerPageEvent(calcCount: false, currentPage: newPage)),
+                      onItemsPerPageChanged: (newValue) => customerBloc.add(CustomerItemsPerPageChangedEvent(value: newValue)),
+                    ),
+                  ],
                 ],
               ),
             );

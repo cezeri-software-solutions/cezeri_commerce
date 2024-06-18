@@ -87,10 +87,10 @@ class PackingStationRepositoryImpl implements PackingStationRepository {
 
       for (final appointment in listOfAppointments) {
         final appointmentResponse =
-            await getReceiptDatabase(ReceiptTyp.appointment).select().eq('ownerId', ownerId).eq('id', appointment.id).single();
+            await getReceiptDatabase(ReceiptType.appointment).select().eq('ownerId', ownerId).eq('id', appointment.id).single();
         final loadedAppointment = Receipt.fromJson(appointmentResponse);
         final updatedAppointment = loadedAppointment.copyWith(isPicked: true);
-        await getReceiptDatabase(ReceiptTyp.appointment).update(updatedAppointment.toJson()).eq('ownerId', ownerId).eq('id', updatedAppointment.id);
+        await getReceiptDatabase(ReceiptType.appointment).update(updatedAppointment.toJson()).eq('ownerId', ownerId).eq('id', updatedAppointment.id);
       }
 
       final picklistJson = toCreatePicklist.toJson();

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../2_application/database/receipt/receipt_bloc.dart';
+import '../../../2_application/database/receipt_detail/receipt_detail_bloc.dart';
 import '../../../3_domain/entities/address.dart';
 import '../../../3_domain/entities/receipt/receipt.dart';
 import '../../../constants.dart';
@@ -11,10 +11,10 @@ import '../sheets/receipt_detail_update_customer.dart';
 enum ReceiptDetailAddressTyp { shipping, invoice }
 
 class ReceiptDetailAddressCard extends StatefulWidget {
-  final ReceiptBloc receiptBloc;
+  final ReceiptDetailBloc receiptDetailBloc;
   final Receipt receipt;
 
-  const ReceiptDetailAddressCard({super.key, required this.receipt, required this.receiptBloc});
+  const ReceiptDetailAddressCard({super.key, required this.receipt, required this.receiptDetailBloc});
 
   @override
   State<ReceiptDetailAddressCard> createState() => _ReceiptDetailAddressCardState();
@@ -42,8 +42,8 @@ class _ReceiptDetailAddressCardState extends State<ReceiptDetailAddressCard> {
                 Text(widget.receipt.receiptCustomer.customerNumber.toString(), style: TextStyles.defaultBold),
                 Text(widget.receipt.receiptCustomer.name, style: TextStyles.h3BoldPrimary),
                 InkWell(
-                  onTap: () =>
-                      updateCustomerFromReceiptDetail(context: context, receiptBloc: widget.receiptBloc, customerId: widget.receipt.customerId),
+                  onTap: () => updateCustomerFromReceiptDetail(
+                      context: context, receiptDetailBloc: widget.receiptDetailBloc, customerId: widget.receipt.customerId),
                   child: const Icon(Icons.edit, color: CustomColors.primaryColor),
                 ),
               ],
@@ -60,7 +60,7 @@ class _ReceiptDetailAddressCardState extends State<ReceiptDetailAddressCard> {
               ),
             ),
             Gaps.h16,
-            _ReceiptDetailCustomerAddressContainer(address: shownAddress, receiptBloc: widget.receiptBloc)
+            _ReceiptDetailCustomerAddressContainer(address: shownAddress, receiptDetailBloc: widget.receiptDetailBloc)
           ],
         ),
       ),
@@ -69,10 +69,10 @@ class _ReceiptDetailAddressCardState extends State<ReceiptDetailAddressCard> {
 }
 
 class _ReceiptDetailCustomerAddressContainer extends StatelessWidget {
-  final ReceiptBloc receiptBloc;
+  final ReceiptDetailBloc receiptDetailBloc;
   final Address address;
 
-  const _ReceiptDetailCustomerAddressContainer({required this.address, required this.receiptBloc});
+  const _ReceiptDetailCustomerAddressContainer({required this.address, required this.receiptDetailBloc});
 
   @override
   Widget build(BuildContext context) {
@@ -87,7 +87,7 @@ class _ReceiptDetailCustomerAddressContainer extends StatelessWidget {
             context: context,
             builder: (context) => MyAddressUpdateSheet(
               address: address,
-              onSave: (newAddress) => receiptBloc.add(OnEditAddressReceiptDetailEvent(address: newAddress)),
+              onSave: (newAddress) => receiptDetailBloc.add(ReceiptDetailEditAddressEvent(address: newAddress)),
             ),
           ),
           icon: const Icon(Icons.edit, color: CustomColors.primaryColor),

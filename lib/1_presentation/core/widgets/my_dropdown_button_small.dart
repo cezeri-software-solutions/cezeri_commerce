@@ -8,6 +8,7 @@ class MyDropdownButtonSmall extends StatelessWidget {
   final void Function(String?)? onChanged;
   final List<String> items;
   final double maxWidth;
+  final AlignmentGeometry? itemsAlignment;
 
   const MyDropdownButtonSmall({
     super.key,
@@ -16,6 +17,7 @@ class MyDropdownButtonSmall extends StatelessWidget {
     required this.onChanged,
     required this.items,
     this.maxWidth = double.infinity,
+    this.itemsAlignment,
   });
 
   @override
@@ -51,7 +53,7 @@ class MyDropdownButtonSmall extends StatelessWidget {
             items: items.map<DropdownMenuItem<String>>((String value) {
               return DropdownMenuItem<String>(
                 value: value,
-                alignment: AlignmentDirectional.centerEnd,
+                alignment: itemsAlignment ?? AlignmentDirectional.centerStart,
                 child: Text(value),
               );
             }).toList(),

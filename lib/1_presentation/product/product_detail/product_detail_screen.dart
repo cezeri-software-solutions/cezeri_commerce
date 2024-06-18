@@ -5,7 +5,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
 import '../../../2_application/database/product_detail/product_detail_bloc.dart';
-import '../../../3_domain/entities/product/product.dart';
 import '../../../constants.dart';
 import '../../../injection.dart';
 import '../../../routes/router.gr.dart';
@@ -21,9 +20,8 @@ enum ProductCreateOrEdit { create, edit }
 @RoutePage()
 class ProductDetailScreen extends StatefulWidget {
   final String? productId;
-  final List<Product>? listOfProducts;
 
-  const ProductDetailScreen({super.key, this.productId, this.listOfProducts});
+  const ProductDetailScreen({super.key, this.productId});
 
   @override
   State<ProductDetailScreen> createState() => _ProductDetailScreenState();

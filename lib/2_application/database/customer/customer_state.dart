@@ -22,8 +22,11 @@ class CustomerState {
   final Option<Either<AbstractFailure, MainSettings>> fosCustomerMainSettingsOnObserveOption;
 
   //* Helpers
+  final int perPageQuantity;
+  final int totalQuantity;
+  final int currentPage;
   final bool isAllCustomersSelected;
-  final String customerSearchText;
+  final SearchController customerSearchController;
 
   //* Controller
   final TextEditingController companyNameController;
@@ -54,8 +57,11 @@ class CustomerState {
     required this.fosCustomerOnUpdateOption,
     required this.fosCustomersOnDeleteOption,
     required this.fosCustomerMainSettingsOnObserveOption,
+    required this.perPageQuantity,
+    required this.totalQuantity,
+    required this.currentPage,
     required this.isAllCustomersSelected,
-    required this.customerSearchText,
+    required this.customerSearchController,
     required this.companyNameController,
     required this.firstNameController,
     required this.lastNameController,
@@ -86,8 +92,11 @@ class CustomerState {
       fosCustomerOnUpdateOption: none(),
       fosCustomersOnDeleteOption: none(),
       fosCustomerMainSettingsOnObserveOption: none(),
+      perPageQuantity: 20,
+      totalQuantity: 0,
+      currentPage: 1,
       isAllCustomersSelected: false,
-      customerSearchText: '',
+      customerSearchController: SearchController(),
       companyNameController: TextEditingController(),
       firstNameController: TextEditingController(),
       lastNameController: TextEditingController(),
@@ -118,8 +127,11 @@ class CustomerState {
     Option<Either<AbstractFailure, Customer>>? fosCustomerOnUpdateOption,
     Option<Either<List<AbstractFailure>, Unit>>? fosCustomersOnDeleteOption,
     Option<Either<AbstractFailure, MainSettings>>? fosCustomerMainSettingsOnObserveOption,
+    int? perPageQuantity,
+    int? totalQuantity,
+    int? currentPage,
     bool? isAllCustomersSelected,
-    String? customerSearchText,
+    SearchController? customerSearchController,
     TextEditingController? companyNameController,
     TextEditingController? firstNameController,
     TextEditingController? lastNameController,
@@ -148,8 +160,11 @@ class CustomerState {
       fosCustomerOnUpdateOption: fosCustomerOnUpdateOption ?? this.fosCustomerOnUpdateOption,
       fosCustomersOnDeleteOption: fosCustomersOnDeleteOption ?? this.fosCustomersOnDeleteOption,
       fosCustomerMainSettingsOnObserveOption: fosCustomerMainSettingsOnObserveOption ?? this.fosCustomerMainSettingsOnObserveOption,
+      perPageQuantity: perPageQuantity ?? this.perPageQuantity,
+      totalQuantity: totalQuantity ?? this.totalQuantity,
+      currentPage: currentPage ?? this.currentPage,
       isAllCustomersSelected: isAllCustomersSelected ?? this.isAllCustomersSelected,
-      customerSearchText: customerSearchText ?? this.customerSearchText,
+      customerSearchController: customerSearchController ?? this.customerSearchController,
       companyNameController: companyNameController ?? this.companyNameController,
       firstNameController: firstNameController ?? this.firstNameController,
       lastNameController: lastNameController ?? this.lastNameController,

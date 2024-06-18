@@ -10,7 +10,7 @@ StatProductDetail _$StatProductDetailFromJson(Map<String, dynamic> json) =>
     StatProductDetail(
       id: json['id'] as String,
       productId: json['productId'] as String,
-      receiptTyp: $enumDecode(_$ReceiptTypEnumMap, json['receiptTyp']),
+      receiptTyp: $enumDecode(_$ReceiptTypeEnumMap, json['receiptTyp']),
       receiptId: json['receiptId'] as String,
       uniqueReceiptId: json['uniqueReceiptId'] as String,
       receiptNumber: (json['receiptNumber'] as num).toInt(),
@@ -25,7 +25,7 @@ Map<String, dynamic> _$StatProductDetailToJson(StatProductDetail instance) =>
     <String, dynamic>{
       'id': instance.id,
       'productId': instance.productId,
-      'receiptTyp': _$ReceiptTypEnumMap[instance.receiptTyp]!,
+      'receiptTyp': _$ReceiptTypeEnumMap[instance.receiptTyp]!,
       'receiptId': instance.receiptId,
       'uniqueReceiptId': instance.uniqueReceiptId,
       'receiptNumber': instance.receiptNumber,
@@ -36,10 +36,10 @@ Map<String, dynamic> _$StatProductDetailToJson(StatProductDetail instance) =>
       'creationDate': instance.creationDate.toIso8601String(),
     };
 
-const _$ReceiptTypEnumMap = {
-  ReceiptTyp.appointment: 'appointment',
-  ReceiptTyp.offer: 'offer',
-  ReceiptTyp.deliveryNote: 'deliveryNote',
-  ReceiptTyp.invoice: 'invoice',
-  ReceiptTyp.credit: 'credit',
+const _$ReceiptTypeEnumMap = {
+  ReceiptType.appointment: 'appointment',
+  ReceiptType.offer: 'offer',
+  ReceiptType.deliveryNote: 'deliveryNote',
+  ReceiptType.invoice: 'invoice',
+  ReceiptType.credit: 'credit',
 };

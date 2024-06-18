@@ -38,11 +38,6 @@ class ProductOptionsSheet extends StatelessWidget {
             title: Text('Neuer Artikel'),
           ),
           ListTile(
-            leading: Icon(Icons.delete, color: isActive ? Colors.red : Colors.grey),
-            title: Text('Ausgewählte löschen', style: TextStyle(color: isActive ? null : Colors.grey)),
-            onTap: isActive ? () => onRemovePressed(context, productBloc, products) : null,
-          ),
-          ListTile(
             leading: Icon(FontAwesomeIcons.diagramProject, color: isActive ? CustomColors.primaryColor : Colors.grey, size: 20),
             title: Text('Massenbearbeitung', style: TextStyle(color: isActive ? null : Colors.grey)),
             onTap: !isActive
@@ -68,6 +63,11 @@ class ProductOptionsSheet extends StatelessWidget {
             title: Text('CSV/Excel Export', style: TextStyle(color: isActive ? null : Colors.grey)),
             onTap: isActive ? () async => await generateTableExportFromProductsOverview(context, iconButtonKey, products) : null,
           ),
+          ListTile(
+            leading: Icon(Icons.delete, color: isActive ? Colors.red : Colors.grey),
+            title: Text('Ausgewählte löschen', style: TextStyle(color: isActive ? null : Colors.grey)),
+            onTap: isActive ? () => onRemovePressed(context, productBloc, products) : null,
+          ),
         ],
       ),
     );
@@ -75,11 +75,6 @@ class ProductOptionsSheet extends StatelessWidget {
 }
 
 void onRemovePressed(BuildContext context, ProductBloc productBloc, List<Product> selectedProducts) {
-  if (selectedProducts.isEmpty) {
-    showMyDialogAlert(context: context, title: 'Achtung!', content: 'Bitte wähle mindestens einen Artikel aus.');
-    return;
-  }
-
   if (selectedProducts.any((e) => e.listOfIsPartOfSetIds.isNotEmpty)) {
     showMyDialogAlert(
         context: context,

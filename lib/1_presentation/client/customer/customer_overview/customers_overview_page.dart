@@ -34,32 +34,14 @@ class CustomersOverviewPage extends StatelessWidget {
         }
 
         return Expanded(
-          child: ListView.separated(
-            itemCount: state.listOfFilteredCustomers!.length,
-            itemBuilder: (context, index) {
-              final customer = state.listOfFilteredCustomers![index];
-              if (index == 0) {
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Checkbox.adaptive(
-                          value: state.isAllCustomersSelected,
-                          onChanged: (value) => customerBloc.add(OnSelectAllCustomersEvent(isSelected: value!)),
-                        ),
-                        const Expanded(child: Text('Kunde', style: TextStyles.h3Bold)),
-                        const Expanded(child: Text('Adresse', style: TextStyles.h3Bold)),
-                      ],
-                    ),
-                    _CustomerContainer(customer: customer, index: index, customerBloc: customerBloc),
-                  ],
-                );
-              } else {
-                return _CustomerContainer(customer: customer, index: index, customerBloc: customerBloc);
-              }
-            },
-            separatorBuilder: (context, index) => const Divider(),
+          child: Scrollbar(
+            child: ListView.separated(
+              itemCount: state.listOfFilteredCustomers!.length,
+              separatorBuilder: (context, index) => const Divider(indent: 45, endIndent: 20),
+              itemBuilder: (context, index) {
+                return _CustomerContainer(customer: state.listOfFilteredCustomers![index], index: index, customerBloc: customerBloc);
+              },
+            ),
           ),
         );
       },
@@ -80,60 +62,58 @@ class _CustomerContainer extends StatelessWidget {
     invoiceAddress ??= Address.empty();
     Address? deliveryAddress = customer.listOfAddress.where((e) => e.addressType == AddressType.delivery && e.isDefault).firstOrNull;
     deliveryAddress ??= Address.empty();
+
     return BlocBuilder<CustomerBloc, CustomerState>(
       bloc: customerBloc,
       builder: (context, state) {
-        return Container(
-          color: Colors.white,
-          child: Row(
-            children: [
-              Checkbox.adaptive(
-                value: state.selectedCustomers.any((e) => e.id == customer.id),
-                onChanged: (_) => customerBloc.add(OnCustomerSelectedEvent(customer: customer)),
-              ),
-              Expanded(
-                child: InkWell(
-                  onTap: () {
-                    customerBloc.add(GetCustomerEvent(customer: customer));
-                    context.router.push(CustomerDetailRoute(customerBloc: customerBloc, customerCreateOrEdit: CustomerCreateOrEdit.edit));
-                  },
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(customer.customerNumber.toString()),
-                      if (invoiceAddress!.companyName != '') Text(invoiceAddress.companyName),
-                      Text(customer.name),
-                      Text(DateFormat('dd.MM.yyy', 'de').format(customer.creationDate)),
-                    ],
-                  ),
-                ),
-              ),
-              Expanded(
+        return Row(
+          children: [
+            Checkbox.adaptive(
+              value: state.selectedCustomers.any((e) => e.id == customer.id),
+              onChanged: (_) => customerBloc.add(OnCustomerSelectedEvent(customer: customer)),
+            ),
+            Expanded(
+              child: InkWell(
+                onTap: () {
+                  customerBloc.add(GetCustomerEvent(customer: customer));
+                  context.router.push(CustomerDetailRoute(customerBloc: customerBloc, customerCreateOrEdit: CustomerCreateOrEdit.edit));
+                },
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(invoiceAddress.street),
-                    Text.rich(
-                      TextSpan(
-                        children: [
-                          TextSpan(text: invoiceAddress.postcode),
-                          const TextSpan(text: ' '),
-                          TextSpan(text: invoiceAddress.city),
-                        ],
-                      ),
-                    ),
-                    Row(
-                      children: [
-                        Text(invoiceAddress.country.name),
-                        Gaps.w8,
-                        MyCountryFlag(country: invoiceAddress.country, size: 12),
-                      ],
-                    ),
+                    Text(customer.customerNumber.toString()),
+                    if (invoiceAddress!.companyName != '') Text(invoiceAddress.companyName),
+                    Text(customer.name),
+                    Text(DateFormat('dd.MM.yyy', 'de').format(customer.creationDate)),
                   ],
                 ),
               ),
-            ],
-          ),
+            ),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(invoiceAddress.street),
+                  Text.rich(
+                    TextSpan(
+                      children: [
+                        TextSpan(text: invoiceAddress.postcode),
+                        const TextSpan(text: ' '),
+                        TextSpan(text: invoiceAddress.city),
+                      ],
+                    ),
+                  ),
+                  Row(
+                    children: [
+                      Text(invoiceAddress.country.name),
+                      Gaps.w8,
+                      MyCountryFlag(country: invoiceAddress.country, size: 12),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
         );
       },
     );

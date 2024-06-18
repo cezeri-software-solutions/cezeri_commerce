@@ -26,17 +26,18 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
         super(CustomerState.initial()) {
     on<SetCustomerStateToInitialEvent>(_onSetCustomerStateToInitial);
     on<GetAllCustomersEvent>(_onGetAllCustomers);
+    on<GetCustomersPerPageEvent>(_onGetCustomersPerPage);
     on<SetCustomerEvent>(_onSetCustomer);
     on<GetCustomerEvent>(_onGetCustomer);
     on<SetEmptyCustomerOnCreateNewCustomerEvent>(_onSetEmptyCustomerOnCreateNewCustomer);
     on<CreateCustomerEvent>(_onCreateCustomer);
     on<UpdateCustomerEvent>(_onUpdateCustomer);
     on<DeleteSelectedCustomersEvent>(_onDeleteSelectedCustomers);
-    on<SetSearchFieldTextEvent>(_onSetSearchFieldText);
-    on<OnSearchFieldSubmittedEvent>(_onSearchFieldSubmitted);
+    on<CustomerSearchFieldClearedEvent>(_onOnSearchFieldCleared);
     on<OnSelectAllCustomersEvent>(_onSelectAllCustomers);
     on<OnCustomerSelectedEvent>(_onCustomerSelected);
     on<SetCustomerTaxEvent>(_onSetCustomerTax);
+    on<CustomerItemsPerPageChangedEvent>(_onItemsPerPageChanged);
     on<OnCustomerInvoiceTypeChangedEvent>(_onCustomerInvoiceTypeChanged);
     on<OnAddEditCustomerAddressEvent>(_onAddEditCustomerAddress);
     on<SetCustomerControllerEvent>(_onSetCustomerController);
@@ -55,13 +56,49 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
       (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
       (customers) {
         emit(state.copyWith(listOfAllCustomers: customers, selectedCustomers: [], firebaseFailure: null, isAnyFailure: false));
-        add(OnSearchFieldSubmittedEvent());
       },
     );
 
     emit(state.copyWith(
       isLoadingCustomersOnObserve: false,
       fosCustomersOnObserveOption: optionOf(failureOrCustomers),
+    ));
+    emit(state.copyWith(fosCustomersOnObserveOption: none()));
+  }
+
+  Future<void> _onGetCustomersPerPage(GetCustomersPerPageEvent event, Emitter<CustomerState> emit) async {
+    emit(state.copyWith(isLoadingCustomersOnObserve: true));
+
+    if (event.calcCount) {
+      final fosCount = await _customerRepository.getTotalNumberOfCustomersBySearchText(state.customerSearchController.text);
+      fosCount.fold(
+        (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
+        (countNumber) => emit(state.copyWith(totalQuantity: countNumber, firebaseFailure: null, isAnyFailure: false)),
+      );
+    }
+
+    final fos = await _customerRepository.getListOfCustomersPerPageBySearchText(
+      searchText: state.customerSearchController.text,
+      currentPage: event.currentPage,
+      itemsPerPage: state.perPageQuantity,
+    );
+
+    fos.fold(
+      (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
+      (listOfCustomers) {
+        emit(state.copyWith(
+          listOfAllCustomers: listOfCustomers,
+          listOfFilteredCustomers: listOfCustomers,
+          currentPage: event.currentPage,
+          firebaseFailure: null,
+          isAnyFailure: false,
+        ));
+      },
+    );
+
+    emit(state.copyWith(
+      isLoadingCustomersOnObserve: false,
+      fosCustomersOnObserveOption: optionOf(fos),
     ));
     emit(state.copyWith(fosCustomersOnObserveOption: none()));
   }
@@ -160,13 +197,8 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
     emit(state.copyWith(fosCustomersOnDeleteOption: none()));
   }
 
-  Future<void> _onSetSearchFieldText(SetSearchFieldTextEvent event, Emitter<CustomerState> emit) async {
-    emit(state.copyWith(customerSearchText: event.searchText));
-    add(OnSearchFieldSubmittedEvent());
-  }
-
-  Future<void> _onSearchFieldSubmitted(OnSearchFieldSubmittedEvent event, Emitter<CustomerState> emit) async {
-    final searchText = state.customerSearchText.toLowerCase();
+  Future<void> _onOnSearchFieldCleared(CustomerSearchFieldClearedEvent event, Emitter<CustomerState> emit) async {
+    final searchText = state.customerSearchController.text.toLowerCase();
     final filteredCustomers = switch (searchText) {
       '' => state.listOfAllCustomers,
       _ => state.listOfAllCustomers!.where((customer) {
@@ -205,6 +237,11 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
   Future<void> _onSetCustomerTax(SetCustomerTaxEvent event, Emitter<CustomerState> emit) async {
     final updatedCustomer = state.customer?.copyWith(tax: event.tax);
     emit(state.copyWith(customer: updatedCustomer));
+  }
+
+  void _onItemsPerPageChanged(CustomerItemsPerPageChangedEvent event, Emitter<CustomerState> emit) {
+    emit(state.copyWith(perPageQuantity: event.value));
+    add(GetCustomersPerPageEvent(calcCount: false, currentPage: 1));
   }
 
   Future<void> _onCustomerInvoiceTypeChanged(OnCustomerInvoiceTypeChangedEvent event, Emitter<CustomerState> emit) async {

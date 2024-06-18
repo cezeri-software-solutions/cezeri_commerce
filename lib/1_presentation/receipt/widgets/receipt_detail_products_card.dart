@@ -4,10 +4,9 @@ import 'package:cezeri_commerce/1_presentation/core/widgets/my_circular_progress
 import 'package:cezeri_commerce/3_domain/entities/receipt/receipt_product.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 
-import '../../../2_application/database/receipt/receipt_bloc.dart';
 import '../../../2_application/database/receipt_detail/receipt_detail_bloc.dart';
+import '../../../2_application/database/receipt_detail_products/receipt_detail_products_bloc.dart';
 import '../../../3_domain/entities/product/product.dart';
 import '../../../constants.dart';
 import '../../core/functions/dialogs.dart';
@@ -15,10 +14,10 @@ import '../../core/widgets/my_text_form_field_small_double.dart';
 import 'receipt_detail_select_products.dart';
 
 class ReceiptDetailProductsCard extends StatefulWidget {
-  final ReceiptBloc receiptBloc;
   final ReceiptDetailBloc receiptDetailBloc;
+  final ReceiptDetailProductsBloc receiptDetailProductsBloc;
 
-  const ReceiptDetailProductsCard({super.key, required this.receiptBloc, required this.receiptDetailBloc});
+  const ReceiptDetailProductsCard({super.key, required this.receiptDetailBloc, required this.receiptDetailProductsBloc});
 
   @override
   State<ReceiptDetailProductsCard> createState() => _ReceiptDetailProductsCardState();
@@ -31,14 +30,10 @@ class _ReceiptDetailProductsCardState extends State<ReceiptDetailProductsCard> {
 
   @override
   Widget build(BuildContext context) {
-    print('################################################################');
-    print('#### DOGRU YERDEYIM ###########################################################');
-    print('################################################################');
-
     return MultiBlocListener(
       listeners: [
-        BlocListener<ReceiptBloc, ReceiptState>(
-          bloc: widget.receiptBloc,
+        BlocListener<ReceiptDetailBloc, ReceiptDetailState>(
+          bloc: widget.receiptDetailBloc,
           listenWhen: (p, c) => p.fosProductOnObserveOption != c.fosProductOnObserveOption,
           listener: (context, state) {
             state.fosProductOnObserveOption.fold(
@@ -46,7 +41,7 @@ class _ReceiptDetailProductsCardState extends State<ReceiptDetailProductsCard> {
               (a) => a.fold(
                 (failure) => setState(() => _errorMessageEanNotFound = 'Artikel konnten nicht aus der Datenbank geladen werden'),
                 (product) {
-                  widget.receiptDetailBloc.add(AddProductToReceiptProductsEvent(receiptProduct: ReceiptProduct.fromProduct(product)));
+                  widget.receiptDetailProductsBloc.add(AddProductToReceiptProductsEvent(receiptProduct: ReceiptProduct.fromProduct(product)));
                   setState(() => _errorMessageEanNotFound = '');
                 },
               ),
@@ -54,11 +49,11 @@ class _ReceiptDetailProductsCardState extends State<ReceiptDetailProductsCard> {
           },
         ),
       ],
-      child: BlocBuilder<ReceiptDetailBloc, ReceiptDetailState>(
-        bloc: widget.receiptDetailBloc,
+      child: BlocBuilder<ReceiptDetailProductsBloc, ReceiptDetailProductsState>(
+        bloc: widget.receiptDetailProductsBloc,
         builder: (context, state) {
-          return BlocBuilder<ReceiptBloc, ReceiptState>(
-            bloc: widget.receiptBloc,
+          return BlocBuilder<ReceiptDetailBloc, ReceiptDetailState>(
+            bloc: widget.receiptDetailBloc,
             builder: (context, stateProduct) {
               if (state.isInScanMode) FocusScope.of(context).requestFocus(scannerFocusNode);
 
@@ -76,12 +71,11 @@ class _ReceiptDetailProductsCardState extends State<ReceiptDetailProductsCard> {
                             maxWidth: 200,
                             focusNode: scannerFocusNode,
                             controller: state.barcodeScannerController,
-                            onTap: () => widget.receiptDetailBloc.add(SetIsInScanModeEvent(isInScanMode: true)),
-                            onTapOutside: (_) => widget.receiptDetailBloc.add(SetIsInScanModeEvent(isInScanMode: false)),
+                            onTap: () => widget.receiptDetailProductsBloc.add(SetIsInScanModeEvent(isInScanMode: true)),
+                            onTapOutside: (_) => widget.receiptDetailProductsBloc.add(SetIsInScanModeEvent(isInScanMode: false)),
                             onChanged: (value) => _onEanScanned(
                               value,
-                              stateProduct.listOfAllProducts,
-                              stateProduct.product,
+                              stateProduct.productByEan,
                               state.listOfReceiptProducts,
                             ),
                           ),
@@ -163,7 +157,7 @@ class _ReceiptDetailProductsCardState extends State<ReceiptDetailProductsCard> {
                                       readOnly: !state.isEditable[index],
                                       inputFormatters: const [],
                                       controller: state.articleNumberControllers[index],
-                                      onChanged: (_) => widget.receiptDetailBloc.add(SetArticleNumberControllerEvent(index: index)),
+                                      onChanged: (_) => widget.receiptDetailProductsBloc.add(SetArticleNumberControllerEvent(index: index)),
                                       onTapOutside: (_) => FocusScope.of(context).unfocus(),
                                     ),
                                   ),
@@ -174,7 +168,7 @@ class _ReceiptDetailProductsCardState extends State<ReceiptDetailProductsCard> {
                                       readOnly: !state.isEditable[index],
                                       inputFormatters: const [],
                                       controller: state.articleNameControllers[index],
-                                      onChanged: (_) => widget.receiptDetailBloc.add(SetArticleNameControllerEvent(index: index)),
+                                      onChanged: (_) => widget.receiptDetailProductsBloc.add(SetArticleNameControllerEvent(index: index)),
                                       onTapOutside: (_) => FocusScope.of(context).unfocus(),
                                     ),
                                   ),
@@ -191,9 +185,9 @@ class _ReceiptDetailProductsCardState extends State<ReceiptDetailProductsCard> {
                                     flex: RWRDP.quantity,
                                     child: MyTextFormFieldSmallDouble(
                                       controller: state.quantityControllers[index],
-                                      onChanged: (value) => widget.receiptDetailBloc.add(SetQuantityControllerEvent(index: index)),
+                                      onChanged: (value) => widget.receiptDetailProductsBloc.add(SetQuantityControllerEvent(index: index)),
                                       onTapOutside: (_) {
-                                        widget.receiptDetailBloc.add(SetAllControllersEvent());
+                                        widget.receiptDetailProductsBloc.add(SetAllControllersEvent());
                                         FocusScope.of(context).unfocus();
                                       },
                                     ),
@@ -203,7 +197,7 @@ class _ReceiptDetailProductsCardState extends State<ReceiptDetailProductsCard> {
                                     flex: RWRDP.unitPriceNet,
                                     child: MyTextFormFieldSmallDouble(
                                       controller: state.unitPriceNetControllers[index],
-                                      onChanged: (_) => widget.receiptDetailBloc.add(SetUnitPriceNetControllerEvent(index: index)),
+                                      onChanged: (_) => widget.receiptDetailProductsBloc.add(SetUnitPriceNetControllerEvent(index: index)),
                                       onTapOutside: (_) => FocusScope.of(context).unfocus(),
                                     ),
                                   ),
@@ -212,7 +206,7 @@ class _ReceiptDetailProductsCardState extends State<ReceiptDetailProductsCard> {
                                     flex: RWRDP.discountGrossUnit,
                                     child: MyTextFormFieldSmallDouble(
                                       controller: state.posDiscountPercentControllers[index],
-                                      onChanged: (_) => widget.receiptDetailBloc.add(SetPosDiscountPercentControllerEvent(index: index)),
+                                      onChanged: (_) => widget.receiptDetailProductsBloc.add(SetPosDiscountPercentControllerEvent(index: index)),
                                       onTapOutside: (_) => FocusScope.of(context).unfocus(),
                                       suffix: const Text('% '),
                                     ),
@@ -222,7 +216,7 @@ class _ReceiptDetailProductsCardState extends State<ReceiptDetailProductsCard> {
                                     flex: RWRDP.unitPriceGross,
                                     child: MyTextFormFieldSmallDouble(
                                       controller: state.unitPriceGrossControllers[index],
-                                      onChanged: (_) => widget.receiptDetailBloc.add(SetUnitPriceGrossControllerEvent(index: index)),
+                                      onChanged: (_) => widget.receiptDetailProductsBloc.add(SetUnitPriceGrossControllerEvent(index: index)),
                                       onTapOutside: (_) => FocusScope.of(context).unfocus(),
                                     ),
                                   ),
@@ -242,7 +236,7 @@ class _ReceiptDetailProductsCardState extends State<ReceiptDetailProductsCard> {
                                         content:
                                             'Bist du sicher, dass du den Artikel "//${state.listOfReceiptProducts[index].name}" unwiederruflich löschen willst?',
                                         onConfirm: () {
-                                          widget.receiptDetailBloc.add(RemoveProductFromReceiptProductsEvent(index: index));
+                                          widget.receiptDetailProductsBloc.add(RemoveProductFromReceiptProductsEvent(index: index));
                                           context.router.pop();
                                         },
                                       ),
@@ -266,27 +260,11 @@ class _ReceiptDetailProductsCardState extends State<ReceiptDetailProductsCard> {
                           TextButton.icon(
                             icon: const Icon(Icons.add, color: Colors.green),
                             label: const Text('Aus Artikelliste'),
-                            onPressed: () {
-                              WoltModalSheet.show(
-                                context: context,
-                                useSafeArea: false,
-                                showDragHandle: false,
-                                pageListBuilder: (context) {
-                                  return [
-                                    WoltModalSheetPage(
-                                      hasTopBarLayer: true,
-                                      isTopBarLayerAlwaysVisible: true,
-                                      forceMaxHeight: true,
-                                      topBarTitle: const Text('Artikel auswählen', style: TextStyles.h2Bold),
-                                      child: ReceiptDetailSelectProducts(receiptDetailBloc: widget.receiptDetailBloc),
-                                    ),
-                                  ];
-                                },
-                              );
-                            },
+                            onPressed: () => showReceiptDetailSelectProducts(context, widget.receiptDetailProductsBloc),
                           ),
                           TextButton.icon(
-                            onPressed: () => widget.receiptDetailBloc.add(AddProductToReceiptProductsEvent(receiptProduct: ReceiptProduct.empty())),
+                            onPressed: () =>
+                                widget.receiptDetailProductsBloc.add(AddProductToReceiptProductsEvent(receiptProduct: ReceiptProduct.empty())),
                             icon: const Icon(Icons.add, color: Colors.green),
                             label: const Text('Leeres Feld'),
                           ),
@@ -303,18 +281,18 @@ class _ReceiptDetailProductsCardState extends State<ReceiptDetailProductsCard> {
     );
   }
 
-  void _onEanScanned(String value, List<Product>? listOfAllProducts, Product? product, List<ReceiptProduct> listOfReceiptProducts) {
+  void _onEanScanned(String value, Product? product, List<ReceiptProduct> listOfReceiptProducts) {
     if (value.length == 13) {
       if (product != null && product.ean == value) {
-        widget.receiptDetailBloc.add(AddProductToReceiptProductsEvent(receiptProduct: ReceiptProduct.fromProduct(product)));
+        widget.receiptDetailProductsBloc.add(AddProductToReceiptProductsEvent(receiptProduct: ReceiptProduct.fromProduct(product)));
         return;
       }
       if (listOfReceiptProducts.any((e) => e.ean == value)) {
         final index = listOfReceiptProducts.indexWhere((e) => e.ean == value);
-        widget.receiptDetailBloc.add(AddProductToReceiptProductsEvent(receiptProduct: listOfReceiptProducts[index]));
+        widget.receiptDetailProductsBloc.add(AddProductToReceiptProductsEvent(receiptProduct: listOfReceiptProducts[index]));
         return;
       }
-      widget.receiptBloc.add(GetProductByEanEvent(ean: value));
+      widget.receiptDetailBloc.add(ReceiptDetailGetProductByEanEvent(ean: value));
     }
   }
 }

@@ -56,7 +56,7 @@ class PdfReceiptGenerator {
             buildAppointmentInformations(receipt),
             pw.SizedBox(height: 30),
             buildPositions(receipt),
-            if (receipt.receiptTyp != ReceiptTyp.deliveryNote) ...[
+            if (receipt.receiptTyp != ReceiptType.deliveryNote) ...[
               pw.Divider(thickness: 0.5),
               buildTotalAmount(receipt),
               pw.SizedBox(height: 10),
@@ -81,11 +81,11 @@ class PdfReceiptGenerator {
   static pw.Widget buildTitle(Receipt receipt) {
     final style = pw.TextStyle(fontSize: 22, fontWeight: pw.FontWeight.bold);
     return switch (receipt.receiptTyp) {
-      ReceiptTyp.offer => PdfText('Angebot', style: style),
-      ReceiptTyp.appointment => PdfText('Auftrag', style: style),
-      ReceiptTyp.deliveryNote => PdfText('Lieferschein', style: style),
-      ReceiptTyp.invoice => PdfText('Rechnung', style: style),
-      ReceiptTyp.credit => PdfText('Rechnungskorrektur', style: style),
+      ReceiptType.offer => PdfText('Angebot', style: style),
+      ReceiptType.appointment => PdfText('Auftrag', style: style),
+      ReceiptType.deliveryNote => PdfText('Lieferschein', style: style),
+      ReceiptType.invoice => PdfText('Rechnung', style: style),
+      ReceiptType.credit => PdfText('Rechnungskorrektur', style: style),
     };
   }
 
@@ -154,10 +154,10 @@ class PdfReceiptGenerator {
                   children: [
                     PdfText('Beleg Nr.:'),
                     switch (receipt.receiptTyp) {
-                      ReceiptTyp.offer => PdfText(receipt.offerNumberAsString),
-                      ReceiptTyp.appointment => PdfText(receipt.appointmentNumberAsString),
-                      ReceiptTyp.deliveryNote => PdfText(receipt.deliveryNoteNumberAsString),
-                      ReceiptTyp.invoice || ReceiptTyp.credit => PdfText(receipt.invoiceNumberAsString),
+                      ReceiptType.offer => PdfText(receipt.offerNumberAsString),
+                      ReceiptType.appointment => PdfText(receipt.appointmentNumberAsString),
+                      ReceiptType.deliveryNote => PdfText(receipt.deliveryNoteNumberAsString),
+                      ReceiptType.invoice || ReceiptType.credit => PdfText(receipt.invoiceNumberAsString),
                     },
                   ],
                 ),
@@ -177,7 +177,7 @@ class PdfReceiptGenerator {
 
   static pw.Widget buildPositions(Receipt receipt) {
     final headers = switch (receipt.receiptTyp) {
-      ReceiptTyp.deliveryNote => [
+      ReceiptType.deliveryNote => [
           'Pos.',
           'Artikelnummer / Bezeichnung',
           'Menge',
@@ -197,7 +197,7 @@ class PdfReceiptGenerator {
     int pos = 1;
     for (int i = 0; i < receipt.listOfReceiptProduct.length; i++) {
       final entry = switch (receipt.receiptTyp) {
-        ReceiptTyp.deliveryNote => [
+        ReceiptType.deliveryNote => [
             pos,
             '${receipt.listOfReceiptProduct[i].articleNumber}\n${receipt.listOfReceiptProduct[i].name}',
             '${receipt.listOfReceiptProduct[i].quantity} Stk.',
@@ -225,7 +225,7 @@ class PdfReceiptGenerator {
       headerAlignment: pw.Alignment.centerLeft,
       cellStyle: const pw.TextStyle(fontSize: 8),
       columnWidths: switch (receipt.receiptTyp) {
-        ReceiptTyp.deliveryNote => {
+        ReceiptType.deliveryNote => {
             0: const pw.FlexColumnWidth(4),
             1: const pw.FlexColumnWidth(54),
             3: const pw.FlexColumnWidth(10),
@@ -241,7 +241,7 @@ class PdfReceiptGenerator {
           },
       },
       headerAlignments: switch (receipt.receiptTyp) {
-        ReceiptTyp.deliveryNote => {
+        ReceiptType.deliveryNote => {
             0: pw.Alignment.topLeft,
             1: pw.Alignment.topLeft,
             3: pw.Alignment.topRight,
@@ -257,7 +257,7 @@ class PdfReceiptGenerator {
           },
       },
       cellAlignments: switch (receipt.receiptTyp) {
-        ReceiptTyp.deliveryNote => {
+        ReceiptType.deliveryNote => {
             0: pw.Alignment.topLeft,
             1: pw.Alignment.topLeft,
             3: pw.Alignment.topRight,

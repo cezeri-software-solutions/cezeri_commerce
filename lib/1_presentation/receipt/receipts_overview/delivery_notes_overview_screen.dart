@@ -6,12 +6,12 @@ import 'receipts_overview_screen.dart';
 
 @RoutePage()
 class DeliveryNotesOverviewScreen extends StatelessWidget {
-  final ReceiptTyp receiptTyp;
+  final ReceiptType receiptTyp;
 
   const DeliveryNotesOverviewScreen({super.key, required this.receiptTyp});
 
   @override
   Widget build(BuildContext context) {
-    return ReceiptsOverviewScreen(receiptTyp: receiptTyp);
+    return ReceiptsOverviewScreen(receiptType: receiptTyp);
   }
 }

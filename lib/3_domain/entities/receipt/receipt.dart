@@ -33,7 +33,7 @@ import 'receipt_product.dart';
 part 'receipt.g.dart';
 
 // Ob es eine Rechnung oder eine Gutschrift ist
-enum ReceiptTyp {
+enum ReceiptType {
   appointment,
   offer,
   deliveryNote,
@@ -80,7 +80,7 @@ class Receipt extends Equatable {
   final ReceiptCustomer receiptCustomer; //* damit nicht zu jeder Bestellung zusätzlich der Kunde von Firebase geladen werden muss.
   final Address addressInvoice;
   final Address addressDelivery;
-  final ReceiptTyp receiptTyp;
+  final ReceiptType receiptTyp;
   final OfferStatus offerStatus;
   final AppointmentStatus appointmentStatus;
   final PaymentStatus paymentStatus;
@@ -230,7 +230,7 @@ class Receipt extends Equatable {
     return offer.copyWith(
       appointmentId: nextAppointmentNumber,
       appointmentNumberAsString: settings.appointmentPraefix + nextAppointmentNumber.toString(),
-      receiptTyp: ReceiptTyp.appointment,
+      receiptTyp: ReceiptType.appointment,
       receiptDocumentText: settings.appointmentDocumentText,
       creationDate: now,
       creationDateInt: now.microsecondsSinceEpoch,
@@ -252,7 +252,7 @@ class Receipt extends Equatable {
       deliveryNoteNumberAsString: settings.deliveryNotePraefix + nextDeliveryNoteNumber.toString(),
       invoiceId: generateInvoice ? nextInvoiceNumber : appointment.invoiceId,
       invoiceNumberAsString: generateInvoice ? settings.invoicePraefix + nextInvoiceNumber.toString() : appointment.invoiceNumberAsString,
-      receiptTyp: ReceiptTyp.deliveryNote,
+      receiptTyp: ReceiptType.deliveryNote,
       receiptDocumentText: settings.deliveryNoteDocumentText,
       creationDate: now,
       creationDateInt: now.microsecondsSinceEpoch,
@@ -275,7 +275,7 @@ class Receipt extends Equatable {
           generateDeliveryNote ? settings.deliveryNotePraefix + nextDeliveryNoteNumber.toString() : appointment.deliveryNoteNumberAsString,
       invoiceId: nextInvoiceNumber,
       invoiceNumberAsString: settings.invoicePraefix + nextInvoiceNumber.toString(),
-      receiptTyp: ReceiptTyp.invoice,
+      receiptTyp: ReceiptType.invoice,
       appointmentStatus: AppointmentStatus.completed,
       receiptDocumentText: settings.invoiceDocumentText,
       creationDate: now,
@@ -296,7 +296,7 @@ class Receipt extends Equatable {
         deliveryNoteNumberAsString: deliveryNotes.first.deliveryNoteNumberAsString,
         invoiceId: settings.nextInvoiceNumber,
         invoiceNumberAsString: settings.invoicePraefix + settings.nextInvoiceNumber.toString(),
-        receiptTyp: ReceiptTyp.invoice,
+        receiptTyp: ReceiptType.invoice,
         appointmentStatus: AppointmentStatus.completed,
         receiptDocumentText: settings.invoiceDocumentText,
         creationDate: now,
@@ -342,7 +342,7 @@ class Receipt extends Equatable {
       listOfDeliveryNoteIds: listOfDeliveryNoteIds,
       invoiceId: settings.nextInvoiceNumber,
       invoiceNumberAsString: settings.invoicePraefix + settings.nextInvoiceNumber.toString(),
-      receiptTyp: ReceiptTyp.invoice,
+      receiptTyp: ReceiptType.invoice,
       appointmentStatus: AppointmentStatus.completed,
       receiptDocumentText: settings.invoiceDocumentText,
       weight: weight,
@@ -386,7 +386,7 @@ class Receipt extends Equatable {
     return invoice.copyWith(
       invoiceId: nextInvoiceNumber,
       invoiceNumberAsString: settings.creditPraefix + nextInvoiceNumber.toString(),
-      receiptTyp: ReceiptTyp.credit,
+      receiptTyp: ReceiptType.credit,
       receiptDocumentText: settings.creditDocumentText,
       creationDate: now,
       creationDateInt: now.microsecondsSinceEpoch,
@@ -643,7 +643,7 @@ class Receipt extends Equatable {
       receiptCustomer: ReceiptCustomer.fromCustomer(customer),
       addressInvoice: addressInvoice,
       addressDelivery: addressDelivery,
-      receiptTyp: ReceiptTyp.appointment,
+      receiptTyp: ReceiptType.appointment,
       offerStatus: OfferStatus.noOffer,
       appointmentStatus: AppointmentStatus.open,
       paymentStatus: getPaymentStatus(),
@@ -832,7 +832,7 @@ class Receipt extends Equatable {
       receiptCustomer: ReceiptCustomer.fromCustomer(customer),
       addressInvoice: addressInvoice,
       addressDelivery: addressDelivery,
-      receiptTyp: ReceiptTyp.appointment,
+      receiptTyp: ReceiptType.appointment,
       offerStatus: OfferStatus.noOffer,
       appointmentStatus: AppointmentStatus.open,
       paymentStatus: getPaymentStatus(),
@@ -888,7 +888,7 @@ class Receipt extends Equatable {
     );
   }
 
-  factory Receipt.empty() {
+  factory Receipt.empty({ReceiptType? receiptType}) {
     return Receipt(
       id: '',
       receiptId: '',
@@ -917,7 +917,7 @@ class Receipt extends Equatable {
       receiptCustomer: ReceiptCustomer.empty(),
       addressInvoice: Address.empty(),
       addressDelivery: Address.empty(),
-      receiptTyp: ReceiptTyp.appointment,
+      receiptTyp: receiptType ?? ReceiptType.appointment,
       offerStatus: OfferStatus.open,
       appointmentStatus: AppointmentStatus.open,
       paymentStatus: PaymentStatus.open,
@@ -1001,7 +1001,7 @@ class Receipt extends Equatable {
     ReceiptCustomer? receiptCustomer,
     Address? addressInvoice,
     Address? addressDelivery,
-    ReceiptTyp? receiptTyp,
+    ReceiptType? receiptTyp,
     OfferStatus? offerStatus,
     AppointmentStatus? appointmentStatus,
     PaymentStatus? paymentStatus,

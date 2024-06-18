@@ -1,118 +1,112 @@
 part of 'receipt_detail_bloc.dart';
 
-@immutable
 abstract class ReceiptDetailEvent {}
 
-class SetReceiptReceiptDetailEvent extends ReceiptDetailEvent {
+class SetReceiptDetailStatesToInitialEvent extends ReceiptDetailEvent {}
+
+class ReceiptDetailGetReceiptOrSetEmptyEvent extends ReceiptDetailEvent {
+  final String? receiptId;
+  final ReceiptType receiptType;
+
+  ReceiptDetailGetReceiptOrSetEmptyEvent({required this.receiptId, required this.receiptType});
+}
+
+class ReceiptDetailGetProductByEanEvent extends ReceiptDetailEvent {
+  final String ean;
+
+  ReceiptDetailGetProductByEanEvent({required this.ean});
+}
+
+class ReceiptDetailCreateParcelLabelReceiptEvent extends ReceiptDetailEvent {
+  final double weight;
+
+  ReceiptDetailCreateParcelLabelReceiptEvent({required this.weight});
+}
+
+class ReceiptDetailUpdateReceiptEvent extends ReceiptDetailEvent {
   final Receipt receipt;
-  final List<Tax> listOfTaxRules;
+  final List<ReceiptProduct> oldListOfReceiptProducts;
+  final List<ReceiptProduct> newListOfReceiptProducts;
 
-  SetReceiptReceiptDetailEvent({required this.receipt, required this.listOfTaxRules});
+  ReceiptDetailUpdateReceiptEvent({required this.receipt, required this.oldListOfReceiptProducts, required this.newListOfReceiptProducts});
 }
 
-class SetListOfReceiptProductssReceiptDetailEvent extends ReceiptDetailEvent {
+class ReceiptDetailCreateReceiptManuallyEvent extends ReceiptDetailEvent {
   final Receipt receipt;
-  final List<Tax> listOfTaxRules;
 
-  SetListOfReceiptProductssReceiptDetailEvent({required this.receipt, required this.listOfTaxRules});
+  ReceiptDetailCreateReceiptManuallyEvent({required this.receipt});
 }
 
-class AddProductToReceiptProductsEvent extends ReceiptDetailEvent {
-  final ReceiptProduct receiptProduct;
+//* ##############################################################################################################
+//* ##############################################################################################################
+//* ReceiptDetailAddressCard
 
-  AddProductToReceiptProductsEvent({required this.receiptProduct});
+class ReceiptDetailEditAddressEvent extends ReceiptDetailEvent {
+  final Address address;
+
+  ReceiptDetailEditAddressEvent({required this.address});
 }
 
-class RemoveProductFromReceiptProductsEvent extends ReceiptDetailEvent {
-  final int index;
+class ReceiptDetailUpdateCustomerEvent extends ReceiptDetailEvent {
+  final Customer customer;
 
-  RemoveProductFromReceiptProductsEvent({required this.index});
+  ReceiptDetailUpdateCustomerEvent({required this.customer});
 }
 
-class SetIsInScanModeEvent extends ReceiptDetailEvent {
-  final bool isInScanMode;
+//* ##############################################################################################################
+//* ##############################################################################################################
+//* ReceiptDetailGeneralCard
 
-  SetIsInScanModeEvent({required this.isInScanMode});
+class ReceiptDetailCustomerEmailChangedEvent extends ReceiptDetailEvent {
+  final String email;
+
+  ReceiptDetailCustomerEmailChangedEvent({required this.email});
 }
 
-class SetTotalDiscountPercentControllerEvent extends ReceiptDetailEvent {
-  final double value;
+class ReceiptDetailMarketplaceChangedEvent extends ReceiptDetailEvent {
+  final AbstractMarketplace marketplace;
 
-  SetTotalDiscountPercentControllerEvent({required this.value});
+  ReceiptDetailMarketplaceChangedEvent({required this.marketplace});
 }
 
-class SetTotalDiscountAmountGrossControllerEvent extends ReceiptDetailEvent {
-  final double value;
+class ReceiptDetailDeliveryBlockedChangedEvent extends ReceiptDetailEvent {
+  final bool value;
 
-  SetTotalDiscountAmountGrossControllerEvent({required this.value});
+  ReceiptDetailDeliveryBlockedChangedEvent({required this.value});
 }
 
-class SetShippingAmountGrossControllerEvent extends ReceiptDetailEvent {
-  final double value;
+//* ##############################################################################################################
+//* ##############################################################################################################
+//* ReceiptDetailPaymentMethodCard
 
-  SetShippingAmountGrossControllerEvent({required this.value});
+class ReceiptDetailPaymentMethodChangedEvent extends ReceiptDetailEvent {
+  final PaymentMethod paymentMethod;
+
+  ReceiptDetailPaymentMethodChangedEvent({required this.paymentMethod});
 }
 
-class SetAdditionalAmountGrossControllerEvent extends ReceiptDetailEvent {
-  final double value;
+class ReceiptDetailPaymentStatusChangedEvent extends ReceiptDetailEvent {
+  final String paymentStatus;
 
-  SetAdditionalAmountGrossControllerEvent({required this.value});
+  ReceiptDetailPaymentStatusChangedEvent({required this.paymentStatus});
 }
 
-class OnReceiptDetailTotalControllerChangedEvent extends ReceiptDetailEvent {}
+//* ##############################################################################################################
+//* ##############################################################################################################
+//* ReceiptDetailCarrierCard
 
-class SetControllerOnTapOutsideReceiptDetailEvent extends ReceiptDetailEvent {}
+class ReceiptDetailCarrierChangedEvent extends ReceiptDetailEvent {
+  final ReceiptCarrier receiptCarrier;
 
-//? #################################################################################################
-//? ################## Contollers ###################################################################
-
-class OnBarcodeScannedEvent extends ReceiptDetailEvent {}
-
-class SetAllControllersEvent extends ReceiptDetailEvent {
-  final List<ReceiptProduct>? listOfReceiptProducts;
-
-  SetAllControllersEvent({this.listOfReceiptProducts});
+  ReceiptDetailCarrierChangedEvent({required this.receiptCarrier});
 }
 
-class SetTaxRuleEvent extends ReceiptDetailEvent {
-  final Tax taxRule;
-  final int index;
+class ReceiptDetailCarrierProductChangedEvent extends ReceiptDetailEvent {
+  final CarrierProduct receiptCarrierProduct;
 
-  SetTaxRuleEvent({required this.taxRule, required this.index});
+  ReceiptDetailCarrierProductChangedEvent({required this.receiptCarrierProduct});
 }
 
-class SetArticleNumberControllerEvent extends ReceiptDetailEvent {
-  final int index;
-
-  SetArticleNumberControllerEvent({required this.index});
-}
-
-class SetArticleNameControllerEvent extends ReceiptDetailEvent {
-  final int index;
-
-  SetArticleNameControllerEvent({required this.index});
-}
-
-class SetQuantityControllerEvent extends ReceiptDetailEvent {
-  final int index;
-
-  SetQuantityControllerEvent({required this.index});
-}
-
-class SetUnitPriceNetControllerEvent extends ReceiptDetailEvent {
-  final int index;
-
-  SetUnitPriceNetControllerEvent({required this.index});
-}
-
-class SetPosDiscountPercentControllerEvent extends ReceiptDetailEvent {
-  final int index;
-
-  SetPosDiscountPercentControllerEvent({required this.index});
-}
-
-class SetUnitPriceGrossControllerEvent extends ReceiptDetailEvent {
-  final int index;
-
-  SetUnitPriceGrossControllerEvent({required this.index});
-}
+//* ##############################################################################################################
+//* ##############################################################################################################
+//* ReceiptDetailProductsCard

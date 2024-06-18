@@ -41,7 +41,7 @@ Receipt _$ReceiptFromJson(Map<String, dynamic> json) => Receipt(
           Address.fromJson(json['addressInvoice'] as Map<String, dynamic>),
       addressDelivery:
           Address.fromJson(json['addressDelivery'] as Map<String, dynamic>),
-      receiptTyp: $enumDecode(_$ReceiptTypEnumMap, json['receiptTyp']),
+      receiptTyp: $enumDecode(_$ReceiptTypeEnumMap, json['receiptTyp']),
       offerStatus: $enumDecode(_$OfferStatusEnumMap, json['offerStatus']),
       appointmentStatus:
           $enumDecode(_$AppointmentStatusEnumMap, json['appointmentStatus']),
@@ -144,7 +144,7 @@ Map<String, dynamic> _$ReceiptToJson(Receipt instance) => <String, dynamic>{
       'receiptCustomer': instance.receiptCustomer.toJson(),
       'addressInvoice': instance.addressInvoice.toJson(),
       'addressDelivery': instance.addressDelivery.toJson(),
-      'receiptTyp': _$ReceiptTypEnumMap[instance.receiptTyp]!,
+      'receiptTyp': _$ReceiptTypeEnumMap[instance.receiptTyp]!,
       'offerStatus': _$OfferStatusEnumMap[instance.offerStatus]!,
       'appointmentStatus':
           _$AppointmentStatusEnumMap[instance.appointmentStatus]!,
@@ -203,12 +203,12 @@ Map<String, dynamic> _$ReceiptToJson(Receipt instance) => <String, dynamic>{
       'lastEditingDate': instance.lastEditingDate.toIso8601String(),
     };
 
-const _$ReceiptTypEnumMap = {
-  ReceiptTyp.appointment: 'appointment',
-  ReceiptTyp.offer: 'offer',
-  ReceiptTyp.deliveryNote: 'deliveryNote',
-  ReceiptTyp.invoice: 'invoice',
-  ReceiptTyp.credit: 'credit',
+const _$ReceiptTypeEnumMap = {
+  ReceiptType.appointment: 'appointment',
+  ReceiptType.offer: 'offer',
+  ReceiptType.deliveryNote: 'deliveryNote',
+  ReceiptType.invoice: 'invoice',
+  ReceiptType.credit: 'credit',
 };
 
 const _$OfferStatusEnumMap = {

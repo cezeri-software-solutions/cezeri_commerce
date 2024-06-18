@@ -34,13 +34,13 @@ class StatProduct {
     required this.listOfStatProductDetail,
     required this.lastEditingDate,
     required this.creationDate,
-  })  : incomingOrders = _calcAmount(listOfStatProductDetail, ReceiptTyp.appointment),
-        salesVolume = _calcAmount(listOfStatProductDetail, ReceiptTyp.invoice),
-        offerVolume = _calcAmount(listOfStatProductDetail, ReceiptTyp.offer),
+  })  : incomingOrders = _calcAmount(listOfStatProductDetail, ReceiptType.appointment),
+        salesVolume = _calcAmount(listOfStatProductDetail, ReceiptType.invoice),
+        offerVolume = _calcAmount(listOfStatProductDetail, ReceiptType.offer),
         profit = _calcProfit(listOfStatProductDetail),
         numberOfItemsSold = _calcNumberOfItemsSold(listOfStatProductDetail);
 
-  static double _calcAmount(List<StatProductDetail> listOfStatProductDetail, ReceiptTyp receiptTyp) {
+  static double _calcAmount(List<StatProductDetail> listOfStatProductDetail, ReceiptType receiptTyp) {
     if (listOfStatProductDetail.isEmpty || listOfStatProductDetail.where((e) => e.receiptTyp == receiptTyp).firstOrNull == null) {
       return 0.0;
     }
@@ -49,17 +49,17 @@ class StatProduct {
   }
 
   static double _calcProfit(List<StatProductDetail> listOfStatProductDetail) {
-    if (listOfStatProductDetail.isEmpty || listOfStatProductDetail.where((e) => e.receiptTyp == ReceiptTyp.invoice).firstOrNull == null) {
+    if (listOfStatProductDetail.isEmpty || listOfStatProductDetail.where((e) => e.receiptTyp == ReceiptType.invoice).firstOrNull == null) {
       return 0.0;
     }
-    final list = listOfStatProductDetail.where((e) => e.receiptTyp == ReceiptTyp.invoice).toList();
+    final list = listOfStatProductDetail.where((e) => e.receiptTyp == ReceiptType.invoice).toList();
     return (list.map((e) => e.profit).toList().reduce((value, element) => value + element)).toMyRoundedDouble();
   }
 
   static int _calcNumberOfItemsSold(List<StatProductDetail> listOfStatProductDetail) {
     int count = 0;
     for (final statProductDetail in listOfStatProductDetail) {
-      if (statProductDetail.receiptTyp != ReceiptTyp.invoice) continue;
+      if (statProductDetail.receiptTyp != ReceiptType.invoice) continue;
       count = count += statProductDetail.quantity;
     }
     return count;

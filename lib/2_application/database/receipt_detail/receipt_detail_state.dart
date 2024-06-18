@@ -1,169 +1,113 @@
 part of 'receipt_detail_bloc.dart';
 
-@immutable
 class ReceiptDetailState {
-  final Receipt receipt;
-  final List<ReceiptProduct> listOfReceiptProducts;
-  final List<Tax> taxRulesListFromSettings;
-  //* Helper ProductsTotal
-  final double productsTotalNet;
-  final double productsTotalGross;
-  final double discountPercentageAmountGross;
-  final double taxAmount;
-  final double totalGross;
-  //* Controller ProductsTotal
-  final TextEditingController discountPercentageController;
-  final TextEditingController discountAmountGrossController;
-  final TextEditingController shippingAmountGrossController;
-  final TextEditingController additionalAmountGrossController;
-  //* Helper Products
-  final bool isInScanMode;
-  final double posDiscountPercentAmount;
-  final List<bool> isEditable;
-  //* Controller Products
-  final TextEditingController barcodeScannerController;
-  final List<TextEditingController> articleNumberControllers;
-  final List<TextEditingController> articleNameControllers;
-  final List<TextEditingController> quantityControllers;
-  final List<TextEditingController> unitPriceNetControllers;
-  final List<TextEditingController> posDiscountPercentControllers;
-  final List<TextEditingController> unitPriceGrossControllers;
+  final Receipt? receipt;
+  final MainSettings? mainSettings;
+  final List<AbstractMarketplace>? listOfMarketplaces;
+  final Product? productByEan;
+  final AbstractFailure? databaseFailure;
+  final AbstractFailure? marketplacesFailure;
+  final bool isLoadingReceiptOnObserve;
+  final bool isLoadingReceiptOnUpdate;
+  final bool isLoadingReceiptOnCreate;
+  final bool isLoadingReceiptOnDelete;
+  final bool isLoadingMarketplacesOnObserve;
+  final bool isLoadingProductOnObserve;
+  final bool isLoadingParcelLabelOnCreate;
+  final Option<Either<AbstractFailure, Receipt>> fosReceiptOnObserveOption;
+  final Option<Either<AbstractFailure, Unit>> fosReceiptOnUpdateOption;
+  final Option<Either<AbstractFailure, Receipt>> fosReceiptOnCreateOption;
+  final Option<Either<AbstractFailure, Unit>> fosReceiptOnDeleteOption;
+  final Option<Either<AbstractFailure, Product>> fosProductOnObserveOption;
+  final Option<Either<AbstractFailure, ParcelTracking>> fosParcelLabelOnCreate;
 
-  ReceiptDetailState({
+  const ReceiptDetailState({
     required this.receipt,
-    required this.listOfReceiptProducts,
-    required this.taxRulesListFromSettings,
-    required this.discountPercentageController,
-    required this.discountAmountGrossController,
-    required this.shippingAmountGrossController,
-    required this.additionalAmountGrossController,
-    required this.isInScanMode,
-    required this.isEditable,
-    required this.barcodeScannerController,
-    required this.articleNumberControllers,
-    required this.articleNameControllers,
-    required this.quantityControllers,
-    required this.unitPriceNetControllers,
-    required this.posDiscountPercentControllers,
-    required this.unitPriceGrossControllers,
-  })  : productsTotalNet = _calcProductsTotalNet(listOfReceiptProducts),
-        productsTotalGross = _calcProductsTotalGross(listOfReceiptProducts),
-        posDiscountPercentAmount = _calcPosDiscountPercentAmount(listOfReceiptProducts),
-        discountPercentageAmountGross = _calcDiscountPercentageAmount(listOfReceiptProducts, receipt.discountPercent),
-        taxAmount = _calcTaxAmount(
-          receipt.tax.taxRate,
-          _calcProductsTotalNet(listOfReceiptProducts),
-          _calcProductsTotalGross(listOfReceiptProducts),
-          _calcPosDiscountPercentAmount(listOfReceiptProducts),
-          _calcDiscountPercentageAmount(listOfReceiptProducts, receipt.discountPercent),
-          receipt.discountGross,
-          receipt.totalShippingGross,
-          receipt.additionalAmountGross,
-        ),
-        totalGross = _calcProductsTotalGross(listOfReceiptProducts) -
-            _calcPosDiscountPercentAmount(listOfReceiptProducts) -
-            _calcDiscountPercentageAmount(listOfReceiptProducts, receipt.discountPercent) -
-            receipt.discountGross +
-            receipt.totalShippingGross +
-            receipt.additionalAmountGross;
+    required this.mainSettings,
+    required this.listOfMarketplaces,
+    required this.productByEan,
+    required this.databaseFailure,
+    required this.marketplacesFailure,
+    required this.isLoadingReceiptOnObserve,
+    required this.isLoadingReceiptOnUpdate,
+    required this.isLoadingReceiptOnCreate,
+    required this.isLoadingReceiptOnDelete,
+    required this.isLoadingMarketplacesOnObserve,
+    required this.isLoadingProductOnObserve,
+    required this.isLoadingParcelLabelOnCreate,
+    required this.fosReceiptOnObserveOption,
+    required this.fosReceiptOnUpdateOption,
+    required this.fosReceiptOnCreateOption,
+    required this.fosReceiptOnDeleteOption,
+    required this.fosProductOnObserveOption,
+    required this.fosParcelLabelOnCreate,
+  });
 
-  static double _calcProductsTotalNet(List<ReceiptProduct> receiptProducts) {
-    return (receiptProducts.map((e) => e.unitPriceNet * e.quantity).toList().reduce((value, element) => value + element)).toMyRoundedDouble();
+  factory ReceiptDetailState.initial() {
+    return ReceiptDetailState(
+      receipt: null,
+      mainSettings: null,
+      listOfMarketplaces: null,
+      productByEan: null,
+      databaseFailure: null,
+      marketplacesFailure: null,
+      isLoadingReceiptOnObserve: false,
+      isLoadingReceiptOnUpdate: false,
+      isLoadingReceiptOnCreate: false,
+      isLoadingReceiptOnDelete: false,
+      isLoadingMarketplacesOnObserve: false,
+      isLoadingProductOnObserve: false,
+      isLoadingParcelLabelOnCreate: false,
+      fosReceiptOnObserveOption: none(),
+      fosReceiptOnUpdateOption: none(),
+      fosReceiptOnCreateOption: none(),
+      fosReceiptOnDeleteOption: none(),
+      fosProductOnObserveOption: none(),
+      fosParcelLabelOnCreate: none(),
+    );
   }
-
-  static double _calcProductsTotalGross(List<ReceiptProduct> receiptProducts) {
-    return (receiptProducts.map((e) => e.unitPriceGross * e.quantity).toList().reduce((value, element) => value + element)).toMyRoundedDouble();
-  }
-
-  static double _calcPosDiscountPercentAmount(List<ReceiptProduct> receiptProducts) {
-    double posPercentAmount = 0;
-    for (final product in receiptProducts) {
-      posPercentAmount += (calcPercentageAmount(product.unitPriceGross * product.quantity, product.discountPercent)).toMyRoundedDouble();
-    }
-    return posPercentAmount;
-  }
-
-  static double _calcDiscountPercentageAmount(List<ReceiptProduct> receiptProducts, double discountPercentage) {
-    return (calcPercentageAmount(_calcProductsTotalGross(receiptProducts), discountPercentage)).toMyRoundedDouble();
-  }
-
-  static double _calcTaxAmount(
-    int tax,
-    double productsTotalNet,
-    double procutsTotalGross,
-    double posDiscountPercentAmount,
-    double discountPercentageAmountGross,
-    double discountAmountGross,
-    double shippingAmountGross,
-    double additionalAmountGross,
-  ) {
-    return (procutsTotalGross - productsTotalNet) -
-        calcTaxAmountFromGross(posDiscountPercentAmount, tax).toMyRoundedDouble() -
-        calcTaxAmountFromGross(discountPercentageAmountGross, tax).toMyRoundedDouble() -
-        calcTaxAmountFromGross(discountAmountGross, tax).toMyRoundedDouble() +
-        calcTaxAmountFromGross(shippingAmountGross, tax).toMyRoundedDouble() +
-        calcTaxAmountFromGross(additionalAmountGross, tax).toMyRoundedDouble();
-  }
-
-  factory ReceiptDetailState.initial() => ReceiptDetailState(
-        receipt: Receipt.empty(),
-        listOfReceiptProducts: [ReceiptProduct.empty()],
-        taxRulesListFromSettings: const [],
-        discountPercentageController: TextEditingController(text: '0'),
-        discountAmountGrossController: TextEditingController(text: '0'),
-        shippingAmountGrossController: TextEditingController(text: '0'),
-        additionalAmountGrossController: TextEditingController(text: '0'),
-        isInScanMode: false,
-        isEditable: const [],
-        barcodeScannerController: TextEditingController(),
-        articleNumberControllers: const [],
-        articleNameControllers: const [],
-        quantityControllers: const [],
-        unitPriceNetControllers: const [],
-        posDiscountPercentControllers: const [],
-        unitPriceGrossControllers: const [],
-      );
 
   ReceiptDetailState copyWith({
     Receipt? receipt,
-    List<ReceiptProduct>? listOfReceiptProducts,
-    List<Tax>? taxRulesListFromSettings,
-    double? productsTotalNet,
-    double? procutsTotalGross,
-    double? discountPercentageAmountGross,
-    double? taxAmount,
-    double? totalGross,
-    TextEditingController? discountPercentageController,
-    TextEditingController? discountAmountGrossController,
-    TextEditingController? shippingAmountGrossController,
-    TextEditingController? additionalAmountGrossController,
-    bool? isInScanMode,
-    List<bool>? isEditable,
-    TextEditingController? barcodeScannerController,
-    List<TextEditingController>? articleNumberControllers,
-    List<TextEditingController>? articleNameControllers,
-    List<TextEditingController>? quantityControllers,
-    List<TextEditingController>? unitPriceNetControllers,
-    List<TextEditingController>? posDiscountPercentControllers,
-    List<TextEditingController>? unitPriceGrossControllers,
+    MainSettings? mainSettings,
+    List<AbstractMarketplace>? listOfMarketplaces,
+    Product? productByEan,
+    AbstractFailure? databaseFailure,
+    AbstractFailure? marketplacesFailure,
+    bool? isLoadingReceiptOnObserve,
+    bool? isLoadingReceiptOnUpdate,
+    bool? isLoadingReceiptOnCreate,
+    bool? isLoadingReceiptOnDelete,
+    bool? isLoadingMarketplacesOnObserve,
+    bool? isLoadingProductOnObserve,
+    bool? isLoadingParcelLabelOnCreate,
+    Option<Either<AbstractFailure, Receipt>>? fosReceiptOnObserveOption,
+    Option<Either<AbstractFailure, Unit>>? fosReceiptOnUpdateOption,
+    Option<Either<AbstractFailure, Receipt>>? fosReceiptOnCreateOption,
+    Option<Either<AbstractFailure, Unit>>? fosReceiptOnDeleteOption,
+    Option<Either<AbstractFailure, Product>>? fosProductOnObserveOption,
+    Option<Either<AbstractFailure, ParcelTracking>>? fosParcelLabelOnCreate,
   }) {
     return ReceiptDetailState(
       receipt: receipt ?? this.receipt,
-      listOfReceiptProducts: listOfReceiptProducts ?? this.listOfReceiptProducts,
-      taxRulesListFromSettings: taxRulesListFromSettings ?? this.taxRulesListFromSettings,
-      discountPercentageController: discountPercentageController ?? this.discountPercentageController,
-      discountAmountGrossController: discountAmountGrossController ?? this.discountAmountGrossController,
-      shippingAmountGrossController: shippingAmountGrossController ?? this.shippingAmountGrossController,
-      additionalAmountGrossController: additionalAmountGrossController ?? this.additionalAmountGrossController,
-      isInScanMode: isInScanMode ?? this.isInScanMode,
-      isEditable: isEditable ?? this.isEditable,
-      barcodeScannerController: barcodeScannerController ?? this.barcodeScannerController,
-      articleNumberControllers: articleNumberControllers ?? this.articleNumberControllers,
-      articleNameControllers: articleNameControllers ?? this.articleNameControllers,
-      quantityControllers: quantityControllers ?? this.quantityControllers,
-      unitPriceNetControllers: unitPriceNetControllers ?? this.unitPriceNetControllers,
-      posDiscountPercentControllers: posDiscountPercentControllers ?? this.posDiscountPercentControllers,
-      unitPriceGrossControllers: unitPriceGrossControllers ?? this.unitPriceGrossControllers,
+      mainSettings: mainSettings ?? this.mainSettings,
+      listOfMarketplaces: listOfMarketplaces ?? this.listOfMarketplaces,
+      productByEan: productByEan ?? this.productByEan,
+      databaseFailure: databaseFailure ?? this.databaseFailure,
+      marketplacesFailure: marketplacesFailure ?? this.marketplacesFailure,
+      isLoadingReceiptOnObserve: isLoadingReceiptOnObserve ?? this.isLoadingReceiptOnObserve,
+      isLoadingReceiptOnUpdate: isLoadingReceiptOnUpdate ?? this.isLoadingReceiptOnUpdate,
+      isLoadingReceiptOnCreate: isLoadingReceiptOnCreate ?? this.isLoadingReceiptOnCreate,
+      isLoadingReceiptOnDelete: isLoadingReceiptOnDelete ?? this.isLoadingReceiptOnDelete,
+      isLoadingMarketplacesOnObserve: isLoadingMarketplacesOnObserve ?? this.isLoadingMarketplacesOnObserve,
+      isLoadingProductOnObserve: isLoadingProductOnObserve ?? this.isLoadingProductOnObserve,
+      isLoadingParcelLabelOnCreate: isLoadingParcelLabelOnCreate ?? this.isLoadingParcelLabelOnCreate,
+      fosReceiptOnObserveOption: fosReceiptOnObserveOption ?? this.fosReceiptOnObserveOption,
+      fosReceiptOnUpdateOption: fosReceiptOnUpdateOption ?? this.fosReceiptOnUpdateOption,
+      fosReceiptOnCreateOption: fosReceiptOnCreateOption ?? this.fosReceiptOnCreateOption,
+      fosReceiptOnDeleteOption: fosReceiptOnDeleteOption ?? this.fosReceiptOnDeleteOption,
+      fosProductOnObserveOption: fosProductOnObserveOption ?? this.fosProductOnObserveOption,
+      fosParcelLabelOnCreate: fosParcelLabelOnCreate ?? this.fosParcelLabelOnCreate,
     );
   }
 }

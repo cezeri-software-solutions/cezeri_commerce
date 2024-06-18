@@ -4,9 +4,10 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 
 import '../../../2_application/database/product/product_bloc.dart';
-import '../../../2_application/database/receipt_detail/receipt_detail_bloc.dart';
+import '../../../2_application/database/receipt_detail_products/receipt_detail_products_bloc.dart';
 import '../../../3_domain/entities/receipt/receipt_product.dart';
 import '../../../constants.dart';
 import '../../../injection.dart';
@@ -15,10 +16,29 @@ import '../../core/widgets/my_avatar.dart';
 import '../../core/widgets/my_circular_progress_indicator.dart';
 import '../../core/widgets/pages_pagination_bar.dart';
 
-class ReceiptDetailSelectProducts extends StatelessWidget {
-  final ReceiptDetailBloc receiptDetailBloc;
+void showReceiptDetailSelectProducts(BuildContext context, ReceiptDetailProductsBloc receiptDetailProductsBloc) {
+  WoltModalSheet.show(
+    context: context,
+    useSafeArea: false,
+    showDragHandle: false,
+    pageListBuilder: (context) {
+      return [
+        WoltModalSheetPage(
+          hasTopBarLayer: true,
+          isTopBarLayerAlwaysVisible: true,
+          forceMaxHeight: true,
+          topBarTitle: const Text('Artikel auswählen', style: TextStyles.h2Bold),
+          child: _ReceiptDetailSelectProducts(receiptDetailProductsBloc: receiptDetailProductsBloc),
+        ),
+      ];
+    },
+  );
+}
 
-  const ReceiptDetailSelectProducts({super.key, required this.receiptDetailBloc});
+class _ReceiptDetailSelectProducts extends StatelessWidget {
+  final ReceiptDetailProductsBloc receiptDetailProductsBloc;
+
+  const _ReceiptDetailSelectProducts({required this.receiptDetailProductsBloc});
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +60,7 @@ class ReceiptDetailSelectProducts extends StatelessWidget {
                     onSuffixTap: () => productBloc.add(OnSearchFieldClearedEvent()),
                   ),
                 ),
-                _ProductItems(productBloc: productBloc, receiptDetailBloc: receiptDetailBloc),
+                _ProductItems(productBloc: productBloc, receiptDetailProductsBloc: receiptDetailProductsBloc),
                 if (state.totalQuantity > 0) ...[
                   const Divider(height: 0),
                   PagesPaginationBar(
@@ -81,20 +101,21 @@ class ReceiptDetailSelectProducts extends StatelessWidget {
 
 class _ProductItems extends StatelessWidget {
   final ProductBloc productBloc;
-  final ReceiptDetailBloc receiptDetailBloc;
+  final ReceiptDetailProductsBloc receiptDetailProductsBloc;
 
-  const _ProductItems({required this.productBloc, required this.receiptDetailBloc});
+  const _ProductItems({required this.productBloc, required this.receiptDetailProductsBloc});
 
   @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.sizeOf(context).height;
+    final height = screenHeight - 200;
 
     return BlocBuilder<ProductBloc, ProductState>(
       bloc: productBloc,
       builder: (context, state) {
-        final onLoadingWidget = SizedBox(height: screenHeight, child: const Center(child: MyCircularProgressIndicator()));
-        final onErrorWidget = SizedBox(height: screenHeight, child: const Center(child: Text('Ein Fehler ist aufgetreten!')));
-        final onEmptyWidget = SizedBox(height: screenHeight, child: const Center(child: Text('Es konnten keine Artikel gefunden werden.')));
+        final onLoadingWidget = SizedBox(height: height, child: const Center(child: MyCircularProgressIndicator()));
+        final onErrorWidget = SizedBox(height: height, child: const Center(child: Text('Ein Fehler ist aufgetreten!')));
+        final onEmptyWidget = SizedBox(height: height, child: const Center(child: Text('Es konnten keine Artikel gefunden werden.')));
 
         if (state.isLoadingProductsOnObserve) return onLoadingWidget;
         if (state.firebaseFailure != null && state.isAnyFailure) return onErrorWidget;
@@ -118,12 +139,12 @@ class _ProductItems extends StatelessWidget {
               ),
               title: Text(product.name, style: TextStyles.defaultt),
               trailing: IconButton(
-                onPressed: () => receiptDetailBloc.add(AddProductToReceiptProductsEvent(receiptProduct: ReceiptProduct.fromProduct(product))),
+                onPressed: () => receiptDetailProductsBloc.add(AddProductToReceiptProductsEvent(receiptProduct: ReceiptProduct.fromProduct(product))),
                 icon: const Icon(Icons.arrow_forward_ios, color: Colors.green),
               ),
               onTap: () {
                 context.router.maybePop();
-                receiptDetailBloc.add(AddProductToReceiptProductsEvent(receiptProduct: ReceiptProduct.fromProduct(product)));
+                receiptDetailProductsBloc.add(AddProductToReceiptProductsEvent(receiptProduct: ReceiptProduct.fromProduct(product)));
               },
             );
           },

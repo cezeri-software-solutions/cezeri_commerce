@@ -12,6 +12,7 @@ class PagesPaginationBar extends StatelessWidget {
   final int totalItems;
   final Function(int) onPageChanged;
   final Function(int) onItemsPerPageChanged;
+  final AlignmentGeometry? itemsAlignment;
 
   const PagesPaginationBar({
     super.key,
@@ -21,6 +22,7 @@ class PagesPaginationBar extends StatelessWidget {
     required this.totalItems,
     required this.onPageChanged,
     required this.onItemsPerPageChanged,
+    this.itemsAlignment,
   });
 
   @override
@@ -43,7 +45,7 @@ class PagesPaginationBar extends StatelessWidget {
           width: 50,
           child: TextButton(
             isSemanticButton: false,
-            onPressed: () => onPageChanged(i),
+            onPressed: i != currentPage ? () => onPageChanged(i) : () {},
             style: TextButton.styleFrom(foregroundColor: i == currentPage ? CustomColors.primaryColor : Colors.grey),
             child: Text(i.toString()),
           ),
@@ -69,6 +71,7 @@ class PagesPaginationBar extends StatelessWidget {
               value: itemsPerPage.toString(),
               onChanged: (value) => onItemsPerPageChanged(value.toMyInt()),
               items: const ['20', '30', '50', '100', '500', '10000'],
+              itemsAlignment: itemsAlignment ?? AlignmentDirectional.centerStart,
             ),
           ),
           if (isTablet) ...[

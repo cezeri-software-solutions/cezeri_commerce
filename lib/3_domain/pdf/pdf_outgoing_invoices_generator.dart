@@ -18,26 +18,26 @@ class PdfOutgoingInvoicesGenerator {
     final pdf = pw.Document(theme: myTheme);
     bool isAnyFailureInConsecutiveInvoiceNumer = false;
     switch (listOfReceipts.first.receiptTyp) {
-      case ReceiptTyp.offer:
+      case ReceiptType.offer:
         {
           listOfReceipts.sort((a, b) => a.offerId.compareTo(b.offerId));
         }
-      case ReceiptTyp.appointment:
+      case ReceiptType.appointment:
         {
           listOfReceipts.sort((a, b) => a.appointmentId.compareTo(b.appointmentId));
         }
-      case ReceiptTyp.deliveryNote:
+      case ReceiptType.deliveryNote:
         {
           listOfReceipts.sort((a, b) => a.deliveryNoteId.compareTo(b.deliveryNoteId));
         }
-      case ReceiptTyp.invoice || ReceiptTyp.credit:
+      case ReceiptType.invoice || ReceiptType.credit:
         {
           listOfReceipts.sort((a, b) => a.invoiceId.compareTo(b.invoiceId));
         }
     }
 
     for (int i = 0; i < listOfReceipts.length; i++) {
-      if ((listOfReceipts.first.receiptTyp == ReceiptTyp.invoice || listOfReceipts.first.receiptTyp == ReceiptTyp.credit) &&
+      if ((listOfReceipts.first.receiptTyp == ReceiptType.invoice || listOfReceipts.first.receiptTyp == ReceiptType.credit) &&
           i > 0 &&
           listOfReceipts[i].invoiceId != listOfReceipts[i - 1].invoiceId + 1) {
         isAnyFailureInConsecutiveInvoiceNumer = true;
@@ -114,12 +114,12 @@ class PdfOutgoingInvoicesGenerator {
     int pos = 1;
     for (int i = 0; i < listOfReceipts.length; i++) {
       final receipt = switch (listOfReceipts[i].receiptTyp) {
-        ReceiptTyp.credit => listOfReceipts[i].copyWith(
+        ReceiptType.credit => listOfReceipts[i].copyWith(
             totalNet: listOfReceipts[i].totalNet * -1, totalTax: listOfReceipts[i].totalTax * -1, totalGross: listOfReceipts[i].totalGross * -1),
         _ => listOfReceipts[i],
       };
       final style = switch (receipt.receiptTyp) {
-        ReceiptTyp.credit => pw.TextStyle(fontSize: 8, fontWeight: pw.FontWeight.bold, color: PdfColors.red),
+        ReceiptType.credit => pw.TextStyle(fontSize: 8, fontWeight: pw.FontWeight.bold, color: PdfColors.red),
         _ => const pw.TextStyle(fontSize: 8),
       };
       final entry = [
@@ -140,15 +140,15 @@ class PdfOutgoingInvoicesGenerator {
 
     final totalNetSum = listOfReceipts.fold(
       0.0,
-      (sum, receipt) => sum + switch (receipt.receiptTyp) { ReceiptTyp.credit => receipt.totalNet * -1, _ => receipt.totalNet },
+      (sum, receipt) => sum + switch (receipt.receiptTyp) { ReceiptType.credit => receipt.totalNet * -1, _ => receipt.totalNet },
     );
     final totalTaxSum = listOfReceipts.fold(
       0.0,
-      (sum, receipt) => sum + switch (receipt.receiptTyp) { ReceiptTyp.credit => receipt.totalTax * -1, _ => receipt.totalTax },
+      (sum, receipt) => sum + switch (receipt.receiptTyp) { ReceiptType.credit => receipt.totalTax * -1, _ => receipt.totalTax },
     );
     final totalGrossSum = listOfReceipts.fold(
       0.0,
-      (sum, receipt) => sum + switch (receipt.receiptTyp) { ReceiptTyp.credit => receipt.totalGross * -1, _ => receipt.totalGross },
+      (sum, receipt) => sum + switch (receipt.receiptTyp) { ReceiptType.credit => receipt.totalGross * -1, _ => receipt.totalGross },
     );
 
     data.add([
@@ -245,7 +245,7 @@ class PdfOutgoingInvoicesGenerator {
     groupedReceipts.forEach((country, receipts) {
       final totalNetSum = receipts.fold(
         0.0,
-        (sum, receipt) => sum + switch (receipt.receiptTyp) { ReceiptTyp.credit => receipt.totalNet * -1, _ => receipt.totalNet },
+        (sum, receipt) => sum + switch (receipt.receiptTyp) { ReceiptType.credit => receipt.totalNet * -1, _ => receipt.totalNet },
       );
       countryData.add([pos++, receipts.length, country, totalNetSum.toMyCurrencyStringToShow()]);
     });
@@ -307,13 +307,13 @@ pw.Widget _errorContainer() {
 
 Object _getReceiptNumber(int i, Receipt receipt, Receipt? previousReceipt) {
   final object = PdfText(switch (receipt.receiptTyp) {
-    ReceiptTyp.offer => receipt.offerNumberAsString,
-    ReceiptTyp.appointment => receipt.appointmentNumberAsString,
-    ReceiptTyp.deliveryNote => receipt.deliveryNoteNumberAsString,
-    ReceiptTyp.invoice || ReceiptTyp.credit => receipt.invoiceNumberAsString,
+    ReceiptType.offer => receipt.offerNumberAsString,
+    ReceiptType.appointment => receipt.appointmentNumberAsString,
+    ReceiptType.deliveryNote => receipt.deliveryNoteNumberAsString,
+    ReceiptType.invoice || ReceiptType.credit => receipt.invoiceNumberAsString,
   });
 
-  if (receipt.receiptTyp != ReceiptTyp.invoice || receipt.receiptTyp != ReceiptTyp.credit) return object;
+  if (receipt.receiptTyp != ReceiptType.invoice || receipt.receiptTyp != ReceiptType.credit) return object;
 
   if (i <= 0 || previousReceipt == null) return object;
 

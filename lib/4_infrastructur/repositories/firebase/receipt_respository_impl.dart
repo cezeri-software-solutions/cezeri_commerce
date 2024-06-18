@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:cezeri_commerce/1_presentation/core/extensions/formatted_year_month.dart';
 import 'package:cezeri_commerce/1_presentation/core/extensions/get_either.dart';
 import 'package:cezeri_commerce/3_domain/entities/receipt/load_appointments_helper/to_load_appointments_from_marketplace.dart';
 import 'package:cezeri_commerce/3_domain/entities/receipt/receipt.dart';
@@ -14,6 +15,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 
 import '/1_presentation/core/functions/check_internet_connection.dart';
@@ -59,15 +61,15 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
   });
 
   @override
-  Future<Either<AbstractFailure, Receipt>> getReceipt(Receipt receipt) async {
+  Future<Either<AbstractFailure, Receipt>> getReceipt(String receiptId, ReceiptType receiptType) async {
     if (!await checkInternetConnection()) return Left(NoConnectionFailure());
     final ownerId = await getOwnerId();
     if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
-    final database = getReceiptDatabase(receipt.receiptTyp);
+    final database = getReceiptDatabase(receiptType);
 
     try {
-      final response = await database.select().eq('ownerId', ownerId).eq('id', receipt.id).single();
+      final response = await database.select().eq('ownerId', ownerId).eq('id', receiptId).single();
 
       return right(Receipt.fromJson(response));
     } catch (e) {
@@ -156,25 +158,25 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
       final settings = fosSettings.getRight();
 
       toCreateReceipt = switch (receipt.receiptTyp) {
-        ReceiptTyp.offer => receipt.copyWith(
+        ReceiptType.offer => receipt.copyWith(
             id: genId,
             receiptId: genId,
             offerId: settings.nextOfferNumber,
             offerNumberAsString: settings.offerPraefix + settings.nextOfferNumber.toString(),
           ),
-        ReceiptTyp.appointment => receipt.copyWith(
+        ReceiptType.appointment => receipt.copyWith(
             id: genId,
             receiptId: genId,
             appointmentId: settings.nextAppointmentNumber,
             appointmentNumberAsString: settings.appointmentPraefix + settings.nextAppointmentNumber.toString(),
           ),
-        ReceiptTyp.deliveryNote => receipt.copyWith(
+        ReceiptType.deliveryNote => receipt.copyWith(
             id: genId,
             receiptId: genId,
             deliveryNoteId: settings.nextDeliveryNoteNumber,
             deliveryNoteNumberAsString: settings.deliveryNotePraefix + settings.nextDeliveryNoteNumber.toString(),
           ),
-        ReceiptTyp.invoice || ReceiptTyp.credit => receipt.copyWith(
+        ReceiptType.invoice || ReceiptType.credit => receipt.copyWith(
             id: genId,
             receiptId: genId,
             invoiceId: settings.nextInvoiceNumber,
@@ -204,7 +206,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
   }
 
   @override
-  Future<Either<AbstractFailure, List<Receipt>>> getListOfReceipts(int value, ReceiptTyp receiptTyp, {bool sortOutDeliveryBlocked = false}) async {
+  Future<Either<AbstractFailure, List<Receipt>>> getListOfReceipts(int value, ReceiptType receiptTyp, {bool sortOutDeliveryBlocked = false}) async {
     if (!await checkInternetConnection()) return Left(NoConnectionFailure());
     final ownerId = await getOwnerId();
     if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
@@ -218,18 +220,18 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
 
     final query = value != 0
         ? switch (receiptTyp) {
-            ReceiptTyp.offer => offersQuery.order('offerId'),
-            ReceiptTyp.appointment => appointmentsQuery.order('appointmentId'),
-            ReceiptTyp.deliveryNote => deliveryNotesQuery.order('deliveryNoteId'),
-            ReceiptTyp.invoice || ReceiptTyp.credit => invoicesQuery.order('invoiceId'),
+            ReceiptType.offer => offersQuery.order('offerId'),
+            ReceiptType.appointment => appointmentsQuery.order('appointmentId'),
+            ReceiptType.deliveryNote => deliveryNotesQuery.order('deliveryNoteId'),
+            ReceiptType.invoice || ReceiptType.credit => invoicesQuery.order('invoiceId'),
           }
         : switch (receiptTyp) {
-            ReceiptTyp.offer => offersQuery.eq('offerStatus', OfferStatus.open.name),
-            ReceiptTyp.appointment => appointmentsQuery
+            ReceiptType.offer => offersQuery.eq('offerStatus', OfferStatus.open.name),
+            ReceiptType.appointment => appointmentsQuery
                 .or('appointmentStatus.eq.${AppointmentStatus.open.name},appointmentStatus.eq.${AppointmentStatus.partiallyCompleted.name}'),
-            ReceiptTyp.deliveryNote => deliveryNotesQuery.eq('invoiceId', 0),
-            ReceiptTyp.invoice ||
-            ReceiptTyp.credit =>
+            ReceiptType.deliveryNote => deliveryNotesQuery.eq('invoiceId', 0),
+            ReceiptType.invoice ||
+            ReceiptType.credit =>
               invoicesQuery.or('paymentStatus.eq.${PaymentStatus.open.name},paymentStatus.eq.${PaymentStatus.partiallyPaid.name}'),
           };
 
@@ -264,6 +266,101 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
       }
 
       return Right(allReceipts);
+    } catch (e) {
+      logger.e(e);
+      return Left(GeneralFailure(customMessage: 'Beim Laden der Dokumente ist ein Fehler aufgetreten. Error: $e'));
+    }
+  }
+
+  @override
+  Future<Either<AbstractFailure, int>> getTotalNumberOfReceiptsBySearchText({
+    required ReceiptType receiptType,
+    required int tabIndex,
+    required String searchText,
+  }) async {
+    if (!await checkInternetConnection()) return Left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
+
+    try {
+      final response = await supabase.rpc('get_d_receipts_count_by_search_text', params: {
+        'owner_id': ownerId,
+        'receipt_type': receiptType.name,
+        'tab_index': tabIndex,
+        'search_text': searchText,
+      });
+
+      return Right(response);
+    } catch (e) {
+      logger.e(e);
+      return Left(GeneralFailure(customMessage: 'Beim Laden der Artikel ist ein Fehler aufgetreten. Error: $e'));
+    }
+  }
+
+  @override
+  Future<Either<AbstractFailure, List<Receipt>>> getListOfReceiptsPerPageBySearchText({
+    required int tabIndex,
+    required ReceiptType receiptType,
+    required String searchText,
+    required int currentPage,
+    required int itemsPerPage,
+  }) async {
+    if (!await checkInternetConnection()) return Left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
+
+    try {
+      final response = await supabase.rpc('get_receipts_by_search_text', params: {
+        'owner_id': ownerId,
+        'receipt_type': receiptType.name,
+        'tab_index': tabIndex,
+        'search_text': searchText,
+        'current_page': currentPage,
+        'items_per_page': itemsPerPage,
+      });
+
+      if (response.isEmpty) return const Right([]);
+
+      final listOfReceipts = (response as List<dynamic>).map((e) {
+        final item = e as Map<String, dynamic>;
+        return Receipt.fromJson(item);
+      }).toList();
+
+      return Right(listOfReceipts);
+    } catch (e) {
+      logger.e(e);
+      return Left(GeneralFailure(customMessage: 'Beim Laden der Dokumente ist ein Fehler aufgetreten. Error: $e'));
+    }
+  }
+
+  @override
+  Future<Either<AbstractFailure, List<Receipt>>> getListOfReceiptsBetweenDates({
+    required DateTimeRange dates,
+    required ReceiptType receiptType,
+  }) async {
+    if (!await checkInternetConnection()) return Left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
+
+    final startDate = dates.start.toFormattedYearMonthDay();
+    final endDate = dates.end.add(const Duration(days: 1)).toFormattedYearMonthDay();
+
+    try {
+      final response = await supabase.rpc('get_all_receipts_between_dates', params: {
+        'owner_id': ownerId,
+        'receipt_type': receiptType.name,
+        'start_date': startDate,
+        'end_date': endDate,
+      });
+
+      if (response.isEmpty) return const Right([]);
+
+      final listOfReceipts = (response as List<dynamic>).map((e) {
+        final item = e as Map<String, dynamic>;
+        return Receipt.fromJson(item);
+      }).toList();
+
+      return Right(listOfReceipts);
     } catch (e) {
       logger.e(e);
       return Left(GeneralFailure(customMessage: 'Beim Laden der Dokumente ist ein Fehler aufgetreten. Error: $e'));
@@ -831,7 +928,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
     final database = getReceiptDatabase(deliveryNote.receiptTyp);
 
     try {
-      final fosDeliveryNote = await getReceipt(deliveryNote);
+      final fosDeliveryNote = await getReceipt(deliveryNote.id, deliveryNote.receiptTyp);
       if (fosDeliveryNote.isLeft()) return Left(fosDeliveryNote.getLeft());
       final loadedDeliveryNote = fosDeliveryNote.getRight();
 
@@ -1000,7 +1097,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
     //* Überprüft, ob die aus dem Marktplatz geladene Bestellung bereits in Firebase Firestore hinterlegt ist
     try {
       final queryReceipt =
-          await getReceiptDatabase(ReceiptTyp.appointment).select().eq('ownerId', ownerId).eq('receiptMarketplaceId', orderMarketplaceId);
+          await getReceiptDatabase(ReceiptType.appointment).select().eq('ownerId', ownerId).eq('receiptMarketplaceId', orderMarketplaceId);
       if (queryReceipt.isNotEmpty) {
         logger.e('Vom Marktplatz geladene Bestellung ist bereits in Firestore vorhanden');
         return Left(GeneralFailure(customMessage: 'Vom Marktplatz geladene Bestellung ist bereits in der Datenbank vorhanden'));
@@ -1056,7 +1153,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
       final appointment = phAppointment.copyWith(id: genAppId, receiptId: genAppId);
       final appointmentJson = appointment.toJson();
       appointmentJson.addEntries([MapEntry('ownerId', ownerId)]);
-      final createdAppointmentResponse = await getReceiptDatabase(ReceiptTyp.appointment).insert(appointmentJson).select('*').single();
+      final createdAppointmentResponse = await getReceiptDatabase(ReceiptType.appointment).insert(appointmentJson).select('*').single();
       final createdAppointment = Receipt.fromJson(createdAppointmentResponse);
       receiptToReturn = createdAppointment;
 
@@ -1090,7 +1187,7 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
 
 String fillPlaceholder(Receipt receipt, String value) {
   ParcelTracking? parceltracking;
-  final isParceltrackingGiven = receipt.receiptTyp == ReceiptTyp.deliveryNote && receipt.listOfParcelTracking.isNotEmpty;
+  final isParceltrackingGiven = receipt.receiptTyp == ReceiptType.deliveryNote && receipt.listOfParcelTracking.isNotEmpty;
   if (isParceltrackingGiven) {
     List<ParcelTracking> listOfParcels = receipt.listOfParcelTracking;
     listOfParcels.sort((a, b) => a.trackingNumber.compareTo(b.trackingNumber));
@@ -1100,11 +1197,11 @@ String fillPlaceholder(Receipt receipt, String value) {
   String newValue = value.replaceAll(
     '{receiptNumber}',
     switch (receipt.receiptTyp) {
-      ReceiptTyp.offer => receipt.offerNumberAsString,
-      ReceiptTyp.appointment => receipt.appointmentNumberAsString,
-      ReceiptTyp.deliveryNote => receipt.deliveryNoteNumberAsString,
-      ReceiptTyp.invoice => receipt.invoiceNumberAsString,
-      ReceiptTyp.credit => receipt.creditNumberAsString,
+      ReceiptType.offer => receipt.offerNumberAsString,
+      ReceiptType.appointment => receipt.appointmentNumberAsString,
+      ReceiptType.deliveryNote => receipt.deliveryNoteNumberAsString,
+      ReceiptType.invoice => receipt.invoiceNumberAsString,
+      ReceiptType.credit => receipt.creditNumberAsString,
     },
   );
   newValue = newValue.replaceAll('{customerNumer}', receipt.receiptCustomer.customerNumber.toString());
@@ -1125,7 +1222,7 @@ Future<bool> sendCustomerEmailsOnCreateReceipts(List<Receipt> listOfReceipts, Ab
   bool isSuccess = false;
   for (final receipt in listOfReceipts) {
     switch (receipt.receiptTyp) {
-      case ReceiptTyp.offer:
+      case ReceiptType.offer:
         {
           final index = marketplace.marketplaceSettings.listOfEMailAutomations.indexWhere(
             (e) => e.eMailAutomationType == EMailAutomationType.offer,
@@ -1149,7 +1246,7 @@ Future<bool> sendCustomerEmailsOnCreateReceipts(List<Receipt> listOfReceipts, Ab
           }
           break;
         }
-      case ReceiptTyp.appointment:
+      case ReceiptType.appointment:
         {
           final index = marketplace.marketplaceSettings.listOfEMailAutomations.indexWhere(
             (e) => e.eMailAutomationType == EMailAutomationType.appointment,
@@ -1173,7 +1270,7 @@ Future<bool> sendCustomerEmailsOnCreateReceipts(List<Receipt> listOfReceipts, Ab
           }
           break;
         }
-      case ReceiptTyp.deliveryNote:
+      case ReceiptType.deliveryNote:
         {
           if (receipt.receiptCarrier.carrierProduct.productName != '' && receipt.listOfParcelTracking.isNotEmpty) {
             final index = marketplace.marketplaceSettings.listOfEMailAutomations.indexWhere(
@@ -1195,7 +1292,7 @@ Future<bool> sendCustomerEmailsOnCreateReceipts(List<Receipt> listOfReceipts, Ab
           }
           break;
         }
-      case ReceiptTyp.invoice:
+      case ReceiptType.invoice:
         {
           final index = marketplace.marketplaceSettings.listOfEMailAutomations.indexWhere(
             (e) => e.eMailAutomationType == EMailAutomationType.invoice,
@@ -1219,7 +1316,7 @@ Future<bool> sendCustomerEmailsOnCreateReceipts(List<Receipt> listOfReceipts, Ab
           }
           break;
         }
-      case ReceiptTyp.credit:
+      case ReceiptType.credit:
         {
           final index = marketplace.marketplaceSettings.listOfEMailAutomations.indexWhere(
             (e) => e.eMailAutomationType == EMailAutomationType.credit,

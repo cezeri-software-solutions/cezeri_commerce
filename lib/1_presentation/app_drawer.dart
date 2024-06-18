@@ -146,7 +146,7 @@ class AppDrawer extends StatelessWidget {
                             if (context.router.current.name == OffersOverviewRoute.name) {
                               context.router.pop();
                             } else {
-                              context.router.replaceAll([OffersOverviewRoute(receiptTyp: ReceiptTyp.offer)]);
+                              context.router.replaceAll([OffersOverviewRoute(receiptTyp: ReceiptType.offer)]);
                             }
                           },
                         ),
@@ -157,7 +157,7 @@ class AppDrawer extends StatelessWidget {
                             if (context.router.current.name == AppointmentsOverviewRoute.name) {
                               context.router.pop();
                             } else {
-                              context.router.replaceAll([AppointmentsOverviewRoute(receiptTyp: ReceiptTyp.appointment)]);
+                              context.router.replaceAll([AppointmentsOverviewRoute(receiptTyp: ReceiptType.appointment)]);
                             }
                           },
                         ),
@@ -168,7 +168,7 @@ class AppDrawer extends StatelessWidget {
                             if (context.router.current.name == DeliveryNotesOverviewRoute.name) {
                               context.router.pop();
                             } else {
-                              context.router.replaceAll([DeliveryNotesOverviewRoute(receiptTyp: ReceiptTyp.deliveryNote)]);
+                              context.router.replaceAll([DeliveryNotesOverviewRoute(receiptTyp: ReceiptType.deliveryNote)]);
                             }
                           },
                         ),
@@ -179,7 +179,7 @@ class AppDrawer extends StatelessWidget {
                             if (context.router.current.name == InvoicesOverviewRoute.name) {
                               context.router.pop();
                             } else {
-                              context.router.replaceAll([InvoicesOverviewRoute(receiptTyp: ReceiptTyp.invoice)]);
+                              context.router.replaceAll([InvoicesOverviewRoute(receiptTyp: ReceiptType.invoice)]);
                             }
                           },
                         ),

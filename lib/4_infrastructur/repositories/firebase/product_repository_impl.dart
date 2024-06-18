@@ -133,7 +133,7 @@ class ProductRepositoryImpl implements ProductRepository {
 
     final start = (currentPage - 1) * itemsPerPage;
     final end = start + itemsPerPage - 1;
-    const maxItemsPerRequest = 1000; // Supabase limit
+    const maxItemsPerRequest = 990; // Supabase limit
     int currentStart = start;
     int currentEnd = (start + maxItemsPerRequest - 1).clamp(start, end); // Ensure it does not exceed the requested end
     List<Product> allProducts = [];

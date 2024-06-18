@@ -25,7 +25,7 @@ class _UpdateProductQuantityDialogState extends State<UpdateProductQuantityDialo
   int _quantity = 0;
   int _editedQuantity = 0;
   bool _updateOnlyAvailableQuantity = false;
-  // double _sliderValue = 0;
+  bool _isReduce = false;
 
   @override
   void initState() {
@@ -36,6 +36,15 @@ class _UpdateProductQuantityDialogState extends State<UpdateProductQuantityDialo
   @override
   Widget build(BuildContext context) {
     int newQuantity = _quantity + _editedQuantity;
+    _isReduce = _editedQuantity < 0 ? true : false;
+    final sliderValue = _isReduce
+        ? _editedQuantity.roundToDouble() < -50
+            ? -50
+            : _editedQuantity.roundToDouble()
+        : _editedQuantity.roundToDouble() > 50
+            ? 50
+            : _editedQuantity.roundToDouble();
+
     return BlocBuilder<ProductBloc, ProductState>(
       bloc: widget.productBloc,
       builder: (context, state) {
@@ -45,9 +54,16 @@ class _UpdateProductQuantityDialogState extends State<UpdateProductQuantityDialo
             mainAxisSize: MainAxisSize.min,
             children: [
               Gaps.h16,
-              Text(widget.product.articleNumber, style: TextStyles.defaultBold),
-              Gaps.h8,
-              Text(widget.product.name, maxLines: 2, overflow: TextOverflow.ellipsis, textAlign: TextAlign.center),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                child: Column(
+                  children: [
+                    Text(widget.product.articleNumber, style: TextStyles.defaultBold),
+                    Gaps.h8,
+                    Text(widget.product.name, maxLines: 2, overflow: TextOverflow.ellipsis, textAlign: TextAlign.center),
+                  ],
+                ),
+              ),
               Gaps.h16,
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -96,9 +112,9 @@ class _UpdateProductQuantityDialogState extends State<UpdateProductQuantityDialo
               Text(newQuantity.toString(), style: TextStyles.h1),
               Gaps.h32,
               Slider(
-                value: _editedQuantity.roundToDouble() > 100 ? 100 : _editedQuantity.roundToDouble(),
-                min: 0,
-                max: 100,
+                value: sliderValue.roundToDouble(),
+                min: -50,
+                max: 50,
                 divisions: 100,
                 label: _editedQuantity.round().toString(),
                 onChanged: (double value) => setState(() => _editedQuantity = value.toInt()),

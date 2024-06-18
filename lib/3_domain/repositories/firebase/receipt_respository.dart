@@ -1,4 +1,5 @@
 import 'package:dartz/dartz.dart';
+import 'package:flutter/material.dart';
 
 import '../../../failures/abstract_failure.dart';
 import '../../entities/carrier/parcel_tracking.dart';
@@ -7,8 +8,24 @@ import '../../entities/receipt/receipt.dart';
 import '../../entities/receipt/receipt_product.dart';
 
 abstract class ReceiptRepository {
-  Future<Either<AbstractFailure, Receipt>> getReceipt(Receipt receipt);
-  Future<Either<AbstractFailure, List<Receipt>>> getListOfReceipts(int value, ReceiptTyp receiptTyp, {bool sortOutDeliveryBlocked = false});
+  Future<Either<AbstractFailure, Receipt>> getReceipt(String receiptId, ReceiptType receiptType);
+  Future<Either<AbstractFailure, List<Receipt>>> getListOfReceipts(int value, ReceiptType receiptTyp, {bool sortOutDeliveryBlocked = false});
+  Future<Either<AbstractFailure, int>> getTotalNumberOfReceiptsBySearchText({
+    required ReceiptType receiptType,
+    required int tabIndex,
+    required String searchText,
+  });
+  Future<Either<AbstractFailure, List<Receipt>>> getListOfReceiptsPerPageBySearchText({
+    required int tabIndex,
+    required ReceiptType receiptType,
+    required String searchText,
+    required int currentPage,
+    required int itemsPerPage,
+  });
+  Future<Either<AbstractFailure, List<Receipt>>> getListOfReceiptsBetweenDates({
+    required DateTimeRange dates,
+    required ReceiptType receiptType,
+  });
   Future<Either<AbstractFailure, Unit>> updateReceipt(
     Receipt receipt,
     List<ReceiptProduct> oldListOfReceiptProducts,

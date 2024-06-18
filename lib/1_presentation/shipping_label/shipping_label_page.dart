@@ -1,3 +1,5 @@
+// ignore_for_file: unused_field
+
 import 'dart:convert';
 
 import 'package:cezeri_commerce/1_presentation/core/widgets/my_outlined_button.dart';

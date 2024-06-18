@@ -40,7 +40,7 @@ class PackingStationDetailScreen extends StatelessWidget {
               final printerMain = myPrinterMain != null ? Printer(url: myPrinterMain.url) : null;
               final printerLabel = myPrinterLabel != null ? Printer(url: myPrinterLabel.url) : null;
 
-              final deliveryNote = listOfReceipts.where((e) => e.receiptTyp == ReceiptTyp.deliveryNote).firstOrNull;
+              final deliveryNote = listOfReceipts.where((e) => e.receiptTyp == ReceiptType.deliveryNote).firstOrNull;
               if (deliveryNote == null) {
                 await showMyDialogAlert(context: context, title: 'FEHLER', content: 'Beim Erstellen der Lieferscheines ist ein Fehler aufgetreten');
                 if (context.mounted) context.router.popUntilRouteWithName(PackingStationOverviewRoute.name);

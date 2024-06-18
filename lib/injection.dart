@@ -20,6 +20,7 @@ import '2_application/database/product/product_bloc.dart';
 import '2_application/database/product_detail/product_detail_bloc.dart';
 import '2_application/database/products_booking/products_booking_bloc.dart';
 import '2_application/database/receipt_detail/receipt_detail_bloc.dart';
+import '2_application/database/receipt_detail_products/receipt_detail_products_bloc.dart';
 import '2_application/database/reorder/reorder_bloc.dart';
 import '2_application/database/reorder_detail/reorder_detail_bloc.dart';
 import '2_application/database/supplier/supplier_bloc.dart';
@@ -89,7 +90,16 @@ Future<void> init() async {
   sl.registerFactory(() => HomeProductBloc(productRepository: sl(), reorderRepository: sl()));
   sl.registerFactory(() => MarketplaceBloc(marketplaceRepository: sl()));
   sl.registerFactory(() => MainSettingsBloc(mainSettingsRepository: sl()));
-  sl.registerFactory(() => ReceiptBloc(receiptRepository: sl(), productRepository: sl()));
+  sl.registerFactory(() => ReceiptBloc(receiptRepository: sl(), productRepository: sl(), marketplaceRepository: sl()));
+  sl.registerFactory(
+    () => ReceiptDetailBloc(
+      receiptRepository: sl(),
+      marketplaceRepository: sl(),
+      mainSettingsRepository: sl(),
+      productRepository: sl(),
+    ),
+  );
+  sl.registerFactory(() => ReceiptDetailProductsBloc());
   sl.registerFactory(() => PackingStationBloc(receiptRepository: sl(), customerRepository: sl(), packingStationRepository: sl()));
   sl.registerFactory(() => CustomerBloc(customerRepository: sl(), mainSettingsRepository: sl()));
   sl.registerFactory(() => SupplierBloc(supplierRepository: sl()));
@@ -103,7 +113,7 @@ Future<void> init() async {
       supplierRepository: sl()));
   sl.registerFactory(() => DashboardBloc(dashboardRepository: sl(), receiptRepository: sl()));
   sl.registerFactory(() => ProductsBookingBloc(productRepository: sl(), reorderRepository: sl()));
-  sl.registerFactory(() => ReceiptDetailBloc());
+
   sl.registerFactory(() => GeneralLedgerAccountBloc(gLAccountRepository: sl()));
 
   //! repositories Firebase

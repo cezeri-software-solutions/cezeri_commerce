@@ -89,18 +89,15 @@ import 'package:cezeri_commerce/2_application/database/customer/customer_bloc.da
     as _i43;
 import 'package:cezeri_commerce/2_application/database/product_detail/product_detail_bloc.dart'
     as _i46;
-import 'package:cezeri_commerce/2_application/database/receipt/receipt_bloc.dart'
-    as _i48;
 import 'package:cezeri_commerce/2_application/database/supplier/supplier_bloc.dart'
-    as _i50;
+    as _i48;
 import 'package:cezeri_commerce/2_application/packing_station/packing_station_bloc.dart'
     as _i44;
 import 'package:cezeri_commerce/3_domain/entities/marketplace/abstract_marketplace.dart'
     as _i45;
-import 'package:cezeri_commerce/3_domain/entities/product/product.dart' as _i47;
 import 'package:cezeri_commerce/3_domain/entities/receipt/receipt.dart' as _i42;
 import 'package:cezeri_commerce/3_domain/entities/reorder/supplier.dart'
-    as _i49;
+    as _i47;
 import 'package:flutter/material.dart' as _i41;
 
 abstract class $AppRouter extends _i40.RootStackRouter {
@@ -296,7 +293,6 @@ abstract class $AppRouter extends _i40.RootStackRouter {
         child: _i23.ProductDetailScreen(
           key: args.key,
           productId: args.productId,
-          listOfProducts: args.listOfProducts,
         ),
       );
     },
@@ -330,9 +326,7 @@ abstract class $AppRouter extends _i40.RootStackRouter {
         routeData: routeData,
         child: _i28.ReceiptDetailScreen(
           key: args.key,
-          receiptBloc: args.receiptBloc,
-          listOfMarketplaces: args.listOfMarketplaces,
-          receiptCreateOrEdit: args.receiptCreateOrEdit,
+          receiptId: args.receiptId,
           receiptTyp: args.receiptTyp,
         ),
       );
@@ -428,7 +422,7 @@ class AppointmentsOverviewRoute
     extends _i40.PageRouteInfo<AppointmentsOverviewRouteArgs> {
   AppointmentsOverviewRoute({
     _i41.Key? key,
-    required _i42.ReceiptTyp receiptTyp,
+    required _i42.ReceiptType receiptTyp,
     List<_i40.PageRouteInfo>? children,
   }) : super(
           AppointmentsOverviewRoute.name,
@@ -453,7 +447,7 @@ class AppointmentsOverviewRouteArgs {
 
   final _i41.Key? key;
 
-  final _i42.ReceiptTyp receiptTyp;
+  final _i42.ReceiptType receiptTyp;
 
   @override
   String toString() {
@@ -590,7 +584,7 @@ class DeliveryNotesOverviewRoute
     extends _i40.PageRouteInfo<DeliveryNotesOverviewRouteArgs> {
   DeliveryNotesOverviewRoute({
     _i41.Key? key,
-    required _i42.ReceiptTyp receiptTyp,
+    required _i42.ReceiptType receiptTyp,
     List<_i40.PageRouteInfo>? children,
   }) : super(
           DeliveryNotesOverviewRoute.name,
@@ -615,7 +609,7 @@ class DeliveryNotesOverviewRouteArgs {
 
   final _i41.Key? key;
 
-  final _i42.ReceiptTyp receiptTyp;
+  final _i42.ReceiptType receiptTyp;
 
   @override
   String toString() {
@@ -671,7 +665,7 @@ class InvoicesOverviewRoute
     extends _i40.PageRouteInfo<InvoicesOverviewRouteArgs> {
   InvoicesOverviewRoute({
     _i41.Key? key,
-    required _i42.ReceiptTyp receiptTyp,
+    required _i42.ReceiptType receiptTyp,
     List<_i40.PageRouteInfo>? children,
   }) : super(
           InvoicesOverviewRoute.name,
@@ -696,7 +690,7 @@ class InvoicesOverviewRouteArgs {
 
   final _i41.Key? key;
 
-  final _i42.ReceiptTyp receiptTyp;
+  final _i42.ReceiptType receiptTyp;
 
   @override
   String toString() {
@@ -786,7 +780,7 @@ class MyFullscreenImageRouteArgs {
 class OffersOverviewRoute extends _i40.PageRouteInfo<OffersOverviewRouteArgs> {
   OffersOverviewRoute({
     _i41.Key? key,
-    required _i42.ReceiptTyp receiptTyp,
+    required _i42.ReceiptType receiptTyp,
     List<_i40.PageRouteInfo>? children,
   }) : super(
           OffersOverviewRoute.name,
@@ -811,7 +805,7 @@ class OffersOverviewRouteArgs {
 
   final _i41.Key? key;
 
-  final _i42.ReceiptTyp receiptTyp;
+  final _i42.ReceiptType receiptTyp;
 
   @override
   String toString() {
@@ -1027,14 +1021,12 @@ class ProductDetailRoute extends _i40.PageRouteInfo<ProductDetailRouteArgs> {
   ProductDetailRoute({
     _i41.Key? key,
     String? productId,
-    List<_i47.Product>? listOfProducts,
     List<_i40.PageRouteInfo>? children,
   }) : super(
           ProductDetailRoute.name,
           args: ProductDetailRouteArgs(
             key: key,
             productId: productId,
-            listOfProducts: listOfProducts,
           ),
           initialChildren: children,
         );
@@ -1049,18 +1041,15 @@ class ProductDetailRouteArgs {
   const ProductDetailRouteArgs({
     this.key,
     this.productId,
-    this.listOfProducts,
   });
 
   final _i41.Key? key;
 
   final String? productId;
 
-  final List<_i47.Product>? listOfProducts;
-
   @override
   String toString() {
-    return 'ProductDetailRouteArgs{key: $key, productId: $productId, listOfProducts: $listOfProducts}';
+    return 'ProductDetailRouteArgs{key: $key, productId: $productId}';
   }
 }
 
@@ -1125,18 +1114,14 @@ class ProductsOverviewRoute extends _i40.PageRouteInfo<void> {
 class ReceiptDetailRoute extends _i40.PageRouteInfo<ReceiptDetailRouteArgs> {
   ReceiptDetailRoute({
     _i41.Key? key,
-    required _i48.ReceiptBloc receiptBloc,
-    required List<_i45.AbstractMarketplace> listOfMarketplaces,
-    required _i28.ReceiptCreateOrEdit receiptCreateOrEdit,
-    required _i42.ReceiptTyp receiptTyp,
+    required String? receiptId,
+    required _i42.ReceiptType receiptTyp,
     List<_i40.PageRouteInfo>? children,
   }) : super(
           ReceiptDetailRoute.name,
           args: ReceiptDetailRouteArgs(
             key: key,
-            receiptBloc: receiptBloc,
-            listOfMarketplaces: listOfMarketplaces,
-            receiptCreateOrEdit: receiptCreateOrEdit,
+            receiptId: receiptId,
             receiptTyp: receiptTyp,
           ),
           initialChildren: children,
@@ -1151,25 +1136,19 @@ class ReceiptDetailRoute extends _i40.PageRouteInfo<ReceiptDetailRouteArgs> {
 class ReceiptDetailRouteArgs {
   const ReceiptDetailRouteArgs({
     this.key,
-    required this.receiptBloc,
-    required this.listOfMarketplaces,
-    required this.receiptCreateOrEdit,
+    required this.receiptId,
     required this.receiptTyp,
   });
 
   final _i41.Key? key;
 
-  final _i48.ReceiptBloc receiptBloc;
+  final String? receiptId;
 
-  final List<_i45.AbstractMarketplace> listOfMarketplaces;
-
-  final _i28.ReceiptCreateOrEdit receiptCreateOrEdit;
-
-  final _i42.ReceiptTyp receiptTyp;
+  final _i42.ReceiptType receiptTyp;
 
   @override
   String toString() {
-    return 'ReceiptDetailRouteArgs{key: $key, receiptBloc: $receiptBloc, listOfMarketplaces: $listOfMarketplaces, receiptCreateOrEdit: $receiptCreateOrEdit, receiptTyp: $receiptTyp}';
+    return 'ReceiptDetailRouteArgs{key: $key, receiptId: $receiptId, receiptTyp: $receiptTyp}';
   }
 }
 
@@ -1193,7 +1172,7 @@ class ReorderDetailRoute extends _i40.PageRouteInfo<ReorderDetailRouteArgs> {
   ReorderDetailRoute({
     _i41.Key? key,
     required _i30.ReorderCreateOrEdit reorderCreateOrEdit,
-    _i49.Supplier? supplier,
+    _i47.Supplier? supplier,
     String? reorderId,
     List<_i40.PageRouteInfo>? children,
   }) : super(
@@ -1225,7 +1204,7 @@ class ReorderDetailRouteArgs {
 
   final _i30.ReorderCreateOrEdit reorderCreateOrEdit;
 
-  final _i49.Supplier? supplier;
+  final _i47.Supplier? supplier;
 
   final String? reorderId;
 
@@ -1348,7 +1327,7 @@ class SplashRouteArgs {
 class SupplierDetailRoute extends _i40.PageRouteInfo<SupplierDetailRouteArgs> {
   SupplierDetailRoute({
     _i41.Key? key,
-    required _i50.SupplierBloc supplierBloc,
+    required _i48.SupplierBloc supplierBloc,
     required _i37.SupplierCreateOrEdit supplierCreateOrEdit,
     List<_i40.PageRouteInfo>? children,
   }) : super(
@@ -1376,7 +1355,7 @@ class SupplierDetailRouteArgs {
 
   final _i41.Key? key;
 
-  final _i50.SupplierBloc supplierBloc;
+  final _i48.SupplierBloc supplierBloc;
 
   final _i37.SupplierCreateOrEdit supplierCreateOrEdit;
 

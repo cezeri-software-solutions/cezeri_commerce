@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
-import '../../../2_application/database/receipt/receipt_bloc.dart';
+import '../../../2_application/database/receipt_detail/receipt_detail_bloc.dart';
 import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
 import '../../../3_domain/entities/marketplace/marketplace_presta.dart';
 import '../../../3_domain/entities/receipt/receipt.dart';
@@ -12,10 +12,10 @@ import '../../../constants.dart';
 
 class ReceiptDetailGeneralCard extends StatefulWidget {
   final Receipt receipt;
-  final ReceiptBloc receiptBloc;
+  final ReceiptDetailBloc receiptDetailBloc;
   final List<AbstractMarketplace> listOfMarketplaces;
 
-  const ReceiptDetailGeneralCard({super.key, required this.receipt, required this.receiptBloc, required this.listOfMarketplaces});
+  const ReceiptDetailGeneralCard({super.key, required this.receipt, required this.receiptDetailBloc, required this.listOfMarketplaces});
 
   @override
   State<ReceiptDetailGeneralCard> createState() => _ReceiptDetailGeneralCardState();
@@ -41,11 +41,11 @@ class _ReceiptDetailGeneralCardState extends State<ReceiptDetailGeneralCard> {
     marketplaceNames.add(MarketplacePresta.empty().name);
 
     final receiptHeader = switch (widget.receipt.receiptTyp) {
-      ReceiptTyp.offer => 'Angebot: ${widget.receipt.offerNumberAsString}',
-      ReceiptTyp.appointment => 'Auftrag: ${widget.receipt.appointmentNumberAsString}',
-      ReceiptTyp.deliveryNote => 'Lieferschein: ${widget.receipt.deliveryNoteNumberAsString}',
-      ReceiptTyp.invoice => 'Rechnung: ${widget.receipt.invoiceNumberAsString}',
-      ReceiptTyp.credit => 'Gutschrift: ${widget.receipt.creditNumberAsString}',
+      ReceiptType.offer => 'Angebot: ${widget.receipt.offerNumberAsString}',
+      ReceiptType.appointment => 'Auftrag: ${widget.receipt.appointmentNumberAsString}',
+      ReceiptType.deliveryNote => 'Lieferschein: ${widget.receipt.deliveryNoteNumberAsString}',
+      ReceiptType.invoice => 'Rechnung: ${widget.receipt.invoiceNumberAsString}',
+      ReceiptType.credit => 'Gutschrift: ${widget.receipt.creditNumberAsString}',
     };
 
     final selectedMarketplace = widget.listOfMarketplaces.where((e) => e.id == widget.receipt.marketplaceId).firstOrNull;
@@ -104,7 +104,8 @@ class _ReceiptDetailGeneralCardState extends State<ReceiptDetailGeneralCard> {
                             child: MyTextFormFieldSmall(
                               controller: customerEmailController,
                               // initialValue: widget.receipt.receiptCustomer.email,
-                              onChanged: (mail) => widget.receiptBloc.add(OnReceiptCustomerEmailChangedEvent(email: customerEmailController.text)),
+                              onChanged: (mail) =>
+                                  widget.receiptDetailBloc.add(ReceiptDetailCustomerEmailChangedEvent(email: customerEmailController.text)),
                             ),
                           ),
                           Gaps.w8,
@@ -151,8 +152,8 @@ class _ReceiptDetailGeneralCardState extends State<ReceiptDetailGeneralCard> {
               value: selectedMarketplaceName,
               onChanged: (marketplaceName) {
                 //selectedMarketplaceName = marketplaceName!;
-                widget.receiptBloc.add(
-                  OnAppointmentMarketplaceChangedEvent(marketplace: widget.listOfMarketplaces.where((e) => e.name == marketplaceName).first),
+                widget.receiptDetailBloc.add(
+                  ReceiptDetailMarketplaceChangedEvent(marketplace: widget.listOfMarketplaces.where((e) => e.name == marketplaceName).first),
                 );
               },
               items: marketplaceNames,
@@ -164,7 +165,7 @@ class _ReceiptDetailGeneralCardState extends State<ReceiptDetailGeneralCard> {
                 const Text('Liefersperre:'),
                 Checkbox.adaptive(
                   value: widget.receipt.isDeliveryBlocked,
-                  onChanged: (value) => widget.receiptBloc.add(SetIsDeliveryBlockedEvent(value: value!)),
+                  onChanged: (value) => widget.receiptDetailBloc.add(ReceiptDetailDeliveryBlockedChangedEvent(value: value!)),
                 ),
               ],
             )

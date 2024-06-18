@@ -1,365 +1,248 @@
 import 'package:bloc/bloc.dart';
-import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.dart';
-import 'package:flutter/material.dart';
+import 'package:cezeri_commerce/1_presentation/core/extensions/get_either.dart';
+import 'package:dartz/dartz.dart';
 
-import '../../../1_presentation/core/functions/mixed_functions.dart';
-import '../../../3_domain/entities/country.dart';
-import '../../../3_domain/entities/receipt/receipt.dart';
-import '../../../3_domain/entities/receipt/receipt_product.dart';
-import '../../../3_domain/entities/settings/tax.dart';
+import '/3_domain/entities/address.dart';
+import '/3_domain/entities/carrier/carrier_product.dart';
+import '/3_domain/entities/carrier/parcel_tracking.dart';
+import '/3_domain/entities/customer/customer.dart';
+import '/3_domain/entities/marketplace/abstract_marketplace.dart';
+import '/3_domain/entities/product/product.dart';
+import '/3_domain/entities/receipt/receipt.dart';
+import '/3_domain/entities/receipt/receipt_carrier.dart';
+import '/3_domain/entities/receipt/receipt_customer.dart';
+import '/3_domain/entities/receipt/receipt_marketplace.dart';
+import '/3_domain/entities/receipt/receipt_product.dart';
+import '/3_domain/entities/settings/main_settings.dart';
+import '/3_domain/entities/settings/payment_method.dart';
+import '/3_domain/repositories/firebase/main_settings_respository.dart';
+import '/3_domain/repositories/firebase/marketplace_repository.dart';
+import '/3_domain/repositories/firebase/product_repository.dart';
+import '/3_domain/repositories/firebase/receipt_respository.dart';
+import '/failures/failures.dart';
 
 part 'receipt_detail_event.dart';
 part 'receipt_detail_state.dart';
 
 class ReceiptDetailBloc extends Bloc<ReceiptDetailEvent, ReceiptDetailState> {
-  ReceiptDetailBloc() : super(ReceiptDetailState.initial()) {
-//? #########################################################################
+  final ReceiptRepository receiptRepository;
+  final MarketplaceRepository marketplaceRepository;
+  final MainSettingsRepository mainSettingsRepository;
+  final ProductRepository productRepository;
 
-    on<SetReceiptReceiptDetailEvent>((event, emit) {
-      emit(state.copyWith(
-        receipt: event.receipt,
-        listOfReceiptProducts: event.receipt.listOfReceiptProduct,
-        discountPercentageController: TextEditingController(text: event.receipt.discountPercent.toMyCurrencyString()),
-        discountAmountGrossController: TextEditingController(text: event.receipt.discountGross.toMyCurrencyString()),
-        shippingAmountGrossController: TextEditingController(text: event.receipt.totalShippingGross.toMyCurrencyString()),
-        additionalAmountGrossController: TextEditingController(text: event.receipt.additionalAmountGross.toMyCurrencyString()),
-        taxRulesListFromSettings: event.listOfTaxRules,
-      ));
-
-      add(SetAllControllersEvent());
-    });
-
-//? #########################################################################
-
-    on<SetListOfReceiptProductssReceiptDetailEvent>((event, emit) {
-      emit(state.copyWith(
-        receipt: event.receipt,
-        listOfReceiptProducts: [ReceiptProduct.empty().copyWith(tax: event.receipt.tax)],
-        isEditable: [true],
-        articleNumberControllers: [TextEditingController()],
-        articleNameControllers: [TextEditingController()],
-        quantityControllers: [TextEditingController(text: '1')],
-        unitPriceNetControllers: [TextEditingController(text: '0.00')],
-        posDiscountPercentControllers: [TextEditingController(text: '0.00')],
-        unitPriceGrossControllers: [TextEditingController(text: '0.00')],
-        taxRulesListFromSettings: event.listOfTaxRules,
-      ));
-    });
-
-//? #########################################################################
-
-    on<AddProductToReceiptProductsEvent>((event, emit) {
-      state.barcodeScannerController.clear();
-      final isFirstProductEmpty = state.listOfReceiptProducts.length == 1 &&
-          state.listOfReceiptProducts.first.articleNumber == '' &&
-          state.listOfReceiptProducts.first.name == '';
-      int? index;
-      for (int i = 0; i < state.listOfReceiptProducts.length; i++) {
-        if (event.receiptProduct.productId == state.listOfReceiptProducts[i].productId &&
-            event.receiptProduct.articleNumber == state.listOfReceiptProducts[i].articleNumber) {
-          index = i;
-          break;
-        }
-      }
-      if (index != null) {
-        List<TextEditingController> listOfQuantityControllers = List.from(state.quantityControllers);
-        listOfQuantityControllers[index] = TextEditingController(text: (int.parse(listOfQuantityControllers[index].text) + 1).toString());
-        emit(state.copyWith(quantityControllers: listOfQuantityControllers));
-        add(SetQuantityControllerEvent(index: index));
-        add(SetAllControllersEvent());
-      } else {
-        List<ReceiptProduct> listOfReceiptProducts = List.from(state.listOfReceiptProducts);
-        Tax? tax = state.taxRulesListFromSettings.where((e) => e.taxRate == state.receipt.tax.taxRate).firstOrNull;
-        tax ??= Tax(
-            taxId: '', taxName: 'Vorsteuer ${state.receipt.tax}%', taxRate: state.receipt.tax.taxRate, country: Country.empty(), isDefault: false);
-        ReceiptProduct newReceiptProduct = event.receiptProduct.copyWith(
-          tax: tax,
-          unitPriceGross: event.receiptProduct.unitPriceNet * taxToCalc(tax.taxRate),
-        );
-        listOfReceiptProducts.add(newReceiptProduct);
-
-        add(SetAllControllersEvent(listOfReceiptProducts: listOfReceiptProducts));
-      }
-
-      if (isFirstProductEmpty) add(RemoveProductFromReceiptProductsEvent(index: 0));
-    });
-
-//? #########################################################################
-
-    on<RemoveProductFromReceiptProductsEvent>((event, emit) {
-      List<ReceiptProduct> listOfReceiptProducts = List.from(state.listOfReceiptProducts);
-      if (listOfReceiptProducts.length == 1) {
-        add(SetListOfReceiptProductssReceiptDetailEvent(receipt: state.receipt, listOfTaxRules: state.taxRulesListFromSettings));
-      } else {
-        listOfReceiptProducts.removeAt(event.index);
-        emit(state.copyWith(listOfReceiptProducts: listOfReceiptProducts));
-      }
-
-      add(SetAllControllersEvent());
-    });
-
-//? #########################################################################
-
-    on<SetIsInScanModeEvent>((event, emit) {
-      emit(state.copyWith(isInScanMode: event.isInScanMode));
-    });
-
-//? #########################################################################
-
-    on<SetTotalDiscountPercentControllerEvent>((event, emit) {
-      emit(state.copyWith(receipt: state.receipt.copyWith(discountPercent: event.value)));
-      add(OnReceiptDetailTotalControllerChangedEvent());
-    });
-
-//? #########################################################################
-
-    on<SetTotalDiscountAmountGrossControllerEvent>((event, emit) {
-      emit(state.copyWith(receipt: state.receipt.copyWith(discountGross: event.value)));
-      add(OnReceiptDetailTotalControllerChangedEvent());
-    });
-
-//? #########################################################################
-
-    on<SetShippingAmountGrossControllerEvent>((event, emit) {
-      emit(state.copyWith(receipt: state.receipt.copyWith(totalShippingGross: event.value)));
-      add(OnReceiptDetailTotalControllerChangedEvent());
-    });
-
-//? #########################################################################
-
-    on<SetAdditionalAmountGrossControllerEvent>((event, emit) {
-      emit(state.copyWith(receipt: state.receipt.copyWith(additionalAmountGross: event.value)));
-      add(OnReceiptDetailTotalControllerChangedEvent());
-    });
-
-//? #########################################################################
-
-    on<OnReceiptDetailTotalControllerChangedEvent>((event, emit) {
-      double profit = state.receipt.totalShippingNet;
-      for (var product in state.listOfReceiptProducts) {
-        profit += product.profit;
-      }
-
-      List<ReceiptProduct> receiptProductsList = [];
-      for (int i = 0; i < state.listOfReceiptProducts.length; i++) {
-        final discountPercentAmountGrossUnit =
-            (calcPercentageAmount(state.listOfReceiptProducts[i].unitPriceGross, state.listOfReceiptProducts[i].discountPercent)).toMyRoundedDouble();
-        final discountPercentAmountNetUnit =
-            (discountPercentAmountGrossUnit / taxToCalc(state.listOfReceiptProducts[i].tax.taxRate)).toMyRoundedDouble();
-        final receiptProdut = state.listOfReceiptProducts[i].copyWith(
-          discountPercentAmountGrossUnit: discountPercentAmountGrossUnit,
-          discountPercentAmountNetUnit: discountPercentAmountNetUnit,
-          discountGross:
-              ((discountPercentAmountGrossUnit + state.listOfReceiptProducts[i].discountGrossUnit) * state.listOfReceiptProducts[i].quantity)
-                  .toMyRoundedDouble(),
-          discountNet: ((discountPercentAmountNetUnit + state.listOfReceiptProducts[i].discountNetUnit) * state.listOfReceiptProducts[i].quantity)
-              .toMyRoundedDouble(),
-        );
-        receiptProductsList.add(receiptProdut);
-      }
-
-      emit(state.copyWith(
-          listOfReceiptProducts: receiptProductsList,
-          receipt: state.receipt.copyWith(
-            discountPercentAmountGross: state.discountPercentageAmountGross,
-            discountPercentAmountNet: (state.discountPercentageAmountGross / taxToCalc(state.receipt.tax.taxRate)).toMyRoundedDouble(),
-            discountPercentAmountTax:
-                (state.discountPercentageAmountGross - (state.discountPercentageAmountGross / taxToCalc(state.receipt.tax.taxRate)))
-                    .toMyRoundedDouble(),
-            discountNet: (state.receipt.discountGross / taxToCalc(state.receipt.tax.taxRate)).toMyRoundedDouble(),
-            discountTax: (state.receipt.discountGross - (state.receipt.discountGross / taxToCalc(state.receipt.tax.taxRate))).toMyRoundedDouble(),
-            totalShippingNet: (state.receipt.totalShippingGross / taxToCalc(state.receipt.tax.taxRate)).toMyRoundedDouble(),
-            totalShippingTax:
-                (state.receipt.totalShippingGross - (state.receipt.totalShippingGross / taxToCalc(state.receipt.tax.taxRate))).toMyRoundedDouble(),
-            additionalAmountNet: (state.receipt.additionalAmountGross / taxToCalc(state.receipt.tax.taxRate)).toMyRoundedDouble(),
-            additionalAmountTax: (state.receipt.additionalAmountGross - (state.receipt.additionalAmountGross / taxToCalc(state.receipt.tax.taxRate)))
-                .toMyRoundedDouble(),
-            //
-            totalGross: state.totalGross,
-            totalNet: (state.totalGross / taxToCalc(state.receipt.tax.taxRate)).toMyRoundedDouble(),
-            totalTax: state.taxAmount,
-            subTotalGross: state.productsTotalGross,
-            subTotalNet: state.productsTotalNet,
-            subTotalTax: state.productsTotalGross - state.productsTotalNet,
-            posDiscountPercentAmountGross: state.posDiscountPercentAmount,
-            posDiscountPercentAmountNet: (state.posDiscountPercentAmount / taxToCalc(state.receipt.tax.taxRate)).toMyRoundedDouble(),
-            posDiscountPercentAmountTax:
-                (state.posDiscountPercentAmount - (state.posDiscountPercentAmount / taxToCalc(state.receipt.tax.taxRate))).toMyRoundedDouble(),
-            profit: profit,
-            profitExclShipping: profit - state.receipt.totalShippingNet,
-            profitExclWrapping: profit - state.receipt.totalWrappingNet,
-            profitExclShippingAndWrapping: profit - state.receipt.totalShippingNet - state.receipt.totalWrappingNet,
-          )));
-    });
-
-//? #########################################################################
-
-    on<SetControllerOnTapOutsideReceiptDetailEvent>((event, emit) {
-      emit(state.copyWith(
-        discountPercentageController: state.discountPercentageController.text == ''
-            ? TextEditingController(text: '0.00')
-            : TextEditingController(text: state.discountPercentageController.text),
-        discountAmountGrossController: state.discountAmountGrossController.text == ''
-            ? TextEditingController(text: '0.00')
-            : TextEditingController(text: state.discountAmountGrossController.text),
-        shippingAmountGrossController: state.shippingAmountGrossController.text == ''
-            ? TextEditingController(text: '0.00')
-            : TextEditingController(text: state.shippingAmountGrossController.text),
-        additionalAmountGrossController: state.additionalAmountGrossController.text == ''
-            ? TextEditingController(text: '0.00')
-            : TextEditingController(text: state.additionalAmountGrossController.text),
-      ));
-    });
-
-//? #########################################################################
-//? #########################################################################
-//? ############################ Controllers ################################
-//? #########################################################################
-//? #########################################################################
-
-    on<SetAllControllersEvent>((event, emit) {
-      List<bool> isEditable = [];
-      List<TextEditingController> articleNumberControllers = [];
-      List<TextEditingController> articleNameControllers = [];
-      List<Tax> taxRulesList = [];
-      List<TextEditingController> quantityControllers = [];
-      List<TextEditingController> unitPriceNetControllers = [];
-      List<TextEditingController> posDiscountPercentControllers = [];
-      List<TextEditingController> unitPriceGrossControllers = [];
-
-      for (final product in event.listOfReceiptProducts ?? state.listOfReceiptProducts) {
-        if (product.isFromDatabase) {
-          isEditable.add(false);
-        } else {
-          isEditable.add(true);
-        }
-        articleNumberControllers.add(TextEditingController(text: product.articleNumber));
-        articleNameControllers.add(TextEditingController(text: product.name));
-        if (event.listOfReceiptProducts == null) {
-          taxRulesList.add(state.taxRulesListFromSettings.where((e) => e.taxName == product.tax.taxName).first);
-        } else {
-          taxRulesList.add(state.taxRulesListFromSettings.where((e) => e.isDefault).first);
-        }
-        quantityControllers.add(TextEditingController(text: product.quantity.toString()));
-        unitPriceNetControllers.add(TextEditingController(text: product.unitPriceNet.toMyCurrencyStringToShow()));
-        posDiscountPercentControllers.add(TextEditingController(text: product.discountPercent.toString()));
-        unitPriceGrossControllers.add(TextEditingController(text: product.unitPriceGross.toMyCurrencyStringToShow()));
-      }
-      emit(state.copyWith(
-        isEditable: isEditable,
-        articleNumberControllers: articleNumberControllers,
-        articleNameControllers: articleNameControllers,
-        quantityControllers: quantityControllers,
-        unitPriceNetControllers: unitPriceNetControllers,
-        posDiscountPercentControllers: posDiscountPercentControllers,
-        unitPriceGrossControllers: unitPriceGrossControllers,
-        listOfReceiptProducts: event.listOfReceiptProducts ?? state.listOfReceiptProducts,
-      ));
-
-      add(OnReceiptDetailTotalControllerChangedEvent());
-    });
-
-//? #########################################################################
-
-    on<SetArticleNumberControllerEvent>((event, emit) {
-      List<TextEditingController> listOfArticleNumberControllers = List.from(state.articleNumberControllers);
-      List<ReceiptProduct> listOfReceiptProducts = List.from(state.listOfReceiptProducts);
-      listOfReceiptProducts[event.index] =
-          listOfReceiptProducts[event.index].copyWith(articleNumber: listOfArticleNumberControllers[event.index].text);
-
-      emit(state.copyWith(listOfReceiptProducts: listOfReceiptProducts));
-    });
-
-//? #########################################################################
-
-    on<SetArticleNameControllerEvent>((event, emit) {
-      List<TextEditingController> listOfArticleNameControllers = List.from(state.articleNameControllers);
-      List<ReceiptProduct> listOfReceiptProducts = List.from(state.listOfReceiptProducts);
-      listOfReceiptProducts[event.index] = listOfReceiptProducts[event.index].copyWith(name: listOfArticleNameControllers[event.index].text);
-
-      emit(state.copyWith(listOfReceiptProducts: listOfReceiptProducts));
-    });
-
-//? #########################################################################
-
-    on<SetQuantityControllerEvent>((event, emit) {
-      List<TextEditingController> listOfQuantityControllers = List.from(state.quantityControllers);
-      List<ReceiptProduct> listOfReceiptProducts = List.from(state.listOfReceiptProducts);
-      listOfReceiptProducts[event.index] = listOfReceiptProducts[event.index].copyWith(
-        quantity: int.parse(listOfQuantityControllers[event.index].text),
-        profit: (listOfReceiptProducts[event.index].unitPriceNet - listOfReceiptProducts[event.index].wholesalePrice) *
-            int.parse(listOfQuantityControllers[event.index].text),
-      );
-      emit(state.copyWith(listOfReceiptProducts: listOfReceiptProducts));
-
-      add(OnReceiptDetailTotalControllerChangedEvent());
-    });
-
-//? #########################################################################
-
-    on<SetUnitPriceNetControllerEvent>((event, emit) {
-      List<TextEditingController> listOfUnitPriceNetControllers = List.from(state.unitPriceNetControllers);
-      List<TextEditingController> listOfUnitPriceGrossControllers = List.from(state.unitPriceGrossControllers);
-      List<ReceiptProduct> listOfReceiptProducts = List.from(state.listOfReceiptProducts);
-      final unitPriceNet = listOfUnitPriceNetControllers[event.index].text.toMyDouble();
-      final unitPriceGross = (unitPriceNet * taxToCalc(listOfReceiptProducts[event.index].tax.taxRate)).toMyRoundedDouble();
-      final profitUnit = unitPriceNet - listOfReceiptProducts[event.index].wholesalePrice - listOfReceiptProducts[event.index].discountNetUnit;
-      final profit = profitUnit * listOfReceiptProducts[event.index].quantity;
-      listOfReceiptProducts[event.index] = listOfReceiptProducts[event.index].copyWith(
-        unitPriceNet: unitPriceNet,
-        unitPriceGross: unitPriceGross,
-        profitUnit: profitUnit,
-        profit: profit,
-      );
-      listOfUnitPriceGrossControllers[event.index] = TextEditingController(text: unitPriceGross.toMyCurrencyStringToShow());
-      emit(state.copyWith(
-        listOfReceiptProducts: listOfReceiptProducts,
-        unitPriceGrossControllers: listOfUnitPriceGrossControllers,
-      ));
-
-      add(OnReceiptDetailTotalControllerChangedEvent());
-    });
-
-//? #########################################################################
-
-    on<SetPosDiscountPercentControllerEvent>((event, emit) {
-      List<TextEditingController> listOfPosDiscountPercentControllers = List.from(state.posDiscountPercentControllers);
-      List<ReceiptProduct> listOfReceiptProducts = List.from(state.listOfReceiptProducts);
-      listOfReceiptProducts[event.index] = listOfReceiptProducts[event.index].copyWith(
-        discountPercent: listOfPosDiscountPercentControllers[event.index].text.toMyDouble(),
-      );
-      emit(state.copyWith(listOfReceiptProducts: listOfReceiptProducts));
-
-      add(OnReceiptDetailTotalControllerChangedEvent());
-    });
-
-//? #########################################################################
-
-    on<SetUnitPriceGrossControllerEvent>((event, emit) {
-      List<TextEditingController> listOfUnitPriceGrossControllers = List.from(state.unitPriceGrossControllers);
-      List<TextEditingController> listOfUnitPriceNetControllers = List.from(state.unitPriceNetControllers);
-      List<ReceiptProduct> listOfReceiptProducts = List.from(state.listOfReceiptProducts);
-      final unitPriceNet =
-          (listOfUnitPriceGrossControllers[event.index].text.toMyDouble() / taxToCalc(listOfReceiptProducts[event.index].tax.taxRate))
-              .toMyRoundedDouble();
-      final unitPriceGross = listOfUnitPriceGrossControllers[event.index].text.toMyDouble();
-      final profitUnit = unitPriceNet - listOfReceiptProducts[event.index].wholesalePrice - listOfReceiptProducts[event.index].discountNetUnit;
-      final profit = profitUnit * listOfReceiptProducts[event.index].quantity;
-      listOfReceiptProducts[event.index] = listOfReceiptProducts[event.index].copyWith(
-        unitPriceNet: unitPriceNet,
-        unitPriceGross: unitPriceGross,
-        profitUnit: profitUnit,
-        profit: profit,
-      );
-      listOfUnitPriceNetControllers[event.index] = TextEditingController(text: unitPriceNet.toMyCurrencyStringToShow());
-      emit(state.copyWith(
-        listOfReceiptProducts: listOfReceiptProducts,
-        unitPriceNetControllers: listOfUnitPriceNetControllers,
-      ));
-
-      add(OnReceiptDetailTotalControllerChangedEvent());
-    });
-
-//? #########################################################################
+  ReceiptDetailBloc({
+    required this.receiptRepository,
+    required this.marketplaceRepository,
+    required this.mainSettingsRepository,
+    required this.productRepository,
+  }) : super(ReceiptDetailState.initial()) {
+    on<SetReceiptDetailStatesToInitialEvent>(_onSetReceiptDetailStatesToInitial);
+    on<ReceiptDetailGetReceiptOrSetEmptyEvent>(_onReceiptDetailGetReceiptOrSetEmpty);
+    on<ReceiptDetailGetProductByEanEvent>(_onReceiptDetailGetProductByEan);
+    on<ReceiptDetailCreateParcelLabelReceiptEvent>(_onReceiptDetailCreateParcelLabelReceipt);
+    on<ReceiptDetailUpdateReceiptEvent>(_onReceiptDetailUpdateReceipt);
+    on<ReceiptDetailCreateReceiptManuallyEvent>(_onReceiptDetailCreateReceiptManually);
+    on<ReceiptDetailEditAddressEvent>(_onReceiptDetailEditAddress);
+    on<ReceiptDetailUpdateCustomerEvent>(_onReceiptDetailUpdateCustomer);
+    on<ReceiptDetailCustomerEmailChangedEvent>(_onReceiptDetailCustomerEmailChanged);
+    on<ReceiptDetailMarketplaceChangedEvent>(_onReceiptDetailMarketplaceChanged);
+    on<ReceiptDetailDeliveryBlockedChangedEvent>(_onReceiptDetailDeliveryBlockedChanged);
+    on<ReceiptDetailPaymentMethodChangedEvent>(_onReceiptDetailPaymentMethodChanged);
+    on<ReceiptDetailPaymentStatusChangedEvent>(_onReceiptDetailPaymentStatusChanged);
+    on<ReceiptDetailCarrierChangedEvent>(_onReceiptDetailCarrierChanged);
+    on<ReceiptDetailCarrierProductChangedEvent>(_onReceiptDetailCarrierProductChanged);
   }
+
+//? ###########################################################################################################################
+
+  void _onSetReceiptDetailStatesToInitial(SetReceiptDetailStatesToInitialEvent event, Emitter<ReceiptDetailState> emit) {
+    emit(ReceiptDetailState.initial());
+  }
+
+//? ###########################################################################################################################
+
+  Future<void> _onReceiptDetailGetReceiptOrSetEmpty(ReceiptDetailGetReceiptOrSetEmptyEvent event, Emitter<ReceiptDetailState> emit) async {
+    emit(state.copyWith(isLoadingReceiptOnObserve: true));
+
+    Receipt newReceipt = Receipt.empty(receiptType: event.receiptType);
+    Either<AbstractFailure, Receipt>? fosReceipt;
+
+    //* Wenn ein neues Dokument erstellt werden soll
+    if (event.receiptId == null) {
+      emit(state.copyWith(receipt: Receipt.empty(receiptType: event.receiptType)));
+    } else {
+      fosReceipt = await receiptRepository.getReceipt(event.receiptId!, event.receiptType);
+      if (fosReceipt.isLeft()) emit(state.copyWith(databaseFailure: fosReceipt.getLeft(), isLoadingReceiptOnObserve: false));
+      newReceipt = fosReceipt.getRight();
+    }
+
+    final fosMarketplaces = await marketplaceRepository.getListOfMarketplaces();
+    if (fosMarketplaces.isLeft()) emit(state.copyWith(databaseFailure: fosMarketplaces.getLeft(), isLoadingReceiptOnObserve: false));
+
+    final fosSettings = await mainSettingsRepository.getSettings();
+    if (fosSettings.isLeft()) emit(state.copyWith(databaseFailure: fosSettings.getLeft(), isLoadingReceiptOnObserve: false));
+
+    emit(state.copyWith(
+      receipt: newReceipt,
+      listOfMarketplaces: fosMarketplaces.getRight(),
+      mainSettings: fosSettings.getRight(),
+      isLoadingReceiptOnObserve: false,
+      fosReceiptOnObserveOption: optionOf(fosReceipt),
+    ));
+    emit(state.copyWith(fosReceiptOnObserveOption: none()));
+  }
+
+//? ###########################################################################################################################
+
+  Future<void> _onReceiptDetailGetProductByEan(ReceiptDetailGetProductByEanEvent event, Emitter<ReceiptDetailState> emit) async {
+    emit(state.copyWith(isLoadingProductOnObserve: true));
+
+    final fos = await productRepository.getProductByEan(event.ean);
+
+    emit(state.copyWith(
+      isLoadingProductOnObserve: false,
+      productByEan: fos.isRight() ? fos.getRight() : null,
+      fosProductOnObserveOption: optionOf(fos),
+    ));
+    emit(state.copyWith(fosProductOnObserveOption: none()));
+  }
+
+//? ###########################################################################################################################
+
+  Future<void> _onReceiptDetailCreateParcelLabelReceipt(ReceiptDetailCreateParcelLabelReceiptEvent event, Emitter<ReceiptDetailState> emit) async {
+    emit(state.copyWith(isLoadingParcelLabelOnCreate: true));
+
+    final fos = await receiptRepository.createNewParcelForReceipt(state.receipt!, event.weight);
+
+    emit(state.copyWith(
+      isLoadingParcelLabelOnCreate: false,
+      fosParcelLabelOnCreate: optionOf(fos),
+    ));
+    emit(state.copyWith(fosParcelLabelOnCreate: none()));
+  }
+
+//? ###########################################################################################################################
+
+  Future<void> _onReceiptDetailUpdateReceipt(ReceiptDetailUpdateReceiptEvent event, Emitter<ReceiptDetailState> emit) async {
+    emit(state.copyWith(isLoadingReceiptOnUpdate: true));
+
+    final newAppointment = event.receipt.copyWith(listOfReceiptProduct: event.newListOfReceiptProducts);
+
+    final fos = await receiptRepository.updateReceipt(
+      newAppointment,
+      event.oldListOfReceiptProducts,
+      event.newListOfReceiptProducts,
+    );
+
+    emit(state.copyWith(
+      isLoadingReceiptOnUpdate: false,
+      fosReceiptOnUpdateOption: optionOf(fos),
+    ));
+    emit(state.copyWith(fosReceiptOnUpdateOption: none()));
+  }
+
+//? ###########################################################################################################################
+
+  Future<void> _onReceiptDetailCreateReceiptManually(ReceiptDetailCreateReceiptManuallyEvent event, Emitter<ReceiptDetailState> emit) async {
+    emit(state.copyWith(isLoadingReceiptOnCreate: true));
+
+    final failureOrSuccess = await receiptRepository.createReceiptManually(event.receipt);
+
+    emit(state.copyWith(
+      isLoadingReceiptOnCreate: false,
+      fosReceiptOnCreateOption: optionOf(failureOrSuccess),
+    ));
+    emit(state.copyWith(fosReceiptOnCreateOption: none()));
+  }
+
+//? ###########################################################################################################################
+
+  void _onReceiptDetailEditAddress(ReceiptDetailEditAddressEvent event, Emitter<ReceiptDetailState> emit) {
+    if (event.address.addressType == AddressType.delivery) {
+      emit(state.copyWith(receipt: state.receipt!.copyWith(addressDelivery: event.address)));
+    }
+
+    if (event.address.addressType == AddressType.invoice) {
+      emit(state.copyWith(receipt: state.receipt!.copyWith(addressInvoice: event.address)));
+    }
+  }
+
+//? ###########################################################################################################################
+
+  void _onReceiptDetailUpdateCustomer(ReceiptDetailUpdateCustomerEvent event, Emitter<ReceiptDetailState> emit) {
+    emit(state.copyWith(receipt: state.receipt!.copyWith(receiptCustomer: ReceiptCustomer.fromCustomer(event.customer))));
+  }
+
+//? ###########################################################################################################################
+
+  void _onReceiptDetailCustomerEmailChanged(ReceiptDetailCustomerEmailChangedEvent event, Emitter<ReceiptDetailState> emit) {
+    emit(state.copyWith(receipt: state.receipt!.copyWith(receiptCustomer: state.receipt!.receiptCustomer.copyWith(email: event.email))));
+  }
+
+//? ###########################################################################################################################
+
+  void _onReceiptDetailMarketplaceChanged(ReceiptDetailMarketplaceChangedEvent event, Emitter<ReceiptDetailState> emit) {
+    emit(state.copyWith(
+      receipt: state.receipt!.copyWith(
+        marketplaceId: event.marketplace.id,
+        receiptMarketplace: ReceiptMarketplace.fromMarketplace(event.marketplace),
+      ),
+    ));
+  }
+
+//? ###########################################################################################################################
+
+  void _onReceiptDetailDeliveryBlockedChanged(ReceiptDetailDeliveryBlockedChangedEvent event, Emitter<ReceiptDetailState> emit) {
+    emit(state.copyWith(receipt: state.receipt!.copyWith(isDeliveryBlocked: event.value)));
+  }
+
+//? ###########################################################################################################################
+
+  void _onReceiptDetailPaymentMethodChanged(ReceiptDetailPaymentMethodChangedEvent event, Emitter<ReceiptDetailState> emit) {
+    emit(state.copyWith(receipt: state.receipt!.copyWith(paymentMethod: event.paymentMethod)));
+  }
+
+//? ###########################################################################################################################
+
+  void _onReceiptDetailPaymentStatusChanged(ReceiptDetailPaymentStatusChangedEvent event, Emitter<ReceiptDetailState> emit) {
+    emit(state.copyWith(
+      receipt: state.receipt!.copyWith(
+        paymentStatus: switch (event.paymentStatus) {
+          'Offen' => PaymentStatus.open,
+          'Teilweise bezahlt' => PaymentStatus.partiallyPaid,
+          'Komplett bezahlt' => PaymentStatus.paid,
+          _ => PaymentStatus.open,
+        },
+      ),
+    ));
+  }
+
+//? ###########################################################################################################################
+
+  void _onReceiptDetailCarrierChanged(ReceiptDetailCarrierChangedEvent event, Emitter<ReceiptDetailState> emit) {
+    emit(state.copyWith(receipt: state.receipt!.copyWith(receiptCarrier: event.receiptCarrier)));
+  }
+
+//? ###########################################################################################################################
+
+  void _onReceiptDetailCarrierProductChanged(ReceiptDetailCarrierProductChangedEvent event, Emitter<ReceiptDetailState> emit) {
+    emit(state.copyWith(
+      receipt: state.receipt!.copyWith(
+        receiptCarrier: state.receipt!.receiptCarrier.copyWith(
+          carrierProduct: state.receipt!.receiptCarrier.carrierProduct.copyWith(
+            productName: event.receiptCarrierProduct.productName,
+            id: event.receiptCarrierProduct.id,
+          ),
+        ),
+      ),
+    ));
+  }
+
+//? ###########################################################################################################################
+//? ###########################################################################################################################
+//? ###########################################################################################################################
+//? ###########################################################################################################################
+//? ###########################################################################################################################
+//? ###########################################################################################################################
+//? ###########################################################################################################################
 }

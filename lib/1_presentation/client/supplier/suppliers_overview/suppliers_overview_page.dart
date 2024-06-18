@@ -33,32 +33,34 @@ class SuppliersOverviewPage extends StatelessWidget {
         }
 
         return Expanded(
-          child: ListView.separated(
-            itemCount: state.listOfFilteredSuppliers!.length,
-            itemBuilder: (context, index) {
-              final supplier = state.listOfFilteredSuppliers![index];
-              if (index == 0) {
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Checkbox.adaptive(
-                          value: state.isAllSuppliersSelected,
-                          onChanged: (value) => supplierBloc.add(OnSelectAllSuppliersEvent(isSelected: value!)),
-                        ),
-                        const Expanded(child: Text('Lieferant', style: TextStyles.h3Bold)),
-                        const Expanded(child: Text('Adresse', style: TextStyles.h3Bold)),
-                      ],
-                    ),
-                    _SupplierContainer(supplier: supplier, index: index, supplierBloc: supplierBloc),
-                  ],
-                );
-              } else {
-                return _SupplierContainer(supplier: supplier, index: index, supplierBloc: supplierBloc);
-              }
-            },
-            separatorBuilder: (context, index) => const Divider(),
+          child: Scrollbar(
+            child: ListView.separated(
+              itemCount: state.listOfFilteredSuppliers!.length,
+              itemBuilder: (context, index) {
+                final supplier = state.listOfFilteredSuppliers![index];
+                if (index == 0) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Checkbox.adaptive(
+                            value: state.isAllSuppliersSelected,
+                            onChanged: (value) => supplierBloc.add(OnSelectAllSuppliersEvent(isSelected: value!)),
+                          ),
+                          const Expanded(child: Text('Lieferant', style: TextStyles.h3Bold)),
+                          const Expanded(child: Text('Adresse', style: TextStyles.h3Bold)),
+                        ],
+                      ),
+                      _SupplierContainer(supplier: supplier, index: index, supplierBloc: supplierBloc),
+                    ],
+                  );
+                } else {
+                  return _SupplierContainer(supplier: supplier, index: index, supplierBloc: supplierBloc);
+                }
+              },
+              separatorBuilder: (context, index) => const Divider(),
+            ),
           ),
         );
       },

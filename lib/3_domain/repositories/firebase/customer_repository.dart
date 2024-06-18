@@ -7,6 +7,12 @@ abstract class CustomerRepository {
   Future<Either<AbstractFailure, Customer>> createCustomer(Customer customer);
   Future<Either<AbstractFailure, Customer>> getCustomer(String id);
   Future<Either<AbstractFailure, List<Customer>>> getListOfAllCustomers();
+  Future<Either<AbstractFailure, int>> getTotalNumberOfCustomersBySearchText(String searchText);
+  Future<Either<AbstractFailure, List<Customer>>> getListOfCustomersPerPageBySearchText({
+    required String searchText,
+    required int currentPage,
+    required int itemsPerPage,
+  });
   Future<Either<AbstractFailure, Customer>> updateCustomer(Customer customer);
   Future<Either<AbstractFailure, Unit>> deleteCustomer(String id);
   //
