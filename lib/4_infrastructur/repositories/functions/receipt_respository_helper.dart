@@ -1,3 +1,4 @@
+import 'package:cezeri_commerce/1_presentation/core/extensions/get_either.dart';
 import 'package:logger/logger.dart';
 
 import '/3_domain/entities/address.dart';
@@ -5,15 +6,12 @@ import '/3_domain/entities/customer/customer.dart';
 import '/3_domain/repositories/firebase/customer_repository.dart';
 
 Future<Customer?> getCustomerByMarketplaceId(CustomerRepository customerRepository, String marketplaceId, int customerIdMarketplace) async {
-  Customer? loadedCustomer;
   final fosCustomer = await customerRepository.getCustomerByCustomerIdInMarketplace(marketplaceId, customerIdMarketplace);
-  fosCustomer.fold(
-    (failure) =>
-        Logger().i('Kunde mit der Marktplatz ID: $customerIdMarketplace konte nicht in der Firestore Datenbank gefunden werden. \n Error: $failure'),
-    (customer) => loadedCustomer = customer,
-  );
-
-  return loadedCustomer;
+  if (fosCustomer.isRight()) {
+    return fosCustomer.getRight();
+  } else {
+    return null;
+  }
 }
 
 Future<Customer?> createCustomerFromMarketplace(CustomerRepository customerRepository, Customer customer) async {

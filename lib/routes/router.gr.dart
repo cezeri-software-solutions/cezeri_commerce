@@ -85,19 +85,17 @@ import 'package:cezeri_commerce/1_presentation/settings/tax_rules/tax_rules_scre
 import 'package:cezeri_commerce/1_presentation/shipping_label/shipping_label_screen.dart'
     as _i33;
 import 'package:cezeri_commerce/1_presentation/splash_page.dart' as _i36;
-import 'package:cezeri_commerce/2_application/database/customer/customer_bloc.dart'
-    as _i43;
 import 'package:cezeri_commerce/2_application/database/product_detail/product_detail_bloc.dart'
-    as _i46;
-import 'package:cezeri_commerce/2_application/database/supplier/supplier_bloc.dart'
-    as _i48;
-import 'package:cezeri_commerce/2_application/packing_station/packing_station_bloc.dart'
-    as _i44;
-import 'package:cezeri_commerce/3_domain/entities/marketplace/abstract_marketplace.dart'
     as _i45;
+import 'package:cezeri_commerce/2_application/database/supplier/supplier_bloc.dart'
+    as _i47;
+import 'package:cezeri_commerce/2_application/packing_station/packing_station_bloc.dart'
+    as _i43;
+import 'package:cezeri_commerce/3_domain/entities/marketplace/abstract_marketplace.dart'
+    as _i44;
 import 'package:cezeri_commerce/3_domain/entities/receipt/receipt.dart' as _i42;
 import 'package:cezeri_commerce/3_domain/entities/reorder/supplier.dart'
-    as _i47;
+    as _i46;
 import 'package:flutter/material.dart' as _i41;
 
 abstract class $AppRouter extends _i40.RootStackRouter {
@@ -137,8 +135,7 @@ abstract class $AppRouter extends _i40.RootStackRouter {
         routeData: routeData,
         child: _i4.CustomerDetailScreen(
           key: args.key,
-          customerBloc: args.customerBloc,
-          customerCreateOrEdit: args.customerCreateOrEdit,
+          customerId: args.customerId,
         ),
       );
     },
@@ -512,15 +509,13 @@ class CarriersOverviewRoute extends _i40.PageRouteInfo<void> {
 class CustomerDetailRoute extends _i40.PageRouteInfo<CustomerDetailRouteArgs> {
   CustomerDetailRoute({
     _i41.Key? key,
-    required _i43.CustomerBloc customerBloc,
-    required _i4.CustomerCreateOrEdit customerCreateOrEdit,
+    required String? customerId,
     List<_i40.PageRouteInfo>? children,
   }) : super(
           CustomerDetailRoute.name,
           args: CustomerDetailRouteArgs(
             key: key,
-            customerBloc: customerBloc,
-            customerCreateOrEdit: customerCreateOrEdit,
+            customerId: customerId,
           ),
           initialChildren: children,
         );
@@ -534,19 +529,16 @@ class CustomerDetailRoute extends _i40.PageRouteInfo<CustomerDetailRouteArgs> {
 class CustomerDetailRouteArgs {
   const CustomerDetailRouteArgs({
     this.key,
-    required this.customerBloc,
-    required this.customerCreateOrEdit,
+    required this.customerId,
   });
 
   final _i41.Key? key;
 
-  final _i43.CustomerBloc customerBloc;
-
-  final _i4.CustomerCreateOrEdit customerCreateOrEdit;
+  final String? customerId;
 
   @override
   String toString() {
-    return 'CustomerDetailRouteArgs{key: $key, customerBloc: $customerBloc, customerCreateOrEdit: $customerCreateOrEdit}';
+    return 'CustomerDetailRouteArgs{key: $key, customerId: $customerId}';
   }
 }
 
@@ -833,8 +825,8 @@ class PackingStationDetailRoute
     extends _i40.PageRouteInfo<PackingStationDetailRouteArgs> {
   PackingStationDetailRoute({
     _i41.Key? key,
-    required _i44.PackingStationBloc packingStationBloc,
-    required _i45.AbstractMarketplace marketplace,
+    required _i43.PackingStationBloc packingStationBloc,
+    required _i44.AbstractMarketplace marketplace,
     List<_i40.PageRouteInfo>? children,
   }) : super(
           PackingStationDetailRoute.name,
@@ -861,9 +853,9 @@ class PackingStationDetailRouteArgs {
 
   final _i41.Key? key;
 
-  final _i44.PackingStationBloc packingStationBloc;
+  final _i43.PackingStationBloc packingStationBloc;
 
-  final _i45.AbstractMarketplace marketplace;
+  final _i44.AbstractMarketplace marketplace;
 
   @override
   String toString() {
@@ -904,7 +896,7 @@ class PaymentMethodRoute extends _i40.PageRouteInfo<void> {
 class PicklistDetailRoute extends _i40.PageRouteInfo<PicklistDetailRouteArgs> {
   PicklistDetailRoute({
     _i41.Key? key,
-    required _i44.PackingStationBloc packingStationBloc,
+    required _i43.PackingStationBloc packingStationBloc,
     List<_i40.PageRouteInfo>? children,
   }) : super(
           PicklistDetailRoute.name,
@@ -929,7 +921,7 @@ class PicklistDetailRouteArgs {
 
   final _i41.Key? key;
 
-  final _i44.PackingStationBloc packingStationBloc;
+  final _i43.PackingStationBloc packingStationBloc;
 
   @override
   String toString() {
@@ -943,7 +935,7 @@ class PicklistsOverviewRoute
     extends _i40.PageRouteInfo<PicklistsOverviewRouteArgs> {
   PicklistsOverviewRoute({
     _i41.Key? key,
-    required _i44.PackingStationBloc packingStationBloc,
+    required _i43.PackingStationBloc packingStationBloc,
     List<_i40.PageRouteInfo>? children,
   }) : super(
           PicklistsOverviewRoute.name,
@@ -968,7 +960,7 @@ class PicklistsOverviewRouteArgs {
 
   final _i41.Key? key;
 
-  final _i44.PackingStationBloc packingStationBloc;
+  final _i43.PackingStationBloc packingStationBloc;
 
   @override
   String toString() {
@@ -982,7 +974,7 @@ class ProductDescriptionRoute
     extends _i40.PageRouteInfo<ProductDescriptionRouteArgs> {
   ProductDescriptionRoute({
     _i41.Key? key,
-    required _i46.ProductDetailBloc productDetailBloc,
+    required _i45.ProductDetailBloc productDetailBloc,
     List<_i40.PageRouteInfo>? children,
   }) : super(
           ProductDescriptionRoute.name,
@@ -1007,7 +999,7 @@ class ProductDescriptionRouteArgs {
 
   final _i41.Key? key;
 
-  final _i46.ProductDetailBloc productDetailBloc;
+  final _i45.ProductDetailBloc productDetailBloc;
 
   @override
   String toString() {
@@ -1172,7 +1164,7 @@ class ReorderDetailRoute extends _i40.PageRouteInfo<ReorderDetailRouteArgs> {
   ReorderDetailRoute({
     _i41.Key? key,
     required _i30.ReorderCreateOrEdit reorderCreateOrEdit,
-    _i47.Supplier? supplier,
+    _i46.Supplier? supplier,
     String? reorderId,
     List<_i40.PageRouteInfo>? children,
   }) : super(
@@ -1204,7 +1196,7 @@ class ReorderDetailRouteArgs {
 
   final _i30.ReorderCreateOrEdit reorderCreateOrEdit;
 
-  final _i47.Supplier? supplier;
+  final _i46.Supplier? supplier;
 
   final String? reorderId;
 
@@ -1327,7 +1319,7 @@ class SplashRouteArgs {
 class SupplierDetailRoute extends _i40.PageRouteInfo<SupplierDetailRouteArgs> {
   SupplierDetailRoute({
     _i41.Key? key,
-    required _i48.SupplierBloc supplierBloc,
+    required _i47.SupplierBloc supplierBloc,
     required _i37.SupplierCreateOrEdit supplierCreateOrEdit,
     List<_i40.PageRouteInfo>? children,
   }) : super(
@@ -1355,7 +1347,7 @@ class SupplierDetailRouteArgs {
 
   final _i41.Key? key;
 
-  final _i48.SupplierBloc supplierBloc;
+  final _i47.SupplierBloc supplierBloc;
 
   final _i37.SupplierCreateOrEdit supplierCreateOrEdit;
 

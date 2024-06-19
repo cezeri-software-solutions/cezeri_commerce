@@ -2,7 +2,7 @@ import 'package:cezeri_commerce/1_presentation/core/widgets/my_dropdown_button_s
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../../2_application/database/customer/customer_bloc.dart';
+import '../../../../../2_application/database/customer_detail/customer_detail_bloc.dart';
 import '../../../../../3_domain/entities/customer/customer.dart';
 import '../../../../../constants.dart';
 import '../../../../core/widgets/my_button_small.dart';
@@ -11,14 +11,14 @@ import '../../../../core/widgets/my_dialog_taxes.dart';
 import '../../../../core/widgets/my_form_field_small.dart';
 
 class CustomerMasterCard extends StatelessWidget {
-  final CustomerBloc customerBloc;
+  final CustomerDetailBloc customerDetailBloc;
 
-  const CustomerMasterCard({super.key, required this.customerBloc});
+  const CustomerMasterCard({super.key, required this.customerDetailBloc});
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<CustomerBloc, CustomerState>(
-      bloc: customerBloc,
+    return BlocBuilder<CustomerDetailBloc, CustomerDetailState>(
+      bloc: customerDetailBloc,
       builder: (context, state) {
         final invoiceTypeValue = switch (state.customer!.customerInvoiceType) {
           CustomerInvoiceType.standardInvoice => 'Stand- Einzelrechnung',
@@ -35,6 +35,10 @@ class CustomerMasterCard extends StatelessWidget {
               children: [
                 const Text('Kunde', style: TextStyles.h3BoldPrimary),
                 const Divider(height: 30),
+                if (state.customer!.customerMarketplace != null) ...[
+                  Text('Kundennummer im Marktplatz: ${state.customer!.customerMarketplace!.customerIdMarketplace}'),
+                  Gaps.h10,
+                ],
                 Row(
                   children: [
                     Expanded(
@@ -49,7 +53,7 @@ class CustomerMasterCard extends StatelessWidget {
                       child: MyTextFormFieldSmall(
                         labelText: 'Firmenname',
                         controller: state.companyNameController,
-                        onChanged: (_) => customerBloc.add(OnCustomerControllerChangedEvent()),
+                        onChanged: (_) => customerDetailBloc.add(CustomerDetailControllerChangedEvent()),
                       ),
                     ),
                   ],
@@ -61,7 +65,7 @@ class CustomerMasterCard extends StatelessWidget {
                       child: MyTextFormFieldSmall(
                         labelText: 'Vorname',
                         controller: state.firstNameController,
-                        onChanged: (_) => customerBloc.add(OnCustomerControllerChangedEvent()),
+                        onChanged: (_) => customerDetailBloc.add(CustomerDetailControllerChangedEvent()),
                       ),
                     ),
                     Gaps.w8,
@@ -69,7 +73,7 @@ class CustomerMasterCard extends StatelessWidget {
                       child: MyTextFormFieldSmall(
                         labelText: 'Nachname',
                         controller: state.lastNameController,
-                        onChanged: (_) => customerBloc.add(OnCustomerControllerChangedEvent()),
+                        onChanged: (_) => customerDetailBloc.add(CustomerDetailControllerChangedEvent()),
                       ),
                     ),
                   ],
@@ -78,7 +82,7 @@ class CustomerMasterCard extends StatelessWidget {
                 MyTextFormFieldSmall(
                   labelText: 'E-Mail',
                   controller: state.emailController,
-                  onChanged: (_) => customerBloc.add(OnCustomerControllerChangedEvent()),
+                  onChanged: (_) => customerDetailBloc.add(CustomerDetailControllerChangedEvent()),
                 ),
                 Gaps.h8,
                 Row(
@@ -87,7 +91,7 @@ class CustomerMasterCard extends StatelessWidget {
                       child: MyTextFormFieldSmall(
                         labelText: 'Telefonnummer',
                         controller: state.phoneController,
-                        onChanged: (_) => customerBloc.add(OnCustomerControllerChangedEvent()),
+                        onChanged: (_) => customerDetailBloc.add(CustomerDetailControllerChangedEvent()),
                       ),
                     ),
                     Gaps.w8,
@@ -95,7 +99,7 @@ class CustomerMasterCard extends StatelessWidget {
                       child: MyTextFormFieldSmall(
                         labelText: 'Telefonnummer Mobil',
                         controller: state.phoneMobileController,
-                        onChanged: (_) => customerBloc.add(OnCustomerControllerChangedEvent()),
+                        onChanged: (_) => customerDetailBloc.add(CustomerDetailControllerChangedEvent()),
                       ),
                     ),
                   ],
@@ -107,7 +111,7 @@ class CustomerMasterCard extends StatelessWidget {
                       child: MyTextFormFieldSmall(
                         labelText: 'UID-Nummer',
                         controller: state.uidNumberController,
-                        onChanged: (_) => customerBloc.add(OnCustomerControllerChangedEvent()),
+                        onChanged: (_) => customerDetailBloc.add(CustomerDetailControllerChangedEvent()),
                       ),
                     ),
                     Gaps.w8,
@@ -115,7 +119,7 @@ class CustomerMasterCard extends StatelessWidget {
                       child: MyTextFormFieldSmall(
                         labelText: 'Steuernummer',
                         controller: state.taxNumberController,
-                        onChanged: (_) => customerBloc.add(OnCustomerControllerChangedEvent()),
+                        onChanged: (_) => customerDetailBloc.add(CustomerDetailControllerChangedEvent()),
                       ),
                     ),
                   ],
@@ -123,7 +127,7 @@ class CustomerMasterCard extends StatelessWidget {
                 Gaps.h16,
                 MyDropdownButtonSmall(
                   value: invoiceTypeValue,
-                  onChanged: (type) => customerBloc.add(OnCustomerInvoiceTypeChangedEvent(
+                  onChanged: (type) => customerDetailBloc.add(CustomerDetailInvoiceTypeChangedEvent(
                     customerInvoiceType: switch (type!) {
                       'Stand- Einzelrechnung' => CustomerInvoiceType.standardInvoice,
                       'Sammelrechnung' => CustomerInvoiceType.collectiveInvoice,
@@ -136,7 +140,7 @@ class CustomerMasterCard extends StatelessWidget {
                 GestureDetector(
                   onTap: () => showDialog(
                     context: context,
-                    builder: (_) => MyDialogTaxes(onChanged: (taxRule) => customerBloc.add(SetCustomerTaxEvent(tax: taxRule))),
+                    builder: (_) => MyDialogTaxes(onChanged: (taxRule) => customerDetailBloc.add(CustomerDetailSetCustomerTaxEvent(tax: taxRule))),
                   ),
                   child: MyButtonSmall(
                     child: Row(

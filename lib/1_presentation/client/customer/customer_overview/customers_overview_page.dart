@@ -1,5 +1,4 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:cezeri_commerce/1_presentation/client/customer/customer_detail/customer_detail_screen.dart';
 import 'package:cezeri_commerce/3_domain/entities/address.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -74,10 +73,7 @@ class _CustomerContainer extends StatelessWidget {
             ),
             Expanded(
               child: InkWell(
-                onTap: () {
-                  customerBloc.add(GetCustomerEvent(customer: customer));
-                  context.router.push(CustomerDetailRoute(customerBloc: customerBloc, customerCreateOrEdit: CustomerCreateOrEdit.edit));
-                },
+                onTap: () => context.router.push(CustomerDetailRoute(customerId: customer.id)),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [

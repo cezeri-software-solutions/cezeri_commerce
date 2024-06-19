@@ -7,7 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 
-import '../../../2_application/database/customer/customer_bloc.dart';
+import '../../../2_application/database/customer_detail/customer_detail_bloc.dart';
 import '../../../2_application/database/receipt_detail/receipt_detail_bloc.dart';
 import '../../../3_domain/entities/address.dart';
 import '../../../3_domain/entities/country.dart';
@@ -88,7 +88,7 @@ class _CustomerDetail extends StatefulWidget {
 }
 
 class __CustomerDetailState extends State<_CustomerDetail> {
-  final customerBloc = sl<CustomerBloc>();
+  final customerDetailBloc = sl<CustomerDetailBloc>();
 
   Address? deliveryAddress;
   Address? invoiceAddress;
@@ -129,7 +129,7 @@ class __CustomerDetailState extends State<_CustomerDetail> {
   void initState() {
     super.initState();
 
-    customerBloc.add((SetCustomerEvent(customer: widget.customer)));
+    customerDetailBloc.add((CustomerDetailSetCustomerEvent(customer: widget.customer)));
 
     deliveryAddress = widget.customer.listOfAddress.where((e) => e.addressType == AddressType.delivery && e.isDefault).firstOrNull;
     invoiceAddress = widget.customer.listOfAddress.where((e) => e.addressType == AddressType.invoice && e.isDefault).firstOrNull;
@@ -190,12 +190,12 @@ class __CustomerDetailState extends State<_CustomerDetail> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider.value(
-      value: customerBloc,
-      child: BlocListener<CustomerBloc, CustomerState>(
-        bloc: customerBloc,
-        listenWhen: (p, c) => p.fosCustomerOnUpdateOption != c.fosCustomerOnUpdateOption,
+      value: customerDetailBloc,
+      child: BlocListener<CustomerDetailBloc, CustomerDetailState>(
+        bloc: customerDetailBloc,
+        listenWhen: (p, c) => p.fosCustomerDetailOnUpdateOption != c.fosCustomerDetailOnUpdateOption,
         listener: (context, state) {
-          state.fosCustomerOnUpdateOption.fold(
+          state.fosCustomerDetailOnUpdateOption.fold(
             () => null,
             (a) => a.fold(
               (failure) => failureRenderer(context, [failure]),
@@ -214,8 +214,8 @@ class __CustomerDetailState extends State<_CustomerDetail> {
             ),
           );
         },
-        child: BlocBuilder<CustomerBloc, CustomerState>(
-          bloc: customerBloc,
+        child: BlocBuilder<CustomerDetailBloc, CustomerDetailState>(
+          bloc: customerDetailBloc,
           builder: (context, state) {
             if (state.customer == null) return const SizedBox(height: 100, child: Center(child: MyCircularProgressIndicator()));
 
@@ -225,7 +225,7 @@ class __CustomerDetailState extends State<_CustomerDetail> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _CustomerMaster(customerBloc: customerBloc, state: state),
+                  _CustomerMaster(customerBloc: customerDetailBloc, state: state),
                   Gaps.h16,
                   const Text('Lieferadresse', style: TextStyles.h3BoldPrimary),
 
@@ -407,7 +407,7 @@ class __CustomerDetailState extends State<_CustomerDetail> {
                   Gaps.h16,
                   Align(
                     alignment: Alignment.center,
-                    child: MyOutlinedButton(buttonText: 'Speichern', onPressed: _saveChanges, isLoading: state.isLoadingCustomerOnUpdate),
+                    child: MyOutlinedButton(buttonText: 'Speichern', onPressed: _saveChanges, isLoading: state.isLoadingCustomerDetailOnUpdate),
                   ),
                 ],
               ),
@@ -465,7 +465,7 @@ class __CustomerDetailState extends State<_CustomerDetail> {
       creationDate: deliveryCreationDate,
       lastEditingDate: now,
     );
-    if (updatedDeliveryAddress != null) customerBloc.add(OnAddEditCustomerAddressEvent(address: updatedDeliveryAddress!));
+    if (updatedDeliveryAddress != null) customerDetailBloc.add(CustomerDetailUpdateCustomerAddressEvent(address: updatedDeliveryAddress!));
 
     String invoiceId = UniqueID().value;
     if (invoiceAddress != null) invoiceId = invoiceAddress!.id;
@@ -489,15 +489,15 @@ class __CustomerDetailState extends State<_CustomerDetail> {
       lastEditingDate: now,
     );
 
-    if (updatedInvoiceAddress != null) customerBloc.add(OnAddEditCustomerAddressEvent(address: updatedInvoiceAddress!));
+    if (updatedInvoiceAddress != null) customerDetailBloc.add(CustomerDetailUpdateCustomerAddressEvent(address: updatedInvoiceAddress!));
 
-    if (updatedDeliveryAddress != null && updatedInvoiceAddress != null) customerBloc.add(UpdateCustomerEvent());
+    if (updatedDeliveryAddress != null && updatedInvoiceAddress != null) customerDetailBloc.add(CustomerDetailUpdateCustomerEvent());
   }
 }
 
 class _CustomerMaster extends StatelessWidget {
-  final CustomerBloc customerBloc;
-  final CustomerState state;
+  final CustomerDetailBloc customerBloc;
+  final CustomerDetailState state;
 
   const _CustomerMaster({required this.customerBloc, required this.state});
 
@@ -526,7 +526,7 @@ class _CustomerMaster extends StatelessWidget {
               child: MyTextFormFieldSmall(
                 labelText: 'Firmenname',
                 controller: state.companyNameController,
-                onChanged: (_) => customerBloc.add(OnCustomerControllerChangedEvent()),
+                onChanged: (_) => customerBloc.add(CustomerDetailControllerChangedEvent()),
               ),
             ),
           ],
@@ -538,7 +538,7 @@ class _CustomerMaster extends StatelessWidget {
               child: MyTextFormFieldSmall(
                 labelText: 'Vorname',
                 controller: state.firstNameController,
-                onChanged: (_) => customerBloc.add(OnCustomerControllerChangedEvent()),
+                onChanged: (_) => customerBloc.add(CustomerDetailControllerChangedEvent()),
               ),
             ),
             Gaps.w8,
@@ -546,7 +546,7 @@ class _CustomerMaster extends StatelessWidget {
               child: MyTextFormFieldSmall(
                 labelText: 'Nachname',
                 controller: state.lastNameController,
-                onChanged: (_) => customerBloc.add(OnCustomerControllerChangedEvent()),
+                onChanged: (_) => customerBloc.add(CustomerDetailControllerChangedEvent()),
               ),
             ),
           ],
@@ -555,7 +555,7 @@ class _CustomerMaster extends StatelessWidget {
         MyTextFormFieldSmall(
           labelText: 'E-Mail',
           controller: state.emailController,
-          onChanged: (_) => customerBloc.add(OnCustomerControllerChangedEvent()),
+          onChanged: (_) => customerBloc.add(CustomerDetailControllerChangedEvent()),
         ),
         Gaps.h8,
         Row(
@@ -564,7 +564,7 @@ class _CustomerMaster extends StatelessWidget {
               child: MyTextFormFieldSmall(
                 labelText: 'Telefonnummer',
                 controller: state.phoneController,
-                onChanged: (_) => customerBloc.add(OnCustomerControllerChangedEvent()),
+                onChanged: (_) => customerBloc.add(CustomerDetailControllerChangedEvent()),
               ),
             ),
             Gaps.w8,
@@ -572,7 +572,7 @@ class _CustomerMaster extends StatelessWidget {
               child: MyTextFormFieldSmall(
                 labelText: 'Telefonnummer Mobil',
                 controller: state.phoneMobileController,
-                onChanged: (_) => customerBloc.add(OnCustomerControllerChangedEvent()),
+                onChanged: (_) => customerBloc.add(CustomerDetailControllerChangedEvent()),
               ),
             ),
           ],
@@ -584,7 +584,7 @@ class _CustomerMaster extends StatelessWidget {
               child: MyTextFormFieldSmall(
                 labelText: 'UID-Nummer',
                 controller: state.uidNumberController,
-                onChanged: (_) => customerBloc.add(OnCustomerControllerChangedEvent()),
+                onChanged: (_) => customerBloc.add(CustomerDetailControllerChangedEvent()),
               ),
             ),
             Gaps.w8,
@@ -592,7 +592,7 @@ class _CustomerMaster extends StatelessWidget {
               child: MyTextFormFieldSmall(
                 labelText: 'Steuernummer',
                 controller: state.taxNumberController,
-                onChanged: (_) => customerBloc.add(OnCustomerControllerChangedEvent()),
+                onChanged: (_) => customerBloc.add(CustomerDetailControllerChangedEvent()),
               ),
             ),
           ],
@@ -600,7 +600,7 @@ class _CustomerMaster extends StatelessWidget {
         Gaps.h16,
         MyDropdownButtonSmall(
           value: invoiceTypeValue,
-          onChanged: (type) => customerBloc.add(OnCustomerInvoiceTypeChangedEvent(
+          onChanged: (type) => customerBloc.add(CustomerDetailInvoiceTypeChangedEvent(
             customerInvoiceType: switch (type!) {
               'Stand- Einzelrechnung' => CustomerInvoiceType.standardInvoice,
               'Sammelrechnung' => CustomerInvoiceType.collectiveInvoice,
@@ -613,7 +613,7 @@ class _CustomerMaster extends StatelessWidget {
         GestureDetector(
           onTap: () => showDialog(
             context: context,
-            builder: (_) => MyDialogTaxes(onChanged: (taxRule) => customerBloc.add(SetCustomerTaxEvent(tax: taxRule))),
+            builder: (_) => MyDialogTaxes(onChanged: (taxRule) => customerBloc.add(CustomerDetailSetCustomerTaxEvent(tax: taxRule))),
           ),
           child: MyButtonSmall(
             child: Row(

@@ -1,18 +1,16 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:cezeri_commerce/1_presentation/app_drawer.dart';
-import 'package:cezeri_commerce/1_presentation/core/widgets/my_circular_progress_indicator.dart';
+import 'package:cezeri_commerce/routes/router.gr.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../2_application/database/customer/customer_bloc.dart';
 import '../../../../injection.dart';
-import '../../../../routes/router.gr.dart';
 import '../../../core/functions/dialogs.dart';
 import '../../../core/functions/my_scaffold_messanger.dart';
 import '../../../core/renderer/failure_renderer.dart';
 import '../../../core/widgets/pages_pagination_bar.dart';
-import '../customer_detail/customer_detail_screen.dart';
 import 'customers_overview_page.dart';
 
 @RoutePage()
@@ -65,19 +63,6 @@ class _CustomersOverviewScreenState extends State<CustomersOverviewScreen> with 
               );
             },
           ),
-          BlocListener<CustomerBloc, CustomerState>(
-            listenWhen: (p, c) => p.fosCustomerMainSettingsOnObserveOption != c.fosCustomerMainSettingsOnObserveOption,
-            listener: (context, state) {
-              state.fosCustomerMainSettingsOnObserveOption.fold(
-                () => null,
-                (a) => a.fold(
-                  (failure) => failureRenderer(context, [failure]),
-                  (customer) =>
-                      context.router.push(CustomerDetailRoute(customerBloc: customerBloc, customerCreateOrEdit: CustomerCreateOrEdit.create)),
-                ),
-              );
-            },
-          ),
         ],
         child: BlocBuilder<CustomerBloc, CustomerState>(
           builder: (context, state) {
@@ -88,10 +73,8 @@ class _CustomersOverviewScreenState extends State<CustomersOverviewScreen> with 
                 actions: [
                   IconButton(onPressed: () => context.read<CustomerBloc>().add(GetAllCustomersEvent()), icon: const Icon(Icons.refresh)),
                   IconButton(
-                    onPressed: () => customerBloc.add(SetEmptyCustomerOnCreateNewCustomerEvent()),
-                    icon: state.isLoadingCustomerMainSettingsOnObserve
-                        ? const MyCircularProgressIndicator()
-                        : const Icon(Icons.add, color: Colors.green),
+                    onPressed: () => context.router.push(CustomerDetailRoute(customerId: null)),
+                    icon: const Icon(Icons.add, color: Colors.green),
                   ),
                   IconButton(
                     onPressed: state.selectedCustomers.isEmpty

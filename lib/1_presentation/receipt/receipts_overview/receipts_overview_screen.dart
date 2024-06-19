@@ -194,7 +194,7 @@ class _ReceiptsOverviewScreenState extends State<ReceiptsOverviewScreen> with Au
                       icon: const Icon(Icons.refresh)),
                   IconButton(onPressed: () => filterReceiptsOverview(context, receiptBloc), icon: const Icon(Icons.filter_list)),
                   IconButton(
-                    onPressed: () => _showMoreOptions(state.selectedReceipts, state.listOfAllReceipts!, state.listOfMarketpaces!),
+                    onPressed: () => _showMoreOptions(state.selectedReceipts, state.listOfMarketpaces!),
                     icon: const Icon(Icons.more_vert),
                   ),
                 ],
@@ -272,12 +272,11 @@ class _ReceiptsOverviewScreenState extends State<ReceiptsOverviewScreen> with Au
     };
   }
 
-  void _showMoreOptions(List<Receipt> listOfReceipts, List<Receipt> listOfAllReceipts, List<AbstractMarketplace> listOfMarketplaces) {
+  void _showMoreOptions(List<Receipt> listOfReceipts, List<AbstractMarketplace> listOfMarketplaces) {
     showReceiptsOverviewOptions(
       context: context,
       receiptBloc: receiptBloc,
       receiptType: widget.receiptType,
-      listOfAllReceipts: listOfAllReceipts,
       listOfselectedReceipts: listOfReceipts,
       listOfMarketplaces: listOfMarketplaces,
     );

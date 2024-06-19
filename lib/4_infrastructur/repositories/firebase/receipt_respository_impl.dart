@@ -368,6 +368,32 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
   }
 
   @override
+  Future<Either<AbstractFailure, List<Receipt>>> getListOfReceiptsByCustomerId(String customerId) async {
+    if (!await checkInternetConnection()) return Left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
+
+    try {
+      final response = await supabase.rpc('get_all_receipts_by_customer_id', params: {
+        'owner_id': ownerId,
+        'customer_id': customerId,
+      });
+
+      if (response.isEmpty) return const Right([]);
+
+      final listOfReceipts = (response as List<dynamic>).map((e) {
+        final item = e as Map<String, dynamic>;
+        return Receipt.fromJson(item);
+      }).toList();
+
+      return Right(listOfReceipts);
+    } catch (e) {
+      logger.e(e);
+      return Left(GeneralFailure(customMessage: 'Beim Laden der Dokumente ist ein Fehler aufgetreten. Error: $e'));
+    }
+  }
+
+  @override
   Future<Either<AbstractFailure, Unit>> deleteListOfReceipts(List<Receipt> listOfReceipts) async {
     if (!await checkInternetConnection()) return Left(NoConnectionFailure());
     final ownerId = await getOwnerId();

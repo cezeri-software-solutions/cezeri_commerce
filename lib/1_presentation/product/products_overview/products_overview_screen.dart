@@ -4,7 +4,6 @@ import 'package:cezeri_commerce/1_presentation/core/renderer/failure_renderer.da
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 
 import '../../../2_application/database/product/product_bloc.dart';
 import '../../../3_domain/entities/product/product.dart';
@@ -211,19 +210,7 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> with Au
   }
 
   void _showMoreOptions(List<Product> listOfProducts) {
-    WoltModalSheet.show(
-      context: context,
-      useSafeArea: false,
-      pageListBuilder: (woltContext) {
-        return [
-          WoltModalSheetPage(
-            hasTopBarLayer: false,
-            isTopBarLayerAlwaysVisible: false,
-            child: ProductOptionsSheet(productBloc: productBloc, products: listOfProducts, iconButtonKey: iconButtonKey),
-          ),
-        ];
-      },
-    );
+    showProductsOverviewOptions(context: context, productBloc: productBloc, listOfSelectedProducts: listOfProducts, iconButtonKey: iconButtonKey);
   }
 
   @override

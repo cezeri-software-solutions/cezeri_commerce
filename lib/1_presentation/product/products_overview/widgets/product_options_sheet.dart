@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 
 import '../../../../2_application/database/product/product_bloc.dart';
 import '../../../../3_domain/entities/product/product.dart';
@@ -16,6 +17,28 @@ import '../../../../routes/router.gr.dart';
 import '../../../core/functions/dialogs.dart';
 import '../functions/products_overview_create_export.dart';
 import 'mass_editing_dialogs/mass_editing_dialogs.dart';
+
+void showProductsOverviewOptions({
+  required BuildContext context,
+  required ProductBloc productBloc,
+  required List<Product> listOfSelectedProducts,
+  required GlobalKey<State<StatefulWidget>> iconButtonKey,
+}) {
+  WoltModalSheet.show(
+    context: context,
+    useSafeArea: false,
+    showDragHandle: false,
+    pageListBuilder: (woltContext) {
+      return [
+        WoltModalSheetPage(
+          hasTopBarLayer: false,
+          isTopBarLayerAlwaysVisible: false,
+          child: ProductOptionsSheet(productBloc: productBloc, products: listOfSelectedProducts, iconButtonKey: iconButtonKey),
+        ),
+      ];
+    },
+  );
+}
 
 class ProductOptionsSheet extends StatelessWidget {
   final ProductBloc productBloc;

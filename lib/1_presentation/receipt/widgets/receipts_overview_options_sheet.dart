@@ -29,7 +29,6 @@ void showReceiptsOverviewOptions({
   required BuildContext context,
   required ReceiptBloc receiptBloc,
   required ReceiptType receiptType,
-  required List<Receipt> listOfAllReceipts,
   required List<Receipt> listOfselectedReceipts,
   required List<AbstractMarketplace> listOfMarketplaces,
 }) {
@@ -45,7 +44,6 @@ void showReceiptsOverviewOptions({
           child: ReceiptsOverviewOptionsSheet(
             receiptBloc: receiptBloc,
             receipts: listOfselectedReceipts,
-            allReceipts: listOfAllReceipts,
             receiptType: receiptType,
             marketplaces: listOfMarketplaces,
           ),
@@ -58,7 +56,6 @@ void showReceiptsOverviewOptions({
 class ReceiptsOverviewOptionsSheet extends StatelessWidget {
   final ReceiptBloc receiptBloc;
   final List<Receipt> receipts;
-  final List<Receipt> allReceipts;
   final ReceiptType receiptType;
   final List<AbstractMarketplace> marketplaces;
 
@@ -66,7 +63,6 @@ class ReceiptsOverviewOptionsSheet extends StatelessWidget {
     super.key,
     required this.receiptBloc,
     required this.receipts,
-    required this.allReceipts,
     required this.receiptType,
     required this.marketplaces,
   });
@@ -108,7 +104,7 @@ class ReceiptsOverviewOptionsSheet extends StatelessWidget {
           ListTile(
             leading: const Icon(Icons.table_chart_rounded, color: CustomColors.primaryColor),
             title: const Text('PDF-Tabelle erstellen'),
-            onTap: () => _onGeneratePdfTable(context, allReceipts, receipts),
+            onTap: () => _onGeneratePdfTable(context, receipts),
           ),
           ListTile(
             leading: Icon(Icons.delete, color: isActive ? Colors.red : Colors.grey),
@@ -140,7 +136,7 @@ class ReceiptsOverviewOptionsSheet extends StatelessWidget {
     return '$typeName umwandeln zu ...';
   }
 
-  Future<void> _onGeneratePdfTable(BuildContext context, List<Receipt> listOfReceipts, List<Receipt> listOfSelectedReceipts) async {
+  Future<void> _onGeneratePdfTable(BuildContext context, List<Receipt> listOfSelectedReceipts) async {
     final now = DateTime.now();
     List<Receipt> listOfReceiptsToShow = [];
     DateTimeRange? dateRange;

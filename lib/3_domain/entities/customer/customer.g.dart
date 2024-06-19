@@ -9,8 +9,10 @@ part of 'customer.dart';
 Customer _$CustomerFromJson(Map<String, dynamic> json) => Customer(
       id: json['id'] as String,
       customerNumber: (json['customerNumber'] as num).toInt(),
-      customerMarketplace: CustomerMarketplace.fromJson(
-          json['customerMarketplace'] as Map<String, dynamic>),
+      customerMarketplace: json['customerMarketplace'] == null
+          ? null
+          : CustomerMarketplace.fromJson(
+              json['customerMarketplace'] as Map<String, dynamic>),
       company: json['company'] as String?,
       firstName: json['firstName'] as String,
       lastName: json['lastName'] as String,
@@ -33,7 +35,7 @@ Customer _$CustomerFromJson(Map<String, dynamic> json) => Customer(
 
 Map<String, dynamic> _$CustomerToJson(Customer instance) => <String, dynamic>{
       'customerNumber': instance.customerNumber,
-      'customerMarketplace': instance.customerMarketplace.toJson(),
+      'customerMarketplace': instance.customerMarketplace?.toJson(),
       'company': instance.company,
       'firstName': instance.firstName,
       'lastName': instance.lastName,

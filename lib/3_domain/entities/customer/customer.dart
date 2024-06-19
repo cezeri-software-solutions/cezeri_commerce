@@ -20,7 +20,7 @@ class Customer {
   @JsonKey(includeToJson: false)
   final String id;
   final int customerNumber;
-  final CustomerMarketplace customerMarketplace;
+  final CustomerMarketplace? customerMarketplace;
   final String? company;
   final String firstName;
   final String lastName;
@@ -67,7 +67,7 @@ class Customer {
     return Customer(
       id: '',
       customerNumber: 0,
-      customerMarketplace: CustomerMarketplace.empty(),
+      customerMarketplace: null,
       company: null,
       firstName: '',
       lastName: '',

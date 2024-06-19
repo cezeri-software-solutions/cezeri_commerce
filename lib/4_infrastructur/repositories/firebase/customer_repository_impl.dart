@@ -183,8 +183,8 @@ class CustomerRepositoryImpl implements CustomerRepository {
         .from('d_customers')
         .select()
         .eq('ownerId', ownerId)
-        .filter('customerMarketplace->>marketplaceName', 'eq', marketplaceId)
-        .filter('customerMarketplace->customerIdMarketplace', 'eq', customerIdMarketplace);
+        .filter('customerMarketplace->>marketplaceId', 'eq', marketplaceId)
+        .filter('customerMarketplace->>customerIdMarketplace', 'eq', customerIdMarketplace);
 
     try {
       final response = await query;

@@ -2,7 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 
-import '../../../../../2_application/database/customer/customer_bloc.dart';
+import '../../../../../2_application/database/customer_detail/customer_detail_bloc.dart';
 import '../../../../../3_domain/entities/address.dart';
 import '../../../../../3_domain/entities/customer/customer.dart';
 import '../../../../../constants.dart';
@@ -11,10 +11,10 @@ import '../../../../core/widgets/my_address_update_sheet.dart';
 enum CustomerDetailAddressTyp { shipping, invoice }
 
 class CustomerAddressCard extends StatefulWidget {
-  final CustomerBloc customerBloc;
+  final CustomerDetailBloc customerDetailBloc;
   final Customer customer;
 
-  const CustomerAddressCard({super.key, required this.customer, required this.customerBloc});
+  const CustomerAddressCard({super.key, required this.customer, required this.customerDetailBloc});
 
   @override
   State<CustomerAddressCard> createState() => _CustomerAddressCardState();
@@ -51,7 +51,7 @@ class _CustomerAddressCardState extends State<CustomerAddressCard> {
               ),
             ),
             Gaps.h16,
-            _CustomerDetailCustomerAddressContainer(customerBloc: widget.customerBloc, address: shownAddress)
+            _CustomerDetailCustomerAddressContainer(customerBloc: widget.customerDetailBloc, address: shownAddress)
           ],
         ),
       ),
@@ -60,7 +60,7 @@ class _CustomerAddressCardState extends State<CustomerAddressCard> {
 }
 
 class _CustomerDetailCustomerAddressContainer extends StatelessWidget {
-  final CustomerBloc customerBloc;
+  final CustomerDetailBloc customerBloc;
   final Address? address;
 
   const _CustomerDetailCustomerAddressContainer({required this.address, required this.customerBloc});
@@ -112,7 +112,7 @@ class _CustomerDetailCustomerAddressContainer extends StatelessWidget {
   }
 }
 
-void _showAddEditAddressModal(BuildContext context, CustomerBloc customerBloc, Address? address) {
+void _showAddEditAddressModal(BuildContext context, CustomerDetailBloc customerDetailBloc, Address? address) {
   final title = Padding(
     padding: const EdgeInsets.only(left: 24, top: 20),
     child: Text(address == null ? 'Neue Adresse' : 'Adresse bearbeiten', style: TextStyles.h2),
@@ -139,7 +139,7 @@ void _showAddEditAddressModal(BuildContext context, CustomerBloc customerBloc, A
         trailingNavBarWidget: closeButton,
         child: MyAddressUpdateSheet(
           address: address,
-          onSave: (newAddress) => customerBloc.add(OnAddEditCustomerAddressEvent(address: newAddress)),
+          onSave: (newAddress) => customerDetailBloc.add(CustomerDetailUpdateCustomerAddressEvent(address: newAddress)),
         ),
       ),
     ],

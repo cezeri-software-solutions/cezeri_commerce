@@ -10,6 +10,7 @@ import '2_application/database/auth/sign_in_form/sign_in_form_bloc.dart';
 import '2_application/database/auth/user_data_form/user_data_form_bloc.dart';
 import '2_application/database/client/client_bloc.dart';
 import '2_application/database/customer/customer_bloc.dart';
+import '2_application/database/customer_detail/customer_detail_bloc.dart';
 import '2_application/database/dashboard/dashboard_bloc.dart';
 import '2_application/database/general_ledger_account/general_ledger_account_bloc.dart';
 import '2_application/database/home/home_product/home_product_bloc.dart';
@@ -101,7 +102,8 @@ Future<void> init() async {
   );
   sl.registerFactory(() => ReceiptDetailProductsBloc());
   sl.registerFactory(() => PackingStationBloc(receiptRepository: sl(), customerRepository: sl(), packingStationRepository: sl()));
-  sl.registerFactory(() => CustomerBloc(customerRepository: sl(), mainSettingsRepository: sl()));
+  sl.registerFactory(() => CustomerBloc(customerRepository: sl()));
+  sl.registerFactory(() => CustomerDetailBloc(customerRepository: sl(), mainSettingsRepository: sl(), receiptRepository: sl()));
   sl.registerFactory(() => SupplierBloc(supplierRepository: sl()));
   sl.registerFactory(() => ReorderBloc(reorderRepository: sl(), supplierRepository: sl()));
   sl.registerFactory(() => ReorderDetailBloc(

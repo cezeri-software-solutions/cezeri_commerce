@@ -26,6 +26,7 @@ abstract class ReceiptRepository {
     required DateTimeRange dates,
     required ReceiptType receiptType,
   });
+  Future<Either<AbstractFailure, List<Receipt>>> getListOfReceiptsByCustomerId(String customerId);
   Future<Either<AbstractFailure, Unit>> updateReceipt(
     Receipt receipt,
     List<ReceiptProduct> oldListOfReceiptProducts,

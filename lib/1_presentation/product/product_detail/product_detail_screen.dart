@@ -213,12 +213,12 @@ List<Widget>? _getProductDetailActions(BuildContext context, ProductDetailBloc p
     ResponsiveBreakpoints.of(context).largerOrEqualTo(TABLET)
         ? MyOutlinedButton(
             buttonText: 'Speichern',
-            onPressed: () => onSafePressed(),
+            onPressed: onSafePressed,
             isLoading: state.isLoadingProductOnUpdate,
             buttonBackgroundColor: Colors.green,
           )
         : MyIconButton(
-            onPressed: () => onSafePressed(),
+            onPressed: onSafePressed,
             icon: const Icon(Icons.save, color: Colors.green),
             isLoading: state.isLoadingProductOnUpdate,
           ),
