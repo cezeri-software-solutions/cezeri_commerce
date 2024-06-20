@@ -293,18 +293,18 @@ packages:
     dependency: transitive
     description:
       name: connectivity_plus
-      sha256: "224a77051d52a11fbad53dd57827594d3bd24f945af28bd70bab376d68d437f0"
+      sha256: db7a4e143dc72cc3cb2044ef9b052a7ebfe729513e6a82943bc3526f784365b8
       url: "https://pub.dev"
     source: hosted
-    version: "5.0.2"
+    version: "6.0.3"
   connectivity_plus_platform_interface:
     dependency: transitive
     description:
       name: connectivity_plus_platform_interface
-      sha256: cf1d1c28f4416f8c654d7dc3cd638ec586076255d407cef3ddbdaf178272a71a
+      sha256: b6a56efe1e6675be240de39107281d4034b64ac23438026355b4234042a35adb
       url: "https://pub.dev"
     source: hosted
-    version: "1.2.4"
+    version: "2.0.0"
   convert:
     dependency: transitive
     description:
@@ -881,18 +881,18 @@ packages:
     dependency: transitive
     description:
       name: graphql
-      sha256: d066e53446166c12537458386b507f7426f2b8801ebafc184576aab3cbc64d56
+      sha256: "62f31433ba194eda7b81a812a83c3d9560766cec5ac0210ea4a3e677c91b8df4"
       url: "https://pub.dev"
     source: hosted
-    version: "5.2.0-beta.7"
+    version: "5.2.0-beta.8"
   graphql_flutter:
     dependency: "direct main"
     description:
       name: graphql_flutter
-      sha256: "39b5e830bc654ab02c5b776c31675841d1a8c95840fdd284efba713b1d47e65d"
+      sha256: "2423b394465e7d83a5e708cd2f5b37b54e7ae9900abfbf0948d512fa46961acb"
       url: "https://pub.dev"
     source: hosted
-    version: "5.2.0-beta.6"
+    version: "5.2.0-beta.7"
   graphs:
     dependency: transitive
     description:
@@ -1894,10 +1894,10 @@ packages:
     dependency: transitive
     description:
       name: web_socket_channel
-      sha256: "58c6666b342a38816b2e7e50ed0f1e261959630becd4c879c4f26bfa14aa5a42"
+      sha256: d88238e5eac9a42bb43ca4e721edba3c08c6354d4a53063afaa568516217621b
       url: "https://pub.dev"
     source: hosted
-    version: "2.4.5"
+    version: "2.4.0"
   win32:
     dependency: transitive
     description:
