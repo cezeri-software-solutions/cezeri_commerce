@@ -10,6 +10,7 @@ import '../../../../injection.dart';
 import '../../../core/functions/dialogs.dart';
 import '../../../core/functions/my_scaffold_messanger.dart';
 import '../../../core/renderer/failure_renderer.dart';
+import '../../../core/widgets/my_circular_progress_indicator.dart';
 import '../../../core/widgets/pages_pagination_bar.dart';
 import 'customers_overview_page.dart';
 
@@ -58,7 +59,10 @@ class _CustomersOverviewScreenState extends State<CustomersOverviewScreen> with 
                 () => null,
                 (a) => a.fold(
                   (failure) => failureRenderer(context, failure),
-                  (customer) => myScaffoldMessenger(context, null, null, 'Ausgewählte Kunden erfolgreich gelöscht', null),
+                  (customer) {
+                    customerBloc.add(GetCustomersPerPageEvent(calcCount: true, currentPage: 1));
+                    myScaffoldMessenger(context, null, null, 'Ausgewählte Kunden erfolgreich gelöscht', null);
+                  },
                 ),
               );
             },
@@ -88,7 +92,7 @@ class _CustomersOverviewScreenState extends State<CustomersOverviewScreen> with 
                               },
                             ),
                     icon: state.isLoadingCustomerOnDelete
-                        ? const CircularProgressIndicator(color: Colors.red)
+                        ? const MyCircularProgressIndicator(color: Colors.red)
                         : const Icon(Icons.delete, color: Colors.red),
                   ),
                 ],

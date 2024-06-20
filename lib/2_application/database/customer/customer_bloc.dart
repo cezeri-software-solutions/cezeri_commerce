@@ -104,19 +104,8 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
   }
 
   Future<void> _onOnSearchFieldCleared(CustomerSearchFieldClearedEvent event, Emitter<CustomerState> emit) async {
-    final searchText = state.customerSearchController.text.toLowerCase();
-    final filteredCustomers = switch (searchText) {
-      '' => state.listOfAllCustomers,
-      _ => state.listOfAllCustomers!.where((customer) {
-          final searchInName = customer.name.toLowerCase().contains(searchText);
-          final searchInCompany = customer.company?.toLowerCase().contains(searchText) ?? false;
-          final searchInEmail = customer.email.toLowerCase().contains(searchText);
-          return searchInName || searchInCompany || searchInEmail;
-        }).toList()
-    };
-
-    if (filteredCustomers != null && filteredCustomers.isNotEmpty) filteredCustomers.sort((a, b) => b.customerNumber.compareTo(a.customerNumber));
-    emit(state.copyWith(listOfFilteredCustomers: filteredCustomers));
+    emit(state.copyWith(customerSearchController: SearchController()));
+    add(GetCustomersPerPageEvent(calcCount: true, currentPage: 1));
   }
 
   Future<void> _onSelectAllCustomers(OnSelectAllCustomersEvent event, Emitter<CustomerState> emit) async {

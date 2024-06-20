@@ -14,6 +14,15 @@ Future<Customer?> getCustomerByMarketplaceId(CustomerRepository customerReposito
   }
 }
 
+Future<Customer?> getCustomerByEmail(CustomerRepository customerRepository, String email) async {
+  final fosCustomer = await customerRepository.getCustomerByEmail(email);
+  if (fosCustomer.isRight()) {
+    return fosCustomer.getRight();
+  } else {
+    return null;
+  }
+}
+
 Future<Customer?> createCustomerFromMarketplace(CustomerRepository customerRepository, Customer customer) async {
   Customer? createdCustomer;
   final fosCustomer = await customerRepository.createCustomer(customer);

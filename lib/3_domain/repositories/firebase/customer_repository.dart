@@ -17,4 +17,5 @@ abstract class CustomerRepository {
   Future<Either<AbstractFailure, Unit>> deleteCustomer(String id);
   //
   Future<Either<AbstractFailure, Customer>> getCustomerByCustomerIdInMarketplace(String marketplaceId, int customerIdMarketplace);
+  Future<Either<AbstractFailure, Customer>> getCustomerByEmail(String email);
 }

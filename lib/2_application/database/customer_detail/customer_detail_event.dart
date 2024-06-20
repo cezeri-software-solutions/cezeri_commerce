@@ -24,6 +24,8 @@ class CustomerDetailUpdateCustomerEvent extends CustomerDetailEvent {}
 
 //* --- helper --- *//
 
+class CustomerDetailGetCustomerReceiptsEvent extends CustomerDetailEvent {}
+
 class CustomerDetailSetCustomerTaxEvent extends CustomerDetailEvent {
   final Tax tax;
 

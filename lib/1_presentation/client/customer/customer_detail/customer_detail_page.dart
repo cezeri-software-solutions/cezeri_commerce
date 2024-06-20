@@ -66,15 +66,22 @@ class CustomerDetailPage extends StatelessWidget {
                             mainAxisSize: MainAxisSize.min,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Expanded(
-                                child: CustomerMasterCard(customerDetailBloc: customerDetailBloc),
-                              ),
+                              Expanded(child: CustomerMasterCard(customerDetailBloc: customerDetailBloc)),
                               Gaps.w8,
-                              Expanded(
-                                child: CustomerAddressCard(customer: state.customer!, customerDetailBloc: customerDetailBloc),
-                              ),
+                              Expanded(child: CustomerAddressCard(customer: state.customer!, customerDetailBloc: customerDetailBloc)),
                             ],
-                          )
+                          ),
+                          ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: state.listOfCustomerAppointments.length,
+                            itemBuilder: (context, index) {
+                              final receipt = state.listOfCustomerAppointments[index];
+
+                              return ListTile(
+                                title: Text(receipt.appointmentNumberAsString),
+                              );
+                            },
+                          ),
                         ],
                       ),
                     ),

@@ -76,7 +76,8 @@ Future<Either<AbstractFailure, Receipt>> createReceiptFromOrderPresta(
   final optionalCountryDelivery = await api.getCountry(int.parse(addressDelivery.idCountry));
   final countryDelivery = optionalCountryDelivery.value;
 
-  final loadedCustomerFromFirestore = await getCustomerByMarketplaceId(customerRepository, marketplace.id, customer.id);
+  // final loadedCustomerFromFirestore = await getCustomerByMarketplaceId(customerRepository, marketplace.id, customer.id);
+  final loadedCustomerFromFirestore = await getCustomerByEmail(customerRepository, customer.email);
   Customer? customerFirestore;
 
   if (loadedCustomerFromFirestore == null) {

@@ -54,6 +54,8 @@ Future<Either<AbstractFailure, Receipt>> createReceiptFromOrderShopify(
   // final optionalCountryDelivery = await api.getCountry(int.parse(addressDelivery.idCountry));
   // final countryDelivery = optionalCountryDelivery.value;
 
+  // TODO: load customer via customer email like for prestashop
+  // final loadedCustomerFromFirestore = await getCustomerByEmail(customerRepository, customer.email);
   final loadedCustomerFromFirestore = await getCustomerByMarketplaceId(customerRepository, marketplace.id, orderShopify.customer.id);
   Customer? customerFirestore;
   if (loadedCustomerFromFirestore == null) {

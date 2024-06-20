@@ -200,4 +200,27 @@ class CustomerRepositoryImpl implements CustomerRepository {
       return Left(GeneralFailure(customMessage: 'Beim Laden des Kunden ist ein Fehler aufgetreten. Error: $e'));
     }
   }
+
+  @override
+  Future<Either<AbstractFailure, Customer>> getCustomerByEmail(String email) async {
+    if (!await checkInternetConnection()) return Left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
+
+    final query = supabase.from('d_customers').select().eq('ownerId', ownerId).eq('email', email);
+
+    try {
+      final response = await query;
+
+      if (response.isEmpty) return Left(GeneralFailure(customMessage: 'In der Datenbank konnte kein Kunde gefunden werden.'));
+      final listOfCustomers = response.map((e) => Customer.fromJson(e)).toList();
+
+      final customer = listOfCustomers.first;
+
+      return Right(customer);
+    } catch (e) {
+      logger.e(e);
+      return Left(GeneralFailure(customMessage: 'Beim Laden des Kunden ist ein Fehler aufgetreten. Error: $e'));
+    }
+  }
 }

@@ -31,6 +31,7 @@ class CustomerDetailBloc extends Bloc<CustomerDetailEvent, CustomerDetailState> 
     on<CustomerDetailSetCustomerEvent>(_onCustomerDetailSetCustomer);
     on<CustomerDetailCreateCustomerEvent>(_onCustomerDetailCreateCustomer);
     on<CustomerDetailUpdateCustomerEvent>(_onCustomerDetailUpdateCustomer);
+    on<CustomerDetailGetCustomerReceiptsEvent>(_onCustomerDetailGetCustomerReceipts);
     on<CustomerDetailSetCustomerTaxEvent>(_onCustomerDetailSetCustomerTax);
     on<CustomerDetailInvoiceTypeChangedEvent>(_onCustomerDetailInvoiceTypeChanged);
     on<CustomerDetailUpdateCustomerAddressEvent>(_onCustomerDetailUpdateCustomerAddress);
@@ -66,19 +67,9 @@ class CustomerDetailBloc extends Bloc<CustomerDetailEvent, CustomerDetailState> 
       (loadedCustomer) {
         emit(state.copyWith(customer: loadedCustomer));
         add(CustomerDetailSetControllerEvent());
+        add(CustomerDetailGetCustomerReceiptsEvent());
       },
     );
-
-    final fosReceipts = await receiptRepository.getListOfReceiptsByCustomerId(event.customerId);
-    if (fosReceipts.isRight()) {
-      final receipts = fosReceipts.getRight();
-      emit(state.copyWith(
-        listOfCustomerOffers: receipts.where((e) => e.receiptTyp == ReceiptType.offer).toList(),
-        listOfCustomerAppointments: receipts.where((e) => e.receiptTyp == ReceiptType.appointment).toList(),
-        listOfCustomerDeliveryNotes: receipts.where((e) => e.receiptTyp == ReceiptType.deliveryNote).toList(),
-        listOfCustomerInvoices: receipts.where((e) => e.receiptTyp == ReceiptType.invoice || e.receiptTyp == ReceiptType.credit).toList(),
-      ));
-    }
 
     emit(state.copyWith(isLoadingCustomerDetailOnObserve: false));
   }
@@ -118,6 +109,19 @@ class CustomerDetailBloc extends Bloc<CustomerDetailEvent, CustomerDetailState> 
       fosCustomerDetailOnUpdateOption: optionOf(failureOrSuccess),
     ));
     emit(state.copyWith(fosCustomerDetailOnUpdateOption: none()));
+  }
+
+  void _onCustomerDetailGetCustomerReceipts(CustomerDetailGetCustomerReceiptsEvent event, Emitter<CustomerDetailState> emit) async {
+    final fosReceipts = await receiptRepository.getListOfReceiptsByCustomerId(state.customer!.id);
+    if (fosReceipts.isRight()) {
+      final receipts = fosReceipts.getRight();
+      emit(state.copyWith(
+        listOfCustomerOffers: receipts.where((e) => e.receiptTyp == ReceiptType.offer).toList(),
+        listOfCustomerAppointments: receipts.where((e) => e.receiptTyp == ReceiptType.appointment).toList(),
+        listOfCustomerDeliveryNotes: receipts.where((e) => e.receiptTyp == ReceiptType.deliveryNote).toList(),
+        listOfCustomerInvoices: receipts.where((e) => e.receiptTyp == ReceiptType.invoice || e.receiptTyp == ReceiptType.credit).toList(),
+      ));
+    }
   }
 
   void _onCustomerDetailSetCustomerTax(CustomerDetailSetCustomerTaxEvent event, Emitter<CustomerDetailState> emit) {
