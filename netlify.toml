@@ -3,5 +3,4 @@
   publish = "build/web"
 
 [build.environment]
-  # Optionale Flutter SDK Version
   FLUTTER_VERSION = "stable"

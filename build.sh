@@ -10,8 +10,9 @@ flutter --version
 # Enable web support
 flutter config --enable-web
 
-# Install dependencies
+# Install dependencies and upgrade them
 flutter pub get
+flutter pub upgrade
 
 # Build the web app
 flutter build web
