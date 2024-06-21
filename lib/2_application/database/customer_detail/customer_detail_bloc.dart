@@ -35,6 +35,7 @@ class CustomerDetailBloc extends Bloc<CustomerDetailEvent, CustomerDetailState> 
     on<CustomerDetailSetCustomerTaxEvent>(_onCustomerDetailSetCustomerTax);
     on<CustomerDetailInvoiceTypeChangedEvent>(_onCustomerDetailInvoiceTypeChanged);
     on<CustomerDetailUpdateCustomerAddressEvent>(_onCustomerDetailUpdateCustomerAddress);
+    on<CustomerDetailShownReceiptTypeChangedEvent>(_onCustomerDetailShownReceiptTypeChanged);
     on<CustomerDetailSetControllerEvent>(_onCustomerDetailSetController);
     on<CustomerDetailControllerChangedEvent>(_onCustomerDetailControllerChanged);
   }
@@ -179,6 +180,10 @@ class CustomerDetailBloc extends Bloc<CustomerDetailEvent, CustomerDetailState> 
         isDefault: true,
       ));
     }
+  }
+
+  void _onCustomerDetailShownReceiptTypeChanged(CustomerDetailShownReceiptTypeChangedEvent event, Emitter<CustomerDetailState> emit) {
+    emit(state.copyWith(shownReceiptType: event.type));
   }
 
   void _onCustomerDetailSetController(CustomerDetailSetControllerEvent event, Emitter<CustomerDetailState> emit) {

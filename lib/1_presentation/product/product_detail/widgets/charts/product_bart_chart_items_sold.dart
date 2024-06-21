@@ -21,7 +21,7 @@ class ProductBartChartItemsSold extends StatelessWidget {
       BarChartData(
         barTouchData: barTouchData,
         titlesData: titlesData,
-        borderData: borderData,
+        borderData: _borderData,
         barGroups: getBarGroups(),
         gridData: const FlGridData(show: false),
         alignment: BarChartAlignment.spaceAround,
@@ -35,19 +35,9 @@ class ProductBartChartItemsSold extends StatelessWidget {
         touchTooltipData: BarTouchTooltipData(
           tooltipPadding: EdgeInsets.zero,
           tooltipMargin: 8,
-          getTooltipItem: (
-            BarChartGroupData group,
-            int groupIndex,
-            BarChartRodData rod,
-            int rodIndex,
-          ) {
-            return BarTooltipItem(
-              rod.toY.round().toString(),
-              const TextStyle(
-                color: CustomColors.chartColorRed,
-                fontWeight: FontWeight.bold,
-              ),
-            );
+          getTooltipColor: (group) => Colors.transparent,
+          getTooltipItem: (BarChartGroupData group, int groupIndex, BarChartRodData rod, int rodIndex) {
+            return BarTooltipItem(rod.toY.round().toString(), const TextStyle(color: CustomColors.chartColorRed, fontWeight: FontWeight.bold));
           },
         ),
       );
@@ -62,65 +52,39 @@ class ProductBartChartItemsSold extends StatelessWidget {
     // Erstellen des Text-Widgets mit dem berechneten Monat
     Widget text = Text(monthToShow.toString(), style: style);
 
-    return SideTitleWidget(
-      axisSide: meta.axisSide,
-      child: text,
-    );
+    return SideTitleWidget(axisSide: meta.axisSide, child: text);
   }
 
   FlTitlesData get titlesData => FlTitlesData(
         show: true,
-        bottomTitles: AxisTitles(
-          sideTitles: SideTitles(
-            showTitles: true,
-            reservedSize: 30,
-            getTitlesWidget: getTitles,
-          ),
-        ),
-        leftTitles: const AxisTitles(
-          sideTitles: SideTitles(showTitles: false),
-        ),
-        topTitles: const AxisTitles(
-          sideTitles: SideTitles(showTitles: false),
-        ),
-        rightTitles: const AxisTitles(
-          sideTitles: SideTitles(showTitles: false),
-        ),
+        bottomTitles: AxisTitles(sideTitles: SideTitles(showTitles: true, reservedSize: 30, getTitlesWidget: getTitles)),
+        leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+        topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+        rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
       );
 
-  FlBorderData get borderData => FlBorderData(
-        show: false,
-      );
+  FlBorderData get _borderData => FlBorderData(show: false);
 
   LinearGradient get _barsGradient => const LinearGradient(
-        colors: [
-          CustomColors.chartColorYellow,
-          CustomColors.chartColorRed,
-        ],
+        colors: [CustomColors.chartColorYellow, CustomColors.chartColorRed],
         begin: Alignment.bottomCenter,
         end: Alignment.topCenter,
       );
 
-  double roundDouble(int number) {
-    return double.parse(number.toStringAsFixed(0));
-  }
+  double roundDouble(int number) => double.parse(number.toStringAsFixed(0));
 
   List<BarChartGroupData> getBarGroups() {
     List<BarChartGroupData> bcgd = [];
+
     for (int i = 0; i < 13; i++) {
       DateTime monthYear = DateTime(now.year, now.month - 12 + i);
-      var matchingElement = statProducts.firstWhere(
-        (e) => DateTime(e.month.year, e.month.month) == monthYear,
-        orElse: () => ProductSalesData.empty(),
-      );
-      bcgd.add(
-        BarChartGroupData(
-          x: i,
-          barRods: [BarChartRodData(toY: roundDouble(matchingElement.totalQuantity), gradient: _barsGradient)],
-          showingTooltipIndicators: [0],
-        ),
-      );
+      final matchingElement =
+          statProducts.firstWhere((e) => DateTime(e.month.year, e.month.month) == monthYear, orElse: () => ProductSalesData.empty());
+
+      final toY = roundDouble(matchingElement.totalQuantity);
+      bcgd.add(BarChartGroupData(x: i, barRods: [BarChartRodData(toY: toY, gradient: _barsGradient)], showingTooltipIndicators: [0]));
     }
+
     return bcgd;
   }
 }

@@ -324,6 +324,7 @@ abstract class $AppRouter extends _i40.RootStackRouter {
         child: _i28.ReceiptDetailScreen(
           key: args.key,
           receiptId: args.receiptId,
+          newEmptyReceipt: args.newEmptyReceipt,
           receiptTyp: args.receiptTyp,
         ),
       );
@@ -1107,6 +1108,7 @@ class ReceiptDetailRoute extends _i40.PageRouteInfo<ReceiptDetailRouteArgs> {
   ReceiptDetailRoute({
     _i41.Key? key,
     required String? receiptId,
+    required _i42.Receipt? newEmptyReceipt,
     required _i42.ReceiptType receiptTyp,
     List<_i40.PageRouteInfo>? children,
   }) : super(
@@ -1114,6 +1116,7 @@ class ReceiptDetailRoute extends _i40.PageRouteInfo<ReceiptDetailRouteArgs> {
           args: ReceiptDetailRouteArgs(
             key: key,
             receiptId: receiptId,
+            newEmptyReceipt: newEmptyReceipt,
             receiptTyp: receiptTyp,
           ),
           initialChildren: children,
@@ -1129,6 +1132,7 @@ class ReceiptDetailRouteArgs {
   const ReceiptDetailRouteArgs({
     this.key,
     required this.receiptId,
+    required this.newEmptyReceipt,
     required this.receiptTyp,
   });
 
@@ -1136,11 +1140,13 @@ class ReceiptDetailRouteArgs {
 
   final String? receiptId;
 
+  final _i42.Receipt? newEmptyReceipt;
+
   final _i42.ReceiptType receiptTyp;
 
   @override
   String toString() {
-    return 'ReceiptDetailRouteArgs{key: $key, receiptId: $receiptId, receiptTyp: $receiptTyp}';
+    return 'ReceiptDetailRouteArgs{key: $key, receiptId: $receiptId, newEmptyReceipt: $newEmptyReceipt, receiptTyp: $receiptTyp}';
   }
 }
 

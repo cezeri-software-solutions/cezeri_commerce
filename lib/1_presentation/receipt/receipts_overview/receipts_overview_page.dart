@@ -190,7 +190,7 @@ class _AppointmentContainer extends StatelessWidget {
                           shrinkWrap: true,
                           itemCount: receipt.listOfReceiptProduct.length,
                           itemBuilder: (context, index) {
-                            return _AppointmentProdcutsContainer(appointmentProduct: receipt.listOfReceiptProduct[index], index: index);
+                            return _ReceiptProductsContainer(appointmentProduct: receipt.listOfReceiptProduct[index], index: index);
                           },
                           separatorBuilder: (context, index) => const Divider(),
                         ),
@@ -271,11 +271,11 @@ Future<void> _onPdfPressed({required BuildContext context, required Receipt rece
   );
 }
 
-class _AppointmentProdcutsContainer extends StatelessWidget {
+class _ReceiptProductsContainer extends StatelessWidget {
   final ReceiptProduct appointmentProduct;
   final int index;
 
-  const _AppointmentProdcutsContainer({required this.appointmentProduct, required this.index});
+  const _ReceiptProductsContainer({required this.appointmentProduct, required this.index});
 
   @override
   Widget build(BuildContext context) {
@@ -434,7 +434,7 @@ class _ReceiptInfoColumn extends StatelessWidget {
           TextButton(
             onPressed: () {
               receiptBloc.add(GetReceiptEvent(appointment: receipt));
-              context.router.push(ReceiptDetailRoute(receiptId: receipt.id, receiptTyp: receiptTyp));
+              context.router.push(ReceiptDetailRoute(receiptId: receipt.id, newEmptyReceipt: null, receiptTyp: receiptTyp));
             },
             child: Text(
               switch (receipt.receiptTyp) {

@@ -20,29 +20,42 @@ enum ReceiptCreateOrEdit { create, edit }
 @RoutePage()
 class ReceiptDetailScreen extends StatefulWidget {
   final String? receiptId;
+  final Receipt? newEmptyReceipt;
   final ReceiptType receiptTyp;
 
-  const ReceiptDetailScreen({super.key, required this.receiptId, required this.receiptTyp});
+  const ReceiptDetailScreen({super.key, required this.receiptId, required this.newEmptyReceipt, required this.receiptTyp});
 
   @override
   State<ReceiptDetailScreen> createState() => _ReceiptDetailScreenState();
 }
 
 class _ReceiptDetailScreenState extends State<ReceiptDetailScreen> with AutomaticKeepAliveClientMixin {
+  final receiptDetailBloc = sl<ReceiptDetailBloc>();
+
+  final receiptDetailProductsBloc = sl<ReceiptDetailProductsBloc>();
+
   @override
-  Widget build(BuildContext context) {
-    super.build(context);
+  void initState() {
+    super.initState();
 
-    final receiptDetailBloc = sl<ReceiptDetailBloc>()
-      ..add(ReceiptDetailGetReceiptOrSetEmptyEvent(receiptId: widget.receiptId, receiptType: widget.receiptTyp));
+    if (widget.receiptId == null && widget.newEmptyReceipt != null) {
+      receiptDetailBloc.add(ReceiptDetailSetEmptyReceiptEvent(newEmptyReceipt: widget.newEmptyReceipt!));
+    }
+    if (widget.receiptId != null && widget.newEmptyReceipt == null) {
+      receiptDetailBloc.add(ReceiptDetailGetReceiptEvent(receiptId: widget.receiptId!, receiptType: widget.receiptTyp));
+    }
 
-    final receiptDetailProductsBloc = sl<ReceiptDetailProductsBloc>();
     if (widget.receiptId == null) {
       receiptDetailProductsBloc.add(SetListOfReceiptProductssReceiptDetailEvent(
         receipt: Receipt.empty().copyWith(listOfReceiptProduct: [ReceiptProduct.empty()]),
         listOfTaxRules: context.read<MainSettingsBloc>().state.mainSettings!.taxes,
       ));
     }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    super.build(context);
 
     return MultiBlocProvider(
       providers: [
@@ -95,8 +108,8 @@ class _ReceiptDetailScreenState extends State<ReceiptDetailScreen> with Automati
                   (receipt) {
                     myScaffoldMessenger(context, null, null, 'Dokument erfolgreich erstellt', null);
                     context.router.maybePop();
-                    receiptDetailBloc.add(ReceiptDetailGetReceiptOrSetEmptyEvent(receiptId: receipt.id, receiptType: widget.receiptTyp));
-                    context.router.push(ReceiptDetailRoute(receiptId: receipt.id, receiptTyp: widget.receiptTyp));
+                    receiptDetailBloc.add(ReceiptDetailGetReceiptEvent(receiptId: receipt.id, receiptType: widget.receiptTyp));
+                    context.router.push(ReceiptDetailRoute(receiptId: receipt.id, newEmptyReceipt: null, receiptTyp: widget.receiptTyp));
                   },
                 ),
               );

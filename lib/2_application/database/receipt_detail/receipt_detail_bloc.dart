@@ -37,7 +37,8 @@ class ReceiptDetailBloc extends Bloc<ReceiptDetailEvent, ReceiptDetailState> {
     required this.productRepository,
   }) : super(ReceiptDetailState.initial()) {
     on<SetReceiptDetailStatesToInitialEvent>(_onSetReceiptDetailStatesToInitial);
-    on<ReceiptDetailGetReceiptOrSetEmptyEvent>(_onReceiptDetailGetReceiptOrSetEmpty);
+    on<ReceiptDetailSetEmptyReceiptEvent>(_onReceiptDetailSetEmptyReceipt);
+    on<ReceiptDetailGetReceiptEvent>(_onReceiptDetailGetReceiptOrSetEmpty);
     on<ReceiptDetailGetProductByEanEvent>(_onReceiptDetailGetProductByEan);
     on<ReceiptDetailCreateParcelLabelReceiptEvent>(_onReceiptDetailCreateParcelLabelReceipt);
     on<ReceiptDetailUpdateReceiptEvent>(_onReceiptDetailUpdateReceipt);
@@ -61,20 +62,33 @@ class ReceiptDetailBloc extends Bloc<ReceiptDetailEvent, ReceiptDetailState> {
 
 //? ###########################################################################################################################
 
-  Future<void> _onReceiptDetailGetReceiptOrSetEmpty(ReceiptDetailGetReceiptOrSetEmptyEvent event, Emitter<ReceiptDetailState> emit) async {
+  Future<void> _onReceiptDetailSetEmptyReceipt(ReceiptDetailSetEmptyReceiptEvent event, Emitter<ReceiptDetailState> emit) async {
     emit(state.copyWith(isLoadingReceiptOnObserve: true));
 
-    Receipt newReceipt = Receipt.empty(receiptType: event.receiptType);
-    Either<AbstractFailure, Receipt>? fosReceipt;
+    emit(state.copyWith(receipt: event.newEmptyReceipt));
 
-    //* Wenn ein neues Dokument erstellt werden soll
-    if (event.receiptId == null) {
-      emit(state.copyWith(receipt: Receipt.empty(receiptType: event.receiptType)));
-    } else {
-      fosReceipt = await receiptRepository.getReceipt(event.receiptId!, event.receiptType);
-      if (fosReceipt.isLeft()) emit(state.copyWith(databaseFailure: fosReceipt.getLeft(), isLoadingReceiptOnObserve: false));
-      newReceipt = fosReceipt.getRight();
-    }
+    final fosMarketplaces = await marketplaceRepository.getListOfMarketplaces();
+    if (fosMarketplaces.isLeft()) emit(state.copyWith(databaseFailure: fosMarketplaces.getLeft(), isLoadingReceiptOnObserve: false));
+
+    final fosSettings = await mainSettingsRepository.getSettings();
+    if (fosSettings.isLeft()) emit(state.copyWith(databaseFailure: fosSettings.getLeft(), isLoadingReceiptOnObserve: false));
+
+    emit(state.copyWith(
+      receipt: event.newEmptyReceipt,
+      listOfMarketplaces: fosMarketplaces.getRight(),
+      mainSettings: fosSettings.getRight(),
+      isLoadingReceiptOnObserve: false,
+    ));
+  }
+
+//? ###########################################################################################################################
+
+  Future<void> _onReceiptDetailGetReceiptOrSetEmpty(ReceiptDetailGetReceiptEvent event, Emitter<ReceiptDetailState> emit) async {
+    emit(state.copyWith(isLoadingReceiptOnObserve: true));
+
+    final fosReceipt = await receiptRepository.getReceipt(event.receiptId, event.receiptType);
+    if (fosReceipt.isLeft()) emit(state.copyWith(databaseFailure: fosReceipt.getLeft(), isLoadingReceiptOnObserve: false));
+    final newReceipt = fosReceipt.getRight();
 
     final fosMarketplaces = await marketplaceRepository.getListOfMarketplaces();
     if (fosMarketplaces.isLeft()) emit(state.copyWith(databaseFailure: fosMarketplaces.getLeft(), isLoadingReceiptOnObserve: false));

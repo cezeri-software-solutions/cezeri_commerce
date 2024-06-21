@@ -31,6 +31,7 @@ void updateCustomerFromReceiptDetail(
     {required BuildContext context, required ReceiptDetailBloc receiptDetailBloc, required String customerId}) async {
   AbstractFailure? abstractFailure;
   Customer? customer;
+  print(customerId);
 
   final customerRepository = GetIt.I.get<CustomerRepository>();
   final fosCustomer = await customerRepository.getCustomer(customerId);

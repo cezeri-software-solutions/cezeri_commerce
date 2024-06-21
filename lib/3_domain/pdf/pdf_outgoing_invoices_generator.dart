@@ -124,7 +124,9 @@ class PdfOutgoingInvoicesGenerator {
       };
       final entry = [
         pos,
-        PdfText(receipt.receiptCustomer.company ?? receipt.receiptCustomer.name),
+        PdfText(receipt.receiptCustomer.company != null && receipt.receiptCustomer.company!.isNotEmpty
+            ? receipt.receiptCustomer.company!
+            : receipt.receiptCustomer.name),
         receipt.addressDelivery.country.name,
         PdfText(DateFormat('dd.MM.yyyy', 'de').format(receipt.creationDate)),
         _getReceiptNumber(i, receipt, i > 0 ? listOfReceipts[i - 1] : null),

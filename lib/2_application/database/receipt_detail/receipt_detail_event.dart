@@ -4,11 +4,17 @@ abstract class ReceiptDetailEvent {}
 
 class SetReceiptDetailStatesToInitialEvent extends ReceiptDetailEvent {}
 
-class ReceiptDetailGetReceiptOrSetEmptyEvent extends ReceiptDetailEvent {
-  final String? receiptId;
+class ReceiptDetailSetEmptyReceiptEvent extends ReceiptDetailEvent {
+  final Receipt newEmptyReceipt;
+
+  ReceiptDetailSetEmptyReceiptEvent({required this.newEmptyReceipt});
+}
+
+class ReceiptDetailGetReceiptEvent extends ReceiptDetailEvent {
+  final String receiptId;
   final ReceiptType receiptType;
 
-  ReceiptDetailGetReceiptOrSetEmptyEvent({required this.receiptId, required this.receiptType});
+  ReceiptDetailGetReceiptEvent({required this.receiptId, required this.receiptType});
 }
 
 class ReceiptDetailGetProductByEanEvent extends ReceiptDetailEvent {

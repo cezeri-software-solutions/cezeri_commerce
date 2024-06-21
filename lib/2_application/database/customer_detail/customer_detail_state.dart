@@ -16,6 +16,9 @@ class CustomerDetailState {
   final Option<Either<AbstractFailure, Customer>> fosCustomerDetailOnUpdateOption;
   final Option<Either<AbstractFailure, Customer>> fosCustomerDetailOnDeleteOption;
 
+  //* Helper
+  final ReceiptType shownReceiptType;
+
   //* Controller
   final TextEditingController companyNameController;
   final TextEditingController firstNameController;
@@ -41,6 +44,7 @@ class CustomerDetailState {
     required this.fosCustomerDetailOnCreateOption,
     required this.fosCustomerDetailOnUpdateOption,
     required this.fosCustomerDetailOnDeleteOption,
+    required this.shownReceiptType,
     required this.companyNameController,
     required this.firstNameController,
     required this.lastNameController,
@@ -67,6 +71,7 @@ class CustomerDetailState {
       fosCustomerDetailOnCreateOption: none(),
       fosCustomerDetailOnUpdateOption: none(),
       fosCustomerDetailOnDeleteOption: none(),
+      shownReceiptType: ReceiptType.appointment,
       companyNameController: TextEditingController(),
       firstNameController: TextEditingController(),
       lastNameController: TextEditingController(),
@@ -93,6 +98,7 @@ class CustomerDetailState {
     Option<Either<AbstractFailure, Customer>>? fosCustomerDetailOnCreateOption,
     Option<Either<AbstractFailure, Customer>>? fosCustomerDetailOnUpdateOption,
     Option<Either<AbstractFailure, Customer>>? fosCustomerDetailOnDeleteOption,
+    ReceiptType? shownReceiptType,
     TextEditingController? companyNameController,
     TextEditingController? firstNameController,
     TextEditingController? lastNameController,
@@ -117,6 +123,7 @@ class CustomerDetailState {
       fosCustomerDetailOnCreateOption: fosCustomerDetailOnCreateOption ?? this.fosCustomerDetailOnCreateOption,
       fosCustomerDetailOnUpdateOption: fosCustomerDetailOnUpdateOption ?? this.fosCustomerDetailOnUpdateOption,
       fosCustomerDetailOnDeleteOption: fosCustomerDetailOnDeleteOption ?? this.fosCustomerDetailOnDeleteOption,
+      shownReceiptType: shownReceiptType ?? this.shownReceiptType,
       companyNameController: companyNameController ?? this.companyNameController,
       firstNameController: firstNameController ?? this.firstNameController,
       lastNameController: lastNameController ?? this.lastNameController,

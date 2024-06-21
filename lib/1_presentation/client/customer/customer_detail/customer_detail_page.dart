@@ -10,6 +10,7 @@ import '../../../core/widgets/my_outlined_button.dart';
 import 'customer_detail_screen.dart';
 import 'widgets/customer_address_card.dart';
 import 'widgets/customer_master_card.dart';
+import 'widgets/customer_receipt_list.dart';
 
 class CustomerDetailPage extends StatelessWidget {
   final Customer customer;
@@ -57,44 +58,38 @@ class CustomerDetailPage extends StatelessWidget {
           appBar: appBar,
           body: SafeArea(
             child: isTabletOrLarger
-                ? SingleChildScrollView(
-                    child: Padding(
-                      padding: const EdgeInsets.all(18),
-                      child: Column(
-                        children: [
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Expanded(child: CustomerMasterCard(customerDetailBloc: customerDetailBloc)),
-                              Gaps.w8,
-                              Expanded(child: CustomerAddressCard(customer: state.customer!, customerDetailBloc: customerDetailBloc)),
-                            ],
-                          ),
-                          ListView.builder(
-                            shrinkWrap: true,
-                            itemCount: state.listOfCustomerAppointments.length,
-                            itemBuilder: (context, index) {
-                              final receipt = state.listOfCustomerAppointments[index];
-
-                              return ListTile(
-                                title: Text(receipt.appointmentNumberAsString),
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                  )
-                : Padding(
-                    padding: const EdgeInsets.all(8),
-                    child: ListView(
+                ? Padding(
+                    padding: const EdgeInsets.all(18),
+                    child: Column(
                       children: [
-                        CustomerMasterCard(customerDetailBloc: customerDetailBloc),
-                        CustomerAddressCard(customer: state.customer!, customerDetailBloc: customerDetailBloc),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(child: CustomerMasterCard(customerDetailBloc: customerDetailBloc)),
+                            Gaps.w8,
+                            Expanded(child: CustomerAddressCard(customer: state.customer!, customerDetailBloc: customerDetailBloc)),
+                          ],
+                        ),
+                        Gaps.h16,
+                        Expanded(child: CustomerReceiptList(customerDetailBloc: customerDetailBloc, state: state)),
                       ],
                     ),
-                  ),
+                  )
+                : Expanded(
+                  child: Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: SingleChildScrollView(
+                        child: Column(
+                          children: [
+                            CustomerMasterCard(customerDetailBloc: customerDetailBloc),
+                            CustomerAddressCard(customer: state.customer!, customerDetailBloc: customerDetailBloc),
+                            CustomerReceiptList(customerDetailBloc: customerDetailBloc, state: state),
+                          ],
+                        ),
+                      ),
+                    ),
+                ),
           ),
         );
       },

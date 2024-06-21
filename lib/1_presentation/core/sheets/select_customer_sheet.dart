@@ -119,11 +119,11 @@ class _CustomerItems extends StatelessWidget {
             final customer = state.listOfFilteredCustomers![index];
 
             return ListTile(
-              title: Text(customer.name, style: TextStyles.defaultt),
+              title: Text('${customer.customerNumber} / ${customer.name}', style: TextStyles.defaultt),
               subtitle: customer.company != null && customer.company!.isNotEmpty ? Text(customer.company!) : null,
               onTap: () {
                 context.router.maybePop();
-                final newAppointment = Receipt.empty().copyWith(
+                final newReceipt = Receipt.empty().copyWith(
                   customerId: customer.id,
                   receiptCustomer: ReceiptCustomer.fromCustomer(customer),
                   addressInvoice: getDefaultAddress(customer.listOfAddress, AddressType.invoice),
@@ -132,8 +132,8 @@ class _CustomerItems extends StatelessWidget {
                   listOfReceiptProduct: [ReceiptProduct.empty()],
                   receiptTyp: receiptType,
                 );
-                receiptBloc.add(SetReceiptEvent(appointment: newAppointment));
-                context.router.push(ReceiptDetailRoute(receiptId: null, receiptTyp: receiptType));
+                receiptBloc.add(SetReceiptEvent(appointment: newReceipt));
+                context.router.push(ReceiptDetailRoute(receiptId: null, newEmptyReceipt: newReceipt, receiptTyp: receiptType));
               },
             );
           },

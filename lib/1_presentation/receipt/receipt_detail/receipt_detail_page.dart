@@ -63,7 +63,7 @@ class _ReceiptDetailPageState extends State<ReceiptDetailPage> {
             if (widget.receiptCreateOrEdit == ReceiptCreateOrEdit.edit)
               IconButton(
                 onPressed: () => widget.receiptDetailBloc.add(
-                  ReceiptDetailGetReceiptOrSetEmptyEvent(
+                  ReceiptDetailGetReceiptEvent(
                     receiptId: state.receipt!.id,
                     receiptType: widget.receiptTyp,
                   ),

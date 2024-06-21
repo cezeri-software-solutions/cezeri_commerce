@@ -44,6 +44,12 @@ class CustomerDetailUpdateCustomerAddressEvent extends CustomerDetailEvent {
   CustomerDetailUpdateCustomerAddressEvent({required this.address});
 }
 
+class CustomerDetailShownReceiptTypeChangedEvent extends CustomerDetailEvent {
+  final ReceiptType type;
+
+  CustomerDetailShownReceiptTypeChangedEvent({required this.type});
+}
+
 //* --- Controller --- *//
 
 class CustomerDetailSetControllerEvent extends CustomerDetailEvent {}
