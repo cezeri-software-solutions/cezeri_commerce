@@ -7,8 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../2_application/database/reorder_detail/reorder_detail_bloc.dart';
 import '../../../3_domain/entities/reorder/supplier.dart';
 import '../../../injection.dart';
-import '../../core/functions/my_scaffold_messanger.dart';
-import '../../core/renderer/failure_renderer.dart';
+import '../../core/core.dart';
 import 'functions/show_reorder_detail_products_dialog.dart';
 import 'reorder_detail_page.dart';
 

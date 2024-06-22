@@ -5,8 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../2_application/database/dashboard/dashboard_bloc.dart';
 import '../../injection.dart';
 import '../app_drawer.dart';
-import '../core/renderer/failure_renderer.dart';
-import '../core/widgets/my_circular_progress_indicator.dart';
+import '../core/core.dart';
 import 'dahsboard_page.dart';
 
 @RoutePage()

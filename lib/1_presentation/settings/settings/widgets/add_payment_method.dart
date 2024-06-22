@@ -1,10 +1,8 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:cezeri_commerce/1_presentation/core/widgets/my_outlined_button.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../constants.dart';
-import '../../../core/widgets/my_modal_scrollable.dart';
-import '../../../core/widgets/my_text_form_field.dart';
+import '../../../core/core.dart';
 
 class AddPaymentMethode extends StatelessWidget {
   final void Function(String paymentMethode) addToPaymentMethods;

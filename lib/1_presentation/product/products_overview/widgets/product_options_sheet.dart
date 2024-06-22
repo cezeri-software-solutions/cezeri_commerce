@@ -14,7 +14,7 @@ import '../../../../3_domain/pdf/pdf_api_web.dart';
 import '../../../../3_domain/pdf/pdf_products_generator.dart';
 import '../../../../constants.dart';
 import '../../../../routes/router.gr.dart';
-import '../../../core/functions/dialogs.dart';
+import '../../../core/core.dart';
 import '../functions/products_overview_create_export.dart';
 import 'mass_editing_dialogs/mass_editing_dialogs.dart';
 

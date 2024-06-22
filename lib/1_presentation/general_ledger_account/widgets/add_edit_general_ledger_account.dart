@@ -6,9 +6,7 @@ import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 import '../../../2_application/database/general_ledger_account/general_ledger_account_bloc.dart';
 import '../../../3_domain/entities/settings/general_ledger_account.dart';
 import '../../../constants.dart';
-import '../../core/widgets/my_form_field_small.dart';
-import '../../core/widgets/my_outlined_button.dart';
-import '../../core/widgets/my_text_form_field_small_double.dart';
+import '../../core/core.dart';
 
 void addEditGLSAccount(BuildContext context, GeneralLedgerAccountBloc gLAccountBloc, GeneralLedgerAccount? gLAccount) {
   final trailing = IconButton(

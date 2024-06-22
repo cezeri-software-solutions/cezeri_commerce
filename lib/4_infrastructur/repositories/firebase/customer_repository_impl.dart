@@ -1,11 +1,10 @@
-import 'package:cezeri_commerce/1_presentation/core/extensions/get_either.dart';
 import 'package:cezeri_commerce/3_domain/entities/customer/customer.dart';
 import 'package:cezeri_commerce/failures/firebase_failures.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-import '/1_presentation/core/functions/check_internet_connection.dart';
+import '/1_presentation/core/core.dart';
 import '/3_domain/repositories/firebase/customer_repository.dart';
 import '../../../3_domain/repositories/firebase/main_settings_respository.dart';
 import '../../../constants.dart';

@@ -4,9 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../2_application/packing_station/packing_station_bloc.dart';
 import '../../../../3_domain/entities/picklist/picklist_product.dart';
 import '../../../../constants.dart';
-import '../../../core/widgets/my_avatar.dart';
-import '../../../core/widgets/my_circular_progress_indicator.dart';
-import '../../../core/widgets/my_text.dart';
+import '../../../core/core.dart';
 
 class PicklistDetailPage extends StatelessWidget {
   final PackingStationBloc packingStationBloc;

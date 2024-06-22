@@ -6,7 +6,7 @@ import '../../../../../2_application/database/product/product_bloc.dart';
 import '../../../../../3_domain/entities/marketplace/abstract_marketplace.dart';
 import '../../../../../constants.dart';
 import '../../../../../routes/router.gr.dart';
-import '../../../../core/widgets/my_outlined_button.dart';
+import '../../../../core/core.dart';
 import 'products_mass_editing_purchace_dialog.dart';
 import 'products_mass_editing_weight_and_dimensions_dialog.dart';
 

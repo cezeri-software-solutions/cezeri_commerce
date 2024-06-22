@@ -7,7 +7,7 @@ import '../../../3_domain/entities/carrier/carrier.dart';
 import '../../../3_domain/entities/carrier/carrier_product.dart';
 import '../../../3_domain/entities/receipt/receipt_carrier.dart';
 import '../../../constants.dart';
-import '../../core/widgets/my_dropdown_button_small.dart';
+import '../../core/core.dart';
 
 class ReceiptDetailCarrierCard extends StatelessWidget {
   final ReceiptDetailBloc receiptDetailBloc;

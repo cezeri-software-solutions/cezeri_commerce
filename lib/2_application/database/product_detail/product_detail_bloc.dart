@@ -2,17 +2,13 @@ import 'dart:io';
 
 import 'package:auto_route/auto_route.dart';
 import 'package:bloc/bloc.dart';
-import 'package:cezeri_commerce/1_presentation/core/extensions/string_to_int.dart';
-import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.dart';
 import 'package:dartz/dartz.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:html_editor_enhanced/html_editor.dart';
 
-import '/1_presentation/core/extensions/get_either.dart';
-import '/1_presentation/core/functions/dialogs.dart';
-import '/1_presentation/core/functions/mixed_functions.dart';
+import '/1_presentation/core/core.dart';
 import '/3_domain/entities/marketplace/abstract_marketplace.dart';
 import '/3_domain/entities/product/product.dart';
 import '/3_domain/entities/product/product_id_with_quantity.dart';

@@ -9,9 +9,7 @@ import '../../../../2_application/database/supplier/supplier_bloc.dart';
 import '../../../../3_domain/entities/reorder/supplier.dart';
 import '../../../../injection.dart';
 import '../../../../routes/router.gr.dart';
-import '../../../core/functions/dialogs.dart';
-import '../../../core/functions/my_scaffold_messanger.dart';
-import '../../../core/renderer/failure_renderer.dart';
+import '../../../core/core.dart';
 import '../supplier_detail/supplier_detail_screen.dart';
 import 'suppliers_overview_page.dart';
 

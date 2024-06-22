@@ -1,7 +1,5 @@
 import 'dart:convert';
 
-import 'package:cezeri_commerce/1_presentation/core/extensions/formatted_year_month.dart';
-import 'package:cezeri_commerce/1_presentation/core/extensions/get_either.dart';
 import 'package:cezeri_commerce/3_domain/entities/receipt/load_appointments_helper/to_load_appointments_from_marketplace.dart';
 import 'package:cezeri_commerce/3_domain/entities/receipt/receipt.dart';
 import 'package:cezeri_commerce/3_domain/entities/receipt/receipt_product.dart';
@@ -18,7 +16,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 
-import '/1_presentation/core/functions/check_internet_connection.dart';
+import '/1_presentation/core/core.dart';
 import '/3_domain/entities/carrier/parcel_tracking.dart';
 import '/3_domain/entities/e_mail_automation.dart';
 import '/3_domain/entities/product/product.dart';

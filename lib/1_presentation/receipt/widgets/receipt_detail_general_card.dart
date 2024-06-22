@@ -1,5 +1,3 @@
-import 'package:cezeri_commerce/1_presentation/core/widgets/my_dropdown_button_small.dart';
-import 'package:cezeri_commerce/1_presentation/core/widgets/my_form_field_small.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
@@ -9,6 +7,7 @@ import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
 import '../../../3_domain/entities/marketplace/marketplace_presta.dart';
 import '../../../3_domain/entities/receipt/receipt.dart';
 import '../../../constants.dart';
+import '../../core/core.dart';
 
 class ReceiptDetailGeneralCard extends StatefulWidget {
   final Receipt receipt;

@@ -1,6 +1,4 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:cezeri_commerce/1_presentation/core/extensions/get_either.dart';
-import 'package:cezeri_commerce/1_presentation/core/functions/dialogs.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:responsive_framework/responsive_framework.dart';
@@ -11,8 +9,7 @@ import '../../../3_domain/entities/product/product_id_with_quantity.dart';
 import '../../../3_domain/repositories/firebase/product_repository.dart';
 import '../../../constants.dart';
 import '../../../routes/router.gr.dart';
-import '../widgets/my_avatar.dart';
-import '../widgets/my_circular_progress_indicator.dart';
+import '../core.dart';
 
 void showMySetProductQuickView({required BuildContext context, required String productId}) async {
   showMyDialogLoading(context: context, text: 'Artikel werden geladen...', canPop: true);

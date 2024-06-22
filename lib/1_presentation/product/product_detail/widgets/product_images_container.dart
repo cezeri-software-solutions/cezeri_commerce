@@ -5,10 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../2_application/database/product_detail/product_detail_bloc.dart';
 import '../../../../3_domain/entities/product/product_image.dart';
 import '../../../../constants.dart';
-import '../../../core/functions/dialogs.dart';
-import '../../../core/widgets/my_avatar.dart';
-import '../../../core/widgets/my_circular_progress_indicator.dart';
-import '../../../core/widgets/my_outlined_button.dart';
+import '../../../core/core.dart';
 
 class ProductImagesContainer extends StatelessWidget {
   final ProductDetailBloc productDetailBloc;

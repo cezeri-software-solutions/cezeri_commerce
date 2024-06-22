@@ -3,9 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../2_application/database/products_booking/products_booking_bloc.dart';
 import '../../../constants.dart';
-import '../../core/widgets/my_circular_progress_indicator.dart';
-import '../../core/widgets/my_form_field_container.dart';
-import '../../core/widgets/my_outlined_button.dart';
+import '../../core/core.dart';
 import 'widgets/products_booking_page_table.dart';
 import 'widgets/products_booking_select_products_dialog.dart';
 

@@ -4,7 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-import '/1_presentation/core/functions/check_internet_connection.dart';
+import '/1_presentation/core/core.dart';
 import '/3_domain/entities/col_ref.dart';
 import '/3_domain/repositories/firebase/general_ledger_account_repository.dart';
 import '../../../constants.dart';

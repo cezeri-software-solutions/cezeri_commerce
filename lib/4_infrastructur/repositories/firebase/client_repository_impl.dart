@@ -6,7 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 import '/3_domain/entities/settings/main_settings.dart';
 import '/3_domain/repositories/firebase/client_repository.dart';
-import '../../../1_presentation/core/functions/check_internet_connection.dart';
+import '../../../1_presentation/core/core.dart';
 import '../../../constants.dart';
 import '../../../failures/abstract_failure.dart';
 

@@ -3,7 +3,7 @@ import 'package:responsive_framework/responsive_framework.dart';
 
 import '../../../../3_domain/entities/product/product.dart';
 import '../../../../constants.dart';
-import '../../../core/functions/dialogs.dart';
+import '../../../core/core.dart';
 
 Widget getProductsAppBarTitle(BuildContext context, List<Product>? listOfFilteredProducts, List<Product> selectedProducts) {
   if (listOfFilteredProducts == null) return const Text('Artikel');

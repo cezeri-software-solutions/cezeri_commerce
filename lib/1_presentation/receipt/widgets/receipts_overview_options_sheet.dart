@@ -1,9 +1,6 @@
 import 'dart:math';
 
 import 'package:auto_route/auto_route.dart';
-import 'package:cezeri_commerce/1_presentation/core/extensions/get_either.dart';
-import 'package:cezeri_commerce/1_presentation/core/extensions/string_to_int.dart';
-import 'package:cezeri_commerce/1_presentation/core/widgets/my_dropdown_button_small.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -19,10 +16,7 @@ import '../../../3_domain/pdf/pdf_outgoing_invoices_generator.dart';
 import '../../../3_domain/repositories/firebase/receipt_respository.dart';
 import '../../../constants.dart';
 import '../../../routes/router.gr.dart';
-import '../../core/functions/dialogs.dart';
-import '../../core/sheets/select_customer_sheet.dart';
-import '../../core/widgets/my_form_field_small.dart';
-import '../../core/widgets/my_outlined_button.dart';
+import '../../core/core.dart';
 import '../sheets/loading_on_import_appointments_dialog.dart';
 
 void showReceiptsOverviewOptions({

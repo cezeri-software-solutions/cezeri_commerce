@@ -2,7 +2,6 @@
 
 import 'dart:convert';
 
-import 'package:cezeri_commerce/1_presentation/core/widgets/my_outlined_button.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -15,7 +14,7 @@ import '../../3_domain/pdf/pdf_api_mobile.dart';
 import '../../3_domain/pdf/pdf_api_web.dart';
 import '../../4_infrastructur/repositories/shipping_methods/austrian_post/austrian_post_api.dart';
 import '../../constants.dart';
-import '../core/widgets/my_form_field_small.dart';
+import '../core/core.dart';
 
 class ShippingLabelPage extends StatefulWidget {
   const ShippingLabelPage({super.key});

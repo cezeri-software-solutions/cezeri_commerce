@@ -7,7 +7,7 @@ import '../../../../2_application/database/supplier/supplier_bloc.dart';
 import '../../../../3_domain/entities/reorder/supplier.dart';
 import '../../../../constants.dart';
 import '../../../../routes/router.gr.dart';
-import '../../../core/widgets/my_country_flag.dart';
+import '../../../core/core.dart';
 import '../supplier_detail/supplier_detail_screen.dart';
 
 class SuppliersOverviewPage extends StatelessWidget {

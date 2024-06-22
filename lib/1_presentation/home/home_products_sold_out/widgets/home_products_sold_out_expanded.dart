@@ -3,9 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../2_application/database/home/home_product/home_product_bloc.dart';
 import '../../../../constants.dart';
-import '../../../core/widgets/my_animated_expansion_container.dart';
-import '../../../core/widgets/my_circular_progress_indicator.dart';
-import '../../../core/widgets/my_recommended_reorder_quantity.dart';
+import '../../../core/core.dart';
 import '../functions/get_reordered_quantity.dart';
 import 'grouped_list_of_supplier_by_manufacturer.dart';
 import 'home_product_name_widget.dart';

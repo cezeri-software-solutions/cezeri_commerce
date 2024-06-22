@@ -4,8 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../2_application/database/home/home_product/home_product_bloc.dart';
 import '../../../../3_domain/enums/enums.dart';
 import '../../../../constants.dart';
-import '../../../core/widgets/my_animated_arrow_icon_button.dart';
-import '../../../core/widgets/my_chip_with_two_options.dart';
+import '../../../core/core.dart';
 
 class HomeProductsSoldOutCollapsed extends StatelessWidget {
   final HomeProductBloc homeProductBloc;

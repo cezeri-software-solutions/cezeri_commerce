@@ -11,10 +11,7 @@ import '../../../2_application/database/receipt_detail_products/receipt_detail_p
 import '../../../3_domain/entities/receipt/receipt_product.dart';
 import '../../../constants.dart';
 import '../../../injection.dart';
-import '../../core/functions/dialogs.dart';
-import '../../core/widgets/my_avatar.dart';
-import '../../core/widgets/my_circular_progress_indicator.dart';
-import '../../core/widgets/pages_pagination_bar.dart';
+import '../../core/core.dart';
 
 void showReceiptDetailSelectProducts(BuildContext context, ReceiptDetailProductsBloc receiptDetailProductsBloc) {
   WoltModalSheet.show(

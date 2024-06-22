@@ -1,6 +1,4 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.dart';
-import 'package:cezeri_commerce/1_presentation/core/widgets/my_circular_progress_indicator.dart';
 import 'package:cezeri_commerce/3_domain/entities/receipt/receipt_product.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -9,8 +7,7 @@ import '../../../2_application/database/receipt_detail/receipt_detail_bloc.dart'
 import '../../../2_application/database/receipt_detail_products/receipt_detail_products_bloc.dart';
 import '../../../3_domain/entities/product/product.dart';
 import '../../../constants.dart';
-import '../../core/functions/dialogs.dart';
-import '../../core/widgets/my_text_form_field_small_double.dart';
+import '../../core/core.dart';
 import 'receipt_detail_select_products.dart';
 
 class ReceiptDetailProductsCard extends StatefulWidget {

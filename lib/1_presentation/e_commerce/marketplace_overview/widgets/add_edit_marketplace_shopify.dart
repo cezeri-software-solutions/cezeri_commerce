@@ -20,11 +20,7 @@ import '../../../../3_domain/entities/marketplace/marketplace_shopify.dart';
 import '../../../../3_domain/entities/settings/bank_details.dart';
 import '../../../../4_infrastructur/repositories/shopify_api/api/shopify_api.dart';
 import '../../../../constants.dart';
-import '../../../core/functions/mixed_functions.dart';
-import '../../../core/widgets/my_avatar.dart';
-import '../../../core/widgets/my_dialog_countries.dart';
-import '../../../core/widgets/my_outlined_button.dart';
-import '../../../core/widgets/my_text_form_field.dart';
+import '../../../core/core.dart';
 
 class AddEditMarketplaceShopify extends StatefulWidget {
   final MarketplaceBloc marketplaceBloc;

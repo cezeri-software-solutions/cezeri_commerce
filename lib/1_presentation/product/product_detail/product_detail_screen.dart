@@ -8,11 +8,7 @@ import '../../../2_application/database/product_detail/product_detail_bloc.dart'
 import '../../../constants.dart';
 import '../../../injection.dart';
 import '../../../routes/router.gr.dart';
-import '../../core/functions/my_scaffold_messanger.dart';
-import '../../core/renderer/failure_renderer.dart';
-import '../../core/widgets/my_dialog_suppliers.dart';
-import '../../core/widgets/my_icon_button.dart';
-import '../../core/widgets/my_outlined_button.dart';
+import '../../core/core.dart';
 import 'widgets/set_articles/show_select_product_sheet.dart';
 
 enum ProductCreateOrEdit { create, edit }

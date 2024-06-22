@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../core/widgets/my_form_field_container.dart';
-
+import '../../core/core.dart';
 class StatContainer extends StatelessWidget {
   final String title;
   final String body;

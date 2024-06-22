@@ -1,13 +1,11 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:cezeri_commerce/1_presentation/core/widgets/my_modal_scrollable.dart';
-import 'package:cezeri_commerce/1_presentation/core/widgets/my_outlined_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../2_application/database/main_settings/main_settings_bloc.dart';
 import '../../../../3_domain/entities/settings/payment_method.dart';
 import '../../../../constants.dart';
-import '../../../core/widgets/my_form_field_small.dart';
+import '../../../core/core.dart';
 
 class AddEditPaymentMethodMarketplaceName extends StatefulWidget {
   final PaymentMethod paymentMethod;

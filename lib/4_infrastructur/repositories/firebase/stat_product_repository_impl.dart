@@ -4,7 +4,7 @@ import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-import '../../../1_presentation/core/functions/check_internet_connection.dart';
+import '../../../1_presentation/core/core.dart';
 import '../../../3_domain/entities/statistic/product_sales_data.dart';
 import '../../../3_domain/repositories/firebase/stat_product_repository.dart';
 import '../../../constants.dart';

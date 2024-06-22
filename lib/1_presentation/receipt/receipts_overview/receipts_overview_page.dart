@@ -1,6 +1,4 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.dart';
-import 'package:cezeri_commerce/1_presentation/core/functions/dialogs.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -17,12 +15,7 @@ import '/constants.dart';
 import '/routes/router.gr.dart';
 import '../../../2_application/database/receipt/receipt_bloc.dart';
 import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
-import '../../core/functions/mixed_functions.dart';
-import '../../core/functions/show_my_product_quick_view.dart';
-import '../../core/widgets/address_column.dart';
-import '../../core/widgets/marketplace_column.dart';
-import '../../core/widgets/my_animated_arrow_icon_button.dart';
-import '../../core/widgets/my_animated_expansion_container.dart';
+import '../../core/core.dart';
 import '../widgets/receipts_overview_carrier_bar.dart';
 
 class ReceiptsOverviewPage extends StatefulWidget {

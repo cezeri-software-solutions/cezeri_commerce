@@ -1,7 +1,7 @@
-import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.dart';
 import 'package:cezeri_commerce/3_domain/entities/receipt/receipt.dart';
 import 'package:json_annotation/json_annotation.dart';
 
+import '/1_presentation/core/core.dart';
 import 'stat_product_detail.dart';
 
 part 'stat_product.g.dart';

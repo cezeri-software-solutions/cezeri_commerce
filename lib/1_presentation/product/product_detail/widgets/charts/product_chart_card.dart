@@ -1,10 +1,9 @@
-import 'package:cezeri_commerce/1_presentation/core/widgets/my_circular_progress_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '/constants.dart';
 import '../../../../../2_application/database/product_detail/product_detail_bloc.dart';
-import '../../../../core/functions/mixed_functions.dart';
+import '../../../../core/core.dart';
 import 'product_bart_chart_items_sold.dart';
 import 'product_line_chart_sales_volume.dart';
 

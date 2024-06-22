@@ -4,7 +4,7 @@ import '../../../../../2_application/database/supplier/supplier_bloc.dart';
 import '../../../../../3_domain/entities/address.dart';
 import '../../../../../3_domain/entities/reorder/supplier.dart';
 import '../../../../../constants.dart';
-import '../../../../core/widgets/my_address_update_sheet.dart';
+import '../../../../core/core.dart';
 
 class SupplierAddressCard extends StatelessWidget {
   final SupplierBloc supplierBloc;

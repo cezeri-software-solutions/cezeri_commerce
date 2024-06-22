@@ -6,7 +6,7 @@ import 'package:responsive_framework/responsive_framework.dart';
 
 import '../../../../2_application/database/product_detail/product_detail_bloc.dart';
 import '../../../../constants.dart';
-import '../../../core/widgets/my_html_editor.dart';
+import '../../../core/core.dart';
 
 @RoutePage()
 class ProductDescriptionPage extends StatelessWidget {

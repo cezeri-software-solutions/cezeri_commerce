@@ -8,7 +8,7 @@ import '../../../../2_application/database/customer/customer_bloc.dart';
 import '../../../../3_domain/entities/customer/customer.dart';
 import '../../../../constants.dart';
 import '../../../../routes/router.gr.dart';
-import '../../../core/widgets/my_country_flag.dart';
+import '../../../core/core.dart';
 
 class CustomersOverviewPage extends StatelessWidget {
   final CustomerBloc customerBloc;

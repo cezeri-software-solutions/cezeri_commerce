@@ -1,8 +1,6 @@
 import 'dart:io';
 
 import 'package:auto_route/auto_route.dart';
-import 'package:cezeri_commerce/1_presentation/core/extensions/string_to_int.dart';
-import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -11,9 +9,7 @@ import '../../../../3_domain/entities/id.dart';
 import '../../../../3_domain/entities/settings/dimensions.dart';
 import '../../../../3_domain/entities/settings/packaging_box.dart';
 import '../../../../constants.dart';
-import '../../../core/widgets/my_form_field_small.dart';
-import '../../../core/widgets/my_modal_scrollable.dart';
-import '../../../core/widgets/my_outlined_button.dart';
+import '../../../core/core.dart';
 
 class AddEditPackagingBox extends StatefulWidget {
   final PackagingBox? packagingBox;

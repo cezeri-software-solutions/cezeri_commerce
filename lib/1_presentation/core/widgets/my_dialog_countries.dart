@@ -1,11 +1,10 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:cezeri_commerce/1_presentation/core/widgets/my_country_flag.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../../../3_domain/entities/country.dart';
 import '../../../constants.dart';
-import 'my_avatar.dart';
+import '../core.dart';
 
 class MyDialogSelectCountry extends StatefulWidget {
   final String labelText;

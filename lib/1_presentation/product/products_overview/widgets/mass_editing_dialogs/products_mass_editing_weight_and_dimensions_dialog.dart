@@ -1,5 +1,4 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -7,9 +6,7 @@ import '../../../../../2_application/database/product/product_bloc.dart';
 import '../../../../../3_domain/entities/marketplace/abstract_marketplace.dart';
 import '../../../../../constants.dart';
 import '../../../../../routes/router.gr.dart';
-import '../../../../core/functions/dialogs.dart';
-import '../../../../core/widgets/my_outlined_button.dart';
-import '../../../../core/widgets/my_text_form_field_small_double.dart';
+import '../../../../core/core.dart';
 
 class ProductsMassEditingWeightAndDimensionsDialog extends StatefulWidget {
   final ProductBloc productBloc;

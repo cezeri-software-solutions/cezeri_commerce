@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../2_application/packing_station/packing_station_bloc.dart';
 import '../../../../constants.dart';
-import '../../../core/widgets/my_outlined_button.dart';
+import '../../../core/core.dart';
 import 'picklist_detail_page.dart';
 
 @RoutePage()

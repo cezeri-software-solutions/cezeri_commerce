@@ -1,13 +1,11 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:cezeri_commerce/1_presentation/core/widgets/my_circular_progress_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../2_application/database/marketplace/marketplace_bloc.dart';
 import '../../../injection.dart';
 import '../../app_drawer.dart';
-import '../../core/functions/my_scaffold_messanger.dart';
-import '../../core/renderer/failure_renderer.dart';
+import '../../core/core.dart';
 import 'e_mail_automation_page.dart';
 
 @RoutePage()

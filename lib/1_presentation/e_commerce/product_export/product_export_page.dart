@@ -1,5 +1,4 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
@@ -12,10 +11,7 @@ import '../../../3_domain/entities/product/product_presta.dart';
 import '../../../4_infrastructur/repositories/shopify_api/shopify.dart';
 import '../../../constants.dart';
 import '../../../routes/router.gr.dart';
-import '../../core/functions/dialogs.dart';
-import '../../core/functions/mixed_functions.dart';
-import '../../core/functions/show_my_product_quick_view.dart';
-import '../../core/widgets/my_avatar.dart';
+import '../../core/core.dart';
 
 class ProductExportPage extends StatelessWidget {
   final ProductExportBloc productExportBloc;

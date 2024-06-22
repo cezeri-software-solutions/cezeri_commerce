@@ -5,7 +5,7 @@ import '../../../../2_application/database/main_settings/main_settings_bloc.dart
 import '../../../../3_domain/entities/carrier/carrier.dart';
 import '../../../../3_domain/enums/enums.dart';
 import '../../../../constants.dart';
-import '../../../core/widgets/my_outlined_button.dart';
+import '../../../core/core.dart';
 import 'widgets/carrier_detail_automations_container.dart';
 import 'widgets/carrier_detail_credentials_card.dart';
 import 'widgets/carrier_detail_settings_card.dart';

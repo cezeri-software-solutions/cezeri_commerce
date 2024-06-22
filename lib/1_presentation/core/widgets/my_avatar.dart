@@ -114,12 +114,14 @@ class _MyCircularAvatarInitials extends StatelessWidget {
         radius: radius,
         backgroundColor: CustomColors.avatarBackgroundColor,
         child: Text(
-          name.length > 3 ? getInitials(name) : name,
+          name.length > 3 ? _getInitials(name) : name,
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: fontSize, color: Colors.white),
         ),
       ),
     );
   }
+
+  String _getInitials(String name) => name.split(' ').where((str) => str.isNotEmpty).take(2).map((str) => str[0].toUpperCase()).join(' ');
 }
 
 class _MyCircularAvatarOnLoading extends StatelessWidget {
@@ -160,5 +162,3 @@ class _MyCircularFileImage extends StatelessWidget {
     );
   }
 }
-
-String getInitials(String name) => name.split(' ').where((str) => str.isNotEmpty).take(2).map((str) => str[0].toUpperCase()).join(' ');

@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:auto_route/auto_route.dart';
-import 'package:cezeri_commerce/1_presentation/core/extensions/string_to_int.dart';
 import 'package:csv/csv.dart';
 import 'package:excel/excel.dart';
 import 'package:flutter/material.dart';
@@ -18,7 +17,7 @@ import '../../../../3_domain/repositories/firebase/marketplace_repository.dart';
 import '../../../../3_domain/repositories/marketplace/marketplace_import_repository.dart';
 import '../../../../4_infrastructur/repositories/prestashop_api/models/category_presta.dart';
 import '../../../../constants.dart';
-import '../../../core/functions/mixed_functions.dart';
+import '../../../core/core.dart';
 
 Future<void> generateTableExportFromProductsOverview(
   BuildContext context,

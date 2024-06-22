@@ -1,11 +1,10 @@
 import 'package:bloc/bloc.dart';
-import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.dart';
 import 'package:cezeri_commerce/3_domain/entities/picklist/picklist_product.dart';
 import 'package:cezeri_commerce/3_domain/entities/receipt/receipt_product.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 
-import '../../1_presentation/core/functions/dialogs.dart';
+import '../../1_presentation/core/core.dart';
 import '../../3_domain/entities/customer/customer.dart';
 import '../../3_domain/entities/picklist/picklist.dart';
 import '../../3_domain/entities/product/product.dart';

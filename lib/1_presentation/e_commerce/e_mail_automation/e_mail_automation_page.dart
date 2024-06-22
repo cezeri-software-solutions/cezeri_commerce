@@ -9,9 +9,7 @@ import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
 import '../../../3_domain/entities/placeholder.dart';
 import '../../../4_infrastructur/repositories/firebase/receipt_respository_impl.dart';
 import '../../../constants.dart';
-import '../../core/widgets/my_form_field_small.dart';
-import '../../core/widgets/my_html_editor.dart';
-import '../../core/widgets/my_outlined_button.dart';
+import '../../core/core.dart';
 
 class EMailAutomationPage extends StatelessWidget {
   final MarketplaceBloc marketplaceBloc;

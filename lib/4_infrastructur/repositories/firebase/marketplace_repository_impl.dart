@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:cezeri_commerce/1_presentation/core/extensions/get_either.dart';
 import 'package:cezeri_commerce/3_domain/entities/e_mail_automation.dart';
 import 'package:cezeri_commerce/3_domain/entities/marketplace/marketplace_shopify.dart';
 import 'package:cezeri_commerce/failures/firebase_failures.dart';
@@ -10,10 +9,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:path/path.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import '/1_presentation/core/functions/check_internet_connection.dart';
+import '/1_presentation/core/core.dart';
 import '/3_domain/entities/id.dart';
 import '/3_domain/repositories/firebase/marketplace_repository.dart';
-import '../../../1_presentation/core/functions/mixed_functions.dart';
 import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
 import '../../../3_domain/entities/marketplace/marketplace_presta.dart';
 import '../../../constants.dart';

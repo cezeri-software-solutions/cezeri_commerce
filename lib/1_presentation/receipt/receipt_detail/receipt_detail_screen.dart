@@ -10,9 +10,7 @@ import '../../../2_application/database/receipt_detail/receipt_detail_bloc.dart'
 import '../../../2_application/database/receipt_detail_products/receipt_detail_products_bloc.dart';
 import '../../../injection.dart';
 import '../../../routes/router.gr.dart';
-import '../../core/functions/load_file_from_storage.dart';
-import '../../core/functions/my_scaffold_messanger.dart';
-import '../../core/renderer/failure_renderer.dart';
+import '../../core/core.dart';
 import 'receipt_detail_page.dart';
 
 enum ReceiptCreateOrEdit { create, edit }

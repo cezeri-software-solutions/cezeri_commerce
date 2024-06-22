@@ -6,8 +6,7 @@ import '../../../2_application/database/reorder_detail/reorder_detail_bloc.dart'
 import '../../../3_domain/entities/reorder/reorder.dart';
 import '../../../3_domain/entities/reorder/supplier.dart';
 import '../../../constants.dart';
-import '../../core/functions/dialogs.dart';
-import '../../core/widgets/my_outlined_button.dart';
+import '../../core/core.dart';
 import 'reorder_detail_screen.dart';
 import 'widgets/reorder_detail_header_container.dart';
 import 'widgets/reorder_detail_products_card.dart';

@@ -4,8 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../2_application/marketplace/product_export/bloc/product_export_bloc.dart';
 import '../../../../3_domain/entities/product/product.dart';
 import '../../../../constants.dart';
-import '../../../core/widgets/my_avatar.dart';
-import '../../../core/widgets/my_circular_progress_indicator.dart';
+import '../../../core/core.dart';
 
 class ProductExportOverviewSheet extends StatelessWidget {
   final ProductExportBloc productExportBloc;

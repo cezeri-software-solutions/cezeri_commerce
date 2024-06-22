@@ -6,7 +6,7 @@ import '../../../2_application/database/receipt_detail/receipt_detail_bloc.dart'
 import '../../../3_domain/entities/receipt/receipt.dart';
 import '../../../3_domain/entities/settings/payment_method.dart';
 import '../../../constants.dart';
-import '../../core/widgets/my_dropdown_button_small.dart';
+import '../../core/core.dart';
 
 class ReceiptDetailPaymentMethodCard extends StatelessWidget {
   final ReceiptDetailBloc receiptDetailBloc;

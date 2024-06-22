@@ -1,14 +1,10 @@
-import 'package:cezeri_commerce/1_presentation/core/widgets/my_dropdown_button_small.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../../2_application/database/customer_detail/customer_detail_bloc.dart';
 import '../../../../../3_domain/entities/customer/customer.dart';
 import '../../../../../constants.dart';
-import '../../../../core/widgets/my_button_small.dart';
-import '../../../../core/widgets/my_country_flag.dart';
-import '../../../../core/widgets/my_dialog_taxes.dart';
-import '../../../../core/widgets/my_form_field_small.dart';
+import '../../../../core/core.dart';
 
 class CustomerMasterCard extends StatelessWidget {
   final CustomerDetailBloc customerDetailBloc;

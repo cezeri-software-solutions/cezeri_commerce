@@ -7,10 +7,7 @@ import '../../../../2_application/database/main_settings/main_settings_bloc.dart
 import '../../../../3_domain/entities/country.dart';
 import '../../../../3_domain/entities/settings/tax.dart';
 import '../../../../constants.dart';
-import '../../../core/widgets/my_dialog_countries.dart';
-import '../../../core/widgets/my_modal_scrollable.dart';
-import '../../../core/widgets/my_outlined_button.dart';
-import '../../../core/widgets/my_text_form_field.dart';
+import '../../../core/core.dart';
 
 class AddEditTaxRules extends StatefulWidget {
   final Tax? taxRule;

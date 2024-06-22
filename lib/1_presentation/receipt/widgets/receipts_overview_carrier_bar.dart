@@ -5,7 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../3_domain/entities/carrier/parcel_tracking.dart';
 import '../../../3_domain/entities/receipt/receipt.dart';
 import '../../../constants.dart';
-import '../../core/functions/load_file_from_storage.dart';
+import '../../core/core.dart';
 
 class ReceiptsOverviewCarrierBar extends StatelessWidget {
   final Receipt receipt;

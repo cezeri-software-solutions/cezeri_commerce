@@ -1,17 +1,14 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:cezeri_commerce/1_presentation/core/functions/dialogs.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../../4_infrastructur/repositories/shopify_api/shopify.dart';
-import '../../../../core/widgets/my_chip_with_three_options.dart';
-import '../../../../core/widgets/my_circular_progress_indicator.dart';
-import '../../../../core/widgets/my_outlined_button.dart';
-import '../../../../../2_application/database/marketplace_product/marketplace_product_bloc.dart';
-import '../../../../../2_application/database/product_detail/product_detail_bloc.dart';
 import '/3_domain/entities/product/product_marketplace.dart';
 import '/constants.dart';
+import '../../../../../2_application/database/marketplace_product/marketplace_product_bloc.dart';
+import '../../../../../2_application/database/product_detail/product_detail_bloc.dart';
+import '../../../../../4_infrastructur/repositories/shopify_api/shopify.dart';
+import '../../../../core/core.dart';
 
 class EditMarketplaceProductShopify extends StatelessWidget {
   final ProductDetailBloc productDetailBloc;

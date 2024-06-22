@@ -15,7 +15,7 @@ XmlBuilder? postProductBuilderOriginal({
   //       false => 0,
   //     };
   final builder = XmlBuilder();
-  bool isAnyFailure = false;
+  // bool isAnyFailure = false;
   final marketplaceProductPresta = productMarketplace.marketplaceProduct as ProductPresta;
   // final marketplaceLanguages = productPresta.marketplaceLanguages;
   // void valueBuilder(String? value, List<Multilanguage>? valuesMultilanguage, List<FieldLanguage> listOfProductLanguages, String fieldName) {
@@ -84,7 +84,7 @@ XmlBuilder? postProductBuilderOriginal({
       }
     });
   });
-  if (isAnyFailure) return null;
+  // if (isAnyFailure) return null;
   return builder;
 }
 
@@ -98,7 +98,7 @@ XmlBuilder? postProductBuilder({
   //       false => 0,
   //     };
   final builder = XmlBuilder();
-  bool isAnyFailure = false;
+  // bool isAnyFailure = false;
   final mpp = productMarketplace.marketplaceProduct as ProductPresta;
   // final marketplaceLanguages = productPresta.marketplaceLanguages;
   // void valueBuilder(String? value, List<Multilanguage>? valuesMultilanguage, List<FieldLanguage> listOfProductLanguages, String fieldName) {
@@ -181,6 +181,6 @@ XmlBuilder? postProductBuilder({
       }
     });
   });
-  if (isAnyFailure) return null;
+  // if (isAnyFailure) return null;
   return builder;
 }

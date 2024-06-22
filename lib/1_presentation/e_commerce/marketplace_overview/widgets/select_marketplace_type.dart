@@ -3,7 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
 import '../../../../3_domain/entities/marketplace/abstract_marketplace.dart';
-import '../../../core/functions/mixed_functions.dart';
+import '../../../core/core.dart';
 
 class SelectMarketplaceType extends StatelessWidget {
   final Function(MarketplaceType) onMarketplaceSelected;

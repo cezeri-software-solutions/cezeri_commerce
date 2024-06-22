@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:http/http.dart';
 
-import '/1_presentation/core/functions/check_internet_connection.dart';
+import '/1_presentation/core/core.dart';
 import '/3_domain/entities/carrier/parcel_tracking.dart';
 import '/3_domain/entities/marketplace/abstract_marketplace.dart';
 import '/3_domain/entities/marketplace/marketplace_presta.dart';
@@ -45,7 +45,6 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
       if (!marketplace.isActive) continue;
 
       if (productMarketplace.marketplaceProduct == null) return left([ProductHasNoMarketplaceFailure()]);
-      Either<AbstractFailure, Unit>? fosAbstract;
 
       switch (productMarketplace.marketplaceProduct!.marketplaceType) {
         case MarketplaceType.prestashop:
@@ -60,7 +59,6 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
               (failure) => failures.add(failure),
               (unit) => null,
             );
-            fosAbstract = fos;
           }
         case MarketplaceType.shopify:
           {
@@ -74,7 +72,6 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
               (failure) => failures.add(failure),
               (unit) => null,
             );
-            fosAbstract = fos;
           }
 
         case MarketplaceType.shop:

@@ -1,9 +1,5 @@
 import 'dart:io';
 
-import 'package:cezeri_commerce/1_presentation/core/widgets/my_avatar.dart';
-import 'package:cezeri_commerce/1_presentation/core/widgets/my_dialog_countries.dart';
-import 'package:cezeri_commerce/1_presentation/core/widgets/my_outlined_button.dart';
-import 'package:cezeri_commerce/1_presentation/core/widgets/my_text_form_field.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -20,7 +16,7 @@ import '../../../../3_domain/entities/marketplace/marketplace_presta.dart';
 import '../../../../3_domain/entities/marketplace/marketplace_settings.dart';
 import '../../../../3_domain/entities/settings/bank_details.dart';
 import '../../../../constants.dart';
-import '../../../core/functions/mixed_functions.dart';
+import '../../../core/core.dart';
 
 // TODO: PaymentMethod muss von hier aus gemappt werden können.
 

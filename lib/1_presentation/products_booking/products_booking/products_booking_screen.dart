@@ -5,8 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../2_application/database/products_booking/products_booking_bloc.dart';
 import '../../../injection.dart';
 import '../../app_drawer.dart';
-import '../../core/functions/my_scaffold_messanger.dart';
-import '../../core/renderer/failure_renderer.dart';
+import '../../core/core.dart';
 import 'products_booking_page.dart';
 import 'widgets/products_booking_select_products_dialog.dart';
 

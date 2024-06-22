@@ -9,8 +9,7 @@ import '../../../2_application/packing_station/packing_station_bloc.dart';
 import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
 import '../../../3_domain/pdf/pdf_receipt_generator.dart';
 import '../../../routes/router.gr.dart';
-import '../../core/functions/dialogs.dart';
-import '../../core/functions/load_file_from_storage.dart';
+import '../../core/core.dart';
 import 'packing_station_detail_page.dart';
 
 @RoutePage()

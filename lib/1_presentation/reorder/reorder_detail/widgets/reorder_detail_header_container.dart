@@ -5,9 +5,7 @@ import 'package:intl/intl.dart';
 import '../../../../2_application/database/reorder_detail/reorder_detail_bloc.dart';
 import '../../../../3_domain/entities/reorder/reorder.dart';
 import '../../../../constants.dart';
-import '../../../core/widgets/my_circular_progress_indicator.dart';
-import '../../../core/widgets/my_form_field_container.dart';
-import '../../../core/widgets/my_form_field_small.dart';
+import '../../../core/core.dart';
 import '../functions/on_pdf_pressed.dart';
 
 class ReorderDetailHeaderContainer extends StatelessWidget {

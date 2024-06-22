@@ -1,8 +1,4 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:cezeri_commerce/1_presentation/core/extensions/string_to_int.dart';
-import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.dart';
-import 'package:cezeri_commerce/1_presentation/core/widgets/my_outlined_button.dart';
-import 'package:cezeri_commerce/1_presentation/core/widgets/my_text_form_field_small_double.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -11,9 +7,7 @@ import '../../../../2_application/database/reorder_detail/reorder_detail_bloc.da
 import '../../../../3_domain/entities/product/product.dart';
 import '../../../../3_domain/entities/statistic/product_sales_data.dart';
 import '../../../../constants.dart';
-import '../../../core/functions/show_my_product_quick_view.dart';
-import '../../../core/widgets/my_avatar.dart';
-import '../../../core/widgets/my_recommended_reorder_quantity.dart';
+import '../../../core/core.dart';
 
 class SelectReorderDetailProductDialog extends StatelessWidget {
   final ReorderDetailBloc reorderDetailBloc;

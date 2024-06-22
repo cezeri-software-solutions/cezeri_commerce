@@ -4,8 +4,7 @@ import 'package:responsive_framework/responsive_framework.dart';
 
 import '../../../../3_domain/entities/marketplace/abstract_marketplace.dart';
 import '../../../../constants.dart';
-import '../../../core/functions/mixed_functions.dart';
-import '../../../core/widgets/my_avatar.dart';
+import '../../../core/core.dart';
 
 class SelectMarketplaceToExportSheet extends StatelessWidget {
   final bool isSelectMarketplaceForSourceCategories;

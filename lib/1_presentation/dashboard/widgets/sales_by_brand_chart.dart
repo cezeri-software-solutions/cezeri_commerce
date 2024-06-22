@@ -1,13 +1,12 @@
 import 'dart:math';
 
-import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
 import '../../../3_domain/entities/statistic/stat_brand.dart';
 import '../../../constants.dart';
-import '../../core/widgets/my_circular_progress_indicator.dart';
+import '../../core/core.dart';
 
 class SalesByBrandChart extends StatefulWidget {
   final List<StatBrand>? listOfSalesByBrand;

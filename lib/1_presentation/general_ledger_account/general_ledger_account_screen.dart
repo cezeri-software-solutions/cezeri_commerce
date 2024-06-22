@@ -1,5 +1,4 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:cezeri_commerce/1_presentation/core/functions/my_scaffold_messanger.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -9,8 +8,7 @@ import '../../3_domain/entities/settings/general_ledger_account.dart';
 import '../../injection.dart';
 import '../../routes/router.gr.dart';
 import '../app_drawer.dart';
-import '../core/renderer/failure_renderer.dart';
-import '../core/widgets/my_circular_progress_indicator.dart';
+import '../core/core.dart';
 import 'general_ledger_account_page.dart';
 import 'widgets/add_edit_general_ledger_account.dart';
 

@@ -5,14 +5,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../2_application/database/auth/auth_bloc/auth_bloc.dart';
 import '../../../2_application/database/auth/user_data_form/user_data_form_bloc.dart';
+import '../../../3_domain/entities/country.dart';
 import '../../../3_domain/enums/enums.dart';
 import '../../../constants.dart';
 import '../../../routes/router.gr.dart';
-import '../../core/classes/list_of_countries.dart';
-import '../../core/functions/input_validators.dart';
-import '../../core/widgets/my_dropdown_button_countries.dart';
-import '../../core/widgets/my_elevated_button.dart';
-import '../../core/widgets/my_form_field_container.dart';
+import '../../core/core.dart';
 import '../../splash_page.dart';
 
 class RegisterUserDataPage extends StatefulWidget {
@@ -41,12 +38,10 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
   //final TextEditingController _countryController = TextEditingController();
   final TextEditingController _tel1Controller = TextEditingController();
   final TextEditingController _tel2Controller = TextEditingController();
-  String selectedCountry = Countries.listOfCountries[0];
+  String selectedCountry = Country.countryList.map((e) => e.name).toList()[13];
 
   @override
   Widget build(BuildContext context) {
-    final double screenHeight = MediaQuery.sizeOf(context).height;
-
     return BlocBuilder<UserDataFormBloc, UserDataFormState>(builder: (context, state) {
       return Form(
         key: formKey,
@@ -154,20 +149,11 @@ class _RegisterUserDataPageState extends State<RegisterUserDataPage> {
                           textInputAction: TextInputAction.next,
                           textCapitalization: TextCapitalization.words,
                         ),
-                        /* TextFormField(
-                                controller: _countryController,
-                                decoration: const InputDecoration(
-                                  border: UnderlineInputBorder(),
-                                  labelText: 'Land',
-                                ),
-                                textInputAction: TextInputAction.done,
-                                textCapitalization: TextCapitalization.words,
-                              ), */
                         const SizedBox(height: 10),
-                        MyDropdownButtonCountries(
-                          value: selectedCountry,
-                          onChanged: (country) => setState(() => selectedCountry = country.toString()),
-                          menuMaxHeight: screenHeight / 2,
+                        MyDialogSelectCountry(
+                          labelText: 'Land',
+                          selectedCountry: selectedCountry,
+                          onSelectCountry: (country) => setState(() => selectedCountry = country.toString()),
                         ),
                         const Divider(height: 0),
                       ],

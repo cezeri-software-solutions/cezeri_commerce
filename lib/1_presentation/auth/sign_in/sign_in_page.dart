@@ -5,9 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../2_application/database/auth/sign_in_form/sign_in_form_bloc.dart';
 import '../../../constants.dart';
 import '../../../routes/router.gr.dart';
-import '../../core/functions/input_validators.dart';
-import '../../core/widgets/my_elevated_button.dart';
-import '../../core/widgets/my_form_field_container.dart';
+import '../../core/core.dart';
 
 class SignInPage extends StatefulWidget {
   final SignInFormBloc signInFormBloc;

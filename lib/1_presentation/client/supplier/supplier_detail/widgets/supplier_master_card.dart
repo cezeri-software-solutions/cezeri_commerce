@@ -3,10 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../../2_application/database/supplier/supplier_bloc.dart';
 import '../../../../../constants.dart';
-import '../../../../core/widgets/my_button_small.dart';
-import '../../../../core/widgets/my_country_flag.dart';
-import '../../../../core/widgets/my_dialog_taxes.dart';
-import '../../../../core/widgets/my_form_field_small.dart';
+import '../../../../core/core.dart';
 
 class SupplierMasterCard extends StatelessWidget {
   final SupplierBloc supplierBloc;

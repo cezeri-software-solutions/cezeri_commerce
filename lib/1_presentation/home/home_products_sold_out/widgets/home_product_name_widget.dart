@@ -2,7 +2,7 @@ import 'package:cezeri_commerce/3_domain/entities/product/product.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../constants.dart';
-import '../../../core/functions/show_my_product_quick_view.dart';
+import '../../../core/core.dart';
 
 class HomeProductNameWidget extends StatelessWidget {
   final Product product;

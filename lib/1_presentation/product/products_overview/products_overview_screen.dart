@@ -1,6 +1,5 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:cezeri_commerce/1_presentation/app_drawer.dart';
-import 'package:cezeri_commerce/1_presentation/core/renderer/failure_renderer.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -9,9 +8,7 @@ import '../../../2_application/database/product/product_bloc.dart';
 import '../../../3_domain/entities/product/product.dart';
 import '../../../injection.dart';
 import '../../../routes/router.gr.dart';
-import '../../core/functions/dialogs.dart';
-import '../../core/functions/my_scaffold_messanger.dart';
-import '../../core/widgets/pages_pagination_bar.dart';
+import '../../core/core.dart';
 import 'functions/get_products_app_bar_title.dart';
 import 'products_overview_page.dart';
 import 'widgets/mass_editing_dialogs/products_mass_editing_failure_dialog.dart';

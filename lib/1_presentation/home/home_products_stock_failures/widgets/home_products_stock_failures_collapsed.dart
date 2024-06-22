@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../2_application/database/home/home_product/home_product_bloc.dart';
 import '../../../../constants.dart';
-import '../../../core/widgets/my_animated_arrow_icon_button.dart';
+import '../../../core/core.dart';
 
 class HomeProductsStockFailuresCollapsed extends StatelessWidget {
   final HomeProductBloc homeProductBloc;

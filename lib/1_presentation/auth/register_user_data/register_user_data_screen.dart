@@ -5,7 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../2_application/database/auth/user_data_form/user_data_form_bloc.dart';
 import '../../../injection.dart';
-import '../../core/renderer/failure_renderer.dart';
+import '../../core/core.dart';
 import 'register_user_data_page.dart';
 
 @RoutePage()

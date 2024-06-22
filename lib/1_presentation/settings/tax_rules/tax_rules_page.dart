@@ -1,4 +1,3 @@
-import 'package:cezeri_commerce/1_presentation/core/widgets/my_country_flag.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -6,6 +5,7 @@ import '../../../2_application/database/main_settings/main_settings_bloc.dart';
 import '../../../3_domain/entities/settings/tax.dart';
 import '../../../constants.dart';
 import '../../app_drawer.dart';
+import '../../core/core.dart';
 import 'widgets/add_edit_tax_rules.dart';
 
 class TaxRulesPage extends StatefulWidget {

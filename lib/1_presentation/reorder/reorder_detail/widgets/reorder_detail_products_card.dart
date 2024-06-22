@@ -6,11 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../2_application/database/reorder_detail/reorder_detail_bloc.dart';
 import '../../../../3_domain/entities/product/product.dart';
 import '../../../../constants.dart';
-import '../../../core/functions/dialogs.dart';
-import '../../../core/functions/show_my_product_quick_view.dart';
-import '../../../core/widgets/my_circular_progress_indicator.dart';
-import '../../../core/widgets/my_form_field_small.dart';
-import '../../../core/widgets/my_text_form_field_small_double.dart';
+import '../../../core/core.dart';
 import '../functions/show_reorder_detail_products_dialog.dart';
 
 class ReorderDetailProductsCard extends StatelessWidget {

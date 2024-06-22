@@ -1,5 +1,4 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:cezeri_commerce/1_presentation/core/widgets/my_text_form_field.dart';
 import 'package:cezeri_commerce/1_presentation/settings/settings/widgets/my_settings_list_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -11,9 +10,7 @@ import '../../../3_domain/entities/settings/my_printer.dart';
 import '../../../3_domain/entities/settings/payment_method.dart';
 import '../../../constants.dart';
 import '../../app_drawer.dart';
-import '../../core/functions/dialogs.dart';
-import '../../core/widgets/my_form_field_container.dart';
-import '../../core/widgets/my_outlined_button.dart';
+import '../../core/core.dart';
 import 'widgets/add_payment_method.dart';
 
 class MainSettingsPage extends StatefulWidget {

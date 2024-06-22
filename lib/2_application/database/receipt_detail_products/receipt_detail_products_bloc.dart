@@ -1,8 +1,7 @@
 import 'package:bloc/bloc.dart';
-import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.dart';
 import 'package:flutter/material.dart';
 
-import '../../../1_presentation/core/functions/mixed_functions.dart';
+import '/1_presentation/core/core.dart';
 import '../../../3_domain/entities/country.dart';
 import '../../../3_domain/entities/receipt/receipt.dart';
 import '../../../3_domain/entities/receipt/receipt_product.dart';

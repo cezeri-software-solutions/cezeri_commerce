@@ -14,10 +14,7 @@ import '../../../../../4_infrastructur/repositories/prestashop_api/models/produc
 import '../../../../../4_infrastructur/repositories/shopify_api/shopify.dart';
 import '../../../../../constants.dart';
 import '../../../../../injection.dart';
-import '../../../../core/functions/dialogs.dart';
-import '../../../../core/functions/mixed_functions.dart';
-import '../../../../core/widgets/my_circular_progress_indicator.dart';
-import '../../../../core/widgets/my_outlined_button.dart';
+import '../../../../core/core.dart';
 import 'edit_marketplace_product_presta.dart';
 import 'edit_marketplace_product_shopify.dart';
 

@@ -1,10 +1,9 @@
-import 'package:cezeri_commerce/1_presentation/core/extensions/string_to_int.dart';
-import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.dart';
+
 import 'package:dartz/dartz.dart';
 import 'package:http/http.dart';
 import 'package:logger/logger.dart';
 
-import '/1_presentation/core/functions/mixed_functions.dart';
+import '/1_presentation/core/core.dart';
 import '/3_domain/entities/address.dart';
 import '/3_domain/entities/customer/customer.dart';
 import '/3_domain/entities/marketplace/marketplace_presta.dart';

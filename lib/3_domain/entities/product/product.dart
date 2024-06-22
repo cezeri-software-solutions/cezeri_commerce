@@ -1,10 +1,9 @@
-import 'package:cezeri_commerce/1_presentation/core/extensions/string_to_int.dart';
-import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.dart';
+
 import 'package:cezeri_commerce/3_domain/entities/product/field_language.dart';
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 
-import '/1_presentation/core/functions/mixed_functions.dart';
+import '/1_presentation/core/core.dart';
 import '/4_infrastructur/repositories/prestashop_api/models/product_raw_presta.dart';
 import '/4_infrastructur/repositories/shopify_api/shopify.dart';
 import '../language.dart';

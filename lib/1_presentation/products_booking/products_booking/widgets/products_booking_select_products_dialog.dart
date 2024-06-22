@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../2_application/database/products_booking/products_booking_bloc.dart';
 import '../../../../constants.dart';
-import '../../../core/widgets/my_outlined_button.dart';
+import '../../../core/core.dart';
 import 'products_booking_select_products_table.dart';
 
 class ProductsBookingSelectProductsDialog extends StatelessWidget {

@@ -1,4 +1,3 @@
-import 'package:cezeri_commerce/1_presentation/core/widgets/my_outlined_button.dart';
 import 'package:cezeri_commerce/3_domain/entities/marketplace/marketplace_presta.dart';
 import 'package:cezeri_commerce/3_domain/entities/marketplace/marketplace_shopify.dart';
 import 'package:flutter/cupertino.dart';
@@ -11,7 +10,7 @@ import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
 import '../../../3_domain/entities/product/product_presta.dart';
 import '../../../4_infrastructur/repositories/shopify_api/shopify.dart';
 import '../../../constants.dart';
-import '../../core/widgets/my_avatar.dart';
+import '../../core/core.dart';
 
 class ProductImportPage extends StatelessWidget {
   final ProductImportBloc productImportBloc;

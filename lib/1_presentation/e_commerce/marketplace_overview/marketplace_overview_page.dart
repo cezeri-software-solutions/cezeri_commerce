@@ -7,8 +7,7 @@ import 'package:responsive_framework/responsive_framework.dart';
 import '../../../2_application/database/marketplace/marketplace_bloc.dart';
 import '../../../constants.dart';
 import '../../app_drawer.dart';
-import '../../core/functions/mixed_functions.dart';
-import '../../core/widgets/my_avatar.dart';
+import '../../core/core.dart';
 import 'functions/add_edit_marktplace_pressed.dart';
 
 const double padding = 20;

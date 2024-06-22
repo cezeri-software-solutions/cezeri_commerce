@@ -3,8 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../2_application/packing_station/packing_station_bloc.dart';
-import '../../../core/functions/my_scaffold_messanger.dart';
-import '../../../core/renderer/failure_renderer.dart';
+import '../../../core/core.dart';
 import 'picklists_overview_page.dart';
 
 @RoutePage()

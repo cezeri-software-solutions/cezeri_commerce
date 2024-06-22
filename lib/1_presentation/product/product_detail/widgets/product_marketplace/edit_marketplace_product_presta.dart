@@ -1,7 +1,4 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:cezeri_commerce/1_presentation/core/extensions/string_to_int.dart';
-import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.dart';
-import 'package:cezeri_commerce/1_presentation/core/functions/dialogs.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -11,9 +8,7 @@ import '/4_infrastructur/repositories/prestashop_api/models/category_presta.dart
 import '/constants.dart';
 import '../../../../../2_application/database/marketplace_product/marketplace_product_bloc.dart';
 import '../../../../../2_application/database/product_detail/product_detail_bloc.dart';
-import '../../../../core/widgets/my_animated_expansion_container.dart';
-import '../../../../core/widgets/my_circular_progress_indicator.dart';
-import '../../../../core/widgets/my_outlined_button.dart';
+import '../../../../core/core.dart';
 
 class EditMarketplaceProductPresta extends StatelessWidget {
   final ProductDetailBloc productDetailBloc;
@@ -228,17 +223,15 @@ class CategoryWidget extends StatelessWidget {
               ],
             ),
             if (state.isExpanded[index])
-              ...subCategories
-                  .map((subCategory) => MyAnimatedExpansionContainer(
-                        isExpanded: state.isExpanded[index],
-                        child: CategoryWidget(
-                          category: subCategory,
-                          index: allCategories.indexOf(subCategory),
-                          allCategories: allCategories,
-                          marketplaceProductBloc: marketplaceProductBloc,
-                        ),
-                      ))
-                  ,
+              ...subCategories.map((subCategory) => MyAnimatedExpansionContainer(
+                    isExpanded: state.isExpanded[index],
+                    child: CategoryWidget(
+                      category: subCategory,
+                      index: allCategories.indexOf(subCategory),
+                      allCategories: allCategories,
+                      marketplaceProductBloc: marketplaceProductBloc,
+                    ),
+                  )),
             if (subCategories.isNotEmpty) const Divider(height: 0, color: CustomColors.backgroundLightGrey),
           ],
         );

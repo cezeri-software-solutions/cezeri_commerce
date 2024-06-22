@@ -9,9 +9,7 @@ import '../../../constants.dart';
 import '../../../injection.dart';
 import '../../../routes/router.gr.dart';
 import '../../app_drawer.dart';
-import '../../core/functions/my_scaffold_messanger.dart';
-import '../../core/renderer/failure_renderer.dart';
-import '../../core/widgets/my_outlined_button.dart';
+import '../../core/core.dart';
 import 'packing_station_overview_page.dart';
 
 @RoutePage()

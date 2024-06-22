@@ -1,5 +1,4 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:cezeri_commerce/1_presentation/core/extensions/get_either.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
@@ -9,7 +8,7 @@ import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
 import '../../../3_domain/repositories/firebase/marketplace_repository.dart';
 import '../../../constants.dart';
 import '../../../failures/failures.dart';
-import '../../core/widgets/my_circular_progress_indicator.dart';
+import '../../core/core.dart';
 
 void filterReceiptsOverview(BuildContext context, ReceiptBloc receiptBloc) async {
   AbstractFailure? abstractFailure;

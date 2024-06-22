@@ -5,7 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../2_application/database/product_detail/product_detail_bloc.dart';
 import '../../../../constants.dart';
-import '../../../core/widgets/my_form_field_small.dart';
+import '../../../core/core.dart';
 
 class ProductMasterCard extends StatelessWidget {
   final ProductDetailBloc productDetailBloc;

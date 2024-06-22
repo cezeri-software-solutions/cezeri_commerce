@@ -1,6 +1,4 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:cezeri_commerce/1_presentation/core/extensions/get_either.dart';
-import 'package:cezeri_commerce/1_presentation/core/widgets/my_outlined_button.dart';
 import 'package:cezeri_commerce/injection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -16,16 +14,7 @@ import '../../../3_domain/entities/id.dart';
 import '../../../3_domain/repositories/firebase/customer_repository.dart';
 import '../../../constants.dart';
 import '../../../failures/failures.dart';
-import '../../core/functions/dialogs.dart';
-import '../../core/functions/my_scaffold_messanger.dart';
-import '../../core/renderer/failure_renderer.dart';
-import '../../core/widgets/my_button_small.dart';
-import '../../core/widgets/my_circular_progress_indicator.dart';
-import '../../core/widgets/my_country_flag.dart';
-import '../../core/widgets/my_dialog_countries.dart';
-import '../../core/widgets/my_dialog_taxes.dart';
-import '../../core/widgets/my_dropdown_button_small.dart';
-import '../../core/widgets/my_form_field_small.dart';
+import '../../core/core.dart';
 
 void updateCustomerFromReceiptDetail(
     {required BuildContext context, required ReceiptDetailBloc receiptDetailBloc, required String customerId}) async {

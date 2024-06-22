@@ -1,7 +1,7 @@
-import 'package:cezeri_commerce/1_presentation/core/widgets/my_circular_progress_indicator.dart';
 import 'package:flutter/material.dart';
 
 import '../../../constants.dart';
+import '../core.dart';
 
 class MyOutlinedButton extends StatelessWidget {
   final String buttonText;

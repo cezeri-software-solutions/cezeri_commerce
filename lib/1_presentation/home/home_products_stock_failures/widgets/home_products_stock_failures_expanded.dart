@@ -1,12 +1,10 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:cezeri_commerce/1_presentation/core/functions/show_my_product_quick_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../2_application/database/home/home_product/home_product_bloc.dart';
 import '../../../../routes/router.gr.dart';
-import '../../../core/widgets/my_animated_expansion_container.dart';
-import '../../../core/widgets/my_circular_progress_indicator.dart';
+import '../../../core/core.dart';
 
 class HomeProductsStockFailuresExpanded extends StatelessWidget {
   final HomeProductBloc homeProductBloc;

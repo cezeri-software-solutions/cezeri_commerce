@@ -5,7 +5,7 @@ import '../../../../2_application/database/supplier/supplier_bloc.dart';
 import '../../../../3_domain/entities/reorder/supplier.dart';
 import '../../../../3_domain/enums/enums.dart';
 import '../../../../constants.dart';
-import '../../../core/widgets/my_outlined_button.dart';
+import '../../../core/core.dart';
 import 'supplier_detail_screen.dart';
 import 'widgets/supplier_address_card.dart';
 import 'widgets/supplier_master_card.dart';

@@ -1,10 +1,10 @@
-import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.dart';
 import 'package:flutter/material.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
 import '../../../3_domain/entities/receipt/receipt.dart';
 import '../../../3_domain/entities/statistic/stat_dashboard.dart';
 import '../../../constants.dart';
+import '../../core/core.dart';
 import 'stat_container.dart';
 
 class MainSalesData extends StatelessWidget {

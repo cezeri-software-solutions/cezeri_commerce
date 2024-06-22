@@ -1,10 +1,10 @@
-import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
+import '/1_presentation/core/core.dart';
 import '../entities/receipt/receipt.dart';
 import 'widgets/pdf_text.dart';
 

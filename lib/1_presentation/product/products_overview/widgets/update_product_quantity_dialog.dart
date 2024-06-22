@@ -6,7 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../2_application/database/product/product_bloc.dart';
 import '../../../../3_domain/entities/product/product.dart';
 import '../../../../constants.dart';
-import '../../../core/widgets/my_outlined_button.dart';
+import '../../../core/core.dart';
 
 enum QuantityUpdateWay { edit, set }
 

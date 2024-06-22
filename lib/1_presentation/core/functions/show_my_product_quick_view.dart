@@ -1,5 +1,4 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.dart';
 import 'package:cezeri_commerce/injection.dart';
 import 'package:cezeri_commerce/routes/router.gr.dart';
 import 'package:flutter/material.dart';
@@ -16,11 +15,9 @@ import '../../../3_domain/entities/statistic/product_sales_data.dart';
 import '../../../3_domain/repositories/firebase/product_repository.dart';
 import '../../../constants.dart';
 import '../../../failures/abstract_failure.dart';
+import '../../core/core.dart';
 import '../../product/product_detail/widgets/charts/product_bart_chart_items_sold.dart';
 import '../../product/product_detail/widgets/charts/product_line_chart_sales_volume.dart';
-import '../widgets/my_avatar.dart';
-import '../widgets/my_circular_progress_indicator.dart';
-import 'mixed_functions.dart';
 
 void showMyProductQuickView({required BuildContext context, required Product product, bool showStatProduct = false}) {
   final trailing = IconButton(

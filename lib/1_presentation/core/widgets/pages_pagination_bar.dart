@@ -1,9 +1,8 @@
-import 'package:cezeri_commerce/1_presentation/core/extensions/string_to_int.dart';
 import 'package:flutter/material.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
 import '../../../constants.dart';
-import 'my_dropdown_button_small.dart';
+import '../../core/core.dart';
 
 class PagesPaginationBar extends StatelessWidget {
   final int currentPage;

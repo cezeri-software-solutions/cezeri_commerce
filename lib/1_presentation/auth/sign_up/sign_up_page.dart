@@ -1,14 +1,11 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:cezeri_commerce/1_presentation/core/functions/my_scaffold_messanger.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../2_application/database/auth/sign_in_form/sign_in_form_bloc.dart';
 import '../../../constants.dart';
 import '../../../routes/router.gr.dart';
-import '../../core/functions/input_validators.dart';
-import '../../core/widgets/my_elevated_button.dart';
-import '../../core/widgets/my_form_field_container.dart';
+import '../../core/core.dart';
 
 class SignUpPage extends StatefulWidget {
   final SignInFormBloc signInFormBloc;

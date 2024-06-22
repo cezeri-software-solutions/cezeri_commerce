@@ -4,8 +4,7 @@ import '../../../2_application/database/receipt_detail/receipt_detail_bloc.dart'
 import '../../../3_domain/entities/address.dart';
 import '../../../3_domain/entities/receipt/receipt.dart';
 import '../../../constants.dart';
-import '../../core/widgets/address_column.dart';
-import '../../core/widgets/my_address_update_sheet.dart';
+import '../../core/core.dart';
 import '../sheets/receipt_detail_update_customer.dart';
 
 enum ReceiptDetailAddressTyp { shipping, invoice }

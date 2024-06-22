@@ -1,10 +1,9 @@
-import 'package:cezeri_commerce/1_presentation/core/extensions/get_either.dart';
 import 'package:cezeri_commerce/3_domain/entities/product/booking_product.dart';
 import 'package:cezeri_commerce/3_domain/entities/reorder/reorder.dart';
 import 'package:cezeri_commerce/failures/firebase_failures.dart';
 import 'package:dartz/dartz.dart';
 
-import '../../../1_presentation/core/functions/check_internet_connection.dart';
+import '../../../1_presentation/core/core.dart';
 import '../../../3_domain/entities/product/product.dart';
 import '../../../3_domain/entities/reorder/reorder_product.dart';
 import '../../../3_domain/enums/enums.dart';

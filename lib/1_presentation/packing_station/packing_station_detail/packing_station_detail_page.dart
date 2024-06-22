@@ -12,14 +12,7 @@ import '../../../3_domain/entities/product/product.dart';
 import '../../../3_domain/entities/receipt/receipt.dart';
 import '../../../3_domain/entities/receipt/receipt_product.dart';
 import '../../../constants.dart';
-import '../../core/functions/dialogs.dart';
-import '../../core/widgets/my_avatar.dart';
-import '../../core/widgets/my_circular_progress_indicator.dart';
-import '../../core/widgets/my_dropdown_button_small.dart';
-import '../../core/widgets/my_form_field_container.dart';
-import '../../core/widgets/my_form_field_small.dart';
-import '../../core/widgets/my_text.dart';
-import '../../core/widgets/my_text_form_field_small_double.dart';
+import '../../core/core.dart';
 
 final ItemScrollController _itemScrollController = ItemScrollController();
 final ItemPositionsListener _itemPositionsListener = ItemPositionsListener.create();

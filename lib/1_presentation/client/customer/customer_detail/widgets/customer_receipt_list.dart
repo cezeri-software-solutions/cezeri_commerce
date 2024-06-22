@@ -1,10 +1,10 @@
-import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../../2_application/database/customer_detail/customer_detail_bloc.dart';
 import '../../../../../3_domain/entities/receipt/receipt.dart';
 import '../../../../../constants.dart';
+import '../../../../core/core.dart';
 
 class CustomerReceiptList extends StatelessWidget {
   final CustomerDetailBloc customerDetailBloc;

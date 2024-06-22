@@ -7,11 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../2_application/database/customer/customer_bloc.dart';
 import '../../../../injection.dart';
-import '../../../core/functions/dialogs.dart';
-import '../../../core/functions/my_scaffold_messanger.dart';
-import '../../../core/renderer/failure_renderer.dart';
-import '../../../core/widgets/my_circular_progress_indicator.dart';
-import '../../../core/widgets/pages_pagination_bar.dart';
+import '../../../core/core.dart';
 import 'customers_overview_page.dart';
 
 @RoutePage()

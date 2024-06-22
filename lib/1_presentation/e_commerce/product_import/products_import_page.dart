@@ -3,9 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../2_application/marketplace/product_import/product_import_bloc.dart';
 import '../../../constants.dart';
-import '../../core/widgets/my_avatar.dart';
-import '../../core/widgets/my_circular_progress_indicator.dart';
-import '../../core/widgets/my_outlined_button.dart';
+import '../../core/core.dart';
 
 class ProductsImportPage extends StatelessWidget {
   final ProductImportBloc productImportBloc;

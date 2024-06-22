@@ -1,4 +1,3 @@
-import 'package:cezeri_commerce/1_presentation/core/extensions/get_either.dart';
 import 'package:cezeri_commerce/3_domain/entities/id.dart';
 import 'package:cezeri_commerce/3_domain/entities/picklist/picklist.dart';
 import 'package:cezeri_commerce/3_domain/entities/product/product.dart';
@@ -6,7 +5,7 @@ import 'package:cezeri_commerce/4_infrastructur/repositories/functions/get_datab
 import 'package:cezeri_commerce/failures/firebase_failures.dart';
 import 'package:dartz/dartz.dart';
 
-import '../../../1_presentation/core/functions/check_internet_connection.dart';
+import '../../../1_presentation/core/core.dart';
 import '../../../3_domain/entities/picklist/picklist_product.dart';
 import '../../../3_domain/entities/receipt/receipt.dart';
 import '../../../3_domain/repositories/firebase/packing_station_repository.dart';

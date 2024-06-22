@@ -1,5 +1,4 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.dart';
 import 'package:cezeri_commerce/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -13,12 +12,7 @@ import '/3_domain/entities/product/product_presta.dart';
 import '/4_infrastructur/repositories/shopify_api/shopify.dart';
 import '/routes/router.gr.dart';
 import '../../../2_application/database/product/product_bloc.dart';
-import '../../core/functions/dialogs.dart';
-import '../../core/functions/mixed_functions.dart';
-import '../../core/functions/show_my_part_of_set_product_quick_view.dart';
-import '../../core/functions/show_my_product_quick_view.dart';
-import '../../core/functions/show_my_set_product_quick_view.dart';
-import '../../core/widgets/my_avatar.dart';
+import '../../core/core.dart';
 import 'widgets/update_product_quantity_dialog.dart';
 
 class ProductOverviewPage extends StatelessWidget {

@@ -1,9 +1,9 @@
-import 'package:cezeri_commerce/1_presentation/core/widgets/my_text_form_field_small_double.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../2_application/database/product_detail/product_detail_bloc.dart';
 import '../../../../constants.dart';
+import '../../../core/core.dart';
 
 class WeightAndDimensionsCard extends StatelessWidget {
   final ProductDetailBloc productDetailBloc;

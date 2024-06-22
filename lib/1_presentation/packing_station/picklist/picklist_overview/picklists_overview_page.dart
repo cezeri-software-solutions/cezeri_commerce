@@ -7,7 +7,7 @@ import '../../../../2_application/packing_station/packing_station_bloc.dart';
 import '../../../../3_domain/entities/picklist/picklist.dart';
 import '../../../../3_domain/enums/enums.dart';
 import '../../../../routes/router.gr.dart';
-import '../../../core/widgets/my_circular_progress_indicator.dart';
+import '../../../core/core.dart';
 
 class PicklistsOverviewPage extends StatelessWidget {
   final PackingStationBloc packingStationBloc;

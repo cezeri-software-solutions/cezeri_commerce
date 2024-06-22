@@ -1,9 +1,8 @@
-import 'package:cezeri_commerce/1_presentation/core/extensions/contains_digit.dart';
-import 'package:cezeri_commerce/1_presentation/core/widgets/my_country_flag.dart';
 import 'package:flutter/material.dart';
 
 import '../../../3_domain/entities/address.dart';
 import '../../../constants.dart';
+import '../core.dart';
 
 class AddressColumn extends StatelessWidget {
   final Address address;

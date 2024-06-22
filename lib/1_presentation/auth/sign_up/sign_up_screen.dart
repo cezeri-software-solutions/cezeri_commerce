@@ -5,7 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../2_application/database/auth/sign_in_form/sign_in_form_bloc.dart';
 import '../../../injection.dart';
 import '../../../routes/router.gr.dart';
-import '../../core/renderer/failure_renderer.dart';
+import '../../core/core.dart';
 import 'sign_up_page.dart';
 
 @RoutePage()

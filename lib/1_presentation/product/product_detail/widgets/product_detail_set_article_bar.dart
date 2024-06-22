@@ -6,9 +6,7 @@ import '../../../../2_application/database/product_detail/product_detail_bloc.da
 import '../../../../3_domain/entities/product/product.dart';
 import '../../../../constants.dart';
 import '../../../../routes/router.gr.dart';
-import '../../../core/functions/dialogs.dart';
-import '../../../core/widgets/my_avatar.dart';
-import '../../../core/widgets/my_circular_progress_indicator.dart';
+import '../../../core/core.dart';
 import '../functions/has_set_articles_mismatch.dart';
 import 'set_articles/show_select_product_sheet.dart';
 

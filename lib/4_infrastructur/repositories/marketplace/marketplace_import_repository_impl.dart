@@ -1,4 +1,3 @@
-import 'package:cezeri_commerce/1_presentation/core/extensions/get_either.dart';
 import 'package:cezeri_commerce/3_domain/entities/marketplace/marketplace_shopify.dart';
 import 'package:cezeri_commerce/3_domain/entities/product/product.dart';
 import 'package:cezeri_commerce/3_domain/repositories/firebase/marketplace_repository.dart';
@@ -9,7 +8,7 @@ import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart';
 
-import '../../../../1_presentation/core/functions/check_internet_connection.dart';
+import '../../../../1_presentation/core/core.dart';
 import '../../../../3_domain/repositories/firebase/product_repository.dart';
 import '../../../../3_domain/repositories/marketplace/marketplace_import_repository.dart';
 import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';

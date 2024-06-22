@@ -1,6 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
 
-import '../../../1_presentation/core/functions/mixed_functions.dart';
+import '../../../1_presentation/core/core.dart';
 import '../../../4_infrastructur/repositories/prestashop_api/models/customer_presta.dart';
 import '../../../4_infrastructur/repositories/shopify_api/shopify.dart';
 import '../marketplace/marketplace_presta.dart';

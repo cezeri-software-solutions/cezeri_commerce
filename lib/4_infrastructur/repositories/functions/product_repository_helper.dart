@@ -6,14 +6,13 @@ import 'package:http/http.dart' as http;
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 
-import '/1_presentation/core/functions/set_product_functions.dart';
+import '/1_presentation/core/core.dart';
 import '/3_domain/entities/marketplace/abstract_marketplace.dart';
 import '/3_domain/entities/product/marketplace_product.dart';
 import '/3_domain/entities/product/product.dart';
 import '/3_domain/entities/product/product_image.dart';
 import '/3_domain/entities/product/product_presta.dart';
 import '/3_domain/repositories/firebase/product_repository.dart';
-import '../../../1_presentation/core/functions/mixed_functions.dart';
 import '../../../constants.dart';
 import '../../../failures/failures.dart';
 import '../shopify_api/shopify.dart';

@@ -6,7 +6,7 @@ import '../../../../../2_application/database/customer_detail/customer_detail_bl
 import '../../../../../3_domain/entities/address.dart';
 import '../../../../../3_domain/entities/customer/customer.dart';
 import '../../../../../constants.dart';
-import '../../../../core/widgets/my_address_update_sheet.dart';
+import '../../../../core/core.dart';
 
 enum CustomerDetailAddressTyp { shipping, invoice }
 

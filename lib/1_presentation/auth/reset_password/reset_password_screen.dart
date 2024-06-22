@@ -4,8 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../2_application/database/auth/sign_in_form/sign_in_form_bloc.dart';
 import '../../../injection.dart';
-import '../../core/functions/my_scaffold_messanger.dart';
-import '../../core/renderer/failure_renderer.dart';
+import '../../core/core.dart';
 import 'reset_password_page.dart';
 
 @RoutePage()

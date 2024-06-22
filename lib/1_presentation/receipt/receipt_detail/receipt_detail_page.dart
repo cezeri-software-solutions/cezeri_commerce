@@ -1,6 +1,5 @@
 import 'dart:math';
 
-import 'package:cezeri_commerce/1_presentation/core/extensions/to_my_currency.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:responsive_framework/responsive_framework.dart';
@@ -13,11 +12,7 @@ import '/constants.dart';
 import '../../../2_application/database/receipt_detail/receipt_detail_bloc.dart';
 import '../../../2_application/database/receipt_detail_products/receipt_detail_products_bloc.dart';
 import '../../../3_domain/entities/settings/main_settings.dart';
-import '../../core/functions/dialogs.dart';
-import '../../core/widgets/my_circular_progress_indicator.dart';
-import '../../core/widgets/my_form_field_small.dart';
-import '../../core/widgets/my_icon_button.dart';
-import '../../core/widgets/my_outlined_button.dart';
+import '../../core/core.dart';
 import '../widgets/receipt_detail_address_card.dart';
 import '../widgets/receipt_detail_carrier_card.dart';
 import '../widgets/receipt_detail_general_card.dart';
@@ -155,7 +150,7 @@ class _ReceiptDetailPageState extends State<ReceiptDetailPage> {
                       ),
                     ),
                   )
-                :  Padding(
+                : Padding(
                     padding: const EdgeInsets.all(8),
                     child: ListView(
                       children: [
