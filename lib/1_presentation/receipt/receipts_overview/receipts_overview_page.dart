@@ -425,10 +425,7 @@ class _ReceiptInfoColumn extends StatelessWidget {
       child: Column(
         children: [
           TextButton(
-            onPressed: () {
-              receiptBloc.add(GetReceiptEvent(appointment: receipt));
-              context.router.push(ReceiptDetailRoute(receiptId: receipt.id, newEmptyReceipt: null, receiptTyp: receiptTyp));
-            },
+            onPressed: () => context.router.push(ReceiptDetailRoute(receiptId: receipt.id, newEmptyReceipt: null, receiptTyp: receiptTyp)),
             child: Text(
               switch (receipt.receiptTyp) {
                 ReceiptType.offer => receipt.offerNumberAsString,

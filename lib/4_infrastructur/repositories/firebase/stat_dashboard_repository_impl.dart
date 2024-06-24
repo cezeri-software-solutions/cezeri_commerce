@@ -7,6 +7,7 @@ import '../../../1_presentation/core/core.dart';
 import '../../../3_domain/entities/receipt/receipt.dart';
 import '../../../3_domain/entities/statistic/stat_brand.dart';
 import '../../../3_domain/entities/statistic/stat_dashboard.dart';
+import '../../../3_domain/entities/statistic/stat_product_count.dart';
 import '../../../3_domain/repositories/firebase/stat_dashboard_repository.dart';
 import '../../../constants.dart';
 import '../../../failures/abstract_failure.dart';
@@ -128,6 +129,30 @@ class StatDashboardRepositoryImpl implements StatDashboardRepository {
       }).toList();
 
       return Right(listOfProductSalesByBrand);
+    } catch (e) {
+      logger.e(e);
+      return Left(GeneralFailure(customMessage: 'Daten konnten nicht geladen werden.'));
+    }
+  }
+
+  //? #######################################################################################################################################
+
+  @override
+  Future<Either<AbstractFailure, List<StatProductCount>>> getStatProductsCount(DateTimeRange dateRange) async {
+    if (!await checkInternetConnection()) return Left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
+
+    try {
+      final response = await supabase
+          .from('your_table_name')
+          .select()
+          .gte('date_column', dateRange.start.toIso8601String())
+          .lte('date_column', dateRange.end.toIso8601String());
+
+      final listOfStatProductsCount = response.map((e) => StatProductCount.fromJson(e)).toList();
+
+      return Right(listOfStatProductsCount);
     } catch (e) {
       logger.e(e);
       return Left(GeneralFailure(customMessage: 'Daten konnten nicht geladen werden.'));

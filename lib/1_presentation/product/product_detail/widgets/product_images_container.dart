@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../2_application/database/product_detail/product_detail_bloc.dart';
-import '../../../../3_domain/entities/product/product_image.dart';
 import '../../../../constants.dart';
 import '../../../core/core.dart';
 
@@ -60,9 +59,8 @@ class ProductImagesContainer extends StatelessWidget {
               shrinkWrap: true,
               itemCount: state.listOfProductImages.length,
               itemBuilder: (context, index) {
-                List<ProductImage> images = List.from(state.listOfProductImages);
-                //images.sort((a, b) => a.sortId.compareTo(b.sortId));
-                final image = images[index];
+                final image = state.listOfProductImages[index];
+
                 return Column(
                   key: ValueKey(image),
                   children: [

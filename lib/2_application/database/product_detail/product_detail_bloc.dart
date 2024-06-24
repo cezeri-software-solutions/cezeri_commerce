@@ -643,9 +643,9 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
 
     int newIndex = event.newIndex;
     int oldIndex = event.oldIndex;
-    if (newIndex > oldIndex) {
-      newIndex -= 1;
-    }
+    
+    if (newIndex > oldIndex) newIndex -= 1;
+
     final item = listOfProductImages.removeAt(oldIndex);
     listOfProductImages.insert(newIndex, item);
 

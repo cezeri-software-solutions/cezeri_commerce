@@ -70,25 +70,25 @@ class CustomerDetailPage extends StatelessWidget {
                             Expanded(child: CustomerAddressCard(customer: state.customer!, customerDetailBloc: customerDetailBloc)),
                           ],
                         ),
-                        Gaps.h16,
+                        Gaps.h8,
                         Expanded(child: CustomerReceiptList(customerDetailBloc: customerDetailBloc, state: state)),
                       ],
                     ),
                   )
-                : Expanded(
-                  child: Padding(
-                      padding: const EdgeInsets.all(8),
-                      child: SingleChildScrollView(
-                        child: Column(
-                          children: [
-                            CustomerMasterCard(customerDetailBloc: customerDetailBloc),
-                            CustomerAddressCard(customer: state.customer!, customerDetailBloc: customerDetailBloc),
-                            CustomerReceiptList(customerDetailBloc: customerDetailBloc, state: state),
-                          ],
-                        ),
+                : Padding(
+                    padding: const EdgeInsets.all(8),
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          CustomerMasterCard(customerDetailBloc: customerDetailBloc),
+                          Gaps.h8,
+                          CustomerAddressCard(customer: state.customer!, customerDetailBloc: customerDetailBloc),
+                          Gaps.h10,
+                          CustomerReceiptList(customerDetailBloc: customerDetailBloc, state: state),
+                        ],
                       ),
                     ),
-                ),
+                  ),
           ),
         );
       },

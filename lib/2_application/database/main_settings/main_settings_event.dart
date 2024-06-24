@@ -63,11 +63,12 @@ class PackagingBoxMainSettingsUpdateEvent extends MainSettingsEvent {
 }
 
 //? ################################################################
-class PackagingBoxMainSettingsUpdatePosEvent extends MainSettingsEvent {
-  final PackagingBox packagingBox;
-  final PositionTo positionTo;
 
-  PackagingBoxMainSettingsUpdatePosEvent({required this.packagingBox, required this.positionTo});
+class OnReorderPackagingBoxMainSettingsUpdatePosEvent extends MainSettingsEvent {
+  final int oldIndex;
+  final int newIndex;
+
+  OnReorderPackagingBoxMainSettingsUpdatePosEvent({required this.oldIndex, required this.newIndex});
 }
 
 //? ################################################################

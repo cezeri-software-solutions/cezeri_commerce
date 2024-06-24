@@ -16,7 +16,9 @@ class CustomerDetailState {
   final Option<Either<AbstractFailure, Customer>> fosCustomerDetailOnUpdateOption;
   final Option<Either<AbstractFailure, Customer>> fosCustomerDetailOnDeleteOption;
 
-  //* Helper
+  //* Helper Receipts
+  final bool isLoadingCustomerDetailOnObserveReceipts;
+  final AbstractFailure? receiptsFailure;
   final ReceiptType shownReceiptType;
 
   //* Controller
@@ -44,6 +46,8 @@ class CustomerDetailState {
     required this.fosCustomerDetailOnCreateOption,
     required this.fosCustomerDetailOnUpdateOption,
     required this.fosCustomerDetailOnDeleteOption,
+    required this.isLoadingCustomerDetailOnObserveReceipts,
+    required this.receiptsFailure,
     required this.shownReceiptType,
     required this.companyNameController,
     required this.firstNameController,
@@ -71,6 +75,8 @@ class CustomerDetailState {
       fosCustomerDetailOnCreateOption: none(),
       fosCustomerDetailOnUpdateOption: none(),
       fosCustomerDetailOnDeleteOption: none(),
+      isLoadingCustomerDetailOnObserveReceipts: false,
+      receiptsFailure: null,
       shownReceiptType: ReceiptType.appointment,
       companyNameController: TextEditingController(),
       firstNameController: TextEditingController(),
@@ -98,6 +104,8 @@ class CustomerDetailState {
     Option<Either<AbstractFailure, Customer>>? fosCustomerDetailOnCreateOption,
     Option<Either<AbstractFailure, Customer>>? fosCustomerDetailOnUpdateOption,
     Option<Either<AbstractFailure, Customer>>? fosCustomerDetailOnDeleteOption,
+    bool? isLoadingCustomerDetailOnObserveReceipts,
+    AbstractFailure? receiptsFailure,
     ReceiptType? shownReceiptType,
     TextEditingController? companyNameController,
     TextEditingController? firstNameController,
@@ -123,6 +131,8 @@ class CustomerDetailState {
       fosCustomerDetailOnCreateOption: fosCustomerDetailOnCreateOption ?? this.fosCustomerDetailOnCreateOption,
       fosCustomerDetailOnUpdateOption: fosCustomerDetailOnUpdateOption ?? this.fosCustomerDetailOnUpdateOption,
       fosCustomerDetailOnDeleteOption: fosCustomerDetailOnDeleteOption ?? this.fosCustomerDetailOnDeleteOption,
+      isLoadingCustomerDetailOnObserveReceipts: isLoadingCustomerDetailOnObserveReceipts ?? this.isLoadingCustomerDetailOnObserveReceipts,
+      receiptsFailure: receiptsFailure ?? this.receiptsFailure,
       shownReceiptType: shownReceiptType ?? this.shownReceiptType,
       companyNameController: companyNameController ?? this.companyNameController,
       firstNameController: firstNameController ?? this.firstNameController,

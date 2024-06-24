@@ -4,7 +4,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../constants.dart';
 import '../../../2_application/database/main_settings/main_settings_bloc.dart';
 import '../../../3_domain/entities/settings/packaging_box.dart';
-import '../../../3_domain/enums/enums.dart';
 import '../../app_drawer.dart';
 import '../../core/core.dart';
 import 'widgets/add_edit_packaging_box.dart';
@@ -22,7 +21,7 @@ class PackagingBoxesPage extends StatelessWidget {
             IconButton(onPressed: () => context.read<MainSettingsBloc>().add(GetMainSettingsEvent()), icon: const Icon(Icons.refresh)),
             Gaps.w8,
             IconButton(
-              onPressed: () => showModalBottomSheet(context: context, isScrollControlled: true, builder: (context) => const AddEditPackagingBox()),
+              onPressed: () => showAddEditPackagingBoxSheet(context, null),
               icon: const Icon(Icons.add, color: Colors.green),
             ),
             Gaps.w8,
@@ -53,18 +52,17 @@ class PackagingBoxesPage extends StatelessWidget {
             children: [
               Gaps.h42,
               if (state.mainSettings!.listOfPackagingBoxes.isEmpty)
-                const SizedBox(
-                  height: 150,
-                  child: Center(
-                    child: Text('Keine Verpackungskartons vorhanden'),
-                  ),
-                ),
+                const SizedBox(height: 150, child: Center(child: Text('Keine Verpackungskartons vorhanden'))),
               Expanded(
-                child: ListView.builder(
+                child: ReorderableListView.builder(
+                  onReorder: (oldIndex, newIndex) =>
+                      context.read<MainSettingsBloc>().add(OnReorderPackagingBoxMainSettingsUpdatePosEvent(oldIndex: oldIndex, newIndex: newIndex)),
                   itemCount: state.mainSettings!.listOfPackagingBoxes.length,
                   itemBuilder: (context, index) {
                     final packagingBox = state.mainSettings!.listOfPackagingBoxes[index];
+
                     return Column(
+                      key: ValueKey(packagingBox),
                       children: [
                         if (index == 0) const Divider(height: 2),
                         _PackagingBoxListTile(packagingBox: packagingBox, index: index),
@@ -104,12 +102,10 @@ class _PackagingBoxListTile extends StatelessWidget {
                 )
               : const SizedBox(height: 65, width: 65, child: Icon(Icons.question_mark)),
           Gaps.w8,
+          Text(packagingBox.pos.toString(), style: TextStyles.h2),
+          Gaps.w16,
           InkWell(
-            onTap: () => showModalBottomSheet(
-              context: context,
-              isScrollControlled: true,
-              builder: (context) => AddEditPackagingBox(packagingBox: packagingBox),
-            ),
+            onTap: () => showAddEditPackagingBoxSheet(context, packagingBox),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -117,27 +113,6 @@ class _PackagingBoxListTile extends StatelessWidget {
                 Text(packagingBox.shortName),
               ],
             ),
-          ),
-          const Spacer(),
-          Row(
-            children: [
-              IconButton(
-                onPressed: () => context
-                    .read<MainSettingsBloc>()
-                    .add(PackagingBoxMainSettingsUpdatePosEvent(packagingBox: packagingBox, positionTo: PositionTo.up)),
-                icon: const Icon(Icons.move_up, color: Colors.green),
-              ),
-              Gaps.w8,
-              IconButton(
-                onPressed: () => context
-                    .read<MainSettingsBloc>()
-                    .add(PackagingBoxMainSettingsUpdatePosEvent(packagingBox: packagingBox, positionTo: PositionTo.down)),
-                icon: const Icon(Icons.move_down, color: CustomColors.primaryColor),
-              ),
-              Gaps.w8,
-              Text(packagingBox.pos.toString(), style: TextStyles.h2),
-              Gaps.w16,
-            ],
           ),
         ],
       ),

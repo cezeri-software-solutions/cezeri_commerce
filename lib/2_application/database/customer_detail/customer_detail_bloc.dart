@@ -113,6 +113,8 @@ class CustomerDetailBloc extends Bloc<CustomerDetailEvent, CustomerDetailState> 
   }
 
   void _onCustomerDetailGetCustomerReceipts(CustomerDetailGetCustomerReceiptsEvent event, Emitter<CustomerDetailState> emit) async {
+    emit(state.copyWith(isLoadingCustomerDetailOnObserveReceipts: true));
+
     final fosReceipts = await receiptRepository.getListOfReceiptsByCustomerId(state.customer!.id);
     if (fosReceipts.isRight()) {
       final receipts = fosReceipts.getRight();
@@ -121,6 +123,12 @@ class CustomerDetailBloc extends Bloc<CustomerDetailEvent, CustomerDetailState> 
         listOfCustomerAppointments: receipts.where((e) => e.receiptTyp == ReceiptType.appointment).toList(),
         listOfCustomerDeliveryNotes: receipts.where((e) => e.receiptTyp == ReceiptType.deliveryNote).toList(),
         listOfCustomerInvoices: receipts.where((e) => e.receiptTyp == ReceiptType.invoice || e.receiptTyp == ReceiptType.credit).toList(),
+        isLoadingCustomerDetailOnObserveReceipts: false,
+      ));
+    } else {
+      emit(state.copyWith(
+        receiptsFailure: fosReceipts.getLeft(),
+        isLoadingCustomerDetailOnObserveReceipts: true,
       ));
     }
   }

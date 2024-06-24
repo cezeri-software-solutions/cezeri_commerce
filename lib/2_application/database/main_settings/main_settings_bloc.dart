@@ -9,7 +9,6 @@ import '../../../3_domain/entities/country.dart';
 import '../../../3_domain/entities/settings/main_settings.dart';
 import '../../../3_domain/entities/settings/packaging_box.dart';
 import '../../../3_domain/entities/settings/tax.dart';
-import '../../../3_domain/enums/enums.dart';
 import '../../../3_domain/repositories/firebase/main_settings_respository.dart';
 import '../../../failures/abstract_failure.dart';
 
@@ -161,32 +160,22 @@ class MainSettingsBloc extends Bloc<MainSettingsEvent, MainSettingsState> {
 
 //? #########################################################################
 
-    on<PackagingBoxMainSettingsUpdatePosEvent>((event, emit) async {
-      List<PackagingBox> packagingBoxes = List.from(state.mainSettings!.listOfPackagingBoxes);
+    on<OnReorderPackagingBoxMainSettingsUpdatePosEvent>((event, emit) async {
+      List<PackagingBox> listOfPackagingBoxes = List.from(state.mainSettings!.listOfPackagingBoxes);
 
-      if (event.positionTo == PositionTo.down) {
-        int indexToDown = packagingBoxes.indexWhere((box) => box.id == event.packagingBox.id);
-        int indexToUp = packagingBoxes.indexWhere((box) => box.pos == event.packagingBox.pos + 1);
-        if (indexToDown != -1 && indexToUp != -1) {
-          int posToDown = packagingBoxes[indexToDown].pos;
-          packagingBoxes[indexToDown] = packagingBoxes[indexToDown].copyWith(pos: posToDown + 1);
-          packagingBoxes[indexToUp] = packagingBoxes[indexToUp].copyWith(pos: posToDown);
-        }
+      int newIndex = event.newIndex;
+      int oldIndex = event.oldIndex;
+
+      if (newIndex > oldIndex) newIndex -= 1;
+
+      final item = listOfPackagingBoxes.removeAt(oldIndex);
+      listOfPackagingBoxes.insert(newIndex, item);
+
+      for (int i = 0; i < listOfPackagingBoxes.length; i++) {
+        listOfPackagingBoxes[i] = listOfPackagingBoxes[i].copyWith(pos: i + 1);
       }
 
-      if (event.positionTo == PositionTo.up) {
-        int indexToUp = packagingBoxes.indexWhere((box) => box.id == event.packagingBox.id);
-        int indexToDown = packagingBoxes.indexWhere((box) => box.pos == event.packagingBox.pos - 1);
-        if (indexToUp != -1 && indexToDown != -1) {
-          int posToDown = packagingBoxes[indexToUp].pos;
-          packagingBoxes[indexToUp] = packagingBoxes[indexToUp].copyWith(pos: posToDown - 1);
-          packagingBoxes[indexToDown] = packagingBoxes[indexToDown].copyWith(pos: posToDown);
-        }
-      }
-
-      packagingBoxes.sort((a, b) => a.pos.compareTo(b.pos));
-
-      emit(state.copyWith(mainSettings: state.mainSettings!.copyWith(listOfPackagingBoxes: packagingBoxes)));
+      emit(state.copyWith(mainSettings: state.mainSettings!.copyWith(listOfPackagingBoxes: listOfPackagingBoxes)));
     });
 
 //? #########################################################################

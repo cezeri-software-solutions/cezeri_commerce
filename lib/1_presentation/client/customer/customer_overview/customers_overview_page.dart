@@ -65,49 +65,54 @@ class _CustomerContainer extends StatelessWidget {
     return BlocBuilder<CustomerBloc, CustomerState>(
       bloc: customerBloc,
       builder: (context, state) {
-        return Row(
+        return Column(
           children: [
-            Checkbox.adaptive(
-              value: state.selectedCustomers.any((e) => e.id == customer.id),
-              onChanged: (_) => customerBloc.add(OnCustomerSelectedEvent(customer: customer)),
-            ),
-            Expanded(
-              child: InkWell(
-                onTap: () => context.router.push(CustomerDetailRoute(customerId: customer.id)),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(customer.customerNumber.toString()),
-                    if (invoiceAddress!.companyName != '') Text(invoiceAddress.companyName),
-                    Text(customer.name),
-                    Text(DateFormat('dd.MM.yyy', 'de').format(customer.creationDate)),
-                  ],
+            if(index == 0) Gaps.h10,
+            Row(
+              children: [
+                Checkbox.adaptive(
+                  value: state.selectedCustomers.any((e) => e.id == customer.id),
+                  onChanged: (_) => customerBloc.add(OnCustomerSelectedEvent(customer: customer)),
                 ),
-              ),
-            ),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(invoiceAddress.street),
-                  Text.rich(
-                    TextSpan(
+                Expanded(
+                  child: InkWell(
+                    onTap: () => context.router.push(CustomerDetailRoute(customerId: customer.id)),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        TextSpan(text: invoiceAddress.postcode),
-                        const TextSpan(text: ' '),
-                        TextSpan(text: invoiceAddress.city),
+                        Text(customer.customerNumber.toString()),
+                        if (invoiceAddress!.companyName != '') Text(invoiceAddress.companyName),
+                        Text(customer.name),
+                        Text(DateFormat('dd.MM.yyy', 'de').format(customer.creationDate)),
                       ],
                     ),
                   ),
-                  Row(
+                ),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(invoiceAddress.country.name),
-                      Gaps.w8,
-                      MyCountryFlag(country: invoiceAddress.country, size: 12),
+                      Text(invoiceAddress.street),
+                      Text.rich(
+                        TextSpan(
+                          children: [
+                            TextSpan(text: invoiceAddress.postcode),
+                            const TextSpan(text: ' '),
+                            TextSpan(text: invoiceAddress.city),
+                          ],
+                        ),
+                      ),
+                      Row(
+                        children: [
+                          Text(invoiceAddress.country.name),
+                          Gaps.w8,
+                          MyCountryFlag(country: invoiceAddress.country, size: 12),
+                        ],
+                      ),
                     ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ],
         );

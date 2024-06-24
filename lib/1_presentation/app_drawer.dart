@@ -1,7 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:cezeri_commerce/1_presentation/splash_page.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../3_domain/entities/receipt/receipt.dart';
 import '../constants.dart';
@@ -26,7 +25,7 @@ class AppDrawer extends StatelessWidget {
                       title: const Text('Startseite'),
                       onTap: () {
                         if (context.router.current.name == HomeRoute.name) {
-                          context.router.pop();
+                          context.router.maybePop();
                         } else {
                           context.router.replaceAll([const HomeRoute()]);
                         }
@@ -37,7 +36,7 @@ class AppDrawer extends StatelessWidget {
                       title: const Text('Dashboard'),
                       onTap: () {
                         if (context.router.current.name == DashboardRoute.name) {
-                          context.router.pop();
+                          context.router.maybePop();
                         } else {
                           context.router.replaceAll([const DashboardRoute()]);
                         }
@@ -48,7 +47,7 @@ class AppDrawer extends StatelessWidget {
                       title: const Text('Artikel'),
                       onTap: () {
                         if (context.router.current.name == ProductsOverviewRoute.name) {
-                          context.router.pop();
+                          context.router.maybePop();
                         } else {
                           context.router.replaceAll([const ProductsOverviewRoute()]);
                         }
@@ -59,7 +58,7 @@ class AppDrawer extends StatelessWidget {
                       title: const Text('Kunden'),
                       onTap: () {
                         if (context.router.current.name == CustomersOverviewRoute.name) {
-                          context.router.pop();
+                          context.router.maybePop();
                         } else {
                           context.router.replaceAll([const CustomersOverviewRoute()]);
                         }
@@ -75,7 +74,7 @@ class AppDrawer extends StatelessWidget {
                           title: const Text('Lieferanten'),
                           onTap: () {
                             if (context.router.current.name == SuppliersOverviewRoute.name) {
-                              context.router.pop();
+                              context.router.maybePop();
                             } else {
                               context.router.replaceAll([const SuppliersOverviewRoute()]);
                             }
@@ -86,7 +85,7 @@ class AppDrawer extends StatelessWidget {
                           title: const Text('Bestellungen'),
                           onTap: () {
                             if (context.router.current.name == ReordersOverviewRoute.name) {
-                              context.router.pop();
+                              context.router.maybePop();
                             } else {
                               context.router.replaceAll([const ReordersOverviewRoute()]);
                             }
@@ -104,7 +103,7 @@ class AppDrawer extends StatelessWidget {
                           title: const Text('Warenausgang'),
                           onTap: () {
                             // if (context.router.current.name == SuppliersOverviewRoute.name) {
-                            //   context.router.pop();
+                            //   context.router.maybePop();
                             // } else {
                             //   context.router.replaceAll([const SuppliersOverviewRoute()]);
                             // }
@@ -115,7 +114,7 @@ class AppDrawer extends StatelessWidget {
                           title: const Text('Wareneingang'),
                           onTap: () {
                             if (context.router.current.name == ProductsBookingRoute.name) {
-                              context.router.pop();
+                              context.router.maybePop();
                             } else {
                               context.router.replaceAll([const ProductsBookingRoute()]);
                             }
@@ -128,10 +127,21 @@ class AppDrawer extends StatelessWidget {
                       title: const Text('Packstation'),
                       onTap: () {
                         if (context.router.current.name == PackingStationOverviewRoute.name) {
-                          context.router.pop();
+                          context.router.maybePop();
                         } else {
                           context.router.replaceAll([const PackingStationOverviewRoute()]);
                         }
+                      },
+                    ),
+                    ListTile(
+                      leading: const Icon(Icons.shopping_cart),
+                      title: const Text('POS'),
+                      onTap: () {
+                        // if (context.router.current.name == PackingStationOverviewRoute.name) {
+                        //   context.router.maybePop();
+                        // } else {
+                        //   context.router.replaceAll([const PackingStationOverviewRoute()]);
+                        // }
                       },
                     ),
                     ExpansionTile(
@@ -144,7 +154,7 @@ class AppDrawer extends StatelessWidget {
                           title: const Text('Angebote'),
                           onTap: () {
                             if (context.router.current.name == OffersOverviewRoute.name) {
-                              context.router.pop();
+                              context.router.maybePop();
                             } else {
                               context.router.replaceAll([OffersOverviewRoute(receiptTyp: ReceiptType.offer)]);
                             }
@@ -155,7 +165,7 @@ class AppDrawer extends StatelessWidget {
                           title: const Text('Aufträge'),
                           onTap: () {
                             if (context.router.current.name == AppointmentsOverviewRoute.name) {
-                              context.router.pop();
+                              context.router.maybePop();
                             } else {
                               context.router.replaceAll([AppointmentsOverviewRoute(receiptTyp: ReceiptType.appointment)]);
                             }
@@ -166,7 +176,7 @@ class AppDrawer extends StatelessWidget {
                           title: const Text('Lieferscheine'),
                           onTap: () {
                             if (context.router.current.name == DeliveryNotesOverviewRoute.name) {
-                              context.router.pop();
+                              context.router.maybePop();
                             } else {
                               context.router.replaceAll([DeliveryNotesOverviewRoute(receiptTyp: ReceiptType.deliveryNote)]);
                             }
@@ -177,7 +187,7 @@ class AppDrawer extends StatelessWidget {
                           title: const Text('Rechnungen'),
                           onTap: () {
                             if (context.router.current.name == InvoicesOverviewRoute.name) {
-                              context.router.pop();
+                              context.router.maybePop();
                             } else {
                               context.router.replaceAll([InvoicesOverviewRoute(receiptTyp: ReceiptType.invoice)]);
                             }
@@ -190,14 +200,14 @@ class AppDrawer extends StatelessWidget {
                       title: const Text('Versandlabel'),
                       onTap: () {
                         if (context.router.current.name == ShippingLabelRoute.name) {
-                          context.router.pop();
+                          context.router.maybePop();
                         } else {
                           context.router.replaceAll([const ShippingLabelRoute()]);
                         }
                       },
                     ),
                     ExpansionTile(
-                      leading: const Icon(FontAwesomeIcons.cartShopping),
+                      leading: const Icon(Icons.maps_home_work_rounded),
                       title: const Text('E-Commerce'),
                       childrenPadding: const EdgeInsets.only(left: 20),
                       children: [
@@ -206,7 +216,7 @@ class AppDrawer extends StatelessWidget {
                           title: const Text('Artikel importieren'),
                           onTap: () {
                             if (context.router.current.name == ProductImportRoute.name) {
-                              context.router.pop();
+                              context.router.maybePop();
                             } else {
                               context.router.replaceAll([const ProductImportRoute()]);
                             }
@@ -217,7 +227,7 @@ class AppDrawer extends StatelessWidget {
                           title: const Text('Artikel exportieren'),
                           onTap: () {
                             if (context.router.current.name == ProductExportRoute.name) {
-                              context.router.pop();
+                              context.router.maybePop();
                             } else {
                               context.router.replaceAll([const ProductExportRoute()]);
                             }
@@ -228,7 +238,7 @@ class AppDrawer extends StatelessWidget {
                           title: const Text('Marktplätze'),
                           onTap: () {
                             if (context.router.current.name == MarketplaceOverviewRoute.name) {
-                              context.router.pop();
+                              context.router.maybePop();
                             } else {
                               context.router.replaceAll([const MarketplaceOverviewRoute()]);
                             }
@@ -239,7 +249,7 @@ class AppDrawer extends StatelessWidget {
                           title: const Text('E-Mail Automatisierungen'),
                           onTap: () {
                             if (context.router.current.name == EMailAutomationRoute.name) {
-                              context.router.pop();
+                              context.router.maybePop();
                             } else {
                               context.router.replaceAll([const EMailAutomationRoute()]);
                             }
@@ -257,7 +267,7 @@ class AppDrawer extends StatelessWidget {
                           title: const Text('Sachkontos'),
                           onTap: () {
                             if (context.router.current.name == GeneralLedgerAccountRoute.name) {
-                              context.router.pop();
+                              context.router.maybePop();
                             } else {
                               context.router.replaceAll([const GeneralLedgerAccountRoute()]);
                             }
@@ -268,7 +278,7 @@ class AppDrawer extends StatelessWidget {
                           title: const Text('Eingangsrechnungen'),
                           onTap: () {
                             if (context.router.current.name == ReordersOverviewRoute.name) {
-                              context.router.pop();
+                              context.router.maybePop();
                             } else {
                               context.router.replaceAll([const ReordersOverviewRoute()]);
                             }
@@ -286,7 +296,7 @@ class AppDrawer extends StatelessWidget {
                           title: const Text('Steuerregeln'),
                           onTap: () {
                             if (context.router.current.name == TaxRulesRoute.name) {
-                              context.router.pop();
+                              context.router.maybePop();
                             } else {
                               context.router.replaceAll([const TaxRulesRoute()]);
                             }
@@ -297,7 +307,7 @@ class AppDrawer extends StatelessWidget {
                           title: const Text('Zahlungsarten'),
                           onTap: () {
                             if (context.router.current.name == PaymentMethodRoute.name) {
-                              context.router.pop();
+                              context.router.maybePop();
                             } else {
                               context.router.replaceAll([const PaymentMethodRoute()]);
                             }
@@ -308,7 +318,7 @@ class AppDrawer extends StatelessWidget {
                           title: const Text('Versanddienstleister'),
                           onTap: () {
                             if (context.router.current.name == CarriersOverviewRoute.name) {
-                              context.router.pop();
+                              context.router.maybePop();
                             } else {
                               context.router.replaceAll([const CarriersOverviewRoute()]);
                             }
@@ -319,7 +329,7 @@ class AppDrawer extends StatelessWidget {
                           title: const Text('Verpackungskartons'),
                           onTap: () {
                             if (context.router.current.name == PackagingBoxesRoute.name) {
-                              context.router.pop();
+                              context.router.maybePop();
                             } else {
                               context.router.replaceAll([const PackagingBoxesRoute()]);
                             }
@@ -330,7 +340,7 @@ class AppDrawer extends StatelessWidget {
                           title: const Text('Grundeinstellungen'),
                           onTap: () {
                             if (context.router.current.name == MainSettingsRoute.name) {
-                              context.router.pop();
+                              context.router.maybePop();
                             } else {
                               context.router.replaceAll([const MainSettingsRoute()]);
                             }

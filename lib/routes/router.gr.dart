@@ -9,51 +9,93 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:auto_route/auto_route.dart' as _i40;
-import 'package:cezeri_commerce/1_presentation/auth/register_user_data/register_user_data_screen.dart' as _i29;
-import 'package:cezeri_commerce/1_presentation/auth/reset_password/reset_password_screen.dart' as _i32;
-import 'package:cezeri_commerce/1_presentation/auth/sign_in/sign_in_screen.dart' as _i34;
-import 'package:cezeri_commerce/1_presentation/auth/sign_up/sign_up_screen.dart' as _i35;
-import 'package:cezeri_commerce/1_presentation/client/customer/customer_detail/customer_detail_screen.dart' as _i4;
-import 'package:cezeri_commerce/1_presentation/client/customer/customer_overview/customers_overview_screen.dart' as _i5;
-import 'package:cezeri_commerce/1_presentation/client/supplier/supplier_detail/supplier_detail_screen.dart' as _i37;
-import 'package:cezeri_commerce/1_presentation/client/supplier/suppliers_overview/suppliers_overview_screen.dart' as _i38;
-import 'package:cezeri_commerce/1_presentation/core/core.dart' as _i14;
-import 'package:cezeri_commerce/1_presentation/dashboard/dashboard_screen.dart' as _i6;
-import 'package:cezeri_commerce/1_presentation/e_commerce/e_mail_automation/e_mail_automation_screen.dart' as _i8;
-import 'package:cezeri_commerce/1_presentation/e_commerce/marketplace_overview/marketplace_overview_screen.dart' as _i13;
-import 'package:cezeri_commerce/1_presentation/e_commerce/product_export/product_export_screen.dart' as _i24;
-import 'package:cezeri_commerce/1_presentation/e_commerce/product_import/product_import_screen.dart' as _i25;
-import 'package:cezeri_commerce/1_presentation/general_ledger_account/general_ledger_account_screen.dart' as _i9;
+import 'package:cezeri_commerce/1_presentation/auth/register_user_data/register_user_data_screen.dart'
+    as _i29;
+import 'package:cezeri_commerce/1_presentation/auth/reset_password/reset_password_screen.dart'
+    as _i32;
+import 'package:cezeri_commerce/1_presentation/auth/sign_in/sign_in_screen.dart'
+    as _i34;
+import 'package:cezeri_commerce/1_presentation/auth/sign_up/sign_up_screen.dart'
+    as _i35;
+import 'package:cezeri_commerce/1_presentation/client/customer/customer_detail/customer_detail_screen.dart'
+    as _i4;
+import 'package:cezeri_commerce/1_presentation/client/customer/customer_overview/customers_overview_screen.dart'
+    as _i5;
+import 'package:cezeri_commerce/1_presentation/client/supplier/supplier_detail/supplier_detail_screen.dart'
+    as _i37;
+import 'package:cezeri_commerce/1_presentation/client/supplier/suppliers_overview/suppliers_overview_screen.dart'
+    as _i38;
+import 'package:cezeri_commerce/1_presentation/core/widgets/my_fullscreen_image_page.dart'
+    as _i14;
+import 'package:cezeri_commerce/1_presentation/dashboard/dashboard_screen.dart'
+    as _i6;
+import 'package:cezeri_commerce/1_presentation/e_commerce/e_mail_automation/e_mail_automation_screen.dart'
+    as _i8;
+import 'package:cezeri_commerce/1_presentation/e_commerce/marketplace_overview/marketplace_overview_screen.dart'
+    as _i13;
+import 'package:cezeri_commerce/1_presentation/e_commerce/product_export/product_export_screen.dart'
+    as _i24;
+import 'package:cezeri_commerce/1_presentation/e_commerce/product_import/product_import_screen.dart'
+    as _i25;
+import 'package:cezeri_commerce/1_presentation/general_ledger_account/general_ledger_account_screen.dart'
+    as _i9;
 import 'package:cezeri_commerce/1_presentation/home/home_screen.dart' as _i10;
-import 'package:cezeri_commerce/1_presentation/packing_station/packing_station_detail/packing_station_detail_screen.dart' as _i17;
-import 'package:cezeri_commerce/1_presentation/packing_station/packing_station_overview/packing_station_overview_screen.dart' as _i18;
-import 'package:cezeri_commerce/1_presentation/packing_station/picklist/picklist_detail/picklist_detail_screen.dart' as _i20;
-import 'package:cezeri_commerce/1_presentation/packing_station/picklist/picklist_overview/picklists_overview_screen.dart' as _i21;
-import 'package:cezeri_commerce/1_presentation/product/product_detail/product_detail_screen.dart' as _i23;
-import 'package:cezeri_commerce/1_presentation/product/product_detail/widgets/product_description_page.dart' as _i22;
-import 'package:cezeri_commerce/1_presentation/product/products_overview/products_overview_screen.dart' as _i27;
-import 'package:cezeri_commerce/1_presentation/products_booking/products_booking/products_booking_screen.dart' as _i26;
-import 'package:cezeri_commerce/1_presentation/receipt/receipt_detail/receipt_detail_screen.dart' as _i28;
-import 'package:cezeri_commerce/1_presentation/receipt/receipts_overview/appointments_overview_screen.dart' as _i1;
-import 'package:cezeri_commerce/1_presentation/receipt/receipts_overview/delivery_notes_overview_screen.dart' as _i7;
-import 'package:cezeri_commerce/1_presentation/receipt/receipts_overview/invoices_overview_screen.dart' as _i11;
-import 'package:cezeri_commerce/1_presentation/receipt/receipts_overview/offers_overview_screen.dart' as _i15;
-import 'package:cezeri_commerce/1_presentation/reorder/reorder_detail/reorder_detail_screen.dart' as _i30;
-import 'package:cezeri_commerce/1_presentation/reorder/reorders_overview/reorders_overview_screen.dart' as _i31;
-import 'package:cezeri_commerce/1_presentation/settings/carrier/carrier_detail/carrier_detail_screen.dart' as _i2;
-import 'package:cezeri_commerce/1_presentation/settings/carrier/carriers_overview/carriers_overview_screen.dart' as _i3;
-import 'package:cezeri_commerce/1_presentation/settings/packaging_box/packaging_box_screen.dart' as _i16;
-import 'package:cezeri_commerce/1_presentation/settings/payment_method/payment_method_screen.dart' as _i19;
-import 'package:cezeri_commerce/1_presentation/settings/settings/main_settings_screen.dart' as _i12;
-import 'package:cezeri_commerce/1_presentation/settings/tax_rules/tax_rules_screen.dart' as _i39;
-import 'package:cezeri_commerce/1_presentation/shipping_label/shipping_label_screen.dart' as _i33;
+import 'package:cezeri_commerce/1_presentation/packing_station/packing_station_detail/packing_station_detail_screen.dart'
+    as _i17;
+import 'package:cezeri_commerce/1_presentation/packing_station/packing_station_overview/packing_station_overview_screen.dart'
+    as _i18;
+import 'package:cezeri_commerce/1_presentation/packing_station/picklist/picklist_detail/picklist_detail_screen.dart'
+    as _i20;
+import 'package:cezeri_commerce/1_presentation/packing_station/picklist/picklist_overview/picklists_overview_screen.dart'
+    as _i21;
+import 'package:cezeri_commerce/1_presentation/product/product_detail/product_detail_screen.dart'
+    as _i23;
+import 'package:cezeri_commerce/1_presentation/product/product_detail/widgets/product_description_page.dart'
+    as _i22;
+import 'package:cezeri_commerce/1_presentation/product/products_overview/products_overview_screen.dart'
+    as _i27;
+import 'package:cezeri_commerce/1_presentation/products_booking/products_booking/products_booking_screen.dart'
+    as _i26;
+import 'package:cezeri_commerce/1_presentation/receipt/receipt_detail/receipt_detail_screen.dart'
+    as _i28;
+import 'package:cezeri_commerce/1_presentation/receipt/receipts_overview/appointments_overview_screen.dart'
+    as _i1;
+import 'package:cezeri_commerce/1_presentation/receipt/receipts_overview/delivery_notes_overview_screen.dart'
+    as _i7;
+import 'package:cezeri_commerce/1_presentation/receipt/receipts_overview/invoices_overview_screen.dart'
+    as _i11;
+import 'package:cezeri_commerce/1_presentation/receipt/receipts_overview/offers_overview_screen.dart'
+    as _i15;
+import 'package:cezeri_commerce/1_presentation/reorder/reorder_detail/reorder_detail_screen.dart'
+    as _i30;
+import 'package:cezeri_commerce/1_presentation/reorder/reorders_overview/reorders_overview_screen.dart'
+    as _i31;
+import 'package:cezeri_commerce/1_presentation/settings/carrier/carrier_detail/carrier_detail_screen.dart'
+    as _i2;
+import 'package:cezeri_commerce/1_presentation/settings/carrier/carriers_overview/carriers_overview_screen.dart'
+    as _i3;
+import 'package:cezeri_commerce/1_presentation/settings/packaging_box/packaging_box_screen.dart'
+    as _i16;
+import 'package:cezeri_commerce/1_presentation/settings/payment_method/payment_method_screen.dart'
+    as _i19;
+import 'package:cezeri_commerce/1_presentation/settings/settings/main_settings_screen.dart'
+    as _i12;
+import 'package:cezeri_commerce/1_presentation/settings/tax_rules/tax_rules_screen.dart'
+    as _i39;
+import 'package:cezeri_commerce/1_presentation/shipping_label/shipping_label_screen.dart'
+    as _i33;
 import 'package:cezeri_commerce/1_presentation/splash_page.dart' as _i36;
-import 'package:cezeri_commerce/2_application/database/product_detail/product_detail_bloc.dart' as _i45;
-import 'package:cezeri_commerce/2_application/database/supplier/supplier_bloc.dart' as _i47;
-import 'package:cezeri_commerce/2_application/packing_station/packing_station_bloc.dart' as _i43;
-import 'package:cezeri_commerce/3_domain/entities/marketplace/abstract_marketplace.dart' as _i44;
+import 'package:cezeri_commerce/2_application/database/product_detail/product_detail_bloc.dart'
+    as _i45;
+import 'package:cezeri_commerce/2_application/database/supplier/supplier_bloc.dart'
+    as _i47;
+import 'package:cezeri_commerce/2_application/packing_station/packing_station_bloc.dart'
+    as _i43;
+import 'package:cezeri_commerce/3_domain/entities/marketplace/abstract_marketplace.dart'
+    as _i44;
 import 'package:cezeri_commerce/3_domain/entities/receipt/receipt.dart' as _i42;
-import 'package:cezeri_commerce/3_domain/entities/reorder/supplier.dart' as _i46;
+import 'package:cezeri_commerce/3_domain/entities/reorder/supplier.dart'
+    as _i46;
 import 'package:flutter/material.dart' as _i41;
 
 abstract class $AppRouter extends _i40.RootStackRouter {
@@ -241,7 +283,8 @@ abstract class $AppRouter extends _i40.RootStackRouter {
       );
     },
     ProductDetailRoute.name: (routeData) {
-      final args = routeData.argsAs<ProductDetailRouteArgs>(orElse: () => const ProductDetailRouteArgs());
+      final args = routeData.argsAs<ProductDetailRouteArgs>(
+          orElse: () => const ProductDetailRouteArgs());
       return _i40.AutoRoutePage<dynamic>(
         routeData: routeData,
         child: _i23.ProductDetailScreen(
@@ -335,7 +378,8 @@ abstract class $AppRouter extends _i40.RootStackRouter {
       );
     },
     SplashRoute.name: (routeData) {
-      final args = routeData.argsAs<SplashRouteArgs>(orElse: () => const SplashRouteArgs());
+      final args = routeData.argsAs<SplashRouteArgs>(
+          orElse: () => const SplashRouteArgs());
       return _i40.AutoRoutePage<dynamic>(
         routeData: routeData,
         child: _i36.SplashPage(
@@ -372,7 +416,8 @@ abstract class $AppRouter extends _i40.RootStackRouter {
 
 /// generated route for
 /// [_i1.AppointmentsOverviewScreen]
-class AppointmentsOverviewRoute extends _i40.PageRouteInfo<AppointmentsOverviewRouteArgs> {
+class AppointmentsOverviewRoute
+    extends _i40.PageRouteInfo<AppointmentsOverviewRouteArgs> {
   AppointmentsOverviewRoute({
     _i41.Key? key,
     required _i42.ReceiptType receiptTyp,
@@ -388,7 +433,8 @@ class AppointmentsOverviewRoute extends _i40.PageRouteInfo<AppointmentsOverviewR
 
   static const String name = 'AppointmentsOverviewRoute';
 
-  static const _i40.PageInfo<AppointmentsOverviewRouteArgs> page = _i40.PageInfo<AppointmentsOverviewRouteArgs>(name);
+  static const _i40.PageInfo<AppointmentsOverviewRouteArgs> page =
+      _i40.PageInfo<AppointmentsOverviewRouteArgs>(name);
 }
 
 class AppointmentsOverviewRouteArgs {
@@ -425,7 +471,8 @@ class CarrierDetailRoute extends _i40.PageRouteInfo<CarrierDetailRouteArgs> {
 
   static const String name = 'CarrierDetailRoute';
 
-  static const _i40.PageInfo<CarrierDetailRouteArgs> page = _i40.PageInfo<CarrierDetailRouteArgs>(name);
+  static const _i40.PageInfo<CarrierDetailRouteArgs> page =
+      _i40.PageInfo<CarrierDetailRouteArgs>(name);
 }
 
 class CarrierDetailRouteArgs {
@@ -476,7 +523,8 @@ class CustomerDetailRoute extends _i40.PageRouteInfo<CustomerDetailRouteArgs> {
 
   static const String name = 'CustomerDetailRoute';
 
-  static const _i40.PageInfo<CustomerDetailRouteArgs> page = _i40.PageInfo<CustomerDetailRouteArgs>(name);
+  static const _i40.PageInfo<CustomerDetailRouteArgs> page =
+      _i40.PageInfo<CustomerDetailRouteArgs>(name);
 }
 
 class CustomerDetailRouteArgs {
@@ -525,7 +573,8 @@ class DashboardRoute extends _i40.PageRouteInfo<void> {
 
 /// generated route for
 /// [_i7.DeliveryNotesOverviewScreen]
-class DeliveryNotesOverviewRoute extends _i40.PageRouteInfo<DeliveryNotesOverviewRouteArgs> {
+class DeliveryNotesOverviewRoute
+    extends _i40.PageRouteInfo<DeliveryNotesOverviewRouteArgs> {
   DeliveryNotesOverviewRoute({
     _i41.Key? key,
     required _i42.ReceiptType receiptTyp,
@@ -541,7 +590,8 @@ class DeliveryNotesOverviewRoute extends _i40.PageRouteInfo<DeliveryNotesOvervie
 
   static const String name = 'DeliveryNotesOverviewRoute';
 
-  static const _i40.PageInfo<DeliveryNotesOverviewRouteArgs> page = _i40.PageInfo<DeliveryNotesOverviewRouteArgs>(name);
+  static const _i40.PageInfo<DeliveryNotesOverviewRouteArgs> page =
+      _i40.PageInfo<DeliveryNotesOverviewRouteArgs>(name);
 }
 
 class DeliveryNotesOverviewRouteArgs {
@@ -604,7 +654,8 @@ class HomeRoute extends _i40.PageRouteInfo<void> {
 
 /// generated route for
 /// [_i11.InvoicesOverviewScreen]
-class InvoicesOverviewRoute extends _i40.PageRouteInfo<InvoicesOverviewRouteArgs> {
+class InvoicesOverviewRoute
+    extends _i40.PageRouteInfo<InvoicesOverviewRouteArgs> {
   InvoicesOverviewRoute({
     _i41.Key? key,
     required _i42.ReceiptType receiptTyp,
@@ -620,7 +671,8 @@ class InvoicesOverviewRoute extends _i40.PageRouteInfo<InvoicesOverviewRouteArgs
 
   static const String name = 'InvoicesOverviewRoute';
 
-  static const _i40.PageInfo<InvoicesOverviewRouteArgs> page = _i40.PageInfo<InvoicesOverviewRouteArgs>(name);
+  static const _i40.PageInfo<InvoicesOverviewRouteArgs> page =
+      _i40.PageInfo<InvoicesOverviewRouteArgs>(name);
 }
 
 class InvoicesOverviewRouteArgs {
@@ -669,7 +721,8 @@ class MarketplaceOverviewRoute extends _i40.PageRouteInfo<void> {
 
 /// generated route for
 /// [_i14.MyFullscreenImagePage]
-class MyFullscreenImageRoute extends _i40.PageRouteInfo<MyFullscreenImageRouteArgs> {
+class MyFullscreenImageRoute
+    extends _i40.PageRouteInfo<MyFullscreenImageRouteArgs> {
   MyFullscreenImageRoute({
     _i41.Key? key,
     required List<String> imagePaths,
@@ -689,7 +742,8 @@ class MyFullscreenImageRoute extends _i40.PageRouteInfo<MyFullscreenImageRouteAr
 
   static const String name = 'MyFullscreenImageRoute';
 
-  static const _i40.PageInfo<MyFullscreenImageRouteArgs> page = _i40.PageInfo<MyFullscreenImageRouteArgs>(name);
+  static const _i40.PageInfo<MyFullscreenImageRouteArgs> page =
+      _i40.PageInfo<MyFullscreenImageRouteArgs>(name);
 }
 
 class MyFullscreenImageRouteArgs {
@@ -732,7 +786,8 @@ class OffersOverviewRoute extends _i40.PageRouteInfo<OffersOverviewRouteArgs> {
 
   static const String name = 'OffersOverviewRoute';
 
-  static const _i40.PageInfo<OffersOverviewRouteArgs> page = _i40.PageInfo<OffersOverviewRouteArgs>(name);
+  static const _i40.PageInfo<OffersOverviewRouteArgs> page =
+      _i40.PageInfo<OffersOverviewRouteArgs>(name);
 }
 
 class OffersOverviewRouteArgs {
@@ -767,7 +822,8 @@ class PackagingBoxesRoute extends _i40.PageRouteInfo<void> {
 
 /// generated route for
 /// [_i17.PackingStationDetailScreen]
-class PackingStationDetailRoute extends _i40.PageRouteInfo<PackingStationDetailRouteArgs> {
+class PackingStationDetailRoute
+    extends _i40.PageRouteInfo<PackingStationDetailRouteArgs> {
   PackingStationDetailRoute({
     _i41.Key? key,
     required _i43.PackingStationBloc packingStationBloc,
@@ -785,7 +841,8 @@ class PackingStationDetailRoute extends _i40.PageRouteInfo<PackingStationDetailR
 
   static const String name = 'PackingStationDetailRoute';
 
-  static const _i40.PageInfo<PackingStationDetailRouteArgs> page = _i40.PageInfo<PackingStationDetailRouteArgs>(name);
+  static const _i40.PageInfo<PackingStationDetailRouteArgs> page =
+      _i40.PageInfo<PackingStationDetailRouteArgs>(name);
 }
 
 class PackingStationDetailRouteArgs {
@@ -853,7 +910,8 @@ class PicklistDetailRoute extends _i40.PageRouteInfo<PicklistDetailRouteArgs> {
 
   static const String name = 'PicklistDetailRoute';
 
-  static const _i40.PageInfo<PicklistDetailRouteArgs> page = _i40.PageInfo<PicklistDetailRouteArgs>(name);
+  static const _i40.PageInfo<PicklistDetailRouteArgs> page =
+      _i40.PageInfo<PicklistDetailRouteArgs>(name);
 }
 
 class PicklistDetailRouteArgs {
@@ -874,7 +932,8 @@ class PicklistDetailRouteArgs {
 
 /// generated route for
 /// [_i21.PicklistsOverviewScreen]
-class PicklistsOverviewRoute extends _i40.PageRouteInfo<PicklistsOverviewRouteArgs> {
+class PicklistsOverviewRoute
+    extends _i40.PageRouteInfo<PicklistsOverviewRouteArgs> {
   PicklistsOverviewRoute({
     _i41.Key? key,
     required _i43.PackingStationBloc packingStationBloc,
@@ -890,7 +949,8 @@ class PicklistsOverviewRoute extends _i40.PageRouteInfo<PicklistsOverviewRouteAr
 
   static const String name = 'PicklistsOverviewRoute';
 
-  static const _i40.PageInfo<PicklistsOverviewRouteArgs> page = _i40.PageInfo<PicklistsOverviewRouteArgs>(name);
+  static const _i40.PageInfo<PicklistsOverviewRouteArgs> page =
+      _i40.PageInfo<PicklistsOverviewRouteArgs>(name);
 }
 
 class PicklistsOverviewRouteArgs {
@@ -911,7 +971,8 @@ class PicklistsOverviewRouteArgs {
 
 /// generated route for
 /// [_i22.ProductDescriptionPage]
-class ProductDescriptionRoute extends _i40.PageRouteInfo<ProductDescriptionRouteArgs> {
+class ProductDescriptionRoute
+    extends _i40.PageRouteInfo<ProductDescriptionRouteArgs> {
   ProductDescriptionRoute({
     _i41.Key? key,
     required _i45.ProductDetailBloc productDetailBloc,
@@ -927,7 +988,8 @@ class ProductDescriptionRoute extends _i40.PageRouteInfo<ProductDescriptionRoute
 
   static const String name = 'ProductDescriptionRoute';
 
-  static const _i40.PageInfo<ProductDescriptionRouteArgs> page = _i40.PageInfo<ProductDescriptionRouteArgs>(name);
+  static const _i40.PageInfo<ProductDescriptionRouteArgs> page =
+      _i40.PageInfo<ProductDescriptionRouteArgs>(name);
 }
 
 class ProductDescriptionRouteArgs {
@@ -964,7 +1026,8 @@ class ProductDetailRoute extends _i40.PageRouteInfo<ProductDetailRouteArgs> {
 
   static const String name = 'ProductDetailRoute';
 
-  static const _i40.PageInfo<ProductDetailRouteArgs> page = _i40.PageInfo<ProductDetailRouteArgs>(name);
+  static const _i40.PageInfo<ProductDetailRouteArgs> page =
+      _i40.PageInfo<ProductDetailRouteArgs>(name);
 }
 
 class ProductDetailRouteArgs {
@@ -1061,7 +1124,8 @@ class ReceiptDetailRoute extends _i40.PageRouteInfo<ReceiptDetailRouteArgs> {
 
   static const String name = 'ReceiptDetailRoute';
 
-  static const _i40.PageInfo<ReceiptDetailRouteArgs> page = _i40.PageInfo<ReceiptDetailRouteArgs>(name);
+  static const _i40.PageInfo<ReceiptDetailRouteArgs> page =
+      _i40.PageInfo<ReceiptDetailRouteArgs>(name);
 }
 
 class ReceiptDetailRouteArgs {
@@ -1122,7 +1186,8 @@ class ReorderDetailRoute extends _i40.PageRouteInfo<ReorderDetailRouteArgs> {
 
   static const String name = 'ReorderDetailRoute';
 
-  static const _i40.PageInfo<ReorderDetailRouteArgs> page = _i40.PageInfo<ReorderDetailRouteArgs>(name);
+  static const _i40.PageInfo<ReorderDetailRouteArgs> page =
+      _i40.PageInfo<ReorderDetailRouteArgs>(name);
 }
 
 class ReorderDetailRouteArgs {
@@ -1235,7 +1300,8 @@ class SplashRoute extends _i40.PageRouteInfo<SplashRouteArgs> {
 
   static const String name = 'SplashRoute';
 
-  static const _i40.PageInfo<SplashRouteArgs> page = _i40.PageInfo<SplashRouteArgs>(name);
+  static const _i40.PageInfo<SplashRouteArgs> page =
+      _i40.PageInfo<SplashRouteArgs>(name);
 }
 
 class SplashRouteArgs {
@@ -1274,7 +1340,8 @@ class SupplierDetailRoute extends _i40.PageRouteInfo<SupplierDetailRouteArgs> {
 
   static const String name = 'SupplierDetailRoute';
 
-  static const _i40.PageInfo<SupplierDetailRouteArgs> page = _i40.PageInfo<SupplierDetailRouteArgs>(name);
+  static const _i40.PageInfo<SupplierDetailRouteArgs> page =
+      _i40.PageInfo<SupplierDetailRouteArgs>(name);
 }
 
 class SupplierDetailRouteArgs {

@@ -60,7 +60,7 @@ class MainSettingsRepositoryImpl implements MainSettingsRepository {
       final settings = MainSettings.fromJson(await supabase.from('d_main_settings').select().eq('settingsId', ownerId).single());
 
       final updatedSettings = settings.copyWith(listOfPackagingBoxes: packagingBoxes);
-      await supabase.from('d_main_settings').update(updatedSettings.toJson()).match({'id': ownerId});
+      await supabase.from('d_main_settings').update(updatedSettings.toJson()).eq('settingsId', ownerId);
 
       return right(updatedSettings);
     } catch (e) {
