@@ -1,6 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:responsive_framework/responsive_framework.dart';
 
 import '../../../2_application/database/marketplace/marketplace_bloc.dart';
 import '../../../2_application/packing_station/packing_station_bloc.dart';
@@ -81,6 +82,8 @@ class _PackingStationOverviewScreenState extends State<PackingStationOverviewScr
         ],
         child: BlocBuilder<PackingStationBloc, PackingStationState>(
           builder: (context, state) {
+            final isTabletOrLarger = ResponsiveBreakpoints.of(context).largerOrEqualTo(TABLET);
+
             return Scaffold(
               drawer: const AppDrawer(),
               appBar: AppBar(
@@ -113,9 +116,12 @@ class _PackingStationOverviewScreenState extends State<PackingStationOverviewScr
                           ),
                         ],
                       ),
-                      _PackingStationFilterChipsContainer(packingStationBloc: packingStationBloc, packingStationFilter: state.packingStationFilter),
+                      if (isTabletOrLarger)
+                        _PackingStationFilterChipsContainer(packingStationBloc: packingStationBloc, packingStationFilter: state.packingStationFilter),
                     ],
                   ),
+                  if (!isTabletOrLarger)
+                    _PackingStationFilterChipsContainer(packingStationBloc: packingStationBloc, packingStationFilter: state.packingStationFilter),
                   PackingStationOverviewPage(packingStationBloc: packingStationBloc, marketplaceBloc: marketplaceBloc),
                 ],
               ),

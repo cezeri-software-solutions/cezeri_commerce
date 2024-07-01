@@ -66,8 +66,6 @@ class SetControllerOnTapOutsideReceiptDetailEvent extends ReceiptDetailProductsE
 //? #################################################################################################
 //? ################## Contollers ###################################################################
 
-class OnBarcodeScannedEvent extends ReceiptDetailProductsEvent {}
-
 class SetAllControllersEvent extends ReceiptDetailProductsEvent {
   final List<ReceiptProduct>? listOfReceiptProducts;
 

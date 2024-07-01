@@ -209,13 +209,6 @@ class CategoryWidget extends StatelessWidget {
                     ],
                   ),
                 ),
-                // if (subCategories.isNotEmpty)
-                // IconButton(
-                //   icon: state.isExpanded[index] ? const Icon(Icons.keyboard_arrow_down) : const Icon(Icons.keyboard_arrow_right),
-                //   onPressed: () {
-                //     marketplaceProductBloc.add(OnCategoriesIsExpandedChangedEvent(index: index));
-                //   },
-                // ),
                 Checkbox.adaptive(
                   value: category.id.toString() == state.marketplaceProductPresta!.idCategoryDefault,
                   onChanged: (_) => marketplaceProductBloc.add(OnDefaultCategoryChangedEvent(id: category.id, index: index)),

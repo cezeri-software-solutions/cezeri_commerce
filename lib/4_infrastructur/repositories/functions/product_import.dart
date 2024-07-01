@@ -140,7 +140,7 @@ Future<Either<AbstractFailure, Product>> getOrCreateProductFromPrestaOnImportApp
       }
       final productPresta = optionalProductPresta.value;
       final productMarketplace =
-          ProductMarketplace.fromMarketplaceProduct(ProductPresta.fromProductRawPresta(productPresta), marketplace); //TODO: Shopify
+          ProductMarketplace.fromMarketplaceProduct(ProductPresta.fromProductRawPresta(productPresta), marketplace);
       List<ProductMarketplace> productMarketplaces = List.from(productFirestore.productMarketplaces);
       productMarketplaces.add(productMarketplace);
       final updatedProduct = productFirestore.copyWith(productMarketplaces: productMarketplaces);

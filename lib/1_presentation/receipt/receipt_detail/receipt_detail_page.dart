@@ -15,10 +15,12 @@ import '../../../3_domain/entities/settings/main_settings.dart';
 import '../../core/core.dart';
 import '../widgets/receipt_detail_address_card.dart';
 import '../widgets/receipt_detail_carrier_card.dart';
+import '../widgets/receipt_detail_comment_card.dart';
 import '../widgets/receipt_detail_general_card.dart';
 import '../widgets/receipt_detail_payment_method_card.dart';
 import '../widgets/receipt_detail_products_card.dart';
 import '../widgets/receipt_detail_products_total_card.dart';
+import '../widgets/receipt_detail_same_receipts_card.dart';
 import 'receipt_detail_screen.dart';
 
 class ReceiptDetailPage extends StatefulWidget {
@@ -106,6 +108,8 @@ class _ReceiptDetailPageState extends State<ReceiptDetailPage> {
                       padding: const EdgeInsets.all(18),
                       child: Column(
                         children: [
+                          // TODO: LÖSCHEN
+                          Text(state.receipt!.tax.taxRate.toString()),
                           Row(
                             mainAxisSize: MainAxisSize.min,
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -145,6 +149,23 @@ class _ReceiptDetailPageState extends State<ReceiptDetailPage> {
                               Expanded(child: ReceiptDetailCarrierCard(receiptDetailBloc: widget.receiptDetailBloc)),
                             ],
                           ),
+                          Gaps.h16,
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: ReceiptDetailCommentCard(
+                                  receiptDetailBloc: widget.receiptDetailBloc,
+                                  internalCommentController: state.internalCommentController,
+                                  globalCommentController: state.globalCommentController,
+                                ),
+                              ),
+                              if (state.listOfSameReceipts != null && state.listOfSameReceipts!.isNotEmpty) ...[
+                                Gaps.w16,
+                                Expanded(child: ReceiptDetailSameReceiptsCard(receiptDetailBloc: widget.receiptDetailBloc, state: state)),
+                              ],
+                            ],
+                          ),
                           Gaps.h42,
                         ],
                       ),
@@ -182,6 +203,16 @@ class _ReceiptDetailPageState extends State<ReceiptDetailPage> {
                         ReceiptDetailPaymentMethodCard(receiptDetailBloc: widget.receiptDetailBloc),
                         Gaps.h16,
                         ReceiptDetailCarrierCard(receiptDetailBloc: widget.receiptDetailBloc),
+                        Gaps.h16,
+                        ReceiptDetailCommentCard(
+                          receiptDetailBloc: widget.receiptDetailBloc,
+                          internalCommentController: state.internalCommentController,
+                          globalCommentController: state.globalCommentController,
+                        ),
+                        if (state.listOfSameReceipts != null && state.listOfSameReceipts!.isNotEmpty) ...[
+                          Gaps.h16,
+                          ReceiptDetailSameReceiptsCard(receiptDetailBloc: widget.receiptDetailBloc, state: state),
+                        ],
                         Gaps.h42,
                       ],
                     ),
@@ -238,7 +269,7 @@ class _ReceiptDetailPageState extends State<ReceiptDetailPage> {
     final isValid = _validateReceiptOncreateOrUpdate(receiptDetailState, receiptDetailProductsState);
     if (!isValid) return;
     if (widget.receiptCreateOrEdit == ReceiptCreateOrEdit.edit) {
-      final updatedAppointment = receiptDetailProductsState.receipt.copyWith(
+      final updatedReceipt = receiptDetailProductsState.receipt.copyWith(
         //* Hier kommen die Änderungen vom ReceiptBloc
         //* Also Änderungen die oberhalb passieren bevor die Produkte anfangen
         listOfReceiptProduct: receiptDetailProductsState.listOfReceiptProducts,
@@ -251,10 +282,12 @@ class _ReceiptDetailPageState extends State<ReceiptDetailPage> {
         addressInvoice: receiptDetailState.receipt!.addressInvoice,
         receiptCustomer: receiptDetailState.receipt!.receiptCustomer,
         isDeliveryBlocked: receiptDetailState.receipt!.isDeliveryBlocked,
+        commentInternal: receiptDetailState.internalCommentController.text,
+        commentGlobal: receiptDetailState.globalCommentController.text,
         lastEditingDate: DateTime.now(),
       );
       widget.receiptDetailBloc.add(ReceiptDetailUpdateReceiptEvent(
-        receipt: updatedAppointment,
+        receipt: updatedReceipt,
         oldListOfReceiptProducts: receiptDetailState.receipt!.listOfReceiptProduct,
         newListOfReceiptProducts: receiptDetailProductsState.listOfReceiptProducts,
       ));
@@ -270,6 +303,8 @@ class _ReceiptDetailPageState extends State<ReceiptDetailPage> {
         addressInvoice: receiptDetailState.receipt!.addressInvoice,
         receiptCustomer: receiptDetailState.receipt!.receiptCustomer,
         isDeliveryBlocked: receiptDetailState.receipt!.isDeliveryBlocked,
+        commentInternal: receiptDetailState.internalCommentController.text,
+        commentGlobal: receiptDetailState.globalCommentController.text,
         lastEditingDate: DateTime.now(),
         creationDate: DateTime.now(),
         receiptTyp: widget.receiptTyp,

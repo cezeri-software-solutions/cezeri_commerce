@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:printing/printing.dart';
 
-import '../../../2_application/database/main_settings/main_settings_bloc.dart';
 import '../../../2_application/database/receipt_detail/receipt_detail_bloc.dart';
 import '../../../2_application/database/receipt_detail_products/receipt_detail_products_bloc.dart';
 import '../../../injection.dart';
@@ -42,13 +41,6 @@ class _ReceiptDetailScreenState extends State<ReceiptDetailScreen> with Automati
     if (widget.receiptId != null && widget.newEmptyReceipt == null) {
       receiptDetailBloc.add(ReceiptDetailGetReceiptEvent(receiptId: widget.receiptId!, receiptType: widget.receiptTyp));
     }
-
-    if (widget.receiptId == null) {
-      receiptDetailProductsBloc.add(SetListOfReceiptProductssReceiptDetailEvent(
-        receipt: Receipt.empty().copyWith(listOfReceiptProduct: [ReceiptProduct.empty()]),
-        listOfTaxRules: context.read<MainSettingsBloc>().state.mainSettings!.taxes,
-      ));
-    }
   }
 
   @override
@@ -66,6 +58,19 @@ class _ReceiptDetailScreenState extends State<ReceiptDetailScreen> with Automati
       ],
       child: MultiBlocListener(
         listeners: [
+          if (widget.receiptId == null && widget.newEmptyReceipt != null)
+            BlocListener<ReceiptDetailBloc, ReceiptDetailState>(
+              bloc: receiptDetailBloc,
+              listenWhen: (p, c) => p.triggerListenerAfterSetEmptyReceipt != c.triggerListenerAfterSetEmptyReceipt,
+              listener: (context, state) {
+                receiptDetailProductsBloc.add(SetReceiptReceiptDetailEvent(receipt: state.receipt!, listOfTaxRules: state.mainSettings!.taxes));
+
+                receiptDetailProductsBloc.add(SetListOfReceiptProductssReceiptDetailEvent(
+                  receipt: widget.newEmptyReceipt!.copyWith(listOfReceiptProduct: [ReceiptProduct.empty()]),
+                  listOfTaxRules: state.mainSettings!.taxes,
+                ));
+              },
+            ),
           BlocListener<ReceiptDetailBloc, ReceiptDetailState>(
             bloc: receiptDetailBloc,
             listenWhen: (p, c) => p.fosReceiptOnObserveOption != c.fosReceiptOnObserveOption,
@@ -74,10 +79,12 @@ class _ReceiptDetailScreenState extends State<ReceiptDetailScreen> with Automati
                 () => null,
                 (a) => a.fold(
                   (failure) => failureRenderer(context, [failure]),
-                  (appointment) => receiptDetailProductsBloc.add(SetReceiptReceiptDetailEvent(
-                    receipt: appointment,
-                    listOfTaxRules: state.mainSettings!.taxes,
-                  )),
+                  (appointment) => receiptDetailProductsBloc.add(
+                    SetReceiptReceiptDetailEvent(
+                      receipt: appointment,
+                      listOfTaxRules: state.mainSettings!.taxes,
+                    ),
+                  ),
                 ),
               );
             },

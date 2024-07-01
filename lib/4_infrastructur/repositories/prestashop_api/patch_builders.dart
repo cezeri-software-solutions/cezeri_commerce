@@ -33,6 +33,61 @@ XmlBuilder patchStockAvailableBuilder(String id, int quantity) {
   return builder;
 }
 
+XmlBuilder? patchProductCategoriesBuilder({
+  required int id,
+  required Product product,
+  required ProductMarketplace productMarketplace,
+}) {
+  final builder = XmlBuilder();
+  bool isAnyFailure = false;
+  final marketplaceProductPresta = productMarketplace.marketplaceProduct as ProductPresta;
+
+  builder.processing('xml', 'version="1.0" encoding="UTF-8"');
+  builder.element('prestashop', attributes: {'xmlns:xlink': 'http://www.w3.org/1999/xlink'}, nest: () {
+    builder.element('product', nest: () {
+      builder.element('id', nest: id);
+      // builder.element('id_category_default', nest: marketplaceProductPresta.idCategoryDefault);
+      // builder.element('reference', nest: product.articleNumber);
+      // builder.element('minimal_quantity', nest: '1');
+      // builder.element('width', nest: product.width);
+      // builder.element('height', nest: product.height);
+      // builder.element('depth', nest: product.depth);
+      // builder.element('weight', nest: product.weight);
+      // builder.element('ean13', nest: product.ean);
+      builder.element('price', nest: product.netPrice.toMyRoundedDouble());
+      // builder.element('wholesale_price', nest: product.wholesalePrice);
+      // builder.element('unity', nest: product.unity);
+      // builder.element('unit_price_ratio', nest: product.netPrice / product.unitPrice);
+      // builder.element('active', nest: marketplaceProductPresta.active);
+      // builder.element('meta_description', nest: convertHtmlToString(product.descriptionShort));
+      // builder.element('link_rewrite', nest: generateFriendlyUrl(product.name));
+      builder.element('associations', nest: () {
+        if (marketplaceProductPresta.associations != null && marketplaceProductPresta.associations!.associationsCategories != null) {
+          builder.element('categories', nest: () {
+            for (final category in marketplaceProductPresta.associations!.associationsCategories!) {
+              builder.element('category', nest: () {
+                builder.element('id', nest: category.id);
+              });
+            }
+          });
+        }
+      });
+    });
+  });
+  // print('#############################################################################################################');
+  // print('##############################################################################################################');
+  // print('###############################################################################################################');
+  // final xmlDocument = builder.buildDocument();
+  // final xmlString = xmlDocument.toXmlString(pretty: true);
+  // print(xmlString);
+  // print('###############################################################################################################');
+  // print('##############################################################################################################');
+  // print('#############################################################################################################');
+  if (isAnyFailure) return null;
+
+  return builder;
+}
+
 XmlBuilder? patchProductBuilder({
   required int id,
   required Product product,

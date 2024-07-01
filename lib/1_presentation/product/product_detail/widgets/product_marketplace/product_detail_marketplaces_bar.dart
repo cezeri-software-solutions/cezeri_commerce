@@ -218,7 +218,7 @@ Future<void> showEditProductInMarketplace(
   void onRemoveMarketplaceFromProduct() {
     showMyDialogDelete(
       context: context,
-      content: 'Bist du sicher, dass du diesen Marktplatz von diesem Artikel löschen willst?',
+      content: 'Bist du sicher, dass du den Marktplatz ${productMarketplace.nameMarketplace} von diesem Artikel löschen willst?',
       onConfirm: () {
         productDetailBloc.add(DeleteMarketplaceFromProductEvent(marketplaceId: productMarketplace.idMarketplace));
         context.router.popUntilRouteWithName(ProductDetailRoute.name);

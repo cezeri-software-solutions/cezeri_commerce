@@ -3,7 +3,6 @@ import 'dart:math';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 
@@ -16,7 +15,7 @@ import '../../../../constants.dart';
 import '../../../../routes/router.gr.dart';
 import '../../../core/core.dart';
 import '../functions/products_overview_create_export.dart';
-import 'mass_editing_dialogs/mass_editing_dialogs.dart';
+import 'product_mass_editing_sheet.dart';
 
 void showProductsOverviewOptions({
   required BuildContext context,
@@ -67,13 +66,7 @@ class ProductOptionsSheet extends StatelessWidget {
                 ? null
                 : () {
                     Navigator.of(context).pop();
-                    showDialog(
-                      context: context,
-                      builder: (_) => BlocProvider.value(
-                        value: productBloc,
-                        child: ProductsMassEditingSelectMarketplacesDialog(productBloc: productBloc),
-                      ),
-                    );
+                    showProductMassEditingSheet(context, productBloc);
                   },
           ),
           ListTile(

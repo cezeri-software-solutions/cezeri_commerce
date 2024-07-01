@@ -176,7 +176,8 @@ class ShopifyApi {
 
   Future<Either<ShopifyGeneralFailure, List<OrderShopify>>> getOrdersByCreatedAtMin(DateTime minDateTime) async {
     const key = 'orders';
-    final createdAtMin = minDateTime.toIso8601String();
+    // TODO: Zeitzone wird manuell nachgebessert (Muss automatisch funktionieren)
+    final createdAtMin = (minDateTime.subtract(const Duration(hours: 2, seconds: 1))).toIso8601String();
     logger.i(createdAtMin);
     logger.i(_url);
     final collectsResult = await _doGet(uri: '$_url/api/$_apiVersion/$key.json?created_at_min=$createdAtMin', key: key, isList: true);
@@ -189,6 +190,46 @@ class ShopifyApi {
         return Right(orders);
       },
     );
+  }
+
+  Future<Either<List<AbstractFailure>, Unit>> addCollectionsToProduct(
+    ProductShopify productShopify,
+    List<CustomCollectionShopify> toAddCustomCollections,
+  ) async {
+    List<AbstractFailure> putProductFailures = [];
+
+    final collectsResult = await getCollectsOfProduct(productShopify.id);
+    if (collectsResult.isLeft()) return Left([collectsResult.getLeft()]);
+    final listOfCollects = collectsResult.getRight();
+
+    for (final newCustomCollection in toAddCustomCollections) {
+      if (!listOfCollects.any((e) => e.collectionId == newCustomCollection.id)) {
+        final newCollectResult = await postCollect(productShopify.id, newCustomCollection.id);
+        if (newCollectResult.isLeft()) putProductFailures.add(newCollectResult.getLeft());
+      }
+    }
+
+    return putProductFailures.isEmpty ? const Right(unit) : Left(putProductFailures);
+  }
+
+  Future<Either<List<AbstractFailure>, Unit>> removeCollectionsFromProduct(
+    ProductShopify productShopify,
+    List<CustomCollectionShopify> toRemoveCustomCollections,
+  ) async {
+    List<AbstractFailure> putProductFailures = [];
+
+    final collectsResult = await getCollectsOfProduct(productShopify.id);
+    if (collectsResult.isLeft()) return Left([collectsResult.getLeft()]);
+    final listOfCollects = collectsResult.getRight();
+
+    for (final removedCustomCollection in toRemoveCustomCollections) {
+      final index = listOfCollects.indexWhere((e) => e.collectionId == removedCustomCollection.id);
+      if (index == -1) continue;
+      final deletedCollectResult = await deleteCollect(listOfCollects[index].id);
+      if (deletedCollectResult.isLeft()) putProductFailures.add(deletedCollectResult.getLeft());
+    }
+
+    return putProductFailures.isEmpty ? const Right(unit) : Left(putProductFailures);
   }
 
   Future<Either<List<AbstractFailure>, Unit>> putProduct(ProductShopify productShopify, Product product) async {

@@ -144,6 +144,30 @@ class ProductsMassEditingWeightAndDimensionsUpdatedEvent extends ProductEvent {
   });
 }
 
+class ProductsMassEditingAddOrRemoveCategoriesShopifyEvent extends ProductEvent {
+  final MarketplaceShopify marketplace;
+  final List<CustomCollectionShopify> selectedCustomCollections;
+  final bool isAddCategories;
+
+  ProductsMassEditingAddOrRemoveCategoriesShopifyEvent({
+    required this.marketplace,
+    required this.selectedCustomCollections,
+    required this.isAddCategories,
+  });
+}
+
+class ProductsMassEditingAddOrRemoveCategoriesPrestaEvent extends ProductEvent {
+  final MarketplacePresta marketplace;
+  final List<CategoryPresta> selectedCategoriesPresta;
+  final bool isAddCategories;
+
+  ProductsMassEditingAddOrRemoveCategoriesPrestaEvent({
+    required this.marketplace,
+    required this.selectedCategoriesPresta,
+    required this.isAddCategories,
+  });
+}
+
 // * #################################################################################################################################
 // * Prestashop events
 

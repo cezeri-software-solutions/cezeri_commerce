@@ -27,11 +27,13 @@ abstract class ReceiptRepository {
     required ReceiptType receiptType,
   });
   Future<Either<AbstractFailure, List<Receipt>>> getListOfReceiptsByCustomerId(String customerId);
+  Future<Either<AbstractFailure, List<Receipt>>> getListOfReceiptsByReceiptId(String receiptId);
   Future<Either<AbstractFailure, Unit>> updateReceipt(
     Receipt receipt,
     List<ReceiptProduct> oldListOfReceiptProducts,
     List<ReceiptProduct> newListOfReceiptProducts,
   );
+  
   Future<Either<AbstractFailure, Receipt>> createReceiptManually(Receipt receipt);
   Future<Either<AbstractFailure, Unit>> deleteListOfReceipts(List<Receipt> listOfReceipts);
   //* ###### Generate Receipts #####

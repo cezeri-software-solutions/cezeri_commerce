@@ -1,4 +1,3 @@
-
 import 'package:cezeri_commerce/3_domain/entities/carrier/carrier_product.dart';
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
@@ -231,6 +230,7 @@ class Receipt extends Equatable {
       appointmentNumberAsString: settings.appointmentPraefix + nextAppointmentNumber.toString(),
       receiptTyp: ReceiptType.appointment,
       receiptDocumentText: settings.appointmentDocumentText,
+      commentInternal: '',
       creationDate: now,
       creationDateInt: now.microsecondsSinceEpoch,
       lastEditingDate: now,
@@ -253,6 +253,7 @@ class Receipt extends Equatable {
       invoiceNumberAsString: generateInvoice ? settings.invoicePraefix + nextInvoiceNumber.toString() : appointment.invoiceNumberAsString,
       receiptTyp: ReceiptType.deliveryNote,
       receiptDocumentText: settings.deliveryNoteDocumentText,
+      commentInternal: '',
       creationDate: now,
       creationDateInt: now.microsecondsSinceEpoch,
       lastEditingDate: now,
@@ -277,6 +278,7 @@ class Receipt extends Equatable {
       receiptTyp: ReceiptType.invoice,
       appointmentStatus: AppointmentStatus.completed,
       receiptDocumentText: settings.invoiceDocumentText,
+      commentInternal: '',
       creationDate: now,
       creationDateInt: now.microsecondsSinceEpoch,
       lastEditingDate: now,
@@ -298,6 +300,7 @@ class Receipt extends Equatable {
         receiptTyp: ReceiptType.invoice,
         appointmentStatus: AppointmentStatus.completed,
         receiptDocumentText: settings.invoiceDocumentText,
+        commentInternal: '',
         creationDate: now,
         creationDateInt: now.microsecondsSinceEpoch,
         lastEditingDate: now,
@@ -370,6 +373,7 @@ class Receipt extends Equatable {
       listOfPayments: listOfPayments,
       listOfReceiptProduct: listOfReceiptProduct,
       listOfParcelTracking: listOfParcelTracking,
+      commentInternal: '',
       creationDate: now,
       creationDateInt: now.microsecondsSinceEpoch,
       lastEditingDate: now,
@@ -387,6 +391,7 @@ class Receipt extends Equatable {
       invoiceNumberAsString: settings.creditPraefix + nextInvoiceNumber.toString(),
       receiptTyp: ReceiptType.credit,
       receiptDocumentText: settings.creditDocumentText,
+      commentInternal: '',
       creationDate: now,
       creationDateInt: now.microsecondsSinceEpoch,
       lastEditingDate: now,
@@ -515,6 +520,7 @@ class Receipt extends Equatable {
       profitExclWrapping: profit - phAppointment.totalWrappingNet,
       profitExclShippingAndWrapping: profit - phAppointment.totalShippingNet - phAppointment.totalWrappingNet,
       listOfReceiptProduct: receiptProducts,
+      commentInternal: '',
     );
 
     return newReceipt;

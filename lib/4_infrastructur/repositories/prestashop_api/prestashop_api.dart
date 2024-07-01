@@ -431,10 +431,7 @@ class PrestashopApi with UiLoggy {
       );
 
       if (builder == null) return left(errorC2);
-      final fosPayload = await _doPatch(
-        '${_conf.webserviceUrl}products/$marketplaceProductPrestaId',
-        builder,
-      );
+      final fosPayload = await _doPatch('${_conf.webserviceUrl}products/$marketplaceProductPrestaId', builder);
       fosPayload.fold(
         (failure) => left(failure.copyWith(customMessage: errorC4)),
         (unit) => right(unit),
@@ -535,6 +532,64 @@ class PrestashopApi with UiLoggy {
         productMarketplace: productMarketplace,
         productPresta: productPresta,
         listOfPartProductsPresta: listOfPartProductsPresta,
+      );
+      final fosPayload = await _doPut(
+        '${_conf.webserviceUrl}products/$marketplaceProductPrestaId',
+        updatedProductAsXml,
+      );
+      fosPayload.fold(
+        (failure) => left(failure.copyWith(customMessage: errorC4)),
+        (unit) => right(unit),
+      );
+    }
+    return right(unit);
+  }
+
+  Future<Either<PrestaFailure, Unit>> patchProductCategories(
+    final int marketplaceProductPrestaId,
+    Product product,
+    ProductMarketplace productMarketplace,
+    MarketplacePresta marketplace,
+  ) async {
+    final errorC1 = PrestaGeneralFailure(
+      errorMessage:
+          'Artikel: "${product.name}" konnte im Marktplatz: "${marketplace.name}" nicht gefunden werden.\nTechnischer Fehler im: getProduct',
+    );
+    final errorC2 = PrestaGeneralFailure(
+      errorMessage:
+          'Beim bearbeiten des Artikels: "${product.name}" im Marktplatz: "${marketplace.name}" ist ein Fehler aufgetreten.\nTechnischer Fehler im: patchProductBuilder',
+    );
+    final errorC3 = PrestaGeneralFailure(
+      errorMessage:
+          'Artikel: "${product.name}" konnte im Marktplatz: "${marketplace.name}" nicht gefunden werden.\nTechnischer Fehler im: getProductAsXml',
+    );
+
+    final errorC4 = 'Beim Aktualisieren des Artikels: "${product.name}" im Marktplatz: "${marketplace.name}" ist ein Fehler aufgetreten.';
+
+    if (marketplace.isPresta8) {
+      print('###### Presta8 #####');
+      final builder = patchProductCategoriesBuilder(id: marketplaceProductPrestaId, product: product, productMarketplace: productMarketplace);
+
+      if (builder == null) return Left(errorC2);
+      final fosPayload = await _doPatch('${_conf.webserviceUrl}products/$marketplaceProductPrestaId', builder);
+      fosPayload.fold(
+        (failure) => left(failure.copyWith(customMessage: errorC4)),
+        (unit) => right(unit),
+      );
+    } else {
+      final optionalProductPresta = await getProduct(marketplaceProductPrestaId, marketplace);
+      if (optionalProductPresta.isNotPresent) return left(errorC1);
+
+      final productPresta = optionalProductPresta.value;
+
+      final optionalProductAsXml = await getProductAsXml(marketplaceProductPrestaId);
+      if (optionalProductAsXml.isNotPresent) return left(errorC3);
+      final productAsXml = optionalProductAsXml.value;
+      final updatedProductAsXml = productUpdater(
+        document: productAsXml,
+        product: product,
+        productMarketplace: productMarketplace,
+        productPresta: productPresta,
       );
       final fosPayload = await _doPut(
         '${_conf.webserviceUrl}products/$marketplaceProductPrestaId',

@@ -2,18 +2,25 @@ import 'package:bloc/bloc.dart';
 import 'package:cezeri_commerce/failures/firebase_failures.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
 
-import '../../../1_presentation/core/core.dart';
-import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
-import '../../../3_domain/entities/marketplace/marketplace_presta.dart';
-import '../../../3_domain/entities/product/product.dart';
-import '../../../3_domain/entities/reorder/supplier.dart';
-import '../../../3_domain/entities/settings/main_settings.dart';
-import '../../../3_domain/repositories/firebase/main_settings_respository.dart';
-import '../../../3_domain/repositories/firebase/product_repository.dart';
-import '../../../3_domain/repositories/firebase/supplier_repository.dart';
-import '../../../3_domain/repositories/marketplace/marketplace_edit_repository.dart';
-import '../../../failures/abstract_failure.dart';
+import '/1_presentation/core/core.dart';
+import '/3_domain/entities/marketplace/abstract_marketplace.dart';
+import '/3_domain/entities/marketplace/marketplace_presta.dart';
+import '/3_domain/entities/marketplace/marketplace_shopify.dart';
+import '/3_domain/entities/product/product.dart';
+import '/3_domain/entities/product/product_marketplace.dart';
+import '/3_domain/entities/reorder/supplier.dart';
+import '/3_domain/entities/settings/main_settings.dart';
+import '/3_domain/repositories/firebase/main_settings_respository.dart';
+import '/3_domain/repositories/firebase/product_repository.dart';
+import '/3_domain/repositories/firebase/supplier_repository.dart';
+import '/3_domain/repositories/marketplace/marketplace_edit_repository.dart';
+import '/4_infrastructur/repositories/shopify_api/shopify.dart';
+import '/failures/abstract_failure.dart';
+import '../../../3_domain/entities/product/product_presta.dart';
+import '../../../4_infrastructur/repositories/prestashop_api/models/models.dart';
+import '../../../4_infrastructur/repositories/prestashop_api/prestashop_api.dart';
 
 part 'product_event.dart';
 part 'product_state.dart';
@@ -48,6 +55,8 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
     on<MassEditActivateProductMarketplaceEvent>(_onMassEditActivateProductMarketplace);
     on<ProductsMassEditingPurchaceUpdatedEvent>(_onProductsMassEditingPurchaceUpdated);
     on<ProductsMassEditingWeightAndDimensionsUpdatedEvent>(_onProductsMassEditingWeightAndDimensionsUpdated);
+    on<ProductsMassEditingAddOrRemoveCategoriesShopifyEvent>(_onProductsMassEditingAddCategoriesShopify);
+    on<ProductsMassEditingAddOrRemoveCategoriesPrestaEvent>(_onProductsMassEditingAddOrRemoveCategoriesPresta);
     // on<OnEditQuantityInMarketplacesEvent>(_onOnEditQuantityInMarketplaces);
     on<OnEditProductInPresta>(_onOnEditProductInPresta);
   }
@@ -322,10 +331,7 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
     fosUpdatedProduct.fold(
       (failure) {
         //!KO
-        emit(state.copyWith(
-          isLoadingProductOnUpdateQuantity: false,
-          fosProductOnUpdateQuantityOption: optionOf(fosUpdatedProduct),
-        ));
+        emit(state.copyWith(isLoadingProductOnUpdateQuantity: false, fosProductOnUpdateQuantityOption: optionOf(fosUpdatedProduct)));
         emit(state.copyWith(fosProductOnUpdateQuantityOption: none(), fosProductAbstractFailuresOption: none()));
         return;
       },
@@ -484,8 +490,7 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
       );
 
       //* Update in Marktplätzen
-      final fosMarketplace = await marketplaceEditRepository.editProdcutInMarketplace(
-          updatedProduct, event.selectedMarketplaces as List<MarketplacePresta>); //TODO: Shopify
+      final fosMarketplace = await marketplaceEditRepository.editProdcutInMarketplace(updatedProduct, event.selectedMarketplaces);
       fosMarketplace.fold(
         (failure) => marketplaceFailures.addAll(failure),
         (unit) => emit(state.copyWith(firebaseFailure: null, isAnyFailure: false)),
@@ -507,19 +512,131 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
     ));
   }
 
-  // Future<void> _onOnEditQuantityInMarketplaces(OnEditQuantityInMarketplacesEvent event, Emitter<ProductState> emit) async {
-  //   // TODO: add isLoading
-  //   final failureOrSuccess = await marketplaceEditRepository.setQuantityMPInAllProductMarketplaces(event.product, event.newQuantity, null);
-  //   failureOrSuccess.fold(
-  //     (failure) => emit(state.copyWith()),
-  //     (unit) => emit(state.copyWith(firebaseFailure: null, isAnyFailure: false)),
-  //   );
+  Future<void> _onProductsMassEditingAddCategoriesShopify(
+      ProductsMassEditingAddOrRemoveCategoriesShopifyEvent event, Emitter<ProductState> emit) async {
+    emit(state.copyWith(isLoadingProductOnMassEditing: true, listOfNotUpdatedProductsOnMassEditing: []));
 
-  //   emit(state.copyWith(
-  //     fosProductOnEditQuantityPrestaOption: optionOf(failureOrSuccess),
-  //   ));
-  //   emit(state.copyWith(fosProductOnEditQuantityPrestaOption: none()));
-  // }
+    final List<AbstractFailure> marketplaceFailures = [];
+    List<Product> listOfNotUpdatedProductsOnMassEditing = [];
+
+    final api = ShopifyApi(
+      ShopifyApiConfig(storefrontToken: (event.marketplace).storefrontAccessToken, adminToken: event.marketplace.adminAccessToken),
+      event.marketplace.fullUrl,
+    );
+
+    for (final product in state.selectedProducts) {
+      final productMarketplace = product.productMarketplaces.where((e) => e.idMarketplace == event.marketplace.id).firstOrNull;
+      if (productMarketplace == null) {
+        listOfNotUpdatedProductsOnMassEditing.add(product);
+        continue;
+      }
+      final productShopify = productMarketplace.marketplaceProduct as ProductShopify;
+
+      List<ProductMarketplace> listOfProductMarketplaces = List.from(product.productMarketplaces);
+      final index = listOfProductMarketplaces.indexWhere((e) => e.idMarketplace == event.marketplace.id);
+      if (index == -1) continue;
+
+      final updatedCustomCollections = switch (event.isAddCategories) {
+        true => (listOfProductMarketplaces[index].marketplaceProduct as ProductShopify).customCollections..addAll(event.selectedCustomCollections),
+        false => (listOfProductMarketplaces[index].marketplaceProduct as ProductShopify).customCollections
+          ..removeWhere((e) => event.selectedCustomCollections.any((selected) => selected.id == e.id)),
+      };
+
+      listOfProductMarketplaces[index] = listOfProductMarketplaces[index].copyWith(
+          marketplaceProduct:
+              (listOfProductMarketplaces[index].marketplaceProduct as ProductShopify).copyWith(customCollections: updatedCustomCollections));
+
+      final updatedProduct = product.copyWith(productMarketplaces: listOfProductMarketplaces);
+      final databaseResponse = await productRepository.updateProduct(updatedProduct);
+      if (databaseResponse.isLeft()) {
+        listOfNotUpdatedProductsOnMassEditing.add(product);
+        continue;
+      }
+
+      //* Update in Marktplätzen
+      final marketplaceResponse = switch (event.isAddCategories) {
+        true => await api.addCollectionsToProduct(productShopify, event.selectedCustomCollections),
+        false => await api.removeCollectionsFromProduct(productShopify, event.selectedCustomCollections),
+      };
+      marketplaceResponse.fold(
+        (failure) => marketplaceFailures.addAll(failure),
+        (unit) => emit(state.copyWith(firebaseFailure: null, isAnyFailure: false)),
+      );
+    }
+
+    if (marketplaceFailures.isEmpty) add(OnSearchFieldSubmittedEvent());
+
+    emit(state.copyWith(
+      isLoadingProductOnMassEditing: false,
+      listOfNotUpdatedProductsOnMassEditing: listOfNotUpdatedProductsOnMassEditing,
+      fosMassEditProductsOption: marketplaceFailures.isEmpty ? some(right(unit)) : some(left(GeneralFailure())),
+    ));
+    emit(state.copyWith(fosMassEditProductsOption: none()));
+  }
+
+  Future<void> _onProductsMassEditingAddOrRemoveCategoriesPresta(
+      ProductsMassEditingAddOrRemoveCategoriesPrestaEvent event, Emitter<ProductState> emit) async {
+    emit(state.copyWith(isLoadingProductOnMassEditing: true, listOfNotUpdatedProductsOnMassEditing: []));
+
+    final List<AbstractFailure> marketplaceFailures = [];
+    List<Product> listOfNotUpdatedProductsOnMassEditing = [];
+
+    final api = PrestashopApi(Client(), PrestashopApiConfig(apiKey: event.marketplace.key, webserviceUrl: event.marketplace.fullUrl));
+
+    for (final product in state.selectedProducts) {
+      final productMarketplace = product.productMarketplaces.where((e) => e.idMarketplace == event.marketplace.id).firstOrNull;
+      if (productMarketplace == null) {
+        listOfNotUpdatedProductsOnMassEditing.add(product);
+        continue;
+      }
+
+      List<ProductMarketplace> listOfProductMarketplaces = List.from(product.productMarketplaces);
+      final index = listOfProductMarketplaces.indexWhere((e) => e.idMarketplace == event.marketplace.id);
+      if (index == -1) continue;
+
+      final updatedAssociationsCategories = switch (event.isAddCategories) {
+        true => (listOfProductMarketplaces[index].marketplaceProduct as ProductPresta).associations!.associationsCategories!
+          ..addAll(event.selectedCategoriesPresta.map((e) => AssociationsCategory(id: e.id.toString())).toList()),
+        false => (listOfProductMarketplaces[index].marketplaceProduct as ProductPresta).associations!.associationsCategories!
+          ..removeWhere((e) => event.selectedCategoriesPresta.any((selected) => selected.id.toString() == e.id)),
+      };
+
+      final productPresta = (listOfProductMarketplaces[index].marketplaceProduct as ProductPresta);
+      listOfProductMarketplaces[index] = listOfProductMarketplaces[index].copyWith(
+        marketplaceProduct: productPresta.copyWith(
+          associations: productPresta.associations!.copyWith(associationsCategories: updatedAssociationsCategories),
+        ),
+      );
+
+      final updatedProduct = product.copyWith(productMarketplaces: listOfProductMarketplaces);
+      final databaseResponse = await productRepository.updateProduct(updatedProduct);
+      if (databaseResponse.isLeft()) {
+        listOfNotUpdatedProductsOnMassEditing.add(product);
+        continue;
+      }
+
+      //* Update in Marktplätzen
+      final marketplaceResponse = await api.patchProductCategories(
+        productPresta.id,
+        updatedProduct,
+        updatedProduct.productMarketplaces[index],
+        event.marketplace,
+      );
+      marketplaceResponse.fold(
+        (failure) => marketplaceFailures.addAll([failure]),
+        (unit) => emit(state.copyWith(firebaseFailure: null, isAnyFailure: false)),
+      );
+    }
+
+    if (marketplaceFailures.isEmpty) add(OnSearchFieldSubmittedEvent());
+
+    emit(state.copyWith(
+      isLoadingProductOnMassEditing: false,
+      listOfNotUpdatedProductsOnMassEditing: listOfNotUpdatedProductsOnMassEditing,
+      fosMassEditProductsOption: marketplaceFailures.isEmpty ? some(right(unit)) : some(left(GeneralFailure())),
+    ));
+    emit(state.copyWith(fosMassEditProductsOption: none()));
+  }
 
   Future<void> _onOnEditProductInPresta(OnEditProductInPresta event, Emitter<ProductState> emit) async {
     // TODO: add isLoading

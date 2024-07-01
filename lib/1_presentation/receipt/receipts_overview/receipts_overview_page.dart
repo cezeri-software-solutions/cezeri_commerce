@@ -1,21 +1,17 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import 'package:printing/printing.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
 import '/3_domain/entities/receipt/receipt.dart';
 import '/3_domain/entities/receipt/receipt_product.dart';
-import '/3_domain/pdf/pdf_api_mobile.dart';
-import '/3_domain/pdf/pdf_api_web.dart';
-import '/3_domain/pdf/pdf_receipt_generator.dart';
 import '/constants.dart';
 import '/routes/router.gr.dart';
 import '../../../2_application/database/receipt/receipt_bloc.dart';
 import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
 import '../../core/core.dart';
+import '../sheets/generate_pdf_from_receipt.dart';
 import '../widgets/receipts_overview_carrier_bar.dart';
 
 class ReceiptsOverviewPage extends StatefulWidget {
@@ -200,70 +196,6 @@ class _AppointmentContainer extends StatelessWidget {
   }
 }
 
-Future<void> _onPdfPressed({required BuildContext context, required Receipt receipt, required AbstractMarketplace marketplace}) async {
-  showMyDialogLoading(context: context, text: 'PDF wird erstellt...', canPop: true);
-
-  final receiptName = switch (receipt.receiptTyp) {
-    ReceiptType.offer => receipt.offerNumberAsString,
-    ReceiptType.appointment => receipt.appointmentNumberAsString,
-    ReceiptType.deliveryNote => receipt.deliveryNoteNumberAsString,
-    ReceiptType.invoice || ReceiptType.credit => receipt.invoiceNumberAsString,
-  };
-  final generatedPdf = await PdfReceiptGenerator.generate(
-    receipt: receipt,
-    logoUrl: marketplace.logoUrl,
-  );
-
-  if (context.mounted) Navigator.of(context).pop();
-
-  if (!context.mounted) return;
-  showDialog(
-    context: context,
-    builder: (context) => Dialog(
-      child: SizedBox(
-        width: 400,
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                leading: const Icon(Icons.open_in_browser),
-                title: const Text(kIsWeb ? 'Im Browser öffnen' : 'Öffnen'),
-                onTap: () async {
-                  if (context.mounted) context.router.maybePop();
-                  if (kIsWeb) {
-                    await PdfApiWeb.saveDocument(name: '$receiptName.pdf', byteList: generatedPdf, showInBrowser: true);
-                  } else {
-                    await PdfApiMobile.saveDocument(name: '$receiptName.pdf', byteList: generatedPdf);
-                  }
-                },
-              ),
-              if (kIsWeb)
-                ListTile(
-                  leading: const Icon(Icons.download),
-                  title: const Text('Herunterladen'),
-                  onTap: () async {
-                    if (context.mounted) context.router.maybePop();
-                    await PdfApiWeb.saveDocument(name: '$receiptName.pdf', byteList: generatedPdf, showInBrowser: false);
-                  },
-                ),
-              ListTile(
-                leading: const Icon(Icons.print),
-                title: const Text('Drucken'),
-                onTap: () async {
-                  if (context.mounted) context.router.maybePop();
-                  await Printing.layoutPdf(onLayout: (_) => generatedPdf);
-                },
-              ),
-            ],
-          ),
-        ),
-      ),
-    ),
-  );
-}
-
 class _ReceiptProductsContainer extends StatelessWidget {
   final ReceiptProduct appointmentProduct;
   final int index;
@@ -338,7 +270,7 @@ class _IconColumn extends StatelessWidget {
             constraints: const BoxConstraints(maxHeight: 30),
             child: IconButton(
               padding: EdgeInsets.zero,
-              onPressed: () async => await _onPdfPressed(context: context, receipt: receipt, marketplace: marketplace),
+              onPressed: () async => await onGeneratePdfFromReceipt(context: context, receipt: receipt, marketplace: marketplace),
               icon: const Icon(Icons.picture_as_pdf, color: Colors.red),
             ),
           ),
@@ -446,7 +378,8 @@ class _ReceiptInfoColumn extends StatelessWidget {
               Text(DateFormat('Hm', 'de').format(receipt.creationDate)),
             ],
           ),
-          Text('${receipt.totalGross.toMyCurrencyStringToShow()} €', style: TextStyles.defaultBold)
+          Text('${receipt.totalGross.toMyCurrencyStringToShow()} €', style: TextStyles.defaultBold),
+          // Text(receipt.id),
         ],
       ),
     );

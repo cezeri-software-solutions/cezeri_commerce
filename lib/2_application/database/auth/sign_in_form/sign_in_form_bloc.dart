@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:cezeri_commerce/1_presentation/core/core.dart';
 import 'package:dartz/dartz.dart';
 import 'package:meta/meta.dart';
 
@@ -31,12 +32,20 @@ class SignInFormBloc extends Bloc<SignInFormEvent, SignInFormState> {
 
     on<SignInWithEmailAndPasswordPressed>((event, emit) async {
       emit(state.copyWith(isSubmitting: true));
+      print('###### SignInWithEmailAndPasswordPressed 1 #######');
 
-      final failureOrSuccess = await authRepository.signInWithEmailAndPassword(email: event.email!, password: event.password!);
+      final fos = await authRepository.signInWithEmailAndPassword(email: event.email!, password: event.password!);
+
+      print('###### SignInWithEmailAndPasswordPressed 2 #######');
+      if (fos.isLeft()) {
+        print(fos.getLeft());
+      } else {
+        print(fos.getRight());
+      }
 
       emit(state.copyWith(
         isSubmitting: false,
-        authFailureOrSuccessOptionOnSignIn: optionOf(failureOrSuccess),
+        authFailureOrSuccessOptionOnSignIn: optionOf(fos),
       ));
     });
 

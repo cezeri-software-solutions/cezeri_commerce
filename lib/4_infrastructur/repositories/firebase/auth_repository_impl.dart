@@ -61,7 +61,9 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<Either<AbstractFailure, Unit>> signInWithEmailAndPassword({required String email, required String password}) async {
     try {
-      await supabase.auth.signInWithPassword(email: email.trim(), password: password.trim());
+      final response = await supabase.auth.signInWithPassword(email: email.trim(), password: password.trim());
+
+      print(response);
 
       return right(unit);
     } on AuthApiException catch (e) {

@@ -14,8 +14,17 @@ import 'routes/router.dart';
 import 'themes/theme.dart';
 
 void main() async {
+  print("Starting app initialization");
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await Future.delayed(const Duration(milliseconds: 100));
+  print("Flutter binding initialized");
+  
+  try {
+    await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+    print("Firebase initialized successfully");
+  } catch (e) {
+    print("Error initializing Firebase: $e");
+  }
   await Supabase.initialize(
     url: 'https://zpxmvushxwqsvoidfjeh.supabase.co',
     anonKey:

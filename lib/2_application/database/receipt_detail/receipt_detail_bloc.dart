@@ -1,5 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:dartz/dartz.dart';
+import 'package:flutter/material.dart';
 
 import '/1_presentation/core/core.dart';
 import '/3_domain/entities/address.dart';
@@ -38,7 +39,7 @@ class ReceiptDetailBloc extends Bloc<ReceiptDetailEvent, ReceiptDetailState> {
   }) : super(ReceiptDetailState.initial()) {
     on<SetReceiptDetailStatesToInitialEvent>(_onSetReceiptDetailStatesToInitial);
     on<ReceiptDetailSetEmptyReceiptEvent>(_onReceiptDetailSetEmptyReceipt);
-    on<ReceiptDetailGetReceiptEvent>(_onReceiptDetailGetReceiptOrSetEmpty);
+    on<ReceiptDetailGetReceiptEvent>(_onReceiptDetailGetReceipt);
     on<ReceiptDetailGetProductByEanEvent>(_onReceiptDetailGetProductByEan);
     on<ReceiptDetailCreateParcelLabelReceiptEvent>(_onReceiptDetailCreateParcelLabelReceipt);
     on<ReceiptDetailUpdateReceiptEvent>(_onReceiptDetailUpdateReceipt);
@@ -52,6 +53,8 @@ class ReceiptDetailBloc extends Bloc<ReceiptDetailEvent, ReceiptDetailState> {
     on<ReceiptDetailPaymentStatusChangedEvent>(_onReceiptDetailPaymentStatusChanged);
     on<ReceiptDetailCarrierChangedEvent>(_onReceiptDetailCarrierChanged);
     on<ReceiptDetailCarrierProductChangedEvent>(_onReceiptDetailCarrierProductChanged);
+    on<ReceiptDetailCommentChangedEvent>(_onReceiptDetailInternalCommentChanged);
+    on<ReceiptDetailGetSameReceiptsEvent>(_onReceiptDetailGetSameReceipts);
   }
 
 //? ###########################################################################################################################
@@ -78,12 +81,13 @@ class ReceiptDetailBloc extends Bloc<ReceiptDetailEvent, ReceiptDetailState> {
       listOfMarketplaces: fosMarketplaces.getRight(),
       mainSettings: fosSettings.getRight(),
       isLoadingReceiptOnObserve: false,
+      triggerListenerAfterSetEmptyReceipt: optionOf(true),
     ));
   }
 
 //? ###########################################################################################################################
 
-  Future<void> _onReceiptDetailGetReceiptOrSetEmpty(ReceiptDetailGetReceiptEvent event, Emitter<ReceiptDetailState> emit) async {
+  Future<void> _onReceiptDetailGetReceipt(ReceiptDetailGetReceiptEvent event, Emitter<ReceiptDetailState> emit) async {
     emit(state.copyWith(isLoadingReceiptOnObserve: true));
 
     final fosReceipt = await receiptRepository.getReceipt(event.receiptId, event.receiptType);
@@ -98,12 +102,15 @@ class ReceiptDetailBloc extends Bloc<ReceiptDetailEvent, ReceiptDetailState> {
 
     emit(state.copyWith(
       receipt: newReceipt,
+      internalCommentController: TextEditingController(text: newReceipt.commentInternal),
+      globalCommentController: TextEditingController(text: newReceipt.commentGlobal),
       listOfMarketplaces: fosMarketplaces.getRight(),
       mainSettings: fosSettings.getRight(),
       isLoadingReceiptOnObserve: false,
       fosReceiptOnObserveOption: optionOf(fosReceipt),
     ));
     emit(state.copyWith(fosReceiptOnObserveOption: none()));
+    add(ReceiptDetailGetSameReceiptsEvent());
   }
 
 //? ###########################################################################################################################
@@ -253,6 +260,27 @@ class ReceiptDetailBloc extends Bloc<ReceiptDetailEvent, ReceiptDetailState> {
   }
 
 //? ###########################################################################################################################
+
+  void _onReceiptDetailInternalCommentChanged(ReceiptDetailCommentChangedEvent event, Emitter<ReceiptDetailState> emit) {
+    emit(state.copyWith(
+      receipt: state.receipt!.copyWith(commentInternal: state.internalCommentController.text, commentGlobal: state.globalCommentController.text),
+    ));
+  }
+
+//? ###########################################################################################################################
+
+  Future<void> _onReceiptDetailGetSameReceipts(ReceiptDetailGetSameReceiptsEvent event, Emitter<ReceiptDetailState> emit) async {
+    emit(state.copyWith(isLoadingSameReceiptsOnObserve: true));
+
+    final fosReceipts = await receiptRepository.getListOfReceiptsByReceiptId(state.receipt!.receiptId);
+    if (fosReceipts.isLeft()) emit(state.copyWith(sameReceiptsFailure: fosReceipts.getLeft(), isLoadingSameReceiptsOnObserve: false));
+
+    emit(state.copyWith(
+      listOfSameReceipts: fosReceipts.getRight(),
+      isLoadingSameReceiptsOnObserve: false,
+    ));
+  }
+
 //? ###########################################################################################################################
 //? ###########################################################################################################################
 //? ###########################################################################################################################

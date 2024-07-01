@@ -11,7 +11,7 @@ import '../../../routes/router.gr.dart';
 import '../../core/core.dart';
 import 'functions/get_products_app_bar_title.dart';
 import 'products_overview_page.dart';
-import 'widgets/mass_editing_dialogs/products_mass_editing_failure_dialog.dart';
+import 'widgets/pme_failure_sheet.dart';
 import 'widgets/widgets.dart';
 
 @RoutePage()
@@ -115,7 +115,7 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> with Au
                   myScaffoldMessenger(context, null, null, null, 'Beim Aktualisieren der Artikel ist ein Fehler aufgetreten');
                   showDialog(
                     context: context,
-                    builder: (context) => ProductsMassEditingFailureDialog(productsList: state.listOfNotUpdatedProductsOnMassEditing),
+                    builder: (context) => PMEFailureSheet(productsList: state.listOfNotUpdatedProductsOnMassEditing),
                   );
                 }, (_) {
                   context.router.popUntilRouteWithName(ProductsOverviewRoute.name);

@@ -115,4 +115,12 @@ class ReceiptDetailCarrierProductChangedEvent extends ReceiptDetailEvent {
 
 //* ##############################################################################################################
 //* ##############################################################################################################
-//* ReceiptDetailProductsCard
+//* ReceiptDetailCommentsCard
+
+class ReceiptDetailCommentChangedEvent extends ReceiptDetailEvent {}
+
+//* ##############################################################################################################
+//* ##############################################################################################################
+//* ReceiptDetailSameReceiptsCard
+
+class ReceiptDetailGetSameReceiptsEvent extends ReceiptDetailEvent {}

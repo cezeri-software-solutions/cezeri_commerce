@@ -14,7 +14,7 @@ class MyTextFormFieldSmall extends StatefulWidget {
   final FocusNode? focusNode;
   final TextInputType? keyboardType;
   final TextCapitalization textCapitalization;
-  final int maxLines;
+  final int? maxLines;
   final Widget? suffix;
   final void Function(String)? onChanged;
   final void Function()? onTap;
@@ -52,29 +52,19 @@ class MyTextFormFieldSmall extends StatefulWidget {
 }
 
 class _MyTextFormFieldSmallState extends State<MyTextFormFieldSmall> {
-  bool _hasError = false;
-
   @override
   Widget build(BuildContext context) {
-    // Dynamische Anpassung der maxHeight basierend auf dem Fehlerzustand
-    final double maxHeight = _hasError ? 52 : 28;
-
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (widget.labelText != null) Text(' ${widget.labelText!}', style: TextStyles.infoOnTextFieldSmall),
-        ConstrainedBox(
-          constraints: BoxConstraints(maxHeight: maxHeight, maxWidth: widget.maxWidth),
+        SizedBox(
+          width: widget.maxWidth,
           child: TextFormField(
             controller: widget.controller,
             initialValue: widget.initialValue,
-            validator: (value) {
-              final error = widget.validator != null ? widget.validator!(value) : null;
-              // Zustandsaktualisierung, um die Höhe dynamisch anzupassen
-              WidgetsBinding.instance.addPostFrameCallback((_) => setState(() => _hasError = error != null));
-              return error;
-            },
+            validator: (value) => widget.validator != null ? widget.validator!(value) : null,
             style: const TextStyle(fontSize: 12).copyWith(letterSpacing: 0),
             focusNode: widget.focusNode,
             keyboardType: widget.keyboardType,
@@ -89,7 +79,8 @@ class _MyTextFormFieldSmallState extends State<MyTextFormFieldSmall> {
               hintStyle: const TextStyle().copyWith(letterSpacing: 0),
               fillColor: widget.fillColor,
               filled: true,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 6, vertical: 0),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+              isDense: true,
               floatingLabelBehavior: FloatingLabelBehavior.always,
               suffix: widget.suffix,
               suffixStyle: const TextStyle(fontSize: 13),
@@ -99,17 +90,15 @@ class _MyTextFormFieldSmallState extends State<MyTextFormFieldSmall> {
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(6),
-                borderSide: const BorderSide(color: CustomColors.borderColorLight), // Anpassen
+                borderSide: const BorderSide(color: CustomColors.borderColorLight),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(6),
-                borderSide: const BorderSide(color: CustomColors.primaryColor), // Anpassen
+                borderSide: const BorderSide(color: CustomColors.primaryColor),
               ),
             ),
           ),
         ),
-        // if (_hasError) const Text('Error'),
-        // Fehlermeldung kann hier angezeigt werden, falls erforderlich
       ],
     );
   }

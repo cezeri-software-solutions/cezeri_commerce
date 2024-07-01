@@ -70,11 +70,7 @@ class _ReceiptDetailProductsCardState extends State<ReceiptDetailProductsCard> {
                             controller: state.barcodeScannerController,
                             onTap: () => widget.receiptDetailProductsBloc.add(SetIsInScanModeEvent(isInScanMode: true)),
                             onTapOutside: (_) => widget.receiptDetailProductsBloc.add(SetIsInScanModeEvent(isInScanMode: false)),
-                            onChanged: (value) => _onEanScanned(
-                              value,
-                              stateProduct.productByEan,
-                              state.listOfReceiptProducts,
-                            ),
+                            onChanged: (value) => _onEanScanned(value, stateProduct.productByEan, state.listOfReceiptProducts),
                           ),
                           Gaps.w16,
                           stateProduct.isLoadingProductOnObserve

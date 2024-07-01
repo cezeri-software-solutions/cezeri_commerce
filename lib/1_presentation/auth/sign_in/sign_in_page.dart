@@ -41,11 +41,7 @@ class _SignInPageState extends State<SignInPage> {
                     const SizedBox(height: 80),
                     // TODO: Image.asset(isLightMode ? 'assets/logo/logo_black_big.png' : 'assets/logo/logo_black_white.png'),
                     const SizedBox(height: 40),
-                    const Text(
-                      'Anmelden',
-                      style: TextStyles.h1,
-                      textAlign: TextAlign.center,
-                    ),
+                    const Text('Anmelden', style: TextStyles.h1, textAlign: TextAlign.center),
                     const SizedBox(height: 20),
                     MyFormFieldContainer(
                       child: Column(
@@ -86,10 +82,7 @@ class _SignInPageState extends State<SignInPage> {
                       ),
                     ),
                     const SizedBox(height: 60),
-                    MyElevatedButton(
-                      buttonText: 'Anmelden',
-                      onPressed: () => _onSubmitPasswordField(),
-                    ),
+                    MyElevatedButton(buttonText: 'Anmelden', onPressed: () => _onSubmitPasswordField()),
                     const SizedBox(height: 20),
                     MyElevatedButton(
                       buttonText: 'Registrieren',
@@ -122,6 +115,7 @@ class _SignInPageState extends State<SignInPage> {
   }
 
   void _onSubmitPasswordField() {
+    print('######## _onSubmitPasswordField #################################');
     if (formKey.currentState!.validate()) {
       BlocProvider.of<SignInFormBloc>(context).add(
         SignInWithEmailAndPasswordPressed(email: emailController.text, password: passwordController.text),
