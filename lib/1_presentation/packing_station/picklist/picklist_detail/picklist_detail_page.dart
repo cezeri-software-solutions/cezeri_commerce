@@ -116,32 +116,17 @@ class _PicklistProductsContainer extends StatelessWidget {
               Gaps.w16,
               InkWell(
                 onTap: () => packingStationBloc.add(PicklistOnPicklistQuantityChanged(index: index, isSubtract: true, pickCompletely: false)),
-                child: Container(
-                  color: Colors.orange,
-                  height: 50,
-                  width: 50,
-                  child: const Icon(Icons.remove, color: Colors.white),
-                ),
+                child: Container(color: Colors.orange, height: 50, width: 50, child: const Icon(Icons.remove, color: Colors.white)),
               ),
               Gaps.w8,
               InkWell(
                 onTap: () => packingStationBloc.add(PicklistOnPicklistQuantityChanged(index: index, isSubtract: false, pickCompletely: false)),
-                child: Container(
-                  color: Colors.green,
-                  height: 50,
-                  width: 50,
-                  child: const Icon(Icons.add, color: Colors.white),
-                ),
+                child: Container(color: Colors.green, height: 50, width: 50, child: const Icon(Icons.add, color: Colors.white)),
               ),
               Gaps.w8,
               InkWell(
                 onTap: () => packingStationBloc.add(PicklistOnPicklistQuantityChanged(index: index, isSubtract: false, pickCompletely: true)),
-                child: Container(
-                  color: Colors.blue,
-                  height: 50,
-                  width: 50,
-                  child: const Icon(Icons.checklist, color: Colors.white),
-                ),
+                child: Container(color: Colors.blue, height: 50, width: 50, child: const Icon(Icons.checklist, color: Colors.white)),
               ),
               Gaps.w8,
             ],
