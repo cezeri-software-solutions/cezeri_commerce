@@ -100,11 +100,7 @@ class _PicklistProductsContainer extends StatelessWidget {
             children: [
               Gaps.w8,
               picklistProduct.imageUrl != null && picklistProduct.imageUrl != ''
-                  ? MyAvatar(
-                      name: picklistProduct.name,
-                      imageUrl: picklistProduct.imageUrl,
-                      fit: BoxFit.scaleDown,
-                    )
+                  ? MyAvatar(name: picklistProduct.name, imageUrl: picklistProduct.imageUrl, fit: BoxFit.scaleDown)
                   : const SizedBox(height: 50, width: 50, child: Icon(Icons.question_mark)),
               Gaps.w8,
               Expanded(
