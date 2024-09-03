@@ -1,0 +1,42 @@
+<?xml version="1.0" ?>
+<svg viewBox="0 0 64 64"
+	xmlns="http://www.w3.org/2000/svg">
+	<g data-name="Layer 32" id="Layer_32">
+		<rect height="34" style="fill:#698cb2" width="48" x="8" y="15"/>
+		<rect height="31" rx="1.645" style="fill:#d7e0ef" width="46" x="9" y="16"/>
+		<path d="M56,48l6,6a8,8,0,0,1-8,8H10a8,8,0,0,1-8-8H2l6-6Z" style="fill:#698cb2"/>
+		<polygon points="2 54 62 54 62 54 56 48 8 48 2 54" style="fill:#a5badb"/>
+		<polygon points="11 47 34 16 40 16 18 47 11 47" style="fill:#f2f5f9"/>
+		<polygon points="24 47 47 16 53 16 31 47 24 47" style="fill:#f2f5f9"/>
+		<polygon points="45.806 47 55 34.045 55 29.696 42.161 47 45.806 47" style="fill:#f2f5f9"/>
+		<polygon points="9 34.318 22 16 19 16 9 29.478 9 34.318" style="fill:#f2f5f9"/>
+		<rect height="13" style="fill:#f9cb5d" width="18" x="23" y="9"/>
+		<path d="M23,9v5a3,3,0,0,0,3-3,3,3,0,0,0,6,0,3,3,0,0,0,6,0,3,3,0,0,0,3,3V9Z" style="fill:#edb340"/>
+		<rect height="6" style="fill:#3693cf" width="4" x="30" y="16"/>
+		<path d="M20,9V8l3-6H41l3,6V9a3,3,0,0,1-6,0,3,3,0,0,1-6,0,3,3,0,0,1-6,0,3,3,0,0,1-6,0Z" style="fill:#d53e7a"/>
+		<polygon points="38 8 36 2 41 2 44 8 38 8" style="fill:#df5b90"/>
+		<polygon points="38 8 32 8 32 2 36 2 38 8" style="fill:#f769a3"/>
+		<polygon points="26 8 28 2 23 2 20 8 26 8" style="fill:#f769a3"/>
+		<path d="M32,8h6V9a3,3,0,0,1-3,3h0a3,3,0,0,1-3-3Z" style="fill:#f74d8b"/>
+		<path d="M20,8h6V9a3,3,0,0,1-3,3h0a3,3,0,0,1-3-3Z" style="fill:#f74d8b"/>
+		<polygon points="43 54 41 58 23 58 21 54 43 54" style="fill:#d7e0ef"/>
+		<polygon points="32 8 26 8 28 2 32 2 32 8" style="fill:#df5b90"/>
+		<rect height="2" style="fill:#ff959d" width="4" x="22" y="38"/>
+		<rect height="2" style="fill:#ff959d" width="4" x="22" y="34"/>
+		<rect height="2" style="fill:#ff959d" width="4" x="22" y="30"/>
+		<rect height="2" style="fill:#ff959d" width="4" x="38" y="38"/>
+		<rect height="2" style="fill:#ff959d" width="4" x="38" y="34"/>
+		<rect height="2" style="fill:#ff959d" width="4" x="38" y="30"/>
+		<rect height="4" style="fill:#ff959d" width="2" x="35" y="41"/>
+		<rect height="4" style="fill:#ff959d" width="2" x="31" y="41"/>
+		<rect height="4" style="fill:#ff959d" width="2" x="27" y="41"/>
+		<rect height="4" style="fill:#ff959d" width="2" x="35" y="25"/>
+		<rect height="4" style="fill:#ff959d" width="2" x="31" y="25"/>
+		<rect height="4" style="fill:#ff959d" width="2" x="27" y="25"/>
+		<rect height="14" style="fill:#e73844" width="14" x="25" y="28"/>
+		<rect height="4" style="fill:#b21222" width="4" x="30" y="33"/>
+		<path d="M57,47.586V15a1,1,0,0,0-1-1H42V12.858A4,4,0,0,0,45,9V8a1,1,0,0,0-.1-.447l-3-6A1,1,0,0,0,41,1H23a1,1,0,0,0-.895.553l-3,6A1,1,0,0,0,19,8V9a4,4,0,0,0,3,3.858V14H8a1,1,0,0,0-1,1V47.586L1.293,53.293A1,1,0,0,0,1,54a9.01,9.01,0,0,0,9,9H54a9.01,9.01,0,0,0,9-9,1,1,0,0,0-.293-.707ZM33,21H31V17h2Zm1-6H30a1,1,0,0,0-1,1v5H24V12.861a4,4,0,0,0,2-1.218,3.995,3.995,0,0,0,6,0,3.995,3.995,0,0,0,6,0,4,4,0,0,0,2,1.218V21H35V16A1,1,0,0,0,34,15ZM33,7V3h2.28l1.333,4Zm4,2a2,2,0,0,1-4,0ZM31,7H27.387L28.72,3H31Zm0,2a2,2,0,0,1-4,0Zm10,2a2,2,0,0,1-2-2h4A2,2,0,0,1,41,11Zm1.382-4H38.72L37.387,3h2.995ZM23.618,3h3L25.28,7H21.618ZM21,9h4a2,2,0,0,1-4,0Zm1,7v6a1,1,0,0,0,1,1H41a1,1,0,0,0,1-1V16H55V47H9V16ZM8.414,49H55.586l4,4H4.414Zm32.968,6-1,2H23.618l-1-2ZM54,61H10a7.007,7.007,0,0,1-6.925-6H20.382l1.723,3.447A1,1,0,0,0,23,59H41a1,1,0,0,0,.9-.553L43.618,55H60.925A7.007,7.007,0,0,1,54,61Z"/>
+		<path d="M24,42a1,1,0,0,0,1,1h2v2h2V43h2v2h2V43h2v2h2V43h2a1,1,0,0,0,1-1V40h2V38H40V36h2V34H40V32h2V30H40V28a1,1,0,0,0-1-1H37V25H35v2H33V25H31v2H29V25H27v2H25a1,1,0,0,0-1,1v2H22v2h2v2H22v2h2v2H22v2h2Zm2-13H38V41H26Z"/>
+		<path d="M34,32H30a1,1,0,0,0-1,1v4a1,1,0,0,0,1,1h4a1,1,0,0,0,1-1V33A1,1,0,0,0,34,32Zm-1,4H31V34h2Z"/>
+	</g>
+</svg>

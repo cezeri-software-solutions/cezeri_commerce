@@ -1,0 +1,267 @@
+{
+  "products": [
+    {
+      "id": 1191,
+      "id_manufacturer": "1",
+      "id_supplier": "0",
+      "id_category_default": "9",
+      "new": null,
+      "cache_default_attribute": "0",
+      "id_default_image": "6017",
+      "id_default_combination": 0,
+      "id_tax_rules_group": "58",
+      "position_in_category": "236",
+      "manufacturer_name": "Koch Chemie",
+      "quantity": "0",
+      "type": "pack",
+      "id_shop_default": "1",
+      "reference": "225232",
+      "supplier_reference": "",
+      "location": "",
+      "width": "0.000000",
+      "height": "0.000000",
+      "depth": "0.000000",
+      "weight": "0.880000",
+      "quantity_discount": "0",
+      "ean13": "1239896398963",
+      "isbn": "",
+      "upc": "",
+      "mpn": "",
+      "cache_is_pack": "1",
+      "cache_has_attachments": "0",
+      "is_virtual": "0",
+      "state": "1",
+      "additional_delivery_times": "0",
+      "delivery_in_stock": [
+        {
+          "id": "1",
+          "value": ""
+        },
+        {
+          "id": "2",
+          "value": ""
+        },
+        {
+          "id": "3",
+          "value": ""
+        }
+      ],
+      "delivery_out_stock": [
+        {
+          "id": "1",
+          "value": ""
+        },
+        {
+          "id": "2",
+          "value": ""
+        },
+        {
+          "id": "3",
+          "value": ""
+        }
+      ],
+      "product_type": "pack",
+      "on_sale": "0",
+      "online_only": "0",
+      "ecotax": "0.000000",
+      "minimal_quantity": "0",
+      "low_stock_threshold": "0",
+      "low_stock_alert": "0",
+      "price": "36.541667",
+      "wholesale_price": "23.510000",
+      "unity": "",
+      "unit_price_ratio": "0.000000",
+      "additional_shipping_cost": "0.000000",
+      "customizable": "0",
+      "text_fields": "0",
+      "uploadable_files": "0",
+      "active": "0",
+      "redirect_type": "404",
+      "id_type_redirected": "0",
+      "available_for_order": "1",
+      "available_date": "0000-00-00",
+      "show_condition": "0",
+      "condition": "new",
+      "show_price": "1",
+      "indexed": "0",
+      "visibility": "both",
+      "advanced_stock_management": "0",
+      "date_add": "2023-10-03 16:43:58",
+      "date_upd": "2023-10-03 17:10:56",
+      "pack_stock_type": "0",
+      "meta_description": [
+        {
+          "id": "1",
+          "value": "Koch Chemie - Heavy Cut H9.01 - Grobe Schleifpolitur (siliconölfrei) - 250ml Koch Chemie - Fine Cut F6.01 - Fine Schleifpolitur (siliconölfrei) - 250ml Koch Chemie - Micro Cut M3.02 - Micro-Schleifpolitur (siliconölfrei) - 250ml"
+        },
+        {
+          "id": "2",
+          "value": "Koch Chemie - Heavy Cut H9.01 - Grobe Schleifpolitur (siliconölfrei) - 250ml Koch Chemie - Fine Cut F6.01 - Fine Schleifpolitur (siliconölfrei) - 250ml Koch Chemie - Micro Cut M3.02 - Micro-Schleifpolitur (siliconölfrei) - 250ml"
+        },
+        {
+          "id": "3",
+          "value": "Koch Chemie - Heavy Cut H9.01 - Grobe Schleifpolitur (siliconölfrei) - 250ml Koch Chemie - Fine Cut F6.01 - Fine Schleifpolitur (siliconölfrei) - 250ml Koch Chemie - Micro Cut M3.02 - Micro-Schleifpolitur (siliconölfrei) - 250ml"
+        }
+      ],
+      "meta_keywords": [
+        {
+          "id": "1",
+          "value": ""
+        },
+        {
+          "id": "2",
+          "value": ""
+        },
+        {
+          "id": "3",
+          "value": ""
+        }
+      ],
+      "meta_title": [
+        {
+          "id": "1",
+          "value": ""
+        },
+        {
+          "id": "2",
+          "value": ""
+        },
+        {
+          "id": "3",
+          "value": ""
+        }
+      ],
+      "link_rewrite": [
+        {
+          "id": "1",
+          "value": "koch-chemie-polish-set-1-250ml"
+        },
+        {
+          "id": "2",
+          "value": "koch-chemie-politur-set-1-250ml"
+        },
+        {
+          "id": "3",
+          "value": "koch-chemie-set-di-lucidatura-1-250ml"
+        }
+      ],
+      "name": [
+        {
+          "id": "1",
+          "value": "copy of Koch Chemie - Polish Set 1 - 250ml"
+        },
+        {
+          "id": "2",
+          "value": "copy of Koch Chemie - Politur Set 1 - 250ml"
+        },
+        {
+          "id": "3",
+          "value": "copy of Koch Chemie - Set di lucidatura 1 - 250ml"
+        }
+      ],
+      "description": [
+        {
+          "id": "1",
+          "value": "<h2>Koch Chemie - Polish Set 1 - 250ml</h2>\n<p></p>\n<p><strong><span style=\"text-decoration:underline;\">Scope of supply:</span></strong></p>\n<ul>\n<li>1x Koch Chemie - Heavy Cut H9.01 - Coarse abrasive polish (silicone oil free) - 250ml</li>\n<li>1x Koch Chemie - Fine Cut F6.01 - Fine Sanding Polish (Silicone Oil Free) - 250ml</li>\n<li>1x Koch Chemie - Micro Cut M3.02 - Micro Sanding Polish (silicone oil free) - 250ml</li>\n</ul>\n<p></p>\n<h3>Koch Chemie - Heavy Cut H9.01 - Coarse Sanding Polish (Silicone Oil Free) - 250ml</h3>\n<p>Koch Chemie Heavy Cut H9.01 250ml is a coarse sanding polish and innovative machine polish for quickly reconditioning heavily weathered paintwork, removing deep scratches and effectively removing paint mist and build-up up to 1200 grit.</p>\n<p>Heavy Cut 9.01 produces an extremely high cut with a very good gloss level due to the extremely homogeneous abrasive grit.</p>\n<p>This abrasive polish can be used with low dust and spray development.ng polish extremely long without burning in and is perfectly wipeable. </p>\n<p>Most suitable for all types of paint (both soft and scratch-resistant).</p>\n<p><strong>Grade of sanding: 9.0</strong></p>\n<p></p>\n<p><strong>Whole grade: 5.0</strong></p>\n<p></p>\n<p><strong><span style=\"text-decoration:underline;\">Application:</span></strong></p>\n<p>Paints on passenger cars, commercial vehicles, motorcycles, etc.</p>\n<p><strong><span style=\"text-decoration:underline;\">Application recommendation:</span></strong></p>\n<p>Process by means of rotary polishing machine and lambskin pad (for sanding 1200 - 2500) or heavy cut pad (for sanding 2000 - 5000) in a crosswise motion. </p>\n<p>Process sanding polish at medium speed and medium pressure. </p>\n<p>A best possible finish is achieved by repolishing with Micro Cut M3.02.</p>\n<p></p>\n<h3>Koch Chemie - Fine Cut F6.01 - Fine Sanding Polish (silicone oil free) - 250ml</h3>\n<p>Koch Chemie Fine Cut F6.01 250ml is a fine grinding polish, machine polish of the newsten generation with unique aluminum oxide quality.</p>\n<p></p>\n<p>The intelligent grit ensures fast, residue-free removal of car wash scratches and similar signs of use, and gives the paintwork a lasting deep shine.</p>\n<p>Sanding marks from 2500 grit abrasive media are effortlessly removed.</p>\n<p>Fine Cut F6,01 is therefore ideally suited for the perfect preparation of medium to heavily weathered paintwork.</p>\n<p>Perfectly adapted to the treatment of scratch-resistant paints.</p>\n<p><strong>Grade of sanding: 6.0</strong></p>\n<p></p>\n<p><strong>Gloss level: 7.0</strong></p>\n<p></p>\n<p><strong><span style=\"text-decoration:underline;\">Application:</span></strong></p>\n<p>Paints on passenger cars, commercial vehicles, motorcycles, etc.</p>\n<p><strong><span style=\"text-decoration:underline;\">Application recommendation:</span></strong></p>\n<p>Apply Fine Cut F6.01 to the abrasive medium (Fine Cut Pad) and polish out on the pre-cleaned surface to be processed at max. 2000 rpm in crossfeed.</p>\n<p></p>\n<p>The cleaning performance can be varied by pressure, grinding medium and number of revolutions. </p>\n<p>At the beginning of the grinding process, we recommend processing with higher pressure at a low number of revolutions.</p>\n<p>As you proceed, reduce the pressure and polish to a high gloss with a higher number of revolutions. </p>\n<p>Last polishing residues can be easily removed with our professional microfiber cloth ultrasonically cut. </p>\n<p>Any haze or polish marks are removed using Micro Cut M3.02. </p>\n<p></p>\n<h3>Koch Chemie - Micro Cut M3.02 - Micro abrasive polish (silicone oil free) - 250ml</h3>\n<p>Koch Chemie - Micro Cut M3.02 250ml is a micro-sanding polish, machine polish for the permanent removal of polishing haze, holograms, fine scratches, and abrading up to 3000 grit on all (including scratch-resistant) paint systems.</p>\n<p>Even on dark and similarly sensitive shades under extreme light conditions, the EThe use of highly specialized, extremely homogeneous abrasives creates a brilliant and durable high-gloss finish.</p>\n<p>Holograms and fine scratches are mechanically eliminated, not covered.</p>\n<p>Holograms and fine scratches are mechanically eliminated and not covered, as is often the case.</p>\n<p>Micro Cut M3.02 is extremely high-yielding, easy to polish and removes without leaving residue.</p>\n<p><strong>Grade: 3.2</strong></p>\n<p><strong>Gloss: 9.0</strong></p>\n<p><strong><span style=\"text-decoration:underline;\">Application:</span></strong></p>\n<p>Paints on passenger cars, commercial vehicles, motorcycles, etc.</p>\n<p><strong><span style=\"text-decoration:underline;\">Recommended use:</span></strong></p>\n<p>To produce optimum results, we recommend processing with our Micro Cut Pad and an eccentric polisher with forced rotation. Alternatively, processing with a rotary polisher in combination with our Micro Cut Pad is possible.</p>\n<p></p>\n<p>Wet dried or new sponges completely with polish before use.</p>\n<p></p>\n<p>The polish at fromevenly on the surface to be treated and then polish with moderate pressure in a cross motion until a transparent film is formed, i.e. until the aluminium oxide contained has completely decomposed.</p>\n<p></p>\n<p>Do not use the sponges used for this product in alternation for other products.</p>\n<p></p>\n<p>For scratch- and score-free removal of polishing residues, we recommend our chain-seamless professional microfiber cloth ultrasonically cut. </p>"
+        },
+        {
+          "id": "2",
+          "value": "<h2>Koch Chemie - Politur Set 1 - 250ml</h2>\n<p></p>\n<p><strong><span style=\"text-decoration:underline;\">Lieferumfang:</span></strong></p>\n<ul>\n<li>1x Koch Chemie - Heavy Cut H9.01 - Grobe Schleifpolitur (siliconölfrei) - 250ml</li>\n<li>1x Koch Chemie - Fine Cut F6.01 - Fine Schleifpolitur (siliconölfrei) - 250ml</li>\n<li>1x Koch Chemie - Micro Cut M3.02 - Micro-Schleifpolitur (siliconölfrei) - 250ml</li>\n</ul>\n<p></p>\n<h3>Koch Chemie - Heavy Cut H9.01 - Grobe Schleifpolitur (siliconölfrei) - 250ml</h3>\n<p>Koch Chemie Heavy Cut H9.01 250ml ist eine grobe Schleifpolitur und innovative Maschinenpolitur zur schnellen Aufbereitung stark verwitterter Lacke, zur Beseitigung von tiefen Kratzern und zur effektiven Entfernung von Lackiernebeln und Anschliffen bis 1200er Körnung.</p>\n<p>Heavy Cut 9.01 erzeugt durch das extrem homogene Schleifkorn einen äußerst hohen Cut bei sehr gutem Glanzgrad.</p>\n<p>Diese Schleifpolitur lässt sich bei geringer Staub- sowie Spritzentwicklung extrem lange polieren ohne einzubrennen und ist perfekt abwischbar. </p>\n<p>Bestens geeignet für alle Lackarten (sowohl weiche als auch kratzfeste).</p>\n<p><strong>Schleifgrad: 9,0</strong></p>\n<p><strong>Ganzgrad: 5,0</strong></p>\n<p><strong><span style=\"text-decoration:underline;\">Anwendungsgebiete:</span></strong></p>\n<p>Lacke an PKW, Nutzfahrzeuge, Motorräder etc.</p>\n<p><strong><span style=\"text-decoration:underline;\">Anwendungsempfehlung:</span></strong></p>\n<p>Mittels Rotationspoliermachine und Lammfell-Pad (bei Anschliff 1200 - 2500) oder Heavy Cut Pad (bei Anschliff 2000 - 5000) im Kreuzgang verarbeiten. </p>\n<p>Schleifpolitur bei mittlerer Drehzahl und mittlerem Druck verarbeiten. </p>\n<p>Eine bestmögliche Oberfläche wird durch Nachpolieren mit Micro Cut M3.02 erzielt.</p>\n<p></p>\n<h3>Koch Chemie - Fine Cut F6.01 - Fine Schleifpolitur (siliconölfrei) - 250ml</h3>\n<p>Koch Chemie Fine Cut F6.01 250ml ist eine feine Schleifpolitur, Maschinenpolitur der neuesten Generation mit einzigartiger Aluminiumoxid-Qualität.</p>\n<p>Die intelligente Körnung sorgt für eine schnelle, restlose Entfernung von Waschstraßenkratzern und ähnlichen Gebrauchsspuren und verleiht dem Lack einen dauerhaften Tiefenglanz.</p>\n<p>Schliffspuren von 2500er Schleifmedien werden mühelos entfernt.</p>\n<p>Fine Cut F6,01 ist somit für die perfekte Aufbereitung von mittel bis stark verwitterten Lacken bestens geeignet.</p>\n<p>Perfekt auf die Bearbeitung von kratzfester Lacke abgestimmt.</p>\n<p><strong>Schleifgrad: 6,0</strong></p>\n<p><strong>Glanzgrad: 7,0</strong></p>\n<p><strong><span style=\"text-decoration:underline;\">Anwendungsgebiete:</span></strong></p>\n<p>Lacke an PKW, Nutzfahrzeugen, Motorrädern etc.</p>\n<p><strong><span style=\"text-decoration:underline;\">Anwendungsempfehlung:</span></strong></p>\n<p>Fine Cut F6.01 auf das Schleifmedium (Fine Cut Pad) aufbringen und auf der zu bearbeitenden, vorgereinigten Oberfläche mit max. 2000 U/min im Kreuzgang auspolieren.</p>\n<p>Die Reinigungsleistung kann durch Druck, Schleifmedium und Umdrehungszahl variiert werden. </p>\n<p>Zu Beginn des Schleifvorganges empfehlen wir die Verarbeitung mit höherem Druck bei geringer Umdrehungszahl.</p>\n<p>Im weiteren Verlauf den Druck reduzieren und mit höherer Umdrehung auf Hochglanz auspolieren. </p>\n<p>Letzte Polierreste können leicht mit unserem Profi-Microfasertuch ultraschallgeschnitten entfernt werden. </p>\n<p>Etwaig entstandene Schleier oder Polierspuren werden mittels Micro Cut M3.02 entfernt. </p>\n<p></p>\n<h3>Koch Chemie - Micro Cut M3.02 - Micro-Schleifpolitur (siliconölfrei) - 250ml</h3>\n<p>Koch Chemie - Micro Cut M3.02 250ml ist eine Micro-Schleifpolitur, Maschinenpolitur zur dauerhaften Entfernung von Polierschleiern, Hologrammen, feinen Kratzern und Anschliffen bis 3000er Körnung auf allen (inklusive kratzfesten) Lacksystemen.</p>\n<p>Selbst auf dunklen und ähnlich empfindlichen Farbtönen unter extremen Lichtbedingungen wird durch den Einsatz hoch spezialisierter, extrem homogener Schleifkörper ein brillantes und dauerhaftes Hochglanzfinish erzeugt.</p>\n<p>Hologramme und feine Kratzer werden mechanisch eliminiert und nicht, wie oft üblich, abgedeckt.</p>\n<p>Micro Cut M3.02 ist äußerst ergiebig, gut polier- und rückstandslos entfernbar.</p>\n<p><strong>Schleifgrad: 3,2</strong></p>\n<p><strong>Glanzgrad: 9,0</strong></p>\n<p><strong><span style=\"text-decoration:underline;\">Anwendungsgebiete:</span></strong></p>\n<p>Lacke an PKW, Nutzfahrzeugen, Motorrädern etc.</p>\n<p><strong><span style=\"text-decoration:underline;\">Anwendungsempfehlung:</span></strong></p>\n<p>Zur Erzeugung optimaler Ergebnisse empfehlen wir die Verarbeitung mit unserem Micro Cut Pad und einem Exzenterpolierer mit Zwangsrotation. Alternativ ist die Verarbeitung mit einer Rotationspoliermaschine in Kombination mit unserem Micro Cut Pad möglich.</p>\n<p>Abgetrocknete oder neue Schwämme vor Gebrauch vollständig mit Politur benetzen.</p>\n<p>Die Politur bei ausgeschalteter Maschine gleichmäßig auf der zu bearbeitenden Oberfläche verteilen und anschließend mit mäßigem Druck im Kreuzgang polieren bis ein transparenter Film entsteht, d.h. bis das enthaltene Aluminiumoxid vollständig zerfallen ist.</p>\n<p>Die für dieses Produkt genutzten Schwämme nicht im Wechsel für andere Produkte nutzen.</p>\n<p>Zur kratzer- und riefenfreien Entfernung von Polierrückständen empfehlen wir unser kettelnahtloses Profi-Microfasertuch ultraschallgeschnitten. </p>"
+        },
+        {
+          "id": "3",
+          "value": "<h2>Koch Chemie - Set di lucidatura 1 - 250ml</h2>\n<p></p>\n<p><strong><span style=\"text-decoration:underline;\">Scopo della consegna:</span></strong></p>\n<ul>\n<li>1x Koch Chemie - Heavy Cut H9.01 - Lucido abrasivo grossolano (senza olio di silicone) - 250ml</li>\n<li>1x Koch Chemie - Fine Cut F6.01 - Polish per levigatura fine (senza olio di silicone) - 250ml</li>\n<li>1x Koch Chemie - Micro Cut M3.02 - Micro polacco per levigatura (senza olio di silicone) - 250ml</li>\n</ul>\n<p></p>\n<h3>Koch Chemie - Heavy Cut H9.01 - Lucidante grossolano (senza olio di silicone) - 250ml</h3>\n<p>Koch Chemie Heavy Cut H9.01 250ml è un lucidante per levigatura grossolana e un innovativo lucidante per macchine per ricondizionare rapidamente le vernici fortemente esposte alle intemperie, rimuovere graffi profondi e rimuovere efficacemente la nebbia di vernice e levigare fino alla grana 1200.</p>\n<p>Heavy Cut 9.01 produce un taglio estremamente elevato con un ottimo livello di brillantezza grazie alla grana abrasiva estremamente omogenea.</p>\n<p>Questo lucidante abrasivo può essere usato con un basso sviluppo di polvere e schizzi.ng lucida per un tempo estremamente lungo senza bruciare ed è perfettamente pulibile. </p>\n<p>Molto adatto a tutti i tipi di vernice (sia morbida che antigraffio).</p>\n<p><strong>Grado di levigatura: 9.0</strong></p>\n<p></p>\n<p><strong>Grado intero: 5.0</strong></p>\n<p></p>\n<p><strong><span style=\"text-decoration:underline;\">Applicazione:</span></strong></p>\n<p>Pitture su autovetture, veicoli commerciali, motociclette ecc.</p>\n<p><strong><span style=\"text-decoration:underline;\">Uso consigliato:</span></strong></p>\n<p>Lavorare con una lucidatrice rotativa e un tampone di pelle d'agnello (per levigare 1200 - 2500) o un tampone a taglio pesante (per levigare 2000 - 5000) con un movimento trasversale. </p>\n<p>Processo di lucidatura a media velocità e media pressione. </p>\n<p>La migliore finitura possibile si ottiene rilucidando con Micro Cut M3.02.</p>\n<p></p>\n<h3>Koch Chemie - Fine Cut F6.01 - Lucidante fine (senza olio di silicone) - 250ml</h3>\n<p>Koch Chemie Fine Cut F6.01 250ml è un polish finemente abrasivo, polish a macchina del nuovogenerazione di sten con una qualità unica di ossido di alluminio.</p>\n<p>La granulometria intelligente assicura una rimozione veloce e senza residui dei graffi dell'autolavaggio e dei segni d'uso simili e dona alla vernice una brillantezza profonda e duratura.</p>\n<p>I segni di levigatura da mezzi abrasivi di grana 2500 vengono rimossi senza sforzo.</p>\n<p>Fine Cut F6,01 è quindi ideale per la perfetta preparazione di verniciature da medie a molto stagionate.</p>\n<p>Perfettamente adattato al trattamento delle lacche antigraffio.</p>\n<p><strong>Grado di levigatura: 6.0</strong></p>\n<p></p>\n<p><strong>Livello di lucentezza: 7.0</strong></p>\n<p></p>\n<p><strong><span style=\"text-decoration:underline;\">Applicazione:</span></strong></p>\n<p>Pitture su autovetture, veicoli commerciali, motociclette ecc.</p>\n<p><strong><span style=\"text-decoration:underline;\">Raccomandazione di applicazione:</span></strong></p>\n<p>Applicare Fine Cut F6.01 al mezzo abrasivo (Fine Cut Pad) e lucidare sulla superficie pre-pulita da lavorare a max. 2000 giri/min in crossfeed.</p>\n<p></p>\n<p>La performance di pulizia può essere variata dalla pressione, dal mezzo abrasivo e dal numero di giri.</p>\n<p>All'inizio del processo di levigatura, si consiglia di lavorare con una pressione più alta e un numero inferiore di giri.</p>\n<p>Con l'avanzare del processo, ridurre la pressione e lucidare ad alta lucentezza con un numero maggiore di giri. </p>\n<p>Gli ultimi residui di lucidatura possono essere facilmente rimossi con il nostro panno professionale in microfibra tagliato ad ultrasuoni. </p>\n<p>Qualsiasi foschia o segno di lucidatura viene rimosso con Micro Cut M3.02. </p>\n<p></p>\n<h3>Koch Chemie - Micro Cut M3.02 - Lucido microabrasivo (senza olio di silicone) - 250ml</h3>\n<p>Koch Chemie - Micro Cut M3.02 250ml è un lucidante per microsabbia, lucidatura a macchina per la rimozione permanente di veli di lucidatura, ologrammi, graffi fini e levigatura fino a 3000 grit su tutti i sistemi di vernice (compresi quelli antigraffio).</p>\n<p>Anche su toni di colore scuri e altrettanto sensibili in condizioni di luce estrema, l'EL'uso di abrasivi altamente specializzati ed estremamente omogenei produce una finitura lucida brillante e duratura.</p>\n<p>Ologrammi e graffi fini sono eliminati meccanicamente e non coperti, come spesso accade.</p>\n<p>Micro Cut M3.02 è estremamente produttivo, facile da lucidare e rimovibile senza lasciare residui.</p>\n<p><strong>Grado di abrasione: 3.2</strong></p>\n<p></p>\n<p><strong>Livello di lucentezza: 9.0</strong></p>\n<p></p>\n<p><strong><span style=\"text-decoration:underline;\">Applicazione:</span></strong></p>\n<p>Pitture su autovetture, veicoli commerciali, motociclette ecc.</p>\n<p><strong><span style=\"text-decoration:underline;\">Uso consigliato:</span></strong></p>\n<p>Per ottenere risultati ottimali, raccomandiamo la lavorazione con il nostro Micro Cut Pad e una lucidatrice eccentrica a rotazione forzata. In alternativa, è possibile la lavorazione con una lucidatrice rotativa in combinazione con il nostro Micro Cut Pad.</p>\n<p>Bagnare completamente le spugne asciutte o nuove con lo smalto prima dell'uso.</p>\n<p>Lo smalto a offuniformemente sulla superficie da trattare e poi lucidare con una pressione moderata con un movimento incrociato fino a formare una pellicola trasparente, cioè fino a quando l'ossido di alluminio contenuto si è completamente decomposto.</p>\n<p></p>\n<p>Non utilizzare le spugne usate per questo prodotto in alternanza con altri prodotti.</p>\n<p>Per la rimozione senza graffi e segni dei residui di lucidatura, raccomandiamo il nostro panno professionale in microfibra senza cuciture ad ultrasuoni. </p>"
+        }
+      ],
+      "description_short": [
+        {
+          "id": "1",
+          "value": "<p>Koch Chemie - Heavy Cut H9.01 - Coarse Sanding Polish (silicone oil free) - 250ml</p>\n<p>Koch Chemie - Fine Cut F6.01 - Fine Sanding Polish (Silicone Oil Free) - 250ml</p>\n<p>Koch Chemie - Micro Cut M3.02 - Micro Sanding Polish (Silicone Oil Free) - 250ml</p>"
+        },
+        {
+          "id": "2",
+          "value": "<p>Koch Chemie - Heavy Cut H9.01 - Grobe Schleifpolitur (siliconölfrei) - 250ml</p>\n<p>Koch Chemie - Fine Cut F6.01 - Fine Schleifpolitur (siliconölfrei) - 250ml</p>\n<p>Koch Chemie - Micro Cut M3.02 - Micro-Schleifpolitur (siliconölfrei) - 250ml</p>"
+        },
+        {
+          "id": "3",
+          "value": "<p>Koch Chemie - Heavy Cut H9.01 - Lucido abrasivo grossolano (senza olio di silicone) - 250ml</p>\n<p>Koch Chemie - Fine Cut F6.01 - Lucido abrasivo fine (senza olio di silicone) - 250ml</p>\n<p>Koch Chemie - Micro Cut M3.02 - Lucidante per micro levigatura (senza olio di silicone) - 250ml</p>"
+        }
+      ],
+      "available_now": [
+        {
+          "id": "1",
+          "value": ""
+        },
+        {
+          "id": "2",
+          "value": ""
+        },
+        {
+          "id": "3",
+          "value": ""
+        }
+      ],
+      "available_later": [
+        {
+          "id": "1",
+          "value": ""
+        },
+        {
+          "id": "2",
+          "value": ""
+        },
+        {
+          "id": "3",
+          "value": ""
+        }
+      ],
+      "associations": {
+        "categories": [
+          {
+            "id": "2"
+          },
+          {
+            "id": "4"
+          },
+          {
+            "id": "9"
+          },
+          {
+            "id": "31"
+          },
+          {
+            "id": "38"
+          }
+        ],
+        "images": [
+          {
+            "id": "6017"
+          }
+        ],
+        "stock_availables": [
+          {
+            "id": "1226",
+            "id_product_attribute": "0"
+          }
+        ],
+        "product_bundle": [
+          {
+            "id": "79",
+            "id_product_attribute": "0",
+            "quantity": "1"
+          },
+          {
+            "id": "81",
+            "id_product_attribute": "0",
+            "quantity": "1"
+          },
+          {
+            "id": "85",
+            "id_product_attribute": "0",
+            "quantity": "1"
+          }
+        ]
+      }
+    }
+  ]
+}

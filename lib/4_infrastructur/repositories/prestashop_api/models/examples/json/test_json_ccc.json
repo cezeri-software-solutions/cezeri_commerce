@@ -1,0 +1,250 @@
+{
+  "products": [
+    {
+      "id": 21,
+      "id_manufacturer": "1",
+      "id_supplier": "0",
+      "id_category_default": "4",
+      "new": null,
+      "cache_default_attribute": "0",
+      "id_default_image": "2902",
+      "id_default_combination": 0,
+      "id_tax_rules_group": "58",
+      "position_in_category": "1",
+      "manufacturer_name": "Koch Chemie",
+      "quantity": "0",
+      "type": "simple",
+      "id_shop_default": "1",
+      "reference": "77707500",
+      "supplier_reference": "",
+      "location": "",
+      "width": "0.000000",
+      "height": "0.000000",
+      "depth": "0.000000",
+      "weight": "0.550000",
+      "quantity_discount": "0",
+      "ean13": "4260188680074",
+      "isbn": "",
+      "upc": "",
+      "mpn": "",
+      "cache_is_pack": "0",
+      "cache_has_attachments": "0",
+      "is_virtual": "0",
+      "state": "1",
+      "additional_delivery_times": "0",
+      "delivery_in_stock": [
+        {
+          "id": "1",
+          "value": ""
+        },
+        {
+          "id": "2",
+          "value": ""
+        },
+        {
+          "id": "3",
+          "value": ""
+        }
+      ],
+      "delivery_out_stock": [
+        {
+          "id": "1",
+          "value": ""
+        },
+        {
+          "id": "2",
+          "value": ""
+        },
+        {
+          "id": "3",
+          "value": ""
+        }
+      ],
+      "product_type": "",
+      "on_sale": "0",
+      "online_only": "0",
+      "ecotax": "0.000000",
+      "minimal_quantity": "0",
+      "low_stock_threshold": "0",
+      "low_stock_alert": "0",
+      "price": "10.750000",
+      "wholesale_price": "6.880000",
+      "unity": "",
+      "unit_price_ratio": "0.000000",
+      "additional_shipping_cost": "0.000000",
+      "customizable": "0",
+      "text_fields": "0",
+      "uploadable_files": "0",
+      "active": "1",
+      "redirect_type": "404",
+      "id_type_redirected": "0",
+      "available_for_order": "1",
+      "available_date": "0000-00-00",
+      "show_condition": "0",
+      "condition": "new",
+      "show_price": "1",
+      "indexed": "1",
+      "visibility": "both",
+      "advanced_stock_management": "0",
+      "date_add": "2021-11-19 13:27:15",
+      "date_upd": "2022-04-05 01:05:58",
+      "pack_stock_type": "0",
+      "meta_description": [
+        {
+          "id": "1",
+          "value": "Pflegt und schützt alle Kunststoffteile im Außenbereich (Leisten, Gummis, etc.). Die behandelten Teile erhalten ihr ursprüngliches, neuwertiges Aussehen zurück und werden vor schädlichen Umwelteinflüssen geschützt. Das Premiumprodukt aus der professi"
+        },
+        {
+          "id": "2",
+          "value": "Pflegt und schützt alle Kunststoffteile im Außenbereich (Leisten, Gummis, etc.). Die behandelten Teile erhalten ihr ursprüngliches, neuwertiges Aussehen zurück und werden vor schädlichen Umwelteinflüssen geschützt. Das Premiumprodukt aus der professi"
+        },
+        {
+          "id": "3",
+          "value": "Pflegt und schützt alle Kunststoffteile im Außenbereich (Leisten, Gummis, etc.). Die behandelten Teile erhalten ihr ursprüngliches, neuwertiges Aussehen zurück und werden vor schädlichen Umwelteinflüssen geschützt. Das Premiumprodukt aus der professi"
+        }
+      ],
+      "meta_keywords": [
+        {
+          "id": "1",
+          "value": ""
+        },
+        {
+          "id": "2",
+          "value": ""
+        },
+        {
+          "id": "3",
+          "value": ""
+        }
+      ],
+      "meta_title": [
+        {
+          "id": "1",
+          "value": ""
+        },
+        {
+          "id": "2",
+          "value": ""
+        },
+        {
+          "id": "3",
+          "value": ""
+        }
+      ],
+      "link_rewrite": [
+        {
+          "id": "1",
+          "value": "koch-chemie-nano-magic-plast-care-plastic-care-500ml"
+        },
+        {
+          "id": "2",
+          "value": "koch-chemie-nano-magic-plast-care-kunststoffpflege-500ml"
+        },
+        {
+          "id": "3",
+          "value": "koch-chemie-nano-magic-plast-care-plastic-care-500ml"
+        }
+      ],
+      "name": [
+        {
+          "id": "1",
+          "value": "Koch Chemie - Nano Magic Plast Care - Plastic care 500ml"
+        },
+        {
+          "id": "2",
+          "value": "Koch Chemie - Nano Magic Plast Care - Kunststoffpflege 500ml"
+        },
+        {
+          "id": "3",
+          "value": "Koch Chemie - Nano Magic Plast Care - Plastic Care 500ml"
+        }
+      ],
+      "description": [
+        {
+          "id": "1",
+          "value": "<h2>Koch Chemie - Nano Magic Plast Care - Plastic Care 500ml</h2>\n<h2><br /></h2>\n<p class=\"MsoNormal\"><span style=\"font-size:8.5pt;line-height:107%;font-family:Verdana, sans-serif;\">Cares for and protects all exterior plastic parts (mouldings, rubbers, etc.). The treated parts regain their original, as good as new appearance and are protected against harmful environmental influences. The premium product from the professional vehicle care with inimitable durability.</span></p><p class=\"MsoNormal\"><span style=\"font-size:8.5pt;line-height:107%;font-family:Verdana, sans-serif;\"><strong><span style=\"text-decoration:underline;\">Recommended Use</span></strong></span></p>\n<p class=\"MsoNormal\"><span style=\"font-size:8.5pt;line-height:107%;font-family:Verdana, sans-serif;\">Spray product onto a clean sponge and apply evenly to the previously cleaned and driede surface. Allow to dry completely. If necessary, repolish with a soft cloth.</span></p><p class=\"MsoNormal\"><span style=\"font-size:8.5pt;line-height:107%;font-family:Verdana, sans-serif;\"><strong><span style=\"text-decoration:underline;\">Highlights</span></strong></span></p>\n<ul><li><span style=\"font-size:8.5pt;line-height:107%;font-family:Verdana, sans-serif;\">Deep maintenance</span></li>\n<li><span style=\"font-size:8.5pt;line-height:107%;font-family:Verdana, sans-serif;\">Extremely long-lasting</span></li>\n<li><span style=\"font-size:8.5pt;line-height:107%;font-family:Verdana, sans-serif;\">Nano protection</span></li>\n</ul>"
+        },
+        {
+          "id": "2",
+          "value": "<h2>Koch Chemie - Nano Magic Plast Care - Kunststoffpflege 500ml</h2>\n<h2><br /></h2>\n<p class=\"MsoNormal\"><span style=\"font-size:8.5pt;line-height:107%;font-family:Verdana, sans-serif;\">Pflegt und schützt alle Kunststoffteile im Außenbereich (Leisten, Gummis, etc.). Die behandelten Teile erhalten ihr ursprüngliches, neuwertiges Aussehen zurück und werden vor schädlichen Umwelteinflüssen geschützt. Das Premiumprodukt aus der professionellen Fahrzeugpflege mit unnachahmlicher Haltbarkeit.</span></p>\n\n<p class=\"MsoNormal\"><span style=\"font-size:8.5pt;line-height:107%;font-family:Verdana, sans-serif;\"><strong><span style=\"text-decoration:underline;\">Anwendungsempfehlung</span></strong></span></p>\n<p class=\"MsoNormal\"><span style=\"font-size:8.5pt;line-height:107%;font-family:Verdana, sans-serif;\">Produkt auf einen sauberen Schwamm aufsprühen und gleichmäßig auf die zuvor gereinigte und getrocknete Oberfläche auftragen. Vollständig abtrocknen lassen. Wenn nötig mit einem weichen Tuch nachpolieren.</span></p>\n\n<p class=\"MsoNormal\"><span style=\"font-size:8.5pt;line-height:107%;font-family:Verdana, sans-serif;\"><strong><span style=\"text-decoration:underline;\">Highlights</span></strong></span></p>\n<ul><li><span style=\"font-size:8.5pt;line-height:107%;font-family:Verdana, sans-serif;\">Tiefenpflege</span></li>\n<li><span style=\"font-size:8.5pt;line-height:107%;font-family:Verdana, sans-serif;\">Extrem lange haltbar</span></li>\n<li><span style=\"font-size:8.5pt;line-height:107%;font-family:Verdana, sans-serif;\">Nano-Schutz</span></li>\n</ul>"
+        },
+        {
+          "id": "3",
+          "value": "<h2>Koch Chemie - Nano Magic Plast Care - Cura della plastica 500ml</h2>\n<h2><br /></h2>\n<p class=\"MsoNormal\"><span style=\"font-size:8.5pt;line-height:107%;font-family:Verdana, sans-serif;\">Cura e protegge tutte le parti esterne in plastica (modanature, gomme, ecc.). Le parti trattate riacquistano il loro aspetto originale e come nuovo e sono protette dalle influenze ambientali dannose. Il prodotto premium della cura professionale del veicolo con una durata inimitabile.</span></p><p class=\"MsoNormal\"><span style=\"font-size:8.5pt;line-height:107%;font-family:Verdana, sans-serif;\"><strong><span style=\"text-decoration:underline;\">Uso consigliato</span></strong></span></p>\n<p class=\"MsoNormal\"><span style=\"font-size:8.5pt;line-height:107%;font-family:Verdana, sans-serif;\">Spruzzare il prodotto su un pulito sponge e applicare uniformemente su una superficie precedentemente pulita e asciuttaApplicare sulla superficie. Lasciare asciugare completamente. Se necessario, tamponare con un morbido panno.\n\n</span></p><p class=\"MsoNormal\"><span style=\"font-size:8.5pt;line-height:107%;font-family:Verdana, sans-serif;\"><strong><span style=\"text-decoration:underline;\">Highlights</span></strong></span></p>\n<ul><li><span style=\"font-size:8.5pt;line-height:107%;font-family:Verdana, sans-serif;\">Cura profonda</span></li>\n<li><span style=\"font-size:8.5pt;line-height:107%;font-family:Verdana, sans-serif;\">Extremely long-lasting</span></li>\n<li><span style=\"font-size:8.5pt;line-height:107%;font-family:Verdana, sans-serif;\">Protezione Nano</span></li>\n</ul>"
+        }
+      ],
+      "description_short": [
+        {
+          "id": "1",
+          "value": "<p><span style=\"font-size:14px;\">Cares for and protects all exterior plastic parts (trim, rubbers, etc.). The treated parts regain their original, like-new appearance and are protected from harmful environmental influences. The premium product from the professional vehicle care with inimitable durability.</span></p>"
+        },
+        {
+          "id": "2",
+          "value": "<p><span style=\"font-size:14px;\">Pflegt und schützt alle Kunststoffteile im Außenbereich (Leisten, Gummis, etc.). Die behandelten Teile erhalten ihr ursprüngliches, neuwertiges Aussehen zurück und werden vor schädlichen Umwelteinflüssen geschützt. Das Premiumprodukt aus der professionellen Fahrzeugpflege mit unnachahmlicher Haltbarkeit.</span></p>"
+        },
+        {
+          "id": "3",
+          "value": "<p><span style=\"font-size:14px;\">Cura e protegge tutte le parti esterne in plastica (modanature, gomme, ecc.). Le parti trattate riacquistano il loro aspetto originale, come nuovo, e sono protette dalle influenze ambientali dannose. Il prodotto premium della cura professionale del veicolo con una durata inimitabile.</span></p>"
+        }
+      ],
+      "available_now": [
+        {
+          "id": "1",
+          "value": ""
+        },
+        {
+          "id": "2",
+          "value": ""
+        },
+        {
+          "id": "3",
+          "value": ""
+        }
+      ],
+      "available_later": [
+        {
+          "id": "1",
+          "value": ""
+        },
+        {
+          "id": "2",
+          "value": ""
+        },
+        {
+          "id": "3",
+          "value": ""
+        }
+      ],
+      "associations": {
+        "categories": [
+          {
+            "id": "2"
+          },
+          {
+            "id": "4"
+          },
+          {
+            "id": "6"
+          },
+          {
+            "id": "23"
+          },
+          {
+            "id": "24"
+          }
+        ],
+        "images": [
+          {
+            "id": "2902"
+          }
+        ],
+        "stock_availables": [
+          {
+            "id": "60",
+            "id_product_attribute": "0"
+          }
+        ]
+      }
+    }
+  ]
+}

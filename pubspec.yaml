@@ -2,7 +2,7 @@ name: cezeri_commerce
 description: "A new Flutter project."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+publish_to: "none" # Remove this line if you wish to publish to pub.dev
 
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.0.0+1
+version: 0.5.00+141
 
 environment:
   sdk: ^3.5.1
@@ -31,37 +31,106 @@ dependencies:
   flutter:
     sdk: flutter
 
-
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
+  auto_route: ^8.2.0
+  auto_route_generator: ^8.0.0
+  bloc: ^8.1.4
+  cached_network_image: ^3.2.3
+  csv: ^6.0.0
+  flutter_lints: ^4.0.0
   cupertino_icons: ^1.0.8
+  dartz: ^0.10.1
+  email_validator: ^2.1.17
+  equatable: ^2.0.5
+  excel: ^4.0.2
+  file_picker: ^8.0.3
+  flutter_barcode_listener: ^0.1.4
+  fl_chart: ^0.68.0
+  flutter_bloc: ^8.1.6
+  flutter_html: ^3.0.0-beta.2
+  flutter_inappwebview: ^6.0.0
+  flutter_localizations:
+    sdk: flutter
+  flutter_speed_dial: ^7.0.0
+  flutter_svg: ^2.0.10+1
+  get_it: ^7.6.4
+  html: ^0.15.4
+  html_editor_enhanced: ^2.6.0
+  http: ^1.1.0
+  http_parser: ^4.0.2
+  image_picker: ^1.0.4
+  intl: any
+  json_annotation: ^4.8.1
+  logger: ^2.0.2+1
+  loggy: ^2.0.3
+  meta: ^1.12.0
+  open_filex: ^4.3.4
+  path: ^1.8.3
+  path_provider: ^2.1.1
+  pdf: ^3.10.8
+  pdf_widget_wrapper: ^1.0.4
+  printing: ^5.12.0
+  quiver: ^3.2.1
+  redacted: ^1.0.12
+  responsive_framework: ^1.1.1
+  scrollable_positioned_list: ^0.3.8
+  share_plus: ^9.0.0
+  supabase_flutter: ^2.5.4
+  universal_html: ^2.2.4
+  url_launcher: ^6.2.1
+  uuid: ^4.0.0
+  wolt_modal_sheet: ^0.6.1
+  xml: ^6.3.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  build_runner: ^2.4.12
+  json_serializable: ^6.8.0
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^4.0.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
 # The following section is specific to Flutter packages.
 flutter:
-
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
-  #   - images/a_dot_ham.jpeg
+  assets:
+    - assets/marketplaces/card_payment.svg
+    - assets/marketplaces/presta_font.svg
+    - assets/marketplaces/presta_logo.svg
+    - assets/marketplaces/shopify_font.svg
+    - assets/marketplaces/shopify_logo.svg
+    - assets/marketplaces/store_logo.svg
+    - assets/payment_methods/paypal.png
+    - assets/payment_methods/amazon_pay.png
+    - assets/payment_methods/eps.png
+    - assets/payment_methods/giropay.png
+    - assets/payment_methods/klarna.png
+    - assets/payment_methods/mastercard.png
+    - assets/payment_methods/cash.png
+    - assets/payment_methods/credit_card.png
+    - assets/payment_methods/advance_payment.png
+    - assets/payment_methods/bank_transfer.png
+    - assets/payment_methods/card.png
+    - assets/payment_methods/purchase_on_account.png
+    - assets/payment_methods/shopify_payments.png
+    - assets/payment_methods/unknown_payment.png
+    - assets/font/
+    - assets/carriers/
+    - assets/sounds/alert.wav # Noch nirgends implementiert / package: audioplayers
+
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
