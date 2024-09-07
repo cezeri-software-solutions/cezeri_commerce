@@ -1,8 +1,9 @@
+import 'dart:convert';
+
 import 'package:cezeri_commerce/3_domain/entities/marketplace/marketplace_shopify.dart';
 import 'package:cezeri_commerce/3_domain/entities/product/product.dart';
 import 'package:cezeri_commerce/3_domain/repositories/firebase/marketplace_repository.dart';
-import 'package:cezeri_commerce/4_infrastructur/repositories/shopify_api/api/shopify_api.dart';
-import 'package:cezeri_commerce/4_infrastructur/repositories/shopify_api/models/products/product_shopify.dart';
+import 'package:cezeri_commerce/4_infrastructur/repositories/shopify_api/shopify.dart';
 import 'package:dartz/dartz.dart';
 import 'package:http/http.dart';
 
@@ -190,6 +191,7 @@ class MarketplaceImportRepositoryImpl implements MarketplaceImportRepository {
   @override
   Future<Either<AbstractFailure, List<dynamic>>> getAllMarketplaceCategories(AbstractMarketplace marketplace) async {
     if (!await checkInternetConnection()) return left(PrestaGeneralFailure());
+    final ownerId = await getOwnerId();
 
     final api = switch (marketplace.marketplaceType) {
       MarketplaceType.prestashop =>
@@ -210,11 +212,50 @@ class MarketplaceImportRepositoryImpl implements MarketplaceImportRepository {
           }
         case MarketplaceType.shopify:
           {
-            final fosCategoriesShopify = await (api as ShopifyApi).getCustomCollectionsAll();
-            return fosCategoriesShopify.fold(
-              (failure) => left(failure),
-              (customCollections) => right(customCollections),
-            );
+            // final url = Uri.parse('https://zpxmvushxwqsvoidfjeh/getCustomCollectionsAll?marketplaceId=${marketplace.id}&ownerId=$ownerId');
+            // final fosCategoriesShopify = await (api as ShopifyApi).getCustomCollectionsAll();
+            // return fosCategoriesShopify.fold(
+            //   (failure) => left(failure),
+            //   (customCollections) => right(customCollections),
+            // );
+
+            try {
+              print('marketplaceId: ${marketplace.id}');
+              print('ownerId: $ownerId');
+              print('function: getCustomCollectionsAll');
+
+              final response = await supabase.functions.invoke(
+                'shopify_api',
+                body: jsonEncode({'marketplaceId': marketplace.id, 'ownerId': ownerId, 'functionName': 'getCustomCollectionsAll'}),
+              );
+
+              // final url = Uri.parse('https://zpxmvushxwqsvoidfjeh.supabase.co/functions/v1/shopify_api');
+              // final response = await http.post(
+              //   url,
+              //   headers: {
+              //     'Authorization':
+              //         'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpweG12dXNoeHdxc3ZvaWRmamVoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTMyODk1NTcsImV4cCI6MjAyODg2NTU1N30.YIzAvITvgBRE5-8CGJ3diLh7K1pZA3xw7wQLDzJ3Qks', // Ersetze 'your-anon-key' mit deinem Supabase-API-Schlüssel
+              //     'Content-Type': 'application/json',
+              //   },
+              //   body: {
+              //     'marketplaceId': marketplace.id,
+              //     'ownerId': ownerId,
+              //     'function': 'getCustomCollectionsAll',
+              //   },
+              // );
+
+              print('Success: ${response.data}');
+              final responseData = response.data;
+              final List<dynamic> parsedData = responseData is String ? jsonDecode(responseData) : responseData;
+              final customCollections = parsedData.map((e) {
+                final item = e as Map<String, dynamic>;
+                return CustomCollectionShopify.fromJson(item);
+              }).toList();
+              return Right(customCollections);
+            } catch (e) {
+              print('Error: $e');
+              return Left(ShopifyGeneralFailure());
+            }
           }
         case MarketplaceType.shop:
           return left(GeneralFailure(customMessage: 'Ein Ladengeschäft kann keine Schnitstelle haben.'));

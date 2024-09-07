@@ -51,34 +51,21 @@ class ShopifyApi {
   Future<Either<ShopifyGeneralFailure, ProductShopify>> getProductById(int productId) async {
     const defaultErrorMessage = 'Artikel konnte aus Shopify nicht geladen werden.';
     final fosProductsRaw = await getProductRawById(productId);
-    ProductRawShopify? productRaw;
-    ShopifyGeneralFailure? failureOnLoadProduct;
-    fosProductsRaw.fold(
-      (failure) => failureOnLoadProduct = failure,
-      (loadedProductRaw) => productRaw = loadedProductRaw,
-    );
-    if (failureOnLoadProduct != null) return Left(failureOnLoadProduct!);
-    if (productRaw == null) {
-      return Left(ShopifyGeneralFailure(errorMessage: 'Artikel konnte nicht in Shopify gefunden werden.'));
-    }
+    if (fosProductsRaw.isLeft()) return Left(fosProductsRaw.getLeft());
 
-    List<CustomCollectionShopify>? customCollections;
-    final fosCustomCollections = await getCustomCollectionsByProductId(productRaw!.variants.first.productId);
-    fosCustomCollections.fold(
-      (failure) => Left(failure),
-      (data) => customCollections = data,
-    );
-    if (customCollections == null) return Left(ShopifyGeneralFailure(errorMessage: defaultErrorMessage));
+    final productRaw = fosProductsRaw.getRight();
 
-    List<MetafieldShopify>? metafields;
-    final fosMetafields = await getMetafieldsByProductId(productRaw!.variants.first.productId);
-    fosMetafields.fold(
-      (failure) => Left(failure),
-      (data) => metafields = data,
-    );
-    if (metafields == null) return Left(ShopifyGeneralFailure(errorMessage: defaultErrorMessage));
+    final fosCustomCollections = await getCustomCollectionsByProductId(productRaw.variants.first.productId);
+    if (fosCustomCollections.isLeft()) return Left(fosCustomCollections.getLeft());
 
-    final productShopify = ProductShopify.fromRaw(productRaw: productRaw!, customCollections: customCollections!, metafields: metafields!);
+    final customCollections = fosCustomCollections.getRight();
+
+    final fosMetafields = await getMetafieldsByProductId(productRaw.variants.first.productId);
+    if (fosMetafields.isLeft()) return Left(ShopifyGeneralFailure(errorMessage: defaultErrorMessage));
+
+    final metafields = fosMetafields.getRight();
+
+    final productShopify = ProductShopify.fromRaw(productRaw: productRaw, customCollections: customCollections, metafields: metafields);
 
     return Right(productShopify);
   }
@@ -379,7 +366,7 @@ class ShopifyApi {
       (_) => null,
     );
 
-    //* Neu erstellten Artikel laden als ProductPresta
+    //* Neu erstellten Artikel laden als ProductShopify
     ProductShopify? newProductShopify;
     final fosNewProduct = await getProductById(newCreatedProduct!.id);
     fosNewProduct.fold(

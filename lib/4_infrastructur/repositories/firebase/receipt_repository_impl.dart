@@ -11,7 +11,6 @@ import 'package:cezeri_commerce/failures/firebase_failures.dart';
 import 'package:cezeri_commerce/failures/presta_failure.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 
 import '/1_presentation/core/core.dart';
@@ -1496,15 +1495,10 @@ Future<bool> sendEmail({
   //   isSuccess = false;
   // }
 
-  final url = Uri.parse('https://zpxmvushxwqsvoidfjeh.supabase.co/functions/v1/sendEmail');
+  try {
 
-  final response = await http.post(
-    url,
-    headers: {
-      'Authorization':
-          'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpweG12dXNoeHdxc3ZvaWRmamVoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTMyODk1NTcsImV4cCI6MjAyODg2NTU1N30.YIzAvITvgBRE5-8CGJ3diLh7K1pZA3xw7wQLDzJ3Qks', // Ersetze 'your-anon-key' mit deinem Supabase-API-Schlüssel
-      'Content-Type': 'application/json',
-    },
+  final response = await supabase.functions.invoke(
+    'send_email',
     body: jsonEncode({
       'to': to,
       'from': from,
@@ -1516,12 +1510,18 @@ Future<bool> sendEmail({
     }),
   );
 
-  if (response.statusCode == 200) {
-    print('E-Mail erfolgreich gesendet');
-    isSuccess = true;
-  } else {
-    print('Fehler beim Senden der E-Mail: ${response.statusCode}');
-    print('Antwort: ${response.body}');
+  print('######## $response ##########');
+
+  // if (response.statusCode == 200) {
+  //   print('E-Mail erfolgreich gesendet');
+  //   isSuccess = true;
+  // } else {
+  //   print('Fehler beim Senden der E-Mail: ${response.statusCode}');
+  //   print('Antwort: ${response.body}');
+  //   isSuccess = false;
+  // }
+  } catch (e) {
+    print('Error on Edge Function: send_email: $e');
     isSuccess = false;
   }
 
