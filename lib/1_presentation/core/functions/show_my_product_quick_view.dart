@@ -12,7 +12,7 @@ import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 import '../../../2_application/database/product_detail/product_detail_bloc.dart';
 import '../../../3_domain/entities/product/product.dart';
 import '../../../3_domain/entities/statistic/product_sales_data.dart';
-import '../../../3_domain/repositories/firebase/product_repository.dart';
+import '../../../3_domain/repositories/database/product_repository.dart';
 import '../../../constants.dart';
 import '../../../failures/abstract_failure.dart';
 import '../../core/core.dart';

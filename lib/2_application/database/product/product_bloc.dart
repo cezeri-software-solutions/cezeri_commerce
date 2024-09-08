@@ -12,14 +12,14 @@ import '/3_domain/entities/product/product.dart';
 import '/3_domain/entities/product/product_marketplace.dart';
 import '/3_domain/entities/reorder/supplier.dart';
 import '/3_domain/entities/settings/main_settings.dart';
-import '/3_domain/repositories/firebase/main_settings_respository.dart';
-import '/3_domain/repositories/firebase/product_repository.dart';
-import '/3_domain/repositories/firebase/supplier_repository.dart';
 import '/3_domain/repositories/marketplace/marketplace_edit_repository.dart';
 import '/4_infrastructur/repositories/shopify_api/shopify.dart';
 import '/failures/abstract_failure.dart';
 import '../../../3_domain/entities/product/product_presta.dart';
-import '../../../4_infrastructur/repositories/functions/product_repository_helper.dart';
+import '../../../3_domain/repositories/database/main_settings_respository.dart';
+import '../../../3_domain/repositories/database/product_repository.dart';
+import '../../../3_domain/repositories/database/supplier_repository.dart';
+import '../../../4_infrastructur/repositories/database/functions/product_repository_helper.dart';
 import '../../../4_infrastructur/repositories/prestashop_api/models/models.dart';
 import '../../../4_infrastructur/repositories/prestashop_api/prestashop_api.dart';
 

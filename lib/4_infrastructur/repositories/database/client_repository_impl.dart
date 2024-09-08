@@ -4,8 +4,8 @@ import 'package:dartz/dartz.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '/3_domain/entities/settings/main_settings.dart';
-import '/3_domain/repositories/firebase/client_repository.dart';
 import '../../../1_presentation/core/core.dart';
+import '../../../3_domain/repositories/database/client_repository.dart';
 import '../../../constants.dart';
 import '../../../failures/abstract_failure.dart';
 

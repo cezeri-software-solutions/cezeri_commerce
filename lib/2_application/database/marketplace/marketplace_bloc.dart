@@ -6,7 +6,7 @@ import 'package:meta/meta.dart';
 
 import '../../../3_domain/entities/e_mail_automation.dart';
 import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
-import '../../../3_domain/repositories/firebase/marketplace_repository.dart';
+import '../../../3_domain/repositories/database/marketplace_repository.dart';
 import '../../../failures/abstract_failure.dart';
 
 part 'marketplace_event.dart';

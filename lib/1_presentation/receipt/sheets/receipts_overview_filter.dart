@@ -5,7 +5,7 @@ import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 
 import '../../../2_application/database/receipt/receipt_bloc.dart';
 import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
-import '../../../3_domain/repositories/firebase/marketplace_repository.dart';
+import '../../../3_domain/repositories/database/marketplace_repository.dart';
 import '../../../constants.dart';
 import '../../../failures/failures.dart';
 import '../../core/core.dart';

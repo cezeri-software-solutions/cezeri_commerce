@@ -6,13 +6,13 @@ import 'package:dartz/dartz.dart';
 import '../../../1_presentation/core/core.dart';
 import '../../../3_domain/entities/reorder/reorder_product.dart';
 import '../../../3_domain/enums/enums.dart';
-import '../../../3_domain/repositories/firebase/main_settings_respository.dart';
-import '../../../3_domain/repositories/firebase/product_repository.dart';
-import '../../../3_domain/repositories/firebase/reorder_repository.dart';
+import '../../../3_domain/repositories/database/main_settings_respository.dart';
+import '../../../3_domain/repositories/database/product_repository.dart';
+import '../../../3_domain/repositories/database/reorder_repository.dart';
 import '../../../3_domain/repositories/marketplace/marketplace_edit_repository.dart';
 import '../../../constants.dart';
 import '../../../failures/abstract_failure.dart';
-import '../functions/repository_functions.dart';
+import 'functions/repository_functions.dart';
 
 class ReorderRepositoryImpl implements ReorderRepository {
   final MarketplaceEditRepository marketplaceEditRepository;

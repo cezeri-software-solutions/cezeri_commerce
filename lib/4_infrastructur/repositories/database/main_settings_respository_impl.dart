@@ -1,4 +1,4 @@
-import 'package:cezeri_commerce/3_domain/repositories/firebase/main_settings_respository.dart';
+import 'package:cezeri_commerce/3_domain/repositories/database/main_settings_respository.dart';
 import 'package:cezeri_commerce/failures/firebase_failures.dart';
 import 'package:dartz/dartz.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -8,7 +8,7 @@ import '/3_domain/entities/settings/main_settings.dart';
 import '/3_domain/entities/settings/packaging_box.dart';
 import '../../../constants.dart';
 import '../../../failures/abstract_failure.dart';
-import '../functions/utils_repository_impl.dart';
+import 'functions/utils_repository_impl.dart';
 
 class MainSettingsRepositoryImpl implements MainSettingsRepository {
   final SupabaseClient supabase;

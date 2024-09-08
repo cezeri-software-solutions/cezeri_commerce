@@ -1,7 +1,7 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import '../../../3_domain/entities/receipt/receipt.dart';
-import '../../../constants.dart';
+import '../../../../3_domain/entities/receipt/receipt.dart';
+import '../../../../constants.dart';
 
 SupabaseQueryBuilder getReceiptDatabase(ReceiptType receiptTyp) {
   return switch (receiptTyp) {

@@ -11,7 +11,7 @@ import '../../../../3_domain/entities/marketplace/abstract_marketplace.dart';
 import '../../../../3_domain/entities/marketplace/marketplace_presta.dart';
 import '../../../../3_domain/entities/marketplace/marketplace_shop.dart';
 import '../../../../3_domain/entities/marketplace/marketplace_shopify.dart';
-import '../../../../3_domain/repositories/firebase/customer_repository.dart';
+import '../../../../3_domain/repositories/database/customer_repository.dart';
 import '../../../../constants.dart';
 import '../../../../routes/router.gr.dart';
 import '../../../core/core.dart';

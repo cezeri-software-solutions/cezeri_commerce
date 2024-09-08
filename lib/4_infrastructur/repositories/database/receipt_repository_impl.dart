@@ -3,9 +3,9 @@ import 'dart:convert';
 import 'package:cezeri_commerce/3_domain/entities/receipt/load_appointments_helper/to_load_appointments_from_marketplace.dart';
 import 'package:cezeri_commerce/3_domain/entities/receipt/receipt.dart';
 import 'package:cezeri_commerce/3_domain/entities/receipt/receipt_product.dart';
-import 'package:cezeri_commerce/3_domain/repositories/firebase/customer_repository.dart';
-import 'package:cezeri_commerce/3_domain/repositories/firebase/receipt_repository.dart';
-import 'package:cezeri_commerce/4_infrastructur/repositories/functions/get_storage_paths.dart';
+import 'package:cezeri_commerce/3_domain/repositories/database/customer_repository.dart';
+import 'package:cezeri_commerce/3_domain/repositories/database/receipt_repository.dart';
+import 'package:cezeri_commerce/4_infrastructur/repositories/database/functions/get_storage_paths.dart';
 import 'package:cezeri_commerce/failures/abstract_failure.dart';
 import 'package:cezeri_commerce/failures/firebase_failures.dart';
 import 'package:cezeri_commerce/failures/presta_failure.dart';
@@ -23,20 +23,20 @@ import '/3_domain/entities/marketplace/marketplace_shopify.dart';
 import '/3_domain/entities/settings/main_settings.dart';
 import '/3_domain/enums/enums.dart';
 import '/3_domain/pdf/pdf_receipt_generator.dart';
-import '/3_domain/repositories/firebase/main_settings_respository.dart';
-import '/3_domain/repositories/firebase/marketplace_repository.dart';
-import '/3_domain/repositories/firebase/product_repository.dart';
 import '/3_domain/repositories/marketplace/marketplace_edit_repository.dart';
 import '/3_domain/repositories/marketplace/marketplace_import_repository.dart';
 import '/constants.dart';
-import '../functions/get_database.dart';
-import '../functions/product_repository_helper.dart';
-import '../functions/receipt_respository_presta_helper.dart';
-import '../functions/receipt_respository_shopify_helper.dart';
-import '../functions/utils_repository_impl.dart';
+import '../../../3_domain/repositories/database/main_settings_respository.dart';
+import '../../../3_domain/repositories/database/marketplace_repository.dart';
+import '../../../3_domain/repositories/database/product_repository.dart';
 import '../prestashop_api/prestashop_api.dart';
 import '../shipping_methods/austrian_post/austrian_post_api.dart';
 import '../shopify_api/api/shopify_api.dart';
+import 'functions/get_database.dart';
+import 'functions/product_repository_helper.dart';
+import 'functions/receipt_respository_presta_helper.dart';
+import 'functions/receipt_respository_shopify_helper.dart';
+import 'functions/utils_repository_impl.dart';
 
 class ReceiptRespositoryImpl implements ReceiptRepository {
   final ProductRepository productRepository;
@@ -1474,52 +1474,21 @@ Future<bool> sendEmail({
 }) async {
   bool isSuccess = false;
 
-  // TODO: auskommentierte Löschen, wenn der E-Mail Versand problemlos funktioniert
-  // HttpsCallable callable = FirebaseFunctions.instance.httpsCallable('sendEmail');
-
-  // try {
-  //   final response = await callable.call({
-  //     'to': to,
-  //     'from': from,
-  //     'subject': subject,
-  //     // 'text': text,
-  //     'html': html,
-  //     'bcc': bcc,
-  //     'attachment': attachmentBase64,
-  //     'filename': filename ?? 'attachment.pdf',
-  //   });
-  //   logger.i('E-Mail gesendet: ${response.data}');
-  //   isSuccess = true;
-  // } catch (e) {
-  //   logger.e('Fehler beim Senden der E-Mail: $e');
-  //   isSuccess = false;
-  // }
-
   try {
+    final response = await supabase.functions.invoke(
+      'send_email',
+      body: jsonEncode({
+        'to': to,
+        'from': from,
+        'subject': subject,
+        'html': html,
+        'bcc': bcc,
+        'attachment': attachmentBase64,
+        'filename': filename,
+      }),
+    );
 
-  final response = await supabase.functions.invoke(
-    'send_email',
-    body: jsonEncode({
-      'to': to,
-      'from': from,
-      'subject': subject,
-      'html': html,
-      'bcc': bcc,
-      'attachment': attachmentBase64,
-      'filename': filename,
-    }),
-  );
-
-  print('######## $response ##########');
-
-  // if (response.statusCode == 200) {
-  //   print('E-Mail erfolgreich gesendet');
-  //   isSuccess = true;
-  // } else {
-  //   print('Fehler beim Senden der E-Mail: ${response.statusCode}');
-  //   print('Antwort: ${response.body}');
-  //   isSuccess = false;
-  // }
+    logger.i('E-Mail successfully sent: ${response.data}');
   } catch (e) {
     print('Error on Edge Function: send_email: $e');
     isSuccess = false;

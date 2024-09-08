@@ -7,7 +7,7 @@ import 'package:html_editor_enhanced/html_editor.dart';
 import '../../../2_application/database/marketplace/marketplace_bloc.dart';
 import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
 import '../../../3_domain/entities/placeholder.dart';
-import '../../../4_infrastructur/repositories/firebase/receipt_repository_impl.dart';
+import '../../../4_infrastructur/repositories/database/receipt_repository_impl.dart';
 import '../../../constants.dart';
 import '../../core/core.dart';
 

@@ -1,25 +1,25 @@
-import 'dart:convert';
-
 import 'package:cezeri_commerce/3_domain/entities/marketplace/marketplace_shopify.dart';
 import 'package:cezeri_commerce/3_domain/entities/product/product.dart';
-import 'package:cezeri_commerce/3_domain/repositories/firebase/marketplace_repository.dart';
+import 'package:cezeri_commerce/3_domain/repositories/database/marketplace_repository.dart';
+import 'package:cezeri_commerce/4_infrastructur/repositories/prestashop_api/prestashop_repository_get.dart';
 import 'package:cezeri_commerce/4_infrastructur/repositories/shopify_api/shopify.dart';
 import 'package:dartz/dartz.dart';
 import 'package:http/http.dart';
 
 import '../../../../1_presentation/core/core.dart';
-import '../../../../3_domain/repositories/firebase/product_repository.dart';
 import '../../../../3_domain/repositories/marketplace/marketplace_import_repository.dart';
 import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
 import '../../../3_domain/entities/marketplace/marketplace_presta.dart';
 import '../../../3_domain/entities/product/marketplace_product.dart';
 import '../../../3_domain/entities/product/product_presta.dart';
-import '../../../3_domain/repositories/firebase/main_settings_respository.dart';
+import '../../../3_domain/repositories/database/main_settings_respository.dart';
+import '../../../3_domain/repositories/database/product_repository.dart';
 import '../../../constants.dart';
 import '../../../failures/failures.dart';
-import '../functions/repository_functions.dart';
+import '../database/functions/repository_functions.dart';
 import '../prestashop_api/models/product_raw_presta.dart';
 import '../prestashop_api/prestashop_api.dart';
+import '../shopify_api/shopify_repository_get.dart';
 import 'marketplace_import_repository_helper.dart';
 
 class MarketplaceImportRepositoryImpl implements MarketplaceImportRepository {
@@ -193,76 +193,10 @@ class MarketplaceImportRepositoryImpl implements MarketplaceImportRepository {
     if (!await checkInternetConnection()) return left(PrestaGeneralFailure());
     final ownerId = await getOwnerId();
 
-    final api = switch (marketplace.marketplaceType) {
-      MarketplaceType.prestashop =>
-        PrestashopApi(Client(), PrestashopApiConfig(apiKey: (marketplace as MarketplacePresta).key, webserviceUrl: marketplace.fullUrl)),
-      MarketplaceType.shopify => ShopifyApi(
-          ShopifyApiConfig(storefrontToken: (marketplace as MarketplaceShopify).storefrontAccessToken, adminToken: marketplace.adminAccessToken),
-          marketplace.fullUrl,
-        ),
-      MarketplaceType.shop => throw Exception('Ein Ladengeschäft kann keine Schnitstelle haben.'),
+    return switch (marketplace.marketplaceType) {
+      MarketplaceType.prestashop => await PrestashopRepositoryGet().getCategories(ownerId!, marketplace as MarketplacePresta),
+      MarketplaceType.shopify => await ShopifyRepositoryGet().getCategories(ownerId!, marketplace as MarketplaceShopify),
+      MarketplaceType.shop => Left(GeneralFailure(customMessage: 'Ein Ladengeschäft kann keine Schnitstelle haben.')),
     };
-
-    try {
-      switch (marketplace.marketplaceType) {
-        case MarketplaceType.prestashop:
-          {
-            final categoriesPresta = await (api as PrestashopApi).getCategories();
-            return right(categoriesPresta);
-          }
-        case MarketplaceType.shopify:
-          {
-            // final url = Uri.parse('https://zpxmvushxwqsvoidfjeh/getCustomCollectionsAll?marketplaceId=${marketplace.id}&ownerId=$ownerId');
-            // final fosCategoriesShopify = await (api as ShopifyApi).getCustomCollectionsAll();
-            // return fosCategoriesShopify.fold(
-            //   (failure) => left(failure),
-            //   (customCollections) => right(customCollections),
-            // );
-
-            try {
-              print('marketplaceId: ${marketplace.id}');
-              print('ownerId: $ownerId');
-              print('function: getCustomCollectionsAll');
-
-              final response = await supabase.functions.invoke(
-                'shopify_api',
-                body: jsonEncode({'marketplaceId': marketplace.id, 'ownerId': ownerId, 'functionName': 'getCustomCollectionsAll'}),
-              );
-
-              // final url = Uri.parse('https://zpxmvushxwqsvoidfjeh.supabase.co/functions/v1/shopify_api');
-              // final response = await http.post(
-              //   url,
-              //   headers: {
-              //     'Authorization':
-              //         'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpweG12dXNoeHdxc3ZvaWRmamVoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTMyODk1NTcsImV4cCI6MjAyODg2NTU1N30.YIzAvITvgBRE5-8CGJ3diLh7K1pZA3xw7wQLDzJ3Qks', // Ersetze 'your-anon-key' mit deinem Supabase-API-Schlüssel
-              //     'Content-Type': 'application/json',
-              //   },
-              //   body: {
-              //     'marketplaceId': marketplace.id,
-              //     'ownerId': ownerId,
-              //     'function': 'getCustomCollectionsAll',
-              //   },
-              // );
-
-              print('Success: ${response.data}');
-              final responseData = response.data;
-              final List<dynamic> parsedData = responseData is String ? jsonDecode(responseData) : responseData;
-              final customCollections = parsedData.map((e) {
-                final item = e as Map<String, dynamic>;
-                return CustomCollectionShopify.fromJson(item);
-              }).toList();
-              return Right(customCollections);
-            } catch (e) {
-              print('Error: $e');
-              return Left(ShopifyGeneralFailure());
-            }
-          }
-        case MarketplaceType.shop:
-          return left(GeneralFailure(customMessage: 'Ein Ladengeschäft kann keine Schnitstelle haben.'));
-      }
-    } catch (e) {
-      logger.e(e);
-      return left(PrestaGeneralFailure());
-    }
   }
 }

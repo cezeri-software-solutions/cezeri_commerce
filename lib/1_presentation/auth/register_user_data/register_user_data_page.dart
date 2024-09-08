@@ -6,7 +6,7 @@ import '../../../2_application/database/auth/auth_bloc/auth_bloc.dart';
 import '../../../2_application/database/auth/user_data_form/user_data_form_bloc.dart';
 import '../../../3_domain/entities/country.dart';
 import '../../../3_domain/enums/enums.dart';
-import '../../../4_infrastructur/repositories/functions/repository_functions.dart';
+import '../../../4_infrastructur/repositories/database/functions/repository_functions.dart';
 import '../../../constants.dart';
 import '../../../routes/router.gr.dart';
 import '../../core/core.dart';

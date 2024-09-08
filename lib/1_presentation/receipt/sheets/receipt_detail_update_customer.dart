@@ -11,7 +11,7 @@ import '../../../3_domain/entities/address.dart';
 import '../../../3_domain/entities/country.dart';
 import '../../../3_domain/entities/customer/customer.dart';
 import '../../../3_domain/entities/id.dart';
-import '../../../3_domain/repositories/firebase/customer_repository.dart';
+import '../../../3_domain/repositories/database/customer_repository.dart';
 import '../../../constants.dart';
 import '../../../failures/failures.dart';
 import '../../core/core.dart';

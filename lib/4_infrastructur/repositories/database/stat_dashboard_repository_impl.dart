@@ -9,11 +9,11 @@ import '../../../3_domain/entities/statistic/stat_dashboard.dart';
 import '../../../3_domain/entities/statistic/stat_product_count.dart';
 import '../../../3_domain/entities/statistic/stat_sales_grouped.dart';
 import '../../../3_domain/entities/statistic/stat_sales_per_day.dart';
-import '../../../3_domain/repositories/firebase/stat_dashboard_repository.dart';
+import '../../../3_domain/repositories/database/stat_dashboard_repository.dart';
 import '../../../constants.dart';
 import '../../../failures/abstract_failure.dart';
 import '../../../failures/firebase_failures.dart';
-import '../functions/repository_functions.dart';
+import 'functions/repository_functions.dart';
 
 class StatDashboardRepositoryImpl implements StatDashboardRepository {
   final SupabaseClient supabase;

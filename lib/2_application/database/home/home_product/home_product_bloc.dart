@@ -7,8 +7,8 @@ import '../../../../3_domain/entities/product/home_product.dart';
 import '../../../../3_domain/entities/product/product.dart';
 import '../../../../3_domain/entities/product/product_stock_difference.dart';
 import '../../../../3_domain/entities/reorder/reorder.dart';
-import '../../../../3_domain/repositories/firebase/product_repository.dart';
-import '../../../../3_domain/repositories/firebase/reorder_repository.dart';
+import '../../../../3_domain/repositories/database/product_repository.dart';
+import '../../../../3_domain/repositories/database/reorder_repository.dart';
 import '../../../../failures/abstract_failure.dart';
 
 part 'home_product_event.dart';

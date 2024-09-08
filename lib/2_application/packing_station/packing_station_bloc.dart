@@ -11,9 +11,9 @@ import '../../3_domain/entities/product/product.dart';
 import '../../3_domain/entities/receipt/receipt.dart';
 import '../../3_domain/entities/settings/packaging_box.dart';
 import '../../3_domain/enums/enums.dart';
-import '../../3_domain/repositories/firebase/customer_repository.dart';
-import '../../3_domain/repositories/firebase/packing_station_repository.dart';
-import '../../3_domain/repositories/firebase/receipt_repository.dart';
+import '../../3_domain/repositories/database/customer_repository.dart';
+import '../../3_domain/repositories/database/packing_station_repository.dart';
+import '../../3_domain/repositories/database/receipt_repository.dart';
 import '../../failures/abstract_failure.dart';
 
 part 'packing_station_event.dart';

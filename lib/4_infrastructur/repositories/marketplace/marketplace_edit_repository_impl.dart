@@ -14,10 +14,12 @@ import '/3_domain/enums/enums.dart';
 import '/3_domain/repositories/marketplace/marketplace_edit_repository.dart';
 import '/constants.dart';
 import '/failures/failures.dart';
-import '../functions/repository_functions.dart';
+import '../database/functions/repository_functions.dart';
 import '../prestashop_api/models/product_raw_presta.dart';
 import '../prestashop_api/prestashop_api.dart';
+import '../prestashop_api/prestashop_repository_patch.dart';
 import '../shopify_api/shopify.dart';
+import '../shopify_api/shopify_repository_post.dart';
 
 class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
   MarketplaceEditRepositoryImpl();
@@ -49,48 +51,34 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
       switch (productMarketplace.marketplaceProduct!.marketplaceType) {
         case MarketplaceType.prestashop:
           {
-            final api = PrestashopApi(
-              Client(),
-              PrestashopApiConfig(apiKey: (marketplace as MarketplacePresta).key, webserviceUrl: marketplace.fullUrl),
-            );
             final marketplaceProduct = productMarketplace.marketplaceProduct as ProductPresta;
-            final fos = await api.patchProductQuantity(marketplaceProduct.id, newQuantity, marketplace);
-            fos.fold(
-              (failure) => failures.add(failure),
-              (unit) => null,
+
+            final resProduct = await PrestashopRepositoryPatch().patchProductQuantity(
+              ownerId: ownerId,
+              marketplace: marketplace as MarketplacePresta,
+              productId: marketplaceProduct.id,
+              quantity: newQuantity,
             );
+
+            if (resProduct.isLeft()) failures.add(resProduct.getLeft());
           }
         case MarketplaceType.shopify:
           {
-            final api = ShopifyApi(
-              ShopifyApiConfig(storefrontToken: (marketplace as MarketplaceShopify).storefrontAccessToken, adminToken: marketplace.adminAccessToken),
-              marketplace.fullUrl,
-            );
             final marketplaceProduct = productMarketplace.marketplaceProduct as ProductShopify;
-            final fos = await api.postProductStock(marketplaceProduct.id, newQuantity);
-            fos.fold(
-              (failure) => failures.add(failure),
-              (unit) => null,
+
+            final resProduct = await ShopifyRepositoryPost().postProductStock(
+              ownerId: ownerId,
+              marketplace: marketplace as MarketplaceShopify,
+              productId: marketplaceProduct.id,
+              quantity: newQuantity,
             );
+
+            if (resProduct.isLeft()) failures.add(resProduct.getLeft());
           }
 
         case MarketplaceType.shop:
           throw Exception('Ladengeschäft kann keine Artikel zum aktualisieren des Bestandes haben.');
       }
-
-      // if (fosAbstract.isLeft()) {
-      //   final patchMarketplaceLogger = PatchMarketplaceLogger.empty().copyWith(
-      //     loggerType: LoggerType.product,
-      //     loggerActionType: LoggerActionType.setStocks,
-      //     marketplaceId: productMarketplace.idMarketplace,
-      //     marketplaceName: productMarketplace.nameMarketplace,
-      //     productId: product.id,
-      //     productArticleNumber: product.articleNumber,
-      //     productName: product.name,
-      //     errorMessage: 'Beim aktualisieren des Bestandes ist ein Fehler aufgetreten. Funktion: setProdcutPrestaQuantity',
-      //   );
-      //   await createLogFile(db: db, firebaseAuth: firebaseAuth, patchMarketplaceLogger: patchMarketplaceLogger);
-      // }
     }
 
     if (failures.isEmpty) return const Right(unit);

@@ -7,8 +7,8 @@ import '/1_presentation/core/core.dart';
 import '../../../3_domain/entities/product/booking_product.dart';
 import '../../../3_domain/entities/product/product.dart';
 import '../../../3_domain/entities/reorder/reorder.dart';
-import '../../../3_domain/repositories/firebase/product_repository.dart';
-import '../../../3_domain/repositories/firebase/reorder_repository.dart';
+import '../../../3_domain/repositories/database/product_repository.dart';
+import '../../../3_domain/repositories/database/reorder_repository.dart';
 import '../../../failures/abstract_failure.dart';
 
 part 'products_booking_event.dart';
