@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 
 import '../../../3_domain/entities/reorder/reorder.dart';
 import '../../../3_domain/entities/reorder/supplier.dart';
-import '../../../3_domain/repositories/firebase/reorder_repository.dart';
-import '../../../3_domain/repositories/firebase/supplier_repository.dart';
+import '../../../3_domain/repositories/database/reorder_repository.dart';
+import '../../../3_domain/repositories/database/supplier_repository.dart';
 import '../../../failures/abstract_failure.dart';
 
 part 'reorder_event.dart';

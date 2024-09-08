@@ -1,5 +1,5 @@
 import 'package:bloc/bloc.dart';
-import 'package:cezeri_commerce/3_domain/repositories/firebase/client_repository.dart';
+import 'package:cezeri_commerce/3_domain/repositories/database/client_repository.dart';
 import 'package:dartz/dartz.dart';
 import 'package:meta/meta.dart';
 

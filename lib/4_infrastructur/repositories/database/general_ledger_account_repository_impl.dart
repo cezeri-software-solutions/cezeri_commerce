@@ -1,8 +1,8 @@
 import 'package:dartz/dartz.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import '/3_domain/repositories/firebase/general_ledger_account_repository.dart';
 import '../../../3_domain/entities/settings/general_ledger_account.dart';
+import '../../../3_domain/repositories/database/general_ledger_account_repository.dart';
 import '../../../failures/failures.dart';
 
 class GeneralLedgerAccountRepositoryImpl implements GeneralLedgerAccountRepository {

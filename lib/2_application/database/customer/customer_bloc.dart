@@ -3,7 +3,7 @@ import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 
 import '/3_domain/entities/customer/customer.dart';
-import '/3_domain/repositories/firebase/customer_repository.dart';
+import '../../../3_domain/repositories/database/customer_repository.dart';
 import '../../../failures/abstract_failure.dart';
 
 part 'customer_event.dart';

@@ -9,17 +9,17 @@ import '/1_presentation/core/core.dart';
 import '/3_domain/entities/product/product.dart';
 import '/3_domain/entities/product/product_image.dart';
 import '/3_domain/entities/reorder/supplier.dart';
-import '/3_domain/repositories/firebase/marketplace_repository.dart';
-import '/3_domain/repositories/firebase/product_repository.dart';
 import '/3_domain/repositories/marketplace/marketplace_edit_repository.dart';
 import '../../../3_domain/entities/marketplace/marketplace_presta.dart';
 import '../../../3_domain/entities/product/marketplace_product.dart';
 import '../../../3_domain/entities/product/product_stock_difference.dart';
+import '../../../3_domain/repositories/database/marketplace_repository.dart';
+import '../../../3_domain/repositories/database/product_repository.dart';
 import '../../../constants.dart';
 import '../../../failures/abstract_failure.dart';
-import '../functions/get_storage_paths.dart';
-import '../functions/product_repository_helper.dart';
-import '../functions/utils_repository_impl.dart';
+import 'functions/get_storage_paths.dart';
+import 'functions/product_repository_helper.dart';
+import 'functions/utils_repository_impl.dart';
 
 class ProductRepositoryImpl implements ProductRepository {
   final MarketplaceEditRepository marketplaceEditRepository;

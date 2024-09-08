@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'package:auto_route/auto_route.dart';
-import 'package:cezeri_commerce/3_domain/repositories/firebase/marketplace_repository.dart';
+import 'package:cezeri_commerce/3_domain/repositories/database/marketplace_repository.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -17,7 +17,7 @@ import '../../../3_domain/entities/receipt/receipt_product.dart';
 import '../../../3_domain/pdf/pdf_api_mobile.dart';
 import '../../../3_domain/pdf/pdf_api_web.dart';
 import '../../../3_domain/pdf/pdf_outgoing_invoices_generator.dart';
-import '../../../3_domain/repositories/firebase/receipt_repository.dart';
+import '../../../3_domain/repositories/database/receipt_repository.dart';
 import '../../../constants.dart';
 import '../../../routes/router.gr.dart';
 import '../../core/core.dart';

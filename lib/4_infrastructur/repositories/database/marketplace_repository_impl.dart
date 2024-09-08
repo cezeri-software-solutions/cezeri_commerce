@@ -9,13 +9,13 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '/1_presentation/core/core.dart';
 import '/3_domain/entities/id.dart';
-import '/3_domain/repositories/firebase/marketplace_repository.dart';
 import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
 import '../../../3_domain/entities/marketplace/marketplace_presta.dart';
 import '../../../3_domain/entities/marketplace/marketplace_shop.dart';
+import '../../../3_domain/repositories/database/marketplace_repository.dart';
 import '../../../constants.dart';
 import '../../../failures/abstract_failure.dart';
-import '../functions/repository_functions.dart';
+import 'functions/repository_functions.dart';
 
 class MarketplaceRepositoryImpl implements MarketplaceRepository {
   final SupabaseClient supabase;

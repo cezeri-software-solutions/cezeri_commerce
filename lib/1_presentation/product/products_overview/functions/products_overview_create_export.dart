@@ -13,7 +13,7 @@ import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 import '../../../../3_domain/entities/marketplace/marketplace_presta.dart';
 import '../../../../3_domain/entities/product/product.dart';
 import '../../../../3_domain/entities/product/product_presta.dart';
-import '../../../../3_domain/repositories/firebase/marketplace_repository.dart';
+import '../../../../3_domain/repositories/database/marketplace_repository.dart';
 import '../../../../3_domain/repositories/marketplace/marketplace_import_repository.dart';
 import '../../../../4_infrastructur/repositories/prestashop_api/models/category_presta.dart';
 import '../../../../constants.dart';

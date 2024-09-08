@@ -3,7 +3,7 @@ import 'package:cezeri_commerce/1_presentation/core/core.dart';
 import 'package:dartz/dartz.dart';
 import 'package:meta/meta.dart';
 
-import '../../../../3_domain/repositories/firebase/auth_repository.dart';
+import '../../../../3_domain/repositories/database/auth_repository.dart';
 import '../../../../failures/abstract_failure.dart';
 
 part 'sign_in_form_event.dart';

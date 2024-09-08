@@ -5,7 +5,7 @@ import 'package:responsive_framework/responsive_framework.dart';
 import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 
 import '../../../3_domain/entities/product/product.dart';
-import '../../../3_domain/repositories/firebase/product_repository.dart';
+import '../../../3_domain/repositories/database/product_repository.dart';
 import '../../../constants.dart';
 import '../../../routes/router.gr.dart';
 import '../core.dart';

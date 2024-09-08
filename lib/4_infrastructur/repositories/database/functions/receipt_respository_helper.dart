@@ -3,7 +3,7 @@ import 'package:logger/logger.dart';
 import '/1_presentation/core/core.dart';
 import '/3_domain/entities/address.dart';
 import '/3_domain/entities/customer/customer.dart';
-import '/3_domain/repositories/firebase/customer_repository.dart';
+import '../../../../3_domain/repositories/database/customer_repository.dart';
 
 Future<Customer?> getCustomerByMarketplaceId(CustomerRepository customerRepository, String marketplaceId, int customerIdMarketplace) async {
   final fosCustomer = await customerRepository.getCustomerByCustomerIdInMarketplace(marketplaceId, customerIdMarketplace);

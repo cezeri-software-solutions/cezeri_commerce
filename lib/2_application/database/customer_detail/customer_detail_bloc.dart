@@ -7,10 +7,10 @@ import '/3_domain/entities/address.dart';
 import '/3_domain/entities/customer/customer.dart';
 import '/3_domain/entities/receipt/receipt.dart';
 import '/3_domain/entities/settings/tax.dart';
-import '/3_domain/repositories/firebase/customer_repository.dart';
-import '/3_domain/repositories/firebase/main_settings_respository.dart';
 import '/failures/failures.dart';
-import '../../../3_domain/repositories/firebase/receipt_repository.dart';
+import '../../../3_domain/repositories/database/customer_repository.dart';
+import '../../../3_domain/repositories/database/main_settings_respository.dart';
+import '../../../3_domain/repositories/database/receipt_repository.dart';
 
 part 'customer_detail_event.dart';
 part 'customer_detail_state.dart';

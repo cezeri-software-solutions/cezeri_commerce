@@ -9,7 +9,7 @@ import '../../../3_domain/entities/country.dart';
 import '../../../3_domain/entities/settings/main_settings.dart';
 import '../../../3_domain/entities/settings/packaging_box.dart';
 import '../../../3_domain/entities/settings/tax.dart';
-import '../../../3_domain/repositories/firebase/main_settings_respository.dart';
+import '../../../3_domain/repositories/database/main_settings_respository.dart';
 import '../../../failures/abstract_failure.dart';
 
 part 'main_settings_event.dart';

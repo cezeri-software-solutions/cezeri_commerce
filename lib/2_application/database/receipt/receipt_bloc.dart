@@ -1,5 +1,5 @@
 import 'package:bloc/bloc.dart';
-import 'package:cezeri_commerce/3_domain/repositories/firebase/product_repository.dart';
+import 'package:cezeri_commerce/3_domain/repositories/database/product_repository.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 
@@ -9,8 +9,8 @@ import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
 import '../../../3_domain/entities/product/product.dart';
 import '../../../3_domain/entities/receipt/load_appointments_helper/to_load_appointments_from_marketplace.dart';
 import '../../../3_domain/entities/receipt/receipt.dart';
-import '../../../3_domain/repositories/firebase/marketplace_repository.dart';
-import '../../../3_domain/repositories/firebase/receipt_repository.dart';
+import '../../../3_domain/repositories/database/marketplace_repository.dart';
+import '../../../3_domain/repositories/database/receipt_repository.dart';
 import '../../../constants.dart';
 import '../../../failures/abstract_failure.dart';
 

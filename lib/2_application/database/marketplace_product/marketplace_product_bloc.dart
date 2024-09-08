@@ -6,7 +6,7 @@ import '/1_presentation/core/core.dart';
 import '../../../3_domain/entities/marketplace/abstract_marketplace.dart';
 import '../../../3_domain/entities/product/product_marketplace.dart';
 import '../../../3_domain/entities/product/product_presta.dart';
-import '../../../3_domain/repositories/firebase/marketplace_repository.dart';
+import '../../../3_domain/repositories/database/marketplace_repository.dart';
 import '../../../3_domain/repositories/marketplace/marketplace_import_repository.dart';
 import '../../../4_infrastructur/repositories/prestashop_api/models/category_presta.dart';
 import '../../../4_infrastructur/repositories/prestashop_api/models/product_raw_presta.dart';

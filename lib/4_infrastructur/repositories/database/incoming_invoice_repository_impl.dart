@@ -3,7 +3,7 @@ import 'package:cezeri_commerce/failures/abstract_failure.dart';
 import 'package:dartz/dartz.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import '../../../3_domain/repositories/firebase/incoming_invoice_repository.dart';
+import '../../../3_domain/repositories/database/incoming_invoice_repository.dart';
 
 class IncomingInvoiceRepositoryImpl implements IncomingInvoiceRepository {
   final SupabaseClient supabase;

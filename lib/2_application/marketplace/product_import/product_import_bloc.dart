@@ -8,7 +8,7 @@ import '../../../3_domain/entities/marketplace/marketplace_presta.dart';
 import '../../../3_domain/entities/marketplace/marketplace_shopify.dart';
 import '../../../3_domain/entities/product/marketplace_product.dart';
 import '../../../3_domain/entities/product/product_presta.dart';
-import '../../../3_domain/repositories/firebase/main_settings_respository.dart';
+import '../../../3_domain/repositories/database/main_settings_respository.dart';
 import '../../../3_domain/repositories/marketplace/marketplace_import_repository.dart';
 import '../../../4_infrastructur/repositories/prestashop_api/models/product_raw_presta.dart';
 import '../../../4_infrastructur/repositories/shopify_api/shopify.dart';

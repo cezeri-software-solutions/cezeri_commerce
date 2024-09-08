@@ -9,8 +9,8 @@ import '../../../3_domain/entities/statistic/stat_dashboard.dart';
 import '../../../3_domain/entities/statistic/stat_sales_grouped.dart';
 import '../../../3_domain/entities/statistic/stat_sales_per_day.dart';
 import '../../../3_domain/enums/enums.dart';
-import '../../../3_domain/repositories/firebase/receipt_repository.dart';
-import '../../../3_domain/repositories/firebase/stat_dashboard_repository.dart';
+import '../../../3_domain/repositories/database/receipt_repository.dart';
+import '../../../3_domain/repositories/database/stat_dashboard_repository.dart';
 import '../../../failures/abstract_failure.dart';
 
 part 'dashboard_event.dart';

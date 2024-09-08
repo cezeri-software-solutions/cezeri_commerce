@@ -3,7 +3,7 @@ import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 
 import '../../../3_domain/entities/settings/general_ledger_account.dart';
-import '../../../3_domain/repositories/firebase/general_ledger_account_repository.dart';
+import '../../../3_domain/repositories/database/general_ledger_account_repository.dart';
 import '../../../failures/abstract_failure.dart';
 
 part 'general_ledger_account_event.dart';

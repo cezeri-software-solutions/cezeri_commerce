@@ -2,7 +2,7 @@ import 'package:cezeri_commerce/3_domain/entities/user.dart';
 import 'package:dartz/dartz.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import '../../../3_domain/repositories/firebase/auth_repository.dart';
+import '../../../3_domain/repositories/database/auth_repository.dart';
 import '../../../constants.dart';
 import '../../../failures/abstract_failure.dart';
 import '../../../failures/auth_failures.dart';

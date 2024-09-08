@@ -1,8 +1,8 @@
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
 
-import '../../../../3_domain/repositories/firebase/auth_repository.dart';
-import '../../../../3_domain/repositories/firebase/client_repository.dart';
+import '../../../../3_domain/repositories/database/auth_repository.dart';
+import '../../../../3_domain/repositories/database/client_repository.dart';
 
 part 'auth_event.dart';
 part 'auth_state.dart';

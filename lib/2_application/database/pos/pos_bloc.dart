@@ -13,11 +13,11 @@ import '../../../3_domain/entities/receipt/receipt_marketplace.dart';
 import '../../../3_domain/entities/receipt/receipt_product.dart';
 import '../../../3_domain/entities/settings/main_settings.dart';
 import '../../../3_domain/entities/settings/payment_method.dart';
-import '../../../3_domain/repositories/firebase/customer_repository.dart';
-import '../../../3_domain/repositories/firebase/main_settings_respository.dart';
-import '../../../3_domain/repositories/firebase/marketplace_repository.dart';
-import '../../../3_domain/repositories/firebase/product_repository.dart';
-import '../../../3_domain/repositories/firebase/receipt_repository.dart';
+import '../../../3_domain/repositories/database/customer_repository.dart';
+import '../../../3_domain/repositories/database/main_settings_respository.dart';
+import '../../../3_domain/repositories/database/marketplace_repository.dart';
+import '../../../3_domain/repositories/database/product_repository.dart';
+import '../../../3_domain/repositories/database/receipt_repository.dart';
 import '../../../failures/failures.dart';
 
 part 'pos_event.dart';

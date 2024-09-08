@@ -1,5 +1,5 @@
-import '../../../3_domain/entities/client.dart';
-import '../../../constants.dart';
+import '../../../../3_domain/entities/client.dart';
+import '../../../../constants.dart';
 
 String getCurrentUserId() {
   return supabase.auth.currentUser!.id;

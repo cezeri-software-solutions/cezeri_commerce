@@ -1,6 +1,6 @@
 import '/3_domain/entities/product/product.dart';
-import '/3_domain/repositories/firebase/product_repository.dart';
-import '../../../constants.dart';
+import '../../../../3_domain/repositories/database/product_repository.dart';
+import '../../../../constants.dart';
 
 Future<Product?> getProductFromFirestoreIfExists({
   required String articleNumber,
