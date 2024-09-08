@@ -7,12 +7,12 @@ import '../../../3_domain/entities/product/product.dart';
 import '../../../3_domain/entities/product/product_id_with_quantity.dart';
 import '../../../3_domain/entities/product/product_presta.dart';
 import '../../../3_domain/entities/settings/main_settings.dart';
-import '../../../3_domain/repositories/firebase/marketplace_repository.dart';
-import '../../../3_domain/repositories/firebase/product_repository.dart';
+import '../../../3_domain/repositories/database/marketplace_repository.dart';
+import '../../../3_domain/repositories/database/product_repository.dart';
 import '../../../constants.dart';
 import '../../../failures/abstract_failure.dart';
-import '../functions/product_import.dart';
-import '../functions/product_repository_helper.dart';
+import '../database/functions/product_import.dart';
+import '../database/functions/product_repository_helper.dart';
 import '../prestashop_api/prestashop_api.dart';
 import '../shopify_api/shopify.dart';
 
