@@ -65,6 +65,7 @@ class PrestashopApi with UiLoggy {
     return payload == null ? const Optional.absent() : Optional.of(CategoriesPresta.fromJson(payload).items.single);
   }
 
+  //? DONE // TESTED
   Future<List<CategoryPresta>> getCategories() async {
     final payload = await _doGetJson(
       '${_conf.webserviceUrl}categories?ws_key=${_conf.apiKey}&output_format=JSON&display=full',
@@ -220,10 +221,10 @@ class PrestashopApi with UiLoggy {
     return StockAvailablesPresta.fromJson(payload).items;
   }
 
-//? ################################## GET ENDE ######################################################################################
-//? ##################################################################################################################################
-//? ##################################################################################################################################
-//? ################################## PATCH START ###################################################################################
+  //? ################################## GET ENDE ######################################################################################
+  //? ##################################################################################################################################
+  //? ##################################################################################################################################
+  //? ################################## PATCH START ###################################################################################
   //* Order
   //TODO: statt bool fos zurückgeben
   Future<bool> patchOrderStatus(final int orderId, final int statusId, final bool isPresta8) async {
@@ -254,6 +255,7 @@ class PrestashopApi with UiLoggy {
   }
 
   //* Product
+  //? DONE // TESTED
   Future<Either<PrestaFailure, Unit>> patchProductQuantity(
     final int marketplaceProductPrestaId,
     final int quantity,
@@ -361,41 +363,41 @@ class PrestashopApi with UiLoggy {
     }
   }
 
-  //TODO: statt bool fos zurückgeben
-  Future<bool> patchProductImages(final int marketplaceProductPrestaId, final int quantity, final MarketplacePresta marketplace) async {
-    // #################################################################################################
-    final optionalProductPresta = await getProduct(marketplaceProductPrestaId, marketplace);
-    if (optionalProductPresta.isNotPresent) return false;
-    final productPresta = optionalProductPresta.value;
-    final stockAvailableId = productPresta.associations.associationsStockAvailables!.first.id;
-    bool payload = false;
-    if (marketplace.isPresta8) {
-      final builder = patchStockAvailableBuilder(stockAvailableId, quantity);
-      final fosPayload = await _doPatch(
-        '${_conf.webserviceUrl}stock_availables/$stockAvailableId',
-        builder,
-      );
-      fosPayload.fold(
-        (failure) => payload = false,
-        (unit) => payload = true,
-      );
-    } else {
-      final optionaStockAvailableAsXml = await getStockAvailableAsXml(stockAvailableId.toMyInt());
-      if (optionaStockAvailableAsXml.isNotPresent) return false;
-      final stockAvailableAsXml = optionaStockAvailableAsXml.value;
-      final updatedDocument = stockAvailableUpdater(stockAvailableAsXml, quantity);
-      final fosPayload = await _doPut(
-        '${_conf.webserviceUrl}stock_availables/$stockAvailableId',
-        updatedDocument,
-      );
-      fosPayload.fold(
-        (failure) => payload = false,
-        (unit) => payload = true,
-      );
-    }
+  // //TODO: statt bool fos zurückgeben
+  // Future<bool> patchProductImages(final int marketplaceProductPrestaId, final int quantity, final MarketplacePresta marketplace) async {
+  //   // #################################################################################################
+  //   final optionalProductPresta = await getProduct(marketplaceProductPrestaId, marketplace);
+  //   if (optionalProductPresta.isNotPresent) return false;
+  //   final productPresta = optionalProductPresta.value;
+  //   final stockAvailableId = productPresta.associations.associationsStockAvailables!.first.id;
+  //   bool payload = false;
+  //   if (marketplace.isPresta8) {
+  //     final builder = patchStockAvailableBuilder(stockAvailableId, quantity);
+  //     final fosPayload = await _doPatch(
+  //       '${_conf.webserviceUrl}stock_availables/$stockAvailableId',
+  //       builder,
+  //     );
+  //     fosPayload.fold(
+  //       (failure) => payload = false,
+  //       (unit) => payload = true,
+  //     );
+  //   } else {
+  //     final optionaStockAvailableAsXml = await getStockAvailableAsXml(stockAvailableId.toMyInt());
+  //     if (optionaStockAvailableAsXml.isNotPresent) return false;
+  //     final stockAvailableAsXml = optionaStockAvailableAsXml.value;
+  //     final updatedDocument = stockAvailableUpdater(stockAvailableAsXml, quantity);
+  //     final fosPayload = await _doPut(
+  //       '${_conf.webserviceUrl}stock_availables/$stockAvailableId',
+  //       updatedDocument,
+  //     );
+  //     fosPayload.fold(
+  //       (failure) => payload = false,
+  //       (unit) => payload = true,
+  //     );
+  //   }
 
-    return payload;
-  }
+  //   return payload;
+  // }
 
   Future<Either<PrestaFailure, Unit>> patchProduct(
     final int marketplaceProductPrestaId,
@@ -603,10 +605,10 @@ class PrestashopApi with UiLoggy {
     return right(unit);
   }
 
-//? ################################## PATCH ENDE #####################################################################################
-//? ###################################################################################################################################
-//? ###################################################################################################################################
-//? ################################## POST START #####################################################################################
+  //? ################################## PATCH ENDE #####################################################################################
+  //? ###################################################################################################################################
+  //? ###################################################################################################################################
+  //? ################################## POST START #####################################################################################
 
   //* Product
   Future<int> postProduct(
@@ -641,8 +643,8 @@ class PrestashopApi with UiLoggy {
     return payload;
   }
 
-//? ################################## POST ENDE #####################################################################################
-//? ###################################################################################################################################
+  //? ################################## POST ENDE #####################################################################################
+  //? ###################################################################################################################################
 
   //* Utility methods */
   Future<dynamic> _doGetJson(String uri, {bool single = false}) async {

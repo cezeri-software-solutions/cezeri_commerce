@@ -38,6 +38,7 @@ class ShopifyApi {
     );
   }
 
+  //? DONE // TESTED
   Future<Either<ShopifyGeneralFailure, ProductRawShopify>> getProductRawById(int productId) async {
     const key = 'product';
     final collectsResult = await _doGet(uri: '$_url/api/$_apiVersion/products/$productId.json', key: key, isList: false);
@@ -128,6 +129,7 @@ class ShopifyApi {
     );
   }
 
+  //? DONE // TESTED
   Future<Either<ShopifyGeneralFailure, List<CustomCollectionShopify>>> getCustomCollectionsAll() async {
     const key = 'custom_collections';
     final collectsResult = await _doGetAll(uri: '$_url/api/$_apiVersion/$key.json?limit=250', key: key, isList: true);
@@ -148,6 +150,7 @@ class ShopifyApi {
     );
   }
 
+  //? DONE // TESTED
   Future<Either<ShopifyGeneralFailure, InventoryLevelShopify>> getInventoryLevelByInventoryItemId(int inventoryItemId) async {
     const key = 'inventory_levels';
     final collectsResult = await _doGet(uri: '$_url/api/$_apiVersion/$key.json?inventory_item_ids=$inventoryItemId', key: key, isList: true);
