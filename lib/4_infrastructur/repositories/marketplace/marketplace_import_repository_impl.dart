@@ -19,7 +19,6 @@ import '../../../failures/failures.dart';
 import '../database/functions/repository_functions.dart';
 import '../prestashop_api/models/product_raw_presta.dart';
 import '../prestashop_api/prestashop_api.dart';
-import '../shopify_api/shopify_repository_get.dart';
 import 'marketplace_import_repository_helper.dart';
 
 class MarketplaceImportRepositoryImpl implements MarketplaceImportRepository {
@@ -191,11 +190,10 @@ class MarketplaceImportRepositoryImpl implements MarketplaceImportRepository {
   @override
   Future<Either<AbstractFailure, List<dynamic>>> getAllMarketplaceCategories(AbstractMarketplace marketplace) async {
     if (!await checkInternetConnection()) return left(PrestaGeneralFailure());
-    final ownerId = await getOwnerId();
 
     return switch (marketplace.marketplaceType) {
-      MarketplaceType.prestashop => await PrestashopRepositoryGet().getCategories(ownerId!, marketplace as MarketplacePresta),
-      MarketplaceType.shopify => await ShopifyRepositoryGet().getCategories(ownerId!, marketplace as MarketplaceShopify),
+      MarketplaceType.prestashop => await PrestashopRepositoryGet(marketplace as MarketplacePresta).getCategories(marketplace),
+      MarketplaceType.shopify => await ShopifyRepositoryGet(marketplace as MarketplaceShopify).getCategories(marketplace),
       MarketplaceType.shop => Left(GeneralFailure(customMessage: 'Ein Ladengeschäft kann keine Schnitstelle haben.')),
     };
   }
