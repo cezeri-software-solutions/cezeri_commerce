@@ -125,7 +125,7 @@ Future<void> init() async {
 
   sl.registerFactory(() => GeneralLedgerAccountBloc(gLAccountRepository: sl()));
 
-  //! repositories Firebase
+  //! repositories Database
   sl.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl());
   sl.registerLazySingleton<ClientRepository>(() => ClientRepositoryImpl(supabase: sl()));
   sl.registerLazySingleton<ProductRepository>(() => ProductRepositoryImpl(marketplaceEditRepository: sl(), marketplaceRepository: sl()));
@@ -153,7 +153,7 @@ Future<void> init() async {
   sl.registerLazySingleton<StatProductRepository>(() => StatProductRepositoryImpl(supabase: sl()));
   sl.registerLazySingleton<GeneralLedgerAccountRepository>(() => GeneralLedgerAccountRepositoryImpl(supabase: sl()));
 
-  //! repositories Prestashop
+  //! repositories Marketplaces
   sl.registerLazySingleton<MarketplaceImportRepository>(() => MarketplaceImportRepositoryImpl(
         productRepository: sl(),
         mainSettingsRepository: sl(),

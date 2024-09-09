@@ -6,18 +6,28 @@ import 'package:get_it/get_it.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../3_domain/entities/marketplace/marketplace_presta.dart';
+import '../../../3_domain/entities/product/product.dart';
+import '../../../3_domain/entities/product/product_marketplace.dart';
+import '../../../3_domain/entities/product/product_presta.dart';
 import '../../../constants.dart';
 import '../../../failures/failures.dart';
+import 'models/models.dart';
 import 'patch_builders.dart';
 import 'prestashop_repository_get.dart';
 
 class PrestashopRepositoryPatch {
-  PrestashopRepositoryPatch();
+  final MarketplacePresta marketplace;
+  final Map<String, String> credentials;
+
+  PrestashopRepositoryPatch(this.marketplace)
+      : credentials = {
+          'apiKey': marketplace.key,
+          'url': '${marketplace.endpointUrl}${marketplace.url}${marketplace.shopSuffix}',
+        };
 
   final supabase = GetIt.I<SupabaseClient>();
 
   Future<Either<AbstractFailure, Unit>> patchStockAvailable({
-    required String ownerId,
     required MarketplacePresta marketplace,
     required String stockAvailableId,
     required String xmlPayload,
@@ -26,8 +36,7 @@ class PrestashopRepositoryPatch {
       await supabase.functions.invoke(
         'prestashop_api',
         body: jsonEncode({
-          'marketplaceId': marketplace.id,
-          'ownerId': ownerId,
+          'credentials': credentials,
           'functionName': 'patchProductQuantity',
           'stockAvailableId': stockAvailableId,
           'xmlPayload': xmlPayload,
@@ -41,13 +50,58 @@ class PrestashopRepositoryPatch {
     }
   }
 
+  Future<Either<AbstractFailure, Unit>> patchProduct({
+    required MarketplacePresta marketplace,
+    required int marketplaceProductPrestaId,
+    required String xmlPayload,
+  }) async {
+    try {
+      await supabase.functions.invoke(
+        'prestashop_api',
+        body: jsonEncode({
+          'credentials': credentials,
+          'functionName': 'patchProduct',
+          'productId': marketplaceProductPrestaId,
+          'xmlPayload': xmlPayload,
+        }),
+      );
+
+      return const Right(unit);
+    } catch (e) {
+      logger.e('Error: $e');
+      return Left(PrestaGeneralFailure(errorMessage: e.toString()));
+    }
+  }
+
+  Future<Either<AbstractFailure, Unit>> patchOrderStatus({
+    required MarketplacePresta marketplace,
+    required int orderId,
+    required String xmlPayload,
+  }) async {
+    try {
+      await supabase.functions.invoke(
+        'prestashop_api',
+        body: jsonEncode({
+          'credentials': credentials,
+          'functionName': 'patchOrderStatus',
+          'orderId': orderId,
+          'xmlPayload': xmlPayload,
+        }),
+      );
+
+      return const Right(unit);
+    } catch (e) {
+      logger.e('Error: $e');
+      return Left(PrestaGeneralFailure(errorMessage: e.toString()));
+    }
+  }
+
   Future<Either<AbstractFailure, Unit>> patchProductQuantity({
-    required String ownerId,
     required MarketplacePresta marketplace,
     required int productId, // Artikel-ID im Marktplatz
     required int quantity,
   }) async {
-    final fosProductRaw = await PrestashopRepositoryGet().getProductRaw(ownerId, marketplace, productId);
+    final fosProductRaw = await PrestashopRepositoryGet(marketplace).getProductRaw(marketplace, productId);
     if (fosProductRaw.isLeft()) return Left(fosProductRaw.getLeft());
 
     final productRaw = fosProductRaw.getRight();
@@ -58,11 +112,117 @@ class PrestashopRepositoryPatch {
     final xmlPayload = document.toXmlString();
 
     final response = await patchStockAvailable(
-      ownerId: ownerId,
       marketplace: marketplace,
       stockAvailableId: stockAvailableId,
       xmlPayload: xmlPayload,
     );
+
+    return response;
+  }
+
+  Future<Either<AbstractFailure, Unit>> updateProductInMarketplace({
+    required MarketplacePresta marketplace,
+    required Product product,
+    required ProductMarketplace productMarketplace,
+    required int marketplaceProductPrestaId,
+  }) async {
+    final fosProductPresta = await PrestashopRepositoryGet(marketplace).getProduct(marketplace, marketplaceProductPrestaId);
+    if (fosProductPresta.isLeft()) return Left(fosProductPresta.getLeft());
+    final productPresta = fosProductPresta.getRight();
+
+    final builder = patchProductBuilder(
+      id: marketplaceProductPrestaId,
+      product: product,
+      productMarketplace: productMarketplace,
+      productPresta: productPresta,
+    );
+
+    final errorC1 = PrestaGeneralFailure(
+      errorMessage:
+          'Beim bearbeiten des Artikels: "${product.name}" im Marktplatz: "${marketplace.name}" ist ein Fehler aufgetreten.\nTechnischer Fehler im: patchProductBuilder',
+    );
+
+    if (builder == null) return left(errorC1);
+    final document = builder.buildDocument();
+    final xmlPayload = document.toXmlString();
+
+    final response = await patchProduct(
+      marketplace: marketplace,
+      marketplaceProductPrestaId: marketplaceProductPrestaId,
+      xmlPayload: xmlPayload,
+    );
+
+    return response;
+  }
+
+  Future<Either<AbstractFailure, Unit>> updateSetProductInMarketplace({
+    required MarketplacePresta marketplace,
+    required Product product,
+    required List<Product> listOfPartOfSetArticles,
+    required ProductMarketplace productMarketplace,
+    required int marketplaceProductPrestaId,
+  }) async {
+    final fosProductPresta = await PrestashopRepositoryGet(marketplace).getProduct(marketplace, marketplaceProductPrestaId);
+    if (fosProductPresta.isLeft()) return Left(fosProductPresta.getLeft());
+    final productPresta = fosProductPresta.getRight();
+
+    //* Lädt die Einzelartikel des Set-Artikels aus Prestashop
+    final List<ProductRawPresta> listOfPartProductsPresta = [];
+    for (final partProduct in listOfPartOfSetArticles) {
+      final partProductMarketplace = partProduct.productMarketplaces.where((e) => e.idMarketplace == productMarketplace.idMarketplace).firstOrNull;
+      if (partProductMarketplace == null) {
+        final e = 'Der Einzelartikel: "${partProduct.name}" des Set-Artikels  konnte im Marktplatz: "${marketplace.name}" nicht gefunden werden';
+        logger.e(e);
+        return left(PrestaGeneralFailure(errorMessage: e));
+      }
+      final partMarketplaceProductPresta = partProductMarketplace.marketplaceProduct as ProductPresta;
+      final fosPartProductPresta = await PrestashopRepositoryGet(marketplace).getProductRaw(marketplace, partMarketplaceProductPresta.id);
+      if (fosPartProductPresta.isLeft()) {
+        final e = 'Der Einzelartikel: "${partProduct.name}" des Set-Artikels konnte aus dem Marktplatz: "${marketplace.name}" nicht geladen werden';
+        logger.e(e);
+        return Left(PrestaGeneralFailure(errorMessage: e));
+      }
+      final partProductPresta = fosPartProductPresta.getRight();
+      final quantity = product.listOfProductIdWithQuantity.where((e) => e.productId == partProduct.id).first.quantity;
+      listOfPartProductsPresta.add(partProductPresta.copyWith(quantity: quantity.toString()));
+    }
+
+    final builder = patchProductBuilder(
+      id: marketplaceProductPrestaId,
+      product: product,
+      productMarketplace: productMarketplace,
+      productPresta: productPresta,
+      listOfPartProductsPresta: listOfPartProductsPresta,
+    );
+
+    final errorC1 = PrestaGeneralFailure(
+      errorMessage:
+          'Beim bearbeiten des Artikels: "${product.name}" im Marktplatz: "${marketplace.name}" ist ein Fehler aufgetreten.\nTechnischer Fehler im: patchProductBuilder',
+    );
+
+    if (builder == null) return left(errorC1);
+    final document = builder.buildDocument();
+    final xmlPayload = document.toXmlString();
+
+    final response = await patchProduct(
+      marketplace: marketplace,
+      marketplaceProductPrestaId: marketplaceProductPrestaId,
+      xmlPayload: xmlPayload,
+    );
+
+    return response;
+  }
+
+  Future<Either<AbstractFailure, Unit>> updateOrderStatusInMarketplace({
+    required MarketplacePresta marketplace,
+    required int orderId,
+    required int statusId,
+  }) async {
+    final builder = patchOrderStatusBuilder(orderId, statusId);
+    final document = builder.buildDocument();
+    final xmlPayload = document.toXmlString();
+
+    final response = await patchOrderStatus(marketplace: marketplace, orderId: orderId, xmlPayload: xmlPayload);
 
     return response;
   }

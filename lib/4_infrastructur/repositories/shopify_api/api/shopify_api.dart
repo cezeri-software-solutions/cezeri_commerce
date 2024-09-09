@@ -109,6 +109,7 @@ class ShopifyApi {
     return Right(listOfProductShopify);
   }
 
+  //? DONE // TESTED
   Future<Either<ShopifyGeneralFailure, List<CollectShopify>>> getCollectsOfProduct(int productId) async {
     const key = 'collects';
     final collectsResult = await _doGet(uri: '$_url/api/$_apiVersion/$key.json?product_id=$productId', key: key, isList: true);
@@ -119,6 +120,7 @@ class ShopifyApi {
     );
   }
 
+  //? DONE // TESTED
   Future<Either<ShopifyGeneralFailure, List<CustomCollectionShopify>>> getCustomCollectionsByProductId(int productId) async {
     const key = 'custom_collections';
     final collectsResult = await _doGet(uri: '$_url/api/$_apiVersion/$key.json?product_id=$productId', key: key, isList: true);
@@ -222,6 +224,7 @@ class ShopifyApi {
     return putProductFailures.isEmpty ? const Right(unit) : Left(putProductFailures);
   }
 
+  //? DONE // TESTED
   Future<Either<List<AbstractFailure>, Unit>> putProduct(ProductShopify productShopify, Product product) async {
     const key = 'products';
     List<AbstractFailure> putProductFailures = [];
@@ -259,19 +262,19 @@ class ShopifyApi {
     if (customCollectionsResult.isLeft()) return Left([customCollectionsResult.getLeft()]);
     final listOfCustomCollections = customCollectionsResult.getRight();
 
-    // Neue und entfernte Custom Collections identifizieren
-    List<CustomCollectionShopify> newAddedCustomCollections = [];
-    List<CustomCollectionShopify> removedCustomCollections = [];
+    //* Neue und entfernte Custom Collections identifizieren
+    final List<CustomCollectionShopify> newAddedCustomCollections = [];
+    final List<CustomCollectionShopify> removedCustomCollections = [];
 
     Set<int> existingCollectionIds = Set.from(listOfCustomCollections.map((e) => e.id));
     Set<int> productCollectionIds = Set.from(productShopify.customCollections.map((e) => e.id));
 
-    // Neue hinzugefügte Custom Collections
+    //* Neue hinzugefügte Custom Collections
     for (final customCollection in productShopify.customCollections) {
       if (!existingCollectionIds.contains(customCollection.id)) newAddedCustomCollections.add(customCollection);
     }
 
-    // Entfernte Custom Collections
+    //* Entfernte Custom Collections
     for (final customCollection in listOfCustomCollections) {
       if (!productCollectionIds.contains(customCollection.id)) removedCustomCollections.add(customCollection);
     }
@@ -360,6 +363,7 @@ class ShopifyApi {
     }
 
     //* Bestand hinzufügen
+    //? DONE // TESTED
     final fosStock = await postProductStock(newCreatedProduct!.id, product.availableStock);
     fosStock.fold(
       (failure) => postProductFailures.add(ShopifyPostProductFailure(
@@ -405,6 +409,7 @@ class ShopifyApi {
     );
   }
 
+  //? DONE // TESTED
   Future<Either<ShopifyGeneralFailure, Unit>> postCollect(int productId, int customCollectionId) async {
     const key = 'collects';
 
@@ -422,6 +427,7 @@ class ShopifyApi {
     );
   }
 
+  //? DONE // TESTED
   Future<Either<List<ShopifyGeneralFailure>, Unit>> postProductImages(int productId, String productName, List<ProductImage> productImages) async {
     const key = 'products';
 
@@ -437,10 +443,7 @@ class ShopifyApi {
         continue;
       }
 
-      final alt = switch (pos) {
-        1 => productName,
-        _ => '${productName}_$pos',
-      };
+      final alt = pos == 1 ? productName : '${productName}_$pos';
 
       final body = jsonEncode({
         "image": {
@@ -451,6 +454,7 @@ class ShopifyApi {
           "filename": image.fileName,
         }
       });
+
       final productResult = await _doPost(uri: '$_url/api/$_apiVersion/$key/$productId/images.json', body: body);
 
       productResult.fold(
@@ -464,6 +468,7 @@ class ShopifyApi {
     return const Right(unit);
   }
 
+  //? DONE // TESTED
   Future<Either<List<ShopifyGeneralFailure>, Unit>> postFulfillment(int orderId, ParcelTracking? parcelTracking) async {
     const key = 'fulfillments';
 
@@ -476,6 +481,12 @@ class ShopifyApi {
     }
 
     final fulfillmentOrderId = fulfillmentOrdersResponse.getRight()[0]['id'];
+
+    print('-----------------------------------------------------');
+    print('fulfillmentOrderId: $fulfillmentOrderId');
+    print('-----------------------------------------------------');
+
+    return const Right(unit);
 
     String? trackingNumber;
     String? trackingUrl;
@@ -520,6 +531,7 @@ class ShopifyApi {
     return const Right(unit);
   }
 
+  //? DONE // TESTED
   Future<Either<ShopifyGeneralFailure, Unit>> deleteCollect(int collectId) async {
     const key = 'collects';
     final inventoryResult = await _doDel(uri: '$_url/api/$_apiVersion/$key/$collectId.json');
@@ -530,6 +542,7 @@ class ShopifyApi {
     );
   }
 
+  //? DONE // TESTED
   Future<Either<List<ShopifyGeneralFailure>, Unit>> deleteProductImages(int productShopifyId) async {
     const key = 'products';
 

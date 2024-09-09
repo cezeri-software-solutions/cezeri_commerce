@@ -370,7 +370,6 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
     final fosUpdateProductInMarketplace = await marketplaceEditRepository.editProdcutInMarketplace(updatedProduct, null);
     if (fosUpdateProductInMarketplace.isLeft()) listOfAbstractFailures.addAll(fosUpdateProductInMarketplace.getLeft());
 
-    print('state.isProductImagesEdited: ${state.isProductImagesEdited}');
     if (state.isProductImagesEdited) {
       final fosUpdateProductImagesInMarketplace = await marketplaceEditRepository.uploadProductImagesToMarketplace(
         state.product!,

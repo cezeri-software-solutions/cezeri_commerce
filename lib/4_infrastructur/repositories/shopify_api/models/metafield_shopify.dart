@@ -20,7 +20,7 @@ class MetafieldShopify extends Equatable {
   final String ownerResource;
   @JsonKey(name: 'updated_at')
   final DateTime updatedAt;
-  final String value;
+  final dynamic value;
   final dynamic type;
   final MetafieldType metafieldType;
 
