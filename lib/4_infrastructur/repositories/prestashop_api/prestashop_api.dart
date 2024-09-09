@@ -108,6 +108,7 @@ class PrestashopApi with UiLoggy {
     return payload == null ? const Optional.absent() : Optional.of(LanguagesPresta.fromJson(payload).items.single);
   }
 
+  //? DONE // TESTED
   Future<List<LanguagePresta>> getLanguages() async {
     final payload = await _doGetJson(
       '${_conf.webserviceUrl}languages?ws_key=${_conf.apiKey}&output_format=JSON&display=full',
@@ -166,6 +167,7 @@ class PrestashopApi with UiLoggy {
     return ProductsIdPresta.fromJson(payload).items;
   }
 
+  //? DONE // TESTED
   Future<Optional<ProductRawPresta>> getProduct(final int id, final MarketplacePresta marketplace) async {
     final payload = await _doGetJson(
       '${_conf.webserviceUrl}products?ws_key=${_conf.apiKey}&filter[id]=[$id]&output_format=JSON&display=full',
@@ -226,6 +228,7 @@ class PrestashopApi with UiLoggy {
   //? ##################################################################################################################################
   //? ################################## PATCH START ###################################################################################
   //* Order
+  //? DONE // TESTED
   //TODO: statt bool fos zurückgeben
   Future<bool> patchOrderStatus(final int orderId, final int statusId, final bool isPresta8) async {
     bool payload = false;
@@ -306,10 +309,8 @@ class PrestashopApi with UiLoggy {
     return right(unit);
   }
 
+  //? DONE // TESTED
   Future<bool> uploadProductImageFromUrl(String productID, ProductImage productImage) async {
-    String url = '${_conf.webserviceUrl}images/products/$productID/';
-    String base64Auth = base64Encode(utf8.encode('${_conf.apiKey}:'));
-
     Response imageResponse = await get(Uri.parse(productImage.fileUrl));
 
     Uint8List imageData = imageResponse.bodyBytes;
@@ -321,6 +322,9 @@ class PrestashopApi with UiLoggy {
       }
       return 'unknown';
     }
+
+    String url = '${_conf.webserviceUrl}images/products/$productID/';
+    String base64Auth = base64Encode(utf8.encode('${_conf.apiKey}:'));
 
     final fileExtension = getFileExtensionFromFilename(productImage.fileName);
     logger.i(fileExtension);
@@ -344,6 +348,7 @@ class PrestashopApi with UiLoggy {
     }
   }
 
+  //? DONE // TESTED
   Future<bool> deleteProductImage(String productID, String imageID) async {
     String url = '${_conf.webserviceUrl}images/products/$productID/${imageID.toMyInt()}';
     String base64Auth = base64Encode(utf8.encode('${_conf.apiKey}:'));
@@ -399,6 +404,7 @@ class PrestashopApi with UiLoggy {
   //   return payload;
   // }
 
+  //? DONE // TESTED
   Future<Either<PrestaFailure, Unit>> patchProduct(
     final int marketplaceProductPrestaId,
     Product product,
@@ -460,6 +466,7 @@ class PrestashopApi with UiLoggy {
     return right(unit);
   }
 
+  //? DONE // TESTED
   Future<Either<PrestaFailure, Unit>> patchSetProduct(
     final int marketplaceProductPrestaId,
     Product product,
