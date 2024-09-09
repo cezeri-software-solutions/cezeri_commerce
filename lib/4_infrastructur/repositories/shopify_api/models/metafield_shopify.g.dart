@@ -16,7 +16,7 @@ MetafieldShopify _$MetafieldShopifyFromJson(Map<String, dynamic> json) =>
       ownerId: (json['owner_id'] as num).toInt(),
       ownerResource: json['owner_resource'] as String,
       updatedAt: DateTime.parse(json['updated_at'] as String),
-      value: json['value'] as String,
+      value: json['value'],
       type: json['type'],
     );
 
