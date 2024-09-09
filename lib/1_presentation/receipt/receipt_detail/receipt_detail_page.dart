@@ -57,6 +57,25 @@ class _ReceiptDetailPageState extends State<ReceiptDetailPage> {
           title: _getAppBarTitle(state.receipt!),
           centerTitle: isTabletOrLarger ? true : false,
           actions: [
+            //* Set orderStatus in marketplace with one click
+            //* Future as event in bloc
+            // IconButton(
+            //   onPressed: () async {
+            //     final marketplaceEditRepository = GetIt.I<MarketplaceEditRepository>();
+            //     final marketplaceRepository = GetIt.I<MarketplaceRepository>();
+            //     final marketplace = await marketplaceRepository.getMarketplace(state.receipt!.marketplaceId);
+
+            //     final response = await marketplaceEditRepository.setOrderStatusInMarketplace(
+            //       marketplace.getRight() as MarketplaceShopify,
+            //       state.receipt!.receiptMarketplaceId,
+            //       OrderStatusUpdateType.onShipping,
+            //       state.receipt!.listOfParcelTracking.isNotEmpty ? state.receipt!.listOfParcelTracking.first : null,
+            //     );
+
+            //     print(response);
+            //   },
+            //   icon: const Icon(Icons.abc),
+            // ),
             if (widget.receiptCreateOrEdit == ReceiptCreateOrEdit.edit)
               IconButton(
                 onPressed: () => widget.receiptDetailBloc.add(
