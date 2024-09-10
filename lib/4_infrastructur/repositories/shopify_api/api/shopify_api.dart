@@ -486,8 +486,6 @@ class ShopifyApi {
     print('fulfillmentOrderId: $fulfillmentOrderId');
     print('-----------------------------------------------------');
 
-    return const Right(unit);
-
     String? trackingNumber;
     String? trackingUrl;
 
