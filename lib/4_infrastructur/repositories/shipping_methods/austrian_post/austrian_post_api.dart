@@ -1,8 +1,11 @@
-import 'package:http/http.dart' as http;
+import 'dart:convert';
+
+import 'package:dartz/dartz.dart';
 import 'package:xml/xml.dart';
 
 import '../../../../3_domain/entities/address.dart';
 import '../../../../constants.dart';
+import '../../../../failures/failures.dart';
 
 class AustrianPostApiConfig {
   final String clientId;
@@ -27,7 +30,6 @@ class AustrianPostApiSettings {
 }
 
 class AustrianPostApi {
-  final String _baseUrl = 'https://plc.post.at/Post.Webservice/ShippingService.svc/secure';
   final AustrianPostApiConfig _config;
   final AustrianPostApiSettings _settings;
   final String _carrierProductId;
@@ -50,24 +52,13 @@ class AustrianPostApi {
     this._isReturn,
   );
 
-  Future<String> createShipment(String soapRequest) async {
-    final response = await http.post(
-      Uri.parse(_baseUrl),
-      headers: {
-        'Content-Type': 'text/xml',
-        'SOAPAction': 'http://post.ondot.at/IShippingService/ImportShipment',
-      },
-      body: soapRequest,
-    );
-
-    if (response.statusCode == 200) {
-      logger.i(response.statusCode);
-      logger.i(response.body);
-      return response.body;
-    } else {
-      logger.e(response.body);
-      logger.e(response.statusCode);
-      throw Exception('Failed to create shipment');
+  Future<Either<AbstractFailure, String>> createShipment(String soapRequest) async {
+    try {
+      final response = await supabase.functions.invoke('austrian_post_api', body: jsonEncode({'soapRequest': soapRequest}));
+      return Right(response.data);
+    } catch (e) {
+      logger.e('Error: $e');
+      return Left(GeneralFailure(customMessage: 'Error on create austrian post label: $e'));
     }
   }
 

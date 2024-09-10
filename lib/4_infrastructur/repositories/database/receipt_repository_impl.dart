@@ -1524,16 +1524,13 @@ Future<ParcelTracking?> getParcelTracking(String ownerId, Receipt receipt, MainS
   );
 
   final soapRequest = service.generateSoapRequest();
-  String responseString = '';
 
-  try {
-    final response = await service.createShipment(soapRequest);
-    responseString = response;
-    logger.i('Response: $response');
-  } catch (e) {
-    logger.e('Error: $e');
+  final response = await service.createShipment(soapRequest);
+  if (response.isLeft()) {
+    print('Error: ${response.getLeft()}');
     return null;
   }
+  final responseString = response.getRight();
 
   final trackingNumberTupel = service.getTrackingNumber(responseString);
   final trackingNumber = trackingNumberTupel.trackingNumber;
