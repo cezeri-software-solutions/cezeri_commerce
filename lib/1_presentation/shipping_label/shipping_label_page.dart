@@ -120,15 +120,15 @@ class _ShippingLabelPageState extends State<ShippingLabelPage> {
                           false,
                         );
                         final soapRequest = service.generateSoapRequest(); //generateSoapRequest();
-                        String pdfString = '';
 
-                        try {
-                          final response = await service.createShipment(soapRequest);
-                          pdfString = response;
-                          print('Response: $response');
-                        } catch (e) {
-                          print('Error: $e');
+                        final response = await service.createShipment(soapRequest);
+                        if (response.isLeft()) {
+                          print('Error: ${response.getLeft()}');
+                          return;
                         }
+                        final pdfString = response.getRight();
+                        print('Response: $response');
+
                         final base64String = service.getPdfLabel(pdfString);
                         final pdfBytes = base64.decode(base64String);
                         if (kIsWeb) {
