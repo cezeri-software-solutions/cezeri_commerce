@@ -11,7 +11,6 @@ import 'package:cezeri_commerce/failures/firebase_failures.dart';
 import 'package:cezeri_commerce/failures/presta_failure.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart';
 
 import '/1_presentation/core/core.dart';
 import '/3_domain/entities/carrier/parcel_tracking.dart';
@@ -29,9 +28,9 @@ import '/constants.dart';
 import '../../../3_domain/repositories/database/main_settings_respository.dart';
 import '../../../3_domain/repositories/database/marketplace_repository.dart';
 import '../../../3_domain/repositories/database/product_repository.dart';
-import '../prestashop_api/prestashop_api.dart';
+import '../prestashop_api/prestashop_repository_get.dart';
 import '../shipping_methods/austrian_post/austrian_post_api.dart';
-import '../shopify_api/api/shopify_api.dart';
+import '../shopify_api/shopify.dart';
 import 'functions/get_database.dart';
 import 'functions/product_repository_helper.dart';
 import 'functions/receipt_respository_presta_helper.dart';
@@ -1092,11 +1091,11 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
         switch (marketplace.marketplaceType) {
           case MarketplaceType.prestashop:
             {
-              final api = PrestashopApi(
-                Client(),
-                PrestashopApiConfig(apiKey: (marketplace as MarketplacePresta).key, webserviceUrl: marketplace.fullUrl),
-              );
-              final orderIdsPresta = await api.getOrderIds();
+              final fosOrderIdsPresta = await PrestashopRepositoryGet(marketplace as MarketplacePresta).getOrderIds();
+              if (fosOrderIdsPresta.isLeft()) return Left(fosOrderIdsPresta.getLeft());
+              if (fosOrderIdsPresta.getRight().isEmpty) continue;
+
+              final orderIdsPresta = fosOrderIdsPresta.getRight();
               final allOrderIds = orderIdsPresta.map((e) => e.id).toList();
               allOrderIds.sort((a, b) => a.compareTo(b));
 
@@ -1137,15 +1136,14 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
 
     final marketplace = toLoadAppointment.marketplace as MarketplacePresta;
     logger.i(marketplace.name);
-    final api = PrestashopApi(Client(), PrestashopApiConfig(apiKey: marketplace.key, webserviceUrl: marketplace.fullUrl));
 
     try {
-      final optionalOrderPresta = await api.getOrder(toLoadAppointment.orderId);
-      if (optionalOrderPresta.isNotPresent) {
+      final fosOrderPresta = await PrestashopRepositoryGet(marketplace).getOrder(toLoadAppointment.orderId);
+      if (fosOrderPresta.isLeft()) {
         logger.e('Fehler beim Laden der Bestellung aus Prestashop');
         return left(PrestaGeneralFailure(errorMessage: 'Fehler beim Laden der Bestellung aus Prestashop'));
       }
-      final orderPresta = optionalOrderPresta.value;
+      final orderPresta = fosOrderPresta.getRight();
       final loadedOrderFromMarketplace = LoadedOrderFromMarketplace(
         marketplace: toLoadAppointment.marketplace,
         orderPresta: orderPresta,
@@ -1167,31 +1165,17 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
 
     final marketplace = toLoadAppointments.marketplace as MarketplaceShopify;
     logger.i(marketplace.name);
-    final api = ShopifyApi(
-      ShopifyApiConfig(storefrontToken: marketplace.storefrontAccessToken, adminToken: marketplace.adminAccessToken),
-      marketplace.fullUrl,
-    );
 
-    AbstractFailure? abstractFailure;
     final List<LoadedOrderFromMarketplace> loadedOrders = [];
 
-    // try {
-    final fosOrders = await api.getOrdersByCreatedAtMin(toLoadAppointments.marketplace.marketplaceSettings.lastImportDateTime);
-    fosOrders.fold(
-      (failure) => abstractFailure = failure,
-      (orders) {
-        for (final order in orders) {
-          loadedOrders.add(LoadedOrderFromMarketplace(marketplace: marketplace, orderShopify: order, orderMarketplaceId: order.id));
-        }
-      },
-    );
+    final fosOrders =
+        await ShopifyRepositoryGet(marketplace).getOrdersByCreatedAtMin(toLoadAppointments.marketplace.marketplaceSettings.lastImportDateTime);
+    if (fosOrders.isLeft()) return Left(fosOrders.getLeft());
+    for (final order in fosOrders.getRight()) {
+      loadedOrders.add(LoadedOrderFromMarketplace(marketplace: marketplace, orderShopify: order, orderMarketplaceId: order.id));
+    }
 
-    if (abstractFailure != null) return Left(abstractFailure!);
     return Right(loadedOrders);
-    // } catch (e) {
-    //   logger.e('Fehler beim laden der Aufträge von Marktplätzen: $e');
-    //   return left(PrestaGeneralFailure(errorMessage: 'Fehler beim laden der Aufträge von Marktplätzen: $e'));
-    // }
   }
 
   @override
@@ -1203,7 +1187,6 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
     final now = DateTime.now();
     final marketplace = loadedAppointmentFromMarketplace.marketplace;
 
-    // final orderPresta = loadedAppointmentFromMarketplace.orderPresta!;
     final orderMarketplaceId = switch (loadedAppointmentFromMarketplace.marketplace.marketplaceType) {
       MarketplaceType.prestashop => loadedAppointmentFromMarketplace.orderPresta!.id,
       MarketplaceType.shopify => loadedAppointmentFromMarketplace.orderShopify!.id,

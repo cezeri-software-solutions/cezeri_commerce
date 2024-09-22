@@ -17,7 +17,7 @@ import '../../../../3_domain/entities/marketplace/abstract_marketplace.dart';
 import '../../../../3_domain/entities/marketplace/marketplace_settings.dart';
 import '../../../../3_domain/entities/marketplace/marketplace_shopify.dart';
 import '../../../../3_domain/entities/settings/bank_details.dart';
-import '../../../../4_infrastructur/repositories/shopify_api/api/shopify_api.dart';
+import '../../../../4_infrastructur/repositories/shopify_api/shopify.dart';
 import '../../../../constants.dart';
 import '../../../core/core.dart';
 
@@ -368,7 +368,7 @@ class _AddEditMarketplaceShopifyState extends State<AddEditMarketplaceShopify> {
                   buttonText: 'Test Order',
                   buttonBackgroundColor: Colors.red,
                   isLoading: state.isLoadingMarketplaceOnDelete,
-                  onPressed: () async => await _getOrder(),
+                  onPressed: () async => await _getOrder(widget.marketplace!),
                 ),
                 const SizedBox(height: 50),
               ],
@@ -401,15 +401,8 @@ class _AddEditMarketplaceShopifyState extends State<AddEditMarketplaceShopify> {
     }
   }
 
-  Future<void> _getOrder() async {
-    final phUrl = '${_endpointUrlController.text}${_storeNameController.text}.myShopify.com/${_shopSuffixController.text}';
-    final url = phUrl.substring(0, phUrl.length - 1);
-    final api = ShopifyApi(
-      ShopifyApiConfig(storefrontToken: _storefrontAccessTokenController.text, adminToken: _adminAccessTokenController.text),
-      url,
-    );
-
-    final order = await api.getOrdersByCreatedAtMin(_lastImportDateTime);
+  Future<void> _getOrder(MarketplaceShopify marketplace) async {
+    final order = await ShopifyRepositoryGet(marketplace).getOrdersByCreatedAtMin(_lastImportDateTime);
     print('---------------- ORDER ----------------');
     print(order);
     print('---------------- ORDER ----------------');

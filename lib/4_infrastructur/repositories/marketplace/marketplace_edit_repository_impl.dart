@@ -2,7 +2,6 @@ import 'package:cezeri_commerce/3_domain/repositories/database/marketplace_repos
 import 'package:cezeri_commerce/4_infrastructur/repositories/prestashop_api/prestashop_repository_get.dart';
 import 'package:dartz/dartz.dart';
 import 'package:get_it/get_it.dart';
-import 'package:http/http.dart';
 
 import '/1_presentation/core/core.dart';
 import '/3_domain/entities/carrier/parcel_tracking.dart';
@@ -20,7 +19,6 @@ import '/failures/failures.dart';
 import '../../../3_domain/repositories/database/product_repository.dart';
 import '../database/functions/repository_functions.dart';
 import '../prestashop_api/models/product_raw_presta.dart';
-import '../prestashop_api/prestashop_api.dart';
 import '../prestashop_api/prestashop_repository_delete.dart';
 import '../prestashop_api/prestashop_repository_patch.dart';
 import '../prestashop_api/prestashop_repository_post.dart';
@@ -59,7 +57,6 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
             final marketplaceProduct = productMarketplace.marketplaceProduct as ProductPresta;
 
             final resProduct = await PrestashopRepositoryPatch(marketplace as MarketplacePresta).patchProductQuantity(
-              marketplace: marketplace,
               productId: marketplaceProduct.id,
               quantity: newQuantity,
             );
@@ -71,7 +68,6 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
             final marketplaceProduct = productMarketplace.marketplaceProduct as ProductShopify;
 
             final resProduct = await ShopifyRepositoryPost(marketplace as MarketplaceShopify).postProductStock(
-              marketplace: marketplace,
               productId: marketplaceProduct.id,
               quantity: newQuantity,
             );
@@ -132,7 +128,6 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
               final marketplaceProduct = productMarketplace.marketplaceProduct as ProductPresta;
 
               final result = await PrestashopRepositoryPatch(marketplace as MarketplacePresta).updateSetProductInMarketplace(
-                marketplace: marketplace,
                 product: product,
                 listOfPartOfSetArticles: listOfSetPartProducts,
                 productMarketplace: productMarketplace,
@@ -146,7 +141,6 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
               final marketplaceProduct = productMarketplace.marketplaceProduct as ProductShopify;
 
               final result = await ShopifyRepositoryPut(marketplace as MarketplaceShopify).updateProductInMarketplace(
-                marketplace: marketplace,
                 productShopify: marketplaceProduct,
                 product: product,
               );
@@ -163,7 +157,6 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
               final marketplaceProduct = productMarketplace.marketplaceProduct as ProductPresta;
 
               final result = await PrestashopRepositoryPatch(marketplace as MarketplacePresta).updateProductInMarketplace(
-                marketplace: marketplace,
                 product: product,
                 productMarketplace: productMarketplace,
                 marketplaceProductPrestaId: marketplaceProduct.id,
@@ -176,7 +169,6 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
               final marketplaceProduct = productMarketplace.marketplaceProduct as ProductShopify;
 
               final result = await ShopifyRepositoryPut(marketplace as MarketplaceShopify).updateProductInMarketplace(
-                marketplace: marketplace,
                 productShopify: marketplaceProduct,
                 product: product,
               );
@@ -208,20 +200,24 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
     if (marketplaceResponse.isEmpty) return Left(GeneralFailure(customMessage: 'Der Marktplatz kontte nicht geladen werden.'));
     final marketplace = MarketplacePresta.fromJson(marketplaceResponse);
 
-    final api = PrestashopApi(Client(), PrestashopApiConfig(apiKey: marketplace.key, webserviceUrl: marketplace.fullUrl));
     //* Erstellt den neuen Artikel in Prestashop und gibt die ID des erstellten Artikels zurück
-    final idOfCreatedProduct = await api.postProduct(product, productMarketplace, anotherProductMarketplaceWithSameManufacturer, marketplace);
+    final fosIdOfCreatedProduct = await PrestashopRepositoryPost(marketplace).createNewProductInMarketplace(
+      product: product,
+      productMarketplace: productMarketplace,
+      anotherProductMarketplaceWithSameManufacturer: anotherProductMarketplaceWithSameManufacturer,
+    );
 
-    if (idOfCreatedProduct == 0) return left(PrestaGeneralFailure());
+    if (fosIdOfCreatedProduct.isLeft()) return left(fosIdOfCreatedProduct.getLeft());
+    final idOfCreatedProduct = fosIdOfCreatedProduct.getRight();
 
     await Future.delayed(const Duration(seconds: 1));
 
-    final optionalProductPresta = await api.getProduct(idOfCreatedProduct, marketplace);
-    if (optionalProductPresta.isNotPresent) {
+    final fosProductPresta = await PrestashopRepositoryGet(marketplace).getProduct(idOfCreatedProduct);
+    if (fosProductPresta.isLeft()) {
       logger.e('Fehler beim Laden des Artikels aus Prestashop');
       return left(PrestaGeneralFailure(errorMessage: 'Fehler beim Laden der Artikels aus Prestashop'));
     }
-    final productPresta = optionalProductPresta.value;
+    final productPresta = fosProductPresta.getRight();
 
     return Right(productPresta);
   }
@@ -254,7 +250,7 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
           {
             final marketplaceProduct = productMarketplace.marketplaceProduct as ProductPresta;
 
-            final fosProductPresta = await PrestashopRepositoryGet(marketplace as MarketplacePresta).getProduct(marketplace, marketplaceProduct.id);
+            final fosProductPresta = await PrestashopRepositoryGet(marketplace as MarketplacePresta).getProduct(marketplaceProduct.id);
             if (fosProductPresta.isLeft()) {
               failures.add(PrestaGeneralFailure(
                   errorMessage: 'Artikel: "${marketplaceProduct.name}" konnte nicht vom Marktplatz: "${marketplace.name}" geladen werden.'));
@@ -265,7 +261,7 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
             bool isSuccessOnDelete = false;
             if (productPresta.associations.associationsImages != null && productPresta.associations.associationsImages!.isNotEmpty) {
               for (final image in productPresta.associations.associationsImages!) {
-                final response = await PrestashopRepositoryDelete(marketplace).deleteProductImage(marketplace, productPresta.id.toString(), image.id);
+                final response = await PrestashopRepositoryDelete(marketplace).deleteProductImage(productPresta.id.toString(), image.id);
                 if (response.isRight()) isSuccessOnDelete = true;
               }
               if (!isSuccessOnDelete) {
@@ -282,7 +278,6 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
             if (productImages.isNotEmpty) {
               for (final image in productImages) {
                 final response = await PrestashopRepositoryPost(marketplace).uploadProductImage(
-                  marketplace: marketplace,
                   productId: marketplaceProduct.id.toString(),
                   productImage: image,
                 );
@@ -303,13 +298,11 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
             final marketplaceProduct = productMarketplace.marketplaceProduct as ProductShopify;
 
             final fosDeleteImages = await ShopifyRepositoryDelete(marketplace as MarketplaceShopify).deleteProductImages(
-              marketplace: marketplace,
               productId: marketplaceProduct.id,
             );
             if (fosDeleteImages.isLeft()) failures.addAll(fosDeleteImages.getLeft());
 
             final fosPostImages = await ShopifyRepositoryPost(marketplace).postProductImages(
-              marketplace: marketplace,
               productId: marketplaceProduct.id,
               productName: product.name,
               productImages: productImages,
@@ -349,13 +342,12 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
             OrderStatusUpdateType.onDelete => marketplace.marketplaceSettings.statusIdAfterDelete,
           };
 
-          await PrestashopRepositoryPatch(marketplace).updateOrderStatusInMarketplace(marketplace: marketplace, orderId: orderId, statusId: statusId);
+          await PrestashopRepositoryPatch(marketplace).updateOrderStatusInMarketplace(orderId: orderId, statusId: statusId);
           return const Right(unit);
         }
       case MarketplaceType.shopify:
         {
           await ShopifyRepositoryPost(abstractMarketplace as MarketplaceShopify).updateOrderStatusInMarketplace(
-            marketplace: abstractMarketplace,
             orderId: orderId,
             parcelTracking: parcelTracking,
           );

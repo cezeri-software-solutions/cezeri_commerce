@@ -1,5 +1,5 @@
+import 'package:cezeri_commerce/4_infrastructur/repositories/prestashop_api/prestashop_repository_get.dart';
 import 'package:dartz/dartz.dart';
-import 'package:http/http.dart';
 import 'package:logger/logger.dart';
 
 import '/1_presentation/core/core.dart';
@@ -19,7 +19,6 @@ import '../../../../3_domain/entities/settings/tax.dart';
 import '../../../../3_domain/repositories/database/customer_repository.dart';
 import '../../../../3_domain/repositories/database/product_repository.dart';
 import '../../prestashop_api/models/order_presta.dart';
-import '../../prestashop_api/prestashop_api.dart';
 import 'product_import.dart';
 import 'product_repository_helper.dart';
 import 'receipt_respository_helper.dart';
@@ -34,11 +33,12 @@ Future<Either<AbstractFailure, Receipt>> createReceiptFromOrderPresta(
   OrderPresta orderPresta,
   LoadedOrderFromMarketplace loadedAppointmentFromMarketplace,
 ) async {
-  final api = PrestashopApi(Client(), PrestashopApiConfig(apiKey: marketplace.key, webserviceUrl: marketplace.fullUrl));
+  // final api = PrestashopApi(Client(), PrestashopApiConfig(apiKey: marketplace.key, webserviceUrl: marketplace.fullUrl));
 
   List<ReceiptProduct> listOfReceiptproducts = [];
   AbstractFailure? abstractFailureFromGetListOfReceipts;
-  final fosListOfReceiptproduct = await getListOfReceiptProductsFromPrestaAndSetQuantities(ownerId, productRepository, mainSettings, marketplace, orderPresta);
+  final fosListOfReceiptproduct =
+      await getListOfReceiptProductsFromPrestaAndSetQuantities(ownerId, productRepository, mainSettings, marketplace, orderPresta);
   fosListOfReceiptproduct.fold(
     (failure) => abstractFailureFromGetListOfReceipts = failure,
     (receiptProducts) => listOfReceiptproducts = receiptProducts,
@@ -59,20 +59,27 @@ Future<Either<AbstractFailure, Receipt>> createReceiptFromOrderPresta(
         .i('Bestellstatus für die Bestellung mit der ID: ${loadedAppointmentFromMarketplace.orderMarketplaceId} wurde erfolgreich aktualisiert'),
   );
 
-  final optionalCurrency = await api.getCurrency(int.parse(orderPresta.idCurrency));
-  final currency = optionalCurrency.value;
-  final optionalCarrier = await api.getCarrier(int.parse(orderPresta.idCarrier));
-  final carrier = optionalCarrier.value;
-  final optionalCustomer = await api.getCustomer(int.parse(orderPresta.idCustomer));
-  final customer = optionalCustomer.value;
-  final optionalAddressInvoice = await api.getAddress(int.parse(orderPresta.idAddressInvoice));
-  final addressInvoice = optionalAddressInvoice.value;
-  final optionalAddressDelivery = await api.getAddress(int.parse(orderPresta.idAddressDelivery));
-  final addressDelivery = optionalAddressDelivery.value;
-  final optionalCountryInvoice = await api.getCountry(int.parse(addressInvoice.idCountry));
-  final countryInvoice = optionalCountryInvoice.value;
-  final optionalCountryDelivery = await api.getCountry(int.parse(addressDelivery.idCountry));
-  final countryDelivery = optionalCountryDelivery.value;
+  final fosCurrency = await PrestashopRepositoryGet(marketplace).getCurrency(int.parse(orderPresta.idCurrency));
+  if (fosCurrency.isLeft()) return Left(fosCurrency.getLeft());
+  final currency = fosCurrency.getRight();
+  final fosCarrier = await PrestashopRepositoryGet(marketplace).getCarrier(int.parse(orderPresta.idCarrier));
+  if (fosCarrier.isLeft()) return Left(fosCarrier.getLeft());
+  final carrier = fosCarrier.getRight();
+  final fosCustomer = await PrestashopRepositoryGet(marketplace).getCustomer(int.parse(orderPresta.idCustomer));
+  if (fosCustomer.isLeft()) return Left(fosCustomer.getLeft());
+  final customer = fosCustomer.getRight();
+  final fosAddressInvoice = await PrestashopRepositoryGet(marketplace).getAddress(int.parse(orderPresta.idAddressInvoice));
+  if (fosAddressInvoice.isLeft()) return Left(fosAddressInvoice.getLeft());
+  final addressInvoice = fosAddressInvoice.getRight();
+  final fosAddressDelivery = await PrestashopRepositoryGet(marketplace).getAddress(int.parse(orderPresta.idAddressDelivery));
+  if (fosAddressDelivery.isLeft()) return Left(fosAddressDelivery.getLeft());
+  final addressDelivery = fosAddressDelivery.getRight();
+  final fosCountryInvoice = await PrestashopRepositoryGet(marketplace).getCountry(int.parse(addressInvoice.idCountry));
+  if (fosCountryInvoice.isLeft()) return Left(fosCountryInvoice.getLeft());
+  final countryInvoice = fosCountryInvoice.getRight();
+  final fosCountryDelivery = await PrestashopRepositoryGet(marketplace).getCountry(int.parse(addressDelivery.idCountry));
+  if (fosCountryDelivery.isLeft()) return Left(fosCountryDelivery.getLeft());
+  final countryDelivery = fosCountryDelivery.getRight();
 
   // final loadedCustomerFromFirestore = await getCustomerByMarketplaceId(customerRepository, marketplace.id, customer.id);
   final loadedCustomerFromFirestore = await getCustomerByEmail(customerRepository, customer.email);
@@ -147,14 +154,12 @@ Future<Either<AbstractFailure, List<ReceiptProduct>>> getListOfReceiptProductsFr
     final quantity = int.parse(orderProductPresta.productQuantity);
     final tax = calcTaxPercent((orderProductPresta.unitPriceTaxIncl).toMyDouble(), (orderProductPresta.unitPriceTaxExcl).toMyDouble());
 
-    final api = PrestashopApi(Client(), PrestashopApiConfig(apiKey: marketplace.key, webserviceUrl: marketplace.fullUrl));
-
-    final optionalProductPresta = await api.getProduct(int.parse(orderProductPresta.productId), marketplace);
-    if (optionalProductPresta.isNotPresent) {
+    final fosProductPresta = await PrestashopRepositoryGet(marketplace).getProduct(int.parse(orderProductPresta.productId));
+    if (fosProductPresta.isLeft()) {
       Logger().e('Artikel aus Bestellung konnte beim Bestellimport nicht aus Marktplatz geladen werden');
       return left(GeneralFailure(customMessage: 'Artikel aus Bestellung konnte beim Bestellimport nicht aus Marktplatz geladen werden'));
     }
-    final productPresta = optionalProductPresta.value;
+    final productPresta = fosProductPresta.getRight();
 
     Product? appointmentProduct;
 
@@ -165,20 +170,19 @@ Future<Either<AbstractFailure, List<ReceiptProduct>>> getListOfReceiptProductsFr
       final List<ProductIdWithQuantity> listOfProductIdWithQuantity = [];
       final List<Product> listOfSetPartProducts = [];
       for (final partProductPrestaId in productPresta.associations.associationsProductBundle!) {
-        final optionalProductPresta = await api.getProduct(int.parse(partProductPrestaId.id), marketplace);
-        if (optionalProductPresta.isNotPresent) {
+        final fosPartProductPresta = await PrestashopRepositoryGet(marketplace).getProduct(int.parse(partProductPrestaId.id));
+        if (fosPartProductPresta.isLeft()) {
           Logger().e('Artikel aus Bestellung konnte beim Bestellimport nicht aus Marktplatz geladen werden');
           return left(GeneralFailure(customMessage: 'Artikel aus Bestellung konnte beim Bestellimport nicht aus Marktplatz geladen werden'));
         }
 
-        final loadedProductPresta = optionalProductPresta.value;
+        final loadedProductPresta = fosPartProductPresta.getRight();
         final fosLoadedOrCreatedProduct = await getOrCreateProductFromPrestaOnImportAppointment(
           orderProductPresta: OrderProductPresta.fromProductPresta(loadedProductPresta),
           quantity: partProductPrestaId.quantity.toMyInt() * quantity,
           marketplace: marketplace,
           mainSettings: mainSettings,
           productRepository: productRepository,
-          api: api,
           listOfProductIdWithQuantity: null,
         );
 
@@ -196,7 +200,6 @@ Future<Either<AbstractFailure, List<ReceiptProduct>>> getListOfReceiptProductsFr
         marketplace: marketplace,
         mainSettings: mainSettings,
         productRepository: productRepository,
-        api: api,
         listOfProductIdWithQuantity: listOfProductIdWithQuantity,
       );
       fosAppointmentProduct.fold(
@@ -219,7 +222,6 @@ Future<Either<AbstractFailure, List<ReceiptProduct>>> getListOfReceiptProductsFr
         marketplace: marketplace,
         mainSettings: mainSettings,
         productRepository: productRepository,
-        api: api,
         listOfProductIdWithQuantity: null,
       );
       fosAppointmentProduct.fold(

@@ -116,14 +116,9 @@ Future<Either<AbstractFailure, List<ReceiptProduct>>> getListOfReceiptProductsFr
     final quantity = orderProductShopify.quantity;
     final tax = (orderProductShopify.taxLines.first.rate * 100).toStringAsFixed(0).toMyInt();
 
-    final api = ShopifyApi(
-      ShopifyApiConfig(storefrontToken: marketplace.storefrontAccessToken, adminToken: marketplace.adminAccessToken),
-      marketplace.fullUrl,
-    );
-
     ProductShopify? phProductShopify;
     AbstractFailure? fosProductShopifyFailure;
-    final fosProductShopify = await api.getProductById(orderProductShopify.productId!);
+    final fosProductShopify = await ShopifyRepositoryGet(marketplace).getProductById(orderProductShopify.productId!);
     fosProductShopify.fold(
       (failure) => fosProductShopifyFailure = failure,
       (loadedProductShopify) => phProductShopify = loadedProductShopify,
