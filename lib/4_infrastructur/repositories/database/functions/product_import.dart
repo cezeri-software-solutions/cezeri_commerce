@@ -17,7 +17,7 @@ import '../../../../constants.dart';
 import '../../../../failures/abstract_failure.dart';
 import '../../../../failures/firebase_failures.dart';
 import '../../prestashop_api/models/order_presta.dart';
-import '../../prestashop_api/prestashop_api.dart';
+import '../../prestashop_api/prestashop_repository_get.dart';
 import '../../shopify_api/shopify.dart';
 import 'get_or_create_product_from_firestore.dart';
 
@@ -92,7 +92,6 @@ Future<Either<AbstractFailure, Product>> getOrCreateProductFromPrestaOnImportApp
   required MarketplacePresta marketplace,
   required MainSettings mainSettings,
   required ProductRepository productRepository,
-  required PrestashopApi api,
   required List<ProductIdWithQuantity>? listOfProductIdWithQuantity,
 }) async {
   Product? newCreatedOrUpdatedProduct;
@@ -104,12 +103,12 @@ Future<Either<AbstractFailure, Product>> getOrCreateProductFromPrestaOnImportApp
     productRepository: productRepository,
   );
   if (productFromDatabase == null) {
-    final optionalProductPresta = await api.getProduct(int.parse(orderProductPresta.productId), marketplace);
-    if (optionalProductPresta.isNotPresent) {
+    final fosProductPresta = await PrestashopRepositoryGet(marketplace).getProduct(int.parse(orderProductPresta.productId));
+    if (fosProductPresta.isLeft()) {
       logger.e('Artikel aus Bestellung konnte beim Bestellimport nicht aus Marktplatz geladen werden');
       return left(MixedFailure(errorMessage: 'Artikel aus Bestellung konnte beim Bestellimport nicht aus Marktplatz geladen werden'));
     }
-    final productPresta = ProductPresta.fromProductRawPresta(optionalProductPresta.value);
+    final productPresta = ProductPresta.fromProductRawPresta(fosProductPresta.getRight());
 
     final phToCreateProduct = Product.fromMarketplaceProduct(
       marketplaceProduct: productPresta,
@@ -133,12 +132,12 @@ Future<Either<AbstractFailure, Product>> getOrCreateProductFromPrestaOnImportApp
   } else {
     //* Wenn dieser Marktplatz in Cezeri-Commerce diesem Artikel nicht zugeordnet ist
     if (!productFromDatabase.productMarketplaces.any((e) => e.idMarketplace == marketplace.id)) {
-      final optionalProductPresta = await api.getProduct(int.parse(orderProductPresta.productId), marketplace);
-      if (optionalProductPresta.isNotPresent) {
+      final fosProductPresta = await PrestashopRepositoryGet(marketplace).getProduct(int.parse(orderProductPresta.productId));
+      if (fosProductPresta.isLeft()) {
         logger.e('Artikel aus Bestellung konnte beim Bestellimport nicht aus Marktplatz geladen werden');
         return left(MixedFailure(errorMessage: 'Artikel aus Bestellung konnte beim Bestellimport nicht aus Marktplatz geladen werden'));
       }
-      final productPresta = optionalProductPresta.value;
+      final productPresta = fosProductPresta.getRight();
 
       final productMarketplace = ProductMarketplace.fromMarketplaceProduct(ProductPresta.fromProductRawPresta(productPresta), marketplace);
       List<ProductMarketplace> productMarketplaces = List.from(productFromDatabase.productMarketplaces);

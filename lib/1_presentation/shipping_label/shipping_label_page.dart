@@ -119,16 +119,12 @@ class _ShippingLabelPageState extends State<ShippingLabelPage> {
                           'info@ccf-autopflege.at',
                           false,
                         );
-                        final soapRequest = service.generateSoapRequest(); //generateSoapRequest();
+                        final soapRequest = service.generateSoapRequest();
 
                         final response = await service.createShipment(soapRequest);
-                        if (response.isLeft()) {
-                          print('Error: ${response.getLeft()}');
-                          return;
-                        }
-                        final pdfString = response.getRight();
-                        print('Response: $response');
+                        if (response.isLeft()) return;
 
+                        final pdfString = response.getRight();
                         final base64String = service.getPdfLabel(pdfString);
                         final pdfBytes = base64.decode(base64String);
                         if (kIsWeb) {

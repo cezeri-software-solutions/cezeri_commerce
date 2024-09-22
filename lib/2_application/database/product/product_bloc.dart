@@ -2,7 +2,6 @@ import 'package:bloc/bloc.dart';
 import 'package:cezeri_commerce/failures/firebase_failures.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart';
 
 import '/1_presentation/core/core.dart';
 import '/3_domain/entities/marketplace/abstract_marketplace.dart';
@@ -21,7 +20,7 @@ import '../../../3_domain/repositories/database/product_repository.dart';
 import '../../../3_domain/repositories/database/supplier_repository.dart';
 import '../../../4_infrastructur/repositories/database/functions/product_repository_helper.dart';
 import '../../../4_infrastructur/repositories/prestashop_api/models/models.dart';
-import '../../../4_infrastructur/repositories/prestashop_api/prestashop_api.dart';
+import '../../../4_infrastructur/repositories/prestashop_api/prestashop_repository_patch.dart';
 
 part 'product_event.dart';
 part 'product_state.dart';
@@ -439,11 +438,6 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
     final List<AbstractFailure> marketplaceFailures = [];
     List<Product> listOfNotUpdatedProductsOnMassEditing = [];
 
-    final api = ShopifyApi(
-      ShopifyApiConfig(storefrontToken: (event.marketplace).storefrontAccessToken, adminToken: event.marketplace.adminAccessToken),
-      event.marketplace.fullUrl,
-    );
-
     for (final product in state.selectedProducts) {
       final productMarketplace = product.productMarketplaces.where((e) => e.idMarketplace == event.marketplace.id).firstOrNull;
       if (productMarketplace == null) {
@@ -475,8 +469,8 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
 
       //* Update in Marktplätzen
       final marketplaceResponse = switch (event.isAddCategories) {
-        true => await api.addCollectionsToProduct(productShopify, event.selectedCustomCollections),
-        false => await api.removeCollectionsFromProduct(productShopify, event.selectedCustomCollections),
+        true => await ShopifyRepositoryPost(event.marketplace).addCollectionsToProduct(productShopify, event.selectedCustomCollections),
+        false => await ShopifyRepositoryDelete(event.marketplace).removeCollectionsFromProduct(productShopify, event.selectedCustomCollections),
       };
       marketplaceResponse.fold(
         (failure) => marketplaceFailures.addAll(failure),
@@ -498,8 +492,6 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
 
     final List<AbstractFailure> marketplaceFailures = [];
     List<Product> listOfNotUpdatedProductsOnMassEditing = [];
-
-    final api = PrestashopApi(Client(), PrestashopApiConfig(apiKey: event.marketplace.key, webserviceUrl: event.marketplace.fullUrl));
 
     for (final product in state.selectedProducts) {
       final productMarketplace = product.productMarketplaces.where((e) => e.idMarketplace == event.marketplace.id).firstOrNull;
@@ -534,11 +526,10 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
       }
 
       //* Update in Marktplätzen
-      final marketplaceResponse = await api.patchProductCategories(
-        productPresta.id,
-        updatedProduct,
-        updatedProduct.productMarketplaces[index],
-        event.marketplace,
+      final marketplaceResponse = await PrestashopRepositoryPatch(event.marketplace).updateCategoriesInMarketplace(
+        productId: productPresta.id,
+        product: updatedProduct,
+        productPresta: updatedProduct.productMarketplaces[index].marketplaceProduct as ProductPresta,
       );
       marketplaceResponse.fold(
         (failure) => marketplaceFailures.addAll([failure]),

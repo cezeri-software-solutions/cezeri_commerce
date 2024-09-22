@@ -4,7 +4,6 @@ import 'package:cezeri_commerce/3_domain/repositories/database/marketplace_repos
 import 'package:cezeri_commerce/4_infrastructur/repositories/prestashop_api/prestashop_repository_get.dart';
 import 'package:cezeri_commerce/4_infrastructur/repositories/shopify_api/shopify.dart';
 import 'package:dartz/dartz.dart';
-import 'package:http/http.dart';
 
 import '../../../../1_presentation/core/core.dart';
 import '../../../../3_domain/repositories/marketplace/marketplace_import_repository.dart';
@@ -18,7 +17,6 @@ import '../../../constants.dart';
 import '../../../failures/failures.dart';
 import '../database/functions/repository_functions.dart';
 import '../prestashop_api/models/product_raw_presta.dart';
-import '../prestashop_api/prestashop_api.dart';
 import 'marketplace_import_repository_helper.dart';
 
 class MarketplaceImportRepositoryImpl implements MarketplaceImportRepository {
@@ -40,15 +38,15 @@ class MarketplaceImportRepositoryImpl implements MarketplaceImportRepository {
     try {
       List<int> listOfToLoadAppointmentsFromMarketplace = [];
 
-      final api = PrestashopApi(Client(), PrestashopApiConfig(apiKey: marketplace.key, webserviceUrl: marketplace.fullUrl));
-
       switch (marketplace.marketplaceType) {
         case MarketplaceType.prestashop:
           {
-            final productIdsPresta = switch (onlyActive) {
-              false => await api.getProductIds(),
-              true => await api.getProductIdsOnlyActive(),
+            final fosProductIdsPresta = switch (onlyActive) {
+              false => await PrestashopRepositoryGet(marketplace).getProductIds(),
+              true => await PrestashopRepositoryGet(marketplace).getProductIdsOnlyActive(),
             };
+            if (fosProductIdsPresta.isLeft()) return Left(fosProductIdsPresta.getLeft());
+            final productIdsPresta = fosProductIdsPresta.getRight();
             final allProductIds = productIdsPresta.map((e) => e.id).toList();
             allProductIds.sort((a, b) => a.compareTo(b));
 
@@ -75,15 +73,13 @@ class MarketplaceImportRepositoryImpl implements MarketplaceImportRepository {
     final isConnected = await checkInternetConnection();
     if (!isConnected) return left(NoConnectionFailure());
 
-    final api = PrestashopApi(Client(), PrestashopApiConfig(apiKey: marketplace.key, webserviceUrl: marketplace.fullUrl));
-
     try {
-      final optionalProductPresta = await api.getProduct(productId, marketplace);
-      if (optionalProductPresta.isNotPresent) {
+      final fosProductPresta = await PrestashopRepositoryGet(marketplace).getProduct(productId);
+      if (fosProductPresta.isLeft()) {
         logger.e('Fehler beim Laden des Artikels aus Prestashop');
         return left(PrestaGeneralFailure(errorMessage: 'Fehler beim Laden der Artikels aus Prestashop'));
       }
-      final productPresta = optionalProductPresta.value;
+      final productPresta = fosProductPresta.getRight();
 
       return right(productPresta);
     } catch (e) {
@@ -149,17 +145,15 @@ class MarketplaceImportRepositoryImpl implements MarketplaceImportRepository {
   Future<Either<AbstractFailure, ProductPresta>> loadProductByIdFromPrestashopAsJson(int id, MarketplacePresta marketplace) async {
     if (!await checkInternetConnection()) return left(PrestaGeneralFailure());
 
-    final api = PrestashopApi(Client(), PrestashopApiConfig(apiKey: marketplace.key, webserviceUrl: marketplace.fullUrl));
-
     try {
-      final optionalProductPresta = await api.getProduct(id, marketplace);
-      if (optionalProductPresta.isNotPresent) return left(PrestaGeneralFailure());
-      final productPresta = ProductPresta.fromProductRawPresta(optionalProductPresta.value);
+      final fosProductPresta = await PrestashopRepositoryGet(marketplace).getProduct(id);
+      if (fosProductPresta.isLeft()) return left(fosProductPresta.getLeft());
+      final productPresta = ProductPresta.fromProductRawPresta(fosProductPresta.getRight());
 
-      return right(productPresta);
+      return Right(productPresta);
     } catch (e) {
       logger.e(e);
-      return left(PrestaGeneralFailure());
+      return Left(PrestaGeneralFailure());
     }
   }
 
@@ -170,17 +164,11 @@ class MarketplaceImportRepositoryImpl implements MarketplaceImportRepository {
   ) async {
     if (!await checkInternetConnection()) return left(NoConnectionFailure());
 
-    final api = ShopifyApi(
-      ShopifyApiConfig(storefrontToken: marketplace.storefrontAccessToken, adminToken: marketplace.adminAccessToken),
-      marketplace.fullUrl,
-    );
-
     try {
-      final fosProductShopify = await api.getProductsByArticleNumber(articleNumber);
-      return fosProductShopify.fold(
-        (failure) => left(failure),
-        (products) => right(products),
-      );
+      final fosProductShopify = await ShopifyRepositoryGet(marketplace).getProductsByArticleNumber(articleNumber);
+      if (fosProductShopify.isLeft()) return Left(fosProductShopify.getLeft());
+
+      return Right(fosProductShopify.getRight());
     } catch (e) {
       logger.e(e);
       return left(ShopifyGeneralFailure());
@@ -192,8 +180,8 @@ class MarketplaceImportRepositoryImpl implements MarketplaceImportRepository {
     if (!await checkInternetConnection()) return left(PrestaGeneralFailure());
 
     return switch (marketplace.marketplaceType) {
-      MarketplaceType.prestashop => await PrestashopRepositoryGet(marketplace as MarketplacePresta).getCategories(marketplace),
-      MarketplaceType.shopify => await ShopifyRepositoryGet(marketplace as MarketplaceShopify).getCategories(marketplace),
+      MarketplaceType.prestashop => await PrestashopRepositoryGet(marketplace as MarketplacePresta).getCategories(),
+      MarketplaceType.shopify => await ShopifyRepositoryGet(marketplace as MarketplaceShopify).getCategories(),
       MarketplaceType.shop => Left(GeneralFailure(customMessage: 'Ein Ladengeschäft kann keine Schnitstelle haben.')),
     };
   }

@@ -1,5 +1,4 @@
 import 'package:dartz/dartz.dart';
-import 'package:http/http.dart';
 
 import '/1_presentation/core/core.dart';
 import '../../../3_domain/entities/marketplace/marketplace_presta.dart';
@@ -13,7 +12,7 @@ import '../../../constants.dart';
 import '../../../failures/abstract_failure.dart';
 import '../database/functions/product_import.dart';
 import '../database/functions/product_repository_helper.dart';
-import '../prestashop_api/prestashop_api.dart';
+import '../prestashop_api/prestashop_repository_get.dart';
 import '../shopify_api/shopify.dart';
 
 Future<Either<AbstractFailure, Product?>> createOrUpdateProductFromMarketplacePresta({
@@ -30,8 +29,6 @@ Future<Either<AbstractFailure, Product?>> createOrUpdateProductFromMarketplacePr
 
   Product? newCreatedOrUpdatedProduct;
 
-  final api = PrestashopApi(Client(), PrestashopApiConfig(apiKey: marketplace.key, webserviceUrl: marketplace.fullUrl));
-
   //* Wenn Set-Artikel werden auch die Einzelartikel des Sets mitgeladen
   if (productPresta.type == 'pack' &&
       productPresta.associations!.associationsProductBundle != null &&
@@ -39,12 +36,12 @@ Future<Either<AbstractFailure, Product?>> createOrUpdateProductFromMarketplacePr
     final List<ProductIdWithQuantity> listOfProductIdWithQuantity = [];
     final List<Product> listOfSetPartProducts = [];
     for (final partProductPrestaId in productPresta.associations!.associationsProductBundle!) {
-      final optionalProductPresta = await api.getProduct(int.parse(partProductPrestaId.id), marketplace);
-      if (optionalProductPresta.isNotPresent) {
+      final fosProductPresta = await PrestashopRepositoryGet(marketplace).getProduct(int.parse(partProductPrestaId.id));
+      if (fosProductPresta.isLeft()) {
         logger.e('Artikel aus Bestellung konnte beim Bestellimport nicht aus Marktplatz geladen werden');
         return left(MixedFailure(errorMessage: 'Artikel aus Bestellung konnte beim Bestellimport nicht aus Marktplatz geladen werden'));
       }
-      final loadedProductPresta = ProductPresta.fromProductRawPresta(optionalProductPresta.value);
+      final loadedProductPresta = ProductPresta.fromProductRawPresta(fosProductPresta.getRight());
       final fosLoadedOrCreatedProduct = await getOrCreateProductFromMarketplaceOnImportProduct(
         marketplaceProduct: loadedProductPresta,
         marketplace: marketplace,

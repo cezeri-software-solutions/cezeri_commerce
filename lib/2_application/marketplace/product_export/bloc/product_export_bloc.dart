@@ -236,19 +236,14 @@ class ProductExportBloc extends Bloc<ProductExportEvent, ProductExportState> {
             switch (sourceMarketplace.marketplaceType) {
               case MarketplaceType.prestashop:
                 {
-                  final api = ShopifyApi(
-                    ShopifyApiConfig(storefrontToken: marketplace.storefrontAccessToken, adminToken: marketplace.adminAccessToken),
-                    marketplace.fullUrl,
-                  );
-
-                  final fosAllProductsRawShopify = await api.getProductsAllRaw();
-                  if (fosAllProductsRawShopify.isLeft()) {
-                    emit(state.copyWith(fosProductsOnExportOption: optionOf(Left([fosAllProductsRawShopify.getLeft()]))));
+                  final resultAllProductsRawShopify = await ShopifyRepositoryGet(marketplace).getProductsAllRaw();
+                  if (resultAllProductsRawShopify.isLeft()) {
+                    emit(state.copyWith(fosProductsOnExportOption: optionOf(Left([resultAllProductsRawShopify.getLeft()]))));
                     emit(state.copyWith(fosProductsOnExportOption: none(), isLoadingOnExportProducts: false));
                     return;
                   }
 
-                  final allProductsRawShopify = fosAllProductsRawShopify.getRight();
+                  final allProductsRawShopify = resultAllProductsRawShopify.getRight();
 
                   final categoriesPresta = marketplaceSourceCategories as List<CategoryPresta>;
                   for (int i = 0; i < state.selectedProducts.length; i++) {
@@ -304,8 +299,11 @@ class ProductExportBloc extends Bloc<ProductExportEvent, ProductExportState> {
                     }
 
                     ProductShopify? newCreatedProductShopify;
-                    final fosCreatedProduct = await api.postProduct(product, categoryIds);
-                    fosCreatedProduct.fold(
+                    final resProduct = await ShopifyRepositoryPost(marketplace).createNewProductInMarketplace(
+                      product: product,
+                      customCollectionIds: categoryIds,
+                    );
+                    resProduct.fold(
                       (createFailures) {
                         for (final createFailure in createFailures) {
                           if (createFailure.runtimeType == ShopifyPostProductFailure) {
