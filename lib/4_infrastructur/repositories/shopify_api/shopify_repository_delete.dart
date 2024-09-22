@@ -8,7 +8,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../3_domain/entities/marketplace/marketplace_shopify.dart';
 import '../../../constants.dart';
 import '../../../failures/failures.dart';
-import 'shopify_repository_get.dart';
+import 'shopify.dart';
 
 class ShopifyRepositoryDelete {
   final MarketplaceShopify marketplace;
@@ -22,7 +22,7 @@ class ShopifyRepositoryDelete {
         };
   final supabase = GetIt.I<SupabaseClient>();
 
-  Future<Either<AbstractFailure, Unit>> deleteCollect(MarketplaceShopify marketplace, int collectId) async {
+  Future<Either<AbstractFailure, Unit>> deleteCollect(int collectId) async {
     try {
       await supabase.functions.invoke(
         'shopify_api',
@@ -40,7 +40,7 @@ class ShopifyRepositoryDelete {
     }
   }
 
-  Future<Either<AbstractFailure, Unit>> deleteProductImage(MarketplaceShopify marketplace, int productId, int imageId) async {
+  Future<Either<AbstractFailure, Unit>> deleteProductImage(int productId, int imageId) async {
     try {
       await supabase.functions.invoke(
         'shopify_api',
@@ -59,24 +59,41 @@ class ShopifyRepositoryDelete {
     }
   }
 
-  Future<Either<List<AbstractFailure>, Unit>> deleteProductImages({
-    required MarketplaceShopify marketplace,
-    required int productId, // Artikel-ID im Marktplatz
-  }) async {
+  Future<Either<List<AbstractFailure>, Unit>> deleteProductImages({required int productId}) async {
     final List<AbstractFailure> failures = [];
 
-    final fosProductRaw = await ShopifyRepositoryGet(marketplace).getProductRawById(marketplace, productId);
+    final fosProductRaw = await ShopifyRepositoryGet(marketplace).getProductRawById(productId);
     if (fosProductRaw.isLeft()) return Left([fosProductRaw.getLeft()]);
 
     final productRawShopify = fosProductRaw.getRight();
     if (productRawShopify.images.isEmpty) return const Right(unit);
 
     for (final image in productRawShopify.images) {
-      final deleteResult = await deleteProductImage(marketplace, productId, image.id);
+      final deleteResult = await deleteProductImage(productId, image.id);
       if (deleteResult.isLeft()) failures.add(deleteResult.getLeft());
     }
 
     if (failures.isNotEmpty) return Left(failures);
     return const Right(unit);
+  }
+
+  Future<Either<List<AbstractFailure>, Unit>> removeCollectionsFromProduct(
+    ProductShopify productShopify,
+    List<CustomCollectionShopify> toRemoveCustomCollections,
+  ) async {
+    List<AbstractFailure> putProductFailures = [];
+
+    final collectsResult = await ShopifyRepositoryGet(marketplace).getCollectsOfProduct(productShopify.id);
+    if (collectsResult.isLeft()) return Left([collectsResult.getLeft()]);
+    final listOfCollects = collectsResult.getRight();
+
+    for (final removedCustomCollection in toRemoveCustomCollections) {
+      final index = listOfCollects.indexWhere((e) => e.collectionId == removedCustomCollection.id);
+      if (index == -1) continue;
+      final deletedCollectResult = await deleteCollect(listOfCollects[index].id);
+      if (deletedCollectResult.isLeft()) putProductFailures.add(deletedCollectResult.getLeft());
+    }
+
+    return putProductFailures.isEmpty ? const Right(unit) : Left(putProductFailures);
   }
 }

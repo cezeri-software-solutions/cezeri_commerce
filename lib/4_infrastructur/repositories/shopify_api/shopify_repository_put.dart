@@ -24,11 +24,7 @@ class ShopifyRepositoryPut {
 
   final supabase = GetIt.I<SupabaseClient>();
 
-  Future<Either<AbstractFailure, Unit>> putProduct({
-    required MarketplaceShopify marketplace,
-    required int productId, // Artikel-ID im Marktplatz
-    required Map<String, Map<String, Object>> body,
-  }) async {
+  Future<Either<AbstractFailure, Unit>> putProduct({required int productId, required Map<String, Map<String, Object>> body}) async {
     try {
       await supabase.functions.invoke(
         'shopify_api',
@@ -47,11 +43,7 @@ class ShopifyRepositoryPut {
     }
   }
 
-  Future<Either<List<AbstractFailure>, Unit>> updateProductInMarketplace({
-    required MarketplaceShopify marketplace,
-    required ProductShopify productShopify,
-    required Product product,
-  }) async {
+  Future<Either<List<AbstractFailure>, Unit>> updateProductInMarketplace({required ProductShopify productShopify, required Product product}) async {
     final body = {
       "product": {
         "id": productShopify.id,
@@ -78,14 +70,14 @@ class ShopifyRepositoryPut {
     List<AbstractFailure> putProductFailures = [];
 
     //* Update Product
-    final fosProduct = await putProduct(marketplace: marketplace, productId: productShopify.id, body: body);
+    final fosProduct = await putProduct(productId: productShopify.id, body: body);
     if (fosProduct.isLeft()) return Left([fosProduct.getLeft()]);
 
-    final collectsResult = await ShopifyRepositoryGet(marketplace).getCollectsOfProduct(marketplace, productShopify.id);
+    final collectsResult = await ShopifyRepositoryGet(marketplace).getCollectsOfProduct(productShopify.id);
     if (collectsResult.isLeft()) return Left([collectsResult.getLeft()]);
     final listOfCollects = collectsResult.getRight();
 
-    final customCollectionsResult = await ShopifyRepositoryGet(marketplace).getCustomCollectionsByProductId(marketplace, productShopify.id);
+    final customCollectionsResult = await ShopifyRepositoryGet(marketplace).getCustomCollectionsByProductId(productShopify.id);
     if (customCollectionsResult.isLeft()) return Left([customCollectionsResult.getLeft()]);
     final listOfCustomCollections = customCollectionsResult.getRight();
 
@@ -110,7 +102,6 @@ class ShopifyRepositoryPut {
       for (final newCustomCollection in newAddedCustomCollections) {
         if (!listOfCollects.any((e) => e.collectionId == newCustomCollection.id)) {
           final newCollectResult = await ShopifyRepositoryPost(marketplace).postCollect(
-            marketplace: marketplace,
             productId: productShopify.id,
             customCollectionId: newCustomCollection.id,
           );
@@ -123,7 +114,7 @@ class ShopifyRepositoryPut {
       for (final removedCustomCollection in removedCustomCollections) {
         final index = listOfCollects.indexWhere((e) => e.collectionId == removedCustomCollection.id);
         if (index == -1) continue;
-        final deletedCollectResult = await ShopifyRepositoryDelete(marketplace).deleteCollect(marketplace, listOfCollects[index].id);
+        final deletedCollectResult = await ShopifyRepositoryDelete(marketplace).deleteCollect(listOfCollects[index].id);
         if (deletedCollectResult.isLeft()) putProductFailures.add(deletedCollectResult.getLeft());
       }
     }
