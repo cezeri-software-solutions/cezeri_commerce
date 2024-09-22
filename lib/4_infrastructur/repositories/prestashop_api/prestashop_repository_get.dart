@@ -26,8 +26,52 @@ class PrestashopRepositoryGet {
 
   final supabase = GetIt.I<SupabaseClient>();
 
+  //* Addresses */
+  Future<Either<AbstractFailure, AddressPresta>> getAddress(int addressId) async {
+    try {
+      final response = await supabase.functions.invoke(
+        'prestashop_api',
+        body: jsonEncode({'credentials': credentials, 'functionName': 'getAddress', 'addressId': addressId}),
+      );
+
+      return Right(AddressesPresta.fromJson(response.data).items.single);
+    } catch (e) {
+      logger.e('Error: $e');
+      return Left(PrestaGeneralFailure(errorMessage: e.toString()));
+    }
+  }
+
+  //* Carriers */
+  Future<Either<AbstractFailure, CarrierPresta>> getCarrier(int carrierId) async {
+    try {
+      final response = await supabase.functions.invoke(
+        'prestashop_api',
+        body: jsonEncode({'credentials': credentials, 'functionName': 'getCarrier', 'carrierId': carrierId}),
+      );
+
+      return Right(CarriersPresta.fromJson(response.data).items.single);
+    } catch (e) {
+      logger.e('Error: $e');
+      return Left(PrestaGeneralFailure(errorMessage: e.toString()));
+    }
+  }
+
   //* Categories */
-  Future<Either<AbstractFailure, List<CategoryPresta>>> getCategories(MarketplacePresta marketplace) async {
+  Future<Either<AbstractFailure, CategoryPresta>> getCategory(int categoryId) async {
+    try {
+      final response = await supabase.functions.invoke(
+        'prestashop_api',
+        body: jsonEncode({'credentials': credentials, 'functionName': 'getCategory', 'categoryId': categoryId}),
+      );
+
+      return Right(CategoriesPresta.fromJson(response.data).items.single);
+    } catch (e) {
+      logger.e('Error: $e');
+      return Left(PrestaGeneralFailure(errorMessage: e.toString()));
+    }
+  }
+
+  Future<Either<AbstractFailure, List<CategoryPresta>>> getCategories() async {
     try {
       final response = await supabase.functions.invoke(
         'prestashop_api',
@@ -41,8 +85,53 @@ class PrestashopRepositoryGet {
     }
   }
 
+  //* Countries */
+  Future<Either<AbstractFailure, CountryPresta>> getCountry(int countryId) async {
+    try {
+      final response = await supabase.functions.invoke(
+        'prestashop_api',
+        body: jsonEncode({'credentials': credentials, 'functionName': 'getCountry', 'countryId': countryId}),
+      );
+
+      return Right(CountriesPresta.fromJson(response.data).items.single);
+    } catch (e) {
+      logger.e('Error: $e');
+      return Left(PrestaGeneralFailure(errorMessage: e.toString()));
+    }
+  }
+
+  //* Currencies */
+  Future<Either<AbstractFailure, CurrencyPresta>> getCurrency(int currencyId) async {
+    try {
+      final response = await supabase.functions.invoke(
+        'prestashop_api',
+        body: jsonEncode({'credentials': credentials, 'functionName': 'getCurrency', 'currencyId': currencyId}),
+      );
+
+      return Right(CurrenciesPresta.fromJson(response.data).items.single);
+    } catch (e) {
+      logger.e('Error: $e');
+      return Left(PrestaGeneralFailure(errorMessage: e.toString()));
+    }
+  }
+
+  //* Customers */
+  Future<Either<AbstractFailure, CustomerPresta>> getCustomer(int customerId) async {
+    try {
+      final response = await supabase.functions.invoke(
+        'prestashop_api',
+        body: jsonEncode({'credentials': credentials, 'functionName': 'getCustomer', 'customerId': customerId}),
+      );
+
+      return Right(CustomersPresta.fromJson(response.data).items.single);
+    } catch (e) {
+      logger.e('Error: $e');
+      return Left(PrestaGeneralFailure(errorMessage: e.toString()));
+    }
+  }
+
   //* Languages */
-  Future<Either<AbstractFailure, List<LanguagePresta>>> getLanguages(MarketplacePresta marketplace) async {
+  Future<Either<AbstractFailure, List<LanguagePresta>>> getLanguages() async {
     try {
       final response = await supabase.functions.invoke(
         'prestashop_api',
@@ -56,15 +145,106 @@ class PrestashopRepositoryGet {
     }
   }
 
+  Future<Either<AbstractFailure, LanguagePresta>> getLanguage(int languageId) async {
+    try {
+      final response = await supabase.functions.invoke(
+        'prestashop_api',
+        body: jsonEncode({'credentials': credentials, 'functionName': 'getLanguage', 'languageId': languageId}),
+      );
+
+      return Right(LanguagesPresta.fromJson(response.data).items.single);
+    } catch (e) {
+      logger.e('Error: $e');
+      return Left(PrestaGeneralFailure(errorMessage: e.toString()));
+    }
+  }
+
+  //* Orders */
+  Future<Either<AbstractFailure, List<OrderIdPresta>>> getOrderIds() async {
+    try {
+      final response = await supabase.functions.invoke(
+        'prestashop_api',
+        body: jsonEncode({
+          'credentials': credentials,
+          'functionName': 'getOrderIds',
+          'nextOrderIdToImport': marketplace.marketplaceSettings.nextIdToImport - 1,
+        }),
+      );
+
+      print('response: $response');
+      print('------------------------------------------------');
+      print('response.data: ${response.data}');
+      print(response.data is List<dynamic> && response.data.isEmpty);
+
+      if (response.data is List<dynamic> && response.data.isEmpty) return const Right([]);
+
+      return Right(OrdersIdPresta.fromJson(response.data).items);
+    } catch (e) {
+      logger.e('Error: $e');
+      return Left(PrestaGeneralFailure(errorMessage: e.toString()));
+    }
+  }
+
+  Future<Either<AbstractFailure, OrderPresta>> getOrder(int orderId) async {
+    try {
+      final response = await supabase.functions.invoke(
+        'prestashop_api',
+        body: jsonEncode({'credentials': credentials, 'functionName': 'getOrder', 'orderId': orderId}),
+      );
+
+      print('#### ---------------------------------------------------');
+      print('response: $response');
+      print('response.data: ${response.data}');
+      print('#### ---------------------------------------------------');
+
+      return Right(OrdersPresta.fromJson(response.data).items.single);
+    } catch (e) {
+      logger.e('Error: $e');
+      print('e.runtimeType: ${e.runtimeType}');
+      print('e.toString(): ${e.toString()}');
+      // if(e.toString().contains('Empty response from server')) 
+      return Left(PrestaGeneralFailure(errorMessage: e.toString()));
+    }
+  }
+
+  //* Products */
+  Future<Either<AbstractFailure, List<ProductIdPresta>>> getProductIds() async {
+    try {
+      final response = await supabase.functions.invoke(
+        'prestashop_api',
+        body: jsonEncode({'credentials': credentials, 'functionName': 'getProductIds'}),
+      );
+
+      return Right(ProductsIdPresta.fromJson(response.data).items);
+    } catch (e) {
+      logger.e('Error: $e');
+      return Left(PrestaGeneralFailure(errorMessage: e.toString()));
+    }
+  }
+
+  Future<Either<AbstractFailure, List<ProductIdPresta>>> getProductIdsOnlyActive() async {
+    try {
+      final response = await supabase.functions.invoke(
+        'prestashop_api',
+        body: jsonEncode({'credentials': credentials, 'functionName': 'getProductIdsOnlyActive'}),
+      );
+
+      return Right(ProductsIdPresta.fromJson(response.data).items);
+    } catch (e) {
+      logger.e('Error: $e');
+      return Left(PrestaGeneralFailure(errorMessage: e.toString()));
+    }
+  }
+
   //* Images */
-  Future<Either<AbstractFailure, List<ProductPrestaImage>>> getProductImages(MarketplacePresta marketplace, ProductRawPresta productRawPresta) async {
-    if (productRawPresta.associations.associationsImages != null && productRawPresta.associations.associationsImages!.isNotEmpty) {
+  Future<Either<AbstractFailure, List<ProductPrestaImage>>> getProductImages(ProductRawPresta productRawPresta) async {
+    if ((productRawPresta.associations.associationsImages == null) ||
+        productRawPresta.associations.associationsImages != null && productRawPresta.associations.associationsImages!.isEmpty) {
       return const Right([]);
     }
 
     List<ProductPrestaImage> listOfImages = [];
 
-    if (productRawPresta.associations.associationsImages == null) return Right(listOfImages);
     for (final id in productRawPresta.associations.associationsImages!) {
       final uri = '${marketplace.fullUrl}images/products/${productRawPresta.id}/${id.id}';
       final responseImage = await http.get(
@@ -85,7 +265,7 @@ class PrestashopRepositoryGet {
 
   //* Products */
   //* "getProductRaw gibt den Artikel so zurück, wie diese von Prestashop bereitgestellt wird"
-  Future<Either<AbstractFailure, ProductRawPresta>> getProductRaw(MarketplacePresta marketplace, int productId) async {
+  Future<Either<AbstractFailure, ProductRawPresta>> getProductRaw(int productId) async {
     try {
       final response = await supabase.functions.invoke(
         'prestashop_api',
@@ -99,8 +279,23 @@ class PrestashopRepositoryGet {
     }
   }
 
+  //* "getProductByReference gibt den Artikel so zurück, wie diese von Prestashop bereitgestellt wird"
+  Future<Either<AbstractFailure, ProductRawPresta>> getProductByReference(String reference) async {
+    try {
+      final response = await supabase.functions.invoke(
+        'prestashop_api',
+        body: jsonEncode({'credentials': credentials, 'functionName': 'getProductByReference', 'reference': reference}),
+      );
+
+      return Right(ProductsPresta.fromJson(response.data).items.single);
+    } catch (e) {
+      logger.e('Error: $e');
+      return Left(PrestaGeneralFailure(errorMessage: e.toString()));
+    }
+  }
+
   //* StockAvailables */
-  Future<Either<AbstractFailure, StockAvailablePresta>> getStockAvailable(MarketplacePresta marketplace, int stockAvailableId) async {
+  Future<Either<AbstractFailure, StockAvailablePresta>> getStockAvailable(int stockAvailableId) async {
     try {
       final response = await supabase.functions.invoke(
         'prestashop_api',
@@ -120,27 +315,54 @@ class PrestashopRepositoryGet {
 
   //* "getProduct gibt den Artikel so zurück, wie diese von Prestashop bereitgestellt wird und fürgt noch weitere Artikeldaten hinzu"
   //* Wie z.B. Multilanguage, ListOfProductImages usw.
-  Future<Either<AbstractFailure, ProductRawPresta>> getProduct(MarketplacePresta marketplace, int productId) async {
-    final fosProductRawPresta = await getProductRaw(marketplace, productId);
+  Future<Either<AbstractFailure, ProductRawPresta>> getProduct(int productId) async {
+    final fosProductRawPresta = await getProductRaw(productId);
     if (fosProductRawPresta.isLeft()) return Left(fosProductRawPresta.getLeft());
     final productRawPresta = fosProductRawPresta.getRight();
 
     final idStockAvailable = productRawPresta.associations.associationsStockAvailables!.first.id;
-    final fosStockAvailablesPresta = await getStockAvailable(marketplace, idStockAvailable.toMyInt());
+    final fosStockAvailablesPresta = await getStockAvailable(idStockAvailable.toMyInt());
     if (fosStockAvailablesPresta.isLeft()) return Left(fosStockAvailablesPresta.getLeft());
     final stockAvailablesPresta = fosStockAvailablesPresta.getRight();
 
-    final fosMarketplaceLanguages = await getLanguages(marketplace);
+    final fosMarketplaceLanguages = await getLanguages();
     if (fosMarketplaceLanguages.isLeft()) return Left(fosProductRawPresta.getLeft());
     final marketplaceLanguages = fosMarketplaceLanguages.getRight();
 
-    final fosListOfImages = await getProductImages(marketplace, productRawPresta);
+    final fosListOfImages = await getProductImages(productRawPresta);
     if (fosListOfImages.isLeft()) return Left(fosListOfImages.getLeft());
     final listOfImages = fosListOfImages.getRight();
 
     final productPresta = _fromRawProductToProductToUse(
       phProductPresta: productRawPresta,
-      marketplace: marketplace,
+      stockAvailablesPresta: stockAvailablesPresta,
+      marketplaceLanguages: marketplaceLanguages,
+      listOfImages: listOfImages,
+    );
+
+    return Right(productPresta);
+  }
+
+  Future<Either<AbstractFailure, ProductRawPresta>> getProductByArticleNumber(String articleNumber) async {
+    final fosProductRawPresta = await getProductByReference(articleNumber);
+    if (fosProductRawPresta.isLeft()) return Left(fosProductRawPresta.getLeft());
+    final productRawPresta = fosProductRawPresta.getRight();
+
+    final idStockAvailable = productRawPresta.associations.associationsStockAvailables!.first.id;
+    final fosStockAvailablesPresta = await getStockAvailable(idStockAvailable.toMyInt());
+    if (fosStockAvailablesPresta.isLeft()) return Left(fosStockAvailablesPresta.getLeft());
+    final stockAvailablesPresta = fosStockAvailablesPresta.getRight();
+
+    final fosMarketplaceLanguages = await getLanguages();
+    if (fosMarketplaceLanguages.isLeft()) return Left(fosProductRawPresta.getLeft());
+    final marketplaceLanguages = fosMarketplaceLanguages.getRight();
+
+    final fosListOfImages = await getProductImages(productRawPresta);
+    if (fosListOfImages.isLeft()) return Left(fosListOfImages.getLeft());
+    final listOfImages = fosListOfImages.getRight();
+
+    final productPresta = _fromRawProductToProductToUse(
+      phProductPresta: productRawPresta,
       stockAvailablesPresta: stockAvailablesPresta,
       marketplaceLanguages: marketplaceLanguages,
       listOfImages: listOfImages,
@@ -152,7 +374,6 @@ class PrestashopRepositoryGet {
 
 ProductRawPresta _fromRawProductToProductToUse({
   required ProductRawPresta phProductPresta,
-  required MarketplacePresta marketplace,
   required StockAvailablePresta stockAvailablesPresta,
   required List<LanguagePresta> marketplaceLanguages,
   required List<ProductPrestaImage> listOfImages,

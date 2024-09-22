@@ -20,7 +20,7 @@ class PrestashopRepositoryDelete {
 
   final supabase = GetIt.I<SupabaseClient>();
 
-  Future<Either<AbstractFailure, Unit>> deleteProductImage(MarketplacePresta marketplace, String productId, String imageId) async {
+  Future<Either<AbstractFailure, Unit>> deleteProductImage(String productId, String imageId) async {
     try {
       await supabase.functions.invoke(
         'prestashop_api',

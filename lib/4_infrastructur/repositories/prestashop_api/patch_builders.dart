@@ -36,11 +36,10 @@ XmlBuilder patchStockAvailableBuilder(String id, int quantity) {
 XmlBuilder? patchProductCategoriesBuilder({
   required int id,
   required Product product,
-  required ProductMarketplace productMarketplace,
+  required ProductPresta marketplaceProductPresta,
 }) {
   final builder = XmlBuilder();
   // bool isAnyFailure = false;
-  final marketplaceProductPresta = productMarketplace.marketplaceProduct as ProductPresta;
 
   builder.processing('xml', 'version="1.0" encoding="UTF-8"');
   builder.element('prestashop', attributes: {'xmlns:xlink': 'http://www.w3.org/1999/xlink'}, nest: () {
@@ -83,7 +82,7 @@ XmlBuilder? patchProductCategoriesBuilder({
   // print('###############################################################################################################');
   // print('##############################################################################################################');
   // print('#############################################################################################################');
-  
+
   // if (isAnyFailure) return null;
 
   return builder;
