@@ -123,7 +123,7 @@ class ProductDetailSelectPartsOfSetArticle extends StatelessWidget {
                                           productId: productIdWithQuantity.productId,
                                           isIncrease: false,
                                         ));
-                                        context.router.pop();
+                                        context.router.maybePop();
                                       },
                                     );
                                     return;
@@ -153,7 +153,7 @@ class ProductDetailSelectPartsOfSetArticle extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     child: Align(
                       alignment: Alignment.centerRight,
-                      child: MyOutlinedButton(buttonText: 'Schließen', onPressed: () => context.router.pop()),
+                      child: MyOutlinedButton(buttonText: 'Schließen', onPressed: () => context.router.maybePop()),
                     ),
                   ),
                 ],

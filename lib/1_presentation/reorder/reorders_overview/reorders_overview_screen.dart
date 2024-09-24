@@ -87,7 +87,7 @@ class ReordersOverviewScreen extends StatelessWidget {
                               content: 'Bist du sicher, dass du alle ausgewählten Nachbestellungen unwiederruflich löschen willst?',
                               onConfirm: () {
                                 context.read<ReorderBloc>().add(DeleteSelectedReordersEvent());
-                                context.router.pop();
+                                context.router.maybePop();
                               },
                             ),
                     icon: state.isLoadingReorderOnDelete

@@ -76,7 +76,7 @@ class SuppliersOverviewScreen extends StatelessWidget {
                               content: 'Bist du sicher, dass du alle ausgewählten Lieferanten unwiederruflich löschen willst?',
                               onConfirm: () {
                                 context.read<SupplierBloc>().add(DeleteSelectedSuppliersEvent(selectedSuppliers: state.selectedSuppliers));
-                                context.router.pop();
+                                context.router.maybePop();
                               },
                             ),
                     icon: state.isLoadingSupplierOnDelete

@@ -59,7 +59,7 @@ class _MyDialogSuppliersState extends State<MyDialogSuppliers> {
                         title: Text(supplier.company),
                         subtitle: supplier.name.isNotEmpty && supplier.name != ' ' ? Text(supplier.name) : null,
                         onTap: () {
-                          context.router.pop();
+                          context.router.maybePop();
                           widget.onChanged(supplier);
                         },
                       ),

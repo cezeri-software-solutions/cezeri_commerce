@@ -29,7 +29,7 @@ Future<void> onPdfPressed({required BuildContext context, required Reorder reord
                   title: Text(marketplace.name),
                   onTap: () {
                     selectedMarketplace = marketplace;
-                    context.popRoute();
+                    context.maybePop();
                   },
                 );
               },
@@ -65,7 +65,7 @@ Future<void> onPdfPressed({required BuildContext context, required Reorder reord
                     } else {
                       await PdfApiMobile.saveDocument(name: '$reorderName.pdf', byteList: generatedPdf);
                     }
-                    if (context.mounted) context.router.pop();
+                    if (context.mounted) context.router.maybePop();
                   },
                 ),
                 if (kIsWeb)
@@ -74,7 +74,7 @@ Future<void> onPdfPressed({required BuildContext context, required Reorder reord
                     title: const Text('Herunterladen'),
                     onTap: () async {
                       await PdfApiWeb.saveDocument(name: '$reorderName.pdf', byteList: generatedPdf, showInBrowser: false);
-                      if (context.mounted) context.router.pop();
+                      if (context.mounted) context.router.maybePop();
                     },
                   ),
                 ListTile(
@@ -82,7 +82,7 @@ Future<void> onPdfPressed({required BuildContext context, required Reorder reord
                   title: const Text('Drucken'),
                   onTap: () async {
                     await Printing.layoutPdf(onLayout: (_) => generatedPdf);
-                    if (context.mounted) context.router.pop();
+                    if (context.mounted) context.router.maybePop();
                   },
                 ),
               ],

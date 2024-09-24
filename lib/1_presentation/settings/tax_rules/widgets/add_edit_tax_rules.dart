@@ -88,7 +88,7 @@ class _AddEditTaxRulesState extends State<AddEditTaxRules> {
         country: _selectedCountry,
       );
       context.read<MainSettingsBloc>().add(UpdateTaxRulesEvent(taxRules: taxRule));
-      context.router.pop();
+      context.router.maybePop();
     }
   }
 }

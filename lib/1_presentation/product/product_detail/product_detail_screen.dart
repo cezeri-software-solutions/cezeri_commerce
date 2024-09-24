@@ -163,7 +163,7 @@ List<BlocListener<ProductDetailBloc, ProductDetailState>> _getProductDetailBlocL
           () => null,
           (a) => a.fold(
             (failure) {
-              context.router.popTop();
+              context.router.maybePopTop();
               myScaffoldMessenger(context, null, null, null, 'Artikel konnten nicht geladen werden');
             },
             (loadedProducts) {

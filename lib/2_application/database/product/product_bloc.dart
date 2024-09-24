@@ -38,7 +38,6 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
     required this.supplierRepository,
   }) : super(ProductState.initial()) {
     on<SetProductStateToInitialEvent>(_onSetProductStateToInitial);
-    on<GetAllProductsEvent>(_onGetAllProducts);
     on<GetProductsPerPageEvent>(_onGetProductsPerPage);
     on<GetFilteredProductsBySearchTextEvent>(_onGetFilteredProductsBySearchText);
     on<GetProductEvent>(_onGetProduct);
@@ -62,30 +61,6 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
 
   void _onSetProductStateToInitial(SetProductStateToInitialEvent event, Emitter<ProductState> emit) async {
     emit(ProductState.initial());
-  }
-
-  Future<void> _onGetAllProducts(GetAllProductsEvent event, Emitter<ProductState> emit) async {
-    emit(state.copyWith(isLoadingProductsOnObserve: true));
-
-    final fosSettings = await mainSettingsRepository.getSettings();
-    fosSettings.fold(
-      (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
-      (settings) => emit(state.copyWith(mainSettings: settings, firebaseFailure: null, isAnyFailure: false)),
-    );
-
-    final failureOrSuccess = await productRepository.getListOfProducts(false);
-    failureOrSuccess.fold(
-      (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
-      (listOfProduct) {
-        emit(state.copyWith(listOfAllProducts: listOfProduct, selectedProducts: [], firebaseFailure: null, isAnyFailure: false));
-      },
-    );
-
-    emit(state.copyWith(
-      isLoadingProductsOnObserve: false,
-      fosProductsOnObserveOption: optionOf(failureOrSuccess),
-    ));
-    emit(state.copyWith(fosProductsOnObserveOption: none()));
   }
 
   Future<void> _onGetProductsPerPage(GetProductsPerPageEvent event, Emitter<ProductState> emit) async {

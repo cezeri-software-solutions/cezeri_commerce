@@ -66,11 +66,11 @@ class _ProductImportScreenState extends State<ProductImportScreen> {
                 () => null,
                 (a) => a.fold(
                   (failure) {
-                    context.router.popTop();
+                    context.router.maybePopTop();
                     myScaffoldMessenger(context, null, null, null, failure.toString());
                   },
                   (unit) {
-                    context.router.popTop();
+                    context.router.maybePopTop();
                     myScaffoldMessenger(context, null, null, 'Artikel erfolgreich importiert', null);
                   },
                 ),

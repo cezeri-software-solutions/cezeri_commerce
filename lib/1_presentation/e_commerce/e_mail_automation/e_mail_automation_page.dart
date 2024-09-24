@@ -288,7 +288,7 @@ class _EMailAutomationDialogState extends State<_EMailAutomationDialog> {
                       MyOutlinedButton(
                         buttonText: 'Abbrechen',
                         buttonBackgroundColor: Colors.red,
-                        onPressed: () => context.router.pop(),
+                        onPressed: () => context.router.maybePop(),
                       ),
                       Gaps.w16,
                       MyOutlinedButton(
@@ -325,7 +325,7 @@ class _EMailAutomationDialogState extends State<_EMailAutomationDialog> {
                               ),
                             );
                           }
-                          if (context.mounted) context.router.pop();
+                          if (context.mounted) context.router.maybePop();
                         },
                       ),
                     ],

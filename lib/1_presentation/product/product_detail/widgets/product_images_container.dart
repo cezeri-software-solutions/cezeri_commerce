@@ -33,7 +33,7 @@ class ProductImagesContainer extends StatelessWidget {
                         content: 'Willst du wirklich alle ausgewählten Artikelbilder unwiederruflich löschen?',
                         onConfirm: () {
                           productDetailBloc.add(RemoveSelectedProductImages());
-                          context.router.pop();
+                          context.router.maybePop();
                         },
                       ),
                       icon: state.isLoadingProductOnUpdateImages

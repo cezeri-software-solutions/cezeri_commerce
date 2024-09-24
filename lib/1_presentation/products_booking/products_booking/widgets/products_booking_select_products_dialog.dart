@@ -60,13 +60,13 @@ class ProductsBookingSelectProductsDialog extends StatelessWidget {
                       ),
                       Row(
                         children: [
-                          TextButton(onPressed: () => context.popRoute(), child: const Text('Abbrechen')),
+                          TextButton(onPressed: () => context.maybePop(), child: const Text('Abbrechen')),
                           Gaps.w16,
                           MyOutlinedButton(
                             buttonText: 'Übernehmen',
                             onPressed: () {
                               productsBookingBloc.add(OnProductsBookingSetBookingProductsFromReorderEvent());
-                              context.popRoute();
+                              context.maybePop();
                             },
                             buttonBackgroundColor: Colors.green,
                           ),

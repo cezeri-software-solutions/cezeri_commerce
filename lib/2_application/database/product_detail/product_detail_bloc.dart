@@ -515,10 +515,10 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
     );
     fosAnotherProduct.fold(
       (failure) {
-        switch (failure.runtimeType) {
-          case EmptyFailure:
+        switch (failure) {
+          case EmptyFailure():
             {
-              event.context.router.pop();
+              event.context.router.maybePop();
               showMyDialogAlert(
                 context: event.context,
                 title: 'Achtung',
@@ -529,7 +529,7 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
             }
           default:
             {
-              event.context.router.pop();
+              event.context.router.maybePop();
               showMyDialogAlert(
                 context: event.context,
                 title: 'Achtung',
@@ -543,7 +543,7 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
     );
 
     if (anotherProductWithSameProductMarketplaceAndSameManufacturer == null) {
-      event.context.router.pop();
+      event.context.router.maybePop();
       if (event.context.mounted) {
         showMyDialogAlert(
           context: event.context,
@@ -558,7 +558,7 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
         .where((e) => e.idMarketplace == event.productMarketplace.idMarketplace)
         .firstOrNull;
     if (productMarketplaceOfAnotherProduct == null) {
-      event.context.router.pop();
+      event.context.router.maybePop();
       showMyDialogAlert(
         context: event.context,
         title: 'Achtung',

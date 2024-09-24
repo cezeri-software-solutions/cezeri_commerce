@@ -141,7 +141,7 @@ class SelectAutomationDialog extends StatelessWidget {
                       buttonText: 'Speichern',
                       onPressed: () {
                         context.read<MainSettingsBloc>().add(SaveSelectedCarrierProductToCarrierAutomationEvent());
-                        context.router.pop();
+                        context.router.maybePop();
                       }),
                 ],
               ),

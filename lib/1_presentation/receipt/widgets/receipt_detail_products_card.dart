@@ -230,7 +230,7 @@ class _ReceiptDetailProductsCardState extends State<ReceiptDetailProductsCard> {
                                             'Bist du sicher, dass du den Artikel "//${state.listOfReceiptProducts[index].name}" unwiederruflich löschen willst?',
                                         onConfirm: () {
                                           widget.receiptDetailProductsBloc.add(RemoveProductFromReceiptProductsEvent(index: index));
-                                          context.router.pop();
+                                          context.router.maybePop();
                                         },
                                       ),
                                       padding: EdgeInsets.zero,

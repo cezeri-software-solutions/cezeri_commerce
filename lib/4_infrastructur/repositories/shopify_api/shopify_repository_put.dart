@@ -58,7 +58,7 @@ class ShopifyRepositoryPut {
             "sku": product.articleNumber,
             "weight": product.weight,
             "barcode": product.ean,
-            // "compare_at_price": product.grossPrice,
+            // "compare_at_price": 19.90,
           }
         ],
         "metafields_global_title_tag": product.name,

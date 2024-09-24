@@ -27,7 +27,7 @@ Future<void> generateTableExportFromProductsOverview(
   final trailing = IconButton(
     padding: const EdgeInsets.only(right: 24),
     icon: const Icon(Icons.close),
-    onPressed: () => context.router.pop(),
+    onPressed: () => context.router.maybePop(),
   );
 
   MarketplacePresta? marketplace;
@@ -66,7 +66,7 @@ Future<void> generateTableExportFromProductsOverview(
                   title: const Text('CSV'),
                   onTap: () {
                     _saveAndShareCsv(rows, iconButtonKey);
-                    context.router.pop();
+                    context.router.maybePop();
                   },
                 ),
                 const Divider(),
@@ -74,7 +74,7 @@ Future<void> generateTableExportFromProductsOverview(
                   title: const Text('Excel'),
                   onTap: () {
                     _saveAndShareExcel(context, rows, iconButtonKey);
-                    context.router.pop();
+                    context.router.maybePop();
                   },
                 ),
               ],

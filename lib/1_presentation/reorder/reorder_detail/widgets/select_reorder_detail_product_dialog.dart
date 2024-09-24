@@ -220,7 +220,7 @@ class SelectReorderDetailProductDialog extends StatelessWidget {
                                         onTap: () => reorderDetailBloc.add(OnReorderDeatilAddProductEvent(product: product, quantity: ve)),
                                         onLongPress: () {
                                           reorderDetailBloc.add(OnReorderDetailControllerClearedEvent());
-                                          context.router.pop();
+                                          context.router.maybePop();
                                           reorderDetailBloc.add(OnReorderDeatilAddProductEvent(product: product, quantity: ve));
                                         },
                                         child: RecommendedReorderQuantity(
@@ -234,7 +234,7 @@ class SelectReorderDetailProductDialog extends StatelessWidget {
                                         onTap: () => reorderDetailBloc.add(OnReorderDeatilAddProductEvent(product: product, quantity: ebmPerRe)),
                                         onLongPress: () {
                                           reorderDetailBloc.add(OnReorderDetailControllerClearedEvent());
-                                          context.router.pop();
+                                          context.router.maybePop();
                                           reorderDetailBloc.add(OnReorderDeatilAddProductEvent(product: product, quantity: ebmPerRe));
                                         },
                                         child: RecommendedReorderQuantity(
@@ -248,7 +248,7 @@ class SelectReorderDetailProductDialog extends StatelessWidget {
                                         onTap: () => reorderDetailBloc.add(OnReorderDeatilAddProductEvent(product: product, quantity: ebmPerAe)),
                                         onLongPress: () {
                                           reorderDetailBloc.add(OnReorderDetailControllerClearedEvent());
-                                          context.router.pop();
+                                          context.router.maybePop();
                                           reorderDetailBloc.add(OnReorderDeatilAddProductEvent(product: product, quantity: ebmPerAe));
                                         },
                                         child: RecommendedReorderQuantity(
@@ -262,7 +262,7 @@ class SelectReorderDetailProductDialog extends StatelessWidget {
                                         onTap: () => reorderDetailBloc.add(OnReorderDeatilAddProductEvent(product: product, quantity: ebmPerReVe)),
                                         onLongPress: () {
                                           reorderDetailBloc.add(OnReorderDetailControllerClearedEvent());
-                                          context.router.pop();
+                                          context.router.maybePop();
                                           reorderDetailBloc.add(OnReorderDeatilAddProductEvent(product: product, quantity: ebmPerReVe));
                                         },
                                         child: RecommendedReorderQuantity(
@@ -276,7 +276,7 @@ class SelectReorderDetailProductDialog extends StatelessWidget {
                                         onTap: () => reorderDetailBloc.add(OnReorderDeatilAddProductEvent(product: product, quantity: ebmPerAeVe)),
                                         onLongPress: () {
                                           reorderDetailBloc.add(OnReorderDetailControllerClearedEvent());
-                                          context.router.pop();
+                                          context.router.maybePop();
                                           reorderDetailBloc.add(OnReorderDeatilAddProductEvent(product: product, quantity: ebmPerAeVe));
                                         },
                                         child: RecommendedReorderQuantity(
@@ -405,7 +405,7 @@ class _QuantityDialog extends StatelessWidget {
                 maxWidth: 100,
                 controller: controller,
                 onFieldSubmitted: (value) {
-                  context.router.pop();
+                  context.router.maybePop();
                   reorderDetailBloc.add(OnReorderDeatilAddProductEvent(product: product, quantity: value.toMyInt()));
                 },
               ),
@@ -413,7 +413,7 @@ class _QuantityDialog extends StatelessWidget {
               MyOutlinedButton(
                 buttonText: 'Übernehmen',
                 onPressed: () {
-                  context.router.pop();
+                  context.router.maybePop();
                   reorderDetailBloc.add(OnReorderDeatilAddProductEvent(product: product, quantity: controller.text.toMyInt()));
                 },
               )

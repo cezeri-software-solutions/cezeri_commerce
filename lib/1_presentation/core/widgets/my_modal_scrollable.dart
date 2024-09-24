@@ -48,7 +48,7 @@ class MyModalScrollable extends StatelessWidget {
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        IconButton(onPressed: () => context.router.pop(), icon: const Icon(Icons.close)),
+                        IconButton(onPressed: () => context.router.maybePop(), icon: const Icon(Icons.close)),
                       ],
                     ),
                     Flexible(
@@ -72,7 +72,7 @@ class MyModalScrollable extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(title, style: TextStyles.modalHeadTitle),
-                      IconButton(onPressed: () => context.router.pop(), icon: const Icon(Icons.close)),
+                      IconButton(onPressed: () => context.router.maybePop(), icon: const Icon(Icons.close)),
                     ],
                   ),
                   Flexible(
