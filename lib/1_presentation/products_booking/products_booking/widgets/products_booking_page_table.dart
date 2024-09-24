@@ -23,7 +23,7 @@ Table productsBookingPageTable({
       content: 'Bist du sicher, dass du "${bookingProduct.name}" aus der Liste löschen willst?',
       onConfirm: () {
         productsBookingBloc.add(OnProductsBookingRemoveFromSelectedReorderProductsEvent(bookingProduct: bookingProduct));
-        context.popRoute();
+        context.maybePop();
       },
     );
   }

@@ -1,5 +1,9 @@
 part of 'product_bloc.dart';
 
+// enum ProductsSortType { name, articleNumer, brand, supplier, creationDate, lastEditingDate, wholesalePrice, netPrice }
+
+// enum ProductsFilterType { brand, supplier, isOutlet, isSetArticle, isPartOfSetArticle, haveTags }
+
 @immutable
 class ProductState {
   final List<Product>? listOfAllProducts;
@@ -38,6 +42,10 @@ class ProductState {
   final bool isSelectedAllProducts;
   final bool isLoadingPdf;
   final String loadingText;
+  //* Sortieren und Filtern helpers
+  // final ProductsSortType productsSortType;
+  // final ProductsFilterType productsFilterType;
+  // final bool isSortedAsc;
 
   const ProductState({
     required this.listOfAllProducts,
@@ -165,7 +173,8 @@ class ProductState {
       fosProductOnDeleteOption: fosProductOnDeleteOption ?? this.fosProductOnDeleteOption,
       fosProductSuppliersOnObserveOption: fosProductSuppliersOnObserveOption ?? this.fosProductSuppliersOnObserveOption,
       fosProductAbstractFailuresOption: fosProductAbstractFailuresOption ?? this.fosProductAbstractFailuresOption,
-      isLoadingOnMassEditActivateProductMarketplace: isLoadingOnMassEditActivateProductMarketplace ?? this.isLoadingOnMassEditActivateProductMarketplace,
+      isLoadingOnMassEditActivateProductMarketplace:
+          isLoadingOnMassEditActivateProductMarketplace ?? this.isLoadingOnMassEditActivateProductMarketplace,
       fosProductOnUpdateQuantityOption: fosProductOnUpdateQuantityOption ?? this.fosProductOnUpdateQuantityOption,
       fosMassEditActivateProductMarketplaceOption: fosMassEditActivateProductMarketplaceOption ?? this.fosMassEditActivateProductMarketplaceOption,
       fosMassEditProductsOption: fosMassEditProductsOption ?? this.fosMassEditProductsOption,

@@ -1,12 +1,12 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 
-import '../functions/dialogs.dart';
-import '../functions/input_validators.dart';
 import '/3_domain/entities/address.dart';
 import '/3_domain/entities/country.dart';
 import '/3_domain/entities/id.dart';
 import '/constants.dart';
+import '../functions/dialogs.dart';
+import '../functions/input_validators.dart';
 import 'my_dialog_countries.dart';
 import 'my_form_field_small.dart';
 import 'my_outlined_button.dart';
@@ -188,7 +188,7 @@ class _MyAddressUpdateSheetState extends State<MyAddressUpdateSheet> {
                   lastEditingDate: now,
                 );
                 widget.onSave(address);
-                context.router.pop();
+                context.router.maybePop();
               },
             ),
             Gaps.h16,

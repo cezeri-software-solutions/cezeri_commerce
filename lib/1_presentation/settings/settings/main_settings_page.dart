@@ -310,7 +310,7 @@ class _MainSettingsPageState extends State<MainSettingsPage> {
                                     context: context,
                                     onConfirm: () {
                                       _removeFromPaymentMethods(index);
-                                      context.router.pop();
+                                      context.router.maybePop();
                                     },
                                     content: 'Bist du sicher, dass du diese Zahlungsmethode löschen willst?',
                                   ),

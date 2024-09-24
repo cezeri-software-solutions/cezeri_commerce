@@ -5,8 +5,6 @@ abstract class ProductEvent {}
 
 class SetProductStateToInitialEvent extends ProductEvent {}
 
-class GetAllProductsEvent extends ProductEvent {}
-
 class GetProductsPerPageEvent extends ProductEvent {
   final bool isFirstLoad;
   final bool calcCount;

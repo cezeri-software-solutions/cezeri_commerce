@@ -46,7 +46,7 @@ class MyDialogTaxes extends StatelessWidget {
                           ),
                           subtitle: Text(taxRule.taxName),
                           onTap: () {
-                            context.router.pop();
+                            context.router.maybePop();
                             onChanged(taxRule);
                           },
                         ),

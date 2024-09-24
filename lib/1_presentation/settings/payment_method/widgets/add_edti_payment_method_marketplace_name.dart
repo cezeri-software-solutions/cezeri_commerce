@@ -45,7 +45,7 @@ class _AddEditPaymentMethodMarketplaceNameState extends State<AddEditPaymentMeth
             context.read<MainSettingsBloc>().add(
                   AddEditPaymentMethodMarketplaceNameEvent(value: _paymentMethodController.text, paymentMethod: widget.paymentMethod),
                 );
-            context.router.pop();
+            context.router.maybePop();
           },
         ),
         Gaps.h54,

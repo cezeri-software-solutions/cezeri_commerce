@@ -12,7 +12,7 @@ void addEditGLSAccount(BuildContext context, GeneralLedgerAccountBloc gLAccountB
   final trailing = IconButton(
     padding: const EdgeInsets.only(right: 24),
     icon: const Icon(Icons.close),
-    onPressed: () => context.router.pop(),
+    onPressed: () => context.router.maybePop(),
   );
 
   final titleNotifier = ValueNotifier<String>(gLAccount != null ? gLAccount.generalLedgerAccount : 'Neues Sachkonto');

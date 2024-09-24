@@ -123,7 +123,7 @@ void _showAddEditAddressModal(BuildContext context, CustomerDetailBloc customerD
     child: IconButton(
       icon: const Icon(Icons.close),
       onPressed: () {
-        context.router.pop();
+        context.router.maybePop();
       },
     ),
   );

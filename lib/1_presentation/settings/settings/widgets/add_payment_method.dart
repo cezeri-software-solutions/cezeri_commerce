@@ -24,7 +24,7 @@ class AddPaymentMethode extends StatelessWidget {
           buttonText: 'Speichern',
           onPressed: () {
             addToPaymentMethods(paymentMethodeController.text);
-            context.router.pop();
+            context.router.maybePop();
           },
         ),
         Gaps.h32,

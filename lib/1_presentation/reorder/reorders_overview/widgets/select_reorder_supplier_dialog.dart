@@ -64,7 +64,7 @@ class SelectReorderSupplierDialog extends StatelessWidget {
                             subtitle: Text(supplier.supplierNumber.toString()),
                             onTap: () {
                               reorderBloc.add(OnReorderSupplierSearchTextClearedEvent());
-                              context.router.pop();
+                              context.router.maybePop();
                               context.router.push(ReorderDetailRoute(reorderCreateOrEdit: ReorderCreateOrEdit.create, supplier: supplier));
                             },
                           ),

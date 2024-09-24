@@ -110,7 +110,7 @@ class EditMarketplaceProductShopify extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   TextButton(
-                    onPressed: () => context.router.pop(),
+                    onPressed: () => context.router.maybePop(),
                     child: Text('Abbrechen', style: TextStyles.textButtonText.copyWith(color: Colors.red)),
                   ),
                   Gaps.w8,
@@ -120,7 +120,7 @@ class EditMarketplaceProductShopify extends StatelessWidget {
                           buttonBackgroundColor: Colors.green,
                           onPressed: () {
                             productDetailBloc.add(OnUpdateProductMarketplaceEvent(productMarketplace: state.productMarketplace!));
-                            context.router.pop();
+                            context.router.maybePop();
                           },
                         )
                       : MyOutlinedButton(

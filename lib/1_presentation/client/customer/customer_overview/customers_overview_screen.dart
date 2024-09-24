@@ -84,7 +84,7 @@ class _CustomersOverviewScreenState extends State<CustomersOverviewScreen> with 
                               content: 'Bist du sicher, dass du alle ausgewählten Kunden unwiederruflich löschen willst?',
                               onConfirm: () {
                                 context.read<CustomerBloc>().add(DeleteSelectedCustomersEvent(selectedCustomers: state.selectedCustomers));
-                                context.router.pop();
+                                context.router.maybePop();
                               },
                             ),
                     icon: state.isLoadingCustomerOnDelete

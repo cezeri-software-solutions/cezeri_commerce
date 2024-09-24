@@ -96,7 +96,7 @@ Future<void> showMyDialogDelete({
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      OutlinedButton(child: const Text('Abbrechen'), onPressed: () => context.router.pop()),
+                      OutlinedButton(child: const Text('Abbrechen'), onPressed: () => context.router.maybePop()),
                       MyOutlinedButton(buttonText: 'Löschen', onPressed: onConfirm, buttonBackgroundColor: Colors.red),
                     ],
                   )

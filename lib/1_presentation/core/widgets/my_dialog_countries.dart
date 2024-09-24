@@ -145,7 +145,7 @@ class _SelectVehicleDialogState extends State<SelectVehicleDialog> {
                             print('onTap: ${country.name}');
                             _controller.clear();
                             widget.onSelectCountry(country);
-                            context.router.pop();
+                            context.router.maybePop();
                           },
                         ),
                         const Divider(height: 0),
