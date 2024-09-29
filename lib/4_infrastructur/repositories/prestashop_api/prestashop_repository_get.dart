@@ -36,7 +36,7 @@ class PrestashopRepositoryGet {
 
       return Right(AddressesPresta.fromJson(response.data).items.single);
     } catch (e) {
-      logger.e('Error: $e');
+      logger.e('Error on Marketplace ${marketplace.shortName}: $e');
       return Left(PrestaGeneralFailure(errorMessage: e.toString()));
     }
   }
@@ -51,7 +51,7 @@ class PrestashopRepositoryGet {
 
       return Right(CarriersPresta.fromJson(response.data).items.single);
     } catch (e) {
-      logger.e('Error: $e');
+      logger.e('Error on Marketplace ${marketplace.shortName}: $e');
       return Left(PrestaGeneralFailure(errorMessage: e.toString()));
     }
   }
@@ -66,7 +66,7 @@ class PrestashopRepositoryGet {
 
       return Right(CategoriesPresta.fromJson(response.data).items.single);
     } catch (e) {
-      logger.e('Error: $e');
+      logger.e('Error on Marketplace ${marketplace.shortName}: $e');
       return Left(PrestaGeneralFailure(errorMessage: e.toString()));
     }
   }
@@ -80,7 +80,7 @@ class PrestashopRepositoryGet {
 
       return Right(CategoriesPresta.fromJson(response.data).items);
     } catch (e) {
-      logger.e('Error: $e');
+      logger.e('Error on Marketplace ${marketplace.shortName}: $e');
       return Left(PrestaGeneralFailure(errorMessage: e.toString()));
     }
   }
@@ -95,7 +95,7 @@ class PrestashopRepositoryGet {
 
       return Right(CountriesPresta.fromJson(response.data).items.single);
     } catch (e) {
-      logger.e('Error: $e');
+      logger.e('Error on Marketplace ${marketplace.shortName}: $e');
       return Left(PrestaGeneralFailure(errorMessage: e.toString()));
     }
   }
@@ -110,7 +110,7 @@ class PrestashopRepositoryGet {
 
       return Right(CurrenciesPresta.fromJson(response.data).items.single);
     } catch (e) {
-      logger.e('Error: $e');
+      logger.e('Error on Marketplace ${marketplace.shortName}: $e');
       return Left(PrestaGeneralFailure(errorMessage: e.toString()));
     }
   }
@@ -125,7 +125,7 @@ class PrestashopRepositoryGet {
 
       return Right(CustomersPresta.fromJson(response.data).items.single);
     } catch (e) {
-      logger.e('Error: $e');
+      logger.e('Error on Marketplace ${marketplace.shortName}: $e');
       return Left(PrestaGeneralFailure(errorMessage: e.toString()));
     }
   }
@@ -140,7 +140,7 @@ class PrestashopRepositoryGet {
 
       return Right(LanguagesPresta.fromJson(response.data).items);
     } catch (e) {
-      logger.e('Error: $e');
+      logger.e('Error on Marketplace ${marketplace.shortName}: $e');
       return Left(PrestaGeneralFailure(errorMessage: e.toString()));
     }
   }
@@ -154,7 +154,24 @@ class PrestashopRepositoryGet {
 
       return Right(LanguagesPresta.fromJson(response.data).items.single);
     } catch (e) {
-      logger.e('Error: $e');
+      logger.e('Error on Marketplace ${marketplace.shortName}: $e');
+      return Left(PrestaGeneralFailure(errorMessage: e.toString()));
+    }
+  }
+
+  //* Manufacturers */
+  Future<Either<AbstractFailure, String>> getManufacturerId(String manufacturerName) async {
+    try {
+      final response = await supabase.functions.invoke(
+        'prestashop_api',
+        body: jsonEncode({'credentials': credentials, 'functionName': 'getManufacturerByName', 'reference': manufacturerName}),
+      );
+
+      if (response.data is List && (response.data as List).isEmpty) return const Right('0');
+
+      return Right(response.data['manufacturers'][0]['id'].toString());
+    } catch (e) {
+      logger.e('Error on Marketplace ${marketplace.shortName}: $e');
       return Left(PrestaGeneralFailure(errorMessage: e.toString()));
     }
   }
@@ -180,7 +197,7 @@ class PrestashopRepositoryGet {
 
       return Right(OrdersIdPresta.fromJson(response.data).items);
     } catch (e) {
-      logger.e('Error: $e');
+      logger.e('Error on Marketplace ${marketplace.shortName}: $e');
       return Left(PrestaGeneralFailure(errorMessage: e.toString()));
     }
   }
@@ -199,10 +216,10 @@ class PrestashopRepositoryGet {
 
       return Right(OrdersPresta.fromJson(response.data).items.single);
     } catch (e) {
-      logger.e('Error: $e');
+      logger.e('Error on Marketplace ${marketplace.shortName}: $e');
       print('e.runtimeType: ${e.runtimeType}');
       print('e.toString(): ${e.toString()}');
-      // if(e.toString().contains('Empty response from server')) 
+      // if(e.toString().contains('Empty response from server'))
       return Left(PrestaGeneralFailure(errorMessage: e.toString()));
     }
   }
@@ -217,7 +234,7 @@ class PrestashopRepositoryGet {
 
       return Right(ProductsIdPresta.fromJson(response.data).items);
     } catch (e) {
-      logger.e('Error: $e');
+      logger.e('Error on Marketplace ${marketplace.shortName}: $e');
       return Left(PrestaGeneralFailure(errorMessage: e.toString()));
     }
   }
@@ -231,7 +248,7 @@ class PrestashopRepositoryGet {
 
       return Right(ProductsIdPresta.fromJson(response.data).items);
     } catch (e) {
-      logger.e('Error: $e');
+      logger.e('Error on Marketplace ${marketplace.shortName}: $e');
       return Left(PrestaGeneralFailure(errorMessage: e.toString()));
     }
   }
@@ -274,7 +291,7 @@ class PrestashopRepositoryGet {
 
       return Right(ProductsPresta.fromJson(response.data).items.single);
     } catch (e) {
-      logger.e('Error: $e');
+      logger.e('Error on Marketplace ${marketplace.shortName}: $e');
       return Left(PrestaGeneralFailure(errorMessage: e.toString()));
     }
   }
@@ -289,7 +306,7 @@ class PrestashopRepositoryGet {
 
       return Right(ProductsPresta.fromJson(response.data).items.single);
     } catch (e) {
-      logger.e('Error: $e');
+      logger.e('Error on Marketplace ${marketplace.shortName}: $e');
       return Left(PrestaGeneralFailure(errorMessage: e.toString()));
     }
   }
@@ -308,7 +325,7 @@ class PrestashopRepositoryGet {
 
       return Right(StockAvailablesPresta.fromJson(response.data).items.single);
     } catch (e) {
-      logger.e('Error: $e');
+      logger.e('Error on Marketplace ${marketplace.shortName}: $e');
       return Left(PrestaGeneralFailure(errorMessage: e.toString()));
     }
   }

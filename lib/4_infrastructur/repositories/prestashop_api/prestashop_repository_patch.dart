@@ -41,7 +41,7 @@ class PrestashopRepositoryPatch {
 
       return const Right(unit);
     } catch (e) {
-      logger.e('Error: $e');
+      logger.e('Error on Marketplace ${marketplace.shortName}: $e');
       return Left(PrestaGeneralFailure(errorMessage: e.toString()));
     }
   }
@@ -60,7 +60,7 @@ class PrestashopRepositoryPatch {
 
       return const Right(unit);
     } catch (e) {
-      logger.e('Error: $e');
+      logger.e('Error on Marketplace ${marketplace.shortName}: $e');
       return Left(PrestaGeneralFailure(errorMessage: e.toString()));
     }
   }
@@ -79,7 +79,7 @@ class PrestashopRepositoryPatch {
 
       return const Right(unit);
     } catch (e) {
-      logger.e('Error: $e');
+      logger.e('Error on Marketplace ${marketplace.shortName}: $e');
       return Left(PrestaGeneralFailure(errorMessage: e.toString()));
     }
   }
@@ -109,11 +109,19 @@ class PrestashopRepositoryPatch {
     if (fosProductPresta.isLeft()) return Left(fosProductPresta.getLeft());
     final productPresta = fosProductPresta.getRight();
 
+    String manufacturerId = '0';
+
+    if (product.manufacturer.isNotEmpty) {
+      final manufacturerIdResponse = await PrestashopRepositoryGet(marketplace).getManufacturerId(product.manufacturer);
+      if (manufacturerIdResponse.isRight()) manufacturerId = manufacturerIdResponse.getRight();
+    }
+
     final builder = patchProductBuilder(
       id: marketplaceProductPrestaId,
       product: product,
       productMarketplace: productMarketplace,
       productPresta: productPresta,
+      manufacturerId: manufacturerId,
     );
 
     final errorC1 = PrestaGeneralFailure(
@@ -161,11 +169,19 @@ class PrestashopRepositoryPatch {
       listOfPartProductsPresta.add(partProductPresta.copyWith(quantity: quantity.toString()));
     }
 
+    String manufacturerId = '0';
+
+    if (product.manufacturer.isNotEmpty) {
+      final manufacturerIdResponse = await PrestashopRepositoryGet(marketplace).getManufacturerId(product.manufacturer);
+      if (manufacturerIdResponse.isRight()) manufacturerId = manufacturerIdResponse.getRight();
+    }
+
     final builder = patchProductBuilder(
       id: marketplaceProductPrestaId,
       product: product,
       productMarketplace: productMarketplace,
       productPresta: productPresta,
+      manufacturerId: manufacturerId,
       listOfPartProductsPresta: listOfPartProductsPresta,
     );
 

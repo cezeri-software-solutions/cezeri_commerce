@@ -93,6 +93,7 @@ XmlBuilder? patchProductBuilder({
   required Product product,
   required ProductMarketplace productMarketplace,
   required ProductRawPresta productPresta,
+  required String manufacturerId,
   List<ProductRawPresta>? listOfPartProductsPresta,
 }) {
   // int boolToInt(bool bool) => switch (bool) {
@@ -132,6 +133,7 @@ XmlBuilder? patchProductBuilder({
   builder.element('prestashop', attributes: {'xmlns:xlink': 'http://www.w3.org/1999/xlink'}, nest: () {
     builder.element('product', nest: () {
       builder.element('id', nest: id);
+      builder.element('id_manufacturer', nest: manufacturerId);
       builder.element('id_category_default', nest: marketplaceProductPresta.idCategoryDefault);
       builder.element('reference', nest: product.articleNumber);
       if (listOfPartProductsPresta != null) builder.element('type', nest: 'pack');
@@ -144,7 +146,8 @@ XmlBuilder? patchProductBuilder({
       builder.element('price', nest: product.netPrice.toMyRoundedDouble());
       builder.element('wholesale_price', nest: product.wholesalePrice);
       builder.element('unity', nest: product.unity);
-      builder.element('unit_price_ratio', nest: product.netPrice / product.unitPrice);
+      builder.element('unit_price', nest: product.unitPrice.toMyRoundedDouble().toString());
+      builder.element('unit_price_ratio', nest: (product.netPrice / product.unitPrice).toMyRoundedDouble().toString());
       builder.element('active', nest: marketplaceProductPresta.active);
       valueBuilder(product.name, productPresta.nameMultilanguage, product.listOfName, 'name');
       valueBuilder(product.description, productPresta.descriptionMultilanguage, product.listOfDescription, 'description');

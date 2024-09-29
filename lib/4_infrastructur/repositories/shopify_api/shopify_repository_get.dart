@@ -40,7 +40,7 @@ class ShopifyRepositoryGet {
       }).toList();
       return Right(customCollections);
     } catch (e) {
-      logger.e('Error: $e');
+      logger.e('Error on Marketplace ${marketplace.shortName}: $e');
       return Left(ShopifyGeneralFailure(errorMessage: e.toString()));
     }
   }
@@ -56,7 +56,7 @@ class ShopifyRepositoryGet {
       final collects = List<CollectShopify>.from(responseData.map((model) => CollectShopify.fromJson(model)));
       return Right(collects);
     } catch (e) {
-      logger.e('Error: $e');
+      logger.e('Error on Marketplace ${marketplace.shortName}: $e');
       return Left(ShopifyGeneralFailure(errorMessage: e.toString()));
     }
   }
@@ -76,7 +76,7 @@ class ShopifyRepositoryGet {
       final customCollections = List<CustomCollectionShopify>.from(responseData.map((model) => CustomCollectionShopify.fromJson(model)));
       return Right(customCollections);
     } catch (e) {
-      logger.e('Error: $e');
+      logger.e('Error on Marketplace ${marketplace.shortName}: $e');
       return Left(ShopifyGeneralFailure(errorMessage: e.toString()));
     }
   }
@@ -96,7 +96,7 @@ class ShopifyRepositoryGet {
       final customCollections = List<MetafieldShopify>.from(responseData.map((model) => MetafieldShopify.fromJson(model)));
       return Right(customCollections);
     } catch (e) {
-      logger.e('Error: $e');
+      logger.e('Error on Marketplace ${marketplace.shortName}: $e');
       return Left(ShopifyGeneralFailure(errorMessage: e.toString()));
     }
   }
@@ -115,7 +115,7 @@ class ShopifyRepositoryGet {
 
       return Right(response.data as Map<String, dynamic>);
     } catch (e) {
-      logger.e('Error: $e');
+      logger.e('Error on Marketplace ${marketplace.shortName}: $e');
       return Left(ShopifyGeneralFailure(errorMessage: e.toString()));
     }
   }
@@ -135,7 +135,7 @@ class ShopifyRepositoryGet {
       final ordersShopify = List<OrderShopify>.from(responseData.map((model) => OrderShopify.fromJson(model)));
       return Right(ordersShopify);
     } catch (e) {
-      logger.e('Error: $e');
+      logger.e('Error on Marketplace ${marketplace.shortName}: $e');
       return Left(ShopifyGeneralFailure(errorMessage: e.toString()));
     }
   }
@@ -156,7 +156,7 @@ class ShopifyRepositoryGet {
       }).toList();
       return Right(customCollections);
     } catch (e) {
-      logger.e('Error: $e');
+      logger.e('Error on Marketplace ${marketplace.shortName}: $e');
       return Left(ShopifyGeneralFailure(errorMessage: e.toString()));
     }
   }
@@ -170,7 +170,7 @@ class ShopifyRepositoryGet {
 
       return Right(ProductRawShopify.fromJson(response.data['product']));
     } catch (e) {
-      logger.e('Error: $e');
+      logger.e('Error on Marketplace ${marketplace.shortName}: $e');
       return Left(ShopifyGeneralFailure(errorMessage: e.toString()));
     }
   }
@@ -188,7 +188,7 @@ class ShopifyRepositoryGet {
 
       return Right(InventoryLevelShopify.fromJson(response.data));
     } catch (e) {
-      logger.e('Error: $e');
+      logger.e('Error on Marketplace ${marketplace.shortName}: $e');
       return Left(ShopifyGeneralFailure(errorMessage: e.toString()));
     }
   }

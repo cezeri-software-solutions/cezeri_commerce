@@ -45,7 +45,7 @@ class ShopifyRepositoryPost {
 
       return const Right(unit);
     } catch (e) {
-      logger.e('Error: $e');
+      logger.e('Error on Marketplace ${marketplace.shortName}: $e');
       return Left(ShopifyGeneralFailure(errorMessage: e.toString()));
     }
   }
@@ -68,7 +68,7 @@ class ShopifyRepositoryPost {
 
       return const Right(unit);
     } catch (e) {
-      logger.e('Error: $e');
+      logger.e('Error on Marketplace ${marketplace.shortName}: $e');
       return Left(ShopifyGeneralFailure(errorMessage: e.toString()));
     }
   }
@@ -86,7 +86,7 @@ class ShopifyRepositoryPost {
 
       return Right(result.data);
     } catch (e) {
-      logger.e('Error: $e');
+      logger.e('Error on Marketplace ${marketplace.shortName}: $e');
       return Left(ShopifyGeneralFailure(errorMessage: e.toString()));
     }
   }
@@ -104,7 +104,7 @@ class ShopifyRepositoryPost {
 
       return const Right(unit);
     } catch (e) {
-      logger.e('Error: $e');
+      logger.e('Error on Marketplace ${marketplace.shortName}: $e');
       return Left(ShopifyGeneralFailure(errorMessage: e.toString()));
     }
   }
@@ -123,7 +123,7 @@ class ShopifyRepositoryPost {
 
       return const Right(unit);
     } catch (e) {
-      logger.e('Error: $e');
+      logger.e('Error on Marketplace ${marketplace.shortName}: $e');
       return Left(ShopifyGeneralFailure(errorMessage: e.toString()));
     }
   }

@@ -35,7 +35,7 @@ class ShopifyRepositoryDelete {
 
       return const Right(unit);
     } catch (e) {
-      logger.e('Error: $e');
+      logger.e('Error on Marketplace ${marketplace.shortName}: $e');
       return Left(ShopifyGeneralFailure(errorMessage: e.toString()));
     }
   }
@@ -54,7 +54,7 @@ class ShopifyRepositoryDelete {
 
       return const Right(unit);
     } catch (e) {
-      logger.e('Error: $e');
+      logger.e('Error on Marketplace ${marketplace.shortName}: $e');
       return Left(ShopifyGeneralFailure(errorMessage: e.toString()));
     }
   }
