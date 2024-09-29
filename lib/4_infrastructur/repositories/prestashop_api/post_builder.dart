@@ -1,6 +1,6 @@
+import 'package:cezeri_commerce/1_presentation/core/core.dart';
 import 'package:xml/xml.dart';
 
-import '../../../1_presentation/core/functions/mixed_functions.dart';
 import '../../../3_domain/entities/product/product.dart';
 import '../../../3_domain/entities/product/product_marketplace.dart';
 import '../../../3_domain/entities/product/product_presta.dart';
@@ -161,7 +161,8 @@ XmlBuilder? postProductBuilder({
       builder.element('description', nest: product.description);
       builder.element('description_short', nest: product.descriptionShort);
       builder.element('unity', nest: product.unity);
-      builder.element('unit_price_ratio', nest: product.netPrice / product.unitPrice);
+      builder.element('unit_price', nest: product.unitPrice.toMyRoundedDouble().toString());
+      builder.element('unit_price_ratio', nest: (product.netPrice / product.unitPrice).toMyRoundedDouble().toString());
 
       // valueBuilder(product.name, productPresta.nameMultilanguage, product.listOfName, 'name');
       // valueBuilder(product.description, productPresta.descriptionMultilanguage, product.listOfDescription, 'description');

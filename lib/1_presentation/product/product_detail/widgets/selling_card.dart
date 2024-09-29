@@ -57,7 +57,17 @@ class SellingCard extends StatelessWidget {
                   controller: state.unitPriceController,
                   onChanged: (_) => productDetailBloc.add(OnProductControllerChangedEvent()),
                 ),
-                Gaps.h16,
+                Gaps.h8,
+                Row(
+                  children: [
+                    Gaps.w4,
+                    GestureDetector(
+                      onTap: () {},
+                      child: const Badge(label: Text('1:1', style: TextStyles.s12Bold), backgroundColor: CustomColors.chartColorBlue),
+                    )
+                  ],
+                ),
+                Gaps.h10,
                 MyTextFormFieldSmall(
                   labelText: 'Einheit',
                   hintText: 'z.B. pro 1 L',

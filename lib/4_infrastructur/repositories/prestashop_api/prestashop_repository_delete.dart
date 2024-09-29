@@ -34,7 +34,7 @@ class PrestashopRepositoryDelete {
 
       return const Right(unit);
     } catch (e) {
-      logger.e('Error: $e');
+      logger.e('Error on Marketplace ${marketplace.shortName}: $e');
       return Left(PrestaGeneralFailure(errorMessage: e.toString()));
     }
   }

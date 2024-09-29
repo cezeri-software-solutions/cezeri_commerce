@@ -76,7 +76,7 @@ class _MyTextFormFieldSmallState extends State<MyTextFormFieldSmall> {
             onTap: widget.onTap,
             decoration: InputDecoration(
               hintText: widget.hintText,
-              hintStyle: const TextStyle().copyWith(letterSpacing: 0),
+              hintStyle: const TextStyle().copyWith(color: Colors.grey, letterSpacing: 0),
               fillColor: widget.fillColor,
               filled: true,
               contentPadding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
