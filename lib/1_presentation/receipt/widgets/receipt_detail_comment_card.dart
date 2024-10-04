@@ -27,14 +27,14 @@ class ReceiptDetailCommentCard extends StatelessWidget {
             const Align(alignment: Alignment.center, child: Text('Kommentar', style: TextStyles.h3BoldPrimary)),
             const Divider(height: 30),
             MyTextFormFieldSmall(
-              labelText: 'Dieser Beleg',
+              fieldTitle: 'Dieser Beleg',
               controller: internalCommentController,
               maxLines: null,
               onChanged: (_) => receiptDetailBloc.add(ReceiptDetailCommentChangedEvent()),
             ),
             Gaps.h10,
             MyTextFormFieldSmall(
-              labelText: 'Alle Belege',
+              fieldTitle: 'Alle Belege',
               controller: globalCommentController,
               maxLines: null,
               onChanged: (_) => receiptDetailBloc.add(ReceiptDetailCommentChangedEvent()),

@@ -277,9 +277,10 @@ class _SelectedProductsSection extends StatelessWidget {
                         Row(
                           children: [
                             const Icon(Icons.remove),
-                            MyTextFormFieldSmallDouble(
+                            MyTextFormFieldSmall(
                               maxWidth: 100,
                               controller: state.discountPercentController,
+                              inputType: FieldInputType.double,
                               suffix: const Text('%'),
                               onChanged: (value) => posBloc.add(SetTotalDiscountPercentControllerEvent()),
                               // onTapOutside: (_) => receiptDetailProductsBloc.add(SetControllerOnTapOutsideReceiptDetailEvent()),
@@ -296,9 +297,10 @@ class _SelectedProductsSection extends StatelessWidget {
                         Row(
                           children: [
                             const Icon(Icons.remove),
-                            MyTextFormFieldSmallDouble(
+                            MyTextFormFieldSmall(
                               maxWidth: 100,
                               controller: state.discountAmountController,
+                              inputType: FieldInputType.double,
                               suffix: Text(state.receipt.currency),
                               onChanged: (value) => posBloc.add(SetTotalDiscountAmountGrossControllerEvent()),
                               // onTapOutside: (_) => receiptDetailProductsBloc.add(SetControllerOnTapOutsideReceiptDetailEvent()),

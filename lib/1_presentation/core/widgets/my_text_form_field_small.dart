@@ -1,16 +1,22 @@
+import 'package:cezeri_commerce/1_presentation/core/core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../../constants.dart';
 
-class MyTextFormFieldSmall extends StatefulWidget {
-  final String? labelText;
+enum FieldInputType { text, integer, double, email, phone, password }
+
+class MyTextFormFieldSmall extends StatelessWidget {
+  final String? fieldTitle;
+  // final String? labelText; //* Labeltext schaut bei dieser Größe nicht schön aus
   final String? hintText;
   final String? initialValue;
   final TextEditingController? controller;
   final String? Function(String?)? validator;
   final List<TextInputFormatter>? inputFormatters;
+  final FieldInputType inputType;
   final bool readOnly;
+  final bool addPlaceholderForError;
   final FocusNode? focusNode;
   final TextInputType? keyboardType;
   final TextCapitalization textCapitalization;
@@ -26,13 +32,16 @@ class MyTextFormFieldSmall extends StatefulWidget {
 
   const MyTextFormFieldSmall({
     super.key,
-    this.labelText,
+    this.fieldTitle,
+    // this.labelText,
     this.hintText,
     this.initialValue,
     this.controller,
     this.validator,
     this.inputFormatters,
+    this.inputType = FieldInputType.text,
     this.readOnly = false,
+    this.addPlaceholderForError = false,
     this.focusNode,
     this.keyboardType,
     this.textCapitalization = TextCapitalization.none,
@@ -43,46 +52,49 @@ class MyTextFormFieldSmall extends StatefulWidget {
     this.onTapOutside,
     this.onEditingComplete,
     this.onFieldSubmitted,
-    this.fillColor = Colors.white,
+    this.fillColor,
     this.maxWidth = double.infinity,
   });
 
-  @override
-  _MyTextFormFieldSmallState createState() => _MyTextFormFieldSmallState();
-}
-
-class _MyTextFormFieldSmallState extends State<MyTextFormFieldSmall> {
   @override
   Widget build(BuildContext context) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (widget.labelText != null) Text(' ${widget.labelText!}', style: TextStyles.infoOnTextFieldSmall),
+        if (fieldTitle != null) Text(' ${fieldTitle!}', style: TextStyles.infoOnTextFieldSmall),
         SizedBox(
-          width: widget.maxWidth,
+          width: maxWidth,
+          height: addPlaceholderForError ? 55 : null,
           child: TextFormField(
-            controller: widget.controller,
-            initialValue: widget.initialValue,
-            validator: (value) => widget.validator != null ? widget.validator!(value) : null,
-            style: const TextStyle(fontSize: 12).copyWith(letterSpacing: 0),
-            focusNode: widget.focusNode,
-            keyboardType: widget.keyboardType,
-            readOnly: widget.readOnly,
-            textCapitalization: widget.textCapitalization,
-            maxLines: widget.maxLines,
-            inputFormatters: widget.inputFormatters,
-            onChanged: widget.onChanged,
-            onTap: widget.onTap,
+            controller: controller,
+            initialValue: initialValue,
+            validator: (value) => validator != null ? validator!(value) : null,
+            style: const TextStyle(fontSize: 13).copyWith(letterSpacing: 0),
+            focusNode: focusNode,
+            keyboardType: keyboardType,
+            readOnly: readOnly,
+            textCapitalization: textCapitalization,
+            maxLines: maxLines,
+            inputFormatters: inputFormatters ??
+                switch (inputType) {
+                  FieldInputType.integer => [IntegerInputFormatter()],
+                  FieldInputType.double => [DoubleInputFormatter()],
+                  _ => null,
+                },
+            onChanged: onChanged,
+            onTap: onTap,
             decoration: InputDecoration(
-              hintText: widget.hintText,
-              hintStyle: const TextStyle().copyWith(color: Colors.grey, letterSpacing: 0),
-              fillColor: widget.fillColor,
+              // labelText: labelText,
+              // labelStyle: const TextStyle().copyWith(letterSpacing: 0),
+              hintText: hintText,
+              hintStyle: const TextStyle().copyWith(color: readOnly ? null : Colors.grey, letterSpacing: 0),
+              fillColor: fillColor ?? (readOnly ? Colors.grey[50] : Colors.white),
               filled: true,
               contentPadding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
               isDense: true,
               floatingLabelBehavior: FloatingLabelBehavior.always,
-              suffix: widget.suffix,
+              suffix: suffix,
               suffixStyle: const TextStyle(fontSize: 13),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(6),

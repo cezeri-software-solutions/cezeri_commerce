@@ -2,6 +2,7 @@ part of 'product_detail_bloc.dart';
 
 class ProductDetailState {
   final Product? product;
+  final Product? originalProduct;
   final List<Supplier>? listOfSuppliers;
   final List<AbstractMarketplace>? listOfNotSynchronizedMarketplaces;
   final MainSettings? mainSettings;
@@ -39,6 +40,7 @@ class ProductDetailState {
   final bool isDescriptionSetFirstTime;
   final bool isDescriptionChanged;
   final bool showHtmlTexts;
+  final bool isSpecificPriceChanged;
   //* Set Article
   final ValueNotifier<int> pageIndexNotifierSetArticles;
   final bool isAllSetProductsSelected;
@@ -79,6 +81,7 @@ class ProductDetailState {
 
   ProductDetailState({
     required this.product,
+    required this.originalProduct,
     required this.listOfSuppliers,
     required this.listOfNotSynchronizedMarketplaces,
     required this.mainSettings,
@@ -113,6 +116,7 @@ class ProductDetailState {
     required this.isDescriptionSetFirstTime,
     required this.isDescriptionChanged,
     required this.showHtmlTexts,
+    required this.isSpecificPriceChanged,
     required this.pageIndexNotifierSetArticles,
     required this.isAllSetProductsSelected,
     required this.listOfSelectedProducts,
@@ -150,6 +154,7 @@ class ProductDetailState {
   factory ProductDetailState.initial() {
     return ProductDetailState(
       product: null,
+      originalProduct: null,
       listOfSuppliers: null,
       listOfNotSynchronizedMarketplaces: null,
       mainSettings: null,
@@ -184,6 +189,7 @@ class ProductDetailState {
       isDescriptionSetFirstTime: true,
       isDescriptionChanged: false,
       showHtmlTexts: false,
+      isSpecificPriceChanged: false,
       pageIndexNotifierSetArticles: ValueNotifier(0),
       isAllSetProductsSelected: false,
       listOfSelectedProducts: [],
@@ -221,6 +227,7 @@ class ProductDetailState {
 
   ProductDetailState copyWith({
     Product? product,
+    Product? originalProduct,
     List<Supplier>? listOfSuppliers,
     List<AbstractMarketplace>? listOfNotSynchronizedMarketplaces,
     MainSettings? mainSettings,
@@ -255,6 +262,7 @@ class ProductDetailState {
     bool? isDescriptionSetFirstTime,
     bool? isDescriptionChanged,
     bool? showHtmlTexts,
+    bool? isSpecificPriceChanged,
     ValueNotifier<int>? pageIndexNotifierSetArticles,
     bool? isAllSetProductsSelected,
     List<ProductIdWithQuantity>? listOfSelectedProducts,
@@ -290,6 +298,7 @@ class ProductDetailState {
   }) {
     return ProductDetailState(
       product: product ?? this.product,
+      originalProduct: originalProduct ?? this.originalProduct,
       listOfSuppliers: listOfSuppliers ?? this.listOfSuppliers,
       listOfNotSynchronizedMarketplaces: listOfNotSynchronizedMarketplaces ?? this.listOfNotSynchronizedMarketplaces,
       mainSettings: mainSettings ?? this.mainSettings,
@@ -324,6 +333,7 @@ class ProductDetailState {
       isDescriptionSetFirstTime: isDescriptionSetFirstTime ?? this.isDescriptionSetFirstTime,
       isDescriptionChanged: isDescriptionChanged ?? this.isDescriptionChanged,
       showHtmlTexts: showHtmlTexts ?? this.showHtmlTexts,
+      isSpecificPriceChanged: isSpecificPriceChanged ?? this.isSpecificPriceChanged,
       pageIndexNotifierSetArticles: pageIndexNotifierSetArticles ?? this.pageIndexNotifierSetArticles,
       isAllSetProductsSelected: isAllSetProductsSelected ?? this.isAllSetProductsSelected,
       listOfSelectedProducts: listOfSelectedProducts ?? this.listOfSelectedProducts,

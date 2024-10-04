@@ -113,8 +113,9 @@ Table productsBookingPageTable({
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2.5),
-          child: MyTextFormFieldSmallDouble(
+          child: MyTextFormFieldSmall(
             controller: state.quantityControllers[rowIndex],
+            inputType: FieldInputType.double,
             onChanged: (_) => productsBookingBloc.add(OnProductsBookingQuantityControllerChangedEvent()),
           ),
         ),

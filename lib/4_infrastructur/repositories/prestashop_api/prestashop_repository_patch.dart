@@ -11,8 +11,8 @@ import '../../../3_domain/entities/product/product_marketplace.dart';
 import '../../../3_domain/entities/product/product_presta.dart';
 import '../../../constants.dart';
 import '../../../failures/failures.dart';
+import 'builders/presta_builders.dart';
 import 'models/models.dart';
-import 'patch_builders.dart';
 import 'prestashop_repository_get.dart';
 
 class PrestashopRepositoryPatch {
@@ -35,6 +35,25 @@ class PrestashopRepositoryPatch {
           'credentials': credentials,
           'functionName': 'patchProductQuantity',
           'stockAvailableId': stockAvailableId,
+          'xmlPayload': xmlPayload,
+        }),
+      );
+
+      return const Right(unit);
+    } catch (e) {
+      logger.e('Error on Marketplace ${marketplace.shortName}: $e');
+      return Left(PrestaGeneralFailure(errorMessage: e.toString()));
+    }
+  }
+
+  Future<Either<AbstractFailure, Unit>> patchSpecificPrice({required String specificPriceId, required String xmlPayload}) async {
+    try {
+      await supabase.functions.invoke(
+        'prestashop_api',
+        body: jsonEncode({
+          'credentials': credentials,
+          'functionName': 'patchSpecificPrice',
+          'specificPriceId': specificPriceId,
           'xmlPayload': xmlPayload,
         }),
       );
@@ -96,6 +115,25 @@ class PrestashopRepositoryPatch {
     final xmlPayload = document.toXmlString();
 
     final response = await patchStockAvailable(stockAvailableId: stockAvailableId, xmlPayload: xmlPayload);
+
+    return response;
+  }
+
+  Future<Either<AbstractFailure, Unit>> patchProductSpecificPrice({
+    required int productId,
+    required int specificPriceId,
+    required Product product,
+  }) async {
+    final fosSpecificPrice = await PrestashopRepositoryGet(marketplace).getSpecificPrice(specificPriceId, productId);
+    if (fosSpecificPrice.isLeft()) return Left(fosSpecificPrice.getLeft());
+
+    final specificPrice = fosSpecificPrice.getRight();
+
+    final builder = patchSpecificPriceBuilder(specificPrice, product);
+    final document = builder.buildDocument();
+    final xmlPayload = document.toXmlString();
+
+    final response = await patchSpecificPrice(specificPriceId: specificPriceId.toString(), xmlPayload: xmlPayload);
 
     return response;
   }

@@ -44,6 +44,37 @@ class ShopifyRepositoryPut {
   }
 
   Future<Either<List<AbstractFailure>, Unit>> updateProductInMarketplace({required ProductShopify productShopify, required Product product}) async {
+    final specificPrice = product.specificPrice;
+    bool? isSpecificPrice;
+    if (specificPrice != null) {
+      isSpecificPrice = specificPrice.listOfSpecificPriceMarketplaces.any((e) => e.marketplaceId == marketplace.id) &&
+          specificPrice.isActive &&
+          (specificPrice.endDate == null || (specificPrice.endDate != null && specificPrice.endDate!.isAfter(DateTime.now())));
+    }
+    print('isSpecificPrice: $isSpecificPrice');
+
+    final variants = isSpecificPrice != null && isSpecificPrice
+        ? [
+            {
+              "price": product.specificPrice!.discountedPriceGross.toMyRoundedDouble(),
+              "cost": product.wholesalePrice, // EK-Preis
+              "sku": product.articleNumber,
+              "weight": product.weight,
+              "barcode": product.ean,
+              "compare_at_price": product.grossPrice.toMyRoundedDouble(),
+            }
+          ]
+        : [
+            {
+              "price": product.grossPrice,
+              "cost": product.wholesalePrice, // EK-Preis
+              "sku": product.articleNumber,
+              "weight": product.weight,
+              "barcode": product.ean,
+              "compare_at_price": 0.0,
+            }
+          ];
+
     final body = {
       "product": {
         "id": productShopify.id,
@@ -51,16 +82,7 @@ class ShopifyRepositoryPut {
         "body_html": product.description,
         "status": productShopify.status.toPrettyString(),
         "vendor": product.manufacturer,
-        "variants": [
-          {
-            "price": product.grossPrice,
-            "cost": product.wholesalePrice, // EK-Preis
-            "sku": product.articleNumber,
-            "weight": product.weight,
-            "barcode": product.ean,
-            // "compare_at_price": 19.90,
-          }
-        ],
+        "variants": variants,
         "metafields_global_title_tag": product.name,
         "metafields_global_description_tag": convertHtmlToString(product.descriptionShort),
         "handle": generateFriendlyUrl(product.name),

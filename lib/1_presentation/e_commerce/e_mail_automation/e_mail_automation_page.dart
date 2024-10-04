@@ -203,11 +203,11 @@ class _EMailAutomationDialogState extends State<_EMailAutomationDialog> {
               Gaps.h16,
               Row(
                 children: [
-                  Expanded(child: MyTextFormFieldSmall(labelText: 'Absender E-Mail:', controller: _fromEmailController)),
+                  Expanded(child: MyTextFormFieldSmall(fieldTitle: 'Absender E-Mail:', controller: _fromEmailController)),
                   Gaps.w16,
                   Expanded(
                     child: MyTextFormFieldSmall(
-                      labelText: 'Betreff:',
+                      fieldTitle: 'Betreff:',
                       controller: _subjectController,
                       focusNode: _subjectFocusNode,
                     ),
@@ -217,10 +217,10 @@ class _EMailAutomationDialogState extends State<_EMailAutomationDialog> {
               Gaps.h8,
               Row(
                 children: [
-                  Expanded(child: MyTextFormFieldSmall(labelText: 'Bcc:', controller: _bccController)),
+                  Expanded(child: MyTextFormFieldSmall(fieldTitle: 'Bcc:', controller: _bccController)),
                   if (widget.eMailAutomation != null) ...[
                     Gaps.w16,
-                    Expanded(child: MyTextFormFieldSmall(labelText: 'Empfänger E-Mail zum Testen:', controller: _toEmailController)),
+                    Expanded(child: MyTextFormFieldSmall(fieldTitle: 'Empfänger E-Mail zum Testen:', controller: _toEmailController)),
                     TextButton(
                       onPressed: () async {
                         final html = await _htmlController.getText();

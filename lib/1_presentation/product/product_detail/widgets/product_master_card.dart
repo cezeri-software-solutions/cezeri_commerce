@@ -29,7 +29,7 @@ class ProductMasterCard extends StatelessWidget {
                   children: [
                     Expanded(
                       child: MyTextFormFieldSmall(
-                        labelText: 'Artikel-Nr.',
+                        fieldTitle: 'Artikel-Nr.',
                         controller: state.articleNumberController,
                         onChanged: (_) => productDetailBloc.add(OnProductControllerChangedEvent()),
                       ),
@@ -37,7 +37,7 @@ class ProductMasterCard extends StatelessWidget {
                     Gaps.w8,
                     Expanded(
                       child: MyTextFormFieldSmall(
-                        labelText: 'EAN',
+                        fieldTitle: 'EAN',
                         controller: state.eanController,
                         onChanged: (_) => productDetailBloc.add(OnProductControllerChangedEvent()),
                       ),
@@ -49,7 +49,7 @@ class ProductMasterCard extends StatelessWidget {
                   children: [
                     Expanded(
                       child: MyTextFormFieldSmall(
-                        labelText: 'Artikel-Bez.',
+                        fieldTitle: 'Artikel-Bez.',
                         controller: state.nameController,
                         onChanged: (_) => productDetailBloc.add(OnProductControllerChangedEvent()),
                       ),

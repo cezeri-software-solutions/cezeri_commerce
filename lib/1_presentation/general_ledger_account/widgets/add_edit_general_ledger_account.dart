@@ -102,16 +102,17 @@ class AddEditGLAccount extends StatelessWidget {
                   ),
                 ],
               ),
-              MyTextFormFieldSmallDouble(
-                  aboveText: 'Sachkonto:',
+              MyTextFormFieldSmall(
+                  fieldTitle: 'Sachkonto:',
                   controller: state.gLAccountController,
+                  inputType: FieldInputType.double,
                   onChanged: (value) {
                     gLAccountBloc.add(OnGLAccountControllerChangedEvent());
                     setTitle(value);
                   }),
               Gaps.h16,
               MyTextFormFieldSmall(
-                labelText: 'Name:',
+                fieldTitle: 'Name:',
                 controller: state.nameController,
                 onChanged: (_) => gLAccountBloc.add(OnGLAccountControllerChangedEvent()),
               ),

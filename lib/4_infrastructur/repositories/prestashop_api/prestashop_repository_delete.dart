@@ -38,4 +38,22 @@ class PrestashopRepositoryDelete {
       return Left(PrestaGeneralFailure(errorMessage: e.toString()));
     }
   }
+
+  Future<Either<AbstractFailure, Unit>> deleteSpecificPrice(String specificPriceId) async {
+    try {
+      await supabase.functions.invoke(
+        'prestashop_api',
+        body: jsonEncode({
+          'credentials': credentials,
+          'functionName': 'deleteSpecificPrice',
+          'specificPriceId': specificPriceId,
+        }),
+      );
+
+      return const Right(unit);
+    } catch (e) {
+      logger.e('Error on Marketplace ${marketplace.shortName}: $e');
+      return Left(PrestaGeneralFailure(errorMessage: e.toString()));
+    }
+  }
 }

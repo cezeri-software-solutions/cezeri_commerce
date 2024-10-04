@@ -1,4 +1,3 @@
-import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 
@@ -120,12 +119,7 @@ void _showAddEditAddressModal(BuildContext context, CustomerDetailBloc customerD
 
   final closeButton = Padding(
     padding: const EdgeInsets.only(right: 8),
-    child: IconButton(
-      icon: const Icon(Icons.close),
-      onPressed: () {
-        context.router.maybePop();
-      },
-    ),
+    child: IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.of(context).pop()),
   );
 
   WoltModalSheet.show<void>(

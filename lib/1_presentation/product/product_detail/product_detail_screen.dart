@@ -102,7 +102,7 @@ List<BlocListener<ProductDetailBloc, ProductDetailState>> _getProductDetailBlocL
           () => null,
           (a) => a.fold(
             (failure) => failureRenderer(context, [failure]),
-            (listOfProducts) => myScaffoldMessenger(context, null, null, 'Artikel erfolgreich aktualisiert', null),
+            (product) => myScaffoldMessenger(context, null, null, 'Artikel erfolgreich aktualisiert', null),
           ),
         );
       },

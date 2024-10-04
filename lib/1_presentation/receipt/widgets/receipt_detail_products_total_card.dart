@@ -29,9 +29,10 @@ class ReceiptDetailProductsTotalCard extends StatelessWidget {
                     Row(
                       children: [
                         const Icon(Icons.remove),
-                        MyTextFormFieldSmallDouble(
+                        MyTextFormFieldSmall(
                           maxWidth: 100,
                           controller: state.discountPercentageController,
+                          inputType: FieldInputType.double,
                           suffix: const Text('%'),
                           onChanged: (value) => receiptDetailProductsBloc.add(SetTotalDiscountPercentControllerEvent(value: value.toMyDouble())),
                           onTapOutside: (_) => receiptDetailProductsBloc.add(SetControllerOnTapOutsideReceiptDetailEvent()),
@@ -48,9 +49,10 @@ class ReceiptDetailProductsTotalCard extends StatelessWidget {
                     Row(
                       children: [
                         const Icon(Icons.remove),
-                        MyTextFormFieldSmallDouble(
+                        MyTextFormFieldSmall(
                           maxWidth: 100,
                           controller: state.discountAmountGrossController,
+                          inputType: FieldInputType.double,
                           suffix: Text(state.receipt.currency),
                           onChanged: (value) => receiptDetailProductsBloc.add(SetTotalDiscountAmountGrossControllerEvent(value: value.toMyDouble())),
                           onTapOutside: (_) => receiptDetailProductsBloc.add(SetControllerOnTapOutsideReceiptDetailEvent()),
@@ -67,9 +69,10 @@ class ReceiptDetailProductsTotalCard extends StatelessWidget {
                     Row(
                       children: [
                         const Icon(Icons.add),
-                        MyTextFormFieldSmallDouble(
+                        MyTextFormFieldSmall(
                           maxWidth: 100,
                           controller: state.additionalAmountGrossController,
+                          inputType: FieldInputType.double,
                           suffix: Text(state.receipt.currency),
                           onChanged: (value) => receiptDetailProductsBloc.add(SetAdditionalAmountGrossControllerEvent(value: value.toMyDouble())),
                           onTapOutside: (_) => receiptDetailProductsBloc.add(SetControllerOnTapOutsideReceiptDetailEvent()),
@@ -86,9 +89,10 @@ class ReceiptDetailProductsTotalCard extends StatelessWidget {
                     Row(
                       children: [
                         const Icon(Icons.add),
-                        MyTextFormFieldSmallDouble(
+                        MyTextFormFieldSmall(
                           maxWidth: 100,
                           controller: state.shippingAmountGrossController,
+                          inputType: FieldInputType.double,
                           suffix: Text(state.receipt.currency),
                           onChanged: (value) => receiptDetailProductsBloc.add(SetShippingAmountGrossControllerEvent(value: value.toMyDouble())),
                           onTapOutside: (_) => receiptDetailProductsBloc.add(SetControllerOnTapOutsideReceiptDetailEvent()),

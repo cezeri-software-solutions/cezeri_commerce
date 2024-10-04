@@ -8,8 +8,8 @@ import '/constants.dart';
 import '../functions/dialogs.dart';
 import '../functions/input_validators.dart';
 import 'my_dialog_countries.dart';
-import 'my_form_field_small.dart';
 import 'my_outlined_button.dart';
+import 'my_text_form_field_small.dart';
 
 class MyAddressUpdateSheet extends StatefulWidget {
   final Address? address;
@@ -80,72 +80,89 @@ class _MyAddressUpdateSheetState extends State<MyAddressUpdateSheet> {
               ),
               Gaps.h16,
             ],
-            MyTextFormFieldSmall(labelText: 'Firmenname', controller: _companyNameController),
-            Gaps.h16,
+            MyTextFormFieldSmall(fieldTitle: 'Firmenname', controller: _companyNameController, addPlaceholderForError: true),
             Row(
               children: [
                 Expanded(
                   child: MyTextFormFieldSmall(
-                    labelText: 'Vorname',
+                    fieldTitle: 'Vorname',
                     controller: _firstNameController,
                     validator: (input) => validateGeneralMin3(input),
+                    addPlaceholderForError: true,
                   ),
                 ),
                 Gaps.w8,
                 Expanded(
                   child: MyTextFormFieldSmall(
-                    labelText: 'Nachname',
+                    fieldTitle: 'Nachname',
                     controller: _lastNameController,
                     validator: (input) => validateGeneralMin3(input),
+                    addPlaceholderForError: true,
                   ),
                 ),
               ],
             ),
-            Gaps.h16,
-
             Row(
               children: [
                 Expanded(
                   child: MyTextFormFieldSmall(
-                    labelText: 'Straße & Hausnummer',
+                    fieldTitle: 'Straße & Hausnummer',
                     controller: _streetNameController,
                     validator: (input) => validateGeneralMin3(input),
+                    addPlaceholderForError: true,
                   ),
                 ),
                 Gaps.w8,
-                Expanded(child: MyTextFormFieldSmall(labelText: '2. Straße & Hausnummer', controller: _street2NameController)),
+                Expanded(
+                  child: MyTextFormFieldSmall(
+                    fieldTitle: '2. Straße & Hausnummer',
+                    controller: _street2NameController,
+                    addPlaceholderForError: true,
+                  ),
+                ),
               ],
             ),
-            Gaps.h16,
             Row(
               children: [
                 Expanded(
                   child: MyTextFormFieldSmall(
-                    labelText: 'PLZ',
+                    fieldTitle: 'PLZ',
                     controller: _postcodeNameController,
                     validator: (input) => validateGeneralMin2(input),
+                    addPlaceholderForError: true,
                   ),
                 ),
                 Gaps.w8,
                 Expanded(
                   child: MyTextFormFieldSmall(
-                    labelText: 'Stadt',
+                    fieldTitle: 'Stadt',
                     controller: _cityNameController,
                     validator: (input) => validateGeneralMin3(input),
+                    addPlaceholderForError: true,
                   ),
                 ),
               ],
             ),
-            Gaps.h16,
             if (!widget.comeFromSupplier) ...[
               Row(
                 children: [
-                  Expanded(child: MyTextFormFieldSmall(labelText: 'Tel. 1:', controller: _phoneNameController)),
+                  Expanded(
+                    child: MyTextFormFieldSmall(
+                      fieldTitle: 'Tel. 1:',
+                      controller: _phoneNameController,
+                      addPlaceholderForError: true,
+                    ),
+                  ),
                   Gaps.w8,
-                  Expanded(child: MyTextFormFieldSmall(labelText: 'Tel. 2:', controller: _phoneMobileNameController)),
+                  Expanded(
+                    child: MyTextFormFieldSmall(
+                      fieldTitle: 'Tel. 2:',
+                      controller: _phoneMobileNameController,
+                      addPlaceholderForError: true,
+                    ),
+                  ),
                 ],
               ),
-              Gaps.h16,
             ],
             MyDialogSelectCountry(
               labelText: 'Land',

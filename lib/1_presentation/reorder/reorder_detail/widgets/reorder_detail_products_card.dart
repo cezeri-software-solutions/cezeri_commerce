@@ -95,7 +95,7 @@ class ReorderDetailProductsCard extends StatelessWidget {
                             Gaps.w8,
                             Expanded(
                               flex: RWReOP.pos,
-                              child: MyTextFormFieldSmallDouble(
+                              child: MyTextFormFieldSmall(
                                 readOnly: true,
                                 hintText: reorderProduct.pos.toString(),
                                 fillColor: reorderProduct.productId.isEmpty || reorderProduct.productId.startsWith('00000')

@@ -401,9 +401,10 @@ class _QuantityDialog extends StatelessWidget {
               Gaps.h8,
               Text(product.articleNumber),
               Gaps.h32,
-              MyTextFormFieldSmallDouble(
+              MyTextFormFieldSmall(
                 maxWidth: 100,
                 controller: controller,
+                inputType: FieldInputType.integer,
                 onFieldSubmitted: (value) {
                   context.router.maybePop();
                   reorderDetailBloc.add(OnReorderDeatilAddProductEvent(product: product, quantity: value.toMyInt()));

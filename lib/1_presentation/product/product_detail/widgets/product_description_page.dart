@@ -16,7 +16,8 @@ class ProductDescriptionPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isMobile = ResponsiveBreakpoints.of(context).smallerOrEqualTo(MOBILE);
+    final mobileOrSmaller = ResponsiveBreakpoints.of(context).smallerOrEqualTo(MOBILE);
+    final largerThanTablet = ResponsiveBreakpoints.of(context).largerThan(TABLET);
 
     final ScrollController scrollController = ScrollController();
 
@@ -41,46 +42,63 @@ class ProductDescriptionPage extends StatelessWidget {
       builder: (context, state) {
         return Scaffold(
           // appBar: AppBar(title: const Text('Artikelbeschreibung'), automaticallyImplyLeading: false),
-          floatingActionButton: SpeedDial(
-            icon: Icons.more_vert,
-            activeIcon: Icons.close,
-            backgroundColor: CustomColors.primaryColor,
-            overlayColor: Colors.black,
-            overlayOpacity: 0.5,
-            children: [
-              SpeedDialChild(
-                child: const Icon(Icons.save),
-                backgroundColor: Colors.green,
-                label: 'Speichern',
-                onTap: () {
-                  productDetailBloc.add(OnSaveProductDescriptionEvent());
-                  Navigator.of(context).pop();
-                },
-              ),
-              SpeedDialChild(
-                child: const Icon(Icons.cancel),
-                backgroundColor: Colors.red,
-                label: 'Abbrechen',
-                onTap: () => Navigator.of(context).pop(),
-              ),
-              SpeedDialChild(
-                child: const Icon(Icons.arrow_downward),
-                // backgroundColor: Colors.red,
-                label: 'Nach unten',
-                onTap: scrollToBottom,
-              ),
-              SpeedDialChild(
-                child: const Icon(Icons.arrow_upward),
-                // backgroundColor: Colors.green,
-                label: 'Nach oben',
-                onTap: scrollToTop,
-              ),
-            ],
-          ),
+          floatingActionButton: largerThanTablet
+              ? Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      OutlinedButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Abbrechen')),
+                      Gaps.w16,
+                      FilledButton(
+                          onPressed: () {
+                            productDetailBloc.add(OnSaveProductDescriptionEvent());
+                            Navigator.of(context).pop();
+                          },
+                          child: const Text('Übernehmen')),
+                    ],
+                  ),
+                )
+              : SpeedDial(
+                  icon: Icons.more_vert,
+                  activeIcon: Icons.close,
+                  backgroundColor: CustomColors.primaryColor,
+                  overlayColor: Colors.black,
+                  overlayOpacity: 0.5,
+                  children: [
+                    SpeedDialChild(
+                      child: const Icon(Icons.save),
+                      backgroundColor: Colors.green,
+                      label: 'Übernehmen',
+                      onTap: () {
+                        productDetailBloc.add(OnSaveProductDescriptionEvent());
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                    SpeedDialChild(
+                      child: const Icon(Icons.cancel),
+                      backgroundColor: Colors.red,
+                      label: 'Abbrechen',
+                      onTap: () => Navigator.of(context).pop(),
+                    ),
+                    SpeedDialChild(
+                      child: const Icon(Icons.arrow_downward),
+                      // backgroundColor: Colors.red,
+                      label: 'Nach unten',
+                      onTap: scrollToBottom,
+                    ),
+                    SpeedDialChild(
+                      child: const Icon(Icons.arrow_upward),
+                      // backgroundColor: Colors.green,
+                      label: 'Nach oben',
+                      onTap: scrollToTop,
+                    ),
+                  ],
+                ),
           body: SafeArea(
             child: Padding(
-              padding: EdgeInsets.all(isMobile ? 8 : 20),
-              child: isMobile
+              padding: EdgeInsets.all(mobileOrSmaller ? 8 : 20),
+              child: mobileOrSmaller
                   ? ListView(
                       controller: scrollController,
                       children: [

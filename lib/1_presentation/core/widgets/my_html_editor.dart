@@ -20,6 +20,15 @@ class MyHtmlEditor extends StatelessWidget {
       htmlToolbarOptions: HtmlToolbarOptions(
         toolbarItemHeight: 26,
         textStyle: TextStyles.s13Bold.copyWith(color: Colors.black),
+        defaultToolbarButtons: [
+          const StyleButtons(),
+          const FontSettingButtons(fontSizeUnit: true),
+          const FontButtons(clearAll: false),
+          const ColorButtons(),
+          const ListButtons(listStyles: true),
+          const ParagraphButtons(textDirection: false, lineHeight: false, caseConverter: false),
+          const InsertButtons(video: true, audio: false, table: true, hr: true, otherFile: true),
+        ],
         customToolbarButtons: [
           InkWell(onTap: () => controller.toggleCodeView(), child: const Icon(Icons.code)),
         ],

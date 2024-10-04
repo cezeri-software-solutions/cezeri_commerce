@@ -83,7 +83,7 @@ class ReorderDetailHeaderContainer extends StatelessWidget {
                     child: SizedBox(
                       width: 120,
                       child: MyTextFormFieldSmall(
-                        labelText: 'Bestellnummer intern',
+                        fieldTitle: 'Bestellnummer intern',
                         controller: state.reorderNumberInternalController,
                         onChanged: (_) => reorderDetailBloc.add(OnReorderDetailControllerChangedEvent()),
                       ),
