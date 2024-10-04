@@ -229,20 +229,20 @@ class __CustomerDetailState extends State<_CustomerDetail> {
                     ),
                     Gaps.h16,
                   ],
-                  MyTextFormFieldSmall(labelText: 'Firmenname', controller: _deliveryCompanyNameController),
+                  MyTextFormFieldSmall(fieldTitle: 'Firmenname', controller: _deliveryCompanyNameController),
                   Gaps.h16,
                   Row(
                     children: [
                       Expanded(
                         child: MyTextFormFieldSmall(
-                          labelText: 'Vorname',
+                          fieldTitle: 'Vorname',
                           controller: _deliveryFirstNameController,
                         ),
                       ),
                       Gaps.w8,
                       Expanded(
                         child: MyTextFormFieldSmall(
-                          labelText: 'Nachname',
+                          fieldTitle: 'Nachname',
                           controller: _deliveryLastNameController,
                         ),
                       ),
@@ -254,12 +254,12 @@ class __CustomerDetailState extends State<_CustomerDetail> {
                     children: [
                       Expanded(
                         child: MyTextFormFieldSmall(
-                          labelText: 'Straße & Hausnummer',
+                          fieldTitle: 'Straße & Hausnummer',
                           controller: _deliveryStreetNameController,
                         ),
                       ),
                       Gaps.w8,
-                      Expanded(child: MyTextFormFieldSmall(labelText: '2. Straße & Hausnummer', controller: _deliveryStreet2NameController)),
+                      Expanded(child: MyTextFormFieldSmall(fieldTitle: '2. Straße & Hausnummer', controller: _deliveryStreet2NameController)),
                     ],
                   ),
                   Gaps.h16,
@@ -267,14 +267,14 @@ class __CustomerDetailState extends State<_CustomerDetail> {
                     children: [
                       Expanded(
                         child: MyTextFormFieldSmall(
-                          labelText: 'PLZ',
+                          fieldTitle: 'PLZ',
                           controller: _deliveryPostcodeNameController,
                         ),
                       ),
                       Gaps.w8,
                       Expanded(
                         child: MyTextFormFieldSmall(
-                          labelText: 'Stadt',
+                          fieldTitle: 'Stadt',
                           controller: _deliveryCityNameController,
                         ),
                       ),
@@ -283,9 +283,9 @@ class __CustomerDetailState extends State<_CustomerDetail> {
                   Gaps.h16,
                   Row(
                     children: [
-                      Expanded(child: MyTextFormFieldSmall(labelText: 'Tel. 1:', controller: _deliveryPhoneNameController)),
+                      Expanded(child: MyTextFormFieldSmall(fieldTitle: 'Tel. 1:', controller: _deliveryPhoneNameController)),
                       Gaps.w8,
-                      Expanded(child: MyTextFormFieldSmall(labelText: 'Tel. 2:', controller: _deliveryPhoneMobileNameController)),
+                      Expanded(child: MyTextFormFieldSmall(fieldTitle: 'Tel. 2:', controller: _deliveryPhoneMobileNameController)),
                     ],
                   ),
                   Gaps.h16,
@@ -319,20 +319,20 @@ class __CustomerDetailState extends State<_CustomerDetail> {
                     ),
                     Gaps.h16,
                   ],
-                  MyTextFormFieldSmall(labelText: 'Firmenname', controller: _invoiceCompanyNameController),
+                  MyTextFormFieldSmall(fieldTitle: 'Firmenname', controller: _invoiceCompanyNameController),
                   Gaps.h16,
                   Row(
                     children: [
                       Expanded(
                         child: MyTextFormFieldSmall(
-                          labelText: 'Vorname',
+                          fieldTitle: 'Vorname',
                           controller: _invoiceFirstNameController,
                         ),
                       ),
                       Gaps.w8,
                       Expanded(
                         child: MyTextFormFieldSmall(
-                          labelText: 'Nachname',
+                          fieldTitle: 'Nachname',
                           controller: _invoiceLastNameController,
                         ),
                       ),
@@ -344,12 +344,12 @@ class __CustomerDetailState extends State<_CustomerDetail> {
                     children: [
                       Expanded(
                         child: MyTextFormFieldSmall(
-                          labelText: 'Straße & Hausnummer',
+                          fieldTitle: 'Straße & Hausnummer',
                           controller: _invoiceStreetNameController,
                         ),
                       ),
                       Gaps.w8,
-                      Expanded(child: MyTextFormFieldSmall(labelText: '2. Straße & Hausnummer', controller: _invoiceStreet2NameController)),
+                      Expanded(child: MyTextFormFieldSmall(fieldTitle: '2. Straße & Hausnummer', controller: _invoiceStreet2NameController)),
                     ],
                   ),
                   Gaps.h16,
@@ -357,14 +357,14 @@ class __CustomerDetailState extends State<_CustomerDetail> {
                     children: [
                       Expanded(
                         child: MyTextFormFieldSmall(
-                          labelText: 'PLZ',
+                          fieldTitle: 'PLZ',
                           controller: _invoicePostcodeNameController,
                         ),
                       ),
                       Gaps.w8,
                       Expanded(
                         child: MyTextFormFieldSmall(
-                          labelText: 'Stadt',
+                          fieldTitle: 'Stadt',
                           controller: _invoiceCityNameController,
                         ),
                       ),
@@ -373,9 +373,9 @@ class __CustomerDetailState extends State<_CustomerDetail> {
                   Gaps.h16,
                   Row(
                     children: [
-                      Expanded(child: MyTextFormFieldSmall(labelText: 'Tel. 1:', controller: _invoicePhoneNameController)),
+                      Expanded(child: MyTextFormFieldSmall(fieldTitle: 'Tel. 1:', controller: _invoicePhoneNameController)),
                       Gaps.w8,
-                      Expanded(child: MyTextFormFieldSmall(labelText: 'Tel. 2:', controller: _invoicePhoneMobileNameController)),
+                      Expanded(child: MyTextFormFieldSmall(fieldTitle: 'Tel. 2:', controller: _invoicePhoneMobileNameController)),
                     ],
                   ),
                   Gaps.h16,
@@ -506,14 +506,14 @@ class _CustomerMaster extends StatelessWidget {
             Expanded(
               child: MyTextFormFieldSmall(
                 readOnly: true,
-                labelText: 'Kundennummer',
+                fieldTitle: 'Kundennummer',
                 hintText: state.customer!.customerNumber.toString(),
               ),
             ),
             Gaps.w8,
             Expanded(
               child: MyTextFormFieldSmall(
-                labelText: 'Firmenname',
+                fieldTitle: 'Firmenname',
                 controller: state.companyNameController,
                 onChanged: (_) => customerBloc.add(CustomerDetailControllerChangedEvent()),
               ),
@@ -525,7 +525,7 @@ class _CustomerMaster extends StatelessWidget {
           children: [
             Expanded(
               child: MyTextFormFieldSmall(
-                labelText: 'Vorname',
+                fieldTitle: 'Vorname',
                 controller: state.firstNameController,
                 onChanged: (_) => customerBloc.add(CustomerDetailControllerChangedEvent()),
               ),
@@ -533,7 +533,7 @@ class _CustomerMaster extends StatelessWidget {
             Gaps.w8,
             Expanded(
               child: MyTextFormFieldSmall(
-                labelText: 'Nachname',
+                fieldTitle: 'Nachname',
                 controller: state.lastNameController,
                 onChanged: (_) => customerBloc.add(CustomerDetailControllerChangedEvent()),
               ),
@@ -542,7 +542,7 @@ class _CustomerMaster extends StatelessWidget {
         ),
         Gaps.h8,
         MyTextFormFieldSmall(
-          labelText: 'E-Mail',
+          fieldTitle: 'E-Mail',
           controller: state.emailController,
           onChanged: (_) => customerBloc.add(CustomerDetailControllerChangedEvent()),
         ),
@@ -551,7 +551,7 @@ class _CustomerMaster extends StatelessWidget {
           children: [
             Expanded(
               child: MyTextFormFieldSmall(
-                labelText: 'Telefonnummer',
+                fieldTitle: 'Telefonnummer',
                 controller: state.phoneController,
                 onChanged: (_) => customerBloc.add(CustomerDetailControllerChangedEvent()),
               ),
@@ -559,7 +559,7 @@ class _CustomerMaster extends StatelessWidget {
             Gaps.w8,
             Expanded(
               child: MyTextFormFieldSmall(
-                labelText: 'Telefonnummer Mobil',
+                fieldTitle: 'Telefonnummer Mobil',
                 controller: state.phoneMobileController,
                 onChanged: (_) => customerBloc.add(CustomerDetailControllerChangedEvent()),
               ),
@@ -571,7 +571,7 @@ class _CustomerMaster extends StatelessWidget {
           children: [
             Expanded(
               child: MyTextFormFieldSmall(
-                labelText: 'UID-Nummer',
+                fieldTitle: 'UID-Nummer',
                 controller: state.uidNumberController,
                 onChanged: (_) => customerBloc.add(CustomerDetailControllerChangedEvent()),
               ),
@@ -579,7 +579,7 @@ class _CustomerMaster extends StatelessWidget {
             Gaps.w8,
             Expanded(
               child: MyTextFormFieldSmall(
-                labelText: 'Steuernummer',
+                fieldTitle: 'Steuernummer',
                 controller: state.taxNumberController,
                 onChanged: (_) => customerBloc.add(CustomerDetailControllerChangedEvent()),
               ),
@@ -599,22 +599,20 @@ class _CustomerMaster extends StatelessWidget {
           items: invoiceTypeItems,
         ),
         Gaps.h16,
-        GestureDetector(
+        MyButtonSmall(
           onTap: () => showDialog(
             context: context,
             builder: (_) => MyDialogTaxes(onChanged: (taxRule) => customerBloc.add(CustomerDetailSetCustomerTaxEvent(tax: taxRule))),
           ),
-          child: MyButtonSmall(
-            child: Row(
-              children: [
-                MyCountryFlag(country: state.customer!.tax.country),
-                Gaps.w8,
-                Text(
-                  state.customer!.tax.taxName,
-                  style: const TextStyle(fontSize: 13),
-                ),
-              ],
-            ),
+          child: Row(
+            children: [
+              MyCountryFlag(country: state.customer!.tax.country),
+              Gaps.w8,
+              Text(
+                state.customer!.tax.taxName,
+                style: const TextStyle(fontSize: 13),
+              ),
+            ],
           ),
         ),
         Gaps.h16,

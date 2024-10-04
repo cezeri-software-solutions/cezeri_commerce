@@ -26,6 +26,7 @@ import '/constants.dart';
 import '/failures/abstract_failure.dart';
 import '/failures/firebase_failures.dart';
 import '/failures/presta_failure.dart';
+import '../../../3_domain/entities/product/specific_price.dart';
 import '../../../3_domain/repositories/database/main_settings_respository.dart';
 import '../../../3_domain/repositories/database/marketplace_repository.dart';
 import '../../../3_domain/repositories/database/product_repository.dart';
@@ -66,6 +67,8 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
     on<OnProductShowDescriptionChangedEvent>(_onProductShowDescriptionChanged);
     on<OnProductDescriptionChangedEvent>(_onProductDescriptionChanged);
     on<OnSaveProductDescriptionEvent>(_onSaveProductDescription);
+    on<OnAddEditProductSpecificPriceEvent>(_onAddEditProductSpecificPrice);
+    on<OnDeleteProductSpecificPriceEvent>(_onDeleteProductSpecificPrice);
     on<GetProductByEanEvent>(_onGetProductByEan);
     on<UpdateProductEvent>(_onUpdateProduct);
     on<OnProductIsActiveChangedEvent>(_onProductIsActiveChanged);
@@ -101,6 +104,13 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
 //? ###########################################################################################################################
 
   Future<void> _onGetProduct(GetProductEvent event, Emitter<ProductDetailState> emit) async {
+    print('###########################################################################################################');
+    print('############################################################################################################');
+    print('#############################################################################################################');
+    print(' ----- GET PRODUCT -----');
+    print('#############################################################################################################');
+    print('############################################################################################################');
+    print('###########################################################################################################');
     emit(state.copyWith(isLoadingProductOnObserve: true));
 
     if (state.mainSettings == null) {
@@ -114,22 +124,23 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
     //* Artikel Laden
     final fosProduct = await productRepository.getProduct(event.id);
     if (fosProduct.isLeft()) emit(state.copyWith(firebaseFailure: fosProduct.getLeft(), isAnyFailure: true));
-    final product = fosProduct.getRight();
+    final loadedProduct = fosProduct.getRight();
 
     //* Wenn Set-Artikel, die Einzelartikel davon laden
     List<Product>? listOfSetPartProducts;
-    if (product.isSetArticle && product.listOfProductIdWithQuantity.isNotEmpty) {
-      final productIds = product.listOfProductIdWithQuantity.map((e) => e.productId).toList();
+    if (loadedProduct.isSetArticle && loadedProduct.listOfProductIdWithQuantity.isNotEmpty) {
+      final productIds = loadedProduct.listOfProductIdWithQuantity.map((e) => e.productId).toList();
       final fosSetParts = await productRepository.getListOfProductsByIds(productIds);
       if (fosSetParts.isLeft()) emit(state.copyWith(firebaseFailure: fosSetParts.getLeft()));
       listOfSetPartProducts = fosSetParts.getRight();
     }
 
-    add(SetProductControllerEvent(product: product));
+    add(SetProductControllerEvent(product: loadedProduct));
     add(OnProductGetProductsSalesDataEvent());
 
     emit(state.copyWith(
-      product: product,
+      product: loadedProduct,
+      originalProduct: loadedProduct.copyWith(),
       listOfSetPartProducts: listOfSetPartProducts,
       firebaseFailure: null,
       isAnyFailure: false,
@@ -328,6 +339,30 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
         showHtmlTexts: false));
   }
 
+//? #########################################################################
+
+  Future<void> _onAddEditProductSpecificPrice(OnAddEditProductSpecificPriceEvent event, Emitter<ProductDetailState> emit) async {
+    if (state.originalProduct!.specificPrice != null) {
+      print('--- BEFORE ---');
+      for (final mm in state.originalProduct!.specificPrice!.listOfSpecificPriceMarketplaces) {
+        print('originalMp: ${mm.marketplaceId} - ${mm.specificPriceId}');
+      }
+    }
+    emit(state.copyWith(isSpecificPriceChanged: true, product: state.product!.copyWith(specificPrice: event.specificPrice)));
+    if (state.originalProduct!.specificPrice != null) {
+      print('--- AFTER ---');
+      for (final mm in state.originalProduct!.specificPrice!.listOfSpecificPriceMarketplaces) {
+        print('originalMp: ${mm.marketplaceId} - ${mm.specificPriceId}');
+      }
+    }
+  }
+
+//? #########################################################################
+
+  Future<void> _onDeleteProductSpecificPrice(OnDeleteProductSpecificPriceEvent event, Emitter<ProductDetailState> emit) async {
+    emit(state.copyWith(isSpecificPriceChanged: true, product: state.product!.copyWith(specificPrice: null, resetSpecificPrice: true)));
+  }
+
 //? ###########################################################################################################################
 
   Future<void> _onGetProductByEan(GetProductByEanEvent event, Emitter<ProductDetailState> emit) async {
@@ -354,6 +389,8 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
 
     List<AbstractFailure> listOfAbstractFailures = [];
 
+    final originalProduct = state.originalProduct!;
+
     final fos = await productRepository.updateProductAndSets(state.product!);
     if (fos.isLeft()) {
       emit(state.copyWith(
@@ -371,11 +408,22 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
     if (fosUpdateProductInMarketplace.isLeft()) listOfAbstractFailures.addAll(fosUpdateProductInMarketplace.getLeft());
 
     if (state.isProductImagesEdited) {
+      print('---------------- PRODUCT IMAGE EDITED --------------------');
       final fosUpdateProductImagesInMarketplace = await marketplaceEditRepository.uploadProductImagesToMarketplace(
         state.product!,
         state.listOfProductImages,
       );
       if (fosUpdateProductImagesInMarketplace.isLeft()) listOfAbstractFailures.addAll(fosUpdateProductImagesInMarketplace.getLeft());
+    }
+
+    //* Wenn ein Artikelrabatt hinzugefügt wurde, oder ein bestehender bearbeitet wurde.
+    //* Nur für Prestashop shops, in Shopify wird der Streichelpreis direkt beim Bearbeiten des Artikels gesetzt.
+    if (state.isSpecificPriceChanged) {
+      final fosUpdateProductSpecificPriceInMarketplace = await marketplaceEditRepository.updateSpecificPriceInPrestaMarketplaces(
+        originalProduct,
+        updatedProduct,
+      );
+      if (fosUpdateProductSpecificPriceInMarketplace.isLeft()) listOfAbstractFailures.addAll(fosUpdateProductSpecificPriceInMarketplace.getLeft());
     }
 
     emit(state.copyWith(
@@ -384,6 +432,8 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
       fosProductAbstractFailuresOption: optionOf(Left(listOfAbstractFailures)),
     ));
     emit(state.copyWith(fosProductOnUpdateOption: none(), fosProductAbstractFailuresOption: none()));
+
+    add(GetProductEvent(id: state.product!.id));
   }
 
 //? ###########################################################################################################################
@@ -559,6 +609,7 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
         .firstOrNull;
     if (productMarketplaceOfAnotherProduct == null) {
       event.context.router.maybePop();
+      if (!event.context.mounted) return;
       showMyDialogAlert(
         context: event.context,
         title: 'Achtung',
@@ -642,7 +693,7 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
 
     int newIndex = event.newIndex;
     int oldIndex = event.oldIndex;
-    
+
     if (newIndex > oldIndex) newIndex -= 1;
 
     final item = listOfProductImages.removeAt(oldIndex);
@@ -850,4 +901,10 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
 //? ###########################################################################################################################
 //? ###########################################################################################################################
 //? ###########################################################################################################################
+  @override
+  Future<void> close() {
+    state.descriptionController.disable();
+    state.descriptionShortController.disable();
+    return super.close();
+  }
 }

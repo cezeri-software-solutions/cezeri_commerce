@@ -1,4 +1,3 @@
-
 import 'package:cezeri_commerce/3_domain/entities/product/field_language.dart';
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
@@ -18,10 +17,13 @@ import 'product_image.dart';
 import 'product_marketplace.dart';
 import 'product_presta.dart';
 import 'set_product.dart';
+import 'specific_price.dart';
 
 part 'product.g.dart';
 
 @JsonSerializable(explicitToJson: true)
+//! copyWith NICHT GENERIEREN
+//! specific_price wurde manuell angepasst
 class Product extends Equatable {
   @JsonKey(includeToJson: false)
   final String id;
@@ -111,6 +113,7 @@ class Product extends Equatable {
   // @JsonKey(name: 'product_marketplaces')
   final List<ProductMarketplace> productMarketplaces;
   // @JsonKey(name: 'creation_date', includeToJson: false)
+  final SpecificPrice? specificPrice;
   @JsonKey(includeToJson: false)
   final DateTime creationDate;
   @JsonKey(includeToJson: false)
@@ -167,6 +170,7 @@ class Product extends Equatable {
     required this.listOfProductImages,
     required this.listOfSetProducts,
     required this.productMarketplaces,
+    required this.specificPrice,
     required this.creationDate,
     required this.lastEditingDate,
   }) : volume = width * height * depth;
@@ -225,6 +229,7 @@ class Product extends Equatable {
       listOfProductImages: const [],
       listOfSetProducts: const [],
       productMarketplaces: const [],
+      specificPrice: null,
       creationDate: DateTime.now(),
       lastEditingDate: DateTime.now(),
     );
@@ -506,6 +511,8 @@ class Product extends Equatable {
     List<ProductImage>? listOfProductImages,
     List<SetProduct>? listOfSetProducts,
     List<ProductMarketplace>? productMarketplaces,
+    SpecificPrice? specificPrice,
+    bool resetSpecificPrice = false, // Hinzugefügt, um null explizit zu setzen
     DateTime? creationDate,
     DateTime? lastEditingDate,
   }) {
@@ -559,6 +566,7 @@ class Product extends Equatable {
       listOfProductImages: listOfProductImages ?? this.listOfProductImages,
       listOfSetProducts: listOfSetProducts ?? this.listOfSetProducts,
       productMarketplaces: productMarketplaces ?? this.productMarketplaces,
+      specificPrice: resetSpecificPrice ? null : (specificPrice ?? this.specificPrice),
       creationDate: creationDate ?? this.creationDate,
       lastEditingDate: lastEditingDate ?? this.lastEditingDate,
     );
@@ -614,6 +622,7 @@ class Product extends Equatable {
         listOfProductImages,
         listOfSetProducts,
         productMarketplaces,
+        specificPrice,
       ];
 
   @override

@@ -40,14 +40,14 @@ class CustomerMasterCard extends StatelessWidget {
                     Expanded(
                       child: MyTextFormFieldSmall(
                         readOnly: true,
-                        labelText: 'Kundennummer',
+                        fieldTitle: 'Kundennummer',
                         hintText: state.customer!.customerNumber.toString(),
                       ),
                     ),
                     Gaps.w8,
                     Expanded(
                       child: MyTextFormFieldSmall(
-                        labelText: 'Firmenname',
+                        fieldTitle: 'Firmenname',
                         controller: state.companyNameController,
                         onChanged: (_) => customerDetailBloc.add(CustomerDetailControllerChangedEvent()),
                       ),
@@ -59,7 +59,7 @@ class CustomerMasterCard extends StatelessWidget {
                   children: [
                     Expanded(
                       child: MyTextFormFieldSmall(
-                        labelText: 'Vorname',
+                        fieldTitle: 'Vorname',
                         controller: state.firstNameController,
                         onChanged: (_) => customerDetailBloc.add(CustomerDetailControllerChangedEvent()),
                       ),
@@ -67,7 +67,7 @@ class CustomerMasterCard extends StatelessWidget {
                     Gaps.w8,
                     Expanded(
                       child: MyTextFormFieldSmall(
-                        labelText: 'Nachname',
+                        fieldTitle: 'Nachname',
                         controller: state.lastNameController,
                         onChanged: (_) => customerDetailBloc.add(CustomerDetailControllerChangedEvent()),
                       ),
@@ -76,7 +76,7 @@ class CustomerMasterCard extends StatelessWidget {
                 ),
                 Gaps.h8,
                 MyTextFormFieldSmall(
-                  labelText: 'E-Mail',
+                  fieldTitle: 'E-Mail',
                   controller: state.emailController,
                   onChanged: (_) => customerDetailBloc.add(CustomerDetailControllerChangedEvent()),
                 ),
@@ -85,7 +85,7 @@ class CustomerMasterCard extends StatelessWidget {
                   children: [
                     Expanded(
                       child: MyTextFormFieldSmall(
-                        labelText: 'Telefonnummer',
+                        fieldTitle: 'Telefonnummer',
                         controller: state.phoneController,
                         onChanged: (_) => customerDetailBloc.add(CustomerDetailControllerChangedEvent()),
                       ),
@@ -93,7 +93,7 @@ class CustomerMasterCard extends StatelessWidget {
                     Gaps.w8,
                     Expanded(
                       child: MyTextFormFieldSmall(
-                        labelText: 'Telefonnummer Mobil',
+                        fieldTitle: 'Telefonnummer Mobil',
                         controller: state.phoneMobileController,
                         onChanged: (_) => customerDetailBloc.add(CustomerDetailControllerChangedEvent()),
                       ),
@@ -105,7 +105,7 @@ class CustomerMasterCard extends StatelessWidget {
                   children: [
                     Expanded(
                       child: MyTextFormFieldSmall(
-                        labelText: 'UID-Nummer',
+                        fieldTitle: 'UID-Nummer',
                         controller: state.uidNumberController,
                         onChanged: (_) => customerDetailBloc.add(CustomerDetailControllerChangedEvent()),
                       ),
@@ -113,7 +113,7 @@ class CustomerMasterCard extends StatelessWidget {
                     Gaps.w8,
                     Expanded(
                       child: MyTextFormFieldSmall(
-                        labelText: 'Steuernummer',
+                        fieldTitle: 'Steuernummer',
                         controller: state.taxNumberController,
                         onChanged: (_) => customerDetailBloc.add(CustomerDetailControllerChangedEvent()),
                       ),
@@ -133,22 +133,20 @@ class CustomerMasterCard extends StatelessWidget {
                   items: invoiceTypeItems,
                 ),
                 Gaps.h16,
-                GestureDetector(
+                MyButtonSmall(
                   onTap: () => showDialog(
                     context: context,
                     builder: (_) => MyDialogTaxes(onChanged: (taxRule) => customerDetailBloc.add(CustomerDetailSetCustomerTaxEvent(tax: taxRule))),
                   ),
-                  child: MyButtonSmall(
-                    child: Row(
-                      children: [
-                        MyCountryFlag(country: state.customer!.tax.country),
-                        Gaps.w8,
-                        Text(
-                          state.customer!.tax.taxName,
-                          style: const TextStyle(fontSize: 13),
-                        ),
-                      ],
-                    ),
+                  child: Row(
+                    children: [
+                      MyCountryFlag(country: state.customer!.tax.country),
+                      Gaps.w8,
+                      Text(
+                        state.customer!.tax.taxName,
+                        style: const TextStyle(fontSize: 13),
+                      ),
+                    ],
                   ),
                 ),
                 Gaps.h16,

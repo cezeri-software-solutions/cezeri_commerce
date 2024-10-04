@@ -13,6 +13,7 @@ import '/4_infrastructur/repositories/shopify_api/shopify.dart';
 import '/routes/router.gr.dart';
 import '../../../2_application/database/product/product_bloc.dart';
 import '../../core/core.dart';
+import '../widgets/product_profit_text.dart';
 import 'widgets/update_product_quantity_dialog.dart';
 
 class ProductOverviewPage extends StatelessWidget {
@@ -80,36 +81,50 @@ class _ProductContainer extends StatelessWidget {
 
     return BlocBuilder<ProductBloc, ProductState>(
       builder: (context, state) {
-        return Row(
-          mainAxisAlignment: MainAxisAlignment.start,
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Checkbox.adaptive(
-              value: state.selectedProducts.any((e) => e.id == product.id),
-              onChanged: (_) => productBloc.add(OnProductSelectedEvent(product: product)),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Checkbox.adaptive(
+                  value: state.selectedProducts.any((e) => e.id == product.id),
+                  onChanged: (_) => productBloc.add(OnProductSelectedEvent(product: product)),
+                ),
+                SizedBox(
+                  width: isTabletOrLarger ? RWPP.picture : RWMBPP.picture,
+                  child: MyAvatar(
+                    name: product.name,
+                    imageUrl: product.listOfProductImages.isNotEmpty ? product.listOfProductImages.where((e) => e.isDefault).first.fileUrl : null,
+                    radius: isTabletOrLarger ? 35 : 30,
+                    fontSize: isTabletOrLarger ? 25 : 20,
+                    fit: BoxFit.scaleDown,
+                    shape: BoxShape.rectangle,
+                    onTap: product.listOfProductImages.isNotEmpty
+                        ? () => context.router.push(MyFullscreenImageRoute(
+                            imagePaths: product.listOfProductImages.map((e) => e.fileUrl).toList(), initialIndex: 0, isNetworkImage: true))
+                        : null,
+                  ),
+                ),
+                isTabletOrLarger ? Gaps.w16 : Gaps.w8,
+                _ProductInfoBar(productBloc: productBloc, product: product),
+                Gaps.w16,
+                if (isTabletOrLarger) _PricesBar(product: product) else _StockBar(productBloc: productBloc, product: product),
+                isTabletOrLarger ? Gaps.w16 : Gaps.w8,
+                if (isTabletOrLarger) _StockBar(productBloc: productBloc, product: product) else _PricesBar(product: product),
+                Gaps.w16,
+                _MarketplacesBar(product: product),
+              ],
             ),
-            SizedBox(
-              width: isTabletOrLarger ? RWPP.picture : RWMBPP.picture,
-              child: MyAvatar(
-                name: product.name,
-                imageUrl: product.listOfProductImages.isNotEmpty ? product.listOfProductImages.where((e) => e.isDefault).first.fileUrl : null,
-                radius: isTabletOrLarger ? 35 : 30,
-                fontSize: isTabletOrLarger ? 25 : 20,
-                fit: BoxFit.scaleDown,
-                shape: BoxShape.rectangle,
-                onTap: product.listOfProductImages.isNotEmpty
-                    ? () => context.router.push(MyFullscreenImageRoute(
-                        imagePaths: product.listOfProductImages.map((e) => e.fileUrl).toList(), initialIndex: 0, isNetworkImage: true))
-                    : null,
-              ),
-            ),
-            isTabletOrLarger ? Gaps.w16 : Gaps.w8,
-            _ProductInfoBar(productBloc: productBloc, product: product),
-            Gaps.w16,
-            if (isTabletOrLarger) _PricesBar(product: product) else _StockBar(productBloc: productBloc, product: product),
-            isTabletOrLarger ? Gaps.w16 : Gaps.w8,
-            if (isTabletOrLarger) _StockBar(productBloc: productBloc, product: product) else _PricesBar(product: product),
-            Gaps.w16,
-            _MarketplacesBar(product: product),
+            if (product.specificPrice != null) ...[
+              Padding(
+                padding: const EdgeInsets.only(left: 60, right: 16),
+                child: Badge(
+                  label: const Text('SALE'),
+                  backgroundColor: Colors.red.withOpacity(0.8),
+                ),
+              )
+            ],
           ],
         );
       },
@@ -200,20 +215,7 @@ class _PricesBar extends StatelessWidget {
           Text('EK: ${product.wholesalePrice.toMyCurrencyStringToShow()}'),
           Text('VK-Netto: ${product.netPrice.toMyCurrencyStringToShow()}'),
           Text('VK-Brutto: ${product.grossPrice.toMyCurrencyStringToShow()}'),
-          Text.rich(TextSpan(children: [
-            TextSpan(
-              text: (product.netPrice - product.wholesalePrice).toMyCurrencyStringToShow(),
-              style: TextStyles.defaultBold.copyWith(color: Colors.green),
-            ),
-            if (product.wholesalePrice != 0 && product.netPrice != 0) ...[
-              const TextSpan(text: ' | ', style: TextStyles.defaultBold),
-              TextSpan(
-                text: ((1 - (product.wholesalePrice / product.netPrice)) * 100).toMyCurrencyStringToShow(),
-                style: TextStyles.defaultBold.copyWith(color: CustomColors.primaryColor),
-              ),
-              TextSpan(text: '%', style: TextStyles.defaultBold.copyWith(color: CustomColors.primaryColor))
-            ],
-          ]))
+          ProductProfitText(netPrice: product.netPrice, wholesalePrice: product.wholesalePrice),
         ],
       ),
     );

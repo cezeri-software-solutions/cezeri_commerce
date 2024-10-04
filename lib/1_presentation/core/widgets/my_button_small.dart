@@ -4,9 +4,12 @@ import '../../../constants.dart';
 
 class MyButtonSmall extends StatelessWidget {
   final Widget child;
+  final Widget? trailing;
   final String? labelText;
+  final VoidCallback? onTap;
+  final VoidCallback? onTrailingTap;
 
-  const MyButtonSmall({super.key, required this.child, this.labelText});
+  const MyButtonSmall({super.key, required this.child, this.trailing, this.labelText, this.onTap, this.onTrailingTap});
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +18,7 @@ class MyButtonSmall extends StatelessWidget {
       children: [
         if (labelText != null) Text(' ${labelText!}', style: TextStyles.infoOnTextFieldSmall),
         Container(
-          height: 28,
+          height: 32,
           width: double.infinity,
           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
           decoration: BoxDecoration(
@@ -23,7 +26,13 @@ class MyButtonSmall extends StatelessWidget {
             borderRadius: BorderRadius.circular(6),
             border: Border.all(color: CustomColors.borderColorLight),
           ),
-          child: child,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(child: GestureDetector(onTap: onTap, child: child)),
+              trailing != null ? Flexible(child: GestureDetector(onTap: onTrailingTap, child: trailing!)) : const SizedBox.shrink(),
+            ],
+          ),
         ),
       ],
     );

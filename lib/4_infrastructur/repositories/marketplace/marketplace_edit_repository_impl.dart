@@ -16,6 +16,7 @@ import '/3_domain/enums/enums.dart';
 import '/3_domain/repositories/marketplace/marketplace_edit_repository.dart';
 import '/constants.dart';
 import '/failures/failures.dart';
+import '../../../3_domain/entities/product/specific_price.dart';
 import '../../../3_domain/repositories/database/product_repository.dart';
 import '../database/functions/repository_functions.dart';
 import '../prestashop_api/models/product_raw_presta.dart';
@@ -25,7 +26,7 @@ import '../prestashop_api/prestashop_repository_post.dart';
 import '../shopify_api/shopify.dart';
 
 class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
-  MarketplaceEditRepositoryImpl();
+  const MarketplaceEditRepositoryImpl();
 
   @override
   Future<Either<List<AbstractFailure>, Unit>> setQuantityMPInAllProductMarketplaces(
@@ -314,6 +315,117 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
       }
     }
 
+    if (failures.isEmpty) return right(unit);
+    return left(failures);
+  }
+
+  @override
+  Future<Either<List<AbstractFailure>, Unit>> updateSpecificPriceInPrestaMarketplaces(Product originalProduct, Product product) async {
+    if (!await checkInternetConnection()) return Left([NoConnectionFailure()]);
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return Left([GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden')]);
+
+    final List<AbstractFailure> failures = [];
+
+    Product latestProduct = product;
+
+    for (ProductMarketplace productMarketplace in originalProduct.productMarketplaces) {
+      final mp = productMarketplace.marketplaceProduct;
+      if (mp == null) continue;
+      if (mp.marketplaceType != MarketplaceType.prestashop) continue;
+      if (mp is! ProductPresta) continue;
+
+      final marketplaceRepository = GetIt.I<MarketplaceRepository>();
+      final fosMarketplace = await marketplaceRepository.getMarketplace(productMarketplace.idMarketplace);
+
+      const failureMessageOnGetMarketplace = 'Beim aktualisieren der Rabatte im Marktplatz konnte mindestens ein Marktplatz nicht geladen werden';
+      if (fosMarketplace.isLeft()) return Left([GeneralFailure(customMessage: failureMessageOnGetMarketplace)]);
+      final marketplace = fosMarketplace.getRight();
+
+      if (!marketplace.isActive || marketplace is! MarketplacePresta) continue;
+
+      Product? updatedProduct;
+
+      //* Fall 1: Komplett neuer Rabatt
+      if (originalProduct.specificPrice == null && latestProduct.specificPrice != null) {
+        final index =
+            latestProduct.specificPrice!.listOfSpecificPriceMarketplaces.indexWhere((e) => e.marketplaceId == productMarketplace.idMarketplace);
+        if (index == -1) continue;
+
+        final result = await PrestashopRepositoryPost(marketplace).createNewSpecificPrice(product: latestProduct, productPresta: mp);
+        if (result.isLeft()) {
+          failures.add(result.getLeft());
+          continue;
+        }
+        final newSpecificPriceId = result.getRight();
+        List<SpecificPriceMarketplace> newList = latestProduct.specificPrice!.listOfSpecificPriceMarketplaces;
+        newList[index] = (marketplaceId: newList[index].marketplaceId, specificPriceId: newSpecificPriceId.toString());
+        updatedProduct = latestProduct.copyWith(specificPrice: latestProduct.specificPrice!.copyWith(listOfSpecificPriceMarketplaces: newList));
+      }
+
+      //* Fall 2: Rabatt war vorhanden
+      else if (originalProduct.specificPrice != null && latestProduct.specificPrice != null) {
+        final indexOriginal =
+            originalProduct.specificPrice!.listOfSpecificPriceMarketplaces.indexWhere((e) => e.marketplaceId == productMarketplace.idMarketplace);
+        final index =
+            latestProduct.specificPrice!.listOfSpecificPriceMarketplaces.indexWhere((e) => e.marketplaceId == productMarketplace.idMarketplace);
+
+        //* Fall 2.1: aber dieser Marktplatz war nicht vorhanden
+        if (indexOriginal == -1 && index != -1) {
+          final result = await PrestashopRepositoryPost(marketplace).createNewSpecificPrice(product: latestProduct, productPresta: mp);
+          if (result.isLeft()) {
+            failures.add(result.getLeft());
+            continue;
+          }
+          final newSpecificPriceId = result.getRight();
+          List<SpecificPriceMarketplace> newList = latestProduct.specificPrice!.listOfSpecificPriceMarketplaces;
+          newList[index] = (marketplaceId: newList[index].marketplaceId, specificPriceId: newSpecificPriceId.toString());
+          updatedProduct = latestProduct.copyWith(specificPrice: latestProduct.specificPrice!.copyWith(listOfSpecificPriceMarketplaces: newList));
+          //* Fall 2.2: aber dieser Marktplatz wurde entfernt aus dem Rabatt
+        } else if (indexOriginal != -1 && index == -1) {
+          final specificPriceId = originalProduct.specificPrice!.listOfSpecificPriceMarketplaces[indexOriginal].specificPriceId;
+          if (specificPriceId == null) continue;
+          final result = await PrestashopRepositoryDelete(marketplace).deleteSpecificPrice(specificPriceId);
+          if (result.isLeft()) {
+            failures.add(result.getLeft());
+            continue;
+          }
+          //* Fall 2.3: und ist immer noch vorhanden und wurde bearbeitet
+        } else if (indexOriginal != -1 && index != -1) {
+          final specificPriceId = latestProduct.specificPrice!.listOfSpecificPriceMarketplaces[indexOriginal].specificPriceId;
+          if (specificPriceId == null) continue;
+          final result = await PrestashopRepositoryPatch(marketplace).patchProductSpecificPrice(
+            productId: mp.id,
+            specificPriceId: specificPriceId.toMyInt(),
+            product: latestProduct,
+          );
+          if (result.isLeft()) {
+            failures.add(result.getLeft());
+            continue;
+          }
+        }
+      }
+
+      //* Fall 3: Rabatt war vorhanden, der gesamte Rabatt wurde gelöscht
+      else if (originalProduct.specificPrice != null && latestProduct.specificPrice == null) {
+        final indexOriginal =
+            originalProduct.specificPrice!.listOfSpecificPriceMarketplaces.indexWhere((e) => e.marketplaceId == productMarketplace.idMarketplace);
+        final specificPriceId = originalProduct.specificPrice!.listOfSpecificPriceMarketplaces[indexOriginal].specificPriceId;
+        if (specificPriceId == null) continue;
+        final result = await PrestashopRepositoryDelete(marketplace).deleteSpecificPrice(specificPriceId);
+        if (result.isLeft()) {
+          failures.add(result.getLeft());
+          continue;
+        }
+      }
+
+      if (updatedProduct != null) {
+        final productRepository = GetIt.I<ProductRepository>();
+        final updateProductResult = await productRepository.updateProductAndSets(updatedProduct);
+        if (updateProductResult.isLeft()) failures.add(updateProductResult.getLeft());
+        latestProduct = updateProductResult.getRight();
+      }
+    }
     if (failures.isEmpty) return right(unit);
     return left(failures);
   }

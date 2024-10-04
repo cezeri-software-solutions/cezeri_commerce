@@ -1,11 +1,13 @@
 import 'package:xml/xml.dart';
 
-import '../../../1_presentation/core/core.dart';
-import '../../../3_domain/entities/product/field_language.dart';
-import '../../../3_domain/entities/product/product.dart';
-import '../../../3_domain/entities/product/product_marketplace.dart';
-import '../../../3_domain/entities/product/product_presta.dart';
-import 'models/product_raw_presta.dart';
+import '../../../../1_presentation/core/core.dart';
+import '../../../../3_domain/entities/product/field_language.dart';
+import '../../../../3_domain/entities/product/product.dart';
+import '../../../../3_domain/entities/product/product_marketplace.dart';
+import '../../../../3_domain/entities/product/product_presta.dart';
+import '../models/product_raw_presta.dart';
+import '../models/specific_price_presta.dart';
+import '../utils/presta_utils.dart';
 
 //* Order
 XmlBuilder patchOrderStatusBuilder(final int orderId, final int statusId) {
@@ -28,6 +30,23 @@ XmlBuilder patchStockAvailableBuilder(String id, int quantity) {
     builder.element('stock_available', nest: () {
       builder.element('id', nest: id);
       builder.element('quantity', nest: quantity);
+    });
+  });
+  return builder;
+}
+
+XmlBuilder patchSpecificPriceBuilder(SpecificPricePresta specificPricePresta, Product product) {
+  final builder = XmlBuilder();
+  builder.processing('xml', 'version="1.0" encoding="UTF-8"');
+  builder.element('prestashop', attributes: {'xmlns:xlink': 'http://www.w3.org/1999/xlink'}, nest: () {
+    builder.element('specific_price', nest: () {
+      builder.element('id', nest: specificPricePresta.id);
+      builder.element('from_quantity', nest: product.specificPrice!.fromQuantity.toString());
+      builder.element('reduction', nest: getSpecificPriceReduction(product));
+      builder.element('reduction_tax', nest: getSpecificPriceReductionTax(product));
+      builder.element('reduction_type', nest: getSpecificPriceReductionType(product));
+      builder.element('from', nest: product.specificPrice!.startDate.toPrestaDateTime());
+      builder.element('to', nest: getSpecificPriceTo(product));
     });
   });
   return builder;

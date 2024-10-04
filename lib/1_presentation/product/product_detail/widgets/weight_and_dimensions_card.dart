@@ -23,27 +23,31 @@ class WeightAndDimensionsCard extends StatelessWidget {
               children: [
                 const Text('Gewicht & Abmessungen', style: TextStyles.h3BoldPrimary),
                 const Divider(),
-                MyTextFormFieldSmallDouble(
-                  aboveText: 'Gewicht kg',
+                MyTextFormFieldSmall(
+                  fieldTitle: 'Gewicht kg',
                   controller: state.weightController,
+                  inputType: FieldInputType.double,
                   onChanged: (_) => productDetailBloc.add(OnProductControllerChangedEvent()),
                 ),
                 Gaps.h16,
-                MyTextFormFieldSmallDouble(
-                  aboveText: 'Höhe cm',
+                MyTextFormFieldSmall(
+                  fieldTitle: 'Höhe cm',
                   controller: state.heightController,
+                  inputType: FieldInputType.double,
                   onChanged: (_) => productDetailBloc.add(OnProductControllerChangedEvent()),
                 ),
                 Gaps.h16,
-                MyTextFormFieldSmallDouble(
-                  aboveText: 'Länge cm',
+                MyTextFormFieldSmall(
+                  fieldTitle: 'Länge cm',
                   controller: state.depthController,
+                  inputType: FieldInputType.double,
                   onChanged: (_) => productDetailBloc.add(OnProductControllerChangedEvent()),
                 ),
                 Gaps.h16,
-                MyTextFormFieldSmallDouble(
-                  aboveText: 'Breite cm',
+                MyTextFormFieldSmall(
+                  fieldTitle: 'Breite cm',
                   controller: state.widthController,
+                  inputType: FieldInputType.double,
                   onChanged: (_) => productDetailBloc.add(OnProductControllerChangedEvent()),
                 ),
               ],

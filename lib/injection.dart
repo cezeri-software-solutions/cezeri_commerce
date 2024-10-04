@@ -159,7 +159,7 @@ Future<void> init() async {
         mainSettingsRepository: sl(),
         marketplaceRepository: sl(),
       ));
-  sl.registerLazySingleton<MarketplaceEditRepository>(() => MarketplaceEditRepositoryImpl());
+  sl.registerLazySingleton<MarketplaceEditRepository>(() => const MarketplaceEditRepositoryImpl());
 
   //! extern
   // final firebaseAuth = FirebaseAuth.instance;

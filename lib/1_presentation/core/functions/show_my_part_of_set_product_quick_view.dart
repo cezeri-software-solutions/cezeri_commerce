@@ -45,9 +45,7 @@ void showMyPartOfSetProductQuickView({required BuildContext context, required St
     onPressed: () => context.router.maybePop(),
   );
 
-  if (context.mounted) {
-    Navigator.of(context).pop();
-  }
+  if (context.mounted) Navigator.of(context).pop();
 
   if (!context.mounted) return;
   WoltModalSheet.show(

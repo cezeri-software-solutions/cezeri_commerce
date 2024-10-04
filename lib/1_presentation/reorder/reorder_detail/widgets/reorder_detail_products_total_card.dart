@@ -5,7 +5,6 @@ import '../../../../2_application/database/reorder_detail/reorder_detail_bloc.da
 import '../../../../constants.dart';
 import '../../../core/core.dart';
 
-
 class ReorderDetailProductsTotalCard extends StatelessWidget {
   final ReorderDetailBloc reorderDetailBloc;
 
@@ -28,9 +27,10 @@ class ReorderDetailProductsTotalCard extends StatelessWidget {
                     Row(
                       children: [
                         const Icon(Icons.remove),
-                        MyTextFormFieldSmallDouble(
+                        MyTextFormFieldSmall(
                           maxWidth: 100,
                           controller: state.discountPercentController,
+                          inputType: FieldInputType.double,
                           suffix: const Text('%'),
                           onChanged: (value) => reorderDetailBloc.add(OnReorderDetailControllerChangedEvent()),
                         ),
@@ -46,9 +46,10 @@ class ReorderDetailProductsTotalCard extends StatelessWidget {
                     Row(
                       children: [
                         const Icon(Icons.remove),
-                        MyTextFormFieldSmallDouble(
+                        MyTextFormFieldSmall(
                           maxWidth: 100,
                           controller: state.discountAmountGrossController,
+                          inputType: FieldInputType.double,
                           suffix: Text(state.reorder!.currency),
                           onChanged: (value) => reorderDetailBloc.add(OnReorderDetailControllerChangedEvent()),
                         ),
@@ -64,9 +65,10 @@ class ReorderDetailProductsTotalCard extends StatelessWidget {
                     Row(
                       children: [
                         const Icon(Icons.add),
-                        MyTextFormFieldSmallDouble(
+                        MyTextFormFieldSmall(
                           maxWidth: 100,
                           controller: state.additionalAmountGrossController,
+                          inputType: FieldInputType.double,
                           suffix: Text(state.reorder!.currency),
                           onChanged: (value) => reorderDetailBloc.add(OnReorderDetailControllerChangedEvent()),
                         ),
@@ -82,9 +84,10 @@ class ReorderDetailProductsTotalCard extends StatelessWidget {
                     Row(
                       children: [
                         const Icon(Icons.add),
-                        MyTextFormFieldSmallDouble(
+                        MyTextFormFieldSmall(
                           maxWidth: 100,
                           controller: state.shippingPriceGrossController,
+                          inputType: FieldInputType.double,
                           suffix: Text(state.reorder!.currency),
                           onChanged: (value) => reorderDetailBloc.add(OnReorderDetailControllerChangedEvent()),
                         ),

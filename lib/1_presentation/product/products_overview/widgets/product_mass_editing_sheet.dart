@@ -337,7 +337,14 @@ class _EditPurchasePageState extends State<_EditPurchasePage> {
         children: [
           Row(
             children: [
-              Expanded(child: MyTextFormFieldSmallDouble(aboveText: 'EK-Preis', controller: _wholesalePriceController, maxWidth: 100)),
+              Expanded(
+                child: MyTextFormFieldSmall(
+                  fieldTitle: 'EK-Preis',
+                  controller: _wholesalePriceController,
+                  maxWidth: 100,
+                  inputType: FieldInputType.double,
+                ),
+              ),
               Checkbox.adaptive(value: _isWholesalePriceSelected, onChanged: (value) => setState(() => _isWholesalePriceSelected = value!))
             ],
           ),
@@ -345,7 +352,8 @@ class _EditPurchasePageState extends State<_EditPurchasePage> {
           Row(
             children: [
               Expanded(
-                child: GestureDetector(
+                child: MyButtonSmall(
+                  labelText: 'Lieferant',
                   onTap: _listOfSuppliers == null
                       ? () => _getSuppliers()
                       : () => showDialog(
@@ -355,7 +363,7 @@ class _EditPurchasePageState extends State<_EditPurchasePage> {
                               onChanged: (supplier) => setState(() => _supplier = supplier),
                             ),
                           ),
-                  child: MyButtonSmall(labelText: 'Lieferant', child: Text(_supplier.company)),
+                  child: Text(_supplier.company),
                 ),
               ),
               Gaps.w16,
@@ -365,7 +373,7 @@ class _EditPurchasePageState extends State<_EditPurchasePage> {
           const Divider(),
           Row(
             children: [
-              Expanded(child: MyTextFormFieldSmall(labelText: 'Hersteller', controller: _manufacturerController)),
+              Expanded(child: MyTextFormFieldSmall(fieldTitle: 'Hersteller', controller: _manufacturerController)),
               Gaps.w16,
               Checkbox.adaptive(value: _isManufacturerSelected, onChanged: (value) => setState(() => _isManufacturerSelected = value!))
             ],
@@ -374,7 +382,12 @@ class _EditPurchasePageState extends State<_EditPurchasePage> {
           Row(
             children: [
               Expanded(
-                child: MyTextFormFieldSmallDouble(aboveText: 'Mindestnachbestellmenge', controller: _minimumReorderQuantityController, maxWidth: 100),
+                child: MyTextFormFieldSmall(
+                  fieldTitle: 'Mindestnachbestellmenge',
+                  controller: _minimumReorderQuantityController,
+                  inputType: FieldInputType.double,
+                  maxWidth: 100,
+                ),
               ),
               Checkbox.adaptive(
                 value: _isMinimumReorderQuantitySelected,
@@ -386,7 +399,12 @@ class _EditPurchasePageState extends State<_EditPurchasePage> {
           Row(
             children: [
               Expanded(
-                child: MyTextFormFieldSmallDouble(aboveText: 'Verpackungseinheit', controller: _packagingUnitOnReorderController, maxWidth: 100),
+                child: MyTextFormFieldSmall(
+                  fieldTitle: 'Verpackungseinheit',
+                  controller: _packagingUnitOnReorderController,
+                  inputType: FieldInputType.double,
+                  maxWidth: 100,
+                ),
               ),
               Checkbox.adaptive(
                 value: _isPackagingUnitOnReorderSelected,
@@ -397,7 +415,13 @@ class _EditPurchasePageState extends State<_EditPurchasePage> {
           const Divider(),
           Row(
             children: [
-              Expanded(child: MyTextFormFieldSmallDouble(aboveText: 'Mindestbestand', controller: _minimumStockController, maxWidth: 100)),
+              Expanded(
+                  child: MyTextFormFieldSmall(
+                fieldTitle: 'Mindestbestand',
+                controller: _minimumStockController,
+                inputType: FieldInputType.double,
+                maxWidth: 100,
+              )),
               Checkbox.adaptive(value: _isMinimumStockSelected, onChanged: (value) => setState(() => _isMinimumStockSelected = value!))
             ],
           ),
@@ -488,28 +512,52 @@ class __EditWeightAndDimensionsPageState extends State<_EditWeightAndDimensionsP
         children: [
           Row(
             children: [
-              Expanded(child: MyTextFormFieldSmallDouble(aboveText: 'Gewicht kg', controller: _weightController, maxWidth: 100)),
+              Expanded(
+                  child: MyTextFormFieldSmall(
+                fieldTitle: 'Gewicht kg',
+                controller: _weightController,
+                inputType: FieldInputType.double,
+                maxWidth: 100,
+              )),
               Checkbox.adaptive(value: _isWeightSelected, onChanged: (value) => setState(() => _isWeightSelected = value!))
             ],
           ),
           const Divider(),
           Row(
             children: [
-              Expanded(child: MyTextFormFieldSmallDouble(aboveText: 'Höhe cm', controller: _heightController, maxWidth: 100)),
+              Expanded(
+                  child: MyTextFormFieldSmall(
+                fieldTitle: 'Höhe cm',
+                controller: _heightController,
+                inputType: FieldInputType.double,
+                maxWidth: 100,
+              )),
               Checkbox.adaptive(value: _isHeightSelected, onChanged: (value) => setState(() => _isHeightSelected = value!))
             ],
           ),
           const Divider(),
           Row(
             children: [
-              Expanded(child: MyTextFormFieldSmallDouble(aboveText: 'Länge cm', controller: _depthController, maxWidth: 100)),
+              Expanded(
+                  child: MyTextFormFieldSmall(
+                fieldTitle: 'Länge cm',
+                controller: _depthController,
+                inputType: FieldInputType.double,
+                maxWidth: 100,
+              )),
               Checkbox.adaptive(value: _isDepthSelected, onChanged: (value) => setState(() => _isDepthSelected = value!))
             ],
           ),
           const Divider(),
           Row(
             children: [
-              Expanded(child: MyTextFormFieldSmallDouble(aboveText: 'Breite cm', controller: _widthController, maxWidth: 100)),
+              Expanded(
+                  child: MyTextFormFieldSmall(
+                fieldTitle: 'Breite cm',
+                controller: _widthController,
+                inputType: FieldInputType.double,
+                maxWidth: 100,
+              )),
               Checkbox.adaptive(value: _isWidthSelected, onChanged: (value) => setState(() => _isWidthSelected = value!))
             ],
           ),

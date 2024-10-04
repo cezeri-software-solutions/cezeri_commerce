@@ -61,6 +61,14 @@ class OnProductDescriptionChangedEvent extends ProductDetailEvent {
 
 class OnSaveProductDescriptionEvent extends ProductDetailEvent {}
 
+class OnAddEditProductSpecificPriceEvent extends ProductDetailEvent {
+  final SpecificPrice specificPrice;
+
+  OnAddEditProductSpecificPriceEvent({required this.specificPrice});
+}
+
+class OnDeleteProductSpecificPriceEvent extends ProductDetailEvent {}
+
 class GetProductByEanEvent extends ProductDetailEvent {
   final String ean;
 

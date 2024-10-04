@@ -184,7 +184,9 @@ Future<List<File>> getImageFilesFromMarketplace({required MarketplaceProduct mar
       {
         final productPresta = marketplaceProduct as ProductPresta;
         if (productPresta.imageFiles != null) {
-          final imageFiles = productPresta.imageFiles!.map((e) => e.imageFile).toList();
+          // TODO: e.imageFile wurde zu e.imageFile! damit der Fehler weg ist
+          // TODO: Muss für Flutter Web noch angepasst werden
+          final imageFiles = productPresta.imageFiles!.map((e) => e.imageFile!).toList();
           listOfImageFiles.addAll(imageFiles);
         }
       }

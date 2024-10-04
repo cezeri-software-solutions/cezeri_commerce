@@ -4,8 +4,9 @@ import 'dart:io';
 import 'package:cezeri_commerce/1_presentation/core/core.dart';
 import 'package:cezeri_commerce/4_infrastructur/repositories/prestashop_api/prestashop_api.dart';
 import 'package:dartz/dartz.dart';
+import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
-import 'package:http/http.dart' as http;
+// import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -13,6 +14,7 @@ import '../../../3_domain/entities/marketplace/marketplace_presta.dart';
 import '../../../constants.dart';
 import '../../../failures/failures.dart';
 import 'models/models.dart';
+import 'models/specific_price_presta.dart';
 
 class PrestashopRepositoryGet {
   final MarketplacePresta marketplace;
@@ -254,7 +256,34 @@ class PrestashopRepositoryGet {
   }
 
   //* Images */
+  Future<Either<AbstractFailure, List<int>>> getProductImage(String productId, String imageId) async {
+    print('--- prestashop_repository_get.getProductImage() ---');
+    try {
+      final response = await supabase.functions.invoke(
+        'prestashop_api',
+        body: jsonEncode({
+          'credentials': credentials,
+          'functionName': 'getProductImage',
+          'productId': productId,
+          'imageId': imageId,
+        }),
+      );
+
+      // Hier decodierst du die Antwort
+      final jsonResponse = jsonDecode(response.data);
+
+      // Konvertiere List<dynamic> zu List<int>
+      List<int> imageBytes = List<int>.from(jsonResponse['image']);
+
+      return Right(imageBytes);
+    } catch (e) {
+      logger.e('Error on Marketplace ${marketplace.shortName}: $e');
+      return Left(PrestaGeneralFailure(errorMessage: e.toString()));
+    }
+  }
+
   Future<Either<AbstractFailure, List<ProductPrestaImage>>> getProductImages(ProductRawPresta productRawPresta) async {
+    print('--- prestashop_repository_get.getProductImages() ---');
     if ((productRawPresta.associations.associationsImages == null) ||
         productRawPresta.associations.associationsImages != null && productRawPresta.associations.associationsImages!.isEmpty) {
       return const Right([]);
@@ -263,16 +292,22 @@ class PrestashopRepositoryGet {
     List<ProductPrestaImage> listOfImages = [];
 
     for (final id in productRawPresta.associations.associationsImages!) {
-      final uri = '${marketplace.fullUrl}images/products/${productRawPresta.id}/${id.id}';
-      final responseImage = await http.get(
-        Uri.parse(uri),
-        headers: {'Authorization': 'Basic ${base64Encode(utf8.encode('${marketplace.key}:'))}'},
-      );
+      final responseImageResult = await getProductImage(productRawPresta.id.toString(), id.id);
+      if (responseImageResult.isLeft()) {
+        print(responseImageResult.getLeft());
+        return Right(listOfImages);
+      }
 
-      if (responseImage.statusCode == 200) {
+      final Uint8List responseImage = Uint8List.fromList(responseImageResult.getRight());
+
+      if (kIsWeb) {
+        //* Auf dem Web speichern wir die Bilddaten im Speicher
+        listOfImages.add(ProductPrestaImage(productId: id.id.toMyInt(), imageData: responseImage));
+      } else {
+        //* Auf mobilen Plattformen speichern wir die Bilddatei
         final Directory directory = await getTemporaryDirectory();
         final File file = File('${directory.path}/product_${productRawPresta.id}_${id.id}.jpg');
-        final imageFile = await file.writeAsBytes(responseImage.bodyBytes);
+        final imageFile = await file.writeAsBytes(responseImage);
         listOfImages.add(ProductPrestaImage(productId: id.id.toMyInt(), imageFile: imageFile));
       }
     }
@@ -330,24 +365,58 @@ class PrestashopRepositoryGet {
     }
   }
 
+  //* SpecificPrices */
+  Future<Either<AbstractFailure, SpecificPricePresta>> getSpecificPrice(int specificPriceId, int productId) async {
+    try {
+      final response = await supabase.functions.invoke(
+        'prestashop_api',
+        body: jsonEncode({
+          'credentials': credentials,
+          'functionName': 'getSpecificPrice',
+          'specificPriceId': specificPriceId,
+          // 'productId': productId,
+        }),
+      );
+
+      return Right(SpecificPricesPresta.fromJson(response.data).items.single);
+    } catch (e) {
+      logger.e('Error on Marketplace ${marketplace.shortName}: $e');
+      return Left(PrestaGeneralFailure(errorMessage: e.toString()));
+    }
+  }
+
   //* "getProduct gibt den Artikel so zurück, wie diese von Prestashop bereitgestellt wird und fürgt noch weitere Artikeldaten hinzu"
   //* Wie z.B. Multilanguage, ListOfProductImages usw.
   Future<Either<AbstractFailure, ProductRawPresta>> getProduct(int productId) async {
-    final fosProductRawPresta = await getProductRaw(productId);
-    if (fosProductRawPresta.isLeft()) return Left(fosProductRawPresta.getLeft());
+    print('--- prestashop_repository_get.getProduct() ---');
+    //* Jeder API Zugriff hat zwei Versuche, da es vereinzelt vorkommen kann, dass Presta einen "unknown Error"
+    Either<AbstractFailure, ProductRawPresta> fosProductRawPresta = await getProductRaw(productId);
+    if (fosProductRawPresta.isLeft()) {
+      fosProductRawPresta = await getProductRaw(productId);
+      if (fosProductRawPresta.isLeft()) return Left(fosProductRawPresta.getLeft());
+    }
     final productRawPresta = fosProductRawPresta.getRight();
 
     final idStockAvailable = productRawPresta.associations.associationsStockAvailables!.first.id;
-    final fosStockAvailablesPresta = await getStockAvailable(idStockAvailable.toMyInt());
-    if (fosStockAvailablesPresta.isLeft()) return Left(fosStockAvailablesPresta.getLeft());
+    Either<AbstractFailure, StockAvailablePresta> fosStockAvailablesPresta = await getStockAvailable(idStockAvailable.toMyInt());
+    if (fosStockAvailablesPresta.isLeft()) {
+      fosStockAvailablesPresta = await getStockAvailable(idStockAvailable.toMyInt());
+      if (fosStockAvailablesPresta.isLeft()) return Left(fosStockAvailablesPresta.getLeft());
+    }
     final stockAvailablesPresta = fosStockAvailablesPresta.getRight();
 
-    final fosMarketplaceLanguages = await getLanguages();
-    if (fosMarketplaceLanguages.isLeft()) return Left(fosProductRawPresta.getLeft());
+    Either<AbstractFailure, List<LanguagePresta>> fosMarketplaceLanguages = await getLanguages();
+    if (fosMarketplaceLanguages.isLeft()) {
+      fosMarketplaceLanguages = await getLanguages();
+      if (fosMarketplaceLanguages.isLeft()) return Left(fosProductRawPresta.getLeft());
+    }
     final marketplaceLanguages = fosMarketplaceLanguages.getRight();
 
-    final fosListOfImages = await getProductImages(productRawPresta);
-    if (fosListOfImages.isLeft()) return Left(fosListOfImages.getLeft());
+    Either<AbstractFailure, List<ProductPrestaImage>> fosListOfImages = await getProductImages(productRawPresta);
+    if (fosListOfImages.isLeft()) {
+      fosListOfImages = await getProductImages(productRawPresta);
+      if (fosListOfImages.isLeft()) return Left(fosListOfImages.getLeft());
+    }
     final listOfImages = fosListOfImages.getRight();
 
     final productPresta = _fromRawProductToProductToUse(

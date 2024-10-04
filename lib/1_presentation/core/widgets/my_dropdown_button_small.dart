@@ -28,7 +28,7 @@ class MyDropdownButtonSmall extends StatelessWidget {
       children: [
         if (labelText != null) Text(' ${labelText!}', style: TextStyles.infoOnTextFieldSmall),
         ConstrainedBox(
-          constraints: BoxConstraints(maxHeight: 28, maxWidth: maxWidth),
+          constraints: BoxConstraints(maxHeight: 32, maxWidth: maxWidth),
           child: DropdownButtonFormField(
             decoration: InputDecoration(
               hintStyle: const TextStyle().copyWith(letterSpacing: 0),
@@ -59,7 +59,7 @@ class MyDropdownButtonSmall extends StatelessWidget {
             }).toList(),
             isExpanded: true,
             value: value,
-            style: const TextStyle(fontSize: 12, color: Colors.black).copyWith(letterSpacing: 0),
+            style: const TextStyle(fontSize: 13, color: Colors.black).copyWith(letterSpacing: 0),
             onChanged: onChanged,
           ),
         ),

@@ -21,19 +21,19 @@ class CarrierDetailCredentialsCard extends StatelessWidget {
                 const Text('Zugangsdaten', style: TextStyles.h3BoldPrimary),
                 const Divider(height: 30),
                 MyTextFormFieldSmall(
-                  labelText: 'ClientID:',
+                  fieldTitle: 'ClientID:',
                   controller: state.clientIdController,
                   onChanged: (_) => context.read<MainSettingsBloc>().add(OnCarrierControllerChangedEvent()),
                 ),
                 Gaps.h8,
                 MyTextFormFieldSmall(
-                  labelText: 'OrgUnit ID:',
+                  fieldTitle: 'OrgUnit ID:',
                   controller: state.orgUnitIdController,
                   onChanged: (_) => context.read<MainSettingsBloc>().add(OnCarrierControllerChangedEvent()),
                 ),
                 Gaps.h8,
                 MyTextFormFieldSmall(
-                  labelText: 'OrgUnitGUID:',
+                  fieldTitle: 'OrgUnitGUID:',
                   controller: state.orgUnitGuideController,
                   onChanged: (_) => context.read<MainSettingsBloc>().add(OnCarrierControllerChangedEvent()),
                 ),

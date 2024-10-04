@@ -1,4 +1,3 @@
-import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
@@ -24,7 +23,7 @@ void selectMarketplaceToExport({
 
   final closeButton = Padding(
     padding: const EdgeInsets.only(right: 8),
-    child: IconButton(icon: const Icon(Icons.close), onPressed: () => context.router.maybePop()),
+    child: IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.of(context).pop()),
   );
 
   void onMarketplaceSelected(AbstractMarketplace sM) {

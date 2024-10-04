@@ -28,14 +28,14 @@ class SupplierMasterCard extends StatelessWidget {
                     Expanded(
                       child: MyTextFormFieldSmall(
                         readOnly: true,
-                        labelText: 'Lieferantennummer',
+                        fieldTitle: 'Lieferantennummer',
                         hintText: state.supplier!.supplierNumber.toString(),
                       ),
                     ),
                     Gaps.w8,
                     Expanded(
                       child: MyTextFormFieldSmall(
-                        labelText: 'Firmenname',
+                        fieldTitle: 'Firmenname',
                         controller: state.companyNameController,
                         onChanged: (_) => supplierBloc.add(OnSupplierControllerChangedEvent()),
                       ),
@@ -47,7 +47,7 @@ class SupplierMasterCard extends StatelessWidget {
                   children: [
                     Expanded(
                       child: MyTextFormFieldSmall(
-                        labelText: 'Vorname',
+                        fieldTitle: 'Vorname',
                         controller: state.firstNameController,
                         onChanged: (_) => supplierBloc.add(OnSupplierControllerChangedEvent()),
                       ),
@@ -55,7 +55,7 @@ class SupplierMasterCard extends StatelessWidget {
                     Gaps.w8,
                     Expanded(
                       child: MyTextFormFieldSmall(
-                        labelText: 'Nachname',
+                        fieldTitle: 'Nachname',
                         controller: state.lastNameController,
                         onChanged: (_) => supplierBloc.add(OnSupplierControllerChangedEvent()),
                       ),
@@ -67,7 +67,7 @@ class SupplierMasterCard extends StatelessWidget {
                   children: [
                     Expanded(
                       child: MyTextFormFieldSmall(
-                        labelText: 'E-Mail',
+                        fieldTitle: 'E-Mail',
                         controller: state.emailController,
                         onChanged: (_) => supplierBloc.add(OnSupplierControllerChangedEvent()),
                       ),
@@ -75,7 +75,7 @@ class SupplierMasterCard extends StatelessWidget {
                     Gaps.w8,
                     Expanded(
                       child: MyTextFormFieldSmall(
-                        labelText: 'Homepage',
+                        fieldTitle: 'Homepage',
                         controller: state.homepageController,
                         onChanged: (_) => supplierBloc.add(OnSupplierControllerChangedEvent()),
                       ),
@@ -87,7 +87,7 @@ class SupplierMasterCard extends StatelessWidget {
                   children: [
                     Expanded(
                       child: MyTextFormFieldSmall(
-                        labelText: 'Telefonnummer',
+                        fieldTitle: 'Telefonnummer',
                         controller: state.phoneController,
                         onChanged: (_) => supplierBloc.add(OnSupplierControllerChangedEvent()),
                       ),
@@ -95,7 +95,7 @@ class SupplierMasterCard extends StatelessWidget {
                     Gaps.w8,
                     Expanded(
                       child: MyTextFormFieldSmall(
-                        labelText: 'Telefonnummer Mobil',
+                        fieldTitle: 'Telefonnummer Mobil',
                         controller: state.phoneMobileController,
                         onChanged: (_) => supplierBloc.add(OnSupplierControllerChangedEvent()),
                       ),
@@ -103,22 +103,20 @@ class SupplierMasterCard extends StatelessWidget {
                   ],
                 ),
                 Gaps.h16,
-                GestureDetector(
+                MyButtonSmall(
                   onTap: () => showDialog(
                     context: context,
                     builder: (_) => MyDialogTaxes(onChanged: (taxRule) => supplierBloc.add(SetSupplierTaxEvent(tax: taxRule))),
                   ),
-                  child: MyButtonSmall(
-                    child: Row(
-                      children: [
-                        MyCountryFlag(country: state.supplier!.tax.country),
-                        Gaps.w8,
-                        Text(
-                          state.supplier!.tax.taxName,
-                          style: const TextStyle(fontSize: 13),
-                        ),
-                      ],
-                    ),
+                  child: Row(
+                    children: [
+                      MyCountryFlag(country: state.supplier!.tax.country),
+                      Gaps.w8,
+                      Text(
+                        state.supplier!.tax.taxName,
+                        style: const TextStyle(fontSize: 13),
+                      ),
+                    ],
                   ),
                 ),
                 Gaps.h16,

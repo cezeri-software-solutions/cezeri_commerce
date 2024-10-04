@@ -147,7 +147,7 @@ class _PackingStationDetailPageState extends State<PackingStationDetailPage> {
                 ),
                 Gaps.w16,
                 MyTextFormFieldSmall(
-                  labelText: 'Gewicht:',
+                  fieldTitle: 'Gewicht:',
                   maxWidth: 100,
                   controller: state.weightController,
                   onChanged: (value) => widget.packingStationBloc.add(PackingStationOnWeightControllerChangedEvent()),

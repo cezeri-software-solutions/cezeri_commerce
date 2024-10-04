@@ -21,6 +21,7 @@ abstract class MarketplaceEditRepository {
     ProductMarketplace anotherProductMarketplaceWithSameManufacturer,
   );
   Future<Either<List<AbstractFailure>, Unit>> uploadProductImagesToMarketplace(Product product, List<ProductImage> productImages);
+  Future<Either<List<AbstractFailure>, Unit>> updateSpecificPriceInPrestaMarketplaces(Product originalProduct, Product product);
 
   //* Order
   Future<Either<PrestaFailure, Unit>> setOrderStatusInMarketplace(

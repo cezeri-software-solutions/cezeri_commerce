@@ -27,9 +27,10 @@ class PurchaseCard extends StatelessWidget {
                 Row(
                   children: [
                     Expanded(
-                      child: MyTextFormFieldSmallDouble(
-                        aboveText: 'EK-Preis',
+                      child: MyTextFormFieldSmall(
+                        fieldTitle: 'EK-Preis',
                         controller: state.wholesalePriceController,
+                        inputType: FieldInputType.double,
                         onChanged: (_) => productDetailBloc.add(OnProductControllerChangedEvent()),
                       ),
                     ),
@@ -41,7 +42,8 @@ class PurchaseCard extends StatelessWidget {
                     else
                       Gaps.w8,
                     Expanded(
-                      child: GestureDetector(
+                      child: MyButtonSmall(
+                        labelText: 'Lieferant',
                         onTap: state.listOfSuppliers == null
                             ? () => productDetailBloc.add(OnProductGetSuppliersEvent())
                             : () => showDialog(
@@ -51,10 +53,7 @@ class PurchaseCard extends StatelessWidget {
                                     onChanged: (supplier) => productDetailBloc.add(OnProductSetSupplierEvent(supplierName: supplier.company)),
                                   ),
                                 ),
-                        child: MyButtonSmall(
-                          labelText: 'Lieferant',
-                          child: state.isLoadingProductSuppliersOnObseve ? const MyCircularProgressIndicator() : Text(state.product!.supplier),
-                        ),
+                        child: state.isLoadingProductSuppliersOnObseve ? const MyCircularProgressIndicator() : Text(state.product!.supplier),
                       ),
                     ),
                   ],
@@ -64,7 +63,7 @@ class PurchaseCard extends StatelessWidget {
                   children: [
                     Expanded(
                       child: MyTextFormFieldSmall(
-                        labelText: 'Lief. Artikel-Nr.',
+                        fieldTitle: 'Lief. Artikel-Nr.',
                         controller: state.supplierArticleNumberController,
                         onChanged: (_) => productDetailBloc.add(OnProductControllerChangedEvent()),
                       ),
@@ -72,7 +71,7 @@ class PurchaseCard extends StatelessWidget {
                     Gaps.w8,
                     Expanded(
                       child: MyTextFormFieldSmall(
-                        labelText: 'Hersteller',
+                        fieldTitle: 'Hersteller',
                         controller: state.manufacturerController,
                         onChanged: (_) => productDetailBloc.add(OnProductControllerChangedEvent()),
                       ),
@@ -83,25 +82,28 @@ class PurchaseCard extends StatelessWidget {
                 Row(
                   children: [
                     Expanded(
-                      child: MyTextFormFieldSmallDouble(
-                        aboveText: 'Mindestnachbestellmenge',
+                      child: MyTextFormFieldSmall(
+                        fieldTitle: 'Mindestnachbestellmenge',
                         controller: state.minimumReorderQuantityController,
+                        inputType: FieldInputType.integer,
                         onChanged: (_) => productDetailBloc.add(OnProductControllerChangedEvent()),
                       ),
                     ),
                     Gaps.w8,
                     Expanded(
-                      child: MyTextFormFieldSmallDouble(
-                        aboveText: 'Verpackungseinheit',
+                      child: MyTextFormFieldSmall(
+                        fieldTitle: 'Verpackungseinheit',
                         controller: state.packagingUnitOnReorderController,
+                        inputType: FieldInputType.integer,
                         onChanged: (_) => productDetailBloc.add(OnProductControllerChangedEvent()),
                       ),
                     ),
                     Gaps.w8,
                     Expanded(
-                      child: MyTextFormFieldSmallDouble(
-                        aboveText: 'Mindestbestand',
+                      child: MyTextFormFieldSmall(
+                        fieldTitle: 'Mindestbestand',
                         controller: state.minimumStockController,
+                        inputType: FieldInputType.integer,
                         onChanged: (_) => productDetailBloc.add(OnProductControllerChangedEvent()),
                       ),
                     ),

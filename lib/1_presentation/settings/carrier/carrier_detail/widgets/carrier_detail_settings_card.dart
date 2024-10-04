@@ -43,7 +43,7 @@ class CarrierDetailSettingsCard extends StatelessWidget {
                 ),
                 Gaps.h8,
                 MyTextFormFieldSmall(
-                  labelText: 'Marktplatz-Mapping:',
+                  fieldTitle: 'Marktplatz-Mapping:',
                   controller: state.marketplaceMappingController,
                   onChanged: (_) => context.read<MainSettingsBloc>().add(OnCarrierControllerChangedEvent()),
                 ),

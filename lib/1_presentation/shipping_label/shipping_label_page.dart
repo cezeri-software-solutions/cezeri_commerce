@@ -63,7 +63,7 @@ class _ShippingLabelPageState extends State<ShippingLabelPage> {
                     const Text('Absender', style: TextStyles.h3BoldPrimary),
                     const Divider(height: 30),
                     const MyTextFormFieldSmall(
-                      labelText: 'Firmenname',
+                      fieldTitle: 'Firmenname',
                     ),
                     MyOutlinedButton(
                       buttonText: 'Label erstellen',

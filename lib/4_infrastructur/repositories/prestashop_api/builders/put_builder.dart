@@ -1,12 +1,12 @@
 import 'package:xml/xml.dart';
 
-import '../../../1_presentation/core/core.dart';
-import '../../../3_domain/entities/product/field_language.dart';
-import '../../../3_domain/entities/product/product.dart';
-import '../../../3_domain/entities/product/product_marketplace.dart';
-import '../../../3_domain/entities/product/product_presta.dart';
-import 'models/language_presta.dart';
-import 'models/product_raw_presta.dart';
+import '../../../../1_presentation/core/core.dart';
+import '../../../../3_domain/entities/product/field_language.dart';
+import '../../../../3_domain/entities/product/product.dart';
+import '../../../../3_domain/entities/product/product_marketplace.dart';
+import '../../../../3_domain/entities/product/product_presta.dart';
+import '../models/language_presta.dart';
+import '../models/product_raw_presta.dart';
 
 //* Order
 XmlDocument orderStatusUpdater(XmlDocument document, int statusId) {
