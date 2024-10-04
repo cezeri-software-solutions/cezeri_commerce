@@ -6,7 +6,6 @@ import 'package:dartz/dartz.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:html_editor_enhanced/html_editor.dart';
 
 import '/1_presentation/core/core.dart';
 import '/3_domain/entities/marketplace/abstract_marketplace.dart';
@@ -328,13 +327,11 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
 //? #########################################################################
 
   Future<void> _onSaveProductDescription(OnSaveProductDescriptionEvent event, Emitter<ProductDetailState> emit) async {
-    final newDescription = await state.descriptionController.getText();
-    final newDescriptionShort = await state.descriptionShortController.getText();
     emit(state.copyWith(
         isDescriptionChanged: false,
         product: state.product!.copyWith(
-          description: newDescription,
-          descriptionShort: newDescriptionShort,
+          description: event.description,
+          descriptionShort: event.descriptionShort,
         ),
         showHtmlTexts: false));
   }
@@ -903,8 +900,24 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
 //? ###########################################################################################################################
   @override
   Future<void> close() {
-    state.descriptionController.disable();
-    state.descriptionShortController.disable();
+    state.articleNumberController.dispose();
+    state.eanController.dispose();
+    state.nameController.dispose();
+    state.wholesalePriceController.dispose();
+    state.supplierArticleNumberController.dispose();
+    state.manufacturerController.dispose();
+    state.minimumStockController.dispose();
+    state.minimumReorderQuantityController.dispose();
+    state.packagingUnitOnReorderController.dispose();
+    state.netPriceController.dispose();
+    state.grossPriceController.dispose();
+    state.recommendedRetailPriceController.dispose();
+    state.unityController.dispose();
+    state.unitPriceController.dispose();
+    state.weightController.dispose();
+    state.widthController.dispose();
+    state.heightController.dispose();
+    state.depthController.dispose();
     return super.close();
   }
 }

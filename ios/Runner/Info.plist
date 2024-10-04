@@ -45,5 +45,9 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+
+<!-- Erforderlicher Schlüssel für den Zugriff auf die Fotobibliothek -->
+<key>NSPhotoLibraryUsageDescription</key>
+<string>Wir benötigen Zugriff auf Ihre Fotobibliothek, um Bilder hochladen zu können.</string>
 </dict>
 </plist>

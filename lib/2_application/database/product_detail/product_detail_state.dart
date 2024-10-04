@@ -76,9 +76,6 @@ class ProductDetailState {
   final TextEditingController heightController;
   final TextEditingController depthController;
 
-  final HtmlEditorController descriptionController;
-  final HtmlEditorController descriptionShortController;
-
   ProductDetailState({
     required this.product,
     required this.originalProduct,
@@ -147,8 +144,6 @@ class ProductDetailState {
     required this.widthController,
     required this.heightController,
     required this.depthController,
-    required this.descriptionController,
-    required this.descriptionShortController,
   });
 
   factory ProductDetailState.initial() {
@@ -220,8 +215,6 @@ class ProductDetailState {
       widthController: TextEditingController(),
       heightController: TextEditingController(),
       depthController: TextEditingController(),
-      descriptionController: HtmlEditorController(),
-      descriptionShortController: HtmlEditorController(),
     );
   }
 
@@ -293,8 +286,6 @@ class ProductDetailState {
     TextEditingController? widthController,
     TextEditingController? heightController,
     TextEditingController? depthController,
-    HtmlEditorController? descriptionController,
-    HtmlEditorController? descriptionShortController,
   }) {
     return ProductDetailState(
       product: product ?? this.product,
@@ -364,8 +355,6 @@ class ProductDetailState {
       widthController: widthController ?? this.widthController,
       heightController: heightController ?? this.heightController,
       depthController: depthController ?? this.depthController,
-      descriptionController: descriptionController ?? this.descriptionController,
-      descriptionShortController: descriptionShortController ?? this.descriptionShortController,
     );
   }
 }

@@ -59,7 +59,12 @@ class OnProductDescriptionChangedEvent extends ProductDetailEvent {
   OnProductDescriptionChangedEvent({required this.content});
 }
 
-class OnSaveProductDescriptionEvent extends ProductDetailEvent {}
+class OnSaveProductDescriptionEvent extends ProductDetailEvent {
+  final String description;
+  final String descriptionShort;
+
+  OnSaveProductDescriptionEvent({required this.description, required this.descriptionShort});
+}
 
 class OnAddEditProductSpecificPriceEvent extends ProductDetailEvent {
   final SpecificPrice specificPrice;

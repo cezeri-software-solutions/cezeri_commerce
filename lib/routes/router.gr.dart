@@ -906,12 +906,18 @@ class ProductDescriptionRoute
   ProductDescriptionRoute({
     _i43.Key? key,
     required _i49.ProductDetailBloc productDetailBloc,
+    required String description,
+    required String descriptionShort,
+    required bool isDescriptionChanged,
     List<_i42.PageRouteInfo>? children,
   }) : super(
           ProductDescriptionRoute.name,
           args: ProductDescriptionRouteArgs(
             key: key,
             productDetailBloc: productDetailBloc,
+            description: description,
+            descriptionShort: descriptionShort,
+            isDescriptionChanged: isDescriptionChanged,
           ),
           initialChildren: children,
         );
@@ -925,6 +931,9 @@ class ProductDescriptionRoute
       return _i24.ProductDescriptionPage(
         key: args.key,
         productDetailBloc: args.productDetailBloc,
+        description: args.description,
+        descriptionShort: args.descriptionShort,
+        isDescriptionChanged: args.isDescriptionChanged,
       );
     },
   );
@@ -934,15 +943,24 @@ class ProductDescriptionRouteArgs {
   const ProductDescriptionRouteArgs({
     this.key,
     required this.productDetailBloc,
+    required this.description,
+    required this.descriptionShort,
+    required this.isDescriptionChanged,
   });
 
   final _i43.Key? key;
 
   final _i49.ProductDetailBloc productDetailBloc;
 
+  final String description;
+
+  final String descriptionShort;
+
+  final bool isDescriptionChanged;
+
   @override
   String toString() {
-    return 'ProductDescriptionRouteArgs{key: $key, productDetailBloc: $productDetailBloc}';
+    return 'ProductDescriptionRouteArgs{key: $key, productDetailBloc: $productDetailBloc, description: $description, descriptionShort: $descriptionShort, isDescriptionChanged: $isDescriptionChanged}';
   }
 }
 

@@ -15,10 +15,10 @@ String getSpecificPriceReductionTax(Product product) =>
 String getSpecificPriceReductionType(Product product) => product.specificPrice!.reductionType == ReductionType.fixed ? 'amount' : 'percentage';
 
 String getSpecificPriceTo(Product product) =>
-    product.specificPrice!.endDate != null ? product.specificPrice!.endDate!.toPrestaDateTime() : '0000-00-00 00:00:00';
+    product.specificPrice!.endDate != null ? product.specificPrice!.endDate!.toPrestaDateTimeTo() : '0000-00-00 00:00:00';
 
 extension ConvertToPrestaDateTimeString on DateTime {
-  String toPrestaDateTime() {
+  String toPrestaDateTimeFrom() {
     final formattedMonth = month.toString().padLeft(2, '0');
     final formattedDay = day.toString().padLeft(2, '0');
 
@@ -27,5 +27,12 @@ extension ConvertToPrestaDateTimeString on DateTime {
     final formattedSecond = second.toString().padLeft(2, '0');
 
     return '$year-$formattedMonth-$formattedDay $formattedHour:$formattedMinute:$formattedSecond';
+  }
+
+  String toPrestaDateTimeTo() {
+    final formattedMonth = month.toString().padLeft(2, '0');
+    final formattedDay = day.toString().padLeft(2, '0');
+
+    return '$year-$formattedMonth-$formattedDay 23:59:59';
   }
 }

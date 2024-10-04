@@ -45,7 +45,7 @@ XmlBuilder patchSpecificPriceBuilder(SpecificPricePresta specificPricePresta, Pr
       builder.element('reduction', nest: getSpecificPriceReduction(product));
       builder.element('reduction_tax', nest: getSpecificPriceReductionTax(product));
       builder.element('reduction_type', nest: getSpecificPriceReductionType(product));
-      builder.element('from', nest: product.specificPrice!.startDate.toPrestaDateTime());
+      builder.element('from', nest: product.specificPrice!.startDate.toPrestaDateTimeFrom());
       builder.element('to', nest: getSpecificPriceTo(product));
     });
   });

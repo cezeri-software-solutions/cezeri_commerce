@@ -55,18 +55,12 @@ class ProductMasterCard extends StatelessWidget {
                       ),
                     ),
                     IconButton(
-                      onPressed: () => context.router.push(ProductDescriptionRoute(productDetailBloc: productDetailBloc)),
-
-                      // productDetailBloc.add(OnProductShowDescriptionChangedEvent()),
-
-                      // () async => await showDialog(
-                      //   context: context,
-                      //   barrierDismissible: false,
-                      //   builder: (_) => BlocProvider.value(
-                      //     value: productDetailBloc,
-                      //     child: DescriptionDialog(productDetailBloc: productDetailBloc),
-                      //   ),
-                      // ),
+                      onPressed: () => context.router.push(ProductDescriptionRoute(
+                        productDetailBloc: productDetailBloc,
+                        description: state.product!.description,
+                        descriptionShort: state.product!.descriptionShort,
+                        isDescriptionChanged: state.isDescriptionChanged,
+                      )),
                       icon: const Icon(Icons.description, color: CustomColors.primaryColor),
                     ),
                   ],
