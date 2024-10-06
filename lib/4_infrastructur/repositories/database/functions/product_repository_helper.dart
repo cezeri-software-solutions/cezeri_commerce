@@ -12,6 +12,7 @@ import '/3_domain/entities/product/marketplace_product.dart';
 import '/3_domain/entities/product/product.dart';
 import '/3_domain/entities/product/product_image.dart';
 import '/3_domain/entities/product/product_presta.dart';
+import '../../../../3_domain/entities/my_file.dart';
 import '../../../../3_domain/repositories/database/product_repository.dart';
 import '../../../../3_domain/repositories/marketplace/marketplace_edit_repository.dart';
 import '../../../../constants.dart';
@@ -219,37 +220,76 @@ Future<List<File>> getImageFilesFromMarketplace({required MarketplaceProduct mar
   return listOfImageFiles;
 }
 
+// Future<List<ProductImage>> uploadImageFilesToStorageFromFlutter(
+//   List<ProductImage> listOfProductImages,
+//   List<File> imageFiles,
+//   String supabaseStoragePath,
+// ) async {
+//   final List<ProductImage> newListOfProductImages = [];
+
+//   int sortId = listOfProductImages.length;
+
+//   for (final myFile in imageFiles) {
+//     sortId++;
+
+//     final File file = myFile;
+//     // Erstelle einen eindeutigen Dateinamen, um Kollisionen zu vermeiden
+//     final fileName = sanitizeFileName(basename(file.path));
+//     final phFilePath = '$supabaseStoragePath/${generateRandomString(4)}_$fileName';
+//     final filePath = Uri.encodeFull(phFilePath);
+//     final storageResponse = await supabase.storage.from('product-images').upload(filePath, myFile);
+//     if (storageResponse.isEmpty) {
+//       logger.e('Artikelbild konnte nicht hochgeladen werden. Error: $storageResponse');
+//       continue;
+//     }
+//   }
+//   return newListOfProductImages;
+// }
+
 Future<List<ProductImage>> uploadImageFilesToStorageFromFlutter(
   List<ProductImage> listOfProductImages,
-  List<File> imageFiles,
+  List<MyFile> listOfMyFiles,
   String supabaseStoragePath,
 ) async {
   final List<ProductImage> newListOfProductImages = [];
 
   int sortId = listOfProductImages.length;
 
-  for (final myFile in imageFiles) {
+  for (final myFile in listOfMyFiles) {
     sortId++;
 
-    final File file = myFile;
-    // Erstelle einen eindeutigen Dateinamen, um Kollisionen zu vermeiden
-    final fileName = sanitizeFileName(basename(file.path));
+    final fileName = sanitizeFileName(basename(myFile.name));
+    print('fileName: $fileName');
     final phFilePath = '$supabaseStoragePath/${generateRandomString(4)}_$fileName';
+    print('phFilePath: $phFilePath');
     final filePath = Uri.encodeFull(phFilePath);
-    final storageResponse = await supabase.storage.from('product-images').upload(filePath, myFile);
-    if (storageResponse.isEmpty) {
-      logger.e('Artikelbild konnte nicht hochgeladen werden. Error: $storageResponse');
+    print('filePath: $filePath');
+
+    try {
+      // Hochladen der Datei zu Supabase Storage mit uploadBinary()
+      final String uploadedFilePath = await supabase.storage.from('product-images').uploadBinary(filePath, myFile.fileBytes);
+      print('uploadedFilePath: $uploadedFilePath');
+      final pathWithoutBucketName = extractPathFromUrl(uploadedFilePath);
+      print('pathWithoutBucketName: $pathWithoutBucketName');
+
+      // Erfolgreich hochgeladen, jetzt die öffentliche URL abrufen
+      final String fileUrl = supabase.storage.from('product-images').getPublicUrl(pathWithoutBucketName);
+      print('----------------------------------------------------------------------------------------------------------------------');
+      print(fileUrl);
+      print('----------------------------------------------------------------------------------------------------------------------');
+
+      final imageFile = ProductImage.empty().copyWith(
+        fileName: fileName,
+        fileUrl: fileUrl,
+        sortId: sortId,
+        isDefault: listOfProductImages.isEmpty && sortId == 1,
+      );
+      newListOfProductImages.add(imageFile);
+    } catch (e) {
+      // Fehler beim Hochladen oder Abrufen der URL
+      logger.e('Fehler beim Hochladen der Datei oder Abrufen der URL: $e');
       continue;
     }
-    final fileUrl = supabase.storage.from('product-images').getPublicUrl(filePath);
-
-    final imageFile = ProductImage.empty().copyWith(
-      fileName: fileName,
-      fileUrl: fileUrl,
-      sortId: sortId,
-      isDefault: listOfProductImages.isEmpty && sortId == 1 ? true : false,
-    );
-    newListOfProductImages.add(imageFile);
   }
   return newListOfProductImages;
 }

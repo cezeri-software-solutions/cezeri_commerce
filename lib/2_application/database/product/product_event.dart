@@ -9,8 +9,18 @@ class GetProductsPerPageEvent extends ProductEvent {
   final bool isFirstLoad;
   final bool calcCount;
   final int currentPage;
+  final bool? isSortedAsc;
+  final ProductsSortValue? productsSortValue;
+  final ProductsFilterValues? productsFilterValues;
 
-  GetProductsPerPageEvent({required this.isFirstLoad, required this.calcCount, required this.currentPage});
+  GetProductsPerPageEvent({
+    required this.isFirstLoad,
+    required this.calcCount,
+    required this.currentPage,
+    this.isSortedAsc,
+    this.productsSortValue,
+    this.productsFilterValues,
+  });
 }
 
 class GetFilteredProductsBySearchTextEvent extends ProductEvent {
@@ -162,6 +172,22 @@ class ProductsMassEditingAddOrRemoveCategoriesPrestaEvent extends ProductEvent {
     required this.selectedCategoriesPresta,
     required this.isAddCategories,
   });
+}
+
+// * #################################################################################################################################
+//* Sortieren und Filtern helpers
+
+class OnProductsSortChangedEvent extends ProductEvent {
+  final bool isSortedAsc;
+  final ProductsSortValue productsSortValue;
+
+  OnProductsSortChangedEvent({required this.isSortedAsc, required this.productsSortValue});
+}
+
+class OnProductsFilterChangedEvent extends ProductEvent {
+  final ProductsFilterValues? productsFilterValues;
+
+  OnProductsFilterChangedEvent({required this.productsFilterValues});
 }
 
 // * #################################################################################################################################

@@ -55,7 +55,8 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
     on<ProductsMassEditingWeightAndDimensionsUpdatedEvent>(_onProductsMassEditingWeightAndDimensionsUpdated);
     on<ProductsMassEditingAddOrRemoveCategoriesShopifyEvent>(_onProductsMassEditingAddCategoriesShopify);
     on<ProductsMassEditingAddOrRemoveCategoriesPrestaEvent>(_onProductsMassEditingAddOrRemoveCategoriesPresta);
-    // on<OnEditQuantityInMarketplacesEvent>(_onOnEditQuantityInMarketplaces);
+    on<OnProductsSortChangedEvent>(_onProductsSortChanged);
+    on<OnProductsFilterChangedEvent>(_onProductsFilterChanged);
     on<OnEditProductInPresta>(_onOnEditProductInPresta);
   }
 
@@ -75,17 +76,23 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
     }
 
     if (event.calcCount) {
-      final fosCount = await productRepository.getNumerOfAllProducts(onlyActive: false);
+      final fosCount = await productRepository.getNumberOfFilteredSortedProductsBySearchText(
+        searchText: state.productSearchController.text,
+        productsFilterValues: event.productsFilterValues ?? state.productsFilterValues,
+      );
       fosCount.fold(
         (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
         (countNumber) => emit(state.copyWith(totalQuantity: countNumber, firebaseFailure: null, isAnyFailure: false)),
       );
     }
 
-    final failureOrSuccess = await productRepository.getListOfProductsPerPage(
+    final failureOrSuccess = await productRepository.getListOfFilteredSortedProductsBySearchText(
+      searchText: state.productSearchController.text,
       currentPage: event.currentPage,
       itemsPerPage: state.perPageQuantity,
-      onlyActive: false,
+      isSortedAsc: event.isSortedAsc ?? state.isSortedAsc,
+      productsSortValue: event.productsSortValue ?? state.productsSortValue,
+      productsFilterValues: event.productsFilterValues ?? state.productsFilterValues,
     );
     failureOrSuccess.fold(
       (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
@@ -95,6 +102,9 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
           listOfFilteredProducts: listOfProduct,
           selectedProducts: [],
           currentPage: event.currentPage,
+          isSortedAsc: event.isSortedAsc ?? state.isSortedAsc,
+          productsSortValue: event.productsSortValue ?? state.productsSortValue,
+          productsFilterValues: event.productsFilterValues ?? state.productsFilterValues,
           firebaseFailure: null,
           isAnyFailure: false,
         ));
@@ -111,16 +121,22 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
   Future<void> _onGetFilteredProductsBySearchText(GetFilteredProductsBySearchTextEvent event, Emitter<ProductState> emit) async {
     emit(state.copyWith(isLoadingProductsOnObserve: true));
 
-    final fosCount = await productRepository.getNumberOfFilteredProductsBySearchText(searchText: state.productSearchController.text);
+    final fosCount = await productRepository.getNumberOfFilteredSortedProductsBySearchText(
+      searchText: state.productSearchController.text,
+      productsFilterValues: ProductsFilterValues.empty(),
+    );
     fosCount.fold(
       (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
       (countNumber) => emit(state.copyWith(totalQuantity: countNumber, firebaseFailure: null, isAnyFailure: false)),
     );
 
-    final fosProducts = await productRepository.getListOfFilteredProductsBySearchText(
+    final fosProducts = await productRepository.getListOfFilteredSortedProductsBySearchText(
       searchText: state.productSearchController.text,
       currentPage: event.currentPage,
       itemsPerPage: state.perPageQuantity,
+      isSortedAsc: state.isSortedAsc,
+      productsSortValue: state.productsSortValue,
+      productsFilterValues: state.productsFilterValues,
     );
 
     fosProducts.fold(
@@ -518,6 +534,18 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
       fosMassEditProductsOption: marketplaceFailures.isEmpty ? some(right(unit)) : some(left(GeneralFailure())),
     ));
     emit(state.copyWith(fosMassEditProductsOption: none()));
+  }
+
+  void _onProductsSortChanged(OnProductsSortChangedEvent event, Emitter<ProductState> emit) async {
+    emit(state.copyWith(productsSortValue: event.productsSortValue, isSortedAsc: event.isSortedAsc));
+
+    add(GetProductsPerPageEvent(isFirstLoad: false, calcCount: true, currentPage: state.currentPage));
+  }
+
+  void _onProductsFilterChanged(OnProductsFilterChangedEvent event, Emitter<ProductState> emit) async {
+    emit(state.copyWith(productsFilterValues: event.productsFilterValues));
+
+    add(GetProductsPerPageEvent(isFirstLoad: false, calcCount: true, currentPage: state.currentPage));
   }
 
   Future<void> _onOnEditProductInPresta(OnEditProductInPresta event, Emitter<ProductState> emit) async {

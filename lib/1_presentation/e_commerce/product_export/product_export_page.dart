@@ -94,12 +94,12 @@ class _ProductContainer extends StatelessWidget {
                 onChanged: (_) => productExportBloc.add(OnProductSelectedEvent(selectedProduct: product)),
               ),
               SizedBox(
-                width: ResponsiveBreakpoints.of(context).isTablet ? 70 : 60,
+                width: ResponsiveBreakpoints.of(context).largerOrEqualTo(TABLET) ? 70 : 60,
                 child: MyAvatar(
                   name: product.name,
                   imageUrl: product.listOfProductImages.isNotEmpty ? product.listOfProductImages.where((e) => e.isDefault).first.fileUrl : null,
-                  radius: ResponsiveBreakpoints.of(context).isTablet ? 35 : 30,
-                  fontSize: ResponsiveBreakpoints.of(context).isTablet ? 25 : 20,
+                  radius: ResponsiveBreakpoints.of(context).largerOrEqualTo(TABLET) ? 35 : 30,
+                  fontSize: ResponsiveBreakpoints.of(context).largerOrEqualTo(TABLET) ? 25 : 20,
                   shape: BoxShape.rectangle,
                   onTap: product.listOfProductImages.isNotEmpty
                       ? () => context.router.push(MyFullscreenImageRoute(
@@ -107,7 +107,7 @@ class _ProductContainer extends StatelessWidget {
                       : null,
                 ),
               ),
-              ResponsiveBreakpoints.of(context).isTablet ? Gaps.w16 : Gaps.w8,
+              ResponsiveBreakpoints.of(context).largerOrEqualTo(TABLET) ? Gaps.w16 : Gaps.w8,
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -152,7 +152,7 @@ class _ProductContainer extends StatelessWidget {
                   ],
                 ),
               ),
-              if (ResponsiveBreakpoints.of(context).isTablet) ...[
+              if (ResponsiveBreakpoints.of(context).largerOrEqualTo(TABLET)) ...[
                 Gaps.w16,
                 SizedBox(
                   width: 150,
@@ -180,14 +180,14 @@ class _ProductContainer extends StatelessWidget {
                   ),
                 ),
               ],
-              ResponsiveBreakpoints.of(context).isTablet ? Gaps.w16 : Gaps.w8,
+              ResponsiveBreakpoints.of(context).largerOrEqualTo(TABLET) ? Gaps.w16 : Gaps.w8,
               Column(
                 children: [
                   Text(product.warehouseStock.toString()),
                   TextButton(onPressed: () {}, child: Text(product.availableStock.toString())),
                 ],
               ),
-              if (ResponsiveBreakpoints.of(context).isTablet) ...[
+              if (ResponsiveBreakpoints.of(context).largerOrEqualTo(TABLET)) ...[
                 Gaps.w16,
                 SizedBox(
                   height: 80,

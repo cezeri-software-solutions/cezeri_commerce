@@ -68,7 +68,7 @@ class Product extends Equatable {
   final bool isSetArticle;
   // Wenn Set Artikle && true, dann wird der Bestand unabhängig von seinen Bestandteilen geführt, ansonsten wird der Bestand durch den niedrigsten Besteand der Besandteile ermittelt
   // @JsonKey(name: 'is_outlet')
-  final bool isOutlet;
+  final bool isOutlet; // Auslaufartikel
   // @JsonKey(name: 'list_of_is_part_of_set_ids')
   final List<String> listOfIsPartOfSetIds; // Im Einzelartikel, von welchem Set dies ein Bestandteil ist
   // @JsonKey(name: 'list_of_product_id_with_quantity')
@@ -627,4 +627,36 @@ class Product extends Equatable {
 
   @override
   bool get stringify => true;
+}
+
+class ProductsFilterValues {
+  final String? manufacturer;
+  final String? supplier;
+  final bool? isOutlet;
+  final bool? isSet;
+  final bool? isPartOfSet;
+  final bool? isSale;
+  final bool? isActive;
+
+  const ProductsFilterValues({
+    required this.manufacturer,
+    required this.supplier,
+    required this.isOutlet,
+    required this.isSet,
+    required this.isPartOfSet,
+    required this.isSale,
+    required this.isActive,
+  });
+
+  factory ProductsFilterValues.empty() {
+    return const ProductsFilterValues(
+      manufacturer: null,
+      supplier: null,
+      isOutlet: null,
+      isSet: null,
+      isPartOfSet: null,
+      isSale: null,
+      isActive: null,
+    );
+  }
 }

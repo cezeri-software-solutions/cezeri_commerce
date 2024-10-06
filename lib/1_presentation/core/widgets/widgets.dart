@@ -23,6 +23,7 @@ export 'my_icon_button.dart';
 export 'my_modal_scrollable.dart';
 export 'my_outlined_button.dart';
 export 'my_recommended_reorder_quantity.dart';
+export 'my_sort_bar.dart';
 export 'my_text.dart';
 export 'my_text_form_field.dart';
 export 'my_text_form_field_small.dart';

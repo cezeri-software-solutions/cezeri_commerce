@@ -1,8 +1,6 @@
 part of 'product_bloc.dart';
 
-// enum ProductsSortType { name, articleNumer, brand, supplier, creationDate, lastEditingDate, wholesalePrice, netPrice }
-
-// enum ProductsFilterType { brand, supplier, isOutlet, isSetArticle, isPartOfSetArticle, haveTags }
+enum ProductsSortValue { name, articleNumber, manufacturer, supplier, wholesalePrice, netPrice, creationDate, lastEditingDate }
 
 @immutable
 class ProductState {
@@ -43,11 +41,13 @@ class ProductState {
   final bool isLoadingPdf;
   final String loadingText;
   //* Sortieren und Filtern helpers
-  // final ProductsSortType productsSortType;
-  // final ProductsFilterType productsFilterType;
-  // final bool isSortedAsc;
+  final ProductsSortValue productsSortValue;
+  final bool isSortedAsc;
+  final ProductsFilterValues productsFilterValues;
+  //* Unter Konstruktor
+  final bool isAnyFilterSet;
 
-  const ProductState({
+  ProductState({
     required this.listOfAllProducts,
     required this.listOfFilteredProducts,
     required this.selectedProducts,
@@ -80,7 +80,21 @@ class ProductState {
     required this.isSelectedAllProducts,
     required this.isLoadingPdf,
     required this.loadingText,
-  });
+    required this.productsSortValue,
+    required this.isSortedAsc,
+    required this.productsFilterValues,
+  }) : isAnyFilterSet = _isAnyFilterSet(productsFilterValues);
+
+  static bool _isAnyFilterSet(ProductsFilterValues productsFilterValues) {
+    if (productsFilterValues.manufacturer != null ||
+        productsFilterValues.supplier != null ||
+        productsFilterValues.isActive != null ||
+        productsFilterValues.isOutlet != null ||
+        productsFilterValues.isPartOfSet != null ||
+        productsFilterValues.isSet != null ||
+        productsFilterValues.isSale != null) return true;
+    return false;
+  }
 
   factory ProductState.initial() {
     return ProductState(
@@ -116,6 +130,9 @@ class ProductState {
       isSelectedAllProducts: false,
       isLoadingPdf: false,
       loadingText: '',
+      productsSortValue: ProductsSortValue.name,
+      isSortedAsc: true,
+      productsFilterValues: ProductsFilterValues.empty(),
     );
   }
 
@@ -152,6 +169,9 @@ class ProductState {
     bool? isSelectedAllProducts,
     bool? isLoadingPdf,
     String? loadingText,
+    ProductsSortValue? productsSortValue,
+    bool? isSortedAsc,
+    ProductsFilterValues? productsFilterValues,
   }) {
     return ProductState(
       listOfAllProducts: listOfAllProducts ?? this.listOfAllProducts,
@@ -187,6 +207,9 @@ class ProductState {
       isSelectedAllProducts: isSelectedAllProducts ?? this.isSelectedAllProducts,
       isLoadingPdf: isLoadingPdf ?? this.isLoadingPdf,
       loadingText: loadingText ?? this.loadingText,
+      productsSortValue: productsSortValue ?? this.productsSortValue,
+      isSortedAsc: isSortedAsc ?? this.isSortedAsc,
+      productsFilterValues: productsFilterValues ?? this.productsFilterValues,
     );
   }
 }

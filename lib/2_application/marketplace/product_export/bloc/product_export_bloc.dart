@@ -15,7 +15,9 @@ import '../../../../3_domain/repositories/marketplace/marketplace_edit_repositor
 import '../../../../3_domain/repositories/marketplace/marketplace_import_repository.dart';
 import '../../../../4_infrastructur/repositories/prestashop_api/models/models.dart';
 import '../../../../4_infrastructur/repositories/shopify_api/shopify.dart';
+import '../../../../constants.dart';
 import '../../../../failures/abstract_failure.dart';
+import '../../../database/product/product_bloc.dart';
 
 part 'product_export_event.dart';
 part 'product_export_state.dart';
@@ -102,16 +104,22 @@ class ProductExportBloc extends Bloc<ProductExportEvent, ProductExportState> {
   Future<void> _onGetFilteredProductsBySearchText(GetFilteredProductsBySearchTextEvent event, Emitter<ProductExportState> emit) async {
     emit(state.copyWith(isLoadingProductsOnObserve: true));
 
-    final fosCount = await productRepository.getNumberOfFilteredProductsBySearchText(searchText: state.productSearchController.text);
+    final fosCount = await productRepository.getNumberOfFilteredSortedProductsBySearchText(
+      searchText: state.productSearchController.text,
+      productsFilterValues: ProductsFilterValues.empty(),
+    );
     fosCount.fold(
       (failure) => emit(state.copyWith(firebaseFailure: failure)),
       (countNumber) => emit(state.copyWith(totalQuantity: countNumber, firebaseFailure: null)),
     );
 
-    final fosProducts = await productRepository.getListOfFilteredProductsBySearchText(
+    final fosProducts = await productRepository.getListOfFilteredSortedProductsBySearchText(
       searchText: state.productSearchController.text,
       currentPage: event.currentPage,
       itemsPerPage: state.perPageQuantity,
+      isSortedAsc: true,
+      productsSortValue: ProductsSortValue.name,
+      productsFilterValues: ProductsFilterValues.empty(),
     );
 
     fosProducts.fold(
@@ -248,12 +256,8 @@ class ProductExportBloc extends Bloc<ProductExportEvent, ProductExportState> {
                   final categoriesPresta = marketplaceSourceCategories as List<CategoryPresta>;
                   for (int i = 0; i < state.selectedProducts.length; i++) {
                     final product = state.selectedProducts[i];
-                    if (allProductsRawShopify.any((e) =>
-                        e.title == product.name ||
-                        e.variants.first.sku == product.articleNumber ||
-                        (e.variants.first.barcode != '' && e.variants.first.barcode == product.ean))) {
-                      continue;
-                    }
+                    if (_checkIfProductAlreadyExists(allProductsRawShopify, product)) continue;
+
                     if (i != 0) await Future.delayed(const Duration(seconds: 5));
                     emit(state.copyWith(exportCounter: i + 1));
 
@@ -401,4 +405,21 @@ class ProductExportBloc extends Bloc<ProductExportEvent, ProductExportState> {
     if (failure != null) return Left(failure!);
     return Right(categories!);
   }
+}
+
+bool _checkIfProductAlreadyExists(List<ProductRawShopify> allProductsRawShopify, Product product) {
+  if (allProductsRawShopify.any((e) => e.title == product.name)) {
+    logger.e('Produkt mit dem Namen "${product.name}" existiert bereits im Ziel-Marktplatz.');
+    return true;
+  }
+  if (allProductsRawShopify.any((e) => e.variants.first.sku == product.articleNumber)) {
+    logger.e('Produkt mit der Artikelnummer "${product.articleNumber}" existiert bereits im Ziel-Marktplatz.');
+    return true;
+  }
+  if (allProductsRawShopify.any((e) => (e.variants.first.barcode != '' && e.variants.first.barcode == product.ean))) {
+    logger.e('Produkt mit der EAN "${product.ean}" existiert bereits im Ziel-Marktplatz.');
+    return true;
+  }
+
+  return false;
 }

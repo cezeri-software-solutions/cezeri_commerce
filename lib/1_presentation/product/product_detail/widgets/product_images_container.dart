@@ -95,7 +95,7 @@ class ProductImagesContainer extends StatelessWidget {
             TextButton.icon(
               onPressed: () async => productDetailBloc.add(OnPickNewProductPictureEvent()),
               icon: const Icon(Icons.add, color: Colors.green),
-              label: const Text('Bild/er hinzufügen'),
+              label: const Text('Bild(er) hinzufügen'),
             ),
           ],
         );
