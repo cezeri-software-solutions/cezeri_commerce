@@ -12,11 +12,11 @@ import '/3_domain/entities/product/marketplace_product.dart';
 import '/3_domain/entities/product/product.dart';
 import '/3_domain/entities/product/product_image.dart';
 import '/3_domain/entities/product/product_presta.dart';
+import '../../../../3_domain/entities/my_file.dart';
 import '../../../../3_domain/repositories/database/product_repository.dart';
 import '../../../../3_domain/repositories/marketplace/marketplace_edit_repository.dart';
 import '../../../../constants.dart';
 import '../../../../failures/failures.dart';
-import '../../prestashop_api/models/my_file.dart';
 import '../../shopify_api/shopify.dart';
 
 Future<Either<AbstractFailure, List<Product>>> updateProductQuantityInDbAndMps({
