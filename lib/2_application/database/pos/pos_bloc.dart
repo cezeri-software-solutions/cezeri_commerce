@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:cezeri_commerce/2_application/database/product/product_bloc.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 
@@ -191,10 +192,13 @@ class PosBloc extends Bloc<PosEvent, PosState> {
   Future<void> _onLoadProductsBySearchText(LoadProductsBySearchTextEvent event, Emitter<PosState> emit) async {
     emit(state.copyWith(isLoadingPosOnCreate: true));
 
-    final fosProducts = await productRepository.getListOfFilteredProductsBySearchText(
+    final fosProducts = await productRepository.getListOfFilteredSortedProductsBySearchText(
       searchText: state.searchController.text,
       currentPage: 1,
       itemsPerPage: 20,
+      isSortedAsc: true,
+      productsSortValue: ProductsSortValue.name,
+      productsFilterValues: ProductsFilterValues.empty(),
     );
 
     if (fosProducts.isRight()) emit(state.copyWith(listOfSearchResultProducts: fosProducts.getRight(), isLoadingPosOnCreate: false));

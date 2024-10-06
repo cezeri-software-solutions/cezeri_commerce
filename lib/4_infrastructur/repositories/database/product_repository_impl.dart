@@ -1,8 +1,7 @@
-import 'dart:io';
-
 import 'package:cezeri_commerce/3_domain/entities/product/product_marketplace.dart';
 import 'package:cezeri_commerce/failures/firebase_failures.dart';
 import 'package:dartz/dartz.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '/1_presentation/core/core.dart';
@@ -10,6 +9,7 @@ import '/3_domain/entities/product/product.dart';
 import '/3_domain/entities/product/product_image.dart';
 import '/3_domain/entities/reorder/supplier.dart';
 import '/3_domain/repositories/marketplace/marketplace_edit_repository.dart';
+import '../../../2_application/database/product/product_bloc.dart';
 import '../../../3_domain/entities/marketplace/marketplace_presta.dart';
 import '../../../3_domain/entities/product/marketplace_product.dart';
 import '../../../3_domain/entities/product/product_stock_difference.dart';
@@ -17,6 +17,7 @@ import '../../../3_domain/repositories/database/marketplace_repository.dart';
 import '../../../3_domain/repositories/database/product_repository.dart';
 import '../../../constants.dart';
 import '../../../failures/abstract_failure.dart';
+import '../prestashop_api/models/my_file.dart';
 import 'functions/get_storage_paths.dart';
 import 'functions/product_repository_helper.dart';
 import 'functions/utils_repository_impl.dart';
@@ -46,9 +47,11 @@ class ProductRepositoryImpl implements ProductRepository {
         final listOfImageFiles = await getImageFilesFromMarketplace(marketplaceProduct: marketplaceProduct);
         if (listOfImageFiles.isEmpty) return Right(createdProduct);
 
+        final listOfMyFiles = await convertIoFilesToMyFiles(listOfImageFiles);
+
         final List<ProductImage> listOfProductImages = await uploadImageFilesToStorageFromFlutter(
           createdProduct.listOfProductImages,
-          listOfImageFiles,
+          listOfMyFiles,
           getProductImagesStoragePath(ownerId, createdProduct.id),
         );
 
@@ -178,13 +181,26 @@ class ProductRepositoryImpl implements ProductRepository {
   }
 
   @override
-  Future<Either<AbstractFailure, int>> getNumberOfFilteredProductsBySearchText({required String searchText}) async {
+  Future<Either<AbstractFailure, int>> getNumberOfFilteredSortedProductsBySearchText({
+    required String searchText,
+    required ProductsFilterValues productsFilterValues,
+  }) async {
     if (!await checkInternetConnection()) return Left(NoConnectionFailure());
     final ownerId = await getOwnerId();
     if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
     try {
-      final response = await supabase.rpc('get_d_products_count_by_search_text', params: {'owner_id': ownerId, 'search_text': searchText});
+      final response = await supabase.rpc('get_products_count_filtered_sorted_by_search_text', params: {
+        'owner_id': ownerId,
+        'search_text': searchText,
+        'filter_manufacturer': productsFilterValues.manufacturer,
+        'filter_supplier': productsFilterValues.supplier,
+        'filter_is_outlet': productsFilterValues.isOutlet,
+        'filter_is_set': productsFilterValues.isSet,
+        'filter_is_part_of_set': productsFilterValues.isPartOfSet,
+        'filter_is_sale': productsFilterValues.isSale,
+        'filter_is_active': productsFilterValues.isActive,
+      });
 
       return Right(response);
     } catch (e) {
@@ -194,21 +210,33 @@ class ProductRepositoryImpl implements ProductRepository {
   }
 
   @override
-  Future<Either<AbstractFailure, List<Product>>> getListOfFilteredProductsBySearchText({
+  Future<Either<AbstractFailure, List<Product>>> getListOfFilteredSortedProductsBySearchText({
     required String searchText,
     required int currentPage,
     required int itemsPerPage,
+    required bool isSortedAsc,
+    required ProductsSortValue productsSortValue,
+    required ProductsFilterValues productsFilterValues,
   }) async {
     if (!await checkInternetConnection()) return Left(NoConnectionFailure());
     final ownerId = await getOwnerId();
     if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
     try {
-      final response = await supabase.rpc('get_products_by_search_text', params: {
+      final response = await supabase.rpc('get_products_filtered_sorted_by_search_text', params: {
         'owner_id': ownerId,
         'search_text': searchText,
         'current_page': currentPage,
         'items_per_page': itemsPerPage,
+        'sort_column': productsSortValue.name.toString(),
+        'sort_order': isSortedAsc ? 'asc' : 'desc',
+        'filter_manufacturer': productsFilterValues.manufacturer,
+        'filter_supplier': productsFilterValues.supplier,
+        'filter_is_outlet': productsFilterValues.isOutlet,
+        'filter_is_set': productsFilterValues.isSet,
+        'filter_is_part_of_set': productsFilterValues.isPartOfSet,
+        'filter_is_sale': productsFilterValues.isSale,
+        'filter_is_active': productsFilterValues.isActive,
       });
 
       if (response.isEmpty) return const Right([]);
@@ -510,14 +538,16 @@ class ProductRepositoryImpl implements ProductRepository {
   }
 
   @override
-  Future<Either<FirebaseFailure, Product>> updateProductAddImages(Product product, List<File> imageFiles) async {
+  Future<Either<FirebaseFailure, Product>> updateProductAddImages(Product product, List<PlatformFile> imageFiles) async {
     if (!await checkInternetConnection()) return Left(NoConnectionFailure());
     final ownerId = await getOwnerId();
     if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
     try {
+      final myFiles = await convertPlatfomFilesToMyFiles(imageFiles);
+
       final List<ProductImage> listOfProductImages =
-          await uploadImageFilesToStorageFromFlutter(product.listOfProductImages, imageFiles, getProductImagesStoragePath(ownerId, product.id));
+          await uploadImageFilesToStorageFromFlutter(product.listOfProductImages, myFiles, getProductImagesStoragePath(ownerId, product.id));
 
       final List<ProductImage> newListOfProductImages = List.from(product.listOfProductImages);
       newListOfProductImages.addAll(listOfProductImages);

@@ -3,13 +3,16 @@ import 'package:cezeri_commerce/1_presentation/app_drawer.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:responsive_framework/responsive_framework.dart';
 
 import '../../../2_application/database/product/product_bloc.dart';
 import '../../../3_domain/entities/product/product.dart';
+import '../../../constants.dart';
 import '../../../injection.dart';
 import '../../../routes/router.gr.dart';
 import '../../core/core.dart';
 import 'functions/get_products_app_bar_title.dart';
+import 'modals/product_modals.dart';
 import 'products_overview_page.dart';
 import 'widgets/pme_failure_sheet.dart';
 import 'widgets/widgets.dart';
@@ -133,6 +136,10 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> with Au
                 title: getProductsAppBarTitle(context, state.listOfFilteredProducts, state.selectedProducts),
                 actions: [
                   IconButton(
+                    onPressed: () => addEditProductFilterValues(context, productBloc, state.productsFilterValues),
+                    icon: Badge(isLabelVisible: state.isAnyFilterSet, child: const Icon(Icons.filter_list)),
+                  ),
+                  IconButton(
                     onPressed: () => state.productSearchController.text.isEmpty
                         ? productBloc.add(GetProductsPerPageEvent(isFirstLoad: false, calcCount: false, currentPage: state.currentPage))
                         : productBloc.add(GetFilteredProductsBySearchTextEvent(currentPage: state.currentPage)),
@@ -162,6 +169,42 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> with Au
                               onChanged: (value) => _onSearchFieldSubmitted(value, false),
                               onSuffixTap: () => productBloc.add(OnSearchFieldClearedEvent()),
                             ),
+                          ),
+                          Gaps.w12,
+                          MySortBar<ProductsSortValue>(
+                            sortingType: state.productsSortValue,
+                            defaultType: ProductsSortValue.name,
+                            isSortedAscending: state.isSortedAsc,
+                            isLabelVisible: ResponsiveBreakpoints.of(context).largerOrEqualTo(TABLET),
+                            translate: (s) => switch (s) {
+                              ProductsSortValue.name => 'Sortiert nach Name',
+                              ProductsSortValue.articleNumber => 'Sortiert nach Artikelnummer',
+                              ProductsSortValue.manufacturer => 'Sortiert nach Hersteller',
+                              ProductsSortValue.supplier => 'Sortiert nach Lieferant',
+                              ProductsSortValue.wholesalePrice => 'Sortiert nach EK-Preis',
+                              ProductsSortValue.netPrice => 'Sortiert nach VK-Preis',
+                              ProductsSortValue.creationDate => 'Sortiert nach Erstellungsdatum',
+                              ProductsSortValue.lastEditingDate => 'Sortiert nach Änderungsdatum',
+                            },
+                            sortMenuItem: const [
+                              (value: ProductsSortValue.name, label: 'Name'),
+                              (value: ProductsSortValue.articleNumber, label: 'Artikelnummer'),
+                              (value: ProductsSortValue.manufacturer, label: 'Hersteller'),
+                              (value: ProductsSortValue.supplier, label: 'Lieferant'),
+                              (value: ProductsSortValue.wholesalePrice, label: 'EK-Preis'),
+                              (value: ProductsSortValue.netPrice, label: 'VK-Preis'),
+                              (value: ProductsSortValue.creationDate, label: 'Erstellungsdatum'),
+                              (value: ProductsSortValue.lastEditingDate, label: 'Änderungsdatum'),
+                            ],
+                            onSortingConditionChanged: ({required type, required isSortedAscending}) {
+                              productBloc.add(GetProductsPerPageEvent(
+                                isFirstLoad: false,
+                                calcCount: false,
+                                currentPage: state.currentPage,
+                                isSortedAsc: isSortedAscending,
+                                productsSortValue: type,
+                              ));
+                            },
                           ),
                         ],
                       ),

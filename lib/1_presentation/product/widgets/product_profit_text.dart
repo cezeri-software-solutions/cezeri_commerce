@@ -19,10 +19,11 @@ class ProductProfitText extends StatelessWidget {
             style: TextStyles.defaultBold.copyWith(color: Colors.green),
           ),
           const TextSpan(text: ' | ', style: TextStyles.defaultBold),
-          TextSpan(
-            text: '${((1 - (wholesalePrice / netPrice)) * 100).toMyCurrencyStringToShow()} %',
-            style: TextStyles.defaultBold.copyWith(color: CustomColors.primaryColor),
-          ),
+          if (netPrice > 0)
+            TextSpan(
+              text: '${((1 - (wholesalePrice / netPrice)) * 100).toMyCurrencyStringToShow()} %',
+              style: TextStyles.defaultBold.copyWith(color: CustomColors.primaryColor),
+            ),
         ],
       ),
     );

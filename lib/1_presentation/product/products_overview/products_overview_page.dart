@@ -35,12 +35,12 @@ class ProductOverviewPage extends StatelessWidget {
 
         if (state.listOfAllProducts!.isEmpty) return const Expanded(child: Center(child: Text('Es konnten keine Artikel gefunden werden.')));
 
-        double totalWarehouseStockAmount =
-            state.listOfAllProducts!.fold(0.0, (previousValue, product) => previousValue + (product.netPrice * product.warehouseStock));
-        logger.i(totalWarehouseStockAmount.toMyCurrencyStringToShow());
-        double totalWarehouseStockWholesaleAmount =
-            state.listOfAllProducts!.fold(0.0, (previousValue, product) => previousValue + (product.wholesalePrice * product.warehouseStock));
-        logger.i(totalWarehouseStockWholesaleAmount.toMyCurrencyStringToShow());
+        // double totalWarehouseStockAmount =
+        //     state.listOfAllProducts!.fold(0.0, (previousValue, product) => previousValue + (product.netPrice * product.warehouseStock));
+        // logger.i(totalWarehouseStockAmount.toMyCurrencyStringToShow());
+        // double totalWarehouseStockWholesaleAmount =
+        //     state.listOfAllProducts!.fold(0.0, (previousValue, product) => previousValue + (product.wholesalePrice * product.warehouseStock));
+        // logger.i(totalWarehouseStockWholesaleAmount.toMyCurrencyStringToShow());
 
         return Expanded(
           child: Scrollbar(
@@ -116,15 +116,59 @@ class _ProductContainer extends StatelessWidget {
                 _MarketplacesBar(product: product),
               ],
             ),
-            if (product.specificPrice != null) ...[
-              Padding(
-                padding: const EdgeInsets.only(left: 60, right: 16),
-                child: Badge(
-                  label: const Text('SALE'),
-                  backgroundColor: Colors.red.withOpacity(0.8),
-                ),
-              )
-            ],
+            Row(
+              children: [
+                const SizedBox(width: 48),
+                if (product.specificPrice != null) ...[
+                  Gaps.w12,
+                  Badge(
+                    label: const Padding(
+                      padding: EdgeInsets.all(2),
+                      child: Text('SALE'),
+                    ),
+                    backgroundColor: Colors.red.withOpacity(0.8),
+                  )
+                ],
+                if (product.isSetArticle) ...[
+                  Gaps.w12,
+                  InkWell(
+                    onTap: () => showMySetProductQuickView(context: context, productId: product.id),
+                    child: Badge(
+                      label: const Padding(
+                        padding: EdgeInsets.all(2),
+                        child: Row(
+                          children: [
+                            Icon(Icons.layers, size: 16, color: CustomColors.primaryColor),
+                            Gaps.w4,
+                            Text('SET'),
+                          ],
+                        ),
+                      ),
+                      backgroundColor: Colors.blue.withOpacity(0.4),
+                    ),
+                  ),
+                ],
+                if (product.listOfIsPartOfSetIds.isNotEmpty) ...[
+                  Gaps.w12,
+                  InkWell(
+                    onTap: () => showMyPartOfSetProductQuickView(context: context, productId: product.id),
+                    child: Badge(
+                      label: const Padding(
+                        padding: EdgeInsets.all(2),
+                        child: Row(
+                          children: [
+                            Icon(Icons.group_work, size: 16, color: CustomColors.primaryColor),
+                            Gaps.w4,
+                            Text('Part of Set'),
+                          ],
+                        ),
+                      ),
+                      backgroundColor: Colors.purple.withOpacity(0.4),
+                    ),
+                  ),
+                ],
+              ],
+            ),
           ],
         );
       },
@@ -151,32 +195,15 @@ class _ProductInfoBar extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text.rich(
-                    TextSpan(children: [
-                      TextSpan(text: product.articleNumber),
-                      if (product.isActive == false) ...[
-                        const TextSpan(text: '  '),
-                        TextSpan(text: 'Inaktiv', style: TextStyles.defaultBold.copyWith(color: Colors.red)),
-                      ],
-                    ]),
-                    overflow: TextOverflow.ellipsis),
-              ),
-              Gaps.w8,
-              if (product.isSetArticle)
-                InkWell(
-                  onTap: () => showMySetProductQuickView(context: context, productId: product.id),
-                  child: const Icon(Icons.layers, size: 18, color: CustomColors.primaryColor),
-                ),
-              Gaps.w8,
-              if (product.listOfIsPartOfSetIds.isNotEmpty)
-                InkWell(
-                  onTap: () => showMyPartOfSetProductQuickView(context: context, productId: product.id),
-                  child: const Icon(Icons.group_work, size: 18, color: CustomColors.primaryColor),
-                ),
-            ],
+          Text.rich(
+            TextSpan(children: [
+              TextSpan(text: product.articleNumber),
+              if (product.isActive == false) ...[
+                const TextSpan(text: '  '),
+                TextSpan(text: 'Inaktiv', style: TextStyles.defaultBold.copyWith(color: Colors.red)),
+              ],
+            ]),
+            overflow: TextOverflow.ellipsis,
           ),
           TextButton(
             onPressed: () async {

@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:auto_route/auto_route.dart';
 import 'package:bloc/bloc.dart';
 import 'package:dartz/dartz.dart';
@@ -468,22 +466,25 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
 //? ###########################################################################################################################
 
   Future<void> _onPickNewProductPicture(OnPickNewProductPictureEvent event, Emitter<ProductDetailState> emit) async {
-    List<File> imageFiles = [];
+    List<PlatformFile> imageFiles = [];
+
     try {
-      final FilePickerResult? result = await FilePicker.platform.pickFiles(allowMultiple: true);
+      final FilePickerResult? result = await FilePicker.platform.pickFiles(
+        allowMultiple: true,
+        withData: true,
+      );
       if (result == null) return;
       logger.i('Neues Artikelbild erfolgreich gepickt');
-      for (final image in result.files) {
-        imageFiles.add(File(image.path!));
-      }
+      imageFiles = result.files;
     } on PlatformException {
-      logger.e('Fehler beim auswählen des Produktbildes');
+      logger.e('Fehler beim Auswählen des Produktbildes');
     }
 
     if (imageFiles.isEmpty) return;
     emit(state.copyWith(isLoadingProductOnUpdateImages: true));
 
     final failureOrSuccess = await productRepository.updateProductAddImages(state.product!, imageFiles);
+
     failureOrSuccess.fold(
       (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
       (updatedProduct) {
