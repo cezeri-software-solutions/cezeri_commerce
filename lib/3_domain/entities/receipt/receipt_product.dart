@@ -19,7 +19,7 @@ class ReceiptProduct {
   final double unitPriceNet;
   final int customization; // Feld aus Presta
   final Tax tax;
-  final double wholesalePrice;
+  final double wholesalePrice; // Einkaufspreis
   final double discountGrossUnit;
   final double discountNetUnit;
   final double discountGross; // Gesamtrabatt (€Rabatt + %Rabatt) * Menge

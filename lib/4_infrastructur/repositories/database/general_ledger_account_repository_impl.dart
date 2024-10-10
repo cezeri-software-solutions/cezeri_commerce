@@ -1,9 +1,12 @@
 import 'package:dartz/dartz.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../../1_presentation/core/core.dart';
 import '../../../3_domain/entities/settings/general_ledger_account.dart';
 import '../../../3_domain/repositories/database/general_ledger_account_repository.dart';
+import '../../../constants.dart';
 import '../../../failures/failures.dart';
+import 'functions/repository_functions.dart';
 
 class GeneralLedgerAccountRepositoryImpl implements GeneralLedgerAccountRepository {
   final SupabaseClient supabase;
@@ -12,92 +15,100 @@ class GeneralLedgerAccountRepositoryImpl implements GeneralLedgerAccountReposito
 
   @override
   Future<Either<AbstractFailure, GeneralLedgerAccount>> createGLAccount(GeneralLedgerAccount gLAccount) async {
-    // if (!await checkInternetConnection()) return left(NoConnectionFailure());
+    if (!await checkInternetConnection()) return Left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
-    // final currentUserUid = firebaseAuth.currentUser!.uid;
-    // final docRef = ColRef.get(ColRefType.generalLedgerAccount, db, currentUserUid).doc();
+    final query = supabase.from('general_ledger_accounts');
 
-    // try {
-    //   GeneralLedgerAccount toCreateGLA = gLAccount.copyWith(id: docRef.id);
-    //   await docRef.set(toCreateGLA.toJson());
+    final gLAccountJson = gLAccount.toJson();
+    gLAccountJson.addEntries([MapEntry('owner_id', ownerId)]);
 
-    //   return right(toCreateGLA);
-    // } on FirebaseException catch (e) {
-    //   logger.e(e.message);
-    //   return left(GeneralFailure(customMessage: 'Sachkonto: "${gLAccount.name}" konnte nicht erstellt werden.', e: e));
-    // }
-    throw Exception('Not implemented');
+    try {
+      final gLAccountResponse = await query.insert(gLAccountJson).select('*').single();
+      final createdGLAccount = GeneralLedgerAccount.fromJson(gLAccountResponse);
+
+      return Right(createdGLAccount);
+    } catch (e) {
+      logger.e(e.runtimeType);
+      logger.e(e);
+      return Left(GeneralFailure(customMessage: 'Sachkonto: "${gLAccount.name}" konnte nicht erstellt werden. Error: $e'));
+    }
   }
 
   @override
   Future<Either<AbstractFailure, GeneralLedgerAccount>> getGLAccount(String id) async {
-    // if (!await checkInternetConnection()) return left(NoConnectionFailure());
+    if (!await checkInternetConnection()) return Left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
-    // final currentUserUid = firebaseAuth.currentUser!.uid;
-    // final docRef = ColRef.get(ColRefType.generalLedgerAccount, db, currentUserUid).doc(id);
+    final query = supabase.from('general_ledger_accounts').select().eq('owner_id', ownerId).eq('id', id).single();
 
-    // try {
-    //   final gLAccount = await docRef.get();
-    //   return right(GeneralLedgerAccount.fromJson(gLAccount.data()!));
-    // } on FirebaseException catch (e) {
-    //   logger.e(e.message);
-    //   return left(GeneralFailure(customMessage: 'Sachkonto konnte nicht geladen werden.', e: e));
-    // }
-    throw Exception('Not implemented');
+    try {
+      final response = await query;
+
+      return Right(GeneralLedgerAccount.fromJson(response));
+    } catch (e) {
+      logger.e(e);
+      return Left(GeneralFailure(customMessage: 'Sachkonto konnte nicht geladen werden. Error: $e'));
+    }
   }
 
   @override
   Future<Either<AbstractFailure, List<GeneralLedgerAccount>>> getListOfGLAccounts() async {
-    // if (!await checkInternetConnection()) return left(NoConnectionFailure());
+    if (!await checkInternetConnection()) return Left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
-    // final currentUserUid = firebaseAuth.currentUser!.uid;
-    // final docRef = ColRef.get(ColRefType.generalLedgerAccount, db, currentUserUid);
+    final query = supabase.from('general_ledger_accounts').select().eq('owner_id', ownerId);
 
-    // try {
-    //   final listOfGLAccounts =
-    //       await docRef.get().then((value) => value.docs.map((querySnapshot) => GeneralLedgerAccount.fromJson(querySnapshot.data())).toList());
+    try {
+      final response = await query;
+      print(response);
 
-    //   return right(listOfGLAccounts);
-    // } on FirebaseException catch (e) {
-    //   logger.e(e.message);
-    //   return left(GeneralFailure(customMessage: 'Sachkontos konnten nicht geladen werden.', e: e));
-    // }
-    throw Exception('Not implemented');
+      if (response.isEmpty) return const Right([]);
+      final listOfGLAccounts = response.map((e) => GeneralLedgerAccount.fromJson(e)).toList();
+
+      return Right(listOfGLAccounts);
+    } catch (e) {
+      logger.e(e);
+      return Left(GeneralFailure(customMessage: 'Sachkontos konntes nicht geladen werden. Error: $e'));
+    }
   }
 
   @override
   Future<Either<AbstractFailure, GeneralLedgerAccount>> updateGLAccount(GeneralLedgerAccount gLAccount) async {
-    // if (!await checkInternetConnection()) return left(NoConnectionFailure());
+    if (!await checkInternetConnection()) return Left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
-    // final currentUserUid = firebaseAuth.currentUser!.uid;
-    // final docRef = ColRef.get(ColRefType.generalLedgerAccount, db, currentUserUid).doc(gLAccount.id);
+    final query = supabase.from('general_ledger_accounts').update(gLAccount.toJson()).eq('owner_id', ownerId).eq('id', gLAccount.id);
 
-    // try {
-    //   await docRef.update(gLAccount.toJson());
+    try {
+      await query;
 
-    //   return right(gLAccount);
-    // } on FirebaseException catch (e) {
-    //   logger.e(e.message);
-    //   return left(GeneralFailure(customMessage: 'Sachkonto konnte nicht aktualisiert werden.', e: e));
-    // }
-    throw Exception('Not implemented');
+      return Right(gLAccount);
+    } catch (e) {
+      logger.e(e);
+      return Left(GeneralFailure(customMessage: 'Sachkonto konnte nicht aktualisiert werden. Error: $e'));
+    }
   }
 
   @override
   Future<Either<AbstractFailure, Unit>> deleteGLAccount(String id) async {
-    // if (!await checkInternetConnection()) return left(NoConnectionFailure());
+    if (!await checkInternetConnection()) return Left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
-    // final currentUserUid = firebaseAuth.currentUser!.uid;
-    // final docRef = ColRef.get(ColRefType.generalLedgerAccount, db, currentUserUid).doc(id);
+    final query = supabase.from('general_ledger_accounts').delete().eq('owner_id', ownerId).eq('id', id);
 
-    // try {
-    //   await docRef.delete();
+    try {
+      await query;
 
-    //   return right(unit);
-    // } on FirebaseException catch (e) {
-    //   logger.e(e.message);
-    //   return left(GeneralFailure(customMessage: 'Sachkonto konnte nicht gelöscht werden.', e: e));
-    // }
-    throw Exception('Not implemented');
+      return const Right(unit);
+    } catch (e) {
+      logger.e(e);
+      return Left(GeneralFailure(customMessage: 'Sachkonto konnte nicht gelöscht werden. Error: $e'));
+    }
   }
 }

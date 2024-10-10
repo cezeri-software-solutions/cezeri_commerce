@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:auto_route/auto_route.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -12,13 +13,14 @@ class MyAvatar extends StatelessWidget {
   final String name;
   final double? radius;
   final String? imageUrl;
+  final File? file;
+  final Uint8List? imageBytes;
   final double? fontSize;
   // Wenn der User erst geladen werden muss aus welchen Gründen auch immer
   final bool? isLoading;
   final VoidCallback? onTap;
   final VoidCallback? onDoubleTap;
   final VoidCallback? onLongPress;
-  final File? file;
   final BoxFit? fit;
   final BoxShape? shape;
 
@@ -27,12 +29,13 @@ class MyAvatar extends StatelessWidget {
     required this.name,
     this.radius = 25,
     this.imageUrl,
+    this.file,
+    this.imageBytes,
     this.fontSize = 18,
     this.isLoading,
     this.onTap,
     this.onDoubleTap,
     this.onLongPress,
-    this.file,
     this.fit = BoxFit.cover,
     this.shape = BoxShape.circle,
   });
@@ -44,6 +47,16 @@ class MyAvatar extends StatelessWidget {
     }
 
     if (file != null) return _MyCircularFileImage(radius: radius!, file: file!, onTap: onTap, onDoubleTap: onDoubleTap, onLongPress: onLongPress);
+
+    if (imageBytes != null) {
+      return _MyCircularImageBytes(
+        radius: radius!,
+        imageBytes: imageBytes!,
+        onTap: onTap,
+        onDoubleTap: onDoubleTap,
+        onLongPress: onLongPress,
+      );
+    }
 
     if (imageUrl == null || imageUrl == '') {
       return _MyCircularAvatarInitials(
@@ -159,6 +172,27 @@ class _MyCircularFileImage extends StatelessWidget {
       onDoubleTap: onDoubleTap,
       onLongPress: onLongPress,
       child: CircleAvatar(radius: radius, backgroundImage: FileImage(file)),
+    );
+  }
+}
+
+class _MyCircularImageBytes extends StatelessWidget {
+  final double radius;
+  final Uint8List imageBytes;
+  final VoidCallback? onTap;
+  final VoidCallback? onDoubleTap;
+  final VoidCallback? onLongPress;
+
+  const _MyCircularImageBytes(
+      {required this.radius, required this.imageBytes, required this.onTap, required this.onDoubleTap, required this.onLongPress});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      onDoubleTap: onDoubleTap,
+      onLongPress: onLongPress,
+      child: CircleAvatar(radius: radius, backgroundImage: MemoryImage(imageBytes)),
     );
   }
 }

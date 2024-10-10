@@ -12,14 +12,14 @@ Future<Product?> getProductFromFirestoreIfExists({
 
   final fosProduct = await productRepository.getProductByArticleNumber(articleNumber);
   fosProduct.fold(
-    (failure) => logger.i('Artikel $articleNumber nicht in der Firestore Datenbank'),
+    (failure) => logger.i('Artikel $articleNumber nicht in der Datenbank'),
     (productFirestore) => product = productFirestore,
   );
 
   if (product == null && ean != '') {
     final fosProduct = await productRepository.getProductByEan(ean);
     fosProduct.fold(
-      (failure) => logger.i('Artikel $articleNumber nicht in der Firestore Datenbank'),
+      (failure) => logger.i('Artikel $ean nicht in der Datenbank'),
       (productFirestore) => product = productFirestore,
     );
   }
@@ -27,7 +27,7 @@ Future<Product?> getProductFromFirestoreIfExists({
   if (product == null) {
     final fosProduct = await productRepository.getProductByName(name);
     fosProduct.fold(
-      (failure) => logger.i('Artikel $articleNumber nicht in der Firestore Datenbank'),
+      (failure) => logger.i('Artikel $name nicht in der Datenbank'),
       (productFirestore) => product = productFirestore,
     );
   }

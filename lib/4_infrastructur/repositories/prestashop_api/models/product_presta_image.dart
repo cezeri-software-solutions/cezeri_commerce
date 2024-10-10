@@ -1,20 +1,18 @@
-import 'dart:io';
-import 'dart:typed_data';
+import '../../../../3_domain/entities/my_file.dart';
 
 class ProductPrestaImage {
   final int productId;
-  final File? imageFile;
-  final Uint8List? imageData;
+  final MyFile imageFile;
 
-  const ProductPrestaImage({required this.productId, this.imageFile, this.imageData});
+  const ProductPrestaImage({required this.productId, required this.imageFile});
 
   factory ProductPrestaImage.empty() {
-    return ProductPrestaImage(productId: 0, imageFile: File(''));
+    return ProductPrestaImage(productId: 0, imageFile: MyFile.empty());
   }
 
   ProductPrestaImage copyWith({
     int? productId,
-    File? imageFile,
+    MyFile? imageFile,
   }) {
     return ProductPrestaImage(
       productId: productId ?? this.productId,

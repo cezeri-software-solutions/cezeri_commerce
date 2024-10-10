@@ -1,18 +1,17 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:cezeri_commerce/1_presentation/core/core.dart';
+import 'package:cezeri_commerce/3_domain/entities/my_file.dart';
 import 'package:cezeri_commerce/4_infrastructur/repositories/prestashop_api/prestashop_api.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
-// import 'package:http/http.dart' as http;
-import 'package:path_provider/path_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../3_domain/entities/marketplace/marketplace_presta.dart';
 import '../../../constants.dart';
 import '../../../failures/failures.dart';
+import '../database/functions/repository_functions.dart';
 import 'models/models.dart';
 import 'models/specific_price_presta.dart';
 
@@ -299,16 +298,17 @@ class PrestashopRepositoryGet {
       }
 
       final Uint8List responseImage = Uint8List.fromList(responseImageResult.getRight());
+      final imageName = '${sanitizeFileName(productRawPresta.name ?? 'product')}_${productRawPresta.id}_${id.id}.jpg';
 
       if (kIsWeb) {
         //* Auf dem Web speichern wir die Bilddaten im Speicher
-        listOfImages.add(ProductPrestaImage(productId: id.id.toMyInt(), imageData: responseImage));
+        listOfImages.add(ProductPrestaImage(productId: id.id.toMyInt(), imageFile: MyFile(fileBytes: responseImage, name: imageName)));
       } else {
         //* Auf mobilen Plattformen speichern wir die Bilddatei
-        final Directory directory = await getTemporaryDirectory();
-        final File file = File('${directory.path}/product_${productRawPresta.id}_${id.id}.jpg');
-        final imageFile = await file.writeAsBytes(responseImage);
-        listOfImages.add(ProductPrestaImage(productId: id.id.toMyInt(), imageFile: imageFile));
+        // final Directory directory = await getTemporaryDirectory();
+        // final File file = File('${directory.path}/product_${productRawPresta.id}_${id.id}.jpg');
+        // final imageFile = await file.writeAsBytes(responseImage);
+        listOfImages.add(ProductPrestaImage(productId: id.id.toMyInt(), imageFile: MyFile(fileBytes: responseImage, name: imageName)));
       }
     }
 

@@ -178,8 +178,8 @@ Future<void> addSetProductIdToPartProducts({
   }
 }
 
-Future<List<File>> getImageFilesFromMarketplace({required MarketplaceProduct marketplaceProduct}) async {
-  final List<File> listOfImageFiles = [];
+Future<List<MyFile>> getImageFilesFromMarketplace({required MarketplaceProduct marketplaceProduct}) async {
+  final List<MyFile> listOfImageFiles = [];
   switch (marketplaceProduct.marketplaceType) {
     case MarketplaceType.prestashop:
       {
@@ -187,13 +187,14 @@ Future<List<File>> getImageFilesFromMarketplace({required MarketplaceProduct mar
         if (productPresta.imageFiles != null) {
           // TODO: e.imageFile wurde zu e.imageFile! damit der Fehler weg ist
           // TODO: Muss für Flutter Web noch angepasst werden
-          final imageFiles = productPresta.imageFiles!.map((e) => e.imageFile!).toList();
+          final imageFiles = productPresta.imageFiles!.map((e) => e.imageFile).toList();
           listOfImageFiles.addAll(imageFiles);
         }
       }
     case MarketplaceType.shopify:
       {
         final productShopify = marketplaceProduct as ProductShopify;
+        //*  Für Flutter Web umschreiben
         if (productShopify.images.isNotEmpty) {
           for (final shopifyImage in productShopify.images) {
             // HTTP-Anfrage, um die Bilddaten als Bytes zu erhalten
@@ -208,7 +209,9 @@ Future<List<File>> getImageFilesFromMarketplace({required MarketplaceProduct mar
 
               // Schreiben der Byte-Daten in die Datei und Rückgabe der Datei
               final imageFile = await file.writeAsBytes(response.bodyBytes);
-              listOfImageFiles.add(imageFile);
+              final imageName = '${sanitizeFileName(productShopify.title ?? 'product')}_${shopifyImage.productId}_${shopifyImage.id}.jpg';
+              final myFile = MyFile(fileBytes: response.bodyBytes, name: imageName);
+              listOfImageFiles.add(myFile);
             }
           }
         }

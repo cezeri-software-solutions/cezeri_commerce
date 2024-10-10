@@ -96,7 +96,7 @@ class _MarketplaceProductPrestaRenderer extends StatelessWidget {
         return ListTile(
           leading: MyAvatar(
             name: 'name',
-            file: product.imageFiles != null && product.imageFiles!.isNotEmpty ? product.imageFiles!.first.imageFile : null,
+            imageBytes: product.imageFiles != null && product.imageFiles!.isNotEmpty ? product.imageFiles!.first.imageFile.fileBytes : null,
           ),
           title: Text(product.name!),
           subtitle: Text('ID: ${product.id} / Artikelnummer: ${product.reference}'),
