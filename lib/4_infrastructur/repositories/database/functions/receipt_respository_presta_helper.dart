@@ -18,7 +18,7 @@ import '/failures/failures.dart';
 import '../../../../3_domain/entities/settings/tax.dart';
 import '../../../../3_domain/repositories/database/customer_repository.dart';
 import '../../../../3_domain/repositories/database/product_repository.dart';
-import '../../prestashop_api/models/order_presta.dart';
+import '../../prestashop_api/models/models.dart';
 import 'product_import.dart';
 import 'product_repository_helper.dart';
 import 'receipt_respository_helper.dart';
@@ -59,26 +59,51 @@ Future<Either<AbstractFailure, Receipt>> createReceiptFromOrderPresta(
         .i('Bestellstatus für die Bestellung mit der ID: ${loadedAppointmentFromMarketplace.orderMarketplaceId} wurde erfolgreich aktualisiert'),
   );
 
-  final fosCurrency = await PrestashopRepositoryGet(marketplace).getCurrency(int.parse(orderPresta.idCurrency));
-  if (fosCurrency.isLeft()) return Left(fosCurrency.getLeft());
+  Either<AbstractFailure, CurrencyPresta> fosCurrency = await PrestashopRepositoryGet(marketplace).getCurrency(int.parse(orderPresta.idCurrency));
+  if (fosCurrency.isLeft()) {
+    fosCurrency = await PrestashopRepositoryGet(marketplace).getCurrency(int.parse(orderPresta.idCurrency));
+    if (fosCurrency.isLeft()) return Left(fosCurrency.getLeft());
+  }
   final currency = fosCurrency.getRight();
-  final fosCarrier = await PrestashopRepositoryGet(marketplace).getCarrier(int.parse(orderPresta.idCarrier));
-  if (fosCarrier.isLeft()) return Left(fosCarrier.getLeft());
+  Either<AbstractFailure, CarrierPresta> fosCarrier = await PrestashopRepositoryGet(marketplace).getCarrier(int.parse(orderPresta.idCarrier));
+  if (fosCarrier.isLeft()) {
+    fosCarrier = await PrestashopRepositoryGet(marketplace).getCarrier(int.parse(orderPresta.idCarrier));
+    if (fosCarrier.isLeft()) return Left(fosCarrier.getLeft());
+  }
   final carrier = fosCarrier.getRight();
-  final fosCustomer = await PrestashopRepositoryGet(marketplace).getCustomer(int.parse(orderPresta.idCustomer));
-  if (fosCustomer.isLeft()) return Left(fosCustomer.getLeft());
+  Either<AbstractFailure, CustomerPresta> fosCustomer = await PrestashopRepositoryGet(marketplace).getCustomer(int.parse(orderPresta.idCustomer));
+  if (fosCustomer.isLeft()) {
+    fosCustomer = await PrestashopRepositoryGet(marketplace).getCustomer(int.parse(orderPresta.idCustomer));
+    if (fosCustomer.isLeft()) return Left(fosCustomer.getLeft());
+  }
   final customer = fosCustomer.getRight();
-  final fosAddressInvoice = await PrestashopRepositoryGet(marketplace).getAddress(int.parse(orderPresta.idAddressInvoice));
-  if (fosAddressInvoice.isLeft()) return Left(fosAddressInvoice.getLeft());
+  Either<AbstractFailure, AddressPresta> fosAddressInvoice =
+      await PrestashopRepositoryGet(marketplace).getAddress(int.parse(orderPresta.idAddressInvoice));
+  if (fosAddressInvoice.isLeft()) {
+    fosAddressInvoice = await PrestashopRepositoryGet(marketplace).getAddress(int.parse(orderPresta.idAddressInvoice));
+    if (fosAddressInvoice.isLeft()) return Left(fosAddressInvoice.getLeft());
+  }
   final addressInvoice = fosAddressInvoice.getRight();
-  final fosAddressDelivery = await PrestashopRepositoryGet(marketplace).getAddress(int.parse(orderPresta.idAddressDelivery));
-  if (fosAddressDelivery.isLeft()) return Left(fosAddressDelivery.getLeft());
+  Either<AbstractFailure, AddressPresta> fosAddressDelivery =
+      await PrestashopRepositoryGet(marketplace).getAddress(int.parse(orderPresta.idAddressDelivery));
+  if (fosAddressDelivery.isLeft()) {
+    fosAddressDelivery = await PrestashopRepositoryGet(marketplace).getAddress(int.parse(orderPresta.idAddressDelivery));
+    if (fosAddressDelivery.isLeft()) return Left(fosAddressDelivery.getLeft());
+  }
   final addressDelivery = fosAddressDelivery.getRight();
-  final fosCountryInvoice = await PrestashopRepositoryGet(marketplace).getCountry(int.parse(addressInvoice.idCountry));
-  if (fosCountryInvoice.isLeft()) return Left(fosCountryInvoice.getLeft());
+  Either<AbstractFailure, CountryPresta> fosCountryInvoice =
+      await PrestashopRepositoryGet(marketplace).getCountry(int.parse(addressInvoice.idCountry));
+  if (fosCountryInvoice.isLeft()) {
+    fosCountryInvoice = await PrestashopRepositoryGet(marketplace).getCountry(int.parse(addressInvoice.idCountry));
+    if (fosCountryInvoice.isLeft()) return Left(fosCountryInvoice.getLeft());
+  }
   final countryInvoice = fosCountryInvoice.getRight();
-  final fosCountryDelivery = await PrestashopRepositoryGet(marketplace).getCountry(int.parse(addressDelivery.idCountry));
-  if (fosCountryDelivery.isLeft()) return Left(fosCountryDelivery.getLeft());
+  Either<AbstractFailure, CountryPresta> fosCountryDelivery =
+      await PrestashopRepositoryGet(marketplace).getCountry(int.parse(addressDelivery.idCountry));
+  if (fosCountryDelivery.isLeft()) {
+    fosCountryDelivery = await PrestashopRepositoryGet(marketplace).getCountry(int.parse(addressDelivery.idCountry));
+    if (fosCountryDelivery.isLeft()) return Left(fosCountryDelivery.getLeft());
+  }
   final countryDelivery = fosCountryDelivery.getRight();
 
   // final loadedCustomerFromFirestore = await getCustomerByMarketplaceId(customerRepository, marketplace.id, customer.id);

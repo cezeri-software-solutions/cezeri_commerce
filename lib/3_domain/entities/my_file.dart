@@ -12,6 +12,10 @@ class MyFile {
 
   const MyFile({required this.fileBytes, required this.name, this.mimeType});
 
+  factory MyFile.empty() {
+    return MyFile(fileBytes: Uint8List(0), name: '', mimeType: null);
+  }
+
   MyFile copyWith({
     Uint8List? fileBytes,
     String? name,

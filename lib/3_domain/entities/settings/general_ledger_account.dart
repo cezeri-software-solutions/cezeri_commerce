@@ -1,3 +1,4 @@
+import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'general_ledger_account.g.dart';
@@ -5,15 +6,23 @@ part 'general_ledger_account.g.dart';
 enum GeneralLedgerAccountType { gLAccount, debtor, creditor }
 
 @JsonSerializable(explicitToJson: true)
-class GeneralLedgerAccount {
+class GeneralLedgerAccount implements Equatable {
+  @JsonKey(includeToJson: false)
   final String id;
+  @JsonKey(includeToJson: false, includeFromJson: false)
   final String accountClass;
+  @JsonKey(includeToJson: false, includeFromJson: false)
   final String accountGroup;
+  @JsonKey(includeToJson: false, includeFromJson: false)
   final String accountSubGroup;
+  @JsonKey(includeToJson: false, includeFromJson: false)
   final String individualAccount;
+  @JsonKey(name: 'general_ledger_account')
   final String generalLedgerAccount; //* Besteht aus den oberen 4
   final String name;
+  @JsonKey(name: 'is_active')
   final bool isActive;
+  @JsonKey(name: 'is_visible')
   final bool isVisible;
   final GeneralLedgerAccountType type;
 
@@ -62,7 +71,8 @@ class GeneralLedgerAccount {
   }
 
   @override
-  String toString() {
-    return 'GeneralLedgerAccount(id: $id, accountClass: $accountClass, accountGroup: $accountGroup, accountSubGroup: $accountSubGroup, individualAccount: $individualAccount, generalLedgerAccount: $generalLedgerAccount, name: $name, isActive: $isActive, isVisible: $isVisible, type: $type)';
-  }
+  List<Object?> get props => [id, generalLedgerAccount, name, isActive, isVisible, type];
+
+  @override
+  bool? get stringify => true;
 }

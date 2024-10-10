@@ -1,10 +1,9 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 
-import '../settings/tax.dart';
-import 'incoming_invoice_account.dart';
 import 'incoming_invoice_file.dart';
+import 'incoming_invoice_item.dart';
+import 'incoming_invoice_supplier.dart';
 import 'invoice_totals.dart';
 
 part 'incoming_invoice.g.dart';
@@ -14,16 +13,24 @@ enum IncomingInvoiceStatus { forReview, reviewed, booked }
 @JsonSerializable(explicitToJson: true)
 class IncomingInvoice extends Equatable {
   final String id;
-  final String supplierId;
+  final IncomingInvoiceSupplier supplier;
+  final List<IncomingInvoiceItem> listOfIncomingInvoiceItems;
+  final List<IncomingInvoiceFile>? listOfIncomingInvoiceFiles;
+  @JsonKey(name: 'invoice_number')
   final String invoiceNumber;
   final IncomingInvoiceStatus status;
-  final String? reviewerId; // Die Person, die diese Eingangsrechnung prüfen soll (not implemented yet)
-  final Tax tax;
+  // final String? reviewerId; // Die Person, die diese Eingangsrechnung prüfen soll (not implemented yet)
   final String currency;
+  @JsonKey(name: 'account_number')
+  final String accountNumber;
+  @JsonKey(name: 'account_name')
+  final String accountName;
+  @JsonKey(name: 'total_positions', includeFromJson: false)
   final InvoiceTotals totalPositions;
-  final InvoiceTotals totalReceipt;
-  final List<IncomingInvoiceAccount> listOfIncomingInvoiceAccounts;
-  final List<IncomingInvoiceFile>? listOfIncomingInvoiceFiles;
+  @JsonKey(name: 'early_payment_discount')
+  final double? earlyPaymentDiscount;
+  @JsonKey(name: 'discount_deadline')
+  final DateTime? discountDeadline;
   final DateTime invoiceDate; // Rechnungsdatum
   final DateTime bookingDate; // Buchungsdatum
   final DateTime? dueDate; // Fälligkeitsdatum
@@ -33,34 +40,36 @@ class IncomingInvoice extends Equatable {
 
   IncomingInvoice({
     required this.id,
-    required this.supplierId,
+    required this.supplier,
+    required this.listOfIncomingInvoiceItems,
+    this.listOfIncomingInvoiceFiles,
     required this.invoiceNumber,
     required this.status,
-    this.reviewerId,
-    required this.tax,
+    // this.reviewerId,
     required this.currency,
-    required this.totalReceipt,
-    required this.listOfIncomingInvoiceAccounts,
-    this.listOfIncomingInvoiceFiles,
+    required this.accountNumber,
+    required this.accountName,
+    required this.earlyPaymentDiscount,
+    required this.discountDeadline,
     required this.invoiceDate,
     required this.bookingDate,
     this.dueDate,
     this.deliveryDate,
     required this.creationDate,
     required this.lastEditingDate,
-  }) : totalPositions = _calcTotalPositions(listOfIncomingInvoiceAccounts);
+  }) : totalPositions = _calcTotalPositions(listOfIncomingInvoiceItems);
 
-  static InvoiceTotals _calcTotalPositions(List<IncomingInvoiceAccount> listOfIncomingInvoiceAccounts) {
-    if (listOfIncomingInvoiceAccounts.isEmpty || listOfIncomingInvoiceAccounts.every((account) => account == IncomingInvoiceAccount.empty())) {
+  static InvoiceTotals _calcTotalPositions(List<IncomingInvoiceItem> listOfIncomingInvoiceItems) {
+    if (listOfIncomingInvoiceItems.isEmpty || listOfIncomingInvoiceItems.every((account) => account == IncomingInvoiceItem.empty())) {
       return InvoiceTotals.empty();
     }
 
-    final totals = listOfIncomingInvoiceAccounts.fold(
+    final totals = listOfIncomingInvoiceItems.fold(
       InvoiceTotals.empty(),
-      (InvoiceTotals currentTotals, IncomingInvoiceAccount account) => InvoiceTotals(
-        netAmount: currentTotals.netAmount + account.netAmount,
+      (InvoiceTotals currentTotals, IncomingInvoiceItem account) => InvoiceTotals(
+        netAmount: currentTotals.netAmount + account.totalNetAmount,
         taxAmount: currentTotals.taxAmount + account.taxAmount,
-        grossAmount: currentTotals.grossAmount + account.grossAmount,
+        grossAmount: currentTotals.grossAmount + account.totalGrossAmount,
       ),
     );
 
@@ -74,13 +83,16 @@ class IncomingInvoice extends Equatable {
     final now = DateTime.now();
     return IncomingInvoice(
       id: '',
-      supplierId: '',
+      supplier: IncomingInvoiceSupplier.empty(),
+      listOfIncomingInvoiceItems: [IncomingInvoiceItem.empty()],
+      listOfIncomingInvoiceFiles: null,
       invoiceNumber: '',
       status: IncomingInvoiceStatus.forReview,
-      tax: Tax.empty(),
       currency: '',
-      totalReceipt: InvoiceTotals.empty(),
-      listOfIncomingInvoiceAccounts: [IncomingInvoiceAccount.empty()],
+      accountNumber: '',
+      accountName: '',
+      earlyPaymentDiscount: null,
+      discountDeadline: null,
       invoiceDate: now,
       bookingDate: now,
       creationDate: now,
@@ -90,15 +102,17 @@ class IncomingInvoice extends Equatable {
 
   IncomingInvoice copyWith({
     String? id,
-    String? supplierId,
+    IncomingInvoiceSupplier? supplier,
+    List<IncomingInvoiceItem>? listOfIncomingInvoiceItems,
+    List<IncomingInvoiceFile>? listOfIncomingInvoiceFiles,
     String? invoiceNumber,
     IncomingInvoiceStatus? status,
-    String? reviewerId,
-    Tax? tax,
+    // String? reviewerId,
     String? currency,
-    InvoiceTotals? totalReceipt,
-    List<IncomingInvoiceAccount>? listOfIncomingInvoiceAccounts,
-    List<IncomingInvoiceFile>? listOfIncomingInvoiceFiles,
+    String? accountNumber,
+    String? accountName,
+    double? earlyPaymentDiscount,
+    DateTime? discountDeadline,
     DateTime? invoiceDate,
     DateTime? bookingDate,
     DateTime? dueDate,
@@ -108,15 +122,17 @@ class IncomingInvoice extends Equatable {
   }) {
     return IncomingInvoice(
       id: id ?? this.id,
-      supplierId: supplierId ?? this.supplierId,
+      supplier: supplier ?? this.supplier,
+      listOfIncomingInvoiceItems: listOfIncomingInvoiceItems ?? this.listOfIncomingInvoiceItems,
+      listOfIncomingInvoiceFiles: listOfIncomingInvoiceFiles ?? this.listOfIncomingInvoiceFiles,
       invoiceNumber: invoiceNumber ?? this.invoiceNumber,
       status: status ?? this.status,
-      reviewerId: reviewerId ?? this.reviewerId,
-      tax: tax ?? this.tax,
+      // reviewerId: reviewerId ?? this.reviewerId,
       currency: currency ?? this.currency,
-      totalReceipt: totalReceipt ?? this.totalReceipt,
-      listOfIncomingInvoiceAccounts: listOfIncomingInvoiceAccounts ?? this.listOfIncomingInvoiceAccounts,
-      listOfIncomingInvoiceFiles: listOfIncomingInvoiceFiles ?? this.listOfIncomingInvoiceFiles,
+      accountNumber: accountNumber ?? this.accountNumber,
+      accountName: accountName ?? this.accountName,
+      earlyPaymentDiscount: earlyPaymentDiscount ?? this.earlyPaymentDiscount,
+      discountDeadline: discountDeadline ?? this.discountDeadline,
       invoiceDate: invoiceDate ?? this.invoiceDate,
       bookingDate: bookingDate ?? this.bookingDate,
       dueDate: dueDate ?? this.dueDate,
@@ -129,16 +145,17 @@ class IncomingInvoice extends Equatable {
   @override
   List<Object?> get props => [
         id,
-        supplierId,
+        supplier,
+        listOfIncomingInvoiceItems,
+        listOfIncomingInvoiceFiles,
         invoiceNumber,
         status,
-        reviewerId,
-        tax,
+        // reviewerId,
         currency,
+        accountNumber,
+        earlyPaymentDiscount,
+        discountDeadline,
         totalPositions,
-        totalReceipt,
-        listOfIncomingInvoiceAccounts,
-        listOfIncomingInvoiceFiles,
         invoiceDate,
         bookingDate,
         dueDate,

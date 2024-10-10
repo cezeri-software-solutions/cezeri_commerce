@@ -47,11 +47,9 @@ class ProductRepositoryImpl implements ProductRepository {
         final listOfImageFiles = await getImageFilesFromMarketplace(marketplaceProduct: marketplaceProduct);
         if (listOfImageFiles.isEmpty) return Right(createdProduct);
 
-        final listOfMyFiles = await convertIoFilesToMyFiles(listOfImageFiles);
-
         final List<ProductImage> listOfProductImages = await uploadImageFilesToStorageFromFlutter(
           createdProduct.listOfProductImages,
-          listOfMyFiles,
+          listOfImageFiles,
           getProductImagesStoragePath(ownerId, createdProduct.id),
         );
 

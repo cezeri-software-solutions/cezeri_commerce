@@ -10,21 +10,20 @@ GeneralLedgerAccount _$GeneralLedgerAccountFromJson(
         Map<String, dynamic> json) =>
     GeneralLedgerAccount(
       id: json['id'] as String,
-      generalLedgerAccount: json['generalLedgerAccount'] as String,
+      generalLedgerAccount: json['general_ledger_account'] as String,
       name: json['name'] as String,
-      isActive: json['isActive'] as bool,
-      isVisible: json['isVisible'] as bool,
+      isActive: json['is_active'] as bool,
+      isVisible: json['is_visible'] as bool,
       type: $enumDecode(_$GeneralLedgerAccountTypeEnumMap, json['type']),
     );
 
 Map<String, dynamic> _$GeneralLedgerAccountToJson(
         GeneralLedgerAccount instance) =>
     <String, dynamic>{
-      'id': instance.id,
-      'generalLedgerAccount': instance.generalLedgerAccount,
+      'general_ledger_account': instance.generalLedgerAccount,
       'name': instance.name,
-      'isActive': instance.isActive,
-      'isVisible': instance.isVisible,
+      'is_active': instance.isActive,
+      'is_visible': instance.isVisible,
       'type': _$GeneralLedgerAccountTypeEnumMap[instance.type]!,
     };
 

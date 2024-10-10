@@ -94,8 +94,8 @@ class ProductsImportPage extends StatelessWidget {
                         return ListTile(
                           leading: MyAvatar(
                             name: 'name',
-                            file: productPresta.imageFiles != null && productPresta.imageFiles!.isNotEmpty
-                                ? productPresta.imageFiles!.first.imageFile
+                            imageBytes: productPresta.imageFiles != null && productPresta.imageFiles!.isNotEmpty
+                                ? productPresta.imageFiles!.first.imageFile.fileBytes
                                 : null,
                           ),
                           title: Text(productPresta.name!),
