@@ -112,7 +112,7 @@ class GLAccountListView extends StatelessWidget {
                       TextButton(
                         onPressed: () {
                           gLAccountBloc.add(SetGLAccountEvent(gLAccount: gLAccount));
-                          addEditGLSAccount(context, gLAccountBloc, gLAccount);
+                          addEditGLAccount(context, gLAccountBloc, gLAccount);
                         },
                         child: Text(gLAccount.generalLedgerAccount),
                       ),

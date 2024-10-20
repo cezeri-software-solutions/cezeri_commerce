@@ -27,6 +27,8 @@ class PagesPaginationBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isTablet = ResponsiveBreakpoints.of(context).largerOrEqualTo(TABLET);
+    final totalPages = this.totalPages > 0 ? this.totalPages : 1;
+    final totalItems = this.totalItems > 0 ? this.totalItems : 1;
 
     int maxPagesToShow = 3;
     int half = maxPagesToShow ~/ 2;

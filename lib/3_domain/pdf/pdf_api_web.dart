@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import 'package:universal_html/html.dart' as html;
 
 class PdfApiWeb {
-  static Future<void> saveDocument({
+  static Future<void> openPdf({
     required String name,
     required Uint8List byteList,
     required bool showInBrowser,

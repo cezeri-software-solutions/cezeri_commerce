@@ -45,7 +45,7 @@ class ReceiptDetailCarrierCard extends StatelessWidget {
                 const Align(alignment: Alignment.center, child: Text('Versandart', style: TextStyles.h3BoldPrimary)),
                 const Divider(height: 30),
                 MyDropdownButtonSmall(
-                  labelText: 'Versanddienstleister',
+                  fieldTitle: 'Versanddienstleister',
                   value: state.receipt!.receiptCarrier.receiptCarrierName,
                   onChanged: (carrierName) => receiptDetailBloc.add(
                     ReceiptDetailCarrierChangedEvent(receiptCarrier: carrierItems.where((e) => e.receiptCarrierName == carrierName).first),
@@ -54,7 +54,7 @@ class ReceiptDetailCarrierCard extends StatelessWidget {
                 ),
                 Gaps.h16,
                 MyDropdownButtonSmall(
-                  labelText: 'Produkt',
+                  fieldTitle: 'Produkt',
                   value: state.receipt!.receiptCarrier.carrierProduct.productName,
                   onChanged: (carrierProductName) => receiptDetailBloc.add(
                     ReceiptDetailCarrierProductChangedEvent(

@@ -3,14 +3,12 @@ import 'dart:io';
 import 'package:dartz/dartz.dart';
 import 'package:get_it/get_it.dart';
 import 'package:http/http.dart' as http;
-import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 
 import '/1_presentation/core/core.dart';
 import '/3_domain/entities/marketplace/abstract_marketplace.dart';
 import '/3_domain/entities/product/marketplace_product.dart';
 import '/3_domain/entities/product/product.dart';
-import '/3_domain/entities/product/product_image.dart';
 import '/3_domain/entities/product/product_presta.dart';
 import '../../../../3_domain/entities/my_file.dart';
 import '../../../../3_domain/repositories/database/product_repository.dart';
@@ -221,91 +219,4 @@ Future<List<MyFile>> getImageFilesFromMarketplace({required MarketplaceProduct m
   }
 
   return listOfImageFiles;
-}
-
-// Future<List<ProductImage>> uploadImageFilesToStorageFromFlutter(
-//   List<ProductImage> listOfProductImages,
-//   List<File> imageFiles,
-//   String supabaseStoragePath,
-// ) async {
-//   final List<ProductImage> newListOfProductImages = [];
-
-//   int sortId = listOfProductImages.length;
-
-//   for (final myFile in imageFiles) {
-//     sortId++;
-
-//     final File file = myFile;
-//     // Erstelle einen eindeutigen Dateinamen, um Kollisionen zu vermeiden
-//     final fileName = sanitizeFileName(basename(file.path));
-//     final phFilePath = '$supabaseStoragePath/${generateRandomString(4)}_$fileName';
-//     final filePath = Uri.encodeFull(phFilePath);
-//     final storageResponse = await supabase.storage.from('product-images').upload(filePath, myFile);
-//     if (storageResponse.isEmpty) {
-//       logger.e('Artikelbild konnte nicht hochgeladen werden. Error: $storageResponse');
-//       continue;
-//     }
-//   }
-//   return newListOfProductImages;
-// }
-
-Future<List<ProductImage>> uploadImageFilesToStorageFromFlutter(
-  List<ProductImage> listOfProductImages,
-  List<MyFile> listOfMyFiles,
-  String supabaseStoragePath,
-) async {
-  final List<ProductImage> newListOfProductImages = [];
-
-  int sortId = listOfProductImages.length;
-
-  for (final myFile in listOfMyFiles) {
-    sortId++;
-
-    final fileName = sanitizeFileName(basename(myFile.name));
-    print('fileName: $fileName');
-    final phFilePath = '$supabaseStoragePath/${generateRandomString(4)}_$fileName';
-    print('phFilePath: $phFilePath');
-    final filePath = Uri.encodeFull(phFilePath);
-    print('filePath: $filePath');
-
-    try {
-      // Hochladen der Datei zu Supabase Storage mit uploadBinary()
-      final String uploadedFilePath = await supabase.storage.from('product-images').uploadBinary(filePath, myFile.fileBytes);
-      print('uploadedFilePath: $uploadedFilePath');
-      final pathWithoutBucketName = extractPathFromUrl(uploadedFilePath);
-      print('pathWithoutBucketName: $pathWithoutBucketName');
-
-      // Erfolgreich hochgeladen, jetzt die öffentliche URL abrufen
-      final String fileUrl = supabase.storage.from('product-images').getPublicUrl(pathWithoutBucketName);
-      print('----------------------------------------------------------------------------------------------------------------------');
-      print(fileUrl);
-      print('----------------------------------------------------------------------------------------------------------------------');
-
-      final imageFile = ProductImage.empty().copyWith(
-        fileName: fileName,
-        fileUrl: fileUrl,
-        sortId: sortId,
-        isDefault: listOfProductImages.isEmpty && sortId == 1,
-      );
-      newListOfProductImages.add(imageFile);
-    } catch (e) {
-      // Fehler beim Hochladen oder Abrufen der URL
-      logger.e('Fehler beim Hochladen der Datei oder Abrufen der URL: $e');
-      continue;
-    }
-  }
-  return newListOfProductImages;
-}
-
-String extractPathFromUrl(String url) {
-  Uri uri = Uri.parse(url);
-  int bucketIndex = uri.pathSegments.indexOf('product-images') + 1; // Findet den Index des Bucket-Namens und addiert 1
-  return uri.pathSegments.sublist(bucketIndex).join('/'); // Extrahiert alles nach 'product-images'
-}
-
-String sanitizeFileName(String input) {
-  // Ersetzt ungültige Zeichen durch Unterstriche
-  String sanitized = input.replaceAll(RegExp(r'[^\w\s.-]'), '_');
-  // Entfernt Leerzeichen
-  return sanitized.replaceAll(' ', '_');
 }

@@ -117,9 +117,9 @@ Future<void> onGeneratePdfPressed(BuildContext context, ProductBloc productBloc,
   if (context.mounted) context.router.popUntilRouteWithName(ProductsOverviewRoute.name);
 
   if (kIsWeb) {
-    await PdfApiWeb.saveDocument(name: 'Ausgewählte Artikel.pdf', byteList: generatedPdf, showInBrowser: true);
+    await PdfApiWeb.openPdf(name: 'Ausgewählte Artikel.pdf', byteList: generatedPdf, showInBrowser: true);
   } else {
-    await PdfApiMobile.saveDocument(name: 'Ausgewählte Artikel.pdf', byteList: generatedPdf);
+    await PdfApiMobile.openPdf(name: 'Ausgewählte Artikel.pdf', byteList: generatedPdf);
   }
 
   productBloc.add(SetProductIsLoadingPdfEvent(value: false));

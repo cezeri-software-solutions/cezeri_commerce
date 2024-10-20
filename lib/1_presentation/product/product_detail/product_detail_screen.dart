@@ -78,24 +78,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with Automati
 List<BlocListener<ProductDetailBloc, ProductDetailState>> _getProductDetailBlocListeners(ProductDetailBloc productDetailBloc) {
   return [
     BlocListener<ProductDetailBloc, ProductDetailState>(
-      listenWhen: (p, c) => p.fosProductSuppliersOnObserveOption != c.fosProductSuppliersOnObserveOption,
-      listener: (context, state) {
-        state.fosProductSuppliersOnObserveOption.fold(
-          () => null,
-          (a) => a.fold(
-            (failure) => myScaffoldMessenger(context, null, null, null, 'Beim Laen der Lieferanten ist ein Fehler aufgetreten'),
-            (_) => showDialog(
-              context: context,
-              builder: (_) => MyDialogSuppliers(
-                listOfSuppliers: state.listOfSuppliers!,
-                onChanged: (supplier) => productDetailBloc.add(OnProductSetSupplierEvent(supplierName: supplier.company)),
-              ),
-            ),
-          ),
-        );
-      },
-    ),
-    BlocListener<ProductDetailBloc, ProductDetailState>(
       listenWhen: (p, c) => p.fosProductOnUpdateOption != c.fosProductOnUpdateOption,
       listener: (context, state) {
         state.fosProductOnUpdateOption.fold(

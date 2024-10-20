@@ -1,19 +1,20 @@
 import 'package:flutter/material.dart';
 
 class MyFormFieldContainer extends StatelessWidget {
-  final double? height;
   final Widget child;
   final EdgeInsetsGeometry? padding;
+  final double? height;
   final double? width;
   final double? borderRadius;
+
   const MyFormFieldContainer({
-    Key? key,
-    this.height,
+    super.key,
     required this.child,
     this.padding = const EdgeInsets.all(16),
+    this.height,
     this.width,
     this.borderRadius = 14,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

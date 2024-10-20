@@ -103,6 +103,8 @@ class Gaps {
   static const SizedBox h4 = SizedBox(height: 4);
   static const SizedBox h8 = SizedBox(height: 8);
   static const SizedBox h10 = SizedBox(height: 10);
+  static const SizedBox h12 = SizedBox(height: 12);
+  static const SizedBox h14 = SizedBox(height: 14);
   static const SizedBox h16 = SizedBox(height: 16);
   static const SizedBox h24 = SizedBox(height: 24);
   static const SizedBox h32 = SizedBox(height: 32);
@@ -144,7 +146,7 @@ class RWROP {
   static const int ean = 140;
   static const int articleName = 600;
   static const int openQuantity = 50;
-  static const int quantity = 50;
+  static const int quantity = 54;
 }
 
 //* ReorderDetailProductsCard
@@ -172,6 +174,20 @@ class RWRDP {
   static const int discountGrossUnit = 80;
   static const int unitPriceGross = 80;
   static const int totalPriceGross = 80;
+}
+
+//* IncomingInvoicesOverview
+class RWIIO {
+  RWIIO._();
+
+  static const int incomingInvoiceNumber = 120;
+  static const int supplierNumber = 120;
+  static const int supplierName = 340;
+  static const int invoiceNumber = 120;
+  static const int invoiceDate = 90;
+  static const int bookingDate = 90;
+  static const int amount = 90;
+  static const int status = 120;
 }
 
 class HeaderSpace {

@@ -244,9 +244,9 @@ class ReceiptsOverviewOptionsSheet extends StatelessWidget {
         : '$documentType.pdf';
 
     if (kIsWeb) {
-      await PdfApiWeb.saveDocument(name: title, byteList: generatedPdf, showInBrowser: true);
+      await PdfApiWeb.openPdf(name: title, byteList: generatedPdf, showInBrowser: true);
     } else {
-      await PdfApiMobile.saveDocument(name: title, byteList: generatedPdf);
+      await PdfApiMobile.openPdf(name: title, byteList: generatedPdf);
     }
   }
 }
@@ -370,7 +370,7 @@ class _SelectToLoadAppointmentFromMarketplaceSheetState extends State<_SelectToL
       child: Column(
         children: [
           MyDropdownButtonSmall(
-            labelText: 'Marktplatz wählen',
+            fieldTitle: 'Marktplatz wählen',
             value: selectedMarketplace.name,
             onChanged: (marketplaceName) => setState(() => selectedMarketplace = listOfMarketplaces.where((e) => e.name == marketplaceName!).first),
             items: items,

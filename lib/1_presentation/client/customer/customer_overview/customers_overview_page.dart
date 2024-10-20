@@ -25,20 +25,20 @@ class CustomersOverviewPage extends StatelessWidget {
         if (state.firebaseFailure != null && state.isAnyFailure) {
           return const Expanded(child: Center(child: Text('Ein Fehler beim Laden der Kunden ist aufgetreten!')));
         }
-        if (state.listOfAllCustomers == null || state.listOfFilteredCustomers == null) {
+        if (state.listOfAllCustomers == null || state.listOfAllCustomers == null) {
           return const Expanded(child: Center(child: CircularProgressIndicator()));
         }
-        if (state.listOfAllCustomers == null || state.listOfFilteredCustomers == null) {
+        if (state.listOfAllCustomers == null || state.listOfAllCustomers == null) {
           return const Expanded(child: Center(child: Text('Du hast noch keine Kunden angelegt oder importiert!')));
         }
 
         return Expanded(
           child: Scrollbar(
             child: ListView.separated(
-              itemCount: state.listOfFilteredCustomers!.length,
+              itemCount: state.listOfAllCustomers!.length,
               separatorBuilder: (context, index) => const Divider(indent: 45, endIndent: 20),
               itemBuilder: (context, index) {
-                return _CustomerContainer(customer: state.listOfFilteredCustomers![index], index: index, customerBloc: customerBloc);
+                return _CustomerContainer(customer: state.listOfAllCustomers![index], index: index, customerBloc: customerBloc);
               },
             ),
           ),
@@ -67,7 +67,7 @@ class _CustomerContainer extends StatelessWidget {
       builder: (context, state) {
         return Column(
           children: [
-            if(index == 0) Gaps.h10,
+            if (index == 0) Gaps.h10,
             Row(
               children: [
                 Checkbox.adaptive(

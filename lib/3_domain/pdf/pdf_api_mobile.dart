@@ -6,7 +6,7 @@ import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
 
 class PdfApiMobile {
-  static Future<void> saveDocument({
+  static Future<void> openPdf({
     required String name,
     required Uint8List byteList,
   }) async {

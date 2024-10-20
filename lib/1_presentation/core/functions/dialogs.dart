@@ -91,7 +91,7 @@ Future<void> showMyDialogDelete({
                 children: [
                   Text(title ?? 'Löschen', style: TextStyles.h1),
                   Gaps.h16,
-                  Text(content ?? 'Bist du sicher, dass es unwiederruflich löschen willst?', style: TextStyles.h3, textAlign: TextAlign.center),
+                  Text(content ?? 'Bist du sicher, dass du es unwiederruflich löschen willst?', style: TextStyles.h3, textAlign: TextAlign.center),
                   Gaps.h32,
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -100,6 +100,41 @@ Future<void> showMyDialogDelete({
                       MyOutlinedButton(buttonText: 'Löschen', onPressed: onConfirm, buttonBackgroundColor: Colors.red),
                     ],
                   )
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    },
+  );
+}
+
+Future<void> showMyDialogNotImplemented({
+  required BuildContext context,
+  String? title,
+  String? content,
+  bool canPop = true,
+}) async {
+  await showDialog<void>(
+    context: context,
+    barrierDismissible: canPop,
+    builder: (_) {
+      return PopScope(
+        canPop: canPop,
+        child: Dialog(
+          child: SizedBox(
+            width: 400,
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(title ?? 'Achtung', style: TextStyles.h1),
+                  Gaps.h16,
+                  Text(content ?? 'Diese Funktion ist noch nicht implementiert', style: TextStyles.h3, textAlign: TextAlign.center),
+                  Gaps.h32,
+                  MyOutlinedButton(buttonText: 'OK', onPressed: () => Navigator.of(context).pop(), buttonBackgroundColor: CustomColors.primaryColor),
                 ],
               ),
             ),

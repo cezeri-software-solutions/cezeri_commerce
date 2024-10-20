@@ -14,17 +14,21 @@ import '../supplier_detail/supplier_detail_screen.dart';
 import 'suppliers_overview_page.dart';
 
 @RoutePage()
-class SuppliersOverviewScreen extends StatelessWidget {
+class SuppliersOverviewScreen extends StatefulWidget {
   const SuppliersOverviewScreen({super.key});
 
   @override
+  State<SuppliersOverviewScreen> createState() => _SuppliersOverviewScreenState();
+}
+
+class _SuppliersOverviewScreenState extends State<SuppliersOverviewScreen> with AutomaticKeepAliveClientMixin {
+  @override
   Widget build(BuildContext context) {
-    final supplierBloc = sl<SupplierBloc>()..add(GetAllSuppliersEvenet());
+    super.build(context);
+    final supplierBloc = sl<SupplierBloc>()..add(GetSuppliersEvenet(calcCount: true, currentPage: 1));
 
-    final searchController = TextEditingController();
-
-    return BlocProvider(
-      create: (context) => supplierBloc,
+    return BlocProvider.value(
+      value: supplierBloc,
       child: MultiBlocListener(
         listeners: [
           BlocListener<SupplierBloc, SupplierState>(
@@ -59,7 +63,10 @@ class SuppliersOverviewScreen extends StatelessWidget {
               appBar: AppBar(
                 title: const Text('Lieferanten'),
                 actions: [
-                  IconButton(onPressed: () => context.read<SupplierBloc>().add(GetAllSuppliersEvenet()), icon: const Icon(Icons.refresh)),
+                  IconButton(
+                    onPressed: () => context.read<SupplierBloc>().add(GetSuppliersEvenet(calcCount: false, currentPage: state.currentPage)),
+                    icon: const Icon(Icons.refresh),
+                  ),
                   IconButton(
                       onPressed: () {
                         final newSupplier =
@@ -85,23 +92,30 @@ class SuppliersOverviewScreen extends StatelessWidget {
                   ),
                 ],
               ),
-              body: Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(left: 20, right: 20, bottom: 10),
-                    child: CupertinoSearchTextField(
-                      controller: searchController,
-                      onChanged: (value) => context.read<SupplierBloc>().add(SetSearchFieldTextEvent(searchText: value)),
-                      onSubmitted: (value) => context.read<SupplierBloc>().add(OnSearchFieldSubmittedEvent()),
-                      onSuffixTap: () {
-                        searchController.clear();
-                        context.read<SupplierBloc>().add(SetSearchFieldTextEvent(searchText: ''));
-                        context.read<SupplierBloc>().add(OnSearchFieldSubmittedEvent());
-                      },
+              body: SafeArea(
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(left: 20, right: 20, bottom: 10),
+                      child: CupertinoSearchTextField(
+                        controller: state.searchController,
+                        onChanged: (value) => supplierBloc.add(GetSuppliersEvenet(calcCount: true, currentPage: 1)),
+                        onSuffixTap: () => supplierBloc.add(OnSupplierSearchControllerClearedEvent()),
+                      ),
                     ),
-                  ),
-                  SuppliersOverviewPage(supplierBloc: supplierBloc),
-                ],
+                    const Divider(height: 0),
+                    SuppliersOverviewPage(supplierBloc: supplierBloc),
+                    const Divider(height: 0),
+                    PagesPaginationBar(
+                      currentPage: state.currentPage,
+                      totalPages: (state.totalQuantity / state.perPageQuantity).ceil(),
+                      itemsPerPage: state.perPageQuantity,
+                      totalItems: state.totalQuantity,
+                      onPageChanged: (newPage) => supplierBloc.add(GetSuppliersEvenet(calcCount: false, currentPage: newPage)),
+                      onItemsPerPageChanged: (newValue) => supplierBloc.add(SupplierItemsPerPageChangedEvent(value: newValue)),
+                    ),
+                  ],
+                ),
               ),
             );
           },
@@ -109,4 +123,7 @@ class SuppliersOverviewScreen extends StatelessWidget {
       ),
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }

@@ -7,7 +7,6 @@ class ProductState {
   final List<Product>? listOfAllProducts;
   final List<Product>? listOfFilteredProducts; // Der State, der im presentation layer ausgegeben wird, egal ob Suchfeld leer oder nicht
   final List<Product> selectedProducts; // Ausgewählte Produkte zum löschen oder für Massenbearbeitung
-  final List<Supplier>? listOfSuppliers;
   final List<Product> listOfNotUpdatedProductsOnMassEditing;
   final MainSettings? mainSettings;
   final AbstractFailure? firebaseFailure;
@@ -16,12 +15,10 @@ class ProductState {
   final bool isLoadingProductsOnObserve;
   final bool isLoadingProductOnCreate;
   final bool isLoadingProductOnDelete;
-  final bool isLoadingProductSuppliersOnObseve;
   final bool isLoadingProductOnMassEditing;
   final Option<Either<AbstractFailure, List<Product>>> fosProductsOnObserveOption;
   final Option<Either<AbstractFailure, Product>> fosProductOnCreateOption;
   final Option<Either<AbstractFailure, Unit>> fosProductOnDeleteOption;
-  final Option<Either<AbstractFailure, List<Supplier>>> fosProductSuppliersOnObserveOption;
   final Option<Either<List<AbstractFailure>, Unit>> fosProductAbstractFailuresOption;
 
   final bool isLoadingOnMassEditActivateProductMarketplace;
@@ -51,7 +48,6 @@ class ProductState {
     required this.listOfAllProducts,
     required this.listOfFilteredProducts,
     required this.selectedProducts,
-    required this.listOfSuppliers,
     required this.listOfNotUpdatedProductsOnMassEditing,
     required this.mainSettings,
     required this.firebaseFailure,
@@ -60,12 +56,10 @@ class ProductState {
     required this.isLoadingProductsOnObserve,
     required this.isLoadingProductOnCreate,
     required this.isLoadingProductOnDelete,
-    required this.isLoadingProductSuppliersOnObseve,
     required this.isLoadingProductOnMassEditing,
     required this.fosProductsOnObserveOption,
     required this.fosProductOnCreateOption,
     required this.fosProductOnDeleteOption,
-    required this.fosProductSuppliersOnObserveOption,
     required this.fosProductAbstractFailuresOption,
     required this.isLoadingOnMassEditActivateProductMarketplace,
     required this.fosProductOnUpdateQuantityOption,
@@ -101,7 +95,6 @@ class ProductState {
       listOfAllProducts: null,
       listOfFilteredProducts: null,
       selectedProducts: const [],
-      listOfSuppliers: null,
       listOfNotUpdatedProductsOnMassEditing: const [],
       mainSettings: null,
       firebaseFailure: null,
@@ -110,12 +103,10 @@ class ProductState {
       isLoadingProductsOnObserve: false,
       isLoadingProductOnCreate: false,
       isLoadingProductOnDelete: false,
-      isLoadingProductSuppliersOnObseve: false,
       isLoadingProductOnMassEditing: false,
       fosProductsOnObserveOption: none(),
       fosProductOnCreateOption: none(),
       fosProductOnDeleteOption: none(),
-      fosProductSuppliersOnObserveOption: none(),
       fosProductAbstractFailuresOption: none(),
       isLoadingOnMassEditActivateProductMarketplace: false,
       fosProductOnUpdateQuantityOption: none(),
@@ -123,7 +114,7 @@ class ProductState {
       fosMassEditProductsOption: none(),
       fosProductOnEditQuantityPrestaOption: none(),
       perPageQuantity: 20,
-      totalQuantity: 0,
+      totalQuantity: 1,
       currentPage: 1,
       productSearchController: SearchController(),
       triggerPop: false,
@@ -140,7 +131,6 @@ class ProductState {
     List<Product>? listOfAllProducts,
     List<Product>? listOfFilteredProducts,
     List<Product>? selectedProducts,
-    List<Supplier>? listOfSuppliers,
     List<Product>? listOfNotUpdatedProductsOnMassEditing,
     MainSettings? mainSettings,
     AbstractFailure? firebaseFailure,
@@ -149,12 +139,10 @@ class ProductState {
     bool? isLoadingProductsOnObserve,
     bool? isLoadingProductOnCreate,
     bool? isLoadingProductOnDelete,
-    bool? isLoadingProductSuppliersOnObseve,
     bool? isLoadingProductOnMassEditing,
     Option<Either<AbstractFailure, List<Product>>>? fosProductsOnObserveOption,
     Option<Either<AbstractFailure, Product>>? fosProductOnCreateOption,
     Option<Either<AbstractFailure, Unit>>? fosProductOnDeleteOption,
-    Option<Either<AbstractFailure, List<Supplier>>>? fosProductSuppliersOnObserveOption,
     Option<Either<List<AbstractFailure>, Unit>>? fosProductAbstractFailuresOption,
     bool? isLoadingOnMassEditActivateProductMarketplace,
     Option<Either<AbstractFailure, List<Product>>>? fosProductOnUpdateQuantityOption,
@@ -177,7 +165,6 @@ class ProductState {
       listOfAllProducts: listOfAllProducts ?? this.listOfAllProducts,
       listOfFilteredProducts: listOfFilteredProducts ?? this.listOfFilteredProducts,
       selectedProducts: selectedProducts ?? this.selectedProducts,
-      listOfSuppliers: listOfSuppliers ?? this.listOfSuppliers,
       listOfNotUpdatedProductsOnMassEditing: listOfNotUpdatedProductsOnMassEditing ?? this.listOfNotUpdatedProductsOnMassEditing,
       mainSettings: mainSettings ?? this.mainSettings,
       firebaseFailure: firebaseFailure ?? this.firebaseFailure,
@@ -186,12 +173,10 @@ class ProductState {
       isLoadingProductsOnObserve: isLoadingProductsOnObserve ?? this.isLoadingProductsOnObserve,
       isLoadingProductOnCreate: isLoadingProductOnCreate ?? this.isLoadingProductOnCreate,
       isLoadingProductOnDelete: isLoadingProductOnDelete ?? this.isLoadingProductOnDelete,
-      isLoadingProductSuppliersOnObseve: isLoadingProductSuppliersOnObseve ?? this.isLoadingProductSuppliersOnObseve,
       isLoadingProductOnMassEditing: isLoadingProductOnMassEditing ?? this.isLoadingProductOnMassEditing,
       fosProductsOnObserveOption: fosProductsOnObserveOption ?? this.fosProductsOnObserveOption,
       fosProductOnCreateOption: fosProductOnCreateOption ?? this.fosProductOnCreateOption,
       fosProductOnDeleteOption: fosProductOnDeleteOption ?? this.fosProductOnDeleteOption,
-      fosProductSuppliersOnObserveOption: fosProductSuppliersOnObserveOption ?? this.fosProductSuppliersOnObserveOption,
       fosProductAbstractFailuresOption: fosProductAbstractFailuresOption ?? this.fosProductAbstractFailuresOption,
       isLoadingOnMassEditActivateProductMarketplace:
           isLoadingOnMassEditActivateProductMarketplace ?? this.isLoadingOnMassEditActivateProductMarketplace,

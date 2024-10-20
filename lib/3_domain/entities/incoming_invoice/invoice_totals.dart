@@ -3,10 +3,13 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'invoice_totals.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class InvoiceTotals extends Equatable {
+  @JsonKey(name: 'net_amount')
   final double netAmount;
+  @JsonKey(name: 'tax_amount')
   final double taxAmount;
+  @JsonKey(name: 'gross_amount')
   final double grossAmount;
 
   const InvoiceTotals({required this.netAmount, required this.taxAmount, required this.grossAmount});

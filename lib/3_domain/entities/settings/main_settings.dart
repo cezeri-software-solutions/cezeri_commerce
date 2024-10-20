@@ -27,6 +27,8 @@ class MainSettings extends Equatable {
   final String invoicePraefix;
   // @JsonKey(name: 'credit_praefix')
   final String creditPraefix;
+  // @JsonKey(name: 'incoming_invoice_praefix')
+  final String incomingInvoicePraefix;
   final String currency;
   // @JsonKey(name: 'sms_message')
   final String smsMessage;
@@ -49,6 +51,8 @@ class MainSettings extends Equatable {
   final int nextDeliveryNoteNumber;
   // @JsonKey(name: 'next_invoice_number')
   final int nextInvoiceNumber;
+  // @JsonKey(name: 'next_incoming_invoice_number')
+  final int nextIncomingInvoiceNumber;
   // @JsonKey(name: 'next_branch_number')
   final int nextBranchNumber;
   // @JsonKey(name: 'next_customer_number')
@@ -99,6 +103,7 @@ class MainSettings extends Equatable {
     required this.deliveryNotePraefix,
     required this.invoicePraefix,
     required this.creditPraefix,
+    required this.incomingInvoicePraefix,
     required this.currency,
     required this.smsMessage,
     required this.offerDocumentText,
@@ -111,6 +116,7 @@ class MainSettings extends Equatable {
     required this.nextAppointmentNumber,
     required this.nextDeliveryNoteNumber,
     required this.nextInvoiceNumber,
+    required this.nextIncomingInvoiceNumber,
     required this.nextBranchNumber,
     required this.nextCustomerNumber,
     required this.nextSupplierNumber,
@@ -146,6 +152,7 @@ class MainSettings extends Equatable {
       deliveryNotePraefix: 'LS-',
       invoicePraefix: 'RE-',
       creditPraefix: 'RK-',
+      incomingInvoicePraefix: 'ER-',
       currency: '€',
       smsMessage: '',
       offerDocumentText: '',
@@ -158,6 +165,7 @@ class MainSettings extends Equatable {
       nextAppointmentNumber: 1,
       nextDeliveryNoteNumber: 1,
       nextInvoiceNumber: 1,
+      nextIncomingInvoiceNumber: 1,
       nextBranchNumber: 1,
       nextCustomerNumber: 1,
       nextSupplierNumber: 1,
@@ -189,6 +197,7 @@ class MainSettings extends Equatable {
     String? deliveryNotePraefix,
     String? invoicePraefix,
     String? creditPraefix,
+    String? incomingInvoicePraefix,
     String? currency,
     String? smsMessage,
     String? offerDocumentText,
@@ -201,6 +210,7 @@ class MainSettings extends Equatable {
     int? nextAppointmentNumber,
     int? nextDeliveryNoteNumber,
     int? nextInvoiceNumber,
+    int? nextIncomingInvoiceNumber,
     int? nextBranchNumber,
     int? nextCustomerNumber,
     int? nextSupplierNumber,
@@ -230,6 +240,7 @@ class MainSettings extends Equatable {
       deliveryNotePraefix: deliveryNotePraefix ?? this.deliveryNotePraefix,
       invoicePraefix: invoicePraefix ?? this.invoicePraefix,
       creditPraefix: creditPraefix ?? this.creditPraefix,
+      incomingInvoicePraefix: incomingInvoicePraefix ?? this.incomingInvoicePraefix,
       currency: currency ?? this.currency,
       smsMessage: smsMessage ?? this.smsMessage,
       offerDocumentText: offerDocumentText ?? this.offerDocumentText,
@@ -242,6 +253,7 @@ class MainSettings extends Equatable {
       nextAppointmentNumber: nextAppointmentNumber ?? this.nextAppointmentNumber,
       nextDeliveryNoteNumber: nextDeliveryNoteNumber ?? this.nextDeliveryNoteNumber,
       nextInvoiceNumber: nextInvoiceNumber ?? this.nextInvoiceNumber,
+      nextIncomingInvoiceNumber: nextIncomingInvoiceNumber ?? this.nextIncomingInvoiceNumber,
       nextBranchNumber: nextBranchNumber ?? this.nextBranchNumber,
       nextCustomerNumber: nextCustomerNumber ?? this.nextCustomerNumber,
       nextSupplierNumber: nextSupplierNumber ?? this.nextSupplierNumber,

@@ -61,43 +61,13 @@ class CustomerRepositoryImpl implements CustomerRepository {
   }
 
   @override
-  Future<Either<AbstractFailure, List<Customer>>> getListOfAllCustomers() async {
-    if (!await checkInternetConnection()) return Left(NoConnectionFailure());
-
-    final ownerId = await getOwnerId();
-    if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
-
-    const limit = 1000; // Anzahl der Zeilen pro Abfrage
-    int offset = 0; // Startposition
-    final allCustomers = <Customer>[];
-
-    try {
-      while (true) {
-        final response = await supabase.from('d_customers').select().eq('ownerId', ownerId).range(offset, offset + limit - 1);
-
-        if (response.isEmpty) break;
-
-        final listOfCustomers = response.map((e) => Customer.fromJson(e)).toList();
-        allCustomers.addAll(listOfCustomers);
-
-        offset += limit; // Offset für die nächste Abfrage erhöhen
-      }
-
-      return Right(allCustomers);
-    } catch (e) {
-      logger.e(e);
-      return Left(GeneralFailure(customMessage: 'Beim Laden der Kunden ist ein Fehler aufgetreten. Error: $e'));
-    }
-  }
-
-  @override
   Future<Either<AbstractFailure, int>> getTotalNumberOfCustomersBySearchText(String searchText) async {
     if (!await checkInternetConnection()) return Left(NoConnectionFailure());
     final ownerId = await getOwnerId();
     if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
     try {
-      final response = await supabase.rpc('get_customers_count_by_search_text', params: {'owner_id': ownerId, 'search_text': searchText});
+      final response = await supabase.rpc('get_customers_count', params: {'owner_id': ownerId, 'search_text': searchText});
 
       return Right(response);
     } catch (e) {
@@ -117,7 +87,7 @@ class CustomerRepositoryImpl implements CustomerRepository {
     if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
     try {
-      final response = await supabase.rpc('get_customers_by_search_text', params: {
+      final response = await supabase.rpc('get_customers', params: {
         'owner_id': ownerId,
         'search_text': searchText,
         'current_page': currentPage,

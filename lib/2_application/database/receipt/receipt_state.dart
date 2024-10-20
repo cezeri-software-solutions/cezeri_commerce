@@ -124,7 +124,7 @@ class ReceiptState {
         fosProductOnObserveOption: none(),
         fosParcelLabelOnCreate: none(),
         perPageQuantity: 20,
-        totalQuantity: 0,
+        totalQuantity: 1,
         currentPage: 1,
         isAllReceiptsSeledcted: false,
         isExpanded: const [],

@@ -64,7 +64,6 @@ class GeneralLedgerAccountRepositoryImpl implements GeneralLedgerAccountReposito
 
     try {
       final response = await query;
-      print(response);
 
       if (response.isEmpty) return const Right([]);
       final listOfGLAccounts = response.map((e) => GeneralLedgerAccount.fromJson(e)).toList();

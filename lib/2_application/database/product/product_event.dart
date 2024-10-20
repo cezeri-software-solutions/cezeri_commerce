@@ -23,12 +23,6 @@ class GetProductsPerPageEvent extends ProductEvent {
   });
 }
 
-class GetFilteredProductsBySearchTextEvent extends ProductEvent {
-  final int currentPage;
-
-  GetFilteredProductsBySearchTextEvent({required this.currentPage});
-}
-
 class GetProductEvent extends ProductEvent {
   final String id;
 
@@ -40,8 +34,6 @@ class DeleteSelectedProductsEvent extends ProductEvent {
 
   DeleteSelectedProductsEvent({required this.selectedProducts});
 }
-
-class OnProductSearchControllerClearedEvent extends ProductEvent {}
 
 class OnSearchFieldClearedEvent extends ProductEvent {}
 
@@ -56,8 +48,6 @@ class OnProductSelectedEvent extends ProductEvent {
 
   OnProductSelectedEvent({required this.product});
 }
-
-class OnProductGetSuppliersEvent extends ProductEvent {}
 
 class SetProductIsLoadingPdfEvent extends ProductEvent {
   final bool value;

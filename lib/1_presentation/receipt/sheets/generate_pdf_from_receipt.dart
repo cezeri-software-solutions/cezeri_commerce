@@ -40,9 +40,9 @@ Future<void> onGeneratePdfFromReceipt({required BuildContext context, required R
                 onTap: () async {
                   if (context.mounted) context.router.maybePop();
                   if (kIsWeb) {
-                    await PdfApiWeb.saveDocument(name: '$receiptName.pdf', byteList: generatedPdf, showInBrowser: true);
+                    await PdfApiWeb.openPdf(name: '$receiptName.pdf', byteList: generatedPdf, showInBrowser: true);
                   } else {
-                    await PdfApiMobile.saveDocument(name: '$receiptName.pdf', byteList: generatedPdf);
+                    await PdfApiMobile.openPdf(name: '$receiptName.pdf', byteList: generatedPdf);
                   }
                 },
               ),
@@ -52,7 +52,7 @@ Future<void> onGeneratePdfFromReceipt({required BuildContext context, required R
                   title: const Text('Herunterladen'),
                   onTap: () async {
                     if (context.mounted) context.router.maybePop();
-                    await PdfApiWeb.saveDocument(name: '$receiptName.pdf', byteList: generatedPdf, showInBrowser: false);
+                    await PdfApiWeb.openPdf(name: '$receiptName.pdf', byteList: generatedPdf, showInBrowser: false);
                   },
                 ),
               ListTile(

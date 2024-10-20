@@ -1,4 +1,3 @@
-import 'package:auto_route/auto_route.dart';
 import 'package:cezeri_commerce/1_presentation/settings/settings/widgets/my_settings_list_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -11,7 +10,6 @@ import '../../../3_domain/entities/settings/payment_method.dart';
 import '../../../constants.dart';
 import '../../app_drawer.dart';
 import '../../core/core.dart';
-import 'widgets/add_payment_method.dart';
 
 class MainSettingsPage extends StatefulWidget {
   final MainSettings mSettings;
@@ -43,10 +41,12 @@ class _MainSettingsPageState extends State<MainSettingsPage> {
   late TextEditingController _deliveryNotePraefixController = TextEditingController();
   late TextEditingController _invoicePraefixController = TextEditingController();
   late TextEditingController _creditPraefixController = TextEditingController();
+  late TextEditingController _incomingInvoicePraefixController = TextEditingController();
   late TextEditingController _nextOfferNumberController = TextEditingController();
   late TextEditingController _nextAppointmentNumberController = TextEditingController();
   late TextEditingController _nextDeliveryNoteNumberController = TextEditingController();
   late TextEditingController _nextInvoiceNumberController = TextEditingController();
+  late TextEditingController _nextIncomingInvoiceNumberController = TextEditingController();
   late TextEditingController _nextCustomerNumberController = TextEditingController();
   late TextEditingController _nextSupplierNumberController = TextEditingController();
   late TextEditingController _nextReorderNumberController = TextEditingController();
@@ -78,10 +78,12 @@ class _MainSettingsPageState extends State<MainSettingsPage> {
     _deliveryNotePraefixController = TextEditingController(text: widget.mSettings.deliveryNotePraefix);
     _invoicePraefixController = TextEditingController(text: widget.mSettings.invoicePraefix);
     _creditPraefixController = TextEditingController(text: widget.mSettings.creditPraefix);
+    _incomingInvoicePraefixController = TextEditingController(text: widget.mSettings.incomingInvoicePraefix);
     _nextOfferNumberController = TextEditingController(text: widget.mSettings.nextOfferNumber.toString());
     _nextAppointmentNumberController = TextEditingController(text: widget.mSettings.nextAppointmentNumber.toString());
     _nextDeliveryNoteNumberController = TextEditingController(text: widget.mSettings.nextDeliveryNoteNumber.toString());
     _nextInvoiceNumberController = TextEditingController(text: widget.mSettings.nextInvoiceNumber.toString());
+    _nextIncomingInvoiceNumberController = TextEditingController(text: widget.mSettings.nextIncomingInvoiceNumber.toString());
     _nextCustomerNumberController = TextEditingController(text: widget.mSettings.nextCustomerNumber.toString());
     _nextSupplierNumberController = TextEditingController(text: widget.mSettings.nextSupplierNumber.toString());
     _nextReorderNumberController = TextEditingController(text: widget.mSettings.nextReorderNumber.toString());
@@ -132,12 +134,12 @@ class _MainSettingsPageState extends State<MainSettingsPage> {
                           const Divider(),
                           MySettingsListTile(
                             title: 'Zahlungsziel in Tagen',
-                            trailing: TextField(controller: _termOfPaymentController),
+                            trailing: MyTextFormFieldSmall(controller: _termOfPaymentController),
                           ),
                           // TODO: Implement UI for selecting default USt.
                           MySettingsListTile(
                             title: 'USt.',
-                            trailing: TextField(controller: _termOfPaymentController),
+                            trailing: MyTextFormFieldSmall(controller: _termOfPaymentController),
                           ),
                           MySettingsListTile(
                             title: 'Kleinunternehmerregelung',
@@ -145,14 +147,12 @@ class _MainSettingsPageState extends State<MainSettingsPage> {
                           ),
                           MySettingsListTile(
                             title: 'Währung',
-                            divider: false,
                             trailing: DropdownButtonHideUnderline(
-                              child: DropdownButton<String>(
+                              child: MyDropdownButtonSmall(
                                 value: _selectedCurrencyItem,
-                                items: currencyItems
-                                    .map((currencyItem) => DropdownMenuItem<String>(value: currencyItem, child: Text(currencyItem)))
-                                    .toList(),
                                 onChanged: (currencyItem) => setState(() => _selectedCurrencyItem = currencyItem!),
+                                items: currencyItems,
+                                maxWidth: 100,
                               ),
                             ),
                             trailingWidth: 100,
@@ -169,7 +169,7 @@ class _MainSettingsPageState extends State<MainSettingsPage> {
                           const Divider(),
                           MySettingsListTile(
                             title: 'Präfix Angebot.',
-                            trailing: TextField(
+                            trailing: MyTextFormFieldSmall(
                               controller: _offerPraefixController,
                               textCapitalization: TextCapitalization.characters,
                             ),
@@ -177,7 +177,7 @@ class _MainSettingsPageState extends State<MainSettingsPage> {
                           ),
                           MySettingsListTile(
                             title: 'Präfix Auftrag.',
-                            trailing: TextField(
+                            trailing: MyTextFormFieldSmall(
                               controller: _appointmentPraefixController,
                               textCapitalization: TextCapitalization.characters,
                             ),
@@ -185,7 +185,7 @@ class _MainSettingsPageState extends State<MainSettingsPage> {
                           ),
                           MySettingsListTile(
                             title: 'Präfix Lieferschein.',
-                            trailing: TextField(
+                            trailing: MyTextFormFieldSmall(
                               controller: _deliveryNotePraefixController,
                               textCapitalization: TextCapitalization.characters,
                             ),
@@ -193,7 +193,7 @@ class _MainSettingsPageState extends State<MainSettingsPage> {
                           ),
                           MySettingsListTile(
                             title: 'Präfix Rechnung.',
-                            trailing: TextField(
+                            trailing: MyTextFormFieldSmall(
                               controller: _invoicePraefixController,
                               textCapitalization: TextCapitalization.characters,
                             ),
@@ -201,15 +201,24 @@ class _MainSettingsPageState extends State<MainSettingsPage> {
                           ),
                           MySettingsListTile(
                             title: 'Präfix Rechnungskorrektur.',
-                            trailing: TextField(
+                            trailing: MyTextFormFieldSmall(
                               controller: _creditPraefixController,
                               textCapitalization: TextCapitalization.characters,
                             ),
                             trailingWidth: 80,
                           ),
                           MySettingsListTile(
+                            title: 'Präfix Eingangsrechnung.',
+                            trailing: MyTextFormFieldSmall(
+                              controller: _incomingInvoicePraefixController,
+                              textCapitalization: TextCapitalization.characters,
+                            ),
+                            trailingWidth: 80,
+                          ),
+                          Gaps.h24,
+                          MySettingsListTile(
                             title: 'Nächste Angebotsnummer.',
-                            trailing: TextField(
+                            trailing: MyTextFormFieldSmall(
                               controller: _nextOfferNumberController,
                               keyboardType: TextInputType.number,
                             ),
@@ -217,7 +226,7 @@ class _MainSettingsPageState extends State<MainSettingsPage> {
                           ),
                           MySettingsListTile(
                             title: 'Nächste Auftragsnummer.',
-                            trailing: TextField(
+                            trailing: MyTextFormFieldSmall(
                               controller: _nextAppointmentNumberController,
                               keyboardType: TextInputType.number,
                             ),
@@ -225,7 +234,7 @@ class _MainSettingsPageState extends State<MainSettingsPage> {
                           ),
                           MySettingsListTile(
                             title: 'Nächste Lieferscheinnummer.',
-                            trailing: TextField(
+                            trailing: MyTextFormFieldSmall(
                               controller: _nextDeliveryNoteNumberController,
                               keyboardType: TextInputType.number,
                             ),
@@ -233,15 +242,24 @@ class _MainSettingsPageState extends State<MainSettingsPage> {
                           ),
                           MySettingsListTile(
                             title: 'Nächste Rechnungsnummer.',
-                            trailing: TextField(
+                            trailing: MyTextFormFieldSmall(
                               controller: _nextInvoiceNumberController,
                               keyboardType: TextInputType.number,
                             ),
                             trailingWidth: 80,
                           ),
                           MySettingsListTile(
+                            title: 'Nächste Eingangsrechnungsnummer.',
+                            trailing: MyTextFormFieldSmall(
+                              controller: _nextIncomingInvoiceNumberController,
+                              keyboardType: TextInputType.number,
+                            ),
+                            trailingWidth: 80,
+                          ),
+                          Gaps.h24,
+                          MySettingsListTile(
                             title: 'Nächste Kundennummer.',
-                            trailing: TextField(
+                            trailing: MyTextFormFieldSmall(
                               controller: _nextCustomerNumberController,
                               keyboardType: TextInputType.number,
                             ),
@@ -249,7 +267,7 @@ class _MainSettingsPageState extends State<MainSettingsPage> {
                           ),
                           MySettingsListTile(
                             title: 'Nächste Lieferantennummer.',
-                            trailing: TextField(
+                            trailing: MyTextFormFieldSmall(
                               controller: _nextSupplierNumberController,
                               keyboardType: TextInputType.number,
                             ),
@@ -257,7 +275,7 @@ class _MainSettingsPageState extends State<MainSettingsPage> {
                           ),
                           MySettingsListTile(
                             title: 'Nächste Nachbestellnummer.',
-                            trailing: TextField(
+                            trailing: MyTextFormFieldSmall(
                               controller: _nextReorderNumberController,
                               keyboardType: TextInputType.number,
                             ),
@@ -269,86 +287,31 @@ class _MainSettingsPageState extends State<MainSettingsPage> {
                     Gaps.h24,
                     MyFormFieldContainer(
                       child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const SizedBox(),
-                              const Text('Zahlungsarten', style: TextStyles.h3BoldPrimary),
-                              IconButton(
-                                onPressed: () => showModalBottomSheet(
-                                    context: context,
-                                    isScrollControlled: true,
-                                    builder: (_) => AddPaymentMethode(addToPaymentMethods: _addToPaymentMethods)),
-                                icon: const Icon(Icons.add, color: Colors.green),
-                              ),
-                            ],
-                          ),
-                          const Divider(),
-                          if (_paymentMethods.isEmpty)
-                            const SizedBox(
-                              height: 100,
-                              child: Center(
-                                child: Text('Keine Zahlungsarten vorhanden'),
-                              ),
-                            ),
-                          ListView.builder(
-                            physics: const NeverScrollableScrollPhysics(),
-                            padding: EdgeInsets.zero,
-                            shrinkWrap: true,
-                            itemCount: _paymentMethods.length,
-                            itemBuilder: (context, index) {
-                              return MySettingsListTile(
-                                title: _paymentMethods[index].name,
-                                divider: index != _paymentMethods.length - 1,
-                                onPressed: () {},
-                                trailing: IconButton(
-                                  icon: const Icon(Icons.delete),
-                                  color: Colors.red,
-                                  onPressed: () => showMyDialogDelete(
-                                    context: context,
-                                    onConfirm: () {
-                                      _removeFromPaymentMethods(index);
-                                      context.router.maybePop();
-                                    },
-                                    content: 'Bist du sicher, dass du diese Zahlungsmethode löschen willst?',
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                    Gaps.h24,
-                    MyFormFieldContainer(
-                      child: Column(
                         children: [
                           const Text('Bankdaten', style: TextStyles.h3BoldPrimary),
                           const Divider(),
                           Gaps.h10,
-                          MyTextFormField(
+                          MyTextFormFieldSmall(
                             controller: _bankNameController,
-                            labelText: 'Bankname',
+                            fieldTitle: 'Bankname',
                             textCapitalization: TextCapitalization.sentences,
                           ),
                           Gaps.h16,
-                          MyTextFormField(
+                          MyTextFormFieldSmall(
                             controller: _bankIbanController,
-                            labelText: 'IBAN',
+                            fieldTitle: 'IBAN',
                             textCapitalization: TextCapitalization.sentences,
                           ),
                           Gaps.h16,
-                          MyTextFormField(
+                          MyTextFormFieldSmall(
                             controller: _bankBicController,
-                            labelText: 'BIC',
+                            fieldTitle: 'BIC',
                             textCapitalization: TextCapitalization.sentences,
                           ),
                           Gaps.h16,
-                          MyTextFormField(
+                          MyTextFormFieldSmall(
                             controller: _paypalEmailController,
-                            labelText: 'PayPal E-Mail',
+                            fieldTitle: 'PayPal E-Mail',
                             textCapitalization: TextCapitalization.none,
                           ),
                         ],
@@ -399,37 +362,37 @@ class _MainSettingsPageState extends State<MainSettingsPage> {
                           const Text('Dokumenttexte', style: TextStyles.h3BoldPrimary),
                           const Divider(),
                           Gaps.h10,
-                          MyTextFormField(
+                          MyTextFormFieldSmall(
                             controller: _offerDocumentTextController,
-                            labelText: 'Angebotstext',
+                            fieldTitle: 'Angebotstext',
                             maxLines: 3,
                             textCapitalization: TextCapitalization.sentences,
                           ),
                           const SizedBox(height: 20),
-                          MyTextFormField(
+                          MyTextFormFieldSmall(
                             controller: _appointmentDocumentTextController,
-                            labelText: 'Auftragstext',
+                            fieldTitle: 'Auftragstext',
                             maxLines: 3,
                             textCapitalization: TextCapitalization.sentences,
                           ),
                           const SizedBox(height: 20),
-                          MyTextFormField(
+                          MyTextFormFieldSmall(
                             controller: _deliveryNoteDocumentTextController,
-                            labelText: 'Lieferscheintext',
+                            fieldTitle: 'Lieferscheintext',
                             maxLines: 3,
                             textCapitalization: TextCapitalization.sentences,
                           ),
                           const SizedBox(height: 20),
-                          MyTextFormField(
+                          MyTextFormFieldSmall(
                             controller: _invoiceDocumentTextController,
-                            labelText: 'Rechnungstext',
+                            fieldTitle: 'Rechnungstext',
                             maxLines: 3,
                             textCapitalization: TextCapitalization.sentences,
                           ),
                           const SizedBox(height: 20),
-                          MyTextFormField(
+                          MyTextFormFieldSmall(
                             controller: _creditDocumentTextController,
-                            labelText: 'Rechnungskorrekturtext',
+                            fieldTitle: 'Rechnungskorrekturtext',
                             maxLines: 3,
                             textCapitalization: TextCapitalization.sentences,
                           ),
@@ -447,15 +410,6 @@ class _MainSettingsPageState extends State<MainSettingsPage> {
     );
   }
 
-  void _addToPaymentMethods(String paymentMethod) {
-    // if (_paymentMethods.any((e) => e == paymentMethod)) return;
-    // setState(() => _paymentMethods.add(paymentMethod));
-  }
-
-  void _removeFromPaymentMethods(int index) {
-    setState(() => _paymentMethods.removeAt(index));
-  }
-
   void _onSaveSettings() {
     final updatedMainSettings = widget.mSettings.copyWith(
       offerPraefix: _offerPraefixController.text,
@@ -463,6 +417,7 @@ class _MainSettingsPageState extends State<MainSettingsPage> {
       deliveryNotePraefix: _deliveryNotePraefixController.text,
       invoicePraefix: _invoicePraefixController.text,
       creditPraefix: _creditPraefixController.text,
+      incomingInvoicePraefix: _incomingInvoicePraefixController.text,
       currency: _selectedCurrencyItem,
       offerDocumentText: _offerDocumentTextController.text,
       appointmentDocumentText: _appointmentDocumentTextController.text,
@@ -473,6 +428,7 @@ class _MainSettingsPageState extends State<MainSettingsPage> {
       nextAppointmentNumber: int.parse(_nextAppointmentNumberController.text),
       nextDeliveryNoteNumber: int.parse(_nextDeliveryNoteNumberController.text),
       nextInvoiceNumber: int.parse(_nextInvoiceNumberController.text),
+      nextIncomingInvoiceNumber: int.parse(_nextIncomingInvoiceNumberController.text),
       nextCustomerNumber: int.parse(_nextCustomerNumberController.text),
       nextSupplierNumber: int.parse(_nextSupplierNumberController.text),
       nextReorderNumber: int.parse(_nextReorderNumberController.text),

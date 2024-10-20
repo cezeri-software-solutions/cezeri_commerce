@@ -1,4 +1,3 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 part of 'supplier_bloc.dart';
 
 @immutable
@@ -21,10 +20,13 @@ class SupplierState {
   final Option<Either<List<AbstractFailure>, Unit>> fosSupplierOnDeleteOption;
 
   //* Helpers
+  final int perPageQuantity;
+  final int totalQuantity;
+  final int currentPage;
   final bool isAllSuppliersSelected;
-  final String supplierSearchText;
 
   //* Controller
+  final SearchController searchController; 
   final TextEditingController companyNameController;
   final TextEditingController firstNameController;
   final TextEditingController lastNameController;
@@ -50,8 +52,11 @@ class SupplierState {
     required this.fosSupplierOnCreateOption,
     required this.fosSupplierOnUpdateOption,
     required this.fosSupplierOnDeleteOption,
+    required this.perPageQuantity,
+    required this.totalQuantity,
+    required this.currentPage,
     required this.isAllSuppliersSelected,
-    required this.supplierSearchText,
+    required this.searchController,
     required this.companyNameController,
     required this.firstNameController,
     required this.lastNameController,
@@ -79,8 +84,11 @@ class SupplierState {
       fosSupplierOnCreateOption: none(),
       fosSupplierOnUpdateOption: none(),
       fosSupplierOnDeleteOption: none(),
+      perPageQuantity: 20,
+      totalQuantity: 1,
+      currentPage: 1,
       isAllSuppliersSelected: false,
-      supplierSearchText: '',
+      searchController: SearchController(),
       companyNameController: TextEditingController(),
       firstNameController: TextEditingController(),
       lastNameController: TextEditingController(),
@@ -108,8 +116,11 @@ class SupplierState {
     Option<Either<AbstractFailure, Supplier>>? fosSupplierOnCreateOption,
     Option<Either<AbstractFailure, Supplier>>? fosSupplierOnUpdateOption,
     Option<Either<List<AbstractFailure>, Unit>>? fosSupplierOnDeleteOption,
+    int? perPageQuantity,
+    int? totalQuantity,
+    int? currentPage,
     bool? isAllSuppliersSelected,
-    String? supplierSearchText,
+    SearchController? searchController,
     TextEditingController? companyNameController,
     TextEditingController? firstNameController,
     TextEditingController? lastNameController,
@@ -135,8 +146,11 @@ class SupplierState {
       fosSupplierOnCreateOption: fosSupplierOnCreateOption ?? this.fosSupplierOnCreateOption,
       fosSupplierOnUpdateOption: fosSupplierOnUpdateOption ?? this.fosSupplierOnUpdateOption,
       fosSupplierOnDeleteOption: fosSupplierOnDeleteOption ?? this.fosSupplierOnDeleteOption,
+      perPageQuantity: perPageQuantity ?? this.perPageQuantity,
+      totalQuantity: totalQuantity ?? this.totalQuantity,
+      currentPage: currentPage ?? this.currentPage,
       isAllSuppliersSelected: isAllSuppliersSelected ?? this.isAllSuppliersSelected,
-      supplierSearchText: supplierSearchText ?? this.supplierSearchText,
+      searchController: searchController ?? this.searchController,
       companyNameController: companyNameController ?? this.companyNameController,
       firstNameController: firstNameController ?? this.firstNameController,
       lastNameController: lastNameController ?? this.lastNameController,

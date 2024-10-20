@@ -52,22 +52,12 @@ class ReorderDetailHeaderContainer extends StatelessWidget {
                         Container(
                           height: 30,
                           decoration: BoxDecoration(
-                            color: switch (state.reorder!.reorderStatus) {
-                              ReorderStatus.open => CustomColors.backgroundLightGrey,
-                              ReorderStatus.partiallyCompleted => CustomColors.backgroundLightOrange,
-                              ReorderStatus.completed => CustomColors.backgroundLightGreen,
-                            },
+                            color: state.reorder!.reorderStatus.toColor(),
                             borderRadius: BorderRadius.circular(30),
                           ),
                           child: Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                            child: Center(
-                              child: switch (state.reorder!.reorderStatus) {
-                                ReorderStatus.open => const Text('Offen'),
-                                ReorderStatus.partiallyCompleted => const Text('Teilweise offen'),
-                                ReorderStatus.completed => const Text('Geschlossen'),
-                              },
-                            ),
+                            child: Center(child: Text(state.reorder!.reorderStatus.convert())),
                           ),
                         ),
                       ],

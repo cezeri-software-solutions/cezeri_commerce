@@ -147,7 +147,7 @@ class _ReceiptDetailGeneralCardState extends State<ReceiptDetailGeneralCard> {
             ),
             Gaps.h16,
             MyDropdownButtonSmall(
-              labelText: 'Marktplatz',
+              fieldTitle: 'Marktplatz',
               value: selectedMarketplaceName,
               onChanged: (marketplaceName) {
                 //selectedMarketplaceName = marketplaceName!;

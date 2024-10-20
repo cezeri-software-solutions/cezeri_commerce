@@ -1,6 +1,8 @@
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 
+import '../reorder/supplier.dart';
+
 part 'incoming_invoice_supplier.g.dart';
 
 @JsonSerializable(explicitToJson: true)
@@ -9,6 +11,8 @@ class IncomingInvoiceSupplier extends Equatable {
   final String id;
   @JsonKey(name: 'supplier_id')
   final String supplierId;
+  @JsonKey(name: 'supplier_number')
+  final int supplierNumber;
   final String company;
   @JsonKey(name: 'first_name')
   final String firstName;
@@ -35,6 +39,7 @@ class IncomingInvoiceSupplier extends Equatable {
   IncomingInvoiceSupplier({
     required this.id,
     required this.supplierId,
+    required this.supplierNumber,
     required this.company,
     required this.firstName,
     required this.lastName,
@@ -51,10 +56,7 @@ class IncomingInvoiceSupplier extends Equatable {
   }) : name = _createName(firstName, lastName);
 
   static String _createName(String firstName, String lastName) {
-    final names = [
-      firstName,
-      lastName,
-    ].where((element) => element.isNotEmpty);
+    final names = [firstName, lastName].where((element) => element.isNotEmpty);
 
     if (names.isEmpty) return '';
     return names.join(' ');
@@ -67,6 +69,7 @@ class IncomingInvoiceSupplier extends Equatable {
     return IncomingInvoiceSupplier(
       id: '',
       supplierId: '',
+      supplierNumber: 0,
       company: '',
       firstName: '',
       lastName: '',
@@ -83,9 +86,31 @@ class IncomingInvoiceSupplier extends Equatable {
     );
   }
 
+  factory IncomingInvoiceSupplier.fromSupplier(Supplier supplier) {
+    return IncomingInvoiceSupplier(
+      id: '',
+      supplierId: supplier.id,
+      supplierNumber: supplier.supplierNumber,
+      company: supplier.company,
+      firstName: supplier.firstName,
+      lastName: supplier.lastName,
+      street: supplier.street,
+      postcode: supplier.postcode,
+      city: supplier.city,
+      country: supplier.country.name,
+      phone: supplier.phone,
+      uidNumber: supplier.uidNumber,
+      bankName: null,
+      bankIban: null,
+      bankBic: null,
+      paypalEmail: null,
+    );
+  }
+
   IncomingInvoiceSupplier copyWith({
     String? id,
     String? supplierId,
+    int? supplierNumber,
     String? company,
     String? firstName,
     String? lastName,
@@ -103,6 +128,7 @@ class IncomingInvoiceSupplier extends Equatable {
     return IncomingInvoiceSupplier(
       id: id ?? this.id,
       supplierId: supplierId ?? this.supplierId,
+      supplierNumber: supplierNumber ?? this.supplierNumber,
       company: company ?? this.company,
       firstName: firstName ?? this.firstName,
       lastName: lastName ?? this.lastName,
@@ -123,6 +149,7 @@ class IncomingInvoiceSupplier extends Equatable {
   List<Object?> get props => [
         id,
         supplierId,
+        supplierNumber,
         company,
         firstName,
         lastName,

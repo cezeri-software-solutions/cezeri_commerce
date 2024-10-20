@@ -8,14 +8,14 @@ part of 'invoice_totals.dart';
 
 InvoiceTotals _$InvoiceTotalsFromJson(Map<String, dynamic> json) =>
     InvoiceTotals(
-      netAmount: (json['netAmount'] as num).toDouble(),
-      taxAmount: (json['taxAmount'] as num).toDouble(),
-      grossAmount: (json['grossAmount'] as num).toDouble(),
+      netAmount: (json['net_amount'] as num).toDouble(),
+      taxAmount: (json['tax_amount'] as num).toDouble(),
+      grossAmount: (json['gross_amount'] as num).toDouble(),
     );
 
 Map<String, dynamic> _$InvoiceTotalsToJson(InvoiceTotals instance) =>
     <String, dynamic>{
-      'netAmount': instance.netAmount,
-      'taxAmount': instance.taxAmount,
-      'grossAmount': instance.grossAmount,
+      'net_amount': instance.netAmount,
+      'tax_amount': instance.taxAmount,
+      'gross_amount': instance.grossAmount,
     };

@@ -20,6 +20,8 @@ class GeneralLedgerAccount implements Equatable {
   @JsonKey(name: 'general_ledger_account')
   final String generalLedgerAccount; //* Besteht aus den oberen 4
   final String name;
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  final String accountAsString;
   @JsonKey(name: 'is_active')
   final bool isActive;
   @JsonKey(name: 'is_visible')
@@ -36,7 +38,15 @@ class GeneralLedgerAccount implements Equatable {
   })  : accountClass = generalLedgerAccount.isNotEmpty ? generalLedgerAccount[0] : '0',
         accountGroup = generalLedgerAccount.length > 1 ? generalLedgerAccount.substring(1, 2) : '0',
         accountSubGroup = generalLedgerAccount.length > 2 ? generalLedgerAccount.substring(2, 3) : '0',
-        individualAccount = generalLedgerAccount.length > 3 ? generalLedgerAccount.substring(3, 4) : '0';
+        individualAccount = generalLedgerAccount.length > 3 ? generalLedgerAccount.substring(3, 4) : '0',
+        accountAsString = _createAccountName(generalLedgerAccount, name);
+
+  static String _createAccountName(String number, String name) {
+    final names = [number, name].where((element) => element.isNotEmpty);
+
+    if (names.isEmpty) return '';
+    return names.join(' ');
+  }
 
   factory GeneralLedgerAccount.fromJson(Map<String, dynamic> json) => _$GeneralLedgerAccountFromJson(json);
   Map<String, dynamic> toJson() => _$GeneralLedgerAccountToJson(this);

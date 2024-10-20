@@ -84,7 +84,7 @@ class _GeneralLedgerAccountScreenState extends State<GeneralLedgerAccountScreen>
             final fab = FloatingActionButton(
               onPressed: () {
                 gLAccountBloc.add(SetGLAccountEvent(gLAccount: GeneralLedgerAccount.empty()));
-                addEditGLSAccount(context, gLAccountBloc, null);
+                addEditGLAccount(context, gLAccountBloc, null);
               },
               child: const Icon(Icons.add, color: Colors.white),
             );

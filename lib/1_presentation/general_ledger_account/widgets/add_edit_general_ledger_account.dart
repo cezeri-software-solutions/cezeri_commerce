@@ -8,7 +8,7 @@ import '../../../3_domain/entities/settings/general_ledger_account.dart';
 import '../../../constants.dart';
 import '../../core/core.dart';
 
-void addEditGLSAccount(BuildContext context, GeneralLedgerAccountBloc gLAccountBloc, GeneralLedgerAccount? gLAccount) {
+void addEditGLAccount(BuildContext context, GeneralLedgerAccountBloc gLAccountBloc, GeneralLedgerAccount? gLAccount) {
   final trailing = IconButton(
     padding: const EdgeInsets.only(right: 24),
     icon: const Icon(Icons.close),

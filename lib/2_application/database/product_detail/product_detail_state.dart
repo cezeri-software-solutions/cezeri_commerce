@@ -3,7 +3,6 @@ part of 'product_detail_bloc.dart';
 class ProductDetailState {
   final Product? product;
   final Product? originalProduct;
-  final List<Supplier>? listOfSuppliers;
   final List<AbstractMarketplace>? listOfNotSynchronizedMarketplaces;
   final MainSettings? mainSettings;
   final AbstractFailure? firebaseFailure;
@@ -14,7 +13,6 @@ class ProductDetailState {
   final bool isLoadingProductOnUpdateImages;
   final bool isLoadingProductOnUploadImages;
   final bool isLoadingProductOnDelete;
-  final bool isLoadingProductSuppliersOnObseve;
   final bool isLoadingProductMarketplacesOnObseve;
   final bool isLoadingProductOnCreateInMarketplaces;
   final bool isLoadingOnDeleteMarketplaceFromProduct; // Aktuelle nicht genutz (Artikel wird im Marktplatz nicht gelöscht)
@@ -23,7 +21,6 @@ class ProductDetailState {
   final Option<Either<AbstractFailure, Product>> fosProductOnUpdateOption;
   final Option<Either<AbstractFailure, Product>> fosProductOnUpdateImagesOption;
   final Option<Either<AbstractFailure, Unit>> fosProductOnDeleteOption;
-  final Option<Either<AbstractFailure, List<Supplier>>> fosProductSuppliersOnObserveOption;
   final Option<Either<AbstractFailure, List<AbstractMarketplace>>> fosProductMarketplacesOnObserveOption;
   final Option<Either<List<AbstractFailure>, Unit>> fosProductOnUploadImagesInMarketplaceOption;
   final Option<Either<List<AbstractFailure>, Unit>> fosProductOnUpdateInMarketplaceOption;
@@ -79,7 +76,6 @@ class ProductDetailState {
   ProductDetailState({
     required this.product,
     required this.originalProduct,
-    required this.listOfSuppliers,
     required this.listOfNotSynchronizedMarketplaces,
     required this.mainSettings,
     required this.firebaseFailure,
@@ -90,7 +86,6 @@ class ProductDetailState {
     required this.isLoadingProductOnUpdateImages,
     required this.isLoadingProductOnUploadImages,
     required this.isLoadingProductOnDelete,
-    required this.isLoadingProductSuppliersOnObseve,
     required this.isLoadingProductMarketplacesOnObseve,
     required this.isLoadingProductOnCreateInMarketplaces,
     required this.isLoadingOnDeleteMarketplaceFromProduct,
@@ -99,7 +94,6 @@ class ProductDetailState {
     required this.fosProductOnUpdateOption,
     required this.fosProductOnUpdateImagesOption,
     required this.fosProductOnDeleteOption,
-    required this.fosProductSuppliersOnObserveOption,
     required this.fosProductMarketplacesOnObserveOption,
     required this.fosProductOnUploadImagesInMarketplaceOption,
     required this.fosProductOnUpdateInMarketplaceOption,
@@ -150,7 +144,6 @@ class ProductDetailState {
     return ProductDetailState(
       product: null,
       originalProduct: null,
-      listOfSuppliers: null,
       listOfNotSynchronizedMarketplaces: null,
       mainSettings: null,
       firebaseFailure: null,
@@ -161,7 +154,6 @@ class ProductDetailState {
       isLoadingProductOnUpdateImages: false,
       isLoadingProductOnUploadImages: false,
       isLoadingProductOnDelete: false,
-      isLoadingProductSuppliersOnObseve: false,
       isLoadingProductMarketplacesOnObseve: false,
       isLoadingProductOnCreateInMarketplaces: false,
       isLoadingOnDeleteMarketplaceFromProduct: false,
@@ -170,7 +162,6 @@ class ProductDetailState {
       fosProductOnUpdateOption: none(),
       fosProductOnUpdateImagesOption: none(),
       fosProductOnDeleteOption: none(),
-      fosProductSuppliersOnObserveOption: none(),
       fosProductMarketplacesOnObserveOption: none(),
       fosProductOnUploadImagesInMarketplaceOption: none(),
       fosProductOnUpdateInMarketplaceOption: none(),
@@ -221,7 +212,6 @@ class ProductDetailState {
   ProductDetailState copyWith({
     Product? product,
     Product? originalProduct,
-    List<Supplier>? listOfSuppliers,
     List<AbstractMarketplace>? listOfNotSynchronizedMarketplaces,
     MainSettings? mainSettings,
     AbstractFailure? firebaseFailure,
@@ -232,7 +222,6 @@ class ProductDetailState {
     bool? isLoadingProductOnUpdateImages,
     bool? isLoadingProductOnUploadImages,
     bool? isLoadingProductOnDelete,
-    bool? isLoadingProductSuppliersOnObseve,
     bool? isLoadingProductMarketplacesOnObseve,
     bool? isLoadingProductOnCreateInMarketplaces,
     bool? isLoadingOnDeleteMarketplaceFromProduct,
@@ -241,7 +230,6 @@ class ProductDetailState {
     Option<Either<AbstractFailure, Product>>? fosProductOnUpdateOption,
     Option<Either<AbstractFailure, Product>>? fosProductOnUpdateImagesOption,
     Option<Either<AbstractFailure, Unit>>? fosProductOnDeleteOption,
-    Option<Either<AbstractFailure, List<Supplier>>>? fosProductSuppliersOnObserveOption,
     Option<Either<AbstractFailure, List<AbstractMarketplace>>>? fosProductMarketplacesOnObserveOption,
     Option<Either<List<AbstractFailure>, Unit>>? fosProductOnUploadImagesInMarketplaceOption,
     Option<Either<List<AbstractFailure>, Unit>>? fosProductOnUpdateInMarketplaceOption,
@@ -290,7 +278,6 @@ class ProductDetailState {
     return ProductDetailState(
       product: product ?? this.product,
       originalProduct: originalProduct ?? this.originalProduct,
-      listOfSuppliers: listOfSuppliers ?? this.listOfSuppliers,
       listOfNotSynchronizedMarketplaces: listOfNotSynchronizedMarketplaces ?? this.listOfNotSynchronizedMarketplaces,
       mainSettings: mainSettings ?? this.mainSettings,
       firebaseFailure: firebaseFailure ?? this.firebaseFailure,
@@ -301,7 +288,6 @@ class ProductDetailState {
       isLoadingProductOnUpdateImages: isLoadingProductOnUpdateImages ?? this.isLoadingProductOnUpdateImages,
       isLoadingProductOnUploadImages: isLoadingProductOnUploadImages ?? this.isLoadingProductOnUploadImages,
       isLoadingProductOnDelete: isLoadingProductOnDelete ?? this.isLoadingProductOnDelete,
-      isLoadingProductSuppliersOnObseve: isLoadingProductSuppliersOnObseve ?? this.isLoadingProductSuppliersOnObseve,
       isLoadingProductMarketplacesOnObseve: isLoadingProductMarketplacesOnObseve ?? this.isLoadingProductMarketplacesOnObseve,
       isLoadingProductOnCreateInMarketplaces: isLoadingProductOnCreateInMarketplaces ?? this.isLoadingProductOnCreateInMarketplaces,
       isLoadingOnDeleteMarketplaceFromProduct: isLoadingOnDeleteMarketplaceFromProduct ?? this.isLoadingOnDeleteMarketplaceFromProduct,
@@ -310,7 +296,6 @@ class ProductDetailState {
       fosProductOnUpdateOption: fosProductOnUpdateOption ?? this.fosProductOnUpdateOption,
       fosProductOnUpdateImagesOption: fosProductOnUpdateImagesOption ?? this.fosProductOnUpdateImagesOption,
       fosProductOnDeleteOption: fosProductOnDeleteOption ?? this.fosProductOnDeleteOption,
-      fosProductSuppliersOnObserveOption: fosProductSuppliersOnObserveOption ?? this.fosProductSuppliersOnObserveOption,
       fosProductMarketplacesOnObserveOption: fosProductMarketplacesOnObserveOption ?? this.fosProductMarketplacesOnObserveOption,
       fosProductOnUploadImagesInMarketplaceOption: fosProductOnUploadImagesInMarketplaceOption ?? this.fosProductOnUploadImagesInMarketplaceOption,
       fosProductOnUpdateInMarketplaceOption: fosProductOnUpdateInMarketplaceOption ?? this.fosProductOnUpdateInMarketplaceOption,

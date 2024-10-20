@@ -4,7 +4,6 @@ import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 
 import '../../../3_domain/entities/reorder/reorder.dart';
-import '../../../3_domain/entities/reorder/supplier.dart';
 import '../../../3_domain/repositories/database/reorder_repository.dart';
 import '../../../3_domain/repositories/database/supplier_repository.dart';
 import '../../../failures/abstract_failure.dart';
@@ -122,48 +121,6 @@ class ReorderBloc extends Bloc<ReorderEvent, ReorderState> {
       final isAllReordersSelected = state.listOfFilteredReorders!.every((e) => reorders.any((f) => f.id == e.id));
 
       emit(state.copyWith(isAllReordersSelected: isAllReordersSelected, selectedReorders: reorders));
-    });
-
-//? #########################################################################
-
-    on<OnReorderGetAllSuppliersEvent>((event, emit) async {
-      emit(state.copyWith(isLoadingReorderSuppliersOnObserve: true));
-
-      final failureOrSuccess = await supplierRepository.getListOfSuppliers();
-      failureOrSuccess.fold(
-        (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
-        (listOfSuppliers) {
-          emit(state.copyWith(listOfSuppliers: listOfSuppliers, selectedReorders: [], firebaseFailure: null, isAnyFailure: false));
-          add(OnReorderSetFilteredSuppliersEvent());
-        },
-      );
-
-      emit(state.copyWith(
-        isLoadingReorderSuppliersOnObserve: false,
-        fosReorderOnObserveSuppliersOption: optionOf(failureOrSuccess),
-      ));
-      emit(state.copyWith(fosReorderOnObserveSuppliersOption: none()));
-    });
-
-//? #########################################################################
-
-    on<OnReorderSetFilteredSuppliersEvent>((event, emit) async {
-      final listOfSuppliers = switch (state.supplierSearchController.text) {
-        '' => state.listOfSuppliers,
-        (_) => state.listOfSuppliers
-            .where((e) =>
-                e.company.toLowerCase().contains(state.supplierSearchController.text.toLowerCase()) ||
-                e.supplierNumber.toString().toLowerCase().contains(state.supplierSearchController.text.toLowerCase()))
-            .toList()
-      };
-      if (listOfSuppliers.isNotEmpty) listOfSuppliers.sort((a, b) => a.company.compareTo(b.company));
-      emit(state.copyWith(listOfFilteredSuppliers: listOfSuppliers));
-    });
-
-//? #########################################################################
-
-    on<OnReorderSupplierSearchTextClearedEvent>((event, emit) async {
-      add(OnReorderSetFilteredSuppliersEvent());
     });
 
 //? #########################################################################

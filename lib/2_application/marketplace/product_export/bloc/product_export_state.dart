@@ -73,7 +73,7 @@ class ProductExportState {
       productSearchController: SearchController(),
       isSelectedAllProducts: false,
       perPageQuantity: 20,
-      totalQuantity: 0,
+      totalQuantity: 1,
       currentPage: 1,
       exportCounter: 1,
       listOfSuccessfulProducts: [],

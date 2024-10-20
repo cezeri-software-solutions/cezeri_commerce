@@ -1,13 +1,15 @@
 import 'package:cezeri_commerce/1_presentation/core/core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:responsive_framework/responsive_framework.dart';
 
-import '../../../constants.dart';
+import '../../../../constants.dart';
 
 enum FieldInputType { text, integer, double, email, phone, password }
 
 class MyTextFormFieldSmall extends StatelessWidget {
   final String? fieldTitle;
+  final bool? isMandatory;
   // final String? labelText; //* Labeltext schaut bei dieser Größe nicht schön aus
   final String? hintText;
   final String? initialValue;
@@ -17,6 +19,7 @@ class MyTextFormFieldSmall extends StatelessWidget {
   final FieldInputType inputType;
   final bool readOnly;
   final bool addPlaceholderForError;
+  final TextAlign? textAlign;
   final FocusNode? focusNode;
   final TextInputType? keyboardType;
   final TextCapitalization textCapitalization;
@@ -33,6 +36,7 @@ class MyTextFormFieldSmall extends StatelessWidget {
   const MyTextFormFieldSmall({
     super.key,
     this.fieldTitle,
+    this.isMandatory = false,
     // this.labelText,
     this.hintText,
     this.initialValue,
@@ -42,6 +46,7 @@ class MyTextFormFieldSmall extends StatelessWidget {
     this.inputType = FieldInputType.text,
     this.readOnly = false,
     this.addPlaceholderForError = false,
+    this.textAlign = TextAlign.start,
     this.focusNode,
     this.keyboardType,
     this.textCapitalization = TextCapitalization.none,
@@ -58,19 +63,22 @@ class MyTextFormFieldSmall extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDesktop = ResponsiveBreakpoints.of(context).largerOrEqualTo(DESKTOP);
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (fieldTitle != null) Text(' ${fieldTitle!}', style: TextStyles.infoOnTextFieldSmall),
+        if (fieldTitle != null) FieldTitle(fieldTitle: fieldTitle!, isMandatory: isMandatory!),
         SizedBox(
           width: maxWidth,
           height: addPlaceholderForError ? 55 : null,
           child: TextFormField(
+            textAlign: textAlign!,
             controller: controller,
             initialValue: initialValue,
             validator: (value) => validator != null ? validator!(value) : null,
-            style: const TextStyle(fontSize: 13).copyWith(letterSpacing: 0),
+            style: const TextStyle(fontSize: 14).copyWith(letterSpacing: 0),
             focusNode: focusNode,
             keyboardType: keyboardType,
             readOnly: readOnly,
@@ -91,11 +99,11 @@ class MyTextFormFieldSmall extends StatelessWidget {
               hintStyle: const TextStyle().copyWith(color: readOnly ? null : Colors.grey, letterSpacing: 0),
               fillColor: fillColor ?? (readOnly ? Colors.grey[50] : Colors.white),
               filled: true,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+              contentPadding: EdgeInsets.symmetric(horizontal: 6, vertical: isDesktop ? 9 : 5.5),
               isDense: true,
               floatingLabelBehavior: FloatingLabelBehavior.always,
               suffix: suffix,
-              suffixStyle: const TextStyle(fontSize: 13),
+              suffixStyle: const TextStyle(fontSize: 14),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(6),
                 borderSide: const BorderSide(color: Colors.red),

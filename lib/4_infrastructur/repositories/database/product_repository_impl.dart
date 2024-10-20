@@ -20,6 +20,7 @@ import '../../../constants.dart';
 import '../../../failures/abstract_failure.dart';
 import 'functions/get_storage_paths.dart';
 import 'functions/product_repository_helper.dart';
+import 'functions/supabase_storage_functions.dart';
 import 'functions/utils_repository_impl.dart';
 
 class ProductRepositoryImpl implements ProductRepository {
@@ -575,7 +576,7 @@ class ProductRepositoryImpl implements ProductRepository {
     final List<ProductImage> updatedListOfProductImages = List.from(product.listOfProductImages);
     for (final image in listOfProductImages) {
       try {
-        final filePath = extractPathFromUrl(image.fileUrl);
+        final filePath = extractPathFromUrl(image.fileUrl, 'product-images');
         await supabase.storage.from('product-images').remove([filePath]);
         updatedListOfProductImages.removeWhere((e) => e.fileUrl == image.fileUrl);
       } on StorageException catch (e) {
@@ -623,7 +624,7 @@ class ProductRepositoryImpl implements ProductRepository {
     try {
       final List<ProductImage> listOfProductImages = List.from(loadedProduct.listOfProductImages);
       for (final image in listOfProductImages) {
-        final filePath = extractPathFromUrl(image.fileUrl);
+        final filePath = extractPathFromUrl(image.fileUrl, 'product-images');
         await supabase.storage.from('product-images').remove([filePath]);
       }
 

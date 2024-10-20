@@ -40,19 +40,20 @@ class ReceiptDetailPaymentMethodCard extends StatelessWidget {
                 const Align(alignment: Alignment.center, child: Text('Zahlungsart', style: TextStyles.h3BoldPrimary)),
                 const Divider(height: 30),
                 MyDropdownButtonSmall(
-                  labelText: 'Zahlungsart',
-                  value: state.receipt!.paymentMethod.name,
-                  onChanged: (name) => receiptDetailBloc.add(
-                    ReceiptDetailPaymentMethodChangedEvent(paymentMethod: paymentMethodItems.where((e) => e.name == name).first),
-                  ),
-                  items: paymentMethodItems.map((e) => e.name).toList(),
-                ),
+                    fieldTitle: 'Zahlungsart',
+                    value: state.receipt!.paymentMethod.name,
+                    onChanged: (name) => receiptDetailBloc.add(
+                          ReceiptDetailPaymentMethodChangedEvent(paymentMethod: paymentMethodItems.where((e) => e.name == name).first),
+                        ),
+                    items: paymentMethodItems.map((e) => e.name).toList()..sort((a, b) => a.compareTo(b)),
+                    menuMaxHeight: 300),
                 Gaps.h16,
                 MyDropdownButtonSmall(
-                  labelText: 'Zahlungsstatus',
+                  fieldTitle: 'Zahlungsstatus',
                   value: paymentStatusValue,
                   onChanged: (name) => receiptDetailBloc.add(ReceiptDetailPaymentStatusChangedEvent(paymentStatus: name!)),
                   items: const ['Offen', 'Teilweise bezahlt', 'Komplett bezahlt'],
+                  showSearch: false,
                 ),
               ],
             ),

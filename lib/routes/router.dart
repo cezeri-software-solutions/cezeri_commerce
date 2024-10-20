@@ -47,6 +47,8 @@ class AppRouter extends RootStackRouter {
         AutoRoute(page: PicklistDetailRoute.page, path: '/picklist_detail'),
         AutoRoute(page: ProductsBookingRoute.page, path: '/products_booking'),
         AutoRoute(page: GeneralLedgerAccountRoute.page, path: '/general_ledger_account'),
+        AutoRoute(page: IncomingInvoicesOverviewRoute.page, path: '/incoming_invoices_overview'),
+        AutoRoute(page: IncomingInvoiceDetailRoute.page, path: '/incoming_invoices_overview/incoming_invoice_detail'),
         //
         AutoRoute(page: MyFullscreenImageRoute.page, path: '/fullscreen_image'),
         AutoRoute(page: ShippingLabelRoute.page, path: '/shipping_label'),

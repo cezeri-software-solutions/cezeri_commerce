@@ -161,7 +161,7 @@ class __AddEditSpecificPriceState extends State<_AddEditSpecificPrice> {
             children: [
               Expanded(
                 child: MyButtonSmall(
-                  labelText: 'Gültig von',
+                  fieldTitle: 'Gültig von',
                   onTap: () async {
                     final newDate = await _showDatePicker(_startDate, 'Startdatum');
                     if (newDate != null) setState(() => _startDate = newDate);
@@ -172,7 +172,7 @@ class __AddEditSpecificPriceState extends State<_AddEditSpecificPrice> {
               Gaps.w8,
               Expanded(
                 child: MyButtonSmall(
-                  labelText: 'Gültig bis',
+                  fieldTitle: 'Gültig bis',
                   onTap: () async {
                     final newDate = await _showDatePicker(_endDate ?? _now, 'Enddatum');
                     if (newDate != null) setState(() => _endDate = newDate);
@@ -189,7 +189,7 @@ class __AddEditSpecificPriceState extends State<_AddEditSpecificPrice> {
             children: [
               Expanded(
                 child: MyDropdownButtonSmall(
-                  labelText: 'Rabatt-Typ:',
+                  fieldTitle: 'Rabatt-Typ:',
                   value: _reductionType == ReductionType.fixed ? reductionTypes[0] : reductionTypes[1],
                   onChanged: (value) => {
                     if (value == reductionTypes[0])
@@ -210,7 +210,7 @@ class __AddEditSpecificPriceState extends State<_AddEditSpecificPrice> {
               if (_reductionType == ReductionType.fixed)
                 Expanded(
                   child: MyDropdownButtonSmall(
-                    labelText: 'inkl. oder zzgl. MwSt:',
+                    fieldTitle: 'inkl. oder zzgl. MwSt:',
                     value: _fixedReductionType == FixedReductionType.net ? fixedReductionTypes[0] : fixedReductionTypes[1],
                     onChanged: (value) => {
                       if (value == fixedReductionTypes[0])

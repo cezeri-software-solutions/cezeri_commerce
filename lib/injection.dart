@@ -14,6 +14,8 @@ import '2_application/database/customer_detail/customer_detail_bloc.dart';
 import '2_application/database/dashboard/dashboard_bloc.dart';
 import '2_application/database/general_ledger_account/general_ledger_account_bloc.dart';
 import '2_application/database/home/home_product/home_product_bloc.dart';
+import '2_application/database/incoming_invoice/incoming_invoice_bloc.dart';
+import '2_application/database/incoming_invoice_detail/incoming_invoice_detail_bloc.dart';
 import '2_application/database/main_settings/main_settings_bloc.dart';
 import '2_application/database/marketplace/marketplace_bloc.dart';
 import '2_application/database/marketplace_product/marketplace_product_bloc.dart';
@@ -32,6 +34,7 @@ import '3_domain/repositories/database/auth_repository.dart';
 import '3_domain/repositories/database/client_repository.dart';
 import '3_domain/repositories/database/customer_repository.dart';
 import '3_domain/repositories/database/general_ledger_account_repository.dart';
+import '3_domain/repositories/database/incoming_invoice_repository.dart';
 import '3_domain/repositories/database/main_settings_respository.dart';
 import '3_domain/repositories/database/marketplace_repository.dart';
 import '3_domain/repositories/database/packing_station_repository.dart';
@@ -46,6 +49,7 @@ import '4_infrastructur/repositories/database/auth_repository_impl.dart';
 import '4_infrastructur/repositories/database/client_repository_impl.dart';
 import '4_infrastructur/repositories/database/customer_repository_impl.dart';
 import '4_infrastructur/repositories/database/general_ledger_account_repository_impl.dart';
+import '4_infrastructur/repositories/database/incoming_invoice_repository_impl.dart';
 import '4_infrastructur/repositories/database/main_settings_respository_impl.dart';
 import '4_infrastructur/repositories/database/marketplace_repository_impl.dart';
 import '4_infrastructur/repositories/database/packing_station_repository_impl.dart';
@@ -124,6 +128,8 @@ Future<void> init() async {
   sl.registerFactory(() => ProductsBookingBloc(productRepository: sl(), reorderRepository: sl()));
 
   sl.registerFactory(() => GeneralLedgerAccountBloc(gLAccountRepository: sl()));
+  sl.registerFactory(() => IncomingInvoiceBloc(incomingInvoiceRepository: sl()));
+  sl.registerFactory(() => IncomingInvoiceDetailBloc(incomingInvoiceRepository: sl(), supplierRepository: sl()));
 
   //! repositories Database
   sl.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl());
@@ -152,6 +158,7 @@ Future<void> init() async {
   sl.registerLazySingleton<StatDashboardRepository>(() => StatDashboardRepositoryImpl(supabase: sl()));
   sl.registerLazySingleton<StatProductRepository>(() => StatProductRepositoryImpl(supabase: sl()));
   sl.registerLazySingleton<GeneralLedgerAccountRepository>(() => GeneralLedgerAccountRepositoryImpl(supabase: sl()));
+  sl.registerLazySingleton<IncomingInvoiceRepository>(() => IncomingInvoiceRepositoryImpl(supabase: sl(), settingsRepository: sl()));
 
   //! repositories Marketplaces
   sl.registerLazySingleton<MarketplaceImportRepository>(() => MarketplaceImportRepositoryImpl(

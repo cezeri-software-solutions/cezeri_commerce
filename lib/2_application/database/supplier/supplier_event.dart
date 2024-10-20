@@ -5,7 +5,12 @@ abstract class SupplierEvent {}
 
 class SetSupplierStateToInitialEvent extends SupplierEvent {}
 
-class GetAllSuppliersEvenet extends SupplierEvent {}
+class GetSuppliersEvenet extends SupplierEvent {
+  final bool calcCount;
+  final int currentPage;
+
+  GetSuppliersEvenet({required this.calcCount, required this.currentPage});
+}
 
 class GetSupplierEvent extends SupplierEvent {
   final Supplier supplier;
@@ -28,14 +33,6 @@ class DeleteSelectedSuppliersEvent extends SupplierEvent {
 
   DeleteSelectedSuppliersEvent({required this.selectedSuppliers});
 }
-
-class SetSearchFieldTextEvent extends SupplierEvent {
-  final String searchText;
-
-  SetSearchFieldTextEvent({required this.searchText});
-}
-
-class OnSearchFieldSubmittedEvent extends SupplierEvent {}
 
 class SetSupplierTaxEvent extends SupplierEvent {
   final Tax tax;
@@ -63,7 +60,15 @@ class OnEditSupplierAddressEvent extends SupplierEvent {
   OnEditSupplierAddressEvent({required this.address});
 }
 
+class SupplierItemsPerPageChangedEvent extends SupplierEvent {
+  final int value;
+
+  SupplierItemsPerPageChangedEvent({required this.value});
+}
+
 //* --- Controller --- *//
+
+class OnSupplierSearchControllerClearedEvent extends SupplierEvent {}
 
 class SetSupplierControllerEvnet extends SupplierEvent {}
 

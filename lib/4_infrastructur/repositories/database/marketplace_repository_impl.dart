@@ -16,6 +16,7 @@ import '../../../3_domain/repositories/database/marketplace_repository.dart';
 import '../../../constants.dart';
 import '../../../failures/abstract_failure.dart';
 import 'functions/repository_functions.dart';
+import 'functions/supabase_storage_functions.dart';
 
 class MarketplaceRepositoryImpl implements MarketplaceRepository {
   final SupabaseClient supabase;
@@ -289,7 +290,7 @@ Future<String> updateMarketplaceLogoInStorage(File newImageFile, String oldLogoU
   final fileUrl = await uploadMarketplaceLogToStorage(newImageFile, supabaseStoragePath);
 
   // Lösche das alte Logo aus Firebase Storage
-  final filePath = extractPathFromUrl(oldLogoUrl);
+  final filePath = extractPathFromUrl(oldLogoUrl, 'marketplace-logos');
 
   try {
     await supabase.storage.from('marketplace-logos').remove([filePath]);
@@ -304,7 +305,7 @@ Future<String> updateMarketplaceLogoInStorage(File newImageFile, String oldLogoU
 
 Future<void> removeMarketplaceLogoFromStorage(String oldLogoUrl, String supabaseStoragePath) async {
   // Lösche das alte Logo aus Firebase Storage
-  final filePath = extractPathFromUrl(oldLogoUrl);
+  final filePath = extractPathFromUrl(oldLogoUrl, 'marketplace-logos');
 
   try {
     await supabase.storage.from('marketplace-logos').remove([filePath]);

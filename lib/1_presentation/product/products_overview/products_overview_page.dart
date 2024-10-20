@@ -28,11 +28,8 @@ class ProductOverviewPage extends StatelessWidget {
     return BlocBuilder<ProductBloc, ProductState>(
       builder: (context, state) {
         if (state.isLoadingProductsOnObserve) return const Expanded(child: Center(child: CircularProgressIndicator()));
-
         if (state.firebaseFailure != null && state.isAnyFailure) return const Expanded(child: Center(child: Text('Ein Fehler ist aufgetreten!')));
-
         if (state.listOfAllProducts == null) return const Expanded(child: Center(child: CircularProgressIndicator()));
-
         if (state.listOfAllProducts!.isEmpty) return const Expanded(child: Center(child: Text('Es konnten keine Artikel gefunden werden.')));
 
         // double totalWarehouseStockAmount =

@@ -31,3 +31,6 @@ enum DashboardType { salesVolumePerBrand, groupedSalesVolume, salesVolumeBetween
 
 //* Um einen Zeitraum auswählen zu können
 enum DateRangeType { today, yesterday, thisWeek, last7Days, last30Days, last90Days, thisMonth, lastMonth, thisYear, lastYear }
+
+//* Bestimmt um welche Art von Rabatt es sich handelt
+enum DiscountType { percentage, amount }
