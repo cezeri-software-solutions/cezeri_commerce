@@ -326,6 +326,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.10.1"
+  dotted_border:
+    dependency: "direct main"
+    description:
+      name: dotted_border
+      sha256: "108837e11848ca776c53b30bc870086f84b62ed6e01c503ed976e8f8c7df9c04"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.1.0"
+  dropdown_search:
+    dependency: "direct main"
+    description:
+      name: dropdown_search
+      sha256: "8c96aaf8d0c0d4307804b28da73866e5a0fc94fd8e6942eceab896450aaa4999"
+      url: "https://pub.dev"
+    source: hosted
+    version: "6.0.1"
   email_validator:
     dependency: "direct main"
     description:
@@ -475,6 +491,30 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.4.1"
+  flutter_dropzone:
+    dependency: "direct main"
+    description:
+      name: flutter_dropzone
+      sha256: "032966dfb104180935fd05d83c1fd3e10b83670611fbd75fb1578c65ae788817"
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.0.3"
+  flutter_dropzone_platform_interface:
+    dependency: transitive
+    description:
+      name: flutter_dropzone_platform_interface
+      sha256: b4e2df75364bab2f4c3ca32b87193267d786b6e158c3f345c3a1daeb911d82b9
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.6"
+  flutter_dropzone_web:
+    dependency: transitive
+    description:
+      name: flutter_dropzone_web
+      sha256: e852e07fd216969a1b0d9add717d27ec2b08e7c7d2bfc3ba8c06dc38e956dd26
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.0.2"
   flutter_html:
     dependency: "direct main"
     description:
@@ -802,14 +842,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.10.0"
-  image_picker_web:
-    dependency: "direct main"
-    description:
-      name: image_picker_web
-      sha256: b5cf4faf66714f17b3e86b37a39d19743603163a08b968b28cadfc5df1dc2b75
-      url: "https://pub.dev"
-    source: hosted
-    version: "4.0.0"
   image_picker_windows:
     dependency: transitive
     description:
@@ -979,7 +1011,7 @@ packages:
     source: hosted
     version: "1.15.0"
   mime:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: mime
       sha256: "801fd0b26f14a4a58ccb09d5892c3fbdeff209594300a542492cf13fba9d247a"
@@ -1034,6 +1066,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.9.0"
+  path_drawing:
+    dependency: transitive
+    description:
+      name: path_drawing
+      sha256: bbb1934c0cbb03091af082a6389ca2080345291ef07a5fa6d6e078ba8682f977
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.1"
   path_parsing:
     dependency: transitive
     description:
