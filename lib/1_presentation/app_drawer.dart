@@ -164,7 +164,7 @@ class AppDrawer extends StatelessWidget {
                         ListTile(
                           leading: const Icon(Icons.document_scanner),
                           title: const Text('Eingangsrechnungen'),
-                          onTap: () => navigateToRoute(const ReordersOverviewRoute()),
+                          onTap: () => navigateToRoute(const IncomingInvoicesOverviewRoute()),
                         ),
                       ],
                     ),

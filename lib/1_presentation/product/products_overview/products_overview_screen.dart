@@ -62,9 +62,7 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> with Au
                   (unit) {
                     myScaffoldMessenger(context, null, null, 'Bestand erfolgreich aktualisiert', null);
                     context.router.popUntilRouteWithName(ProductsOverviewRoute.name);
-                    state.productSearchController.text.isEmpty
-                        ? productBloc.add(GetProductsPerPageEvent(isFirstLoad: false, calcCount: false, currentPage: state.currentPage))
-                        : productBloc.add(GetFilteredProductsBySearchTextEvent(currentPage: state.currentPage));
+                    productBloc.add(GetProductsPerPageEvent(isFirstLoad: false, calcCount: false, currentPage: state.currentPage));
                   },
                 ),
               );
@@ -140,9 +138,7 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> with Au
                     icon: Badge(isLabelVisible: state.isAnyFilterSet, child: const Icon(Icons.filter_list)),
                   ),
                   IconButton(
-                    onPressed: () => state.productSearchController.text.isEmpty
-                        ? productBloc.add(GetProductsPerPageEvent(isFirstLoad: false, calcCount: false, currentPage: state.currentPage))
-                        : productBloc.add(GetFilteredProductsBySearchTextEvent(currentPage: state.currentPage)),
+                    onPressed: () => productBloc.add(GetProductsPerPageEvent(isFirstLoad: false, calcCount: false, currentPage: state.currentPage)),
                     icon: const Icon(Icons.refresh),
                   ),
                   IconButton(
@@ -165,8 +161,8 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> with Au
                           Expanded(
                             child: CupertinoSearchTextField(
                               controller: state.productSearchController,
-                              onSubmitted: (value) => _onSearchFieldSubmitted(value, true),
-                              onChanged: (value) => _onSearchFieldSubmitted(value, false),
+                              onSubmitted: (value) => productBloc.add(GetProductsPerPageEvent(isFirstLoad: false, calcCount: true, currentPage: 1)),
+                              onChanged: (value) => productBloc.add(GetProductsPerPageEvent(isFirstLoad: false, calcCount: true, currentPage: 1)),
                               onSuffixTap: () => productBloc.add(OnSearchFieldClearedEvent()),
                             ),
                           ),
@@ -211,21 +207,16 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> with Au
                     ),
                     const Divider(height: 0),
                     ProductOverviewPage(productBloc: productBloc),
-                    if (state.totalQuantity > 0) ...[
-                      const Divider(height: 0),
-                      PagesPaginationBar(
-                        currentPage: state.currentPage,
-                        totalPages: (state.totalQuantity / state.perPageQuantity).ceil(),
-                        itemsPerPage: state.perPageQuantity,
-                        totalItems: state.totalQuantity,
-                        onPageChanged: (newPage) => state.productSearchController.text.isEmpty
-                            ? productBloc.add(GetProductsPerPageEvent(isFirstLoad: false, calcCount: false, currentPage: newPage))
-                            : productBloc.add(
-                                GetFilteredProductsBySearchTextEvent(currentPage: newPage),
-                              ),
-                        onItemsPerPageChanged: (newValue) => productBloc.add(ItemsPerPageChangedEvent(value: newValue)),
-                      ),
-                    ],
+                    const Divider(height: 0),
+                    PagesPaginationBar(
+                      currentPage: state.currentPage,
+                      totalPages: (state.totalQuantity / state.perPageQuantity).ceil(),
+                      itemsPerPage: state.perPageQuantity,
+                      totalItems: state.totalQuantity,
+                      onPageChanged: (newPage) =>
+                          productBloc.add(GetProductsPerPageEvent(isFirstLoad: false, calcCount: false, currentPage: newPage)),
+                      onItemsPerPageChanged: (newValue) => productBloc.add(ItemsPerPageChangedEvent(value: newValue)),
+                    ),
                   ],
                 ),
               ),
@@ -234,20 +225,6 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> with Au
         ),
       ),
     );
-  }
-
-  void _onSearchFieldSubmitted(String value, bool isOnSubmit) {
-    if (value.isEmpty) {
-      productBloc.add(GetProductsPerPageEvent(isFirstLoad: false, calcCount: true, currentPage: 1));
-      return;
-    }
-
-    if (isOnSubmit && value.length < 3) {
-      showMyDialogAlert(context: context, title: 'Achtung', content: 'Die Suche muss mindestens 3 Zeichen enthalten!');
-      return;
-    }
-
-    productBloc.add(GetFilteredProductsBySearchTextEvent(currentPage: 1));
   }
 
   void _showMoreOptions(List<Product> listOfProducts) {

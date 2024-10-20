@@ -61,9 +61,9 @@ Future<void> onPdfPressed({required BuildContext context, required Reorder reord
                   title: const Text(kIsWeb ? 'Im Browser öffnen' : 'Öffnen'),
                   onTap: () async {
                     if (kIsWeb) {
-                      await PdfApiWeb.saveDocument(name: '$reorderName.pdf', byteList: generatedPdf, showInBrowser: true);
+                      await PdfApiWeb.openPdf(name: '$reorderName.pdf', byteList: generatedPdf, showInBrowser: true);
                     } else {
-                      await PdfApiMobile.saveDocument(name: '$reorderName.pdf', byteList: generatedPdf);
+                      await PdfApiMobile.openPdf(name: '$reorderName.pdf', byteList: generatedPdf);
                     }
                     if (context.mounted) context.router.maybePop();
                   },
@@ -73,7 +73,7 @@ Future<void> onPdfPressed({required BuildContext context, required Reorder reord
                     leading: const Icon(Icons.download),
                     title: const Text('Herunterladen'),
                     onTap: () async {
-                      await PdfApiWeb.saveDocument(name: '$reorderName.pdf', byteList: generatedPdf, showInBrowser: false);
+                      await PdfApiWeb.openPdf(name: '$reorderName.pdf', byteList: generatedPdf, showInBrowser: false);
                       if (context.mounted) context.router.maybePop();
                     },
                   ),

@@ -14,6 +14,7 @@ import '../../../injection.dart';
 
 Future<Customer?> showSelectCustomerSheet(BuildContext context) async {
   final completer = Completer<Customer?>();
+  final customerBloc = sl<CustomerBloc>()..add(GetCustomersPerPageEvent(calcCount: true, currentPage: 1));
 
   WoltModalSheet.show<void>(
     context: context,
@@ -26,11 +27,29 @@ Future<Customer?> showSelectCustomerSheet(BuildContext context) async {
           isTopBarLayerAlwaysVisible: true,
           forceMaxHeight: true,
           topBarTitle: const Text('Kunde auswählen', style: TextStyles.h2Bold),
-          child: _SelectCustomerSheet(
-            onCustomerSelected: (customer) {
-              Navigator.of(context).pop();
-              completer.complete(customer);
-            },
+          stickyActionBar: BlocProvider.value(
+            value: customerBloc,
+            child: BlocBuilder<CustomerBloc, CustomerState>(
+              builder: (context, state) {
+                return PagesPaginationBar(
+                  currentPage: state.currentPage,
+                  totalPages: (state.totalQuantity / state.perPageQuantity).ceil(),
+                  itemsPerPage: state.perPageQuantity,
+                  totalItems: state.totalQuantity,
+                  onPageChanged: (newPage) => customerBloc.add(GetCustomersPerPageEvent(calcCount: false, currentPage: newPage)),
+                  onItemsPerPageChanged: (newValue) => customerBloc.add(CustomerItemsPerPageChangedEvent(value: newValue)),
+                );
+              },
+            ),
+          ),
+          child: BlocProvider.value(
+            value: customerBloc,
+            child: _SelectCustomerSheet(
+              onCustomerSelected: (customer) {
+                Navigator.of(context).pop();
+                completer.complete(customer);
+              },
+            ),
           ),
         ),
       ];
@@ -47,58 +66,42 @@ class _SelectCustomerSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final customerBloc = sl<CustomerBloc>()..add(GetCustomersPerPageEvent(calcCount: true, currentPage: 1));
+    final customerBloc = BlocProvider.of<CustomerBloc>(context);
 
-    return BlocProvider.value(
-      value: customerBloc,
-      child: BlocBuilder<CustomerBloc, CustomerState>(
-        builder: (context, state) {
-          return Padding(
-            padding: EdgeInsets.only(bottom: max(MediaQuery.paddingOf(context).bottom, 16)),
-            child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: CupertinoSearchTextField(
-                    controller: state.customerSearchController,
-                    onSubmitted: (value) => customerBloc.add(GetCustomersPerPageEvent(calcCount: true, currentPage: 1)),
-                    onSuffixTap: () => customerBloc.add(CustomerSearchFieldClearedEvent()),
-                  ),
+    return BlocBuilder<CustomerBloc, CustomerState>(
+      builder: (context, state) {
+        return Padding(
+          padding: EdgeInsets.only(bottom: max(MediaQuery.paddingOf(context).bottom, 16)),
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: CupertinoSearchTextField(
+                  controller: state.customerSearchController,
+                  onChanged: (value) => customerBloc.add(GetCustomersPerPageEvent(calcCount: true, currentPage: 1)),
+                  onSuffixTap: () => customerBloc.add(CustomerSearchFieldClearedEvent()),
                 ),
-                _CustomerItems(customerBloc: customerBloc, onCustomerSelected: onCustomerSelected),
-                if (state.totalQuantity > 0) ...[
-                  const Divider(height: 0),
-                  PagesPaginationBar(
-                    currentPage: state.currentPage,
-                    totalPages: (state.totalQuantity / state.perPageQuantity).ceil(),
-                    itemsPerPage: state.perPageQuantity,
-                    totalItems: state.totalQuantity,
-                    onPageChanged: (newPage) => customerBloc.add(GetCustomersPerPageEvent(calcCount: false, currentPage: newPage)),
-                    onItemsPerPageChanged: (newValue) => customerBloc.add(CustomerItemsPerPageChangedEvent(value: newValue)),
-                  ),
-                ],
-              ],
-            ),
-          );
-        },
-      ),
+              ),
+              _CustomerItems(onCustomerSelected: onCustomerSelected),
+            ],
+          ),
+        );
+      },
     );
   }
 }
 
 class _CustomerItems extends StatelessWidget {
-  final CustomerBloc customerBloc;
   final void Function(Customer) onCustomerSelected;
 
-  const _CustomerItems({required this.customerBloc, required this.onCustomerSelected});
+  const _CustomerItems({required this.onCustomerSelected});
 
   @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.sizeOf(context).height;
-    final height = screenHeight - 200;
+    final height = screenHeight - 300;
 
     return BlocBuilder<CustomerBloc, CustomerState>(
-      bloc: customerBloc,
       builder: (context, state) {
         final onLoadingWidget = SizedBox(height: height, child: const Center(child: MyCircularProgressIndicator()));
         final onErrorWidget = SizedBox(height: height, child: const Center(child: Text('Ein Fehler ist aufgetreten!')));
@@ -113,23 +116,24 @@ class _CustomerItems extends StatelessWidget {
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           padding: EdgeInsets.zero,
-          itemCount: state.listOfFilteredCustomers!.length,
+          itemCount: state.listOfAllCustomers!.length,
           separatorBuilder: (context, index) => const Divider(),
           itemBuilder: (context, index) {
-            final customer = state.listOfFilteredCustomers![index];
+            final customer = state.listOfAllCustomers![index];
 
             return ListTile(
-                dense: true,
-                title: Text('${customer.customerNumber} / ${customer.name}', style: TextStyles.defaultt),
-                subtitle: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (customer.company != null && customer.company!.isNotEmpty) Text(customer.company!),
-                    Text(customer.creationDate.toFormattedDayMonthYear()),
-                  ],
-                ),
-                isThreeLine: true,
-                onTap: () => onCustomerSelected(customer));
+              dense: true,
+              title: Text('${customer.customerNumber} / ${customer.name}', style: TextStyles.defaultt),
+              subtitle: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (customer.company != null && customer.company!.isNotEmpty) Text(customer.company!),
+                  Text(customer.creationDate.toFormattedDayMonthYear()),
+                ],
+              ),
+              isThreeLine: true,
+              onTap: () => onCustomerSelected(customer),
+            );
           },
         );
       },

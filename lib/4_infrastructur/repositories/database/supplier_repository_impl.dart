@@ -58,23 +58,50 @@ class SupplierRepositoryImpl implements SupplierRepository {
   }
 
   @override
-  Future<Either<AbstractFailure, List<Supplier>>> getListOfSuppliers() async {
+  Future<Either<AbstractFailure, int>> getListOfSuppliersCount(String searchText) async {
     if (!await checkInternetConnection()) return Left(NoConnectionFailure());
     final ownerId = await getOwnerId();
     if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
-    final query = supabase.from('d_suppliers').select().eq('ownerId', ownerId);
-
     try {
-      final response = await query;
-      if (response.isEmpty) return const Right([]);
+      final response = await supabase.rpc('get_suppliers_count', params: {'owner_id': ownerId, 'search_text': searchText});
 
-      final listOfSuppliers = response.map((e) => Supplier.fromJson(e)).toList();
-
-      return Right(listOfSuppliers);
+      return Right(response);
     } catch (e) {
       logger.e(e);
-      return left(GeneralFailure(customMessage: 'Beim Laden der Lieferanten ist ein Fehler aufgetreten. Error: $e'));
+      return Left(GeneralFailure(customMessage: 'Beim Laden der Lieferanten ist ein Fehler aufgetreten. Error: $e'));
+    }
+  }
+
+  @override
+  Future<Either<AbstractFailure, List<Supplier>>> getListOfSuppliers({
+    required String searchText,
+    required int currentPage,
+    required int itemsPerPage,
+  }) async {
+    if (!await checkInternetConnection()) return Left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
+
+    try {
+      final response = await supabase.rpc('get_suppliers', params: {
+        'owner_id': ownerId,
+        'search_text': searchText,
+        'current_page': currentPage,
+        'items_per_page': itemsPerPage,
+      });
+
+      if (response.isEmpty) return const Right([]);
+
+      final listOfCustomers = (response as List<dynamic>).map((e) {
+        final item = e as Map<String, dynamic>;
+        return Supplier.fromJson(item);
+      }).toList();
+
+      return Right(listOfCustomers);
+    } catch (e) {
+      logger.e(e);
+      return Left(GeneralFailure(customMessage: 'Beim Laden der Lieferanten ist ein Fehler aufgetreten. Error: $e'));
     }
   }
 

@@ -14,6 +14,8 @@ import '../../../injection.dart';
 import '../../core/core.dart';
 
 void showReceiptDetailSelectProducts(BuildContext context, ReceiptDetailProductsBloc receiptDetailProductsBloc) {
+  final productBloc = sl<ProductBloc>()..add(GetProductsPerPageEvent(isFirstLoad: true, calcCount: true, currentPage: 1));
+
   WoltModalSheet.show(
     context: context,
     useSafeArea: false,
@@ -25,7 +27,25 @@ void showReceiptDetailSelectProducts(BuildContext context, ReceiptDetailProducts
           isTopBarLayerAlwaysVisible: true,
           forceMaxHeight: true,
           topBarTitle: const Text('Artikel auswählen', style: TextStyles.h2Bold),
-          child: _ReceiptDetailSelectProducts(receiptDetailProductsBloc: receiptDetailProductsBloc),
+          stickyActionBar: BlocProvider.value(
+            value: productBloc,
+            child: BlocBuilder<ProductBloc, ProductState>(
+              builder: (context, state) {
+                return PagesPaginationBar(
+                  currentPage: state.currentPage,
+                  totalPages: (state.totalQuantity / state.perPageQuantity).ceil(),
+                  itemsPerPage: state.perPageQuantity,
+                  totalItems: state.totalQuantity,
+                  onPageChanged: (newPage) => productBloc.add(GetProductsPerPageEvent(isFirstLoad: false, calcCount: false, currentPage: newPage)),
+                  onItemsPerPageChanged: (newValue) => productBloc.add(ItemsPerPageChangedEvent(value: newValue)),
+                );
+              },
+            ),
+          ),
+          child: BlocProvider.value(
+            value: productBloc,
+            child: _ReceiptDetailSelectProducts(receiptDetailProductsBloc: receiptDetailProductsBloc),
+          ),
         ),
       ];
     },
@@ -39,68 +59,36 @@ class _ReceiptDetailSelectProducts extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final productBloc = sl<ProductBloc>()..add(GetProductsPerPageEvent(isFirstLoad: true, calcCount: true, currentPage: 1));
+    final productBloc = BlocProvider.of<ProductBloc>(context);
 
-    return BlocProvider.value(
-      value: productBloc,
-      child: BlocBuilder<ProductBloc, ProductState>(
-        builder: (context, state) {
-          return Padding(
-            padding: EdgeInsets.only(bottom: max(MediaQuery.paddingOf(context).bottom, 16)),
-            child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: CupertinoSearchTextField(
-                    controller: state.productSearchController,
-                    onSubmitted: (value) => _onSearchFieldSubmitted(context, productBloc, value),
-                    onSuffixTap: () => productBloc.add(OnSearchFieldClearedEvent()),
-                  ),
+    return BlocBuilder<ProductBloc, ProductState>(
+      builder: (context, state) {
+        return Padding(
+          padding: EdgeInsets.only(bottom: max(MediaQuery.paddingOf(context).bottom, 16)),
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: CupertinoSearchTextField(
+                  controller: state.productSearchController,
+                  onSubmitted: (value) =>
+                      productBloc.add(GetProductsPerPageEvent(isFirstLoad: false, calcCount: false, currentPage: state.currentPage)),
+                  onSuffixTap: () => productBloc.add(OnSearchFieldClearedEvent()),
                 ),
-                _ProductItems(productBloc: productBloc, receiptDetailProductsBloc: receiptDetailProductsBloc),
-                if (state.totalQuantity > 0) ...[
-                  const Divider(height: 0),
-                  PagesPaginationBar(
-                    currentPage: state.currentPage,
-                    totalPages: (state.totalQuantity / state.perPageQuantity).ceil(),
-                    itemsPerPage: state.perPageQuantity,
-                    totalItems: state.totalQuantity,
-                    onPageChanged: (newPage) => state.productSearchController.text.isEmpty
-                        ? productBloc.add(GetProductsPerPageEvent(isFirstLoad: false, calcCount: false, currentPage: newPage))
-                        : productBloc.add(
-                            GetFilteredProductsBySearchTextEvent(currentPage: newPage),
-                          ),
-                    onItemsPerPageChanged: (newValue) => productBloc.add(ItemsPerPageChangedEvent(value: newValue)),
-                  ),
-                ],
-              ],
-            ),
-          );
-        },
-      ),
+              ),
+              _ProductItems(receiptDetailProductsBloc: receiptDetailProductsBloc),
+            ],
+          ),
+        );
+      },
     );
-  }
-
-  void _onSearchFieldSubmitted(BuildContext context, ProductBloc productBloc, String value) {
-    if (value.isEmpty) {
-      productBloc.add(GetProductsPerPageEvent(isFirstLoad: false, calcCount: true, currentPage: 1));
-      return;
-    }
-
-    if (value.length < 3) {
-      showMyDialogAlert(context: context, title: 'Achtung', content: 'Die Suche muss mindestens 3 Zeichen enthalten!');
-      return;
-    }
-
-    productBloc.add(GetFilteredProductsBySearchTextEvent(currentPage: 1));
   }
 }
 
 class _ProductItems extends StatelessWidget {
-  final ProductBloc productBloc;
   final ReceiptDetailProductsBloc receiptDetailProductsBloc;
 
-  const _ProductItems({required this.productBloc, required this.receiptDetailProductsBloc});
+  const _ProductItems({required this.receiptDetailProductsBloc});
 
   @override
   Widget build(BuildContext context) {
@@ -108,7 +96,6 @@ class _ProductItems extends StatelessWidget {
     final height = screenHeight - 200;
 
     return BlocBuilder<ProductBloc, ProductState>(
-      bloc: productBloc,
       builder: (context, state) {
         final onLoadingWidget = SizedBox(height: height, child: const Center(child: MyCircularProgressIndicator()));
         final onErrorWidget = SizedBox(height: height, child: const Center(child: Text('Ein Fehler ist aufgetreten!')));
@@ -136,7 +123,9 @@ class _ProductItems extends StatelessWidget {
               ),
               title: Text(product.name, style: TextStyles.defaultt),
               trailing: IconButton(
-                onPressed: () => receiptDetailProductsBloc.add(AddProductToReceiptProductsEvent(receiptProduct: ReceiptProduct.fromProduct(product))),
+                onPressed: () => receiptDetailProductsBloc.add(
+                  AddProductToReceiptProductsEvent(receiptProduct: ReceiptProduct.fromProduct(product)),
+                ),
                 icon: const Icon(Icons.arrow_forward_ios, color: Colors.green),
               ),
               onTap: () {

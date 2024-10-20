@@ -12,7 +12,6 @@ import '/3_domain/entities/product/product_id_with_quantity.dart';
 import '/3_domain/entities/product/product_image.dart';
 import '/3_domain/entities/product/product_marketplace.dart';
 import '/3_domain/entities/product/product_presta.dart';
-import '/3_domain/entities/reorder/supplier.dart';
 import '/3_domain/entities/settings/main_settings.dart';
 import '/3_domain/entities/statistic/product_sales_data.dart';
 import '/3_domain/entities/statistic/stat_product.dart';
@@ -71,7 +70,6 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
     on<OnProductIsActiveChangedEvent>(_onProductIsActiveChanged);
     on<RemoveSelectedProductImages>(_onRemoveSelectedProductImages);
     on<OnPickNewProductPictureEvent>(_onPickNewProductPicture);
-    on<OnProductGetSuppliersEvent>(_onProductGetSuppliers);
     on<OnProductSetSupplierEvent>(_onProductSetSupplier);
     on<OnProductGetMarketplacesEvent>(_onProductGetMarketplaces);
     on<OnCreateProductInMarketplaceEvent>(_onCreateProductInMarketplace);
@@ -101,14 +99,7 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
 //? ###########################################################################################################################
 
   Future<void> _onGetProduct(GetProductEvent event, Emitter<ProductDetailState> emit) async {
-    print('###########################################################################################################');
-    print('############################################################################################################');
-    print('#############################################################################################################');
-    print(' ----- GET PRODUCT -----');
-    print('#############################################################################################################');
-    print('############################################################################################################');
-    print('###########################################################################################################');
-    emit(state.copyWith(isLoadingProductOnObserve: true));
+      emit(state.copyWith(isLoadingProductOnObserve: true));
 
     if (state.mainSettings == null) {
       final fosSettings = await mainSettingsRepository.getSettings();
@@ -225,9 +216,7 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
 
   void _onSetProduct(SetProductEvent event, Emitter<ProductDetailState> emit) {
     emit(state.copyWith(product: event.product));
-    if (event.loadStatProduct) {
-      add(OnProductGetProductsSalesDataEvent());
-    }
+    if (event.loadStatProduct) add(OnProductGetProductsSalesDataEvent());
   }
 
 //? ###########################################################################################################################
@@ -503,24 +492,6 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
       fosProductOnUpdateImagesOption: optionOf(failureOrSuccess),
     ));
     emit(state.copyWith(fosProductOnUpdateImagesOption: none()));
-  }
-
-//? ###########################################################################################################################
-
-  Future<void> _onProductGetSuppliers(OnProductGetSuppliersEvent event, Emitter<ProductDetailState> emit) async {
-    emit(state.copyWith(isLoadingProductSuppliersOnObseve: true));
-
-    final failureOrSuccess = await supplierRepository.getListOfSuppliers();
-    failureOrSuccess.fold(
-      (failure) => null,
-      (listOfSuppliers) => emit(state.copyWith(listOfSuppliers: listOfSuppliers, firebaseFailure: null, isAnyFailure: false)),
-    );
-
-    emit(state.copyWith(
-      isLoadingProductSuppliersOnObseve: false,
-      fosProductSuppliersOnObserveOption: optionOf(failureOrSuccess),
-    ));
-    emit(state.copyWith(fosProductSuppliersOnObserveOption: none()));
   }
 
 //? ###########################################################################################################################

@@ -101,6 +101,32 @@ class ReorderRepositoryImpl implements ReorderRepository {
   }
 
   @override
+  Future<Either<AbstractFailure, List<Reorder>>> getListOfReordersBySupplierId(String supplierId) async {
+    if (!await checkInternetConnection()) return Left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
+
+    try {
+      final response = await supabase.rpc('get_reorders_by_supplier_id', params: {
+        'owner_id': ownerId,
+        'supplier_id': supplierId,
+      });
+
+      if (response.isEmpty) return const Right([]);
+
+      final listOfReorders = (response as List<dynamic>).map((e) {
+        final item = e as Map<String, dynamic>;
+        return Reorder.fromJson(item);
+      }).toList();
+
+      return Right(listOfReorders);
+    } catch (e) {
+      logger.e(e);
+      return Left(GeneralFailure(customMessage: 'Beim Laden der Nachbestellungen ist ein Fehler aufgetreten. Error: $e'));
+    }
+  }
+
+  @override
   Future<Either<AbstractFailure, Reorder>> updateReorder(Reorder reorder) async {
     if (!await checkInternetConnection()) return Left(NoConnectionFailure());
     final ownerId = await getOwnerId();

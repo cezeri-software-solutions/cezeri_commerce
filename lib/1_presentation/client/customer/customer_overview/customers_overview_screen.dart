@@ -71,7 +71,10 @@ class _CustomersOverviewScreenState extends State<CustomersOverviewScreen> with 
               appBar: AppBar(
                 title: const Text('Kunden'),
                 actions: [
-                  IconButton(onPressed: () => context.read<CustomerBloc>().add(GetAllCustomersEvent()), icon: const Icon(Icons.refresh)),
+                  IconButton(
+                    onPressed: () => context.read<CustomerBloc>().add(GetCustomersPerPageEvent(calcCount: false, currentPage: state.currentPage)),
+                    icon: const Icon(Icons.refresh),
+                  ),
                   IconButton(
                     onPressed: () => context.router.push(CustomerDetailRoute(customerId: null)),
                     icon: const Icon(Icons.add, color: Colors.green),
@@ -107,7 +110,7 @@ class _CustomersOverviewScreenState extends State<CustomersOverviewScreen> with 
                           Expanded(
                             child: CupertinoSearchTextField(
                               controller: state.customerSearchController,
-                              onSubmitted: (value) => customerBloc.add(GetCustomersPerPageEvent(calcCount: true, currentPage: 1)),
+                              onChanged: (value) => customerBloc.add(GetCustomersPerPageEvent(calcCount: true, currentPage: 1)),
                               onSuffixTap: () => customerBloc.add(CustomerSearchFieldClearedEvent()),
                             ),
                           ),
@@ -116,17 +119,15 @@ class _CustomersOverviewScreenState extends State<CustomersOverviewScreen> with 
                     ),
                     const Divider(height: 0),
                     CustomersOverviewPage(customerBloc: customerBloc),
-                    if (state.totalQuantity > 0) ...[
-                      const Divider(height: 0),
-                      PagesPaginationBar(
-                        currentPage: state.currentPage,
-                        totalPages: (state.totalQuantity / state.perPageQuantity).ceil(),
-                        itemsPerPage: state.perPageQuantity,
-                        totalItems: state.totalQuantity,
-                        onPageChanged: (newPage) => customerBloc.add(GetCustomersPerPageEvent(calcCount: false, currentPage: newPage)),
-                        onItemsPerPageChanged: (newValue) => customerBloc.add(CustomerItemsPerPageChangedEvent(value: newValue)),
-                      ),
-                    ],
+                    const Divider(height: 0),
+                    PagesPaginationBar(
+                      currentPage: state.currentPage,
+                      totalPages: (state.totalQuantity / state.perPageQuantity).ceil(),
+                      itemsPerPage: state.perPageQuantity,
+                      totalItems: state.totalQuantity,
+                      onPageChanged: (newPage) => customerBloc.add(GetCustomersPerPageEvent(calcCount: false, currentPage: newPage)),
+                      onItemsPerPageChanged: (newValue) => customerBloc.add(CustomerItemsPerPageChangedEvent(value: newValue)),
+                    ),
                   ],
                 ),
               ),

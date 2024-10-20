@@ -16,7 +16,6 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
     required this.customerRepository,
   }) : super(CustomerState.initial()) {
     on<SetCustomerStateToInitialEvent>(_onSetCustomerStateToInitial);
-    on<GetAllCustomersEvent>(_onGetAllCustomers);
     on<GetCustomersPerPageEvent>(_onGetCustomersPerPage);
     on<DeleteSelectedCustomersEvent>(_onDeleteSelectedCustomers);
     on<CustomerSearchFieldClearedEvent>(_onOnSearchFieldCleared);
@@ -27,24 +26,6 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
 
   void _onSetCustomerStateToInitial(SetCustomerStateToInitialEvent event, Emitter<CustomerState> emit) async {
     emit(CustomerState.initial());
-  }
-
-  Future<void> _onGetAllCustomers(GetAllCustomersEvent event, Emitter<CustomerState> emit) async {
-    emit(state.copyWith(isLoadingCustomersOnObserve: true));
-
-    final failureOrCustomers = await customerRepository.getListOfAllCustomers();
-    failureOrCustomers.fold(
-      (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
-      (customers) {
-        emit(state.copyWith(listOfAllCustomers: customers, selectedCustomers: [], firebaseFailure: null, isAnyFailure: false));
-      },
-    );
-
-    emit(state.copyWith(
-      isLoadingCustomersOnObserve: false,
-      fosCustomersOnObserveOption: optionOf(failureOrCustomers),
-    ));
-    emit(state.copyWith(fosCustomersOnObserveOption: none()));
   }
 
   Future<void> _onGetCustomersPerPage(GetCustomersPerPageEvent event, Emitter<CustomerState> emit) async {
@@ -69,7 +50,6 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
       (listOfCustomers) {
         emit(state.copyWith(
           listOfAllCustomers: listOfCustomers,
-          listOfFilteredCustomers: listOfCustomers,
           currentPage: event.currentPage,
           firebaseFailure: null,
           isAnyFailure: false,
@@ -110,7 +90,7 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
 
   Future<void> _onSelectAllCustomers(OnSelectAllCustomersEvent event, Emitter<CustomerState> emit) async {
     if (event.isSelected) {
-      emit(state.copyWith(selectedCustomers: state.listOfFilteredCustomers!, isAllCustomersSelected: true));
+      emit(state.copyWith(selectedCustomers: state.listOfAllCustomers!, isAllCustomersSelected: true));
     } else {
       emit(state.copyWith(selectedCustomers: [], isAllCustomersSelected: false));
     }

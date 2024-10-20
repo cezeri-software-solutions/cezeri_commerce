@@ -108,21 +108,19 @@ class _ProductExportScreenState extends State<ProductExportScreen> with Automati
                     ),
                     const Divider(height: 0),
                     ProductExportPage(productExportBloc: productExportBloc),
-                    if (state.totalQuantity > 0) ...[
-                      const Divider(height: 0),
-                      PagesPaginationBar(
-                        currentPage: state.currentPage,
-                        totalPages: (state.totalQuantity / state.perPageQuantity).ceil(),
-                        itemsPerPage: state.perPageQuantity,
-                        totalItems: state.totalQuantity,
-                        onPageChanged: (newPage) => state.productSearchController.text.isEmpty
-                            ? productExportBloc.add(GetProductsPerPageEvent(isFirstLoad: false, calcCount: false, currentPage: newPage))
-                            : productExportBloc.add(
-                                GetFilteredProductsBySearchTextEvent(currentPage: newPage),
-                              ),
-                        onItemsPerPageChanged: (newValue) => productExportBloc.add(ItemsPerPageChangedEvent(value: newValue)),
-                      ),
-                    ],
+                    const Divider(height: 0),
+                    PagesPaginationBar(
+                      currentPage: state.currentPage,
+                      totalPages: (state.totalQuantity / state.perPageQuantity).ceil(),
+                      itemsPerPage: state.perPageQuantity,
+                      totalItems: state.totalQuantity,
+                      onPageChanged: (newPage) => state.productSearchController.text.isEmpty
+                          ? productExportBloc.add(GetProductsPerPageEvent(isFirstLoad: false, calcCount: false, currentPage: newPage))
+                          : productExportBloc.add(
+                              GetFilteredProductsBySearchTextEvent(currentPage: newPage),
+                            ),
+                      onItemsPerPageChanged: (newValue) => productExportBloc.add(ItemsPerPageChangedEvent(value: newValue)),
+                    ),
                   ],
                 ),
               ),

@@ -11,6 +11,7 @@ IncomingInvoiceSupplier _$IncomingInvoiceSupplierFromJson(
     IncomingInvoiceSupplier(
       id: json['id'] as String,
       supplierId: json['supplier_id'] as String,
+      supplierNumber: (json['supplier_number'] as num).toInt(),
       company: json['company'] as String,
       firstName: json['first_name'] as String,
       lastName: json['last_name'] as String,
@@ -30,6 +31,7 @@ Map<String, dynamic> _$IncomingInvoiceSupplierToJson(
         IncomingInvoiceSupplier instance) =>
     <String, dynamic>{
       'supplier_id': instance.supplierId,
+      'supplier_number': instance.supplierNumber,
       'company': instance.company,
       'first_name': instance.firstName,
       'last_name': instance.lastName,

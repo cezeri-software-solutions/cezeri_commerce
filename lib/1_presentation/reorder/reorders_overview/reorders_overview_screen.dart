@@ -5,10 +5,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../2_application/database/reorder/reorder_bloc.dart';
 import '../../../injection.dart';
+import '../../../routes/router.gr.dart';
 import '../../app_drawer.dart';
 import '../../core/core.dart';
+import '../reorder_detail/reorder_detail_screen.dart';
 import 'reorders_overview_page.dart';
-import 'widgets/select_reorder_supplier_dialog.dart';
 
 @RoutePage()
 class ReordersOverviewScreen extends StatelessWidget {
@@ -48,18 +49,6 @@ class ReordersOverviewScreen extends StatelessWidget {
               );
             },
           ),
-          BlocListener<ReorderBloc, ReorderState>(
-            listenWhen: (p, c) => p.fosReorderOnObserveSuppliersOption != c.fosReorderOnObserveSuppliersOption,
-            listener: (context, state) {
-              state.fosReorderOnObserveSuppliersOption.fold(
-                () => null,
-                (a) => a.fold(
-                  (failure) => failureRenderer(context, [failure]),
-                  (suppliers) => _openSelectSupplierDialog(context, reorderBloc),
-                ),
-              );
-            },
-          ),
         ],
         child: BlocBuilder<ReorderBloc, ReorderState>(
           builder: (context, state) {
@@ -71,11 +60,10 @@ class ReordersOverviewScreen extends StatelessWidget {
                   IconButton(
                       onPressed: () => context.read<ReorderBloc>().add(GetReordersEvenet(tabValue: state.tabValue)), icon: const Icon(Icons.refresh)),
                   IconButton(
-                      onPressed: () {
-                        if (state.listOfSuppliers.isEmpty) {
-                          reorderBloc.add(OnReorderGetAllSuppliersEvent());
-                        } else {
-                          _openSelectSupplierDialog(context, reorderBloc);
+                      onPressed: () async {
+                        final supplier = await showSelectSupplierSheet(context);
+                        if (supplier != null && context.mounted) {
+                          context.router.push(ReorderDetailRoute(reorderCreateOrEdit: ReorderCreateOrEdit.create, supplier: supplier));
                         }
                       },
                       icon: const Icon(Icons.add, color: Colors.green)),
@@ -131,8 +119,4 @@ class ReordersOverviewScreen extends StatelessWidget {
       ),
     );
   }
-}
-
-void _openSelectSupplierDialog(BuildContext context, ReorderBloc reorderBloc) {
-  showDialog(context: context, builder: (_) => BlocProvider.value(value: reorderBloc, child: SelectReorderSupplierDialog(reorderBloc: reorderBloc)));
 }

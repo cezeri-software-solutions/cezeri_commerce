@@ -17,7 +17,6 @@ import '/routes/router.gr.dart';
 import '../../../../3_domain/entities/marketplace/marketplace_presta.dart';
 import '../../../../3_domain/entities/marketplace/marketplace_shopify.dart';
 import '../../../../3_domain/repositories/database/marketplace_repository.dart';
-import '../../../../3_domain/repositories/database/supplier_repository.dart';
 import '../../../../3_domain/repositories/marketplace/marketplace_import_repository.dart';
 import '../../../../4_infrastructur/repositories/prestashop_api/models/models.dart';
 import '../../../../4_infrastructur/repositories/shopify_api/shopify.dart';
@@ -320,7 +319,6 @@ class _EditPurchasePageState extends State<_EditPurchasePage> {
   final _minimumStockController = TextEditingController();
 
   Supplier _supplier = Supplier.empty();
-  List<Supplier>? _listOfSuppliers;
 
   bool _isWholesalePriceSelected = false;
   bool _isManufacturerSelected = false;
@@ -353,16 +351,11 @@ class _EditPurchasePageState extends State<_EditPurchasePage> {
             children: [
               Expanded(
                 child: MyButtonSmall(
-                  labelText: 'Lieferant',
-                  onTap: _listOfSuppliers == null
-                      ? () => _getSuppliers()
-                      : () => showDialog(
-                            context: context,
-                            builder: (_) => MyDialogSuppliers(
-                              listOfSuppliers: _listOfSuppliers!,
-                              onChanged: (supplier) => setState(() => _supplier = supplier),
-                            ),
-                          ),
+                  fieldTitle: 'Lieferant',
+                  onTap: () async {
+                    final supplier = await showSelectSupplierSheet(context);
+                    if (supplier != null) setState(() => _supplier = supplier);
+                  },
                   child: Text(_supplier.company),
                 ),
               ),
@@ -453,27 +446,6 @@ class _EditPurchasePageState extends State<_EditPurchasePage> {
             },
           ),
         ],
-      ),
-    );
-  }
-
-  void _getSuppliers() async {
-    final supplierRepository = GetIt.I<SupplierRepository>();
-    final fos = await supplierRepository.getListOfSuppliers();
-    fos.fold(
-      (failure) => setState(() => _listOfSuppliers = []),
-      (suppliers) => setState(() => _listOfSuppliers = suppliers),
-    );
-
-    _showSelectSupplierDialog();
-  }
-
-  void _showSelectSupplierDialog() {
-    showDialog(
-      context: context,
-      builder: (_) => MyDialogSuppliers(
-        listOfSuppliers: _listOfSuppliers!,
-        onChanged: (supplier) => setState(() => _supplier = supplier),
       ),
     );
   }

@@ -5,8 +5,6 @@ abstract class CustomerEvent {}
 
 class SetCustomerStateToInitialEvent extends CustomerEvent {}
 
-class GetAllCustomersEvent extends CustomerEvent {}
-
 class GetCustomersPerPageEvent extends CustomerEvent {
   final bool calcCount;
   final int currentPage;

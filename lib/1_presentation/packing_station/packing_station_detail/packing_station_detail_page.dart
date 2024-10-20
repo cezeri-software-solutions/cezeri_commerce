@@ -139,8 +139,10 @@ class _PackingStationDetailPageState extends State<PackingStationDetailPage> {
                 ),
                 Gaps.w16,
                 MyDropdownButtonSmall(
-                  labelText: 'Verpackungskarton:',
+                  fieldTitle: 'Verpackungskarton:',
                   maxWidth: 200,
+                  openToTop: true,
+                  autoFocusOnSearch: false,
                   value: state.packagingBox.name,
                   onChanged: (value) => widget.packingStationBloc.add(PackingStationOnPackagingBoxChangedEvent(packagingBoxName: value!)),
                   items: state.listOfPackagingBoxes.map((e) => e.name).toList(),

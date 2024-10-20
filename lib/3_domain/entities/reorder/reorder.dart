@@ -1,6 +1,8 @@
+import 'package:flutter/material.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 import '../../../1_presentation/core/core.dart';
+import '../../../constants.dart';
 import '../settings/tax.dart';
 import 'reorder_product.dart';
 import 'reorder_supplier.dart';
@@ -251,5 +253,41 @@ class Reorder {
   @override
   String toString() {
     return 'Reorder(id: $id, reorderNumber: $reorderNumber, reorderNumberInternal: $reorderNumberInternal, closedManually: $closedManually, reorderStatus: $reorderStatus, reorderSupplier: $reorderSupplier, listOfReorderProducts: $listOfReorderProducts, tax: $tax, currency: $currency, totalPriceNet: $totalPriceNet, totalPriceGross: $totalPriceGross, totalPriceTax: $totalPriceTax, productsTotalNet: $productsTotalNet, productsTotalGross: $productsTotalGross, productsTotalTax: $productsTotalTax, shippingPriceNet: $shippingPriceNet, shippingPriceGross: $shippingPriceGross, shippingPriceTax: $shippingPriceTax, additionalAmountNet: $additionalAmountNet, additionalAmountGross: $additionalAmountGross, additionalAmountTax: $additionalAmountTax, discountTotalNet: $discountTotalNet, discountTotalGross: $discountTotalGross, discountTotalTax: $discountTotalTax, discountAmountNet: $discountAmountNet, discountAmountGross: $discountAmountGross, discountAmountTax: $discountAmountTax, discountPercent: $discountPercent, discountPercentAmountGross: $discountPercentAmountGross, discountPercentAmountNet: $discountPercentAmountNet, discountPercentAmountTax: $discountPercentAmountTax, creationDate: $creationDate, deliveryDate: $deliveryDate, lastEditingDate: $lastEditingDate)';
+  }
+}
+
+extension ConvertReorderStatusToString on ReorderStatus {
+  String convert() {
+    return switch (this) {
+      ReorderStatus.open => 'Offen',
+      ReorderStatus.partiallyCompleted => 'Teilweise offen',
+      ReorderStatus.completed => 'Geschlossen',
+    };
+  }
+}
+
+extension ConvertReorderStatusToColor on ReorderStatus {
+  Color toColor() {
+    return switch (this) {
+      ReorderStatus.open => CustomColors.backgroundLightGrey,
+      ReorderStatus.partiallyCompleted => CustomColors.backgroundLightOrange,
+      ReorderStatus.completed => CustomColors.backgroundLightGreen,
+    };
+  }
+}
+
+extension ConvertReorderStatusToChip on ReorderStatus {
+  Widget toChip({double? height, double? fontSize}) {
+    return Container(
+      height: height ?? 30,
+      decoration: BoxDecoration(
+        color: toColor(),
+        borderRadius: BorderRadius.circular(height ?? 30),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+        child: Center(child: Text(convert(), style: TextStyle(fontSize: fontSize))),
+      ),
+    );
   }
 }

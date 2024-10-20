@@ -128,9 +128,9 @@ class _ShippingLabelPageState extends State<ShippingLabelPage> {
                         final base64String = service.getPdfLabel(pdfString);
                         final pdfBytes = base64.decode(base64String);
                         if (kIsWeb) {
-                          await PdfApiWeb.saveDocument(name: 'testlabel.pdf', byteList: pdfBytes, showInBrowser: true);
+                          await PdfApiWeb.openPdf(name: 'testlabel.pdf', byteList: pdfBytes, showInBrowser: true);
                         } else {
-                          await PdfApiMobile.saveDocument(name: 'testlabel.pdf', byteList: pdfBytes);
+                          await PdfApiMobile.openPdf(name: 'testlabel.pdf', byteList: pdfBytes);
                         }
                       },
                     )

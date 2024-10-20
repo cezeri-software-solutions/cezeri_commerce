@@ -43,17 +43,12 @@ class PurchaseCard extends StatelessWidget {
                       Gaps.w8,
                     Expanded(
                       child: MyButtonSmall(
-                        labelText: 'Lieferant',
-                        onTap: state.listOfSuppliers == null
-                            ? () => productDetailBloc.add(OnProductGetSuppliersEvent())
-                            : () => showDialog(
-                                  context: context,
-                                  builder: (_) => MyDialogSuppliers(
-                                    listOfSuppliers: state.listOfSuppliers!,
-                                    onChanged: (supplier) => productDetailBloc.add(OnProductSetSupplierEvent(supplierName: supplier.company)),
-                                  ),
-                                ),
-                        child: state.isLoadingProductSuppliersOnObseve ? const MyCircularProgressIndicator() : Text(state.product!.supplier),
+                        fieldTitle: 'Lieferant',
+                        onTap: () async {
+                          final supplier = await showSelectSupplierSheet(context);
+                          if (supplier != null) productDetailBloc.add(OnProductSetSupplierEvent(supplierName: supplier.company));
+                        },
+                        child: Text(state.product!.supplier),
                       ),
                     ),
                   ],

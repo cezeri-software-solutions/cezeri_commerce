@@ -23,24 +23,39 @@ class SupplierBloc extends Bloc<SupplierEvent, SupplierState> {
 
 //? #########################################################################
 
-    on<GetAllSuppliersEvenet>((event, emit) async {
+    on<GetSuppliersEvenet>((event, emit) async {
       emit(state.copyWith(isLoadingSuppliersOnObserve: true));
 
-      final failureOrSuccess = await supplierRepository.getListOfSuppliers();
-      failureOrSuccess.fold(
+      if (event.calcCount) {
+        final fosCount = await supplierRepository.getListOfSuppliersCount(state.searchController.text);
+        fosCount.fold(
+          (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
+          (countNumber) => emit(state.copyWith(totalQuantity: countNumber, firebaseFailure: null, isAnyFailure: false)),
+        );
+      }
+
+      final fos = await supplierRepository.getListOfSuppliers(
+        searchText: state.searchController.text,
+        currentPage: event.currentPage,
+        itemsPerPage: state.perPageQuantity,
+      );
+      fos.fold(
         (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
         (listOfSupplier) {
-          emit(state.copyWith(listOfAllSuppliers: listOfSupplier, selectedSuppliers: [], firebaseFailure: null, isAnyFailure: false));
-          add(OnSearchFieldSubmittedEvent());
+          emit(state.copyWith(
+            listOfAllSuppliers: listOfSupplier,
+            selectedSuppliers: [],
+            firebaseFailure: null,
+            isAnyFailure: false,
+          ));
         },
       );
 
-      add(OnSearchFieldSubmittedEvent());
-
       emit(state.copyWith(
         isLoadingSuppliersOnObserve: false,
-        fosSuppliersOnObserveOption: optionOf(failureOrSuccess),
+        fosSuppliersOnObserveOption: optionOf(fos),
       ));
+      emit(state.copyWith(fosSuppliersOnObserveOption: none()));
     });
 
 //? #########################################################################
@@ -130,28 +145,6 @@ class SupplierBloc extends Bloc<SupplierEvent, SupplierState> {
 
 //? #########################################################################
 
-    on<SetSearchFieldTextEvent>((event, emit) async {
-      emit(state.copyWith(supplierSearchText: event.searchText));
-
-      add(OnSearchFieldSubmittedEvent());
-    });
-
-    on<OnSearchFieldSubmittedEvent>((event, emit) async {
-      final listOfSuppliers = switch (state.supplierSearchText) {
-        '' => state.listOfAllSuppliers,
-        (_) => state.listOfAllSuppliers!
-            .where((e) =>
-                e.name.toLowerCase().contains(state.supplierSearchText.toLowerCase()) ||
-                e.company.toLowerCase().contains(state.supplierSearchText.toLowerCase()) ||
-                e.email.toLowerCase().contains(state.supplierSearchText.toLowerCase()))
-            .toList()
-      };
-      if (listOfSuppliers != null && listOfSuppliers.isNotEmpty) listOfSuppliers.sort((a, b) => b.supplierNumber.compareTo(a.supplierNumber));
-      emit(state.copyWith(listOfFilteredSuppliers: listOfSuppliers));
-    });
-
-//? #########################################################################
-
     on<OnSelectAllSuppliersEvent>((event, emit) async {
       List<Supplier> suppliers = [];
       bool isSelectedAll = false;
@@ -196,6 +189,20 @@ class SupplierBloc extends Bloc<SupplierEvent, SupplierState> {
           country: event.address.country,
         ),
       ));
+    });
+
+//? #########################################################################
+
+    on<SupplierItemsPerPageChangedEvent>((event, emit) async {
+      emit(state.copyWith(perPageQuantity: event.value));
+      add(GetSuppliersEvenet(calcCount: false, currentPage: 1));
+    });
+
+//? #########################################################################
+
+    on<OnSupplierSearchControllerClearedEvent>((event, emit) async {
+      emit(state.copyWith(searchController: SearchController()));
+      add(GetSuppliersEvenet(calcCount: true, currentPage: 1));
     });
 
 //? #########################################################################

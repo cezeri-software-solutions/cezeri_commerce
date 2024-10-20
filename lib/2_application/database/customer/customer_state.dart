@@ -3,7 +3,6 @@ part of 'customer_bloc.dart';
 @immutable
 class CustomerState {
   final List<Customer>? listOfAllCustomers;
-  final List<Customer>? listOfFilteredCustomers;
   final List<Customer> selectedCustomers;
   final AbstractFailure? firebaseFailure;
   final bool isAnyFailure;
@@ -25,7 +24,6 @@ class CustomerState {
 
   const CustomerState({
     required this.listOfAllCustomers,
-    required this.listOfFilteredCustomers,
     required this.selectedCustomers,
     required this.firebaseFailure,
     required this.isAnyFailure,
@@ -47,7 +45,6 @@ class CustomerState {
   factory CustomerState.initial() {
     return CustomerState(
       listOfAllCustomers: null,
-      listOfFilteredCustomers: null,
       selectedCustomers: const [],
       firebaseFailure: null,
       isAnyFailure: false,
@@ -60,7 +57,7 @@ class CustomerState {
       fosCustomerOnUpdateOption: none(),
       fosCustomersOnDeleteOption: none(),
       perPageQuantity: 20,
-      totalQuantity: 0,
+      totalQuantity: 1,
       currentPage: 1,
       isAllCustomersSelected: false,
       customerSearchController: SearchController(),
@@ -69,7 +66,6 @@ class CustomerState {
 
   CustomerState copyWith({
     List<Customer>? listOfAllCustomers,
-    List<Customer>? listOfFilteredCustomers,
     List<Customer>? selectedCustomers,
     AbstractFailure? firebaseFailure,
     bool? isAnyFailure,
@@ -89,7 +85,6 @@ class CustomerState {
   }) {
     return CustomerState(
       listOfAllCustomers: listOfAllCustomers ?? this.listOfAllCustomers,
-      listOfFilteredCustomers: listOfFilteredCustomers ?? this.listOfFilteredCustomers,
       selectedCustomers: selectedCustomers ?? this.selectedCustomers,
       firebaseFailure: firebaseFailure ?? this.firebaseFailure,
       isAnyFailure: isAnyFailure ?? this.isAnyFailure,

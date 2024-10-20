@@ -30,7 +30,7 @@ class MyOutlinedButton extends StatelessWidget {
         backgroundColor: buttonBackgroundColor,
         foregroundColor: textColor,
       ),
-      child: isLoading ? const MyCircularProgressIndicator(color: Colors.white) : Text(buttonText),
+      child: isLoading ? const SizedBox(height: 20, width: 20, child: MyCircularProgressIndicator(color: Colors.white)) : Text(buttonText),
     );
   }
 }

@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
+import 'package:mime/mime.dart';
 
 import '../../constants.dart';
 
@@ -9,27 +10,32 @@ class MyFile {
   final Uint8List fileBytes;
   final String name;
   final String? mimeType;
+  final int? size;
 
-  const MyFile({required this.fileBytes, required this.name, this.mimeType});
+  const MyFile({required this.fileBytes, required this.name, this.mimeType, this.size});
 
   factory MyFile.empty() {
-    return MyFile(fileBytes: Uint8List(0), name: '', mimeType: null);
+    return MyFile(fileBytes: Uint8List(0), name: '', mimeType: null, size: null);
   }
 
   MyFile copyWith({
     Uint8List? fileBytes,
     String? name,
     String? mimeType,
+    int? size,
   }) {
     return MyFile(
       fileBytes: fileBytes ?? this.fileBytes,
       name: name ?? this.name,
       mimeType: mimeType ?? this.mimeType,
+      size: size ?? this.size,
     );
   }
 
   @override
-  String toString() => 'MyFile(fileBytes: $fileBytes, name: $name, mimeType: $mimeType)';
+  String toString() {
+    return 'MyFile(fileBytes: $fileBytes, name: $name, mimeType: $mimeType, size: $size)';
+  }
 }
 
 Future<MyFile> convertPlatfomFileToMyFile(PlatformFile platformFile) async {
@@ -47,7 +53,9 @@ Future<MyFile> convertPlatfomFileToMyFile(PlatformFile platformFile) async {
     logger.e('Konnte die Datei für ${platformFile.name} nicht lesen');
   }
 
-  return MyFile(name: name, fileBytes: fileBytes!);
+  final mime = lookupMimeType('', headerBytes: fileBytes);
+
+  return MyFile(name: name, fileBytes: fileBytes!, mimeType: mime);
 }
 
 Future<List<MyFile>> convertPlatfomFilesToMyFiles(List<PlatformFile> platformFiles) async {

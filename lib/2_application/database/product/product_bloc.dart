@@ -39,14 +39,11 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
   }) : super(ProductState.initial()) {
     on<SetProductStateToInitialEvent>(_onSetProductStateToInitial);
     on<GetProductsPerPageEvent>(_onGetProductsPerPage);
-    on<GetFilteredProductsBySearchTextEvent>(_onGetFilteredProductsBySearchText);
     on<GetProductEvent>(_onGetProduct);
     on<DeleteSelectedProductsEvent>(_onDeleteSelectedProducts);
-    on<OnProductSearchControllerClearedEvent>(_onOnProductSearchControllerCleared);
     on<OnSearchFieldClearedEvent>(_onOnSearchFieldCleared);
     on<OnProductIsSelectedAllChangedEvent>(_onOnProductIsSelectedAllChanged);
     on<OnProductSelectedEvent>(_onOnProductSelected);
-    on<OnProductGetSuppliersEvent>(_onOnProductGetSuppliers);
     on<SetProductIsLoadingPdfEvent>(_onSetProductIsLoadingPdf);
     on<UpdateQuantityOfProductEvent>(_onUpdateQuantityOfProduct);
     on<ItemsPerPageChangedEvent>(_onItemsPerPageChanged);
@@ -118,48 +115,6 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
     emit(state.copyWith(fosProductsOnObserveOption: none()));
   }
 
-  Future<void> _onGetFilteredProductsBySearchText(GetFilteredProductsBySearchTextEvent event, Emitter<ProductState> emit) async {
-    emit(state.copyWith(isLoadingProductsOnObserve: true));
-
-    final fosCount = await productRepository.getNumberOfFilteredSortedProductsBySearchText(
-      searchText: state.productSearchController.text,
-      productsFilterValues: ProductsFilterValues.empty(),
-    );
-    fosCount.fold(
-      (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
-      (countNumber) => emit(state.copyWith(totalQuantity: countNumber, firebaseFailure: null, isAnyFailure: false)),
-    );
-
-    final fosProducts = await productRepository.getListOfFilteredSortedProductsBySearchText(
-      searchText: state.productSearchController.text,
-      currentPage: event.currentPage,
-      itemsPerPage: state.perPageQuantity,
-      isSortedAsc: state.isSortedAsc,
-      productsSortValue: state.productsSortValue,
-      productsFilterValues: state.productsFilterValues,
-    );
-
-    fosProducts.fold(
-      (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
-      (listOfProduct) {
-        emit(state.copyWith(
-          listOfAllProducts: listOfProduct,
-          listOfFilteredProducts: listOfProduct,
-          selectedProducts: [],
-          currentPage: event.currentPage,
-          firebaseFailure: null,
-          isAnyFailure: false,
-        ));
-      },
-    );
-
-    emit(state.copyWith(
-      isLoadingProductsOnObserve: false,
-      fosProductsOnObserveOption: optionOf(fosProducts),
-    ));
-    emit(state.copyWith(fosProductsOnObserveOption: none()));
-  }
-
   Future<void> _onGetProduct(GetProductEvent event, Emitter<ProductState> emit) async {
     final failureOrSuccess = await productRepository.getProduct(event.id);
     failureOrSuccess.fold(
@@ -204,10 +159,6 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
     emit(state.copyWith(fosProductOnDeleteOption: none()));
   }
 
-  void _onOnProductSearchControllerCleared(OnProductSearchControllerClearedEvent event, Emitter<ProductState> emit) {
-    emit(state.copyWith(productSearchController: SearchController()));
-  }
-
   void _onOnSearchFieldCleared(OnSearchFieldClearedEvent event, Emitter<ProductState> emit) {
     emit(state.copyWith(productSearchController: SearchController()));
     add(GetProductsPerPageEvent(isFirstLoad: false, calcCount: true, currentPage: 1));
@@ -234,22 +185,6 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
       isSelectedAllProducts: state.isSelectedAllProducts && products.length < state.selectedProducts.length ? false : state.isSelectedAllProducts,
       selectedProducts: products,
     ));
-  }
-
-  Future<void> _onOnProductGetSuppliers(OnProductGetSuppliersEvent event, Emitter<ProductState> emit) async {
-    emit(state.copyWith(isLoadingProductSuppliersOnObseve: true));
-
-    final failureOrSuccess = await supplierRepository.getListOfSuppliers();
-    failureOrSuccess.fold(
-      (failure) => null,
-      (listOfSuppliers) => emit(state.copyWith(listOfSuppliers: listOfSuppliers, firebaseFailure: null, isAnyFailure: false)),
-    );
-
-    emit(state.copyWith(
-      isLoadingProductSuppliersOnObseve: false,
-      fosProductSuppliersOnObserveOption: optionOf(failureOrSuccess),
-    ));
-    emit(state.copyWith(fosProductSuppliersOnObserveOption: none()));
   }
 
   void _onSetProductIsLoadingPdf(SetProductIsLoadingPdfEvent event, Emitter<ProductState> emit) {
@@ -287,11 +222,7 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
 
   void _onItemsPerPageChanged(ItemsPerPageChangedEvent event, Emitter<ProductState> emit) {
     emit(state.copyWith(perPageQuantity: event.value));
-    if (state.productSearchController.text.isEmpty) {
-      add(GetProductsPerPageEvent(isFirstLoad: false, calcCount: false, currentPage: 1));
-    } else {
-      add(GetFilteredProductsBySearchTextEvent(currentPage: 1));
-    }
+    add(GetProductsPerPageEvent(isFirstLoad: false, calcCount: false, currentPage: 1));
   }
 
   Future<void> _onMassEditActivateProductMarketplace(MassEditActivateProductMarketplaceEvent event, Emitter<ProductState> emit) async {

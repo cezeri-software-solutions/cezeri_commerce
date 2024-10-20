@@ -204,3 +204,10 @@ String generateRandomString(int length) {
     (_) => characters.codeUnitAt(random.nextInt(characters.length)),
   ));
 }
+
+String sanitizeFileName(String input) {
+  // Ersetzt ungültige Zeichen durch Unterstriche
+  String sanitized = input.replaceAll(RegExp(r'[^\w\s.-]'), '_');
+  // Entfernt Leerzeichen
+  return sanitized.replaceAll(' ', '_');
+}

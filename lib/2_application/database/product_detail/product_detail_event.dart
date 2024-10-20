@@ -88,8 +88,6 @@ class RemoveSelectedProductImages extends ProductDetailEvent {}
 
 class OnPickNewProductPictureEvent extends ProductDetailEvent {}
 
-class OnProductGetSuppliersEvent extends ProductDetailEvent {}
-
 class OnProductSetSupplierEvent extends ProductDetailEvent {
   final String supplierName;
 

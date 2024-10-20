@@ -9,3 +9,7 @@ String getShippingLabelStoragePath(String ownerId, String receiptId) {
 String getMarketplaceStoragePath(String ownerId, String marketplaceId) {
   return '$ownerId/$marketplaceId';
 }
+
+String getIncomingInvoiceStoragePath(String ownerId, String incomingInvoiceId) {
+  return '$ownerId/$incomingInvoiceId';
+}
