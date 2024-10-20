@@ -9,7 +9,7 @@ import '../../../../2_application/database/incoming_invoice_detail/incoming_invo
 import '../../../../constants.dart';
 import '../functions/functions.dart';
 
-Future<void> showIncomingInvoiceDetailMassEditingItems(BuildContext context, IncomingInvoiceDetailBloc bloc) async {
+Future<void> showIncomingInvoiceDetailMassEditingItemsSheet(BuildContext context, IncomingInvoiceDetailBloc bloc) async {
   const title = Padding(
     padding: EdgeInsets.only(left: 24, top: 20),
     child: Text('Massenbearbeitung', style: TextStyles.h2),

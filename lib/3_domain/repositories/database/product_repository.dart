@@ -1,9 +1,9 @@
 import 'package:dartz/dartz.dart';
-import 'package:file_picker/file_picker.dart';
 
 import '../../../2_application/database/product/product_bloc.dart';
 import '../../../failures/abstract_failure.dart';
 import '../../entities/marketplace/marketplace_presta.dart';
+import '../../entities/my_file.dart';
 import '../../entities/product/marketplace_product.dart';
 import '../../entities/product/product.dart';
 import '../../entities/product/product_image.dart';
@@ -15,7 +15,7 @@ abstract class ProductRepository {
   Future<Either<AbstractFailure, Product>> createProduct(Product product, MarketplaceProduct? marketplaceProduct);
   Future<Either<AbstractFailure, Product>> updateProduct(Product product);
   Future<Either<AbstractFailure, Product>> updateProductAndSets(Product product);
-  Future<Either<AbstractFailure, Product>> updateProductAddImages(Product product, List<PlatformFile> imageFiles);
+  Future<Either<AbstractFailure, Product>> updateProductAddImages(Product product, List<MyFile> myFiles);
   Future<Either<AbstractFailure, Product>> updateProductRemoveImages(Product product, List<ProductImage> listOfProductImages);
   Future<Either<AbstractFailure, Unit>> deleteProduct(String id, String? ownerId);
   Future<Either<AbstractFailure, Unit>> deleteListOfProducts(List<Product> products);

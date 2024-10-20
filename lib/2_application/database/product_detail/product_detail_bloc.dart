@@ -1,9 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:bloc/bloc.dart';
 import 'package:dartz/dartz.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import '/1_presentation/core/core.dart';
 import '/3_domain/entities/marketplace/abstract_marketplace.dart';
@@ -18,10 +16,10 @@ import '/3_domain/entities/statistic/stat_product.dart';
 import '/3_domain/repositories/marketplace/marketplace_edit_repository.dart';
 import '/3_domain/repositories/marketplace/marketplace_import_repository.dart';
 import '/4_infrastructur/repositories/prestashop_api/models/product_raw_presta.dart';
-import '/constants.dart';
 import '/failures/abstract_failure.dart';
 import '/failures/firebase_failures.dart';
 import '/failures/presta_failure.dart';
+import '../../../3_domain/entities/my_file.dart';
 import '../../../3_domain/entities/product/specific_price.dart';
 import '../../../3_domain/repositories/database/main_settings_respository.dart';
 import '../../../3_domain/repositories/database/marketplace_repository.dart';
@@ -99,7 +97,7 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
 //? ###########################################################################################################################
 
   Future<void> _onGetProduct(GetProductEvent event, Emitter<ProductDetailState> emit) async {
-      emit(state.copyWith(isLoadingProductOnObserve: true));
+    emit(state.copyWith(isLoadingProductOnObserve: true));
 
     if (state.mainSettings == null) {
       final fosSettings = await mainSettingsRepository.getSettings();
@@ -455,24 +453,9 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
 //? ###########################################################################################################################
 
   Future<void> _onPickNewProductPicture(OnPickNewProductPictureEvent event, Emitter<ProductDetailState> emit) async {
-    List<PlatformFile> imageFiles = [];
-
-    try {
-      final FilePickerResult? result = await FilePicker.platform.pickFiles(
-        allowMultiple: true,
-        withData: true,
-      );
-      if (result == null) return;
-      logger.i('Neues Artikelbild erfolgreich gepickt');
-      imageFiles = result.files;
-    } on PlatformException {
-      logger.e('Fehler beim Auswählen des Produktbildes');
-    }
-
-    if (imageFiles.isEmpty) return;
     emit(state.copyWith(isLoadingProductOnUpdateImages: true));
 
-    final failureOrSuccess = await productRepository.updateProductAddImages(state.product!, imageFiles);
+    final failureOrSuccess = await productRepository.updateProductAddImages(state.product!, event.myFiles);
 
     failureOrSuccess.fold(
       (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),

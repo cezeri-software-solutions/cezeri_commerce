@@ -141,7 +141,13 @@ List<Widget>? _getActions(
             buttonBackgroundColor: Colors.green,
           )
         : MyIconButton(
-            onPressed: () {},
+            onPressed: () => state.type == IncomingInvoiceAddEditType.create || state.type == IncomingInvoiceAddEditType.copy
+                ? incomingInvoiceDetailBloc.add(CreateIncomingInvoiceEvent())
+                : showMyDialogNotImplemented(
+                    context: context,
+                    content: 'Das Bearbeiten von Eingangsrechnungen ist nicht implementiert',
+                  ), //incomingInvoiceDetailBloc.add(UpdateIncomingInvoiceEvent()),
+            isLoading: state.isLoadingInvoiceOnCreate || state.isLoadingInvoiceOnUpdate,
             icon: const Icon(Icons.save, color: Colors.green),
             // isLoading: state.isLoadingProductOnUpdate,
           ),

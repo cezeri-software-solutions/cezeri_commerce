@@ -14,7 +14,7 @@ class MyDropzoneWeb extends StatefulWidget {
   final Color? backgroundColor;
   final Color? highlightColor;
   final List<String>? mime;
-  final Future<void> Function(List<MyFile>) getMyFiles;
+  final void Function(List<MyFile>) getMyFiles;
 
   const MyDropzoneWeb({
     super.key,

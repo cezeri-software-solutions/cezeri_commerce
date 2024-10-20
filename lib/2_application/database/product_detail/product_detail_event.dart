@@ -86,7 +86,11 @@ class OnProductIsActiveChangedEvent extends ProductDetailEvent {}
 
 class RemoveSelectedProductImages extends ProductDetailEvent {}
 
-class OnPickNewProductPictureEvent extends ProductDetailEvent {}
+class OnPickNewProductPictureEvent extends ProductDetailEvent {
+  final List<MyFile> myFiles;
+
+  OnPickNewProductPictureEvent({required this.myFiles});
+}
 
 class OnProductSetSupplierEvent extends ProductDetailEvent {
   final String supplierName;
