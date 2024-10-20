@@ -46,8 +46,11 @@
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 
-<!-- Erforderlicher Schlüssel für den Zugriff auf die Fotobibliothek -->
+<!-- Erforderlich für den Zugriff auf die Fotobibliothek -->
 <key>NSPhotoLibraryUsageDescription</key>
 <string>Wir benötigen Zugriff auf Ihre Fotobibliothek, um Bilder hochladen zu können.</string>
+<!-- Erforderlich für den Zugriff auf die Kamera -->
+<key>NSCameraUsageDescription</key>
+<string>Diese App benötigt Zugriff auf die Kamera, um Dokumente zu scannen.</string>
 </dict>
 </plist>

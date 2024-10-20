@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:responsive_framework/responsive_framework.dart';
 
 import '../../../2_application/database/incoming_invoice_detail/incoming_invoice_detail_bloc.dart';
 import 'widgets/widgets.dart';
@@ -13,7 +14,9 @@ class IncomingInvoiceDetailPage extends StatelessWidget {
   Widget build(BuildContext context) {
     const padding = 12.0;
     final screenWidth = MediaQuery.sizeOf(context).width;
-    final containerWidthRow3 = screenWidth / 3 - (padding + padding / 2);
+
+    final isMobile = ResponsiveBreakpoints.of(context).equals(MOBILE);
+    final containerWidthWrap = isMobile ? screenWidth - (padding * 2) : screenWidth / 3 - (padding + padding / 2);
 
     return BlocBuilder<IncomingInvoiceDetailBloc, IncomingInvoiceDetailState>(
       bloc: incomingInvoiceDetailBloc,
@@ -33,14 +36,15 @@ class IncomingInvoiceDetailPage extends StatelessWidget {
                       padding: padding,
                     ),
                     const SizedBox(height: padding),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    Wrap(
+                      runSpacing: padding / 2,
+                      // crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        IncomingInvoiceSupplierView(supplier: state.invoice!.supplier, containerWidth: containerWidthRow3),
+                        IncomingInvoiceSupplierView(supplier: state.invoice!.supplier, containerWidth: containerWidthWrap),
                         const SizedBox(width: padding),
-                        IncomingInvoiceTotalPositionsView(invoice: state.invoice!, containerWidth: containerWidthRow3),
+                        IncomingInvoiceTotalPositionsView(invoice: state.invoice!, containerWidth: containerWidthWrap),
                         const SizedBox(width: padding),
-                        IncomingInvoiceTotalInvoiceView(bloc: incomingInvoiceDetailBloc, invoice: state.invoice!, containerWidth: containerWidthRow3),
+                        IncomingInvoiceTotalInvoiceView(bloc: incomingInvoiceDetailBloc, invoice: state.invoice!, containerWidth: containerWidthWrap),
                       ],
                     ),
                     const SizedBox(height: padding),

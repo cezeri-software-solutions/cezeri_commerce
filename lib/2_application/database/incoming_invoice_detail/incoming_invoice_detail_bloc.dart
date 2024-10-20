@@ -52,6 +52,7 @@ class IncomingInvoiceDetailBloc extends Bloc<IncomingInvoiceDetailEvent, Incomin
     on<OnAddFilesToListEvent>(_onAddFilesToList);
     on<OnAddNewItemsFromReorderEvent>(_onAddNewItemsFromReorder);
     on<OnRemoveFileFromListEvent>(_onRemoveFileFromList);
+    on<OnUpdateFileNameEvent>(_onUpdateFileName);
     //* ########################################### ITEMS ###########################################
     on<OnAddNewItemToListEvent>(_onAddNewItemToList);
     on<OnRemoveItemFromListEvent>(_onRemoveItemFromList);
@@ -118,6 +119,8 @@ class IncomingInvoiceDetailBloc extends Bloc<IncomingInvoiceDetailEvent, Incomin
     final invoiceCopied = IncomingInvoice.empty().copyWith(
       supplier: IncomingInvoiceSupplier.fromSupplier(supplier),
       listOfIncomingInvoiceItems: loadedInvoice.listOfIncomingInvoiceItems,
+      currency: loadedInvoice.currency,
+      paymentMethod: loadedInvoice.paymentMethod,
     );
 
     emit(state.copyWith(
@@ -291,6 +294,17 @@ class IncomingInvoiceDetailBloc extends Bloc<IncomingInvoiceDetailEvent, Incomin
     List<IncomingInvoiceFile> listOfFiles = List.from(stateFiles);
 
     listOfFiles.removeAt(event.index);
+
+    emit(state.copyWith(invoice: state.invoice!.copyWith(listOfIncomingInvoiceFiles: listOfFiles)));
+  }
+
+  void _onUpdateFileName(OnUpdateFileNameEvent event, Emitter<IncomingInvoiceDetailState> emit) async {
+    final stateFiles = state.invoice!.listOfIncomingInvoiceFiles;
+    if (stateFiles == null || stateFiles.isEmpty || stateFiles.length < event.index - 1) return;
+
+    List<IncomingInvoiceFile> listOfFiles = List.from(stateFiles);
+
+    listOfFiles[event.index] = listOfFiles[event.index].copyWith(name: event.name);
 
     emit(state.copyWith(invoice: state.invoice!.copyWith(listOfIncomingInvoiceFiles: listOfFiles)));
   }

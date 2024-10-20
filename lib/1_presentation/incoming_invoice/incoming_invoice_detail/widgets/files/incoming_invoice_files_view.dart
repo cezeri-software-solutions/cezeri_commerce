@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:responsive_framework/responsive_framework.dart';
 
 import '../../../../../2_application/database/incoming_invoice_detail/incoming_invoice_detail_bloc.dart';
 import '../../../../../3_domain/entities/incoming_invoice/incoming_invoice_file.dart';
@@ -10,6 +11,7 @@ import '../../../../../4_infrastructur/repositories/database/functions/supabase_
 import '../../../../../constants.dart';
 import '../../../../core/core.dart';
 import '../../functions/functions.dart';
+import '../../sheets/sheets.dart';
 
 class IncomingInvoiceFilesView extends StatelessWidget {
   final IncomingInvoiceDetailBloc bloc;
@@ -22,6 +24,7 @@ class IncomingInvoiceFilesView extends StatelessWidget {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.sizeOf(context).width;
     final containerWidth = (screenWidth - padding * 2) - 20;
+    final isMobile = ResponsiveBreakpoints.of(context).equals(MOBILE);
 
     return MyFormFieldContainer(
       padding: const EdgeInsets.all(10),
@@ -40,12 +43,21 @@ class IncomingInvoiceFilesView extends StatelessWidget {
                     onPressed: () async => incomingInvoicePickFiles(context, bloc),
                     icon: const Icon(Icons.add, color: Colors.green),
                   ),
+                  if (!kIsWeb)
+                    IconButton(
+                      onPressed: () => incomingInvoiceScanFile(context, bloc),
+                      icon: const Icon(Icons.document_scanner_rounded, color: CustomColors.primaryColor),
+                    ),
                 ],
               ),
               if (listOfIncomingInvoiceFiles != null && listOfIncomingInvoiceFiles!.isNotEmpty)
                 SizedBox(
                   height: 110,
-                  width: kIsWeb ? containerWidth - 22 - 318 : containerWidth - 22,
+                  width: kIsWeb
+                      ? containerWidth - 22 - 318
+                      : isMobile
+                          ? containerWidth - 2
+                          : containerWidth - 22,
                   child: ListView.builder(
                     shrinkWrap: true,
                     scrollDirection: Axis.horizontal,
@@ -67,6 +79,7 @@ class IncomingInvoiceFilesView extends StatelessWidget {
                                 : PdfApiMobile.openPdf(name: file.name, byteList: loadedBytes);
                           }
                         },
+                        onLongPress: file.url.isEmpty ? () => showIncomingInvoiceUpdateFileNameSheet(context, file, index, bloc) : null,
                         child: Stack(
                           children: [
                             Column(

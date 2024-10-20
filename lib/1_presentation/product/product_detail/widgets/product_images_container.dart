@@ -1,10 +1,12 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../2_application/database/product_detail/product_detail_bloc.dart';
 import '../../../../constants.dart';
 import '../../../core/core.dart';
+import '../functions/functions.dart';
 
 class ProductImagesContainer extends StatelessWidget {
   final ProductDetailBloc productDetailBloc;
@@ -50,6 +52,13 @@ class ProductImagesContainer extends StatelessWidget {
                 ),
               ],
             ),
+            if (kIsWeb)
+              MyDropzoneWeb(
+                width: double.infinity,
+                height: 120,
+                backgroundColor: CustomColors.backgroundLightGrey,
+                getMyFiles: (myFiles) => productDetailBloc.add(OnPickNewProductPictureEvent(myFiles: myFiles)),
+              ),
             Checkbox.adaptive(
               value: state.isSelectedAllImages,
               onChanged: (value) => productDetailBloc.add(OnAllProdcutImagesSelectedEvent(value: value!)),
@@ -93,7 +102,10 @@ class ProductImagesContainer extends StatelessWidget {
               onReorder: (oldIndex, newIndex) => productDetailBloc.add(OnReorderProductImagesEvent(oldIndex: oldIndex, newIndex: newIndex)),
             ),
             TextButton.icon(
-              onPressed: () async => productDetailBloc.add(OnPickNewProductPictureEvent()),
+              onPressed: () async {
+                final myFiles = await productDetailGetMyFilesFromFilePicker();
+                if (myFiles != null && myFiles.isNotEmpty) productDetailBloc.add(OnPickNewProductPictureEvent(myFiles: myFiles));
+              },
               icon: const Icon(Icons.add, color: Colors.green),
               label: const Text('Bild(er) hinzufügen'),
             ),
