@@ -1,5 +1,6 @@
 export 'address_functions.dart';
 export 'check_internet_connection.dart';
+export 'convert_image_to_pdf.dart';
 export 'dialogs.dart';
 export 'get_aspect_ratio.dart';
 export 'get_random_color.dart';

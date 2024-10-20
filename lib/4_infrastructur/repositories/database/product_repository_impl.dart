@@ -1,7 +1,6 @@
 import 'package:cezeri_commerce/3_domain/entities/product/product_marketplace.dart';
 import 'package:cezeri_commerce/failures/firebase_failures.dart';
 import 'package:dartz/dartz.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '/1_presentation/core/core.dart';
@@ -537,14 +536,12 @@ class ProductRepositoryImpl implements ProductRepository {
   }
 
   @override
-  Future<Either<FirebaseFailure, Product>> updateProductAddImages(Product product, List<PlatformFile> imageFiles) async {
+  Future<Either<FirebaseFailure, Product>> updateProductAddImages(Product product, List<MyFile> myFiles) async {
     if (!await checkInternetConnection()) return Left(NoConnectionFailure());
     final ownerId = await getOwnerId();
     if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
 
     try {
-      final myFiles = await convertPlatfomFilesToMyFiles(imageFiles);
-
       final List<ProductImage> listOfProductImages =
           await uploadImageFilesToStorageFromFlutter(product.listOfProductImages, myFiles, getProductImagesStoragePath(ownerId, product.id));
 

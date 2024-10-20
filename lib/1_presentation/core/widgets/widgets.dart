@@ -11,6 +11,7 @@ export 'my_circular_progress_indicator.dart';
 export 'my_country_flag.dart';
 export 'my_dialog_countries.dart';
 export 'my_dialog_taxes.dart';
+export 'my_document_scanner_basic.dart';
 export 'my_dropdown_button_form_field.dart';
 export 'my_dropzone_web.dart';
 export 'my_elevated_button.dart';

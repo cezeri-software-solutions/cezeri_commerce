@@ -124,6 +124,13 @@ class OnRemoveFileFromListEvent extends IncomingInvoiceDetailEvent {
   OnRemoveFileFromListEvent({required this.index});
 }
 
+class OnUpdateFileNameEvent extends IncomingInvoiceDetailEvent {
+  final String name;
+  final int index;
+
+  OnUpdateFileNameEvent({required this.name, required this.index});
+}
+
 //* ############################################################################################################################
 //* Incoming Invoice ITEMS
 
