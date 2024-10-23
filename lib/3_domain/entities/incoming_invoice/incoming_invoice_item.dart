@@ -19,7 +19,6 @@ enum ItemType { account, position, discount, shipping, otherSurcharge }
 
 @JsonSerializable(explicitToJson: true)
 class IncomingInvoiceItem extends Equatable {
-  
   final String id; // id des incoming_invoice
   @JsonKey(name: 'sort_id')
   final int sortId;

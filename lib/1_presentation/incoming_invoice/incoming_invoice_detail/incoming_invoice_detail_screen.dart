@@ -79,6 +79,27 @@ class _IncomingInvoiceDetailScreenState extends State<IncomingInvoiceDetailScree
               );
             },
           ),
+          BlocListener<IncomingInvoiceDetailBloc, IncomingInvoiceDetailState>(
+            listenWhen: (p, c) => p.fosInvoiceOnUpdateOption != c.fosInvoiceOnUpdateOption,
+            listener: (context, state) {
+              state.fosInvoiceOnUpdateOption.fold(
+                () => null,
+                (a) => a.fold(
+                  (failure) => failureRenderer(context, [failure]),
+                  (_) {
+                    final incomingInvoiceId = state.invoice!.id;
+                    myScaffoldMessenger(context, null, null, 'Eingangsrechnung erfolgreich aktualisiert', null);
+                    Navigator.of(context).pop();
+                    context.router.push(IncomingInvoiceDetailRoute(
+                      type: IncomingInvoiceAddEditType.edit,
+                      supplier: null,
+                      incomingInvoiceId: incomingInvoiceId,
+                    ));
+                  },
+                ),
+              );
+            },
+          ),
         ],
         child: BlocBuilder<IncomingInvoiceDetailBloc, IncomingInvoiceDetailState>(
           builder: (context, state) {
@@ -114,42 +135,25 @@ List<Widget>? _getActions(
   String? incomingInvoiceId,
 ) {
   log(state.type.toString());
-  // void onSafePressed() {
-  //   if (productId != null) {
-  //     productDetailBloc.add(UpdateProductEvent());
-  //   } else {
-  //     // TODO: Handle create new product
-  //   }
-  // }
 
   return [
-    // if (productId != null)
-    //   IconButton(
-    //     onPressed: () => incomingInvoiceDetailBloc.add(GetProductEvent(id: state.product!.id)),
-    //     icon: const Icon(Icons.refresh, size: 30),
-    //   ),
     ResponsiveBreakpoints.of(context).largerOrEqualTo(TABLET)
         ? MyOutlinedButton(
             buttonText: 'Speichern',
-            onPressed: () => state.type == IncomingInvoiceAddEditType.create || state.type == IncomingInvoiceAddEditType.copy
-                ? incomingInvoiceDetailBloc.add(CreateIncomingInvoiceEvent())
-                : showMyDialogNotImplemented(
-                    context: context,
-                    content: 'Das Bearbeiten von Eingangsrechnungen ist nicht implementiert',
-                  ), //incomingInvoiceDetailBloc.add(UpdateIncomingInvoiceEvent()),
-            isLoading: state.isLoadingInvoiceOnCreate || state.isLoadingInvoiceOnUpdate,
+            onPressed: () => switch (state.type) {
+              IncomingInvoiceAddEditType.create || IncomingInvoiceAddEditType.copy => incomingInvoiceDetailBloc.add(CreateIncomingInvoiceEvent()),
+              IncomingInvoiceAddEditType.edit => incomingInvoiceDetailBloc.add(UpdateIncomingInvoiceEvent()),
+            },
+            isLoading: state.isLoadingInvoiceOnCreate || state.isLoadingInvoiceOnUpdate || state.isLoadingInvoiceOnUpdate,
             buttonBackgroundColor: Colors.green,
           )
         : MyIconButton(
-            onPressed: () => state.type == IncomingInvoiceAddEditType.create || state.type == IncomingInvoiceAddEditType.copy
-                ? incomingInvoiceDetailBloc.add(CreateIncomingInvoiceEvent())
-                : showMyDialogNotImplemented(
-                    context: context,
-                    content: 'Das Bearbeiten von Eingangsrechnungen ist nicht implementiert',
-                  ), //incomingInvoiceDetailBloc.add(UpdateIncomingInvoiceEvent()),
-            isLoading: state.isLoadingInvoiceOnCreate || state.isLoadingInvoiceOnUpdate,
+            onPressed: () => switch (state.type) {
+              IncomingInvoiceAddEditType.create || IncomingInvoiceAddEditType.copy => incomingInvoiceDetailBloc.add(CreateIncomingInvoiceEvent()),
+              IncomingInvoiceAddEditType.edit => incomingInvoiceDetailBloc.add(UpdateIncomingInvoiceEvent()),
+            },
+            isLoading: state.isLoadingInvoiceOnCreate || state.isLoadingInvoiceOnUpdate || state.isLoadingInvoiceOnUpdate,
             icon: const Icon(Icons.save, color: Colors.green),
-            // isLoading: state.isLoadingProductOnUpdate,
           ),
     if (ResponsiveBreakpoints.of(context).largerOrEqualTo(TABLET)) Gaps.w24,
   ];

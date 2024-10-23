@@ -13,6 +13,7 @@ import '/4_infrastructur/repositories/shopify_api/shopify.dart';
 import '/routes/router.gr.dart';
 import '../../../2_application/database/product/product_bloc.dart';
 import '../../core/core.dart';
+import '../sheets/ads_roas_calculator.dart';
 import '../widgets/product_profit_text.dart';
 import 'widgets/update_product_quantity_dialog.dart';
 
@@ -105,6 +106,26 @@ class _ProductContainer extends StatelessWidget {
                 ),
                 isTabletOrLarger ? Gaps.w16 : Gaps.w8,
                 _ProductInfoBar(productBloc: productBloc, product: product),
+                Column(
+                  children: [
+                    MaterialButton(
+                      onPressed: () => showProductAdsRoasCalculatorSheet(context, product),
+                      child: SvgPicture.asset('assets/other/google_ads.svg', width: 20, height: 20),
+                    ),
+                    Row(
+                      children: [
+                        const Text('AT: '),
+                        ProductRoasQuickView(product: product),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        const Text('DE: '),
+                        ProductRoasQuickView(product: product, isGermany: true),
+                      ],
+                    ),
+                  ],
+                ),
                 Gaps.w16,
                 if (isTabletOrLarger) _PricesBar(product: product) else _StockBar(productBloc: productBloc, product: product),
                 isTabletOrLarger ? Gaps.w16 : Gaps.w8,

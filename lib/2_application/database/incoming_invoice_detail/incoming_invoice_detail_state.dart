@@ -13,7 +13,7 @@ class IncomingInvoiceDetailState {
   final bool isLoadingInvoiceOnDelete;
   final Option<Either<AbstractFailure, IncomingInvoice>> fosInvoiceOnObserveOption;
   final Option<Either<AbstractFailure, IncomingInvoice>> fosInvoiceOnCreateOption;
-  final Option<Either<AbstractFailure, IncomingInvoice>> fosInvoiceOnUpdateOption;
+  final Option<Either<AbstractFailure, Unit>> fosInvoiceOnUpdateOption;
   final Option<Either<List<AbstractFailure>, Unit>> fosInvoicesOnDeleteOption;
 
   //* Helper
@@ -99,7 +99,7 @@ class IncomingInvoiceDetailState {
     bool? isLoadingInvoiceOnDelete,
     Option<Either<AbstractFailure, IncomingInvoice>>? fosInvoiceOnObserveOption,
     Option<Either<AbstractFailure, IncomingInvoice>>? fosInvoiceOnCreateOption,
-    Option<Either<AbstractFailure, IncomingInvoice>>? fosInvoiceOnUpdateOption,
+    Option<Either<AbstractFailure, Unit>>? fosInvoiceOnUpdateOption,
     Option<Either<List<AbstractFailure>, Unit>>? fosInvoicesOnDeleteOption,
     IncomingInvoiceAddEditType? type,
     TextEditingController? invoiceNumberController,

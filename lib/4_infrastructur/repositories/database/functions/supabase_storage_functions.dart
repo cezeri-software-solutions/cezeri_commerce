@@ -1,13 +1,16 @@
 import 'dart:typed_data';
 
+import 'package:dartz/dartz.dart';
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../1_presentation/core/core.dart';
 import '../../../../3_domain/entities/incoming_invoice/incoming_invoice_file.dart';
 import '../../../../3_domain/entities/my_file.dart';
 import '../../../../3_domain/entities/product/product_image.dart';
 import '../../../../constants.dart';
+import '../../../../failures/failures.dart';
 
 Future<Uint8List?> downloadFileFromUrl(String url) async {
   try {
@@ -118,6 +121,23 @@ Future<List<IncomingInvoiceFile>> uploadIncomingInvoiceFilesToStorageFromFlutter
     }
   }
   return newListOfInvoiceFiles;
+}
+
+
+Future<Either<AbstractFailure, Unit>> deleteFilesFromSupabaseStorageByUrl(List<String> fileUrls, String bucketName) async {
+  final extractedUrls = fileUrls.map((url) => extractPathFromUrl(url, bucketName)).toList();
+
+  try {
+    await supabase.storage.from(bucketName).remove(extractedUrls);
+
+    return const Right(unit);
+  } on StorageException catch (e) {
+    logger.e(e.message);
+    return Left(GeneralFailure(customMessage: e.message));
+  } catch (e) {
+    logger.e('Dateien konnten nicht gelöscht werden. ERROR: $e');
+    return Left(GeneralFailure(customMessage: e.toString()));
+  }
 }
 
 String extractPathFromUrl(String url, String path) {

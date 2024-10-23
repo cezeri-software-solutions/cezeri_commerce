@@ -76,6 +76,27 @@ class GeneralLedgerAccountRepositoryImpl implements GeneralLedgerAccountReposito
   }
 
   @override
+  Future<Either<AbstractFailure, List<GeneralLedgerAccount>>> getListOfGLAccountsOnlyVisible() async {
+    if (!await checkInternetConnection()) return Left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
+
+    final query = supabase.from('general_ledger_accounts').select().eq('owner_id', ownerId).eq('is_visible', true);
+
+    try {
+      final response = await query;
+
+      if (response.isEmpty) return const Right([]);
+      final listOfGLAccounts = response.map((e) => GeneralLedgerAccount.fromJson(e)).toList();
+
+      return Right(listOfGLAccounts);
+    } catch (e) {
+      logger.e(e);
+      return Left(GeneralFailure(customMessage: 'Sachkontos konntes nicht geladen werden. Error: $e'));
+    }
+  }
+
+  @override
   Future<Either<AbstractFailure, GeneralLedgerAccount>> updateGLAccount(GeneralLedgerAccount gLAccount) async {
     if (!await checkInternetConnection()) return Left(NoConnectionFailure());
     final ownerId = await getOwnerId();

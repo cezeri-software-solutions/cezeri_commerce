@@ -12,6 +12,6 @@ abstract class IncomingInvoiceRepository {
     required int currentPage,
     required int itemsPerPage,
   });
-  Future<Either<AbstractFailure, IncomingInvoice>> updateIncomingInvoice(IncomingInvoice incomingInvoice);
+  Future<Either<AbstractFailure, Unit>> updateIncomingInvoice(IncomingInvoice incomingInvoice);
   Future<Either<AbstractFailure, Unit>> deleteIncomingInvoice(String id);
 }
