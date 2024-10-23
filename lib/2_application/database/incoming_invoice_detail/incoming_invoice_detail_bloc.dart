@@ -208,16 +208,14 @@ class IncomingInvoiceDetailBloc extends Bloc<IncomingInvoiceDetailEvent, Incomin
   Future<void> _onUpdateIncomingInvoice(UpdateIncomingInvoiceEvent event, Emitter<IncomingInvoiceDetailState> emit) async {
     emit(state.copyWith(isLoadingInvoiceOnUpdate: true));
 
-    // final fos = await _incomingInvoiceRepository.getIncomingInvoice(event.id);
-    // fos.fold(
-    //   (failure) => emit(state.copyWith(abstractFailure: failure)),
-    //   (loadedInvoice) {
-    //     emit(state.copyWith(invoice: loadedInvoice, resetAbstractFailure: true));
-    //   },
-    // );
+    final fos = await _incomingInvoiceRepository.updateIncomingInvoice(state.invoice!);
+    fos.fold(
+      (failure) => emit(state.copyWith(abstractFailure: failure)),
+      (_) => state.abstractFailure != null ? emit(state.copyWith(resetAbstractFailure: true)) : null,
+    );
 
-    // emit(state.copyWith(isLoadingInvoiceOnUpdate: false, fosInvoiceOnUpdateOption: optionOf(fos)));
-    // emit(state.copyWith(fosInvoiceOnUpdateOption: none()));
+    emit(state.copyWith(isLoadingInvoiceOnUpdate: false, fosInvoiceOnUpdateOption: optionOf(fos)));
+    emit(state.copyWith(fosInvoiceOnUpdateOption: none()));
   }
 
   void _onInvoiceNumberControllerChanged(OnInvoiceNumberControllerChangedEvent event, Emitter<IncomingInvoiceDetailState> emit) async {

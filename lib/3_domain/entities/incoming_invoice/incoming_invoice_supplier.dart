@@ -7,7 +7,6 @@ part 'incoming_invoice_supplier.g.dart';
 
 @JsonSerializable(explicitToJson: true)
 class IncomingInvoiceSupplier extends Equatable {
-  @JsonKey(includeToJson: false)
   final String id;
   @JsonKey(name: 'supplier_id')
   final String supplierId;

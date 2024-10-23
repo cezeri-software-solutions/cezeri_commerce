@@ -9,9 +9,10 @@ import '../../../../3_domain/repositories/database/product_repository.dart';
 
 Future<List<String>> incomingInvoiceDetailLoadAccounts(String filter) async {
   final gLAccountRepo = GetIt.I<GeneralLedgerAccountRepository>();
-  final fos = await gLAccountRepo.getListOfGLAccounts();
+  final fos = await gLAccountRepo.getListOfGLAccountsOnlyVisible();
   if (fos.isLeft()) return [];
   final gLAccounts = fos.getRight();
+  gLAccounts.sort((a, b) => a.accountAsString.compareTo(b.accountAsString));
   final list = gLAccounts.map((e) => e.accountAsString).toList();
   return list;
 }

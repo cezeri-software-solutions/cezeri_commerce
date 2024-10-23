@@ -4,6 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../1_presentation/core/core.dart';
 import '../../../3_domain/entities/id.dart';
+import '../../../3_domain/entities/incoming_invoice/incoming_invoice_file.dart';
 import '../../../3_domain/repositories/database/incoming_invoice_repository.dart';
 import '../../../3_domain/repositories/database/main_settings_respository.dart';
 import '../../../constants.dart';
@@ -123,12 +124,72 @@ class IncomingInvoiceRepositoryImpl implements IncomingInvoiceRepository {
   }
 
   @override
-  Future<Either<AbstractFailure, IncomingInvoice>> updateIncomingInvoice(IncomingInvoice incomingInvoice) async {
-    throw UnimplementedError();
+  Future<Either<AbstractFailure, Unit>> updateIncomingInvoice(IncomingInvoice incomingInvoice) async {
+    if (!await checkInternetConnection()) return Left(NoConnectionFailure());
+    final ownerId = await getOwnerId();
+    if (ownerId == null) return Left(GeneralFailure(customMessage: 'Dein User konnte nicht aus der Datenbank geladen werden'));
+
+    try {
+      // 1. Vorhandene Dateien abrufen und sicherstellen, dass sie nicht null sind
+      final existingFiles = (await _getIncomingInvoiceFileUrls(incomingInvoice.id)) ?? [];
+      final existingFileUrls = existingFiles.map((e) => e.url).toList();
+
+      // 2. Dateien aus der aktualisierten Rechnung abrufen
+      final updatedFiles = incomingInvoice.listOfIncomingInvoiceFiles ?? [];
+      final updatedFileUrls = updatedFiles.map((e) => e.url).toList();
+
+      // 3. Neue Dateien ermitteln (in updatedFiles, aber nicht in existingFiles)
+      final newFiles = updatedFiles.where((e) => !existingFileUrls.contains(e.url)).toList();
+
+      // 4. Zu löschende Dateien ermitteln (in existingFiles, aber nicht in updatedFiles)
+      final filesToDelete = existingFileUrls.where((url) => !updatedFileUrls.contains(url)).toList();
+
+      // 5. Neue Dateien hochladen
+      final newUploadedFiles = await uploadIncomingInvoiceFilesToStorageFromFlutter(
+        newFiles,
+        getIncomingInvoiceStoragePath(ownerId, incomingInvoice.id),
+      );
+
+      // 6. Neue Liste der Dateien erstellen
+      final newFilesWithUrl = [...existingFiles, ...newUploadedFiles];
+      newFilesWithUrl.removeWhere((e) => filesToDelete.contains(e.url));
+
+      // 7. Rechnung mit aktualisierter Dateiliste aktualisieren
+      final updatedIncomingInvoice = incomingInvoice.copyWith(listOfIncomingInvoiceFiles: newFilesWithUrl);
+
+      // 8. Dateien aus dem Storage löschen
+      if (filesToDelete.isNotEmpty) {
+        await deleteFilesFromSupabaseStorageByUrl(filesToDelete, 'incoming-invoice-files');
+      }
+
+      // 9. Rechnung in der Datenbank aktualisieren
+      await supabase.rpc('update_incoming_invoice', params: {'p_invoice': updatedIncomingInvoice.toJson(), 'p_owner_id': ownerId});
+
+      return const Right(unit);
+    } catch (e) {
+      logger.e(e.runtimeType);
+      logger.e(e);
+      return Left(GeneralFailure(customMessage: 'Eingangsrechnung: "${incomingInvoice.invoiceNumber}" konnte nicht aktualisiert werden. Error: $e'));
+    }
   }
 
   @override
   Future<Either<AbstractFailure, Unit>> deleteIncomingInvoice(String id) async {
     throw UnimplementedError();
   }
+}
+
+Future<List<IncomingInvoiceFile>?> _getIncomingInvoiceFileUrls(String incomingInvoiceId) async {
+  try {
+    final response = await supabase.from('incoming_invoice_files').select().eq('incoming_invoice_id', incomingInvoiceId);
+
+    if (response.isEmpty) return const [];
+
+    final existingFiles = response.map((e) => IncomingInvoiceFile.fromJson(e)).toList();
+
+    return existingFiles;
+  } catch (e) {
+    logger.e(e);
+  }
+  return null;
 }

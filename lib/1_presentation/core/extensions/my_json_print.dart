@@ -1,6 +1,7 @@
 // ignore_for_file: avoid_print
 
 import 'dart:convert';
+import 'dart:developer';
 
 //* Printet ein JSON Objekt in einem lesbaren Stil
 extension JsonPrint on Object {
@@ -14,7 +15,7 @@ extension JsonPrint on Object {
       throw 'Das Objekt konnte nicht in JSON konvertiert werden. Stellen Sie sicher, dass das Objekt eine gültige toJson-Methode hat.';
     }
 
-    print(prettyPrint);
+    log(prettyPrint);
   }
 }
 
