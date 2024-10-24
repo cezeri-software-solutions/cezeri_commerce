@@ -80,6 +80,7 @@ class MyTextFormFieldSmall extends StatelessWidget {
             validator: (value) => validator != null ? validator!(value) : null,
             style: const TextStyle(fontSize: 14).copyWith(letterSpacing: 0),
             focusNode: focusNode,
+            onTapOutside: (_) => FocusScope.of(context).unfocus(),
             keyboardType: keyboardType,
             readOnly: readOnly,
             textCapitalization: textCapitalization,
