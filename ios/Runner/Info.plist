@@ -52,5 +52,15 @@
 <!-- Erforderlich für den Zugriff auf die Kamera -->
 <key>NSCameraUsageDescription</key>
 <string>Diese App benötigt Zugriff auf die Kamera, um Dokumente zu scannen.</string>
+<!-- Damit deep linking funktioniert -->
+<key>CFBundleURLTypes</key>
+<array>
+	<dict>
+		<key>CFBundleURLSchemes</key>
+		<array>
+			<string>io.supabase.flutterquickstart</string>
+		</array>
+	</dict>
+</array>
 </dict>
 </plist>

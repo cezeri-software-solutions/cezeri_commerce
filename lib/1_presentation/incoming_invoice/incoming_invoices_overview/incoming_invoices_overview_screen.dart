@@ -59,11 +59,12 @@ class _IncomingInvoicesOverviewScreenState extends State<IncomingInvoicesOvervie
                       onPressed: () async {
                         final supplier = await showSelectSupplierSheet(context);
                         if (supplier != null && context.mounted) {
-                          context.router.push(IncomingInvoiceDetailRoute(
+                          await context.router.push(IncomingInvoiceDetailRoute(
                             type: IncomingInvoiceAddEditType.create,
                             supplier: supplier,
                             incomingInvoiceId: null,
                           ));
+                          incomingInvoiceBloc.add(GetIncomingInvoicesEvent(calcCount: true, currentPage: state.currentPage));
                         }
                       },
                       icon: const Icon(Icons.add, color: Colors.green),

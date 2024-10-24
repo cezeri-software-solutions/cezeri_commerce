@@ -24,6 +24,7 @@ class IncomingInvoiceDetailState {
   final TextEditingController discountPercentageController;
   final TextEditingController discountAmountController;
   final TextEditingController earlyPaymentDiscountController;
+  final TextEditingController commentController;
 
   //* Incoming Invoice Item Controller
   final ScrollController scrollController;
@@ -51,6 +52,7 @@ class IncomingInvoiceDetailState {
     required this.discountPercentageController,
     required this.discountAmountController,
     required this.earlyPaymentDiscountController,
+    required this.commentController,
     required this.scrollController,
     required this.itemTitleController,
     required this.itemQuantityController,
@@ -78,6 +80,7 @@ class IncomingInvoiceDetailState {
       discountPercentageController: TextEditingController(),
       discountAmountController: TextEditingController(),
       earlyPaymentDiscountController: TextEditingController(),
+      commentController: TextEditingController(),
       scrollController: ScrollController(),
       itemTitleController: TextEditingController(),
       itemQuantityController: TextEditingController(),
@@ -106,6 +109,7 @@ class IncomingInvoiceDetailState {
     TextEditingController? discountPercentageController,
     TextEditingController? discountAmountController,
     TextEditingController? earlyPaymentDiscountController,
+    TextEditingController? commentController,
     ScrollController? scrollController,
     TextEditingController? itemTitleController,
     TextEditingController? itemQuantityController,
@@ -131,6 +135,7 @@ class IncomingInvoiceDetailState {
       discountPercentageController: discountPercentageController ?? this.discountPercentageController,
       discountAmountController: discountAmountController ?? this.discountAmountController,
       earlyPaymentDiscountController: earlyPaymentDiscountController ?? this.earlyPaymentDiscountController,
+      commentController: commentController ?? this.commentController,
       scrollController: scrollController ?? this.scrollController,
       itemTitleController: itemTitleController ?? this.itemTitleController,
       itemQuantityController: itemQuantityController ?? this.itemQuantityController,

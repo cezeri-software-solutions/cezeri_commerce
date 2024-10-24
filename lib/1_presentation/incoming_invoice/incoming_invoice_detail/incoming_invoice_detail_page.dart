@@ -38,7 +38,6 @@ class IncomingInvoiceDetailPage extends StatelessWidget {
                     const SizedBox(height: padding),
                     Wrap(
                       runSpacing: padding / 2,
-                      // crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         IncomingInvoiceSupplierView(supplier: state.invoice!.supplier, containerWidth: containerWidthWrap),
                         const SizedBox(width: padding),
@@ -84,6 +83,7 @@ class IncomingInvoiceDetailPage extends StatelessWidget {
                       listOfIncomingInvoiceItems: state.invoice!.listOfIncomingInvoiceItems,
                       padding: padding,
                     ),
+                    IncomingInvoiceCommentView(bloc: incomingInvoiceDetailBloc),
                   ],
                 ),
               ),

@@ -52,6 +52,8 @@ class OnDiscountAmountControllerChangedEvent extends IncomingInvoiceDetailEvent 
 
 class OnEarlyPaymentControllerChangedEvent extends IncomingInvoiceDetailEvent {}
 
+class OnCommentControllerChangedEvent extends IncomingInvoiceDetailEvent {}
+
 //* Helpers Values
 
 class OnDiscountPercentageChangedEvent extends IncomingInvoiceDetailEvent {
