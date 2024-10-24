@@ -38,7 +38,7 @@ class _SuppliersOverviewScreenState extends State<SuppliersOverviewScreen> with 
                 () => null,
                 (a) => a.fold(
                   (failure) => failureRenderer(context, [failure]),
-                  (listOfProducts) => myScaffoldMessenger(context, null, null, 'Lieferanten wurden erfolgreich geladen', null),
+                  (_) => null,
                 ),
               );
             },

@@ -25,7 +25,7 @@ class SuppliersOverviewPage extends StatelessWidget {
         if (state.firebaseFailure != null && state.isAnyFailure) {
           return const Expanded(child: Center(child: Text('Ein Fehler beim Laden der Lieferanten ist aufgetreten!')));
         }
-        if (state.listOfAllSuppliers == null || state.listOfFilteredSuppliers == null) {
+        if (state.listOfAllSuppliers == null) {
           return const Expanded(child: Center(child: CircularProgressIndicator()));
         }
         if (state.listOfAllSuppliers!.isEmpty) {
@@ -35,9 +35,9 @@ class SuppliersOverviewPage extends StatelessWidget {
         return Expanded(
           child: Scrollbar(
             child: ListView.separated(
-              itemCount: state.listOfFilteredSuppliers!.length,
+              itemCount: state.listOfAllSuppliers!.length,
               itemBuilder: (context, index) {
-                final supplier = state.listOfFilteredSuppliers![index];
+                final supplier = state.listOfAllSuppliers![index];
                 if (index == 0) {
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,

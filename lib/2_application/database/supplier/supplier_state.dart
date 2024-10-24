@@ -4,7 +4,6 @@ part of 'supplier_bloc.dart';
 class SupplierState {
   final Supplier? supplier;
   final List<Supplier>? listOfAllSuppliers;
-  final List<Supplier>? listOfFilteredSuppliers;
   final List<Supplier> selectedSuppliers;
   final AbstractFailure? firebaseFailure;
   final bool isAnyFailure;
@@ -38,7 +37,6 @@ class SupplierState {
   const SupplierState({
     required this.supplier,
     required this.listOfAllSuppliers,
-    required this.listOfFilteredSuppliers,
     required this.selectedSuppliers,
     required this.firebaseFailure,
     required this.isAnyFailure,
@@ -70,7 +68,6 @@ class SupplierState {
     return SupplierState(
       supplier: null,
       listOfAllSuppliers: null,
-      listOfFilteredSuppliers: null,
       selectedSuppliers: const [],
       firebaseFailure: null,
       isAnyFailure: false,
@@ -102,7 +99,6 @@ class SupplierState {
   SupplierState copyWith({
     Supplier? supplier,
     List<Supplier>? listOfAllSuppliers,
-    List<Supplier>? listOfFilteredSuppliers,
     List<Supplier>? selectedSuppliers,
     AbstractFailure? firebaseFailure,
     bool? isAnyFailure,
@@ -132,7 +128,6 @@ class SupplierState {
     return SupplierState(
       supplier: supplier ?? this.supplier,
       listOfAllSuppliers: listOfAllSuppliers ?? this.listOfAllSuppliers,
-      listOfFilteredSuppliers: listOfFilteredSuppliers ?? this.listOfFilteredSuppliers,
       selectedSuppliers: selectedSuppliers ?? this.selectedSuppliers,
       firebaseFailure: firebaseFailure ?? this.firebaseFailure,
       isAnyFailure: isAnyFailure ?? this.isAnyFailure,
