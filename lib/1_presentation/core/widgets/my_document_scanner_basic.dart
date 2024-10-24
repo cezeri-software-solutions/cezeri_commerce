@@ -26,6 +26,7 @@ class _MyDocumentScannerBasicState extends State<MyDocumentScannerBasic> {
     return Scaffold(
       body: DocumentScanner(
         controller: _controller,
+        resolutionCamera: ResolutionPreset.ultraHigh,
         cropPhotoDocumentStyle: CropPhotoDocumentStyle(
           top: MediaQuery.of(context).padding.top,
           textButtonSave: 'SPEICHERN',
