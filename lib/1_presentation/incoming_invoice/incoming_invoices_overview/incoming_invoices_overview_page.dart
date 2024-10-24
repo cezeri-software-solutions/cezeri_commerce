@@ -26,42 +26,45 @@ class IncomingInvoicesOverviewPage extends StatelessWidget {
 
         return Expanded(
           child: Scrollbar(
-            child: ListView.separated(
-              shrinkWrap: true,
-              itemCount: state.listOfInvoices!.length,
-              separatorBuilder: (context, index) => const Divider(indent: 54, endIndent: 20, height: 0),
-              itemBuilder: (context, index) {
-                final invoice = state.listOfInvoices![index];
-                if (ResponsiveBreakpoints.of(context).equals(MOBILE)) {
-                  return _IncomingInvoiceTileMobile(
+            child: RefreshIndicator(
+              onRefresh: () async => incomingInvoiceBloc.add(GetIncomingInvoicesEvent(calcCount: false, currentPage: state.currentPage)),
+              child: ListView.separated(
+                shrinkWrap: true,
+                itemCount: state.listOfInvoices!.length,
+                separatorBuilder: (context, index) => const Divider(indent: 54, endIndent: 20, height: 0),
+                itemBuilder: (context, index) {
+                  final invoice = state.listOfInvoices![index];
+                  if (ResponsiveBreakpoints.of(context).equals(MOBILE)) {
+                    return _IncomingInvoiceTileMobile(
+                      incomingInvoiceBloc: incomingInvoiceBloc,
+                      selectedInvoices: state.selectedInvoices,
+                      invoice: invoice,
+                      currentPage: state.currentPage,
+                    );
+                  }
+
+                  if (index == 0) {
+                    return Column(
+                      children: [
+                        _IncomingInvoiceHeader(incomingInvoiceBloc: incomingInvoiceBloc, isAllInvoicesSelected: state.isAllInvoicesSelected),
+                        _IncomingInvoiceTile(
+                          incomingInvoiceBloc: incomingInvoiceBloc,
+                          selectedInvoices: state.selectedInvoices,
+                          invoice: invoice,
+                          currentPage: state.currentPage,
+                        ),
+                      ],
+                    );
+                  }
+
+                  return _IncomingInvoiceTile(
                     incomingInvoiceBloc: incomingInvoiceBloc,
                     selectedInvoices: state.selectedInvoices,
                     invoice: invoice,
                     currentPage: state.currentPage,
                   );
-                }
-
-                if (index == 0) {
-                  return Column(
-                    children: [
-                      _IncomingInvoiceHeader(incomingInvoiceBloc: incomingInvoiceBloc, isAllInvoicesSelected: state.isAllInvoicesSelected),
-                      _IncomingInvoiceTile(
-                        incomingInvoiceBloc: incomingInvoiceBloc,
-                        selectedInvoices: state.selectedInvoices,
-                        invoice: invoice,
-                        currentPage: state.currentPage,
-                      ),
-                    ],
-                  );
-                }
-
-                return _IncomingInvoiceTile(
-                  incomingInvoiceBloc: incomingInvoiceBloc,
-                  selectedInvoices: state.selectedInvoices,
-                  invoice: invoice,
-                  currentPage: state.currentPage,
-                );
-              },
+                },
+              ),
             ),
           ),
         );

@@ -64,45 +64,8 @@ class IncomingInvoiceFilesView extends StatelessWidget {
                     itemCount: listOfIncomingInvoiceFiles!.length,
                     itemBuilder: (context, index) {
                       final file = listOfIncomingInvoiceFiles![index];
-                      return MaterialButton(
-                        onPressed: () async {
-                          if (file.fileBytes != null) {
-                            kIsWeb
-                                ? PdfApiWeb.openPdf(name: file.name, byteList: file.fileBytes!, showInBrowser: true)
-                                : PdfApiMobile.openPdf(name: file.name, byteList: file.fileBytes!);
-                          } else {
-                            final loadedBytes = await downloadFileFromUrl(file.url);
-                            if (loadedBytes == null) return;
 
-                            kIsWeb
-                                ? PdfApiWeb.openPdf(name: file.name, byteList: loadedBytes, showInBrowser: true)
-                                : PdfApiMobile.openPdf(name: file.name, byteList: loadedBytes);
-                          }
-                        },
-                        onLongPress: file.url.isEmpty ? () => showIncomingInvoiceUpdateFileNameSheet(context, file, index, bloc) : null,
-                        child: Stack(
-                          children: [
-                            Column(
-                              children: [
-                                Gaps.h10,
-                                Icon(
-                                  file.url.isEmpty ? Icons.upload_file_rounded : Icons.file_open_rounded,
-                                  color: CustomColors.primaryColor,
-                                  size: 60,
-                                ),
-                                SizedBox(width: 90, child: Text(file.name, maxLines: 2, overflow: TextOverflow.ellipsis)),
-                              ],
-                            ),
-                            Positioned(
-                              right: 0,
-                              child: IconButton(
-                                onPressed: () => incomingInvoiceRemoveFile(context, bloc, file.name, index),
-                                icon: const Icon(CupertinoIcons.clear_circled_solid, color: Colors.red),
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
+                      return _FileTile(bloc: bloc, file: file, index: index);
                     },
                   ),
                 ),
@@ -112,6 +75,78 @@ class IncomingInvoiceFilesView extends StatelessWidget {
             MyDropzoneWeb(
               mime: const ['application/pdf'],
               getMyFiles: (myFiles) async => incomingInvoiceDropFiles(myFiles, bloc),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _FileTile extends StatefulWidget {
+  final IncomingInvoiceDetailBloc bloc;
+  final IncomingInvoiceFile file;
+  final int index;
+
+  const _FileTile({required this.bloc, required this.file, required this.index});
+
+  @override
+  State<_FileTile> createState() => __FileTileState();
+}
+
+class __FileTileState extends State<_FileTile> {
+  bool _isLoadingFile = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialButton(
+      onPressed: () async {
+        setState(() => _isLoadingFile = true);
+        await Future.delayed(const Duration(seconds: 3));
+        if (widget.file.fileBytes != null) {
+          kIsWeb
+              ? PdfApiWeb.openPdf(name: widget.file.name, byteList: widget.file.fileBytes!, showInBrowser: true)
+              : PdfApiMobile.openPdf(name: widget.file.name, byteList: widget.file.fileBytes!);
+        } else {
+          final loadedBytes = await downloadFileFromUrl(widget.file.url);
+          if (loadedBytes == null) return;
+
+          kIsWeb
+              ? PdfApiWeb.openPdf(name: widget.file.name, byteList: loadedBytes, showInBrowser: true)
+              : PdfApiMobile.openPdf(name: widget.file.name, byteList: loadedBytes);
+        }
+        setState(() => _isLoadingFile = false);
+      },
+      onLongPress: widget.file.url.isEmpty ? () => showIncomingInvoiceUpdateFileNameSheet(context, widget.file, widget.index, widget.bloc) : null,
+      child: Stack(
+        children: [
+          Column(
+            children: [
+              Gaps.h10,
+              Icon(
+                widget.file.url.isEmpty ? Icons.upload_file_rounded : Icons.file_open_rounded,
+                color: CustomColors.primaryColor,
+                size: 60,
+              ),
+              SizedBox(width: 90, child: Text(widget.file.name, maxLines: 2, overflow: TextOverflow.ellipsis)),
+            ],
+          ),
+          Positioned(
+            right: 0,
+            child: IconButton(
+              onPressed: () => incomingInvoiceRemoveFile(context, widget.bloc, widget.file.name, widget.index),
+              icon: const Icon(CupertinoIcons.clear_circled_solid, color: Colors.red),
+            ),
+          ),
+          if (_isLoadingFile)
+            Positioned(
+              top: 30,
+              left: 30,
+              child: Container(
+                height: 30,
+                width: 30,
+                decoration: BoxDecoration(color: Colors.white.withOpacity(0.8), borderRadius: BorderRadius.circular(6)),
+                child: const MyCircularProgressIndicator(),
+              ),
             ),
         ],
       ),

@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 
 class MyCircularProgressIndicator extends StatelessWidget {
   final Color color;
-  const MyCircularProgressIndicator({Key? key, this.color = Colors.blue}) : super(key: key);
+  const MyCircularProgressIndicator({super.key, this.color = Colors.blue});
 
   @override
   Widget build(BuildContext context) {
