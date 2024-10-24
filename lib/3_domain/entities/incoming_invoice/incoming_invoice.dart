@@ -38,6 +38,7 @@ class IncomingInvoice extends Equatable {
   final String accountName; // Name Sachkonto
   @JsonKey(includeFromJson: false, includeToJson: false)
   final String accountAsString; // Nummer Sachkonto + Name Sachkonto
+  final String? comment;
   @JsonKey(name: 'total_positions', includeFromJson: false)
   final InvoiceTotals totalPositions;
   @JsonKey(name: 'total_invoice', includeFromJson: false, includeToJson: true)
@@ -77,6 +78,7 @@ class IncomingInvoice extends Equatable {
     required this.paymentMethod,
     required this.accountNumber,
     required this.accountName,
+    this.comment,
     required this.discountAmount,
     required this.discountPercentage,
     required this.earlyPaymentDiscount,
@@ -196,6 +198,7 @@ class IncomingInvoice extends Equatable {
       paymentMethod: '',
       accountNumber: '',
       accountName: '',
+      comment: null,
       discountPercentage: 0.0,
       discountAmount: 0.0,
       earlyPaymentDiscount: 0.0,
@@ -222,6 +225,7 @@ class IncomingInvoice extends Equatable {
     String? paymentMethod,
     String? accountNumber,
     String? accountName,
+    String? comment,
     double? discountPercentage,
     double? discountAmount,
     double? earlyPaymentDiscount,
@@ -250,6 +254,7 @@ class IncomingInvoice extends Equatable {
       paymentMethod: paymentMethod ?? this.paymentMethod,
       accountNumber: accountNumber ?? this.accountNumber,
       accountName: accountName ?? this.accountName,
+      comment: comment ?? this.comment,
       discountPercentage: discountPercentage ?? this.discountPercentage,
       discountAmount: discountAmount ?? this.discountAmount,
       earlyPaymentDiscount: earlyPaymentDiscount ?? this.earlyPaymentDiscount,
@@ -278,6 +283,7 @@ class IncomingInvoice extends Equatable {
         accountNumber,
         accountName,
         accountAsString,
+        comment,
         totalPositions,
         totalInvoice,
         discountPercentage,

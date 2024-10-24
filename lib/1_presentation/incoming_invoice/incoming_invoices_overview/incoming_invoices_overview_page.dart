@@ -37,6 +37,7 @@ class IncomingInvoicesOverviewPage extends StatelessWidget {
                     incomingInvoiceBloc: incomingInvoiceBloc,
                     selectedInvoices: state.selectedInvoices,
                     invoice: invoice,
+                    currentPage: state.currentPage,
                   );
                 }
 
@@ -44,12 +45,22 @@ class IncomingInvoicesOverviewPage extends StatelessWidget {
                   return Column(
                     children: [
                       _IncomingInvoiceHeader(incomingInvoiceBloc: incomingInvoiceBloc, isAllInvoicesSelected: state.isAllInvoicesSelected),
-                      _IncomingInvoiceTile(incomingInvoiceBloc: incomingInvoiceBloc, selectedInvoices: state.selectedInvoices, invoice: invoice),
+                      _IncomingInvoiceTile(
+                        incomingInvoiceBloc: incomingInvoiceBloc,
+                        selectedInvoices: state.selectedInvoices,
+                        invoice: invoice,
+                        currentPage: state.currentPage,
+                      ),
                     ],
                   );
                 }
 
-                return _IncomingInvoiceTile(incomingInvoiceBloc: incomingInvoiceBloc, selectedInvoices: state.selectedInvoices, invoice: invoice);
+                return _IncomingInvoiceTile(
+                  incomingInvoiceBloc: incomingInvoiceBloc,
+                  selectedInvoices: state.selectedInvoices,
+                  invoice: invoice,
+                  currentPage: state.currentPage,
+                );
               },
             ),
           ),
@@ -95,8 +106,14 @@ class _IncomingInvoiceTile extends StatelessWidget {
   final IncomingInvoiceBloc incomingInvoiceBloc;
   final List<IncomingInvoice> selectedInvoices;
   final IncomingInvoice invoice;
+  final int currentPage;
 
-  const _IncomingInvoiceTile({required this.incomingInvoiceBloc, required this.selectedInvoices, required this.invoice});
+  const _IncomingInvoiceTile({
+    required this.incomingInvoiceBloc,
+    required this.selectedInvoices,
+    required this.invoice,
+    required this.currentPage,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -204,8 +221,14 @@ class _IncomingInvoiceTileMobile extends StatelessWidget {
   final IncomingInvoiceBloc incomingInvoiceBloc;
   final List<IncomingInvoice> selectedInvoices;
   final IncomingInvoice invoice;
+  final int currentPage;
 
-  const _IncomingInvoiceTileMobile({required this.incomingInvoiceBloc, required this.selectedInvoices, required this.invoice});
+  const _IncomingInvoiceTileMobile({
+    required this.incomingInvoiceBloc,
+    required this.selectedInvoices,
+    required this.invoice,
+    required this.currentPage,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -239,7 +262,7 @@ class _IncomingInvoiceTileMobile extends StatelessWidget {
                           supplier: null,
                           incomingInvoiceId: invoice.id,
                         ));
-                        incomingInvoiceBloc.add(GetIncomingInvoiceEvent(id: invoice.id));
+                        incomingInvoiceBloc.add(GetIncomingInvoicesEvent(calcCount: true, currentPage: currentPage));
                       },
                       child: Text(invoice.incomingInvoiceNumberAsString),
                     ),

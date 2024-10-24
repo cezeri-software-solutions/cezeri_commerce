@@ -39,6 +39,7 @@ class IncomingInvoiceDetailBloc extends Bloc<IncomingInvoiceDetailEvent, Incomin
     on<OnDiscountPercentageControllerChangedEvent>(_oDiscountPercentageControllerChanged);
     on<OnDiscountAmountControllerChangedEvent>(_onDiscountAmountControllerChanged);
     on<OnEarlyPaymentControllerChangedEvent>(_onEarlyPaymentControllerChanged);
+    on<OnCommentControllerChangedEvent>(_onCommentControllerChanged);
     on<OnDiscountPercentageChangedEvent>(_onDiscountPercentageChanged);
     on<OnDiscountAmountChangedEvent>(_onDiscountAmountChanged);
     on<OnCurrencyChangedEvent>(_onCurrencyChanged);
@@ -232,6 +233,10 @@ class IncomingInvoiceDetailBloc extends Bloc<IncomingInvoiceDetailEvent, Incomin
 
   void _onEarlyPaymentControllerChanged(OnEarlyPaymentControllerChangedEvent event, Emitter<IncomingInvoiceDetailState> emit) async {
     emit(state.copyWith(invoice: state.invoice!.copyWith(earlyPaymentDiscount: state.earlyPaymentDiscountController.text.toMyDouble())));
+  }
+
+  void _onCommentControllerChanged(OnCommentControllerChangedEvent event, Emitter<IncomingInvoiceDetailState> emit) async {
+    emit(state.copyWith(invoice: state.invoice!.copyWith(comment: state.commentController.text)));
   }
 
   void _onDiscountPercentageChanged(OnDiscountPercentageChangedEvent event, Emitter<IncomingInvoiceDetailState> emit) async {
