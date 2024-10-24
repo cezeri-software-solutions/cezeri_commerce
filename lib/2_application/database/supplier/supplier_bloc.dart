@@ -150,7 +150,7 @@ class SupplierBloc extends Bloc<SupplierEvent, SupplierState> {
       bool isSelectedAll = false;
       if (event.isSelected) {
         isSelectedAll = true;
-        suppliers = List.from(state.listOfFilteredSuppliers!);
+        suppliers = List.from(state.listOfAllSuppliers!);
       }
       emit(state.copyWith(isAllSuppliersSelected: isSelectedAll, selectedSuppliers: suppliers));
     });
