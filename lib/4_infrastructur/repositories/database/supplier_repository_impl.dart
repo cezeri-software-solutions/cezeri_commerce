@@ -28,7 +28,11 @@ class SupplierRepositoryImpl implements SupplierRepository {
       final fosSettings = await settingsRepository.getSettings();
       if (fosSettings.isLeft()) return Left(fosSettings.getLeft());
 
-      final supplierJson = supplier.toJson();
+      final settings = fosSettings.getRight();
+
+      final updatedSupplier = supplier.copyWith(supplierNumber: settings.nextSupplierNumber);
+
+      final supplierJson = updatedSupplier.toJson();
       supplierJson.addEntries([MapEntry('ownerId', ownerId)]);
       final supplierResponse = await databaseSuppliers.insert(supplierJson).select('*').single();
       final createdSupplier = Supplier.fromJson(supplierResponse);
