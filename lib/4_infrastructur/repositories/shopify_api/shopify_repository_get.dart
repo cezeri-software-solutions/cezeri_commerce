@@ -127,7 +127,7 @@ class ShopifyRepositoryGet {
         body: jsonEncode({
           'credentials': credentials,
           'functionName': 'getOrdersByCreatedAtMin',
-          'minDateTime': (minDateTime.subtract(const Duration(hours: 2, seconds: 1))).toIso8601String(),
+          'minDateTime': (minDateTime.toUtc().toIso8601String()),
         }),
       );
 
