@@ -25,7 +25,6 @@ class Country extends Equatable {
   }) : flagUrl = 'https://flagcdn.com/w640/${isoCode.toLowerCase()}.png';
 
   factory Country.fromJson(Map<String, dynamic> json) => _$CountryFromJson(json);
-
   Map<String, dynamic> toJson() => _$CountryToJson(this);
 
   factory Country.empty() {

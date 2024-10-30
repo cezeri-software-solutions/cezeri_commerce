@@ -119,7 +119,7 @@ class _PositionView extends StatelessWidget {
                       ),
                     ),
                   SizedBox(
-                    width: 150,
+                    width: 170,
                     child: MyDropdownButtonSmall(
                       value: item.taxRate.toString(),
                       itemAsString: (val) => 'Vorsteuer $val%',

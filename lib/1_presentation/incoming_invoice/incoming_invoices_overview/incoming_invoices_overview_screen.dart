@@ -78,7 +78,7 @@ class _IncomingInvoicesOverviewScreenState extends State<IncomingInvoicesOvervie
                         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                         child: CupertinoSearchTextField(
                           controller: state.searchController,
-                          onChanged: (value) => incomingInvoiceBloc.add(GetIncomingInvoicesEvent(calcCount: false, currentPage: 1)),
+                          onChanged: (value) => incomingInvoiceBloc.add(GetIncomingInvoicesEvent(calcCount: true, currentPage: 1)),
                           onSuffixTap: () => incomingInvoiceBloc.add(OnInvoiceSearchControllerClearedEvent()),
                         ),
                       )

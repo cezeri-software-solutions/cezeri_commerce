@@ -91,7 +91,10 @@ class IncomingInvoiceDetailBloc extends Bloc<IncomingInvoiceDetailEvent, Incomin
 
   void _onSetIncomingInvoiceOnCreate(SetIncomingInvoiceOnCreateEvent event, Emitter<IncomingInvoiceDetailState> emit) async {
     final supplier = IncomingInvoiceSupplier.fromSupplier(event.supplier);
-    final emptyIncomingInvoice = IncomingInvoice.empty().copyWith(supplier: supplier);
+    final emptyIncomingInvoice = IncomingInvoice.empty().copyWith(
+      supplier: supplier,
+      listOfIncomingInvoiceItems: [IncomingInvoiceItem.empty().copyWith(taxRate: event.supplier.tax.taxRate)],
+    );
     emit(state.copyWith(invoice: emptyIncomingInvoice, type: IncomingInvoiceAddEditType.create, supplier: event.supplier));
     add(SetInitialControllerEvent());
   }
