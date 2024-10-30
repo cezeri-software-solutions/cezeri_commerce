@@ -1199,8 +1199,12 @@ class ReceiptRespositoryImpl implements ReceiptRepository {
       final queryReceipt =
           await getReceiptDatabase(ReceiptType.appointment).select().eq('ownerId', ownerId).eq('receiptMarketplaceId', orderMarketplaceId);
       if (queryReceipt.isNotEmpty) {
-        logger.e('Vom Marktplatz geladene Bestellung ist bereits in Firestore vorhanden');
-        return Left(GeneralFailure(customMessage: 'Vom Marktplatz geladene Bestellung ist bereits in der Datenbank vorhanden'));
+        logger.e('Vom Marktplatz: ${marketplace.shortName} geladene Bestellung mit der ID: $orderMarketplaceId ist bereits in Firestore vorhanden');
+        return Left(
+          GeneralFailure(
+              customMessage:
+                  'Vom Marktplatz: ${marketplace.shortName} geladene Bestellung mit der ID: $orderMarketplaceId ist bereits in Firestore vorhanden'),
+        );
       }
     } catch (e) {
       null;

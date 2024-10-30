@@ -71,10 +71,10 @@ Future<void> _showScaffoldMessager(BuildContext context, String message) async {
 }
 
 String _mapAuthFailureMessage(AuthFailure failure) {
-  return switch (failure.runtimeType) {
+  return switch (failure) {
     AuthServerFailure => 'Ein unerwarteter Fehler ist aufgetreten.\nKontaktiere den Kundendienst.',
     WrongEmailOrPasswordFailure => 'Du hast entweder eine falsche E-Mail oder ein falsches Passwort eingegeben.',
-    EmailNotConfirmedFailure => 'Verifiziere bitte deine E-Mail, indem du auf den Link in deiner E-Mail klickst, den du von uns erhalten hast',
+    EmailNotConfirmedFailure _ => 'Verifiziere bitte deine E-Mail, indem du auf den Link in deiner E-Mail klickst, den du von uns erhalten hast',
     (_) => 'Ein unerwarteter Fehler ist aufgetreten.\nKontaktiere den Kundendienst.',
   };
 }

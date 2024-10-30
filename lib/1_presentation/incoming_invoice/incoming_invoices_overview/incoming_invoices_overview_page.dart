@@ -57,6 +57,33 @@ class IncomingInvoicesOverviewPage extends StatelessWidget {
                     );
                   }
 
+                  if (index == state.listOfInvoices!.length - 1) {
+                    return Column(
+                      children: [
+                        _IncomingInvoiceTile(
+                          incomingInvoiceBloc: incomingInvoiceBloc,
+                          selectedInvoices: state.selectedInvoices,
+                          invoice: invoice,
+                          currentPage: state.currentPage,
+                        ),
+                        Align(
+                          alignment: Alignment.bottomRight,
+                          child: Container(
+                            padding: const EdgeInsets.only(top: 8, bottom: 8, left: 8, right: 15),
+                            decoration: BoxDecoration(
+                              color: Colors.green.shade100,
+                              borderRadius: const BorderRadius.only(topLeft: Radius.circular(10), bottomLeft: Radius.circular(10)),
+                            ),
+                            child: Text(
+                              '${(state.listOfInvoices!.fold<double>(0.0, (pV, e) => pV + e.totalInvoice.netAmount)).toMyCurrencyStringToShow()} €',
+                              style: TextStyles.defaultBold,
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                  }
+
                   return _IncomingInvoiceTile(
                     incomingInvoiceBloc: incomingInvoiceBloc,
                     selectedInvoices: state.selectedInvoices,
@@ -145,7 +172,7 @@ class _IncomingInvoiceTile extends StatelessWidget {
                     supplier: null,
                     incomingInvoiceId: invoice.id,
                   ));
-                  incomingInvoiceBloc.add(GetIncomingInvoiceEvent(id: invoice.id));
+                  incomingInvoiceBloc.add(GetIncomingInvoicesEvent(calcCount: true, currentPage: currentPage));
                 },
                 child: Text(invoice.incomingInvoiceNumberAsString))),
         _CellTile(flex: RWIIO.supplierNumber, child: TextButton(onPressed: () {}, child: Text(invoice.supplier.supplierNumber.toString()))),
@@ -272,7 +299,10 @@ class _IncomingInvoiceTileMobile extends StatelessWidget {
                     Column(
                       children: [
                         const Text('Buch. Datum', style: TextStyles.infoOnTextFieldSmall),
-                        Text(invoice.bookingDate != null ? invoice.bookingDate!.toFormattedDayMonthYear() : '-'),
+                        Text(
+                          invoice.bookingDate != null ? invoice.bookingDate!.toFormattedDayMonthYear() : 'FEHLT',
+                          style: TextStyles.defaultBold.copyWith(color: Colors.red),
+                        ),
                       ],
                     ),
                   ],

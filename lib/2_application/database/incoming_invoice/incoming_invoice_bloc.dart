@@ -65,7 +65,12 @@ class IncomingInvoiceBloc extends Bloc<IncomingInvoiceEvent, IncomingInvoiceStat
     fos.fold(
       (failure) => emit(state.copyWith(abstractFailure: failure)),
       (listOfLoadedIncomingInvoices) {
-        emit(state.copyWith(listOfInvoices: listOfLoadedIncomingInvoices, resetAbstractFailure: true));
+        emit(state.copyWith(
+          listOfInvoices: listOfLoadedIncomingInvoices,
+          selectedInvoices: [],
+          currentPage: event.currentPage,
+          resetAbstractFailure: true,
+        ));
       },
     );
 
