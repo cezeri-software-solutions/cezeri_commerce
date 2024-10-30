@@ -67,6 +67,8 @@ class StatDashboardRepositoryImpl implements StatDashboardRepository {
         );
       }).toList();
 
+      ensureEveryDayInRangeHasEntry(listOfStatSalesPerDay, dateRange);
+
       final statSalesBetweenDates = StatSalesBetweenDates(listOfStatSalesPerDay: listOfStatSalesPerDay, dateRange: dateRange);
 
       return Right(statSalesBetweenDates);
@@ -75,6 +77,30 @@ class StatDashboardRepositoryImpl implements StatDashboardRepository {
       logger.e('Stack trace: $stackTrace');
       return Left(GeneralFailure(customMessage: 'Daten konnten nicht geladen werden: ${e.toString()}'));
     }
+  }
+
+  void ensureEveryDayInRangeHasEntry(List<StatSalesPerDay> listOfStatSalesPerDay, DateTimeRange dateRange) {
+    final existingEntries = {
+      for (var entry in listOfStatSalesPerDay) DateTime(entry.date.year, entry.date.month, entry.date.day).toIso8601String(): entry
+    };
+
+    List<StatSalesPerDay> resultList = [];
+    DateTime currentDate = dateRange.start;
+
+    while (currentDate.isBefore(dateRange.end) || currentDate.isAtSameMomentAs(dateRange.end)) {
+      final dateKey = DateTime(currentDate.year, currentDate.month, currentDate.day).toIso8601String();
+
+      if (existingEntries.containsKey(dateKey)) {
+        resultList.add(existingEntries[dateKey]!);
+      } else {
+        resultList.add(StatSalesPerDay.empty());
+      }
+
+      currentDate = currentDate.add(const Duration(days: 1));
+    }
+
+    listOfStatSalesPerDay.clear();
+    listOfStatSalesPerDay.addAll(resultList);
   }
 
   //? #######################################################################################################################################
