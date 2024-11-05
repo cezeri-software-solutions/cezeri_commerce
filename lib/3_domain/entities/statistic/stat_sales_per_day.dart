@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:flutter/material.dart';
 import 'package:json_annotation/json_annotation.dart';
 
@@ -101,6 +102,16 @@ class StatSalesPerDay {
 
   factory StatSalesPerDay.fromJson(Map<String, dynamic> json) => _$StatSalesPerDayFromJson(json);
   Map<String, dynamic> toJson() => _$StatSalesPerDayToJson(this);
+
+  StatSalesPerDay copyWith({
+    List<StatSalesPerDayPerMarketplace>? listOfStatSalesPerDayPerMarketplace,
+    DateTime? date,
+  }) {
+    return StatSalesPerDay(
+      listOfStatSalesPerDayPerMarketplace: listOfStatSalesPerDayPerMarketplace ?? this.listOfStatSalesPerDayPerMarketplace,
+      date: date ?? this.date,
+    );
+  }
 }
 
 @JsonSerializable(explicitToJson: true)
