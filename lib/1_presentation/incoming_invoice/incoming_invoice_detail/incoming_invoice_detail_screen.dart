@@ -41,8 +41,6 @@ class _IncomingInvoiceDetailScreenState extends State<IncomingInvoiceDetailScree
   Widget build(BuildContext context) {
     super.build(context);
 
-    log('Übergebene Type: ${widget.type}');
-
     return BlocProvider.value(
       value: incomingInvoiceDetailBloc,
       child: MultiBlocListener(

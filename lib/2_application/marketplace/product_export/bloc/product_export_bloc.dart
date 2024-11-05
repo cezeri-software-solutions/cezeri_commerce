@@ -277,9 +277,7 @@ class ProductExportBloc extends Bloc<ProductExportEvent, ProductExportState> {
                     final List<int> categoryIds = [];
                     for (final categoryPresta in selectedCategoriesInMarketplaceProduct) {
                       final categoryPrestaName = switch (categoryPresta.name) {
-                        'Außenpflege' => 'Aussenbereich',
-                        'Innenpflege' => 'Innenraum',
-                        'Auto Polierset' => 'Polier Sets',
+                        'Außenpflege' => 'Aussenpflege',
                         _ => categoryPresta.name,
                       };
                       final phMarketplaceCategory =

@@ -67,9 +67,9 @@ class StatDashboardRepositoryImpl implements StatDashboardRepository {
         );
       }).toList();
 
-      ensureEveryDayInRangeHasEntry(listOfStatSalesPerDay, dateRange);
+      final filledListOfStatSalesPerDay = ensureEveryDayInRangeHasEntry(listOfStatSalesPerDay, dateRange);
 
-      final statSalesBetweenDates = StatSalesBetweenDates(listOfStatSalesPerDay: listOfStatSalesPerDay, dateRange: dateRange);
+      final statSalesBetweenDates = StatSalesBetweenDates(listOfStatSalesPerDay: filledListOfStatSalesPerDay, dateRange: dateRange);
 
       return Right(statSalesBetweenDates);
     } catch (e, stackTrace) {
@@ -79,28 +79,47 @@ class StatDashboardRepositoryImpl implements StatDashboardRepository {
     }
   }
 
-  void ensureEveryDayInRangeHasEntry(List<StatSalesPerDay> listOfStatSalesPerDay, DateTimeRange dateRange) {
-    final existingEntries = {
-      for (var entry in listOfStatSalesPerDay) DateTime(entry.date.year, entry.date.month, entry.date.day).toIso8601String(): entry
+  List<StatSalesPerDay> ensureEveryDayInRangeHasEntry(List<StatSalesPerDay> listOfStatSalesPerDay, DateTimeRange dateRange) {
+    // Erstellen einer Map für schnellen Zugriff auf StatSalesPerDay anhand des Datums
+    final Map<String, StatSalesPerDay> dateStatMap = {
+      for (var stat in listOfStatSalesPerDay) stat.date.toConvertedYearMonthDay(): stat,
     };
 
     List<StatSalesPerDay> resultList = [];
     DateTime currentDate = dateRange.start;
 
-    while (currentDate.isBefore(dateRange.end) || currentDate.isAtSameMomentAs(dateRange.end)) {
-      final dateKey = DateTime(currentDate.year, currentDate.month, currentDate.day).toIso8601String();
-
-      if (existingEntries.containsKey(dateKey)) {
-        resultList.add(existingEntries[dateKey]!);
+    // Verwenden einer Schleife, um jeden Tag im Datumsbereich zu durchlaufen
+    while (currentDate.isBefore(dateRange.end) || currentDate.toConvertedYearMonthDay() == dateRange.end.toConvertedYearMonthDay()) {
+      final dateKey = currentDate.toConvertedYearMonthDay();
+      if (dateStatMap.containsKey(dateKey)) {
+        resultList.add(dateStatMap[dateKey]!);
       } else {
+        // Hier können Sie das Datum an die leere Instanz übergeben, falls benötigt
+        final emptySalesPerDay = StatSalesPerDay.empty().copyWith(date: currentDate);
+        resultList.add(emptySalesPerDay);
+      }
+      currentDate = currentDate.add(const Duration(days: 1));
+    }
+
+    return resultList;
+  }
+
+  List<StatSalesPerDay> ensureEveryDayInRangeHasEntryMy(List<StatSalesPerDay> listOfStatSalesPerDay, DateTimeRange dateRange) {
+    List<StatSalesPerDay> resultList = [];
+    DateTime currentDate = dateRange.start;
+
+    while (currentDate.isBefore(dateRange.end) || currentDate.toConvertedYearMonthDay() == dateRange.end.toConvertedYearMonthDay()) {
+      final index = listOfStatSalesPerDay.indexWhere((e) => e.date.toConvertedYearMonthDay() == currentDate.toConvertedYearMonthDay());
+      if (index == -1) {
         resultList.add(StatSalesPerDay.empty());
+      } else {
+        resultList.add(listOfStatSalesPerDay[index]);
       }
 
       currentDate = currentDate.add(const Duration(days: 1));
     }
 
-    listOfStatSalesPerDay.clear();
-    listOfStatSalesPerDay.addAll(resultList);
+    return resultList;
   }
 
   //? #######################################################################################################################################

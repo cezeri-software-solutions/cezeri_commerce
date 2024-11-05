@@ -137,7 +137,7 @@ Future<Either<AbstractFailure, Unit>> removePartProductsFromSet({
     if (index == -1) continue;
 
     noMorePartProduct!.listOfIsPartOfSetIds.removeAt(index);
-    supabase.from('d_products').update(noMorePartProduct!.toJson()).eq('ownerId', ownerId).eq('id', noMorePartId);
+    await supabase.from('d_products').update(noMorePartProduct!.toJson()).eq('ownerId', ownerId).eq('id', noMorePartId);
   }
 
   return right(unit);
@@ -172,7 +172,7 @@ Future<void> addSetProductIdToPartProducts({
     if (partOfSetProduct.listOfIsPartOfSetIds.any((e) => e == setProduct.id)) continue;
     final updatedProduct = partOfSetProduct.copyWith(listOfIsPartOfSetIds: partOfSetProduct.listOfIsPartOfSetIds..add(setProduct.id));
 
-    supabase.from('d_products').update(updatedProduct.toJson()).eq('ownerId', ownerId).eq('id', partOfSetProduct.id);
+    await supabase.from('d_products').update(updatedProduct.toJson()).eq('ownerId', ownerId).eq('id', partOfSetProduct.id);
   }
 }
 
