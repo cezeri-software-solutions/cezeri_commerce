@@ -16,10 +16,10 @@ import '/3_domain/enums/enums.dart';
 import '/3_domain/repositories/marketplace/marketplace_edit_repository.dart';
 import '/constants.dart';
 import '/failures/failures.dart';
+import '../../../3_domain/entities/product/marketplace_product.dart';
 import '../../../3_domain/entities/product/specific_price.dart';
 import '../../../3_domain/repositories/database/product_repository.dart';
 import '../database/functions/repository_functions.dart';
-import '../prestashop_api/models/product_raw_presta.dart';
 import '../prestashop_api/prestashop_repository_delete.dart';
 import '../prestashop_api/prestashop_repository_patch.dart';
 import '../prestashop_api/prestashop_repository_post.dart';
@@ -187,7 +187,7 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
   }
 
   @override
-  Future<Either<AbstractFailure, ProductRawPresta>> createProdcutInMarketplace(
+  Future<Either<AbstractFailure, MarketplaceProduct>> createProdcutInMarketplace(
     Product product,
     ProductMarketplace productMarketplace,
     ProductMarketplace anotherProductMarketplaceWithSameManufacturer,
@@ -199,28 +199,58 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
     final marketplaceResponse =
         await supabase.from('d_marketplaces').select().eq('ownerId', ownerId).eq('id', productMarketplace.idMarketplace).single();
     if (marketplaceResponse.isEmpty) return Left(GeneralFailure(customMessage: 'Der Marktplatz kontte nicht geladen werden.'));
-    final marketplace = MarketplacePresta.fromJson(marketplaceResponse);
+    final marketplace = AbstractMarketplace.fromJson(marketplaceResponse);
 
-    //* Erstellt den neuen Artikel in Prestashop und gibt die ID des erstellten Artikels zurück
-    final fosIdOfCreatedProduct = await PrestashopRepositoryPost(marketplace).createNewProductInMarketplace(
-      product: product,
-      productMarketplace: productMarketplace,
-      anotherProductMarketplaceWithSameManufacturer: anotherProductMarketplaceWithSameManufacturer,
-    );
+    switch (productMarketplace.marketplaceProduct!.marketplaceType) {
+      case MarketplaceType.prestashop:
+        {
+          //* Erstellt den neuen Artikel in Prestashop und gibt die ID des erstellten Artikels zurück
+          final fosIdOfCreatedProduct = await PrestashopRepositoryPost(marketplace as MarketplacePresta).createNewProductInMarketplace(
+            product: product,
+            productMarketplace: productMarketplace,
+            anotherProductMarketplaceWithSameManufacturer: anotherProductMarketplaceWithSameManufacturer,
+          );
 
-    if (fosIdOfCreatedProduct.isLeft()) return left(fosIdOfCreatedProduct.getLeft());
-    final idOfCreatedProduct = fosIdOfCreatedProduct.getRight();
+          if (fosIdOfCreatedProduct.isLeft()) return left(fosIdOfCreatedProduct.getLeft());
+          final idOfCreatedProduct = fosIdOfCreatedProduct.getRight();
 
-    await Future.delayed(const Duration(seconds: 1));
+          await Future.delayed(const Duration(seconds: 1));
 
-    final fosProductPresta = await PrestashopRepositoryGet(marketplace).getProduct(idOfCreatedProduct);
-    if (fosProductPresta.isLeft()) {
-      logger.e('Fehler beim Laden des Artikels aus Prestashop');
-      return left(PrestaGeneralFailure(errorMessage: 'Fehler beim Laden der Artikels aus Prestashop'));
+          final fosProductPresta = await PrestashopRepositoryGet(marketplace).getProduct(idOfCreatedProduct);
+          if (fosProductPresta.isLeft()) {
+            logger.e('Fehler beim Laden des Artikels aus Prestashop');
+            return left(PrestaGeneralFailure(errorMessage: 'Fehler beim Laden der Artikels aus Prestashop'));
+          }
+          final productPresta = fosProductPresta.getRight();
+
+          return Right(productPresta as ProductPresta);
+        }
+      case MarketplaceType.shopify:
+        {
+          final fosCreatedProduct = await ShopifyRepositoryPost(marketplace as MarketplaceShopify).createNewProductInMarketplace(
+            product: product,
+            customCollectionIds: (productMarketplace.marketplaceProduct! as ProductShopify).customCollections.map((e) => e.id).toList(),
+          );
+
+          if (fosCreatedProduct.isLeft()) return Left(fosCreatedProduct.getLeft().first);
+          final idOfCreatedProduct = fosCreatedProduct.getRight().id;
+
+          await Future.delayed(const Duration(seconds: 1));
+
+          final fosProductShopify = await ShopifyRepositoryGet(marketplace).getProductById(idOfCreatedProduct);
+          if (fosProductShopify.isLeft()) {
+            logger.e('Fehler beim Laden des Artikels aus Shopify');
+            return left(ShopifyGeneralFailure(errorMessage: 'Fehler beim Laden der Artikels aus Shopify'));
+          }
+          final productShopify = fosProductShopify.getRight();
+
+          return Right(productShopify);
+        }
+      case MarketplaceType.shop:
+        {
+          throw Exception('In einem Ladengeschäft können keine Artikel erstellt werden.');
+        }
     }
-    final productPresta = fosProductPresta.getRight();
-
-    return Right(productPresta);
   }
 
   @override

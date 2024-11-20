@@ -9,17 +9,16 @@ import '/3_domain/entities/product/product.dart';
 import '/3_domain/entities/product/product_id_with_quantity.dart';
 import '/3_domain/entities/product/product_image.dart';
 import '/3_domain/entities/product/product_marketplace.dart';
-import '/3_domain/entities/product/product_presta.dart';
 import '/3_domain/entities/settings/main_settings.dart';
 import '/3_domain/entities/statistic/product_sales_data.dart';
 import '/3_domain/entities/statistic/stat_product.dart';
 import '/3_domain/repositories/marketplace/marketplace_edit_repository.dart';
 import '/3_domain/repositories/marketplace/marketplace_import_repository.dart';
-import '/4_infrastructur/repositories/prestashop_api/models/product_raw_presta.dart';
 import '/failures/abstract_failure.dart';
 import '/failures/firebase_failures.dart';
 import '/failures/presta_failure.dart';
 import '../../../3_domain/entities/my_file.dart';
+import '../../../3_domain/entities/product/marketplace_product.dart';
 import '../../../3_domain/entities/product/specific_price.dart';
 import '../../../3_domain/repositories/database/main_settings_respository.dart';
 import '../../../3_domain/repositories/database/marketplace_repository.dart';
@@ -573,18 +572,12 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
     // logger.i(anotherProductWithSameProductMarketplaceAndSameManufacturer);
     // return;
 
-    ProductRawPresta? productPresta;
     final failureOrSuccess = await marketplaceEditRepository.createProdcutInMarketplace(
       state.product!,
       event.productMarketplace,
       productMarketplaceOfAnotherProduct,
     );
-    failureOrSuccess.fold(
-      (failure) => null,
-      (createdAndLoadedProductPresta) => productPresta = createdAndLoadedProductPresta,
-    );
-
-    if (productPresta == null) {
+    if (failureOrSuccess.isLeft()) {
       emit(state.copyWith(
         isLoadingProductOnCreateInMarketplaces: false,
         fosProductOnCreateInMarketplaceOption: optionOf(left(PrestaGeneralFailure())),
@@ -593,21 +586,19 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
       return;
     }
 
+    final marketplaceProduct = failureOrSuccess.getRight();
+
     bool isSuccess = true;
 
     final fosOnUpload = await marketplaceImportRepository.uploadLoadedMarketplaceProductToFirestore(
-        productPresta! as ProductPresta, event.productMarketplace.idMarketplace); //TODO: Shopify
-    fosOnUpload.fold(
-      (failure) => isSuccess = false,
-      (product) => null,
+      marketplaceProduct,
+      event.productMarketplace.idMarketplace,
     );
-
-    // add(OnEditProductInPresta(product: state.product!));
-    // if (!state.isProductImagesEdited) add(UploadProductImageToPrestaEvent());
+    if (fosOnUpload.isLeft()) isSuccess = false;
 
     emit(state.copyWith(
       isLoadingProductOnCreateInMarketplaces: false,
-      fosProductOnCreateInMarketplaceOption: isSuccess ? optionOf(right(productPresta!)) : optionOf(left(PrestaGeneralFailure())),
+      fosProductOnCreateInMarketplaceOption: isSuccess ? optionOf(Right(marketplaceProduct)) : optionOf(Left(fosOnUpload.getLeft())),
     ));
     emit(state.copyWith(fosProductOnCreateInMarketplaceOption: none()));
   }
