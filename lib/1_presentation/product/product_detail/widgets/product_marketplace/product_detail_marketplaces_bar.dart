@@ -131,7 +131,17 @@ class ProductDetailMarketplacesBar extends StatelessWidget {
                                   }
                                 case MarketplaceType.shopify:
                                   {
-                                    throw Exception('SHOPIFY not implemented');
+                                    marketplaceProductBloc.add(SetMarketplaceProductStatesToInitialEvent());
+                                    final marketplaceProductPresta = ProductShopify.empty();
+
+                                    final productMarketplace = ProductMarketplace(
+                                      idMarketplace: marketplace.id,
+                                      nameMarketplace: marketplace.name,
+                                      shortNameMarketplace: marketplace.shortName,
+                                      marketplaceProduct: marketplaceProductPresta,
+                                    );
+                                    marketplaceProductBloc.add(SetMarketplaceProductEvent(productMarketplace: productMarketplace));
+                                    showEditProductInMarketplace(context, productDetailBloc, marketplaceProductBloc, productMarketplace, false);
                                   }
                                 case MarketplaceType.shop:
                                   {

@@ -2,6 +2,7 @@ import 'package:dartz/dartz.dart';
 
 import '/1_presentation/core/core.dart';
 import '../../../3_domain/entities/marketplace/marketplace_presta.dart';
+import '../../../3_domain/entities/marketplace/marketplace_shopify.dart';
 import '../../../3_domain/entities/product/product.dart';
 import '../../../3_domain/entities/product/product_id_with_quantity.dart';
 import '../../../3_domain/entities/product/product_presta.dart';
@@ -100,7 +101,7 @@ Future<Either<AbstractFailure, Product?>> createOrUpdateProductFromMarketplaceSh
 }) async {
   final fosMarketplace = await marketplaceRepository.getMarketplace(marketplaceId);
   if (fosMarketplace.isLeft()) return Left(fosMarketplace.getLeft());
-  final marketplace = fosMarketplace.getRight() as MarketplacePresta;
+  final marketplace = fosMarketplace.getRight() as MarketplaceShopify;
 
   Product? newCreatedOrUpdatedProduct;
 

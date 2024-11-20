@@ -69,6 +69,28 @@ class ProductShopify extends MarketplaceProduct {
 
   static String statusToJson(ProductShopifyStatus status) => status.toString().split('.').last;
 
+  factory ProductShopify.empty() {
+    return ProductShopify(
+      id: 0,
+      title: '',
+      bodyHtml: '',
+      handle: '',
+      images: const [],
+      options: const [],
+      variants: const [],
+      metafields: const [],
+      collects: const [],
+      customCollections: const [],
+      vendor: '',
+      productType: '',
+      publishedScope: '',
+      status: ProductShopifyStatus.active,
+      tags: '',
+      updatedAt: DateTime.now(),
+      createdAt: DateTime.now(),
+    );
+  }
+
   factory ProductShopify.fromRaw({
     required ProductRawShopify productRaw,
     required List<CustomCollectionShopify> customCollections,
