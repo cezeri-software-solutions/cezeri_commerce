@@ -14,6 +14,7 @@ import '/routes/router.gr.dart';
 import '../../../2_application/database/product/product_bloc.dart';
 import '../../core/core.dart';
 import '../sheets/ads_roas_calculator.dart';
+import '../sheets/ebay_profit_calculator.dart';
 import '../widgets/product_profit_text.dart';
 import 'widgets/update_product_quantity_dialog.dart';
 
@@ -106,6 +107,27 @@ class _ProductContainer extends StatelessWidget {
                 ),
                 isTabletOrLarger ? Gaps.w16 : Gaps.w8,
                 _ProductInfoBar(productBloc: productBloc, product: product),
+                Column(
+                  children: [
+                    MaterialButton(
+                      onPressed: () => showEbayProfitCalculatorSheet(context, product),
+                      child: SvgPicture.asset('assets/other/ebay.svg', width: 20, height: 20),
+                    ),
+                    Row(
+                      children: [
+                        const Text('AT: '),
+                        EbayProfitQuickView(product: product),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        const Text('DE: '),
+                        EbayProfitQuickView(product: product, isGermany: true),
+                      ],
+                    ),
+                  ],
+                ),
+                Gaps.w8,
                 Column(
                   children: [
                     MaterialButton(
