@@ -410,16 +410,12 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
       return;
     }
 
-    await Future.delayed(const Duration(seconds: 2));
-
     emit(state.copyWith(
       isLoadingProductOnCreate: false,
       fosProductOnCreateOption: optionOf(fos),
       fosProductAbstractFailuresOption: optionOf(Left(listOfAbstractFailures)),
     ));
     emit(state.copyWith(fosProductOnCreateOption: none(), fosProductAbstractFailuresOption: none()));
-
-    add(GetProductEvent(id: state.product!.id));
   }
 
 //? #########################################################################

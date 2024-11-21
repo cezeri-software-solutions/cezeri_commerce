@@ -88,6 +88,7 @@ List<BlocListener<ProductDetailBloc, ProductDetailState>> _getProductDetailBlocL
             (failure) => failureRenderer(context, [failure]),
             (product) {
               myScaffoldMessenger(context, null, null, 'Artikel erfolgreich erstellt', null);
+              productDetailBloc.add(SetProductDetailStatesToInitialEvent());
 
               final productId = product.id;
 
