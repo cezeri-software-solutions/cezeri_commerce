@@ -1,4 +1,3 @@
-import 'package:auto_route/auto_route.dart';
 import 'package:bloc/bloc.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
@@ -15,7 +14,6 @@ import '/3_domain/entities/statistic/stat_product.dart';
 import '/3_domain/repositories/marketplace/marketplace_edit_repository.dart';
 import '/3_domain/repositories/marketplace/marketplace_import_repository.dart';
 import '/failures/abstract_failure.dart';
-import '/failures/firebase_failures.dart';
 import '/failures/presta_failure.dart';
 import '../../../3_domain/entities/my_file.dart';
 import '../../../3_domain/entities/product/marketplace_product.dart';
@@ -48,6 +46,7 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
     required this.marketplaceImportRepository,
   }) : super(ProductDetailState.initial()) {
     on<SetProductDetailStatesToInitialEvent>(_onSetProductDetailStatesToInitial);
+    on<SetEmptyProductEvent>(_onSetEmptyProduct);
     on<GetProductEvent>(_onGetProduct);
     on<GetListOfProductsEvent>(_onGetListOfProducts);
     on<SetListOfProductsEvent>(_onSetListOfProducts);
@@ -63,6 +62,7 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
     on<OnAddEditProductSpecificPriceEvent>(_onAddEditProductSpecificPrice);
     on<OnDeleteProductSpecificPriceEvent>(_onDeleteProductSpecificPrice);
     on<GetProductByEanEvent>(_onGetProductByEan);
+    on<CreateNewProductEvent>(_onCreateNewProduct);
     on<UpdateProductEvent>(_onUpdateProduct);
     on<OnProductIsActiveChangedEvent>(_onProductIsActiveChanged);
     on<RemoveSelectedProductImages>(_onRemoveSelectedProductImages);
@@ -91,6 +91,35 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
 
   void _onSetProductDetailStatesToInitial(SetProductDetailStatesToInitialEvent event, Emitter<ProductDetailState> emit) async {
     emit(ProductDetailState.initial());
+  }
+
+//? ###########################################################################################################################
+
+  Future<void> _onSetEmptyProduct(SetEmptyProductEvent event, Emitter<ProductDetailState> emit) async {
+    emit(state.copyWith(isLoadingProductOnObserve: true));
+
+    if (state.mainSettings == null) {
+      final fosSettings = await mainSettingsRepository.getSettings();
+      fosSettings.fold(
+        (failure) => emit(state.copyWith(firebaseFailure: failure, isAnyFailure: true)),
+        (settings) => emit(state.copyWith(mainSettings: settings, firebaseFailure: null, isAnyFailure: false)),
+      );
+    }
+
+    final emptyProduct = Product.empty();
+
+    add(SetProductControllerEvent(product: emptyProduct));
+    add(OnProductGetProductsSalesDataEvent());
+
+    emit(state.copyWith(
+      product: emptyProduct,
+      originalProduct: emptyProduct.copyWith(),
+      listOfSetPartProducts: [],
+      firebaseFailure: null,
+      isAnyFailure: false,
+      isLoadingProductOnObserve: false,
+    ));
+    emit(state.copyWith(fosProductOnObserveOption: none()));
   }
 
 //? ###########################################################################################################################
@@ -364,6 +393,37 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
 
 //? #########################################################################
 
+  Future<void> _onCreateNewProduct(CreateNewProductEvent event, Emitter<ProductDetailState> emit) async {
+    if (state.product == null) return;
+    emit(state.copyWith(isLoadingProductOnCreate: true));
+
+    List<AbstractFailure> listOfAbstractFailures = [];
+
+    final fos = await productRepository.createProduct(state.product!, null);
+    if (fos.isLeft()) {
+      emit(state.copyWith(
+        isLoadingProductOnCreate: false,
+        fosProductOnCreateOption: optionOf(fos),
+        fosProductAbstractFailuresOption: optionOf(Left(listOfAbstractFailures)),
+      ));
+      emit(state.copyWith(fosProductOnCreateOption: none(), fosProductAbstractFailuresOption: none()));
+      return;
+    }
+
+    await Future.delayed(const Duration(seconds: 2));
+
+    emit(state.copyWith(
+      isLoadingProductOnCreate: false,
+      fosProductOnCreateOption: optionOf(fos),
+      fosProductAbstractFailuresOption: optionOf(Left(listOfAbstractFailures)),
+    ));
+    emit(state.copyWith(fosProductOnCreateOption: none(), fosProductAbstractFailuresOption: none()));
+
+    add(GetProductEvent(id: state.product!.id));
+  }
+
+//? #########################################################################
+
   Future<void> _onUpdateProduct(UpdateProductEvent event, Emitter<ProductDetailState> emit) async {
     if (state.product == null) return;
     emit(state.copyWith(isLoadingProductOnUpdate: true));
@@ -508,66 +568,66 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
   Future<void> _onCreateProductInMarketplace(OnCreateProductInMarketplaceEvent event, Emitter<ProductDetailState> emit) async {
     emit(state.copyWith(isLoadingProductOnCreateInMarketplaces: true));
 
-    Product? anotherProductWithSameProductMarketplaceAndSameManufacturer;
+    // Product? anotherProductWithSameProductMarketplaceAndSameManufacturer;
 
-    final fosAnotherProduct = await productRepository.getProductWithSameProductMarketplaceAndSameManufacturer(
-      state.product!,
-      event.productMarketplace,
-    );
-    fosAnotherProduct.fold(
-      (failure) {
-        switch (failure) {
-          case EmptyFailure():
-            {
-              event.context.router.maybePop();
-              showMyDialogAlert(
-                context: event.context,
-                title: 'Achtung',
-                content:
-                    'Der erste Artikel eines neuen Herstellers muss im Marktplatz angelegt werden und nach Cezeri Commerce importiert werden.\nAlle weiteren Artikel können dann über Cezeri Commerce zum Marktplatz exportiert werden.',
-              );
-              return;
-            }
-          default:
-            {
-              event.context.router.maybePop();
-              showMyDialogAlert(
-                context: event.context,
-                title: 'Achtung',
-                content: 'Ein Problem ist aufgetreten. Bitte versuche es später erneut, oder kontaktiere den Support.',
-              );
-              return;
-            }
-        }
-      },
-      (loadedProduct) => anotherProductWithSameProductMarketplaceAndSameManufacturer = loadedProduct,
-    );
+    // final fosAnotherProduct = await productRepository.getProductWithSameProductMarketplaceAndSameManufacturer(
+    //   state.product!,
+    //   event.productMarketplace,
+    // );
+    // fosAnotherProduct.fold(
+    //   (failure) {
+    //     switch (failure) {
+    //       case EmptyFailure():
+    //         {
+    //           event.context.router.maybePop();
+    //           showMyDialogAlert(
+    //             context: event.context,
+    //             title: 'Achtung',
+    //             content:
+    //                 'Der erste Artikel eines neuen Herstellers muss im Marktplatz angelegt werden und nach Cezeri Commerce importiert werden.\nAlle weiteren Artikel können dann über Cezeri Commerce zum Marktplatz exportiert werden.',
+    //           );
+    //           return;
+    //         }
+    //       default:
+    //         {
+    //           event.context.router.maybePop();
+    //           showMyDialogAlert(
+    //             context: event.context,
+    //             title: 'Achtung',
+    //             content: 'Ein Problem ist aufgetreten. Bitte versuche es später erneut, oder kontaktiere den Support.',
+    //           );
+    //           return;
+    //         }
+    //     }
+    //   },
+    //   (loadedProduct) => anotherProductWithSameProductMarketplaceAndSameManufacturer = loadedProduct,
+    // );
 
-    if (anotherProductWithSameProductMarketplaceAndSameManufacturer == null) {
-      event.context.router.maybePop();
-      if (event.context.mounted) {
-        showMyDialogAlert(
-          context: event.context,
-          title: 'Achtung',
-          content: 'Ein Problem ist aufgetreten. Bitte versuche es später erneut, oder kontaktiere den Support.',
-        );
-      }
-      return;
-    }
+    // if (anotherProductWithSameProductMarketplaceAndSameManufacturer == null) {
+    //   event.context.router.maybePop();
+    //   if (event.context.mounted) {
+    //     showMyDialogAlert(
+    //       context: event.context,
+    //       title: 'Achtung',
+    //       content: 'Ein Problem ist aufgetreten. Bitte versuche es später erneut, oder kontaktiere den Support.',
+    //     );
+    //   }
+    //   return;
+    // }
 
-    final productMarketplaceOfAnotherProduct = anotherProductWithSameProductMarketplaceAndSameManufacturer!.productMarketplaces
-        .where((e) => e.idMarketplace == event.productMarketplace.idMarketplace)
-        .firstOrNull;
-    if (productMarketplaceOfAnotherProduct == null) {
-      event.context.router.maybePop();
-      if (!event.context.mounted) return;
-      showMyDialogAlert(
-        context: event.context,
-        title: 'Achtung',
-        content: 'Ein Problem ist aufgetreten. Bitte versuche es später erneut, oder kontaktiere den Support.',
-      );
-      return;
-    }
+    // final productMarketplaceOfAnotherProduct = anotherProductWithSameProductMarketplaceAndSameManufacturer!.productMarketplaces
+    //     .where((e) => e.idMarketplace == event.productMarketplace.idMarketplace)
+    //     .firstOrNull;
+    // if (productMarketplaceOfAnotherProduct == null) {
+    //   event.context.router.maybePop();
+    //   if (!event.context.mounted) return;
+    //   showMyDialogAlert(
+    //     context: event.context,
+    //     title: 'Achtung',
+    //     content: 'Ein Problem ist aufgetreten. Bitte versuche es später erneut, oder kontaktiere den Support.',
+    //   );
+    //   return;
+    // }
 
     // logger.i(anotherProductWithSameProductMarketplaceAndSameManufacturer);
     // return;
@@ -575,7 +635,7 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
     final failureOrSuccess = await marketplaceEditRepository.createProdcutInMarketplace(
       state.product!,
       event.productMarketplace,
-      productMarketplaceOfAnotherProduct,
+      null, //productMarketplaceOfAnotherProduct,
     );
     if (failureOrSuccess.isLeft()) {
       emit(state.copyWith(

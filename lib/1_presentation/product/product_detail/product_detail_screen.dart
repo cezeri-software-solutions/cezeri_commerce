@@ -33,6 +33,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with Automati
 
     if (widget.productId != null) {
       productDetailBloc.add(GetProductEvent(id: widget.productId!));
+    } else {
+      productDetailBloc.add(SetEmptyProductEvent());
     }
   }
 
@@ -77,6 +79,25 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with Automati
 
 List<BlocListener<ProductDetailBloc, ProductDetailState>> _getProductDetailBlocListeners(ProductDetailBloc productDetailBloc) {
   return [
+    BlocListener<ProductDetailBloc, ProductDetailState>(
+      listenWhen: (p, c) => p.fosProductOnCreateOption != c.fosProductOnCreateOption,
+      listener: (context, state) {
+        state.fosProductOnCreateOption.fold(
+          () => null,
+          (a) => a.fold(
+            (failure) => failureRenderer(context, [failure]),
+            (product) {
+              myScaffoldMessenger(context, null, null, 'Artikel erfolgreich erstellt', null);
+
+              final productId = product.id;
+
+              context.router.popUntilRouteWithName(ProductsOverviewRoute.name);
+              context.router.push(ProductDetailRoute(productId: productId));
+            },
+          ),
+        );
+      },
+    ),
     BlocListener<ProductDetailBloc, ProductDetailState>(
       listenWhen: (p, c) => p.fosProductOnUpdateOption != c.fosProductOnUpdateOption,
       listener: (context, state) {
@@ -176,7 +197,7 @@ List<Widget>? _getProductDetailActions(BuildContext context, ProductDetailBloc p
     if (productId != null) {
       productDetailBloc.add(UpdateProductEvent());
     } else {
-      // TODO: Handle create new product
+      productDetailBloc.add(CreateNewProductEvent());
     }
   }
 
