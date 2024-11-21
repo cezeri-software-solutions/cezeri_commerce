@@ -9,6 +9,7 @@ class ProductDetailState {
   final bool isAnyFailure;
   final bool isLoadingProductOnObserve;
   final bool isLoadingProductsOnObserve;
+  final bool isLoadingProductOnCreate;
   final bool isLoadingProductOnUpdate;
   final bool isLoadingProductOnUpdateImages;
   final bool isLoadingProductOnUploadImages;
@@ -18,6 +19,7 @@ class ProductDetailState {
   final bool isLoadingOnDeleteMarketplaceFromProduct; // Aktuelle nicht genutz (Artikel wird im Marktplatz nicht gelöscht)
   final Option<Either<AbstractFailure, Product>> fosProductOnObserveOption;
   final Option<Either<AbstractFailure, List<Product>>> fosProductsOnObserveOption;
+  final Option<Either<AbstractFailure, Product>> fosProductOnCreateOption;
   final Option<Either<AbstractFailure, Product>> fosProductOnUpdateOption;
   final Option<Either<AbstractFailure, Product>> fosProductOnUpdateImagesOption;
   final Option<Either<AbstractFailure, Unit>> fosProductOnDeleteOption;
@@ -82,6 +84,7 @@ class ProductDetailState {
     required this.isAnyFailure,
     required this.isLoadingProductOnObserve,
     required this.isLoadingProductsOnObserve,
+    required this.isLoadingProductOnCreate,
     required this.isLoadingProductOnUpdate,
     required this.isLoadingProductOnUpdateImages,
     required this.isLoadingProductOnUploadImages,
@@ -91,6 +94,7 @@ class ProductDetailState {
     required this.isLoadingOnDeleteMarketplaceFromProduct,
     required this.fosProductOnObserveOption,
     required this.fosProductsOnObserveOption,
+    required this.fosProductOnCreateOption,
     required this.fosProductOnUpdateOption,
     required this.fosProductOnUpdateImagesOption,
     required this.fosProductOnDeleteOption,
@@ -150,6 +154,7 @@ class ProductDetailState {
       isAnyFailure: false,
       isLoadingProductOnObserve: false,
       isLoadingProductsOnObserve: false,
+      isLoadingProductOnCreate: false,
       isLoadingProductOnUpdate: false,
       isLoadingProductOnUpdateImages: false,
       isLoadingProductOnUploadImages: false,
@@ -159,6 +164,7 @@ class ProductDetailState {
       isLoadingOnDeleteMarketplaceFromProduct: false,
       fosProductOnObserveOption: none(),
       fosProductsOnObserveOption: none(),
+      fosProductOnCreateOption: none(),
       fosProductOnUpdateOption: none(),
       fosProductOnUpdateImagesOption: none(),
       fosProductOnDeleteOption: none(),
@@ -218,6 +224,7 @@ class ProductDetailState {
     bool? isAnyFailure,
     bool? isLoadingProductOnObserve,
     bool? isLoadingProductsOnObserve,
+    bool? isLoadingProductOnCreate,
     bool? isLoadingProductOnUpdate,
     bool? isLoadingProductOnUpdateImages,
     bool? isLoadingProductOnUploadImages,
@@ -227,6 +234,7 @@ class ProductDetailState {
     bool? isLoadingOnDeleteMarketplaceFromProduct,
     Option<Either<AbstractFailure, Product>>? fosProductOnObserveOption,
     Option<Either<AbstractFailure, List<Product>>>? fosProductsOnObserveOption,
+    Option<Either<AbstractFailure, Product>>? fosProductOnCreateOption,
     Option<Either<AbstractFailure, Product>>? fosProductOnUpdateOption,
     Option<Either<AbstractFailure, Product>>? fosProductOnUpdateImagesOption,
     Option<Either<AbstractFailure, Unit>>? fosProductOnDeleteOption,
@@ -284,6 +292,7 @@ class ProductDetailState {
       isAnyFailure: isAnyFailure ?? this.isAnyFailure,
       isLoadingProductOnObserve: isLoadingProductOnObserve ?? this.isLoadingProductOnObserve,
       isLoadingProductsOnObserve: isLoadingProductsOnObserve ?? this.isLoadingProductsOnObserve,
+      isLoadingProductOnCreate: isLoadingProductOnCreate ?? this.isLoadingProductOnCreate,
       isLoadingProductOnUpdate: isLoadingProductOnUpdate ?? this.isLoadingProductOnUpdate,
       isLoadingProductOnUpdateImages: isLoadingProductOnUpdateImages ?? this.isLoadingProductOnUpdateImages,
       isLoadingProductOnUploadImages: isLoadingProductOnUploadImages ?? this.isLoadingProductOnUploadImages,
@@ -293,6 +302,7 @@ class ProductDetailState {
       isLoadingOnDeleteMarketplaceFromProduct: isLoadingOnDeleteMarketplaceFromProduct ?? this.isLoadingOnDeleteMarketplaceFromProduct,
       fosProductOnObserveOption: fosProductOnObserveOption ?? this.fosProductOnObserveOption,
       fosProductsOnObserveOption: fosProductsOnObserveOption ?? this.fosProductsOnObserveOption,
+      fosProductOnCreateOption: fosProductOnCreateOption ?? this.fosProductOnCreateOption,
       fosProductOnUpdateOption: fosProductOnUpdateOption ?? this.fosProductOnUpdateOption,
       fosProductOnUpdateImagesOption: fosProductOnUpdateImagesOption ?? this.fosProductOnUpdateImagesOption,
       fosProductOnDeleteOption: fosProductOnDeleteOption ?? this.fosProductOnDeleteOption,

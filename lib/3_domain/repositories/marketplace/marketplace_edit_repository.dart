@@ -18,7 +18,7 @@ abstract class MarketplaceEditRepository {
   Future<Either<AbstractFailure, MarketplaceProduct>> createProdcutInMarketplace(
     Product product,
     ProductMarketplace productMarketplace,
-    ProductMarketplace anotherProductMarketplaceWithSameManufacturer,
+    ProductMarketplace? anotherProductMarketplaceWithSameManufacturer,
   );
   Future<Either<List<AbstractFailure>, Unit>> uploadProductImagesToMarketplace(Product product, List<ProductImage> productImages);
   Future<Either<List<AbstractFailure>, Unit>> updateSpecificPriceInPrestaMarketplaces(Product originalProduct, Product product);

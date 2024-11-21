@@ -190,7 +190,7 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
   Future<Either<AbstractFailure, MarketplaceProduct>> createProdcutInMarketplace(
     Product product,
     ProductMarketplace productMarketplace,
-    ProductMarketplace anotherProductMarketplaceWithSameManufacturer,
+    ProductMarketplace? anotherProductMarketplaceWithSameManufacturer,
   ) async {
     if (!await checkInternetConnection()) return Left(NoConnectionFailure());
     final ownerId = await getOwnerId();
@@ -204,6 +204,9 @@ class MarketplaceEditRepositoryImpl implements MarketplaceEditRepository {
     switch (productMarketplace.marketplaceProduct!.marketplaceType) {
       case MarketplaceType.prestashop:
         {
+          if (anotherProductMarketplaceWithSameManufacturer == null) {
+            return left(ShopifyGeneralFailure(errorMessage: 'Fehler beim Laden der Artikels aus Shopify'));
+          }
           //* Erstellt den neuen Artikel in Prestashop und gibt die ID des erstellten Artikels zurück
           final fosIdOfCreatedProduct = await PrestashopRepositoryPost(marketplace as MarketplacePresta).createNewProductInMarketplace(
             product: product,

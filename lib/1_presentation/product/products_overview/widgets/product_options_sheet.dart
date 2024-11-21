@@ -55,9 +55,10 @@ class ProductOptionsSheet extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const ListTile(
-            leading: Icon(Icons.add, color: Colors.green),
-            title: Text('Neuer Artikel'),
+          ListTile(
+            leading: const Icon(Icons.add, color: Colors.green),
+            title: const Text('Neuer Artikel'),
+            onTap: () => context.router.push(ProductDetailRoute(productId: null)),
           ),
           ListTile(
             leading: Icon(Icons.edit_note, color: isActive ? CustomColors.primaryColor : Colors.grey, size: 20),

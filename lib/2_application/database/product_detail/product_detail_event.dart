@@ -4,6 +4,8 @@ abstract class ProductDetailEvent {}
 
 class SetProductDetailStatesToInitialEvent extends ProductDetailEvent {}
 
+class SetEmptyProductEvent extends ProductDetailEvent {}
+
 class GetProductEvent extends ProductDetailEvent {
   final String id;
 
@@ -79,6 +81,8 @@ class GetProductByEanEvent extends ProductDetailEvent {
 
   GetProductByEanEvent({required this.ean});
 }
+
+class CreateNewProductEvent extends ProductDetailEvent {}
 
 class UpdateProductEvent extends ProductDetailEvent {}
 
