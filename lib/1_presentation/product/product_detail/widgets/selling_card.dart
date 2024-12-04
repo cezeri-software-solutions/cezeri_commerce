@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../2_application/database/product_detail/product_detail_bloc.dart';
 import '../../../../constants.dart';
 import '../../../core/core.dart';
+import '../../widgets/product_profit_text.dart';
 import '../modals/add_edit_specific_price.dart';
 
 class SellingCard extends StatelessWidget {
@@ -41,6 +42,10 @@ class SellingCard extends StatelessWidget {
                   ],
                 ),
                 Gaps.h16,
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: ProductProfitText(netPrice: state.product!.netPrice, wholesalePrice: state.product!.wholesalePrice),
+                ),
                 MyTextFormFieldSmall(
                   fieldTitle: 'VK-Preis Brutto',
                   controller: state.grossPriceController,
