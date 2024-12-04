@@ -67,13 +67,22 @@ class _MyDropzoneWebState extends State<MyDropzoneWeb> {
             children: [
               DropzoneView(
                 onCreated: (controller) => _controller = controller,
-                onDrop: (events) async {
-                  final myFiles = await incomingInvoiceDropFile(events, _controller);
+                onDropFile: (event) async {
+                  print('onDropFile wird ausgeführt: ${event.runtimeType}');
+                  final myFiles = await incomingInvoiceDropFile(event, _controller);
 
                   setState(() => _isHighlighted = false);
 
                   widget.getMyFiles([myFiles]);
                 },
+                // onDropFiles: (events) async {
+                //   print('onDropFiles wird ausgeführt: ${events.runtimeType}');
+                //   final myFiles = await incomingInvoiceDropFile(events, _controller);
+
+                //   setState(() => _isHighlighted = false);
+
+                //   widget.getMyFiles([myFiles]);
+                // },
                 onHover: () => setState(() => _isHighlighted = true),
                 onLeave: () => setState(() => _isHighlighted = false),
               ),
@@ -94,7 +103,9 @@ class _MyDropzoneWebState extends State<MyDropzoneWeb> {
   }
 
   Future<MyFile> incomingInvoiceDropFile(dynamic event, DropzoneViewController controller) async {
-    final name = event.name;
+    print('Event Typ: ${event.runtimeType}');
+
+    final name = await controller.getFilename(event);
     final mime = await controller.getFileMIME(event);
     final size = await controller.getFileSize(event);
     final bytes = await controller.getFileData(event);
@@ -107,7 +118,7 @@ class _MyDropzoneWebState extends State<MyDropzoneWeb> {
     return myFile;
   }
 
-  Future<List<MyFile>> incomingInvoiceDropFiles(List<dynamic> events, DropzoneViewController controller) async {
+  Future<List<MyFile>> incomingInvoiceDropFiles(List<DropzoneFileInterface> events, DropzoneViewController controller) async {
     final myFiles = <MyFile>[];
 
     for (final event in events) {

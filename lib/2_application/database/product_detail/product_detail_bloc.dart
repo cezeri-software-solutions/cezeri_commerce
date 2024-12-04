@@ -791,7 +791,7 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
 //? ###########################################################################################################################
 
   void _onSetProductWholesalePriceGenerated(OnSetProductWholesalePriceGeneratedEvent event, Emitter<ProductDetailState> emit) {
-    final listOfPartProductWholesalePrices = state.listOfAllProducts!
+    final listOfPartProductWholesalePrices = (state.listOfAllProducts ?? state.listOfSetPartProducts)!
         .where((product) => state.product!.listOfProductIdWithQuantity.any((partProduct) => partProduct.productId == product.id))
         .map((e) => e.wholesalePrice * state.product!.listOfProductIdWithQuantity.firstWhere((partProduct) => partProduct.productId == e.id).quantity)
         .toList();
