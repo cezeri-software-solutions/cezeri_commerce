@@ -107,48 +107,50 @@ class _ProductContainer extends StatelessWidget {
                 ),
                 isTabletOrLarger ? Gaps.w16 : Gaps.w8,
                 _ProductInfoBar(productBloc: productBloc, product: product),
-                Column(
-                  children: [
-                    MaterialButton(
-                      onPressed: () => showEbayProfitCalculatorSheet(context, product),
-                      child: SvgPicture.asset('assets/other/ebay.svg', width: 20, height: 20),
-                    ),
-                    Row(
-                      children: [
-                        const Text('AT: '),
-                        EbayProfitQuickView(product: product),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        const Text('DE: '),
-                        EbayProfitQuickView(product: product, isGermany: true),
-                      ],
-                    ),
-                  ],
-                ),
-                Gaps.w8,
-                Column(
-                  children: [
-                    MaterialButton(
-                      onPressed: () => showProductAdsRoasCalculatorSheet(context, product),
-                      child: SvgPicture.asset('assets/other/google_ads.svg', width: 20, height: 20),
-                    ),
-                    Row(
-                      children: [
-                        const Text('AT: '),
-                        ProductRoasQuickView(product: product),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        const Text('DE: '),
-                        ProductRoasQuickView(product: product, isGermany: true),
-                      ],
-                    ),
-                  ],
-                ),
-                Gaps.w16,
+                if (isTabletOrLarger) ...[
+                  Column(
+                    children: [
+                      MaterialButton(
+                        onPressed: () => showEbayProfitCalculatorSheet(context, product),
+                        child: SvgPicture.asset('assets/other/ebay.svg', width: 20, height: 20),
+                      ),
+                      Row(
+                        children: [
+                          const Text('AT: '),
+                          EbayProfitQuickView(product: product),
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          const Text('DE: '),
+                          EbayProfitQuickView(product: product, isGermany: true),
+                        ],
+                      ),
+                    ],
+                  ),
+                  Gaps.w8,
+                  Column(
+                    children: [
+                      MaterialButton(
+                        onPressed: () => showProductAdsRoasCalculatorSheet(context, product),
+                        child: SvgPicture.asset('assets/other/google_ads.svg', width: 20, height: 20),
+                      ),
+                      Row(
+                        children: [
+                          const Text('AT: '),
+                          ProductRoasQuickView(product: product),
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          const Text('DE: '),
+                          ProductRoasQuickView(product: product, isGermany: true),
+                        ],
+                      ),
+                    ],
+                  ),
+                  Gaps.w16,
+                ],
                 if (isTabletOrLarger) _PricesBar(product: product) else _StockBar(productBloc: productBloc, product: product),
                 isTabletOrLarger ? Gaps.w16 : Gaps.w8,
                 if (isTabletOrLarger) _StockBar(productBloc: productBloc, product: product) else _PricesBar(product: product),
