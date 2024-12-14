@@ -144,7 +144,7 @@ class __FileTileState extends State<_FileTile> {
               child: Container(
                 height: 30,
                 width: 30,
-                decoration: BoxDecoration(color: Colors.white.withOpacity(0.8), borderRadius: BorderRadius.circular(6)),
+                decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.8), borderRadius: BorderRadius.circular(6)),
                 child: const MyCircularProgressIndicator(),
               ),
             ),

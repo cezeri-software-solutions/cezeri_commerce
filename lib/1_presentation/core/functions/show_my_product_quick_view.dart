@@ -4,7 +4,6 @@ import 'package:cezeri_commerce/routes/router.gr.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_html/flutter_html.dart';
 import 'package:get_it/get_it.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
@@ -222,7 +221,8 @@ class _ShortDescription extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text('Kurzbeschreibung:', style: TextStyles.infoOnTextFieldSmall),
-        Html(data: product.descriptionShort),
+        Text(product.descriptionShort.htmlStringToString),
+        Gaps.h16,
         Row(
           children: [
             Expanded(
