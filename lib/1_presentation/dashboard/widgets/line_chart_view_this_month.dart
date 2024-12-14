@@ -106,7 +106,7 @@ class _LineChartViewThisMonthState extends State<LineChartViewThisMonth> {
           dotData: const FlDotData(show: true),
           belowBarData: BarAreaData(
             show: true,
-            color: widget.dataComparePeriod != null ? Colors.transparent : CustomColors.chartColorCyan.withOpacity(0.08),
+            color: widget.dataComparePeriod != null ? Colors.transparent : CustomColors.chartColorCyan.withValues(alpha: 0.08),
           ),
         ),
         if (widget.dataComparePeriod == null)
@@ -115,7 +115,7 @@ class _LineChartViewThisMonthState extends State<LineChartViewThisMonth> {
               spots: listOfFlSpotSalesVolumesPerMarketplace(marketplace),
               isCurved: false,
               preventCurveOverShooting: true,
-              gradient: LinearGradient(colors: [marketplace.color.withOpacity(0.9), marketplace.color]),
+              gradient: LinearGradient(colors: [marketplace.color.withValues(alpha: 0.9), marketplace.color]),
               barWidth: 1.5,
               isStrokeCapRound: true,
               dotData: const FlDotData(show: true),

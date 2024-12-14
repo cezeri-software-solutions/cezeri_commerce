@@ -53,8 +53,9 @@ class _LineChartViewLast13MonthState extends State<LineChartViewLast13Month> {
 
   LineChartData mainData(ThemeData themeData) {
     DateTime now = DateTime.now();
-    Color touchToolTipTextColor =
-        widget.chartTyp == ChartType.incomingOrder ? CustomColors.chartColorOrange.withOpacity(0.8) : CustomColors.chartColorCyan.withOpacity(0.8);
+    Color touchToolTipTextColor = widget.chartTyp == ChartType.incomingOrder
+        ? CustomColors.chartColorOrange.withValues(alpha: 0.8)
+        : CustomColors.chartColorCyan.withValues(alpha: 0.8);
     return LineChartData(
       lineTouchData: LineTouchData(
         touchTooltipData: LineTouchTooltipData(
@@ -64,7 +65,7 @@ class _LineChartViewLast13MonthState extends State<LineChartViewLast13Month> {
                 .toList();
           },
           //tooltipBgColor:
-          //    widget.chartTyp == ChartTyp.incomingOrder ? AppColors.contentColorOrange.withOpacity(0.8) : AppColors.contentColorCyan.withOpacity(0.8),
+          //    widget.chartTyp == ChartTyp.incomingOrder ? AppColors.contentColorOrange.withValues(alpha:0.8) : AppColors.contentColorCyan.withValues(alpha:0.8),
         ),
       ),
       backgroundColor: CustomColors.ultraLightGrey,
@@ -141,8 +142,8 @@ class _LineChartViewLast13MonthState extends State<LineChartViewLast13Month> {
             show: true,
             gradient: LinearGradient(
               colors: widget.chartTyp == ChartType.incomingOrder
-                  ? gradientColorOnIncomingOrders.map((color) => color.withOpacity(0.3)).toList()
-                  : gradientColorOnSalesVolume.map((color) => color.withOpacity(0.3)).toList(),
+                  ? gradientColorOnIncomingOrders.map((color) => color.withValues(alpha: 0.3)).toList()
+                  : gradientColorOnSalesVolume.map((color) => color.withValues(alpha: 0.3)).toList(),
             ),
           ),
         ),

@@ -168,7 +168,7 @@ class _ProductContainer extends StatelessWidget {
                       padding: EdgeInsets.all(2),
                       child: Text('SALE'),
                     ),
-                    backgroundColor: Colors.red.withOpacity(0.8),
+                    backgroundColor: Colors.red.withValues(alpha: 0.8),
                   )
                 ],
                 if (product.isSetArticle) ...[
@@ -186,7 +186,7 @@ class _ProductContainer extends StatelessWidget {
                           ],
                         ),
                       ),
-                      backgroundColor: Colors.blue.withOpacity(0.4),
+                      backgroundColor: Colors.blue.withValues(alpha: 0.4),
                     ),
                   ),
                 ],
@@ -205,7 +205,7 @@ class _ProductContainer extends StatelessWidget {
                           ],
                         ),
                       ),
-                      backgroundColor: Colors.purple.withOpacity(0.4),
+                      backgroundColor: Colors.purple.withValues(alpha: 0.4),
                     ),
                   ),
                 ],

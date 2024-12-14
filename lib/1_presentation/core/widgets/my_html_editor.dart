@@ -32,6 +32,13 @@ class MyHtmlEditor extends StatelessWidget {
         customToolbarButtons: [
           InkWell(onTap: () => controller.toggleCodeView(), child: const Icon(Icons.code)),
         ],
+        mediaLinkInsertInterceptor: (String url, InsertFileType type) {
+          if (type == InsertFileType.video) {
+            controller.insertHtml('<video controls src="$url" style="width: 100%; max-width: 600px; height: auto; border: 1px solid #000;"></video>');
+            return false;
+          }
+          return true;
+        },
       ),
       callbacks: Callbacks(
         onChangeContent: onChangeContent,

@@ -130,7 +130,7 @@ class SalesByBrandChartState extends State<SalesByBrandChart> {
         titleStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         radius: radius,
         titlePositionPercentageOffset: 0.55,
-        borderSide: isTouched ? const BorderSide(color: Colors.white, width: 6) : BorderSide(color: Colors.white.withOpacity(0)),
+        borderSide: isTouched ? const BorderSide(color: Colors.white, width: 6) : BorderSide(color: Colors.white.withValues(alpha: 0)),
       );
     }).toList();
   }

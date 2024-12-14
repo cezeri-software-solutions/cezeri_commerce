@@ -36,7 +36,7 @@ class ProductLineChartSalesVolume extends StatelessWidget {
     ];
 
     DateTime now = DateTime.now();
-    Color touchToolTipTextColor = CustomColors.chartColorCyan.withOpacity(0.8);
+    Color touchToolTipTextColor = CustomColors.chartColorCyan.withValues(alpha: 0.8);
     return LineChartData(
       lineTouchData: LineTouchData(
         touchTooltipData: LineTouchTooltipData(
@@ -46,7 +46,7 @@ class ProductLineChartSalesVolume extends StatelessWidget {
                 .toList();
           },
           //tooltipBgColor:
-          //    widget.chartTyp == ChartTyp.incomingOrder ? AppColors.contentColorOrange.withOpacity(0.8) : AppColors.contentColorCyan.withOpacity(0.8),
+          //    widget.chartTyp == ChartTyp.incomingOrder ? AppColors.contentColorOrange.withValues(alpha:0.8) : AppColors.contentColorCyan.withValues(alpha:0.8),
         ),
       ),
       gridData: FlGridData(
@@ -107,7 +107,7 @@ class ProductLineChartSalesVolume extends StatelessWidget {
           belowBarData: BarAreaData(
             show: true,
             gradient: LinearGradient(
-              colors: gradientColorOnSalesVolume.map((color) => color.withOpacity(0.3)).toList(),
+              colors: gradientColorOnSalesVolume.map((color) => color.withValues(alpha: 0.3)).toList(),
             ),
           ),
         ),
