@@ -22,7 +22,7 @@ class SupplierDetailPage extends StatelessWidget {
     return BlocBuilder<SupplierBloc, SupplierState>(
       bloc: supplierBloc,
       builder: (context, state) {
-        final screenWidth = MediaQuery.sizeOf(context).width;
+        final screenWidth = context.screenWidth;
         final responsiveness = screenWidth > 700 ? Responsiveness.isTablet : Responsiveness.isMobil;
 
         final appBar = AppBar(

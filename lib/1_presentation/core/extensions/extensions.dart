@@ -1,4 +1,5 @@
 export 'contains_digit.dart';
+export 'context_extensions.dart';
 export 'date_range_formatter.dart';
 export 'formatted_year_month.dart';
 export 'get_either.dart';

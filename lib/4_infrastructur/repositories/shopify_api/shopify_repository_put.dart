@@ -1,14 +1,14 @@
 import 'dart:convert';
 
-import 'package:cezeri_commerce/1_presentation/core/core.dart';
 import 'package:dartz/dartz.dart';
 import 'package:get_it/get_it.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import '../../../3_domain/entities/marketplace/marketplace_shopify.dart';
-import '../../../3_domain/entities/product/product.dart';
-import '../../../constants.dart';
-import '../../../failures/failures.dart';
+import '/1_presentation/core/core.dart';
+import '/3_domain/entities/marketplace/marketplace_shopify.dart';
+import '/3_domain/entities/product/product.dart';
+import '/constants.dart';
+import '/failures/failures.dart';
 import 'shopify.dart';
 
 class ShopifyRepositoryPut {

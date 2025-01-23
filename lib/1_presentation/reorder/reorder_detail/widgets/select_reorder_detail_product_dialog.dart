@@ -384,7 +384,7 @@ class _QuantityDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.sizeOf(context).width;
+    final screenWidth = context.screenWidth;
     final controller = TextEditingController();
 
     return Dialog(

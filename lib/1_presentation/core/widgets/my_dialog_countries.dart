@@ -42,8 +42,8 @@ class _MyDialogSelectCountryState extends State<MyDialogSelectCountry> {
       onTap: () => showDialog(
           context: context,
           builder: (context) {
-            final screenHeight = MediaQuery.sizeOf(context).height;
-            final screenWidth = MediaQuery.sizeOf(context).width;
+            final screenHeight = context.screenHeight;
+            final screenWidth = context.screenWidth;
             return SelectVehicleDialog(onSelectCountry: _selectVehicleBrand, screenHeight: screenHeight, screenWidth: screenWidth);
           }),
       child: InputDecorator(

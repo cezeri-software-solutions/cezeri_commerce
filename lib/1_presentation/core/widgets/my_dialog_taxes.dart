@@ -2,10 +2,10 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../2_application/database/main_settings/main_settings_bloc.dart';
-import '../../../3_domain/entities/settings/tax.dart';
-import '../../../constants.dart';
-import 'my_country_flag.dart';
+import '/2_application/database/main_settings/main_settings_bloc.dart';
+import '/3_domain/entities/settings/tax.dart';
+import '/constants.dart';
+import '../../core/core.dart';
 
 class MyDialogTaxes extends StatelessWidget {
   final Function(Tax) onChanged;
@@ -14,8 +14,8 @@ class MyDialogTaxes extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final screenHeight = MediaQuery.sizeOf(context).height;
-    final screenWidth = MediaQuery.sizeOf(context).width;
+    final screenHeight = context.screenHeight;
+    final screenWidth = context.screenWidth;
 
     final taxList = context.read<MainSettingsBloc>().state.mainSettings!.taxes;
 

@@ -59,7 +59,7 @@ class _SuppliersOverviewScreenState extends State<SuppliersOverviewScreen> with 
         child: BlocBuilder<SupplierBloc, SupplierState>(
           builder: (context, state) {
             return Scaffold(
-              drawer: const AppDrawer(),
+              drawer: context.displayDrawer ? const AppDrawer() : null,
               appBar: AppBar(
                 title: const Text('Lieferanten'),
                 actions: [

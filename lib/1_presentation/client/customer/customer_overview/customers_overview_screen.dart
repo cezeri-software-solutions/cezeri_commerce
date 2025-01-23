@@ -67,7 +67,7 @@ class _CustomersOverviewScreenState extends State<CustomersOverviewScreen> with 
         child: BlocBuilder<CustomerBloc, CustomerState>(
           builder: (context, state) {
             return Scaffold(
-              drawer: const AppDrawer(),
+              drawer: context.displayDrawer ? const AppDrawer() : null,
               appBar: AppBar(
                 title: const Text('Kunden'),
                 actions: [

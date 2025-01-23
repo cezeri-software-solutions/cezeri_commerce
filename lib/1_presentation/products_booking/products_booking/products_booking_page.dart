@@ -14,7 +14,7 @@ class ProductsBookingPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.sizeOf(context).width;
+    final screenWidth = context.screenWidth;
     return BlocBuilder<ProductsBookingBloc, ProductsBookingState>(
       builder: (context, state) {
         return Padding(

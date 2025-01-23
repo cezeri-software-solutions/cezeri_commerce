@@ -15,7 +15,7 @@ class MainSalesData extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.sizeOf(context).width;
+    final screenWidth = context.screenWidth;
 
     final padding = switch (ResponsiveBreakpoints.of(context).largerOrEqualTo(TABLET)) {
       true => 20.0,

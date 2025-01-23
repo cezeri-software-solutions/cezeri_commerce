@@ -48,7 +48,7 @@ class MyDropdownButtonSmall extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.sizeOf(context).width;
+    final screenWidth = context.screenWidth;
 
     return Column(
       mainAxisSize: MainAxisSize.min,

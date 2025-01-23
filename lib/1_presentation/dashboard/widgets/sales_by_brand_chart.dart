@@ -27,8 +27,8 @@ class SalesByBrandChartState extends State<SalesByBrandChart> {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.sizeOf(context).width;
-    final screenHeight = MediaQuery.sizeOf(context).height;
+    final screenWidth = context.screenWidth;
+    final screenHeight = context.screenHeight;
     final isTablet = ResponsiveBreakpoints.of(context).largerOrEqualTo(TABLET);
 
     if (widget.isLoadingProductSalesByBrand) {
@@ -235,7 +235,13 @@ class _RowItem extends StatelessWidget {
           if (index != 0) SizedBox(width: 20, child: Text(index.toString())),
           Container(width: 16, height: 16, decoration: BoxDecoration(shape: BoxShape.circle, color: color)),
           Gaps.w8,
-          Text(text, textAlign: textAlign, style: isTouched! ? TextStyles.defaultBold.copyWith(color: color) : null),
+          Text(
+            text,
+            textAlign: textAlign,
+            style: isTouched! ? TextStyles.defaultBold.copyWith(color: color) : null,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
         ],
       ),
     );

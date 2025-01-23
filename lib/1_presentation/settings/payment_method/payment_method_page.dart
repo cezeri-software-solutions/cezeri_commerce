@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../2_application/database/main_settings/main_settings_bloc.dart';
-import '../../../3_domain/entities/settings/main_settings.dart';
-import '../../../3_domain/entities/settings/payment_method.dart';
-import '../../../constants.dart';
+import '/2_application/database/main_settings/main_settings_bloc.dart';
+import '/3_domain/entities/settings/main_settings.dart';
+import '/3_domain/entities/settings/payment_method.dart';
+import '/constants.dart';
 import '../../app_drawer.dart';
+import '../../core/core.dart';
 import 'widgets/add_edti_payment_method_marketplace_name.dart';
 
 class PaymentMethodPage extends StatefulWidget {
@@ -25,7 +26,7 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
           actions: [IconButton(onPressed: () => context.read<MainSettingsBloc>().add(GetMainSettingsEvent()), icon: const Icon(Icons.refresh))],
         );
 
-        const drawer = AppDrawer();
+        final drawer = context.displayDrawer ? const AppDrawer() : null;
 
         if ((state.mainSettings == null && state.firebaseFailure == null) || state.isLoadingMainSettingsOnObserve) {
           return Scaffold(appBar: appBar, drawer: drawer, body: const Center(child: CircularProgressIndicator()));

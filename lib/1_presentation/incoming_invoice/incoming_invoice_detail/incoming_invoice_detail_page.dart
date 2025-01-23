@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
 import '../../../2_application/database/incoming_invoice_detail/incoming_invoice_detail_bloc.dart';
+import '../../core/core.dart';
 import 'widgets/widgets.dart';
 
 class IncomingInvoiceDetailPage extends StatelessWidget {
@@ -14,7 +15,7 @@ class IncomingInvoiceDetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const padding = 12.0;
-    final screenWidth = MediaQuery.sizeOf(context).width;
+    final screenWidth = context.screenWidth;
 
     final isMobile = ResponsiveBreakpoints.of(context).equals(MOBILE);
     final containerWidthWrap = isMobile ? screenWidth - (padding * 2) : screenWidth / 3 - (padding + padding / 2);

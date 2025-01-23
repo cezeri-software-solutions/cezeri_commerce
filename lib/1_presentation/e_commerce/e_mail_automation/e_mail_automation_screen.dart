@@ -49,7 +49,7 @@ class EMailAutomationScreen extends StatelessWidget {
           ),
         ],
         child: Scaffold(
-          drawer: const AppDrawer(),
+          drawer: context.displayDrawer ? const AppDrawer() : null,
           appBar: AppBar(title: const Text('E-Mail Automatisierung')),
           body: EMailAutomationBody(marketplaceBloc: marketplaceBloc),
         ),

@@ -1,219 +1,305 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:cezeri_commerce/1_presentation/splash_page.dart';
 import 'package:flutter/material.dart';
 
+import '/1_presentation/core/core.dart';
+import '/1_presentation/splash_page.dart';
 import '../3_domain/entities/receipt/receipt.dart';
 import '../constants.dart';
 import '../routes/router.gr.dart';
 
-class AppDrawer extends StatelessWidget {
-  const AppDrawer({super.key});
+class AppDrawer extends StatefulWidget {
+  final bool isPersistent;
 
+  const AppDrawer({super.key, this.isPersistent = false});
+
+  @override
+  State<AppDrawer> createState() => _AppDrawerState();
+}
+
+class _AppDrawerState extends State<AppDrawer> {
   @override
   Widget build(BuildContext context) {
     void navigateToRoute(PageRouteInfo route) {
-      if (context.router.current.name == route.routeName) {
-        context.router.maybePop();
+      if (widget.isPersistent) {
+        context.router.current.name == route.routeName ? null : context.router.replaceAll([route]);
+        setState(() {});
       } else {
-        context.router.replaceAll([route]);
+        if (context.router.current.name != route.routeName) context.router.replaceAll([route]);
+        context.pop(); // Schließt den Drawer
       }
     }
 
-    return Drawer(
-      child: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    Gaps.h16,
-                    ListTile(
-                      leading: const Icon(Icons.home),
-                      title: const Text('Startseite'),
-                      onTap: () => navigateToRoute(const HomeRoute()),
-                    ),
-                    ListTile(
-                      leading: const Icon(Icons.dashboard),
-                      title: const Text('Dashboard'),
-                      onTap: () => navigateToRoute(const DashboardRoute()),
-                    ),
-                    ListTile(
-                      leading: const Icon(Icons.warehouse),
-                      title: const Text('Artikel'),
-                      onTap: () => navigateToRoute(const ProductsOverviewRoute()),
-                    ),
-                    ListTile(
-                      leading: const Icon(Icons.person),
-                      title: const Text('Kunden'),
-                      onTap: () => navigateToRoute(const CustomersOverviewRoute()),
-                    ),
-                    ExpansionTile(
-                      title: const Text('Einkauf / Buchhaltung'),
-                      leading: const Icon(Icons.account_balance),
-                      childrenPadding: const EdgeInsets.only(left: 20),
-                      children: [
-                        ListTile(
-                          leading: const Icon(Icons.person_4_outlined),
-                          title: const Text('Lieferanten'),
-                          onTap: () => navigateToRoute(const SuppliersOverviewRoute()),
-                        ),
-                        ListTile(
-                          leading: const Icon(Icons.dashboard_customize_rounded),
-                          title: const Text('Bestellungen'),
-                          onTap: () => navigateToRoute(const ReordersOverviewRoute()),
-                        ),
-                      ],
-                    ),
-                    ExpansionTile(
-                      title: const Text('Lager'),
-                      leading: const Icon(Icons.warehouse),
-                      childrenPadding: const EdgeInsets.only(left: 20),
-                      children: [
-                        ListTile(
-                          leading: const Icon(Icons.subdirectory_arrow_right),
-                          title: const Text('Warenausgang'),
-                          onTap: () {}, // => navigateToRoute(const HomeRoute()),
-                        ),
-                        ListTile(
-                          leading: const Icon(Icons.subdirectory_arrow_left),
-                          title: const Text('Wareneingang'),
-                          onTap: () => navigateToRoute(const ProductsBookingRoute()),
-                        ),
-                      ],
-                    ),
-                    ListTile(
-                      leading: const Icon(Icons.delivery_dining),
-                      title: const Text('Packstation'),
-                      onTap: () => navigateToRoute(const PackingStationOverviewRoute()),
-                    ),
-                    ListTile(
-                      leading: const Icon(Icons.shopping_cart),
-                      title: const Text('POS'),
-                      onTap: () => navigateToRoute(const PosOverviewRoute()),
-                    ),
-                    ExpansionTile(
-                      title: const Text('Dokumente'),
-                      leading: const Icon(Icons.receipt),
-                      childrenPadding: const EdgeInsets.only(left: 20),
-                      children: [
-                        ListTile(
-                          leading: const Icon(Icons.receipt),
-                          title: const Text('Angebote'),
-                          onTap: () => navigateToRoute(OffersOverviewRoute(receiptTyp: ReceiptType.offer)),
-                        ),
-                        ListTile(
-                          leading: const Icon(Icons.receipt),
-                          title: const Text('Aufträge'),
-                          onTap: () => navigateToRoute(AppointmentsOverviewRoute(receiptTyp: ReceiptType.appointment)),
-                        ),
-                        ListTile(
-                          leading: const Icon(Icons.receipt),
-                          title: const Text('Lieferscheine'),
-                          onTap: () => navigateToRoute(DeliveryNotesOverviewRoute(receiptTyp: ReceiptType.deliveryNote)),
-                        ),
-                        ListTile(
-                          leading: const Icon(Icons.receipt),
-                          title: const Text('Rechnungen'),
-                          onTap: () => navigateToRoute(InvoicesOverviewRoute(receiptTyp: ReceiptType.invoice)),
-                        ),
-                      ],
-                    ),
-                    ListTile(
-                      leading: const Icon(Icons.send),
-                      title: const Text('Versandlabel'),
-                      onTap: () => navigateToRoute(const ShippingLabelRoute()),
-                    ),
-                    ExpansionTile(
-                      leading: const Icon(Icons.maps_home_work_rounded),
-                      title: const Text('E-Commerce'),
-                      childrenPadding: const EdgeInsets.only(left: 20),
-                      children: [
-                        ListTile(
-                          leading: const Icon(Icons.import_export),
-                          title: const Text('Artikel importieren'),
-                          onTap: () => navigateToRoute(const ProductImportRoute()),
-                        ),
-                        ListTile(
-                          leading: const Icon(Icons.import_export),
-                          title: const Text('Artikel exportieren'),
-                          onTap: () => navigateToRoute(const ProductExportRoute()),
-                        ),
-                        ListTile(
-                          leading: const Icon(Icons.business),
-                          title: const Text('Marktplätze'),
-                          onTap: () => navigateToRoute(MarketplacesOverviewRoute()),
-                        ),
-                        ListTile(
-                          leading: const Icon(Icons.mail),
-                          title: const Text('E-Mail Automatisierungen'),
-                          onTap: () => navigateToRoute(const EMailAutomationRoute()),
-                        ),
-                      ],
-                    ),
-                    ExpansionTile(
-                      title: const Text('Buchhaltung'),
-                      leading: const Icon(Icons.balance),
-                      childrenPadding: const EdgeInsets.only(left: 20),
-                      children: [
-                        ListTile(
-                          leading: const Icon(Icons.table_chart_outlined),
-                          title: const Text('Sachkontos'),
-                          onTap: () => navigateToRoute(const GeneralLedgerAccountRoute()),
-                        ),
-                        ListTile(
-                          leading: const Icon(Icons.document_scanner),
-                          title: const Text('Eingangsrechnungen'),
-                          onTap: () => navigateToRoute(const IncomingInvoicesOverviewRoute()),
-                        ),
-                      ],
-                    ),
-                    ExpansionTile(
-                      leading: const Icon(Icons.settings),
-                      title: const Text('Einstellungen'),
-                      childrenPadding: const EdgeInsets.only(left: 20),
-                      children: [
-                        ListTile(
-                          leading: const Icon(Icons.percent),
-                          title: const Text('Steuerregeln'),
-                          onTap: () => navigateToRoute(const TaxRulesRoute()),
-                        ),
-                        ListTile(
-                          leading: const Icon(Icons.payment),
-                          title: const Text('Zahlungsarten'),
-                          onTap: () => navigateToRoute(const PaymentMethodRoute()),
-                        ),
-                        ListTile(
-                          leading: const Icon(Icons.local_shipping_outlined),
-                          title: const Text('Versanddienstleister'),
-                          onTap: () => navigateToRoute(const CarriersOverviewRoute()),
-                        ),
-                        ListTile(
-                          leading: const Icon(Icons.archive),
-                          title: const Text('Verpackungskartons'),
-                          onTap: () => navigateToRoute(const PackagingBoxesRoute()),
-                        ),
-                        ListTile(
-                          leading: const Icon(Icons.settings),
-                          title: const Text('Grundeinstellungen'),
-                          onTap: () => navigateToRoute(const MainSettingsRoute()),
-                        ),
-                      ],
-                    ),
-                    Gaps.h42,
-                  ],
-                ),
+    return Drawer(child: _AppDrawerContent(navigateToRoute: navigateToRoute));
+  }
+}
+
+class _AppDrawerContent extends StatelessWidget {
+  final void Function(PageRouteInfo route) navigateToRoute;
+
+  const _AppDrawerContent({required this.navigateToRoute});
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Column(
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  Gaps.h16,
+                  _MyDrawerTile(
+                    route: const HomeRoute(),
+                    icon: Icons.home,
+                    title: 'Startseite',
+                    navigateToRoute: navigateToRoute,
+                  ),
+                  _MyDrawerTile(
+                    route: const DashboardRoute(),
+                    icon: Icons.dashboard,
+                    title: 'Dashboard',
+                    navigateToRoute: navigateToRoute,
+                  ),
+                  _MyDrawerTile(
+                    route: const ProductsOverviewRoute(),
+                    icon: Icons.warehouse,
+                    title: 'Artikel',
+                    navigateToRoute: navigateToRoute,
+                  ),
+                  _MyDrawerTile(
+                    route: const CustomersOverviewRoute(),
+                    icon: Icons.person,
+                    title: 'Kunden',
+                    navigateToRoute: navigateToRoute,
+                  ),
+                  _MyDrawerExpansionTile(
+                    title: 'Einkauf / Buchhaltung',
+                    icon: Icons.account_balance,
+                    children: [
+                      _MyDrawerTile(
+                        route: const SuppliersOverviewRoute(),
+                        icon: Icons.person_4_outlined,
+                        title: 'Lieferanten',
+                        navigateToRoute: navigateToRoute,
+                      ),
+                      _MyDrawerTile(
+                        route: const ReordersOverviewRoute(),
+                        icon: Icons.dashboard_customize_rounded,
+                        title: 'Bestellungen',
+                        navigateToRoute: navigateToRoute,
+                      ),
+                    ],
+                  ),
+                  _MyDrawerExpansionTile(
+                    title: 'Lager',
+                    icon: Icons.warehouse,
+                    children: [
+                      _MyDrawerTile(
+                        route: const HomeRoute(),
+                        icon: Icons.subdirectory_arrow_right,
+                        title: 'Warenausgang',
+                        navigateToRoute: navigateToRoute,
+                      ),
+                      _MyDrawerTile(
+                        route: const ProductsBookingRoute(),
+                        icon: Icons.subdirectory_arrow_left,
+                        title: 'Wareneingang',
+                        navigateToRoute: navigateToRoute,
+                      ),
+                    ],
+                  ),
+                  _MyDrawerTile(
+                    route: const PackingStationOverviewRoute(),
+                    icon: Icons.delivery_dining,
+                    title: 'Packstation',
+                    navigateToRoute: navigateToRoute,
+                  ),
+                  _MyDrawerTile(
+                    route: const PosOverviewRoute(),
+                    icon: Icons.shopping_cart,
+                    title: 'POS',
+                    navigateToRoute: navigateToRoute,
+                  ),
+                  _MyDrawerExpansionTile(
+                    title: 'Dokumente',
+                    icon: Icons.receipt,
+                    children: [
+                      _MyDrawerTile(
+                        route: OffersOverviewRoute(receiptTyp: ReceiptType.offer.name),
+                        icon: Icons.receipt,
+                        title: 'Angebote',
+                        navigateToRoute: navigateToRoute,
+                      ),
+                      _MyDrawerTile(
+                        route: AppointmentsOverviewRoute(receiptTyp: ReceiptType.appointment.name),
+                        icon: Icons.receipt,
+                        title: 'Aufträge',
+                        navigateToRoute: navigateToRoute,
+                      ),
+                      _MyDrawerTile(
+                        route: DeliveryNotesOverviewRoute(receiptTyp: ReceiptType.deliveryNote.name),
+                        icon: Icons.receipt,
+                        title: 'Lieferscheine',
+                        navigateToRoute: navigateToRoute,
+                      ),
+                      _MyDrawerTile(
+                        route: InvoicesOverviewRoute(receiptTyp: ReceiptType.invoice.name),
+                        icon: Icons.receipt,
+                        title: 'Rechnungen',
+                        navigateToRoute: navigateToRoute,
+                      ),
+                    ],
+                  ),
+                  _MyDrawerTile(
+                    route: const ShippingLabelRoute(),
+                    icon: Icons.send,
+                    title: 'Versandlabel',
+                    navigateToRoute: navigateToRoute,
+                  ),
+                  _MyDrawerExpansionTile(
+                    title: 'E-Commerce',
+                    icon: Icons.maps_home_work_rounded,
+                    children: [
+                      _MyDrawerTile(
+                        route: const ProductImportRoute(),
+                        icon: Icons.import_export,
+                        title: 'Artikel importieren',
+                        navigateToRoute: navigateToRoute,
+                      ),
+                      _MyDrawerTile(
+                        route: const ProductExportRoute(),
+                        icon: Icons.import_export,
+                        title: 'Artikel exportieren',
+                        navigateToRoute: navigateToRoute,
+                      ),
+                      _MyDrawerTile(
+                        route: MarketplacesOverviewRoute(),
+                        icon: Icons.business,
+                        title: 'Marktplätze',
+                        navigateToRoute: navigateToRoute,
+                      ),
+                      _MyDrawerTile(
+                        route: const EMailAutomationRoute(),
+                        icon: Icons.mail,
+                        title: 'E-Mail Automatisierungen',
+                        navigateToRoute: navigateToRoute,
+                      ),
+                    ],
+                  ),
+                  _MyDrawerExpansionTile(
+                    title: 'Buchhaltung',
+                    icon: Icons.balance,
+                    children: [
+                      _MyDrawerTile(
+                        route: const GeneralLedgerAccountRoute(),
+                        icon: Icons.table_chart_outlined,
+                        title: 'Sachkontos',
+                        navigateToRoute: navigateToRoute,
+                      ),
+                      _MyDrawerTile(
+                        route: const IncomingInvoicesOverviewRoute(),
+                        icon: Icons.document_scanner,
+                        title: 'Eingangsrechnungen',
+                        navigateToRoute: navigateToRoute,
+                      ),
+                    ],
+                  ),
+                  _MyDrawerExpansionTile(
+                    title: 'Einstellungen',
+                    icon: Icons.settings,
+                    children: [
+                      _MyDrawerTile(
+                        route: const TaxRulesRoute(),
+                        icon: Icons.percent,
+                        title: 'Steuerregeln',
+                        navigateToRoute: navigateToRoute,
+                      ),
+                      _MyDrawerTile(
+                        route: const PaymentMethodRoute(),
+                        icon: Icons.payment,
+                        title: 'Zahlungsarten',
+                        navigateToRoute: navigateToRoute,
+                      ),
+                      _MyDrawerTile(
+                        route: const CarriersOverviewRoute(),
+                        icon: Icons.local_shipping_outlined,
+                        title: 'Versanddienstleister',
+                        navigateToRoute: navigateToRoute,
+                      ),
+                      _MyDrawerTile(
+                        route: const PackagingBoxesRoute(),
+                        icon: Icons.archive,
+                        title: 'Verpackungskartons',
+                        navigateToRoute: navigateToRoute,
+                      ),
+                      _MyDrawerTile(
+                        route: const MainSettingsRoute(),
+                        icon: Icons.settings,
+                        title: 'Grundeinstellungen',
+                        navigateToRoute: navigateToRoute,
+                      ),
+                    ],
+                  ),
+                  Gaps.h42,
+                ],
               ),
             ),
-            ListTile(
-              leading: const Icon(Icons.exit_to_app, color: CustomColors.todoScaleRedActive),
-              title: const Text('Abmelden'),
-              onTap: () => context.router.replaceAll([SplashRoute(comeFrom: ComeFromToSplashPage.appDrawer)]),
-            ),
-            Gaps.h16
-          ],
-        ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.exit_to_app, color: CustomColors.todoScaleRedActive),
+            title: const Text('Abmelden'),
+            onTap: () => context.router.replaceAll([SplashRoute(comeFrom: ComeFromToSplashPage.appDrawer)]),
+          ),
+          Gaps.h16
+        ],
       ),
+    );
+  }
+}
+
+class _MyDrawerTile extends StatelessWidget {
+  final PageRouteInfo<dynamic> route;
+  final IconData icon;
+  final String title;
+  final void Function(PageRouteInfo route) navigateToRoute;
+
+  const _MyDrawerTile({
+    required this.route,
+    required this.icon,
+    required this.title,
+    required this.navigateToRoute,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      selected: context.router.isRouteActive(route.routeName),
+      selectedTileColor: Theme.of(context).colorScheme.surfaceContainerHigh,
+      leading: Icon(icon),
+      title: Text(title, style: context.textTheme.bodyMedium),
+      onTap: () => navigateToRoute(route),
+    );
+  }
+}
+
+class _MyDrawerExpansionTile extends StatelessWidget {
+  final String title;
+  final IconData icon;
+  final List<Widget> children;
+
+  const _MyDrawerExpansionTile({
+    required this.title,
+    required this.icon,
+    required this.children,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ExpansionTile(
+      title: Text(title, style: context.textTheme.bodyMedium),
+      leading: Icon(icon),
+      childrenPadding: const EdgeInsets.only(left: 14),
+      children: children,
     );
   }
 }

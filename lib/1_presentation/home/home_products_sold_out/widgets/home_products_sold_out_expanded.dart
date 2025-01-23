@@ -16,8 +16,8 @@ class HomeProductsSoldOutExpanded extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dividerColor = Theme.of(context).dividerColor;
-    final screenWidth = MediaQuery.sizeOf(context).width;
-    final screenHeight = MediaQuery.sizeOf(context).height;
+    final screenWidth = context.screenWidth;
+    final screenHeight = context.screenHeight;
     final expandedHeight = screenHeight / 3;
 
     return BlocBuilder<HomeProductBloc, HomeProductState>(
@@ -151,7 +151,7 @@ class _CreateReorderDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.sizeOf(context).width;
+    final screenWidth = context.screenWidth;
     return Dialog(
       child: SizedBox(
         width: screenWidth > 700 ? 1000 : screenWidth,

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../2_application/database/main_settings/main_settings_bloc.dart';
-import '../../../../3_domain/entities/carrier/carrier.dart';
-import '../../../../3_domain/enums/enums.dart';
-import '../../../../constants.dart';
+import '/2_application/database/main_settings/main_settings_bloc.dart';
+import '/3_domain/entities/carrier/carrier.dart';
+import '/3_domain/enums/enums.dart';
+import '/constants.dart';
 import '../../../core/core.dart';
 import 'widgets/carrier_detail_automations_container.dart';
 import 'widgets/carrier_detail_credentials_card.dart';
@@ -17,7 +17,7 @@ class CarrierDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.sizeOf(context).width;
+    final screenWidth = context.screenWidth;
     final responsiveness = screenWidth > 700 ? Responsiveness.isTablet : Responsiveness.isMobil;
 
     return BlocBuilder<MainSettingsBloc, MainSettingsState>(

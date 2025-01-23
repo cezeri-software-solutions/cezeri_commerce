@@ -135,7 +135,7 @@ class _ProductImportScreenState extends State<ProductImportScreen> {
         child: BlocBuilder<MarketplaceBloc, MarketplaceState>(
           builder: (context, stateMarketplace) {
             final appBar = AppBar(title: const Text('Artikel Importieren'));
-            const drawer = AppDrawer();
+            final drawer = context.displayDrawer ? const AppDrawer() : null;
 
             if (stateMarketplace.isLoadingMarketplacesOnObserve) {
               return Scaffold(appBar: appBar, drawer: drawer, body: const Center(child: CircularProgressIndicator()));

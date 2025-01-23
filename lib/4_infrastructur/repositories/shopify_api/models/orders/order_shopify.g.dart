@@ -7,15 +7,15 @@ part of 'order_shopify.dart';
 // **************************************************************************
 
 OrderShopify _$OrderShopifyFromJson(Map<String, dynamic> json) => OrderShopify(
-      appId: (json['app_id'] as num).toInt(),
+      appId: (json['app_id'] as num?)?.toInt(),
       billingAddress: CustomerAddressShopify.fromJson(
           json['billing_address'] as Map<String, dynamic>),
-      browserIp: json['browser_ip'] as String,
+      browserIp: json['browser_ip'] as String?,
       buyerAcceptsMarketing: json['buyer_accepts_marketing'] as bool,
       cancelReason: json['cancel_reason'] as String?,
       cancelledAt: json['cancelled_at'] as String?,
       cartToken: json['cart_token'] as String?,
-      checkoutToken: json['checkout_token'] as String,
+      checkoutToken: json['checkout_token'] as String?,
       clientDetails: json['client_details'] as Map<String, dynamic>?,
       closedAt: json['closed_at'] as String?,
       company: json['company'] as Map<String, dynamic>?,
@@ -39,7 +39,7 @@ OrderShopify _$OrderShopifyFromJson(Map<String, dynamic> json) => OrderShopify(
       currentTotalTaxSet: json['current_total_tax_set'] as Map<String, dynamic>,
       customer: OrderCustomerShopify.fromJson(
           json['customer'] as Map<String, dynamic>),
-      customerLocale: json['customer_locale'] as String,
+      customerLocale: json['customer_locale'] as String?,
       discountApplications: (json['discount_applications'] as List<dynamic>)
           .map((e) => e as Map<String, dynamic>)
           .toList(),

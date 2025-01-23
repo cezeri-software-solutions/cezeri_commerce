@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../core/core.dart';
+
 class MyFormFieldContainer extends StatelessWidget {
   final Widget child;
   final EdgeInsetsGeometry? padding;
@@ -18,7 +20,7 @@ class MyFormFieldContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final double screenWidth = MediaQuery.sizeOf(context).width;
+    final screenWidth = context.screenWidth;
     final themeData = Theme.of(context);
     print(screenWidth);
     return SizedBox(

@@ -53,7 +53,7 @@ class ProductsBookingScreen extends StatelessWidget {
           ),
         ],
         child: Scaffold(
-          drawer: const AppDrawer(),
+          drawer: context.displayDrawer ? const AppDrawer() : null,
           appBar: AppBar(title: const Text('Wareneingang')),
           body: SafeArea(child: ProductsBookingPage(productsBookingBloc: productsBookingBloc)),
         ),

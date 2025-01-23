@@ -38,7 +38,7 @@ class MarketplacesOverviewPage extends StatelessWidget {
             ),
           ],
         );
-        const drawer = AppDrawer();
+        final drawer = context.displayDrawer ? const AppDrawer() : null;
 
         if (state.isLoadingMarketplacesOnObserve) {
           return Scaffold(appBar: appBar, drawer: drawer, body: const Center(child: CircularProgressIndicator()));
@@ -59,7 +59,14 @@ class MarketplacesOverviewPage extends StatelessWidget {
         return Scaffold(
           drawer: drawer,
           appBar: appBar,
-          body: Padding(padding: const EdgeInsets.all(padding), child: Wrap(spacing: 10, runSpacing: 10, children: markedplaceItems)),
+          body: SafeArea(
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(padding),
+                child: Wrap(spacing: 10, runSpacing: 10, children: markedplaceItems),
+              ),
+            ),
+          ),
         );
       },
     );
@@ -75,7 +82,7 @@ class _MarktplaceItemCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.sizeOf(context).width;
+    final screenWidth = context.screenWidth;
     return SizedBox(
       width: ResponsiveBreakpoints.of(context).largerThan(MOBILE) ? (screenWidth - (2.5 * padding)) / 2 : screenWidth,
       child: InkWell(

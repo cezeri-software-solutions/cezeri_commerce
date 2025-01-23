@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../3_domain/entities/product/product.dart';
 import '../../../../constants.dart';
+import '../../../core/core.dart';
 
 class PMEFailureSheet extends StatelessWidget {
   final List<Product> productsList;
@@ -10,7 +11,7 @@ class PMEFailureSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.sizeOf(context).width;
+    final screenWidth = context.screenWidth;
 
     return Dialog(
       child: SizedBox(
