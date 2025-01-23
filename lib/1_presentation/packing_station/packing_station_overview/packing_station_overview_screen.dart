@@ -85,7 +85,7 @@ class _PackingStationOverviewScreenState extends State<PackingStationOverviewScr
             final isTabletOrLarger = ResponsiveBreakpoints.of(context).largerOrEqualTo(TABLET);
 
             return Scaffold(
-              drawer: const AppDrawer(),
+              drawer: context.displayDrawer ? const AppDrawer() : null,
               appBar: AppBar(
                 title: const Text('Packtisch'),
                 actions: [

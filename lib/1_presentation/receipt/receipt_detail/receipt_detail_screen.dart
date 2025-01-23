@@ -5,10 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:printing/printing.dart';
 
-import '../../../2_application/database/receipt_detail/receipt_detail_bloc.dart';
-import '../../../2_application/database/receipt_detail_products/receipt_detail_products_bloc.dart';
-import '../../../injection.dart';
-import '../../../routes/router.gr.dart';
+import '/2_application/database/receipt_detail/receipt_detail_bloc.dart';
+import '/2_application/database/receipt_detail_products/receipt_detail_products_bloc.dart';
+import '/injection.dart';
+import '/routes/router.gr.dart';
 import '../../core/core.dart';
 import 'receipt_detail_page.dart';
 
@@ -20,20 +20,21 @@ class ReceiptDetailScreen extends StatefulWidget {
   final Receipt? newEmptyReceipt;
   final ReceiptType receiptTyp;
 
-  const ReceiptDetailScreen({super.key, required this.receiptId, required this.newEmptyReceipt, required this.receiptTyp});
+  const ReceiptDetailScreen({super.key, @PathParam('receiptId') required this.receiptId, required this.newEmptyReceipt, required this.receiptTyp});
 
   @override
   State<ReceiptDetailScreen> createState() => _ReceiptDetailScreenState();
 }
 
 class _ReceiptDetailScreenState extends State<ReceiptDetailScreen> with AutomaticKeepAliveClientMixin {
-  final receiptDetailBloc = sl<ReceiptDetailBloc>();
-
-  final receiptDetailProductsBloc = sl<ReceiptDetailProductsBloc>();
+  late final ReceiptDetailBloc receiptDetailBloc;
+  late final ReceiptDetailProductsBloc receiptDetailProductsBloc;
 
   @override
   void initState() {
     super.initState();
+    receiptDetailBloc = sl<ReceiptDetailBloc>();
+    receiptDetailProductsBloc = sl<ReceiptDetailProductsBloc>();
 
     if (widget.receiptId == null && widget.newEmptyReceipt != null) {
       receiptDetailBloc.add(ReceiptDetailSetEmptyReceiptEvent(newEmptyReceipt: widget.newEmptyReceipt!));
@@ -41,6 +42,13 @@ class _ReceiptDetailScreenState extends State<ReceiptDetailScreen> with Automati
     if (widget.receiptId != null && widget.newEmptyReceipt == null) {
       receiptDetailBloc.add(ReceiptDetailGetReceiptEvent(receiptId: widget.receiptId!, receiptType: widget.receiptTyp));
     }
+  }
+
+  @override
+  void dispose() {
+    receiptDetailBloc.close();
+    receiptDetailProductsBloc.close();
+    super.dispose();
   }
 
   @override

@@ -161,7 +161,7 @@ class _ReceiptsOverviewScreenState extends State<ReceiptsOverviewScreen> with Au
           builder: (context, state) {
             print(state.currentPage);
             return Scaffold(
-              drawer: const AppDrawer(),
+              drawer: context.displayDrawer ? const AppDrawer() : null,
               appBar: AppBar(
                 title: Text(
                   switch (widget.receiptType) {

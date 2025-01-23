@@ -37,7 +37,7 @@ class DashboardScreen extends StatelessWidget {
         child: BlocBuilder<DashboardBloc, DashboardState>(
           builder: (context, state) {
             return Scaffold(
-              drawer: const AppDrawer(),
+              drawer: context.displayDrawer ? const AppDrawer() : null,
               appBar: AppBar(
                 title: const Text('Dashboard'),
                 actions: [IconButton(onPressed: () => dashboardBloc.add(GetListOfStatDashboardsEvent()), icon: const Icon(Icons.refresh))],

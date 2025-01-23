@@ -47,7 +47,7 @@ class _IncomingInvoicesOverviewScreenState extends State<IncomingInvoicesOvervie
         child: BlocBuilder<IncomingInvoiceBloc, IncomingInvoiceState>(
           builder: (context, state) {
             return Scaffold(
-              drawer: const AppDrawer(),
+              drawer: context.displayDrawer ? const AppDrawer() : null,
               appBar: AppBar(
                   title: IncomingInvoicesAppBarTitle(listOfInvoices: state.listOfInvoices, selectedInvoices: state.selectedInvoices),
                   actions: [

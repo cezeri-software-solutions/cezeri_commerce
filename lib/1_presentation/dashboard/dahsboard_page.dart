@@ -26,8 +26,6 @@ class DashboardPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.sizeOf(context).width;
-
     return BlocBuilder<DashboardBloc, DashboardState>(
       bloc: dashboardBloc,
       builder: (context, state) {
@@ -80,8 +78,8 @@ class DashboardPage extends StatelessWidget {
                 padding: const EdgeInsets.all(16),
                 child: Wrap(
                   alignment: WrapAlignment.spaceBetween,
-                  spacing: screenWidth - ((screenWidth / 2 - 50) + (screenWidth / 2 - 50)) - 50,
-                  runSpacing: 18,
+                  spacing: 16,
+                  runSpacing: 16,
                   children: state.salesVolumeGroupedByMarketplaceAndCountry!.map((grouped) {
                     return _SalesVolumeGrouped(title: grouped.marketplace, listOfSalesVolumeGrouped: grouped.countries, dashboardState: state);
                   }).toList(),
@@ -335,8 +333,8 @@ class _SalesVolumePerBrand extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final screenHeight = MediaQuery.sizeOf(context).height;
-    final screenWidth = MediaQuery.sizeOf(context).width;
+    final screenHeight = context.screenHeight;
+    final screenWidth = context.screenWidth;
 
     return Column(
       children: [
@@ -432,8 +430,8 @@ class _SalesVolumeGrouped extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final screenHeight = MediaQuery.sizeOf(context).height;
-    final screenWidth = MediaQuery.sizeOf(context).width;
+    final screenHeight = context.screenHeight;
+    final screenWidth = context.screenWidth;
     final isTablet = ResponsiveBreakpoints.of(context).largerOrEqualTo(TABLET);
 
     return Card(
@@ -443,7 +441,7 @@ class _SalesVolumeGrouped extends StatelessWidget {
           Text(title, style: TextStyles.h2Bold),
           Gaps.h10,
           SizedBox(
-            width: isTablet ? screenWidth / 2 - 50 : screenWidth,
+            width: isTablet ? screenWidth / 2 - 32 : screenWidth,
             height: isTablet ? 350 : screenHeight / 2,
             child: SalesGroupedByCountry(
               listOfSalesVolumeGrouped: listOfSalesVolumeGrouped,

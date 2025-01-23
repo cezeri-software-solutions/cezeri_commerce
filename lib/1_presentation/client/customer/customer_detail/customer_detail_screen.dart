@@ -14,7 +14,7 @@ enum CustomerCreateOrEdit { create, edit }
 class CustomerDetailScreen extends StatefulWidget {
   final String? customerId;
 
-  const CustomerDetailScreen({super.key, required this.customerId});
+  const CustomerDetailScreen({super.key, @PathParam('customerId') required this.customerId});
 
   @override
   State<CustomerDetailScreen> createState() => _CustomerDetailScreenState();

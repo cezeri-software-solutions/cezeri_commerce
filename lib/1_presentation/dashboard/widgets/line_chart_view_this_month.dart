@@ -41,7 +41,7 @@ class _LineChartViewThisMonthState extends State<LineChartViewThisMonth> {
   @override
   Widget build(BuildContext context) {
     final themeData = Theme.of(context);
-    final screenWidth = MediaQuery.sizeOf(context).width;
+    final screenWidth = context.screenWidth;
     final isTabletOrLarger = ResponsiveBreakpoints.of(context).largerOrEqualTo(TABLET);
 
     return AspectRatio(

@@ -3,11 +3,12 @@ import 'package:cezeri_commerce/routes/router.gr.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../2_application/database/main_settings/main_settings_bloc.dart';
-import '../../../../3_domain/entities/carrier/carrier.dart';
-import '../../../../3_domain/entities/settings/main_settings.dart';
-import '../../../../constants.dart';
+import '/2_application/database/main_settings/main_settings_bloc.dart';
+import '/3_domain/entities/carrier/carrier.dart';
+import '/3_domain/entities/settings/main_settings.dart';
+import '/constants.dart';
 import '../../../app_drawer.dart';
+import '../../../core/core.dart';
 
 class CarriersOverviewPage extends StatelessWidget {
   const CarriersOverviewPage({super.key});
@@ -21,7 +22,7 @@ class CarriersOverviewPage extends StatelessWidget {
           actions: [IconButton(onPressed: () => context.read<MainSettingsBloc>().add(GetMainSettingsEvent()), icon: const Icon(Icons.refresh))],
         );
 
-        const drawer = AppDrawer();
+        final drawer = context.displayDrawer ? const AppDrawer() : null;
 
         if ((state.mainSettings == null && state.firebaseFailure == null) || state.isLoadingMainSettingsOnObserve) {
           return Scaffold(appBar: appBar, drawer: drawer, body: const Center(child: CircularProgressIndicator()));

@@ -20,8 +20,6 @@ extension OrderFulfillmentStatusExtension on OrderShopifyFulfillmentStatus {
         return 'partial';
       case OrderShopifyFulfillmentStatus.restocked:
         return 'restocked';
-      default:
-        return 'Unknown';
     }
   }
 }
@@ -29,11 +27,11 @@ extension OrderFulfillmentStatusExtension on OrderShopifyFulfillmentStatus {
 @JsonSerializable(explicitToJson: true)
 class OrderShopify extends Equatable {
   @JsonKey(name: 'app_id')
-  final int appId;
+  final int? appId;
   @JsonKey(name: 'billing_address')
   final CustomerAddressShopify billingAddress;
   @JsonKey(name: 'browser_ip')
-  final String browserIp;
+  final String? browserIp;
   @JsonKey(name: 'buyer_accepts_marketing')
   final bool buyerAcceptsMarketing;
   @JsonKey(name: 'cancel_reason')
@@ -43,7 +41,7 @@ class OrderShopify extends Equatable {
   @JsonKey(name: 'cart_token')
   final String? cartToken;
   @JsonKey(name: 'checkout_token')
-  final String checkoutToken;
+  final String? checkoutToken;
   @JsonKey(name: 'client_details')
   final Map<String, dynamic>? clientDetails;
   @JsonKey(name: 'closed_at')
@@ -79,7 +77,7 @@ class OrderShopify extends Equatable {
   @JsonKey(name: 'customer')
   final OrderCustomerShopify customer;
   @JsonKey(name: 'customer_locale')
-  final String customerLocale;
+  final String? customerLocale;
   @JsonKey(name: 'discount_applications')
   final List<Map<String, dynamic>> discountApplications;
   @JsonKey(name: 'discount_codes')
@@ -190,24 +188,24 @@ class OrderShopify extends Equatable {
   final String? orderStatusUrl;
 
   const OrderShopify({
-    required this.appId,
+    this.appId,
     required this.billingAddress,
-    required this.browserIp,
+    this.browserIp,
     required this.buyerAcceptsMarketing,
-    required this.cancelReason,
+    this.cancelReason,
     this.cancelledAt,
-    required this.cartToken,
-    required this.checkoutToken,
+    this.cartToken,
+    this.checkoutToken,
     this.clientDetails,
     this.closedAt,
     this.company,
     required this.confirmationNumber,
     required this.createdAt,
     required this.currency,
-    required this.currentTotalAdditionalFeesSet,
+    this.currentTotalAdditionalFeesSet,
     required this.currentTotalDiscounts,
     required this.currentTotalDiscountsSet,
-    required this.currentTotalDutiesSet,
+    this.currentTotalDutiesSet,
     required this.currentTotalPrice,
     required this.currentTotalPriceSet,
     required this.currentSubtotalPrice,
@@ -215,30 +213,30 @@ class OrderShopify extends Equatable {
     required this.currentTotalTax,
     required this.currentTotalTaxSet,
     required this.customer,
-    required this.customerLocale,
+    this.customerLocale,
     required this.discountApplications,
     required this.discountCodes,
-    required this.email,
+    this.email,
     required this.estimatedTaxes,
     required this.financialStatus,
     required this.fulfillments,
-    required this.fulfillmentStatus,
+    this.fulfillmentStatus,
     required this.id,
     this.landingSite,
     required this.lineItems,
-    required this.locationId,
-    required this.merchantOfRecordAppId,
+    this.locationId,
+    this.merchantOfRecordAppId,
     required this.name,
-    required this.note,
+    this.note,
     required this.noteAttributes,
     required this.number,
     required this.orderNumber,
-    required this.originalTotalAdditionalFeesSet,
-    required this.originalTotalDutiesSet,
+    this.originalTotalAdditionalFeesSet,
+    this.originalTotalDutiesSet,
     this.paymentTerms,
     required this.paymentGatewayNames,
-    required this.phone,
-    required this.poNumber,
+    this.phone,
+    this.poNumber,
     required this.presentmentCurrency,
     required this.processedAt,
     this.referringSite,
@@ -247,7 +245,7 @@ class OrderShopify extends Equatable {
     required this.shippingLines,
     required this.sourceName,
     this.sourceIdentifier,
-    required this.sourceUrl,
+    this.sourceUrl,
     required this.subtotalPrice,
     required this.subtotalPriceSet,
     required this.tags,
@@ -268,12 +266,13 @@ class OrderShopify extends Equatable {
     required this.totalTipReceived,
     required this.totalWeight,
     required this.updatedAt,
-    required this.userId,
+    this.userId,
     this.orderStatusUrl,
   });
 
   factory OrderShopify.fromJson(Map<String, dynamic> json) => _$OrderShopifyFromJson(json);
   Map<String, dynamic> toJson() => _$OrderShopifyToJson(this);
+  
   static OrderShopifyFinancialStatus _financialStatusFromJson(String value) {
     switch (value) {
       case 'pending':
@@ -325,8 +324,6 @@ class OrderShopify extends Equatable {
         return 'partial';
       case OrderShopifyFulfillmentStatus.restocked:
         return 'restocked';
-      default:
-        return null;
     }
   }
 

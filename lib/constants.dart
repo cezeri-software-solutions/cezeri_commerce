@@ -10,6 +10,14 @@ class Constants {
       'AAAA_y82iTQ:APA91bHtQg3_a6ODRYo_rD5UFiA2NK2ZJVUZUBMkN650CDxudghd8SZi4-r4LPIOG5DQqsGqCS1_kmZnm3K1UQjk7cxbHF-hjhOfazjB-gf8KTUq7A266sovRsY9qoIlQFzpc6W2Zu53';
 }
 
+//* FixSizes
+class FixSizes {
+  FixSizes._();
+
+  static const double persistantWidth = 800;
+  static const double drawerWidth = 240;
+}
+
 class TextStyles {
   TextStyles._();
 

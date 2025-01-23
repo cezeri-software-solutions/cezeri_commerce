@@ -33,7 +33,7 @@ class ReordersOverviewPage extends StatelessWidget {
           return const Expanded(child: Center(child: Text('Es sind keine Nachbestellungen vorhanden.')));
         }
 
-        final screenWidth = MediaQuery.sizeOf(context).width;
+        final screenWidth = context.screenWidth;
 
         Table buildReorderTable(List<Reorder> reorderList) {
           final paddingRight = screenWidth / 18;

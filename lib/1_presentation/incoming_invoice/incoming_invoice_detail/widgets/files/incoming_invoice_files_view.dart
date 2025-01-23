@@ -22,7 +22,7 @@ class IncomingInvoiceFilesView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.sizeOf(context).width;
+    final screenWidth = context.screenWidth;
     final containerWidth = (screenWidth - padding * 2) - 20;
     final isMobile = ResponsiveBreakpoints.of(context).equals(MOBILE);
 

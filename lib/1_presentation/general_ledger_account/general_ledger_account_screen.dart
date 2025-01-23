@@ -76,7 +76,7 @@ class _GeneralLedgerAccountScreenState extends State<GeneralLedgerAccountScreen>
         ],
         child: BlocBuilder<GeneralLedgerAccountBloc, GeneralLedgerAccountState>(
           builder: (context, state) {
-            const drawer = AppDrawer();
+            final drawer = context.displayDrawer ? const AppDrawer() : null;
             final appbar = AppBar(
               title: const Text('Sachkontos'),
               actions: [IconButton(onPressed: () => gLAccountBloc.add(GetAllGLAccountsEvent()), icon: const Icon(Icons.refresh))],

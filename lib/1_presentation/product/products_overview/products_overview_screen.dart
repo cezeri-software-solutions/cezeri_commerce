@@ -129,7 +129,7 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> with Au
         child: BlocBuilder<ProductBloc, ProductState>(
           builder: (context, state) {
             return Scaffold(
-              drawer: const AppDrawer(),
+              drawer: context.displayDrawer ? const AppDrawer() : null,
               appBar: AppBar(
                 title: getProductsAppBarTitle(context, state.listOfFilteredProducts, state.selectedProducts),
                 actions: [

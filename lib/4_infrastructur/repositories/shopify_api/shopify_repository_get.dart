@@ -131,6 +131,8 @@ class ShopifyRepositoryGet {
         }),
       );
 
+      print(response.data);
+
       final responseData = response.data['orders'];
       final ordersShopify = List<OrderShopify>.from(responseData.map((model) => OrderShopify.fromJson(model)));
       return Right(ordersShopify);

@@ -17,7 +17,7 @@ enum ProductCreateOrEdit { create, edit }
 class ProductDetailScreen extends StatefulWidget {
   final String? productId;
 
-  const ProductDetailScreen({super.key, this.productId});
+  const ProductDetailScreen({super.key, @PathParam('productId') this.productId});
 
   @override
   State<ProductDetailScreen> createState() => _ProductDetailScreenState();

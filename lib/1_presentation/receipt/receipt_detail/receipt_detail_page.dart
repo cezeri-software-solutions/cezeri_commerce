@@ -50,7 +50,7 @@ class _ReceiptDetailPageState extends State<ReceiptDetailPage> {
       bloc: widget.receiptDetailBloc,
       builder: (context, state) {
         final mainSettings = context.read<MainSettingsBloc>().state.mainSettings!;
-        final screenWidth = MediaQuery.sizeOf(context).width;
+        final screenWidth = context.screenWidth;
         final isTabletOrLarger = ResponsiveBreakpoints.of(context).largerOrEqualTo(TABLET);
 
         final appBar = AppBar(

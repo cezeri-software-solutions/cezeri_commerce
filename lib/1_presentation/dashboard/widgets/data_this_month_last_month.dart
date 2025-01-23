@@ -16,7 +16,7 @@ class DataThisMonthLastMonth extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.sizeOf(context).width;
+    final screenWidth = context.screenWidth;
     final isTabletOrLarger = ResponsiveBreakpoints.of(context).largerOrEqualTo(TABLET);
     final padding = isTabletOrLarger ? 20.0 : 12.0;
     final defStatContainerWidth = isTabletOrLarger ? screenWidth / 5 - padding : screenWidth / 2 - padding - padding / 2;

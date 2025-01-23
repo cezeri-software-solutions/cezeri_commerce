@@ -4,8 +4,7 @@ import 'package:flutter/material.dart';
 import '/constants.dart';
 import '../../../3_domain/entities/product/product.dart';
 import '../../../routes/router.gr.dart';
-import '../widgets/my_avatar.dart';
-import '../widgets/my_outlined_button.dart';
+import '../../core/core.dart';
 
 Future<void> showMyDialogLoading({required BuildContext context, String text = '', bool canPop = false}) async {
   await showDialog<void>(
@@ -195,7 +194,7 @@ Future<void> showMyDialogProducts({
   required List<Product> productsList,
   bool canPop = true,
 }) async {
-  final screenWidth = MediaQuery.sizeOf(context).width;
+  final screenWidth = context.screenWidth;
 
   await showDialog<void>(
     context: context,

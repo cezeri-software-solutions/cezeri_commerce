@@ -53,7 +53,7 @@ class ReordersOverviewScreen extends StatelessWidget {
         child: BlocBuilder<ReorderBloc, ReorderState>(
           builder: (context, state) {
             return Scaffold(
-              drawer: const AppDrawer(),
+              drawer: context.displayDrawer ? const AppDrawer() : null,
               appBar: AppBar(
                 title: Text(state.listOfFilteredReorders != null ? 'Nachbestellungen (${state.listOfFilteredReorders!.length})' : 'Nachbestellungen'),
                 actions: [

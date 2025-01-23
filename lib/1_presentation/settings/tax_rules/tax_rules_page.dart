@@ -25,7 +25,7 @@ class _TaxRulesPageState extends State<TaxRulesPage> {
           actions: [IconButton(onPressed: () => context.read<MainSettingsBloc>().add(GetMainSettingsEvent()), icon: const Icon(Icons.refresh))],
         );
 
-        const drawer = AppDrawer();
+        final drawer = context.displayDrawer ? const AppDrawer() : null;
 
         if ((state.mainSettings == null && state.firebaseFailure == null) || state.isLoadingMainSettingsOnObserve) {
           return Scaffold(appBar: appBar, drawer: drawer, body: const Center(child: CircularProgressIndicator()));

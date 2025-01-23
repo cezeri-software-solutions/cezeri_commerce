@@ -63,7 +63,7 @@ class _ProductExportScreenState extends State<ProductExportScreen> with Automati
         child: BlocBuilder<ProductExportBloc, ProductExportState>(
           builder: (context, state) {
             return Scaffold(
-              drawer: const AppDrawer(),
+              drawer: context.displayDrawer ? const AppDrawer() : null,
               appBar: AppBar(
                 title: getProductsAppBarTitle(context, state.listOfFilteredProducts, state.selectedProducts),
                 actions: [

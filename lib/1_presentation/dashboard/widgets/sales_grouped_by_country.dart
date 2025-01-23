@@ -28,7 +28,7 @@ class _SalesGroupedByCountryState extends State<SalesGroupedByCountry> {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.sizeOf(context).width;
+    final screenWidth = context.screenWidth;
 
     if (widget.isLoadingProductSalesByBrand) return const Center(child: MyCircularProgressIndicator());
     if (widget.isFailureOnGroups) return const Center(child: Text('Beim Laden der Daten ist ein Fehler aufgetreten!'));

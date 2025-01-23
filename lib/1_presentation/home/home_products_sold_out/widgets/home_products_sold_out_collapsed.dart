@@ -13,7 +13,7 @@ class HomeProductsSoldOutCollapsed extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.sizeOf(context).width;
+    final screenWidth = context.screenWidth;
     final responsiveness = screenWidth > 700 ? Responsiveness.isTablet : Responsiveness.isMobil;
 
     return BlocBuilder<HomeProductBloc, HomeProductState>(

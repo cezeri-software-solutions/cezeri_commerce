@@ -1150,3 +1150,28 @@ class Receipt extends Equatable {
   @override
   bool get stringify => true;
 }
+
+extension ConvertReceiptTypeStringToEnum on String {
+  ReceiptType toEnumRT() {
+    return switch (this) {
+      'appointment' => ReceiptType.appointment,
+      'offer' => ReceiptType.offer,
+      'deliveryNote' => ReceiptType.deliveryNote,
+      'invoice' => ReceiptType.invoice,
+      'credit' => ReceiptType.credit,
+      _ => ReceiptType.appointment,
+    };
+  }
+}
+
+extension ConvertReceiptTypeStringToJsonString on ReceiptType {
+  String toJsonString() {
+    return switch (this) {
+      ReceiptType.appointment => 'appointment',
+      ReceiptType.offer => 'offer',
+      ReceiptType.deliveryNote => 'deliveryNote',
+      ReceiptType.invoice => 'invoice',
+      ReceiptType.credit => 'credit',
+    };
+  }
+}
